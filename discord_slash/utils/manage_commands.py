@@ -8,12 +8,14 @@ async def add_slash_command(bot_id,
                             description: str,
                             options: list = None):
     url = f"https://discord.com/api/v8/applications/{bot_id}"
-    url += "/commands" if guild_id else f"/guilds/{guild_id}/commands"
+    url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
     base = {
         "name": cmd_name,
         "description": description,
         "options": options if options else []
     }
+    print(url)
+    print(base)
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers={"Authorization": f"Bot {bot_token}"}, json=base) as resp:
@@ -25,7 +27,7 @@ async def remove_slash_command(bot_id,
                                guild_id,
                                cmd_id):
     url = f"https://discord.com/api/v8/applications/{bot_id}"
-    url += "/commands" if guild_id else f"/guilds/{guild_id}/commands"
+    url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
     url += f"/{cmd_id}"
     async with aiohttp.ClientSession() as session:
         async with session.delete(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
@@ -46,8 +48,8 @@ def create_option(name: str,
     }
 
 
-def create_choices(value: str, description: str):
+def create_choices(value: str, name: str):
     return {
         "value": value,
-        "name": description
+        "name": name
     }

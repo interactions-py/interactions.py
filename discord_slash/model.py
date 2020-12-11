@@ -22,6 +22,8 @@ class SlashContext:
                    text: str = "",
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False):
+        if embeds and len(embeds) > 10:
+            raise
         base = {
             "type": send_type,
             "data": {

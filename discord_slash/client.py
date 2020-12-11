@@ -1,3 +1,4 @@
+import logging
 import typing
 import discord
 from discord.ext import commands
@@ -15,11 +16,14 @@ class SlashCommand:
         self._discord = client
         self.commands = {}
         self.http = http.SlashCommandRequest()
+        self.logger = logging.getLogger("discord_slash")
         self._discord.add_listener(self.on_socket_response)
 
     def slash(self, name=None):
         def wrapper(cmd):
             self.commands[cmd.__name__ if not name else name] = cmd
+            self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
+            return cmd
         return wrapper
 
     async def on_socket_response(self, msg):
@@ -27,5 +31,6 @@ class SlashCommand:
             return
         to_use = msg["d"]
         if to_use["data"]["name"] in self.commands.keys():
+            args = [x["value"] for x in to_use["data"]["options"]] if "options" in to_use["data"] else []
             ctx = model.SlashContext(self.http, to_use, self._discord)
-            await self.commands[to_use["data"]["name"]](ctx)
+            await self.commands[to_use["data"]["name"]](ctx, *args)

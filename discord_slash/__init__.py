@@ -23,5 +23,7 @@ SOFTWARE.
 """
 
 from .client import SlashCommand
+from .model import SlashContext
+from .utils import manage_commands
 
 __version__ = "0.1.0"
