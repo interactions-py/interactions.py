@@ -22,8 +22,7 @@ bot.run("discord_token")
 ```
 
 ## Installation
-For now clone this repository and use `discod_slash` folder.  
-(Maybe will upload this at PyPi soon)
+`pip install -U discord-py-slash-command`
 
 ## DOCS
 https://discord-py-slash-command.readthedocs.io/en/latest/  
