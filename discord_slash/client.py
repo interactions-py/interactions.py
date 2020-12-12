@@ -26,8 +26,13 @@ class SlashCommand:
             return cmd
         return wrapper
 
+    def process_options(self, options: dict) -> list:
+        for x in options:
+            pass
+        return []
+
     async def on_socket_response(self, msg):
-        if not msg["t"] == "INTERACTION_CREATE":
+        if msg["t"] != "INTERACTION_CREATE":
             return
         to_use = msg["d"]
         if to_use["data"]["name"] in self.commands.keys():

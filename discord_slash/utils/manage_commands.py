@@ -14,8 +14,6 @@ async def add_slash_command(bot_id,
         "description": description,
         "options": options if options else []
     }
-    print(url)
-    print(base)
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers={"Authorization": f"Bot {bot_token}"}, json=base) as resp:

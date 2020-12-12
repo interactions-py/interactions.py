@@ -26,4 +26,5 @@ For now clone this repository and use `discod_slash` folder.
 (Maybe will upload this at PyPi soon)
 
 ## DOCS
-Not yet ready.
+Not yet ready.  
+See [discord-api-docs](https://github.com/discord/discord-api-docs/blob/feature/interactions/docs/interactions/Slash_Commands.md) for some more information.
