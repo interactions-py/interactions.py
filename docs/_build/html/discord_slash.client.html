@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>discord_slash.client module &mdash; discord-py-slash-command  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="discord_slash.error module" href="discord_slash.error.html" />
+    <link rel="prev" title="discord_slash package" href="discord_slash.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> discord-py-slash-command
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="discord_slash.html">discord_slash package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="discord_slash.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">discord_slash.client module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.error.html">discord_slash.error module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.http.html">discord_slash.http module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.model.html">discord_slash.model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="discord_slash.html#module-discord_slash">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="discord_slash.utils.html">discord_slash.utils package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">discord-py-slash-command</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="discord_slash.html">discord_slash package</a> &raquo;</li>
+        
+      <li>discord_slash.client module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/discord_slash.client.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-discord_slash.client">
+<span id="discord-slash-client-module"></span><h1>discord_slash.client module<a class="headerlink" href="#module-discord_slash.client" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="discord_slash.client.SlashCommand">
+<em class="property">class </em><code class="sig-prename descclassname">discord_slash.client.</code><code class="sig-name descname">SlashCommand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">client</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>discord.client.Client<span class="p">, </span>discord.ext.commands.bot.Bot<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.client.SlashCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Slash command extension class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>client</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://discordpy.readthedocs.io/en/latest/api.html#discord.Client" title="(in discord.py v1.6.0a)"><em>discord.Client</em></a><em>, </em><a class="reference external" href="https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot" title="(in discord.py v1.6.0a)"><em>discord.ext.commands.Bot</em></a><em>]</em>) – discord.py Bot class. Although it accepts <a class="reference external" href="https://discordpy.readthedocs.io/en/latest/api.html#discord.Client" title="(in discord.py v1.6.0a)"><code class="xref py py-class docutils literal notranslate"><span class="pre">discord.Client</span></code></a> at init, using it is not allowed since <a class="reference external" href="https://discordpy.readthedocs.io/en/latest/api.html#discord.Client" title="(in discord.py v1.6.0a)"><code class="xref py py-class docutils literal notranslate"><span class="pre">discord.Client</span></code></a> doesn’t support <code class="xref py py-func docutils literal notranslate"><span class="pre">add_listener()</span></code>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="discord_slash.client.SlashCommand.on_socket_response">
+<em class="property">async </em><code class="sig-name descname">on_socket_response</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.client.SlashCommand.on_socket_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>This event listener is automatically registered at initialization of this class.</p>
+<p>DO NOT MANUALLY REGISTER, OVERRIDE, OR WHATEVER ACTION TO THIS COROUTINE UNLESS YOU KNOW WHAT YOU ARE DOING.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> – Gateway message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="discord_slash.client.SlashCommand.process_options">
+<code class="sig-name descname">process_options</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">options</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span> &#x2192; list<a class="headerlink" href="#discord_slash.client.SlashCommand.process_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not ready.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – Dict of options.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">NotImplementedError</span></code> - This is still not implemented.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="discord_slash.client.SlashCommand.slash">
+<code class="sig-name descname">slash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.client.SlashCommand.slash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator that registers coroutine as a slash command.</p>
+<p>1 arg is required for ctx(<a class="reference internal" href="discord_slash.model.html#discord_slash.model.SlashContext" title="discord_slash.model.SlashContext"><code class="xref py py-func docutils literal notranslate"><span class="pre">discord_slash.model.SlashContext()</span></code></a>), and if your slash command has some args, then those args are also required.</p>
+<p>All args are passed in order.</p>
+<p>Note that Role, User, and Channel types are passed as id, since API doesn’t give type of the option for now.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – Name of the slash command.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="discord_slash.error.html" class="btn btn-neutral float-right" title="discord_slash.error module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="discord_slash.html" class="btn btn-neutral float-left" title="discord_slash package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, eunwoo1104
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -5,6 +5,10 @@ from . import http
 
 
 class SlashContext:
+    """
+    Context of the slash command.\n
+    Kinda similar with discord.ext.commands.Context.
+    """
     def __init__(self,
                  _http: http.SlashCommandRequest,
                  _json: dict,
@@ -23,6 +27,19 @@ class SlashContext:
                    text: str = "",
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False):
+        """
+        Sends response of the slash command.
+
+        :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default `4`.
+        :type send_type: int
+        :param text: Text of the response. Can be `None`.
+        :type text: str
+        :param embeds: Embeds of the response. Maximum 10, can be empty.
+        :type embeds: List[discord.Embed]
+        :param tts: Whether to speak message using tts. Default `False`.
+        :type tts: bool
+        :return: `None`
+        """
         if embeds and len(embeds) > 10:
             raise
         base = {
