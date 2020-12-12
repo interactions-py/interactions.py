@@ -16,6 +16,7 @@ class SlashContext:
         self._http = _http
         self.guild: discord.Guild = _discord.get_guild(int(_json["guild_id"]))
         self.author: discord.Member = self.guild.get_member(int(_json["member"]["user"]["id"]))
+        self.channel = self.guild.get_channel(int(_json["channel_id"]))
 
     async def send(self,
                    send_type: int = 4,
