@@ -11,8 +11,8 @@ class SlashContext:
                  _discord: commands.Bot):
         self.__token = _json["token"]
         self.name = _json["data"]["name"]
-        self.__id = _json["id"]
-        self.id = _json["data"]["id"]
+        self.id = _json["id"]
+        self.command_id = _json["data"]["id"]
         self._http = _http
         self.guild: discord.Guild = _discord.get_guild(int(_json["guild_id"]))
         self.author: discord.Member = self.guild.get_member(int(_json["member"]["user"]["id"]))
@@ -34,7 +34,7 @@ class SlashContext:
                 "allowed_mentions": []
             }
         }
-        await self._http.post(base, self.__id, self.__token)
+        await self._http.post(base, self.id, self.__token)
 
 
 """
