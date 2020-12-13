@@ -15,7 +15,7 @@ class SlashCommandRequest:
         :param _id: Command message id.
         :param token: Command message token.
         :return: True if succeeded.
-        :raises: :class:`error.RequestFailure` - Requesting to API has failed.
+        :raises: :class:`.error.RequestFailure` - Requesting to API has failed.
         """
         req_url = f"https://discord.com/api/v8/interactions/{_id}/{token}/callback"
         async with aiohttp.ClientSession() as session:

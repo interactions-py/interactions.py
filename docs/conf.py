@@ -47,7 +47,7 @@ language = 'en'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', "test.py", ".idea", "setup.py"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -64,5 +64,6 @@ html_static_path = ['_static']
 
 # Intersphinx
 intersphinx_mapping = {
+    'py': ('https://docs.python.org/3', None),
     'discord': ("https://discordpy.readthedocs.io/en/latest/", None)
 }

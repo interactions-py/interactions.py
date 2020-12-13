@@ -8,6 +8,14 @@ class SlashContext:
     """
     Context of the slash command.\n
     Kinda similar with discord.ext.commands.Context.
+
+    :ivar name: Name of the command.
+    :ivar id: ID of the command message.
+    :ivar command_id: ID of the command.
+    :ivar _http: :class:`.http.SlashCommandRequest` of the client.
+    :ivar guild: :class:`discord.Guild` instance of the command message.
+    :ivar author: :class:`discord.Member` instance representing author of the command message.
+    :ivar channel: :class:`discord.TextChannel` instance representing channel of the command message.
     """
     def __init__(self,
                  _http: http.SlashCommandRequest,

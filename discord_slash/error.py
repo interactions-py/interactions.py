@@ -9,6 +9,9 @@ class SlashCommandError(Exception):
 class RequestFailure(SlashCommandError):
     """
     Request to Discord API has failed.
+
+    :ivar status: Status code of failed response.
+    :ivar msg: Message of failed response.
     """
     def __init__(self, status: int, msg: str):
         self.status = status

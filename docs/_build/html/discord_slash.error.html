@@ -35,7 +35,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="discord_slash.http module" href="discord_slash.http.html" />
+    <link rel="prev" title="discord_slash.client module" href="discord_slash.client.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,11 +82,22 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">discord_slash.error module</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="discord_slash.html">discord_slash package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="discord_slash.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.client.html">discord_slash.client module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">discord_slash.error module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.http.html">discord_slash.http module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.model.html">discord_slash.model module</a></li>
 </ul>
-</div>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="discord_slash.html#module-discord_slash">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="discord_slash.utils.html">discord_slash.utils package</a></li>
+</ul>
+
             
           
         </div>
@@ -129,6 +142,8 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="discord_slash.html">discord_slash package</a> &raquo;</li>
+        
       <li>discord_slash.error module</li>
     
     
@@ -152,22 +167,30 @@
 <span id="discord-slash-error-module"></span><h1>discord_slash.error module<a class="headerlink" href="#module-discord_slash.error" title="Permalink to this headline">¶</a></h1>
 <dl class="py exception">
 <dt id="discord_slash.error.IncorrectFormat">
-<em class="property">exception </em><code class="sig-prename descclassname">discord_slash.error.</code><code class="sig-name descname">IncorrectFormat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.error.IncorrectFormat" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">discord_slash.error.</code><code class="sig-name descname">IncorrectFormat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.error.IncorrectFormat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#discord_slash.error.SlashCommandError" title="discord_slash.error.SlashCommandError"><code class="xref py py-class docutils literal notranslate"><span class="pre">discord_slash.error.SlashCommandError</span></code></a></p>
 <p>Some formats are incorrect. See Discord API DOCS for proper format.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="discord_slash.error.RequestFailure">
-<em class="property">exception </em><code class="sig-prename descclassname">discord_slash.error.</code><code class="sig-name descname">RequestFailure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">msg</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.error.RequestFailure" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">discord_slash.error.</code><code class="sig-name descname">RequestFailure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">msg</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.error.RequestFailure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#discord_slash.error.SlashCommandError" title="discord_slash.error.SlashCommandError"><code class="xref py py-class docutils literal notranslate"><span class="pre">discord_slash.error.SlashCommandError</span></code></a></p>
 <p>Request to Discord API has failed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> – Status code of failed response.</p></li>
+<li><p><strong>msg</strong> – Message of failed response.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="discord_slash.error.SlashCommandError">
 <em class="property">exception </em><code class="sig-prename descclassname">discord_slash.error.</code><code class="sig-name descname">SlashCommandError</code><a class="headerlink" href="#discord_slash.error.SlashCommandError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>All exceptions of this extension can be captured with this.
 Note that discord.py doesn’t trigger <cite>on_command_error</cite> event.</p>
 </dd></dl>
@@ -179,6 +202,15 @@ Note that discord.py doesn’t trigger <cite>on_command_error</cite> event.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="discord_slash.http.html" class="btn btn-neutral float-right" title="discord_slash.http module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="discord_slash.client.html" class="btn btn-neutral float-left" title="discord_slash.client module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

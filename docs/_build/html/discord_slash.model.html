@@ -35,7 +35,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="discord_slash.utils package" href="discord_slash.utils.html" />
+    <link rel="prev" title="discord_slash.http module" href="discord_slash.http.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,11 +82,22 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">discord_slash.model module</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="discord_slash.html">discord_slash package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="discord_slash.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.client.html">discord_slash.client module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.error.html">discord_slash.error module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="discord_slash.http.html">discord_slash.http module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">discord_slash.model module</a></li>
 </ul>
-</div>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="discord_slash.html#module-discord_slash">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="discord_slash.utils.html">discord_slash.utils package</a></li>
+</ul>
+
             
           
         </div>
@@ -129,6 +142,8 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="discord_slash.html">discord_slash package</a> &raquo;</li>
+        
       <li>discord_slash.model module</li>
     
     
@@ -152,21 +167,34 @@
 <span id="discord-slash-model-module"></span><h1>discord_slash.model module<a class="headerlink" href="#module-discord_slash.model" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="discord_slash.model.SlashContext">
-<em class="property">class </em><code class="sig-prename descclassname">discord_slash.model.</code><code class="sig-name descname">SlashContext</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_http</span><span class="p">:</span> <span class="n"><a class="reference internal" href="discord_slash.http.html#discord_slash.http.SlashCommandRequest" title="discord_slash.http.SlashCommandRequest">discord_slash.http.SlashCommandRequest</a></span></em>, <em class="sig-param"><span class="n">_json</span><span class="p">:</span> <span class="n">dict</span></em>, <em class="sig-param"><span class="n">_discord</span><span class="p">:</span> <span class="n">discord.ext.commands.bot.Bot</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.model.SlashContext" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-prename descclassname">discord_slash.model.</code><code class="sig-name descname">SlashContext</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_http</span><span class="p">:</span> <span class="n"><a class="reference internal" href="discord_slash.http.html#discord_slash.http.SlashCommandRequest" title="discord_slash.http.SlashCommandRequest">discord_slash.http.SlashCommandRequest</a></span></em>, <em class="sig-param"><span class="n">_json</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></span></em>, <em class="sig-param"><span class="n">_discord</span><span class="p">:</span> <span class="n">discord.ext.commands.bot.Bot</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.model.SlashContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Context of the slash command.</p>
 <p>Kinda similar with discord.ext.commands.Context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Name of the command.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#id" title="(in Python v3.9)"><strong>id</strong></a> – ID of the command message.</p></li>
+<li><p><strong>command_id</strong> – ID of the command.</p></li>
+<li><p><strong>_http</strong> – <a class="reference internal" href="discord_slash.http.html#discord_slash.http.SlashCommandRequest" title="discord_slash.http.SlashCommandRequest"><code class="xref py py-class docutils literal notranslate"><span class="pre">http.SlashCommandRequest</span></code></a> of the client.</p></li>
+<li><p><strong>guild</strong> – <a class="reference external" href="https://discordpy.readthedocs.io/en/latest/api.html#discord.Guild" title="(in discord.py v1.6.0a)"><code class="xref py py-class docutils literal notranslate"><span class="pre">discord.Guild</span></code></a> instance of the command message.</p></li>
+<li><p><strong>author</strong> – <a class="reference external" href="https://discordpy.readthedocs.io/en/latest/api.html#discord.Member" title="(in discord.py v1.6.0a)"><code class="xref py py-class docutils literal notranslate"><span class="pre">discord.Member</span></code></a> instance representing author of the command message.</p></li>
+<li><p><strong>channel</strong> – <a class="reference external" href="https://discordpy.readthedocs.io/en/latest/api.html#discord.TextChannel" title="(in discord.py v1.6.0a)"><code class="xref py py-class docutils literal notranslate"><span class="pre">discord.TextChannel</span></code></a> instance representing channel of the command message.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="discord_slash.model.SlashContext.send">
-<em class="property">async </em><code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">send_type</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">4</span></em>, <em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">embeds</span><span class="p">:</span> <span class="n">List<span class="p">[</span>discord.embeds.Embed<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tts</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.model.SlashContext.send" title="Permalink to this definition">¶</a></dt>
+<em class="property">async </em><code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">send_type</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span> <span class="o">=</span> <span class="default_value">4</span></em>, <em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">''</span></em>, <em class="sig-param"><span class="n">embeds</span><span class="p">:</span> <span class="n">List<span class="p">[</span>discord.embeds.Embed<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tts</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#discord_slash.model.SlashContext.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends response of the slash command.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>send_type</strong> (<em>int</em>) – Type of the response. Refer Discord API DOCS for more info about types. Default <cite>4</cite>.</p></li>
-<li><p><strong>text</strong> (<em>str</em>) – Text of the response. Can be <cite>None</cite>.</p></li>
+<li><p><strong>send_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Type of the response. Refer Discord API DOCS for more info about types. Default <cite>4</cite>.</p></li>
+<li><p><strong>text</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Text of the response. Can be <cite>None</cite>.</p></li>
 <li><p><strong>embeds</strong> (<em>List</em><em>[</em><a class="reference external" href="https://discordpy.readthedocs.io/en/latest/api.html#discord.Embed" title="(in discord.py v1.6.0a)"><em>discord.Embed</em></a><em>]</em>) – Embeds of the response. Maximum 10, can be empty.</p></li>
-<li><p><strong>tts</strong> (<em>bool</em>) – Whether to speak message using tts. Default <cite>False</cite>.</p></li>
+<li><p><strong>tts</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to speak message using tts. Default <cite>False</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -184,6 +212,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="discord_slash.utils.html" class="btn btn-neutral float-right" title="discord_slash.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="discord_slash.http.html" class="btn btn-neutral float-left" title="discord_slash.http module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
