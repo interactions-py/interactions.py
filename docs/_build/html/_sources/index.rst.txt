@@ -6,6 +6,30 @@
 Welcome to discord-py-slash-command's documentation!
 ====================================================
 
+discord-py-slash-command is simple discord.py extension
+for using Discord's Slash Command feature.
+
+Example:
+
+.. code-block:: python
+
+    import discord
+    from discord.ext import commands
+    from discord_slash import SlashCommand
+    from discord_slash.model import SlashContext
+
+    bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+    slash = SlashCommand(bot)
+
+
+    @slash.slash(name="test")
+    async def _test(ctx: SlashContext):
+        embed = discord.Embed(title="embed test")
+        await ctx.send(text="test", embeds=[embed])
+
+
+    bot.run("discord_token")
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

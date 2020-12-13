@@ -152,6 +152,27 @@
             
   <div class="section" id="welcome-to-discord-py-slash-command-s-documentation">
 <h1>Welcome to discord-py-slash-command’s documentation!<a class="headerlink" href="#welcome-to-discord-py-slash-command-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>discord-py-slash-command is simple discord.py extension
+for using Discord’s Slash Command feature.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">discord</span>
+<span class="kn">from</span> <span class="nn">discord.ext</span> <span class="kn">import</span> <span class="n">commands</span>
+<span class="kn">from</span> <span class="nn">discord_slash</span> <span class="kn">import</span> <span class="n">SlashCommand</span>
+<span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">SlashContext</span>
+
+<span class="n">bot</span> <span class="o">=</span> <span class="n">commands</span><span class="o">.</span><span class="n">Bot</span><span class="p">(</span><span class="n">command_prefix</span><span class="o">=</span><span class="s2">&quot;!&quot;</span><span class="p">,</span> <span class="n">intents</span><span class="o">=</span><span class="n">discord</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="n">slash</span> <span class="o">=</span> <span class="n">SlashCommand</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+
+<span class="nd">@slash</span><span class="o">.</span><span class="n">slash</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_test</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">SlashContext</span><span class="p">):</span>
+    <span class="n">embed</span> <span class="o">=</span> <span class="n">discord</span><span class="o">.</span><span class="n">Embed</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;embed test&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">embeds</span><span class="o">=</span><span class="p">[</span><span class="n">embed</span><span class="p">])</span>
+
+
+<span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;discord_token&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
