@@ -55,30 +55,60 @@ class SlashCommand:
             async def _pick(ctx, choice1, choice2): # Command with 1 or more args.
                 await ctx.send(text=str(random.choice([choice1, choice2])))
 
+        Example of formatting ``auto_convert``:
+
+        .. code-block:: python
+
+            {"option_role": "role",       # For key put name of the option and for value put type of the option.
+             "option_user": 6,            # Also can use number for type
+             "option_channel": "CHANNEL"} # and all upper case.
+
         :param name: Name of the slash command.
-        :param auto_convert: Not implemented.
+        :param auto_convert: Dictionary of how to convert option values.
         :type auto_convert: dict
         """
         def wrapper(cmd):
-            self.commands[cmd.__name__ if not name else name] = cmd
+            self.commands[cmd.__name__ if not name else name] = [cmd, auto_convert]
             self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
             return cmd
         return wrapper
 
-    def process_options(self, options: dict) -> list:
+    def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> list:
         """
-        Not ready.
+        Processes Role, User, and Channel option types to discord.py's models.
 
+        :param guild: Guild of the command message.
+        :type guild: discord.Guild
         :param options: Dict of options.
-        :type options: dict
+        :type options: list
+        :param auto_convert: Dictionary of how to convert option values.
+        :type auto_convert: dict
         :return: list
-        :raises: :class:`NotImplementedError` - This is still not implemented.
         """
-        raise NotImplementedError
+        converters = [guild.get_member, guild.get_role, guild.get_role]
+        types = {
+            "user": 0,
+            "USER": 0,
+            6: 0,
+            "6": 0,
+            "channel": 1,
+            "CHANNEL": 1,
+            7: 1,
+            "7": 1,
+            "role": 2,
+            "ROLE": 2,
+            8: 2,
+            "8": 2
+        }
+
+        to_return = []
 
         for x in options:
-            pass
-        return []
+            selected = x
+            if selected["name"] in auto_convert.keys():
+                loaded_converter = converters[types[auto_convert[selected["name"]]]]
+                to_return.append(loaded_converter(int(selected["value"])))
+        return to_return
 
     async def on_socket_response(self, msg):
         """
@@ -93,6 +123,7 @@ class SlashCommand:
             return
         to_use = msg["d"]
         if to_use["data"]["name"] in self.commands.keys():
-            args = [x["value"] for x in to_use["data"]["options"]] if "options" in to_use["data"] else []
+            selected_cmd = self.commands[to_use["data"]["name"]]
             ctx = model.SlashContext(self.req, to_use, self._discord)
-            await self.commands[to_use["data"]["name"]](ctx, *args)
+            args = self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd[1]) if "options" in to_use["data"] else []
+            await selected_cmd[0](ctx, *args)
