@@ -10,7 +10,7 @@ class SlashContext:
     Kinda similar with discord.ext.commands.Context.
 
     :ivar name: Name of the command.
-    :ivar id: ID of the command message.
+    :ivar interaction_id: Interaction ID of the command message.
     :ivar command_id: ID of the command.
     :ivar _http: :class:`.http.SlashCommandRequest` of the client.
     :ivar guild: :class:`discord.Guild` instance of the command message.
@@ -23,7 +23,7 @@ class SlashContext:
                  _discord: commands.Bot):
         self.__token = _json["token"]
         self.name = _json["data"]["name"]
-        self.id = _json["id"]
+        self.interaction_id = _json["id"]
         self.command_id = _json["data"]["id"]
         self._http = _http
         self.guild: discord.Guild = _discord.get_guild(int(_json["guild_id"]))
@@ -59,7 +59,7 @@ class SlashContext:
                 "allowed_mentions": []
             }
         }
-        await self._http.post(base, self.id, self.__token)
+        await self._http.post(base, self.interaction_id, self.__token)
 
 
 """
