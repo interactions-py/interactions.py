@@ -27,8 +27,8 @@ class SlashContext:
         self.command_id = _json["data"]["id"]
         self._http = _http
         self.guild: discord.Guild = _discord.get_guild(int(_json["guild_id"]))
-        self.author: discord.Member = self.guild.get_member(int(_json["member"]["user"]["id"]))
-        self.channel = self.guild.get_channel(int(_json["channel_id"]))
+        self.author: discord.Member = self.guild.get_member(int(_json["member"]["user"]["id"])) if self.guild else None
+        self.channel = self.guild.get_channel(int(_json["channel_id"])) if self.guild else None
 
     async def send(self,
                    send_type: int = 4,
