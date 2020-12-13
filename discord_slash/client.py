@@ -37,7 +37,7 @@ class SlashCommand:
         All args are passed in order.
 
         .. note::
-            Role, User, and Channel types are passed as id, since API doesn't give type of the option for now.
+            Role, User, and Channel types are passed as id if you don't set ``auto_convert``, since API doesn't give type of the option for now.
 
         .. warning::
             Unlike discord.py's command, ``*args``, keyword-only args, converters, etc. are NOT supported.
