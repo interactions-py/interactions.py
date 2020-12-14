@@ -38,13 +38,13 @@ class SlashContext:
         """
         Sends response of the slash command.
 
-        :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default `4`.
+        :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default ``4``.
         :type send_type: int
-        :param text: Text of the response. Can be `None`.
+        :param text: Text of the response. Can be ``None``.
         :type text: str
         :param embeds: Embeds of the response. Maximum 10, can be empty.
         :type embeds: List[discord.Embed]
-        :param tts: Whether to speak message using tts. Default `False`.
+        :param tts: Whether to speak message using tts. Default ``False``.
         :type tts: bool
         :return: `None`
         """

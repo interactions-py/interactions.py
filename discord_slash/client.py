@@ -78,10 +78,10 @@ class SlashCommand:
              "option_channel": "CHANNEL"} # and all upper case.
 
         :param name: Name of the slash command. Default name of the coroutine.
-        :param description: Description of the slash command. Default `None`.
-        :param auto_convert: Dictionary of how to convert option values. Default `None`.
-        :param guild_id: Guild ID of where the command will be used. Default `None`, which will be global command.
-        :param options: Options of
+        :param description: Description of the slash command. Default ``None``.
+        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
+        :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         """
         def wrapper(cmd):
             self.commands[cmd.__name__ if not name else name] = [cmd, auto_convert]
