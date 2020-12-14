@@ -2,6 +2,7 @@ import typing
 import discord
 from discord.ext import commands
 from . import http
+from . import error
 
 
 class SlashContext:
@@ -13,6 +14,8 @@ class SlashContext:
     :ivar interaction_id: Interaction ID of the command message.
     :ivar command_id: ID of the command.
     :ivar _http: :class:`.http.SlashCommandRequest` of the client.
+    :ivar _discord: :class:`discord.ext.commands.Bot`
+    :ivar sent: Whether you sent the initial response.
     :ivar guild: :class:`discord.Guild` instance of the command message.
     :ivar author: :class:`discord.Member` instance representing author of the command message.
     :ivar channel: :class:`discord.TextChannel` instance representing channel of the command message.
@@ -26,6 +29,8 @@ class SlashContext:
         self.interaction_id = _json["id"]
         self.command_id = _json["data"]["id"]
         self._http = _http
+        self._discord = _discord
+        self.sent = False
         self.guild: discord.Guild = _discord.get_guild(int(_json["guild_id"]))
         self.author: discord.Member = self.guild.get_member(int(_json["member"]["user"]["id"])) if self.guild else None
         self.channel = self.guild.get_channel(int(_json["channel_id"])) if self.guild else None
@@ -46,10 +51,10 @@ class SlashContext:
         :type embeds: List[discord.Embed]
         :param tts: Whether to speak message using tts. Default ``False``.
         :type tts: bool
-        :return: `None`
+        :return: ``None``
         """
         if embeds and len(embeds) > 10:
-            raise
+            raise error.IncorrectFormat("Embed must be 10 or fewer.")
         base = {
             "type": send_type,
             "data": {
@@ -59,7 +64,52 @@ class SlashContext:
                 "allowed_mentions": []
             }
         }
-        await self._http.post(base, self.interaction_id, self.__token)
+        initial = True if not self.sent else False
+        resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
+        self.sent = True
+        return resp
+
+    async def edit(self,
+                   message_id: typing.Union[int, str] = "@original",
+                   send_type: int = 4,
+                   text: str = "",
+                   embeds: typing.List[discord.Embed] = None,
+                   tts: bool = False):
+        """
+        Edits response of the slash command.
+
+        :param message_id: Response message ID. Default initial message.
+        :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default ``4``.
+        :type send_type: int
+        :param text: Text of the response. Can be ``None``.
+        :type text: str
+        :param embeds: Embeds of the response. Maximum 10, can be empty.
+        :type embeds: List[discord.Embed]
+        :param tts: Whether to speak message using tts. Default ``False``.
+        :type tts: bool
+        :return: ``None``
+        """
+        if embeds and len(embeds) > 10:
+            raise error.IncorrectFormat("Embed must be 10 or fewer.")
+        base = {
+            "type": send_type,
+            "data": {
+                "tts": tts,
+                "content": text,
+                "embeds": [x.to_dict() for x in embeds] if embeds else [],
+                "allowed_mentions": []
+            }
+        }
+        await self._http.edit(base, self._discord.user.id, self.__token, message_id)
+
+    async def delete(self, message_id: typing.Union[int, str] = "@original"):
+        """
+        Deletes response of the slash command.
+
+        :param message_id: Response message ID. Default initial message.
+        :return: ``None``
+        """
+        await self._http.delete(self._discord.user.id, self.__token, message_id)
 
 
 """

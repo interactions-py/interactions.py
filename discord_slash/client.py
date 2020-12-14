@@ -112,6 +112,8 @@ class SlashCommand:
         if not guild:
             self.logger.info("This command invoke is missing guild. Skipping option process.")
             return [x["value"] for x in options]
+        if not auto_convert:
+            return [x["value"] for x in options]
         converters = [guild.get_member, guild.get_role, guild.get_role]
         types = {
             "user": 0,
