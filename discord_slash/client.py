@@ -35,14 +35,23 @@ class SlashCommand:
         self.auto_register = auto_register
         self._discord.add_listener(self.on_socket_response)
 
-    def slash(self, name: str = None, description: str = None, auto_convert: dict = None, guild_id: int = None):
+    def slash(self,
+              *,
+              name: str = None,
+              description: str = None,
+              auto_convert: dict = None,
+              guild_id: int = None,
+              options: list = None):
         """
         Decorator that registers coroutine as a slash command.\n
-        1 arg is required for ctx(:class:`.model.SlashContext`), and if your slash command has some args, then those args are also required.\n
+        All decorator args must be passed as keyword-only args.\n
+        1 arg for command coroutine is required for ctx(:class:`.model.SlashContext`),
+        and if your slash command has some args, then those args are also required.\n
         All args are passed in order.
 
         .. note::
-            Role, User, and Channel types are passed as id if you don't set ``auto_convert``, since API doesn't give type of the option for now.
+            Role, User, and Channel types are passed as id if you don't set ``auto_convert``, since API doesn't give type of the option for now.\n
+            Also, if ``options`` is passed, then ``auto_convert`` will be automatically created.
 
         .. warning::
             Unlike discord.py's command, ``*args``, keyword-only args, converters, etc. are NOT supported.
@@ -72,6 +81,7 @@ class SlashCommand:
         :param description: Description of the slash command. Default `None`.
         :param auto_convert: Dictionary of how to convert option values. Default `None`.
         :param guild_id: Guild ID of where the command will be used. Default `None`, which will be global command.
+        :param options: Options of
         """
         def wrapper(cmd):
             self.commands[cmd.__name__ if not name else name] = [cmd, auto_convert]
