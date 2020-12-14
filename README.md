@@ -24,6 +24,13 @@ bot.run("discord_token")
 ## Installation
 `pip install -U discord-py-slash-command`
 
+## Simple note before you use this
+Since slash command feature is not officially released, 
+there will be many breaking changes to this extension and may be unstable, 
+so I'd recommend waiting until discord officially releases slash command, 
+and wait until Release 1.1.0, which I'm planning to finish implementing most of the feature.  
+Or you can wait until discord.py supports slash command.
+
 ## DOCS
 https://discord-py-slash-command.readthedocs.io/en/latest/  
 See [discord-api-docs](https://github.com/discord/discord-api-docs/blob/feature/interactions/docs/interactions/Slash_Commands.md) for some more information
