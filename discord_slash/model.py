@@ -53,6 +53,7 @@ class SlashContext:
         :type embeds: List[discord.Embed]
         :param tts: Whether to speak message using tts. Default ``False``.
         :type tts: bool
+        :param allowed_mentions: AllowedMentions of the message.
         :return: ``None``
         """
         if embeds and len(embeds) > 10:
