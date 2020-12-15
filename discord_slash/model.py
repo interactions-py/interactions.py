@@ -20,6 +20,7 @@ class SlashContext:
     :ivar author: :class:`discord.Member` instance representing author of the command message.
     :ivar channel: :class:`discord.TextChannel` instance representing channel of the command message.
     """
+
     def __init__(self,
                  _http: http.SlashCommandRequest,
                  _json: dict,
@@ -64,6 +65,11 @@ class SlashContext:
                 "embeds": [x.to_dict() for x in embeds] if embeds else [],
                 "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions else self._discord.allowed_mentions.to_dict()
             }
+        } if not self.sent else {
+            "content": text,
+            "tts": tts,
+            "embeds": [x.to_dict() for x in embeds] if embeds else [],
+            "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions else self._discord.allowed_mentions.to_dict()
         }
         initial = True if not self.sent else False
         resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
