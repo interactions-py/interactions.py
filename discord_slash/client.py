@@ -51,7 +51,7 @@ class SlashCommand:
 
         .. note::
             Role, User, and Channel types are passed as id if you don't set ``auto_convert``, since API doesn't give type of the option for now.\n
-            Also, if ``options`` is passed, then ``auto_convert`` will be automatically created.
+            Also, if ``options`` is passed, then ``auto_convert`` will be automatically created or overrided.
 
         .. warning::
             Unlike discord.py's command, ``*args``, keyword-only args, converters, etc. are NOT supported.
@@ -83,6 +83,14 @@ class SlashCommand:
         :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         """
+        if options:
+            # Overrides original auto_convert.
+            auto_convert = {}
+            for x in options:
+                if x["type"] < 3:
+                    raise Exception("Currently subcommand is NOT supported.")
+                auto_convert[x["name"]] = x["type"]
+
         def wrapper(cmd):
             self.commands[cmd.__name__ if not name else name] = [cmd, auto_convert]
             self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
