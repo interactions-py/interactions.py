@@ -81,7 +81,10 @@ class SlashContext:
             else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else {}
         }
         if hidden:
-            base["flags"] = 64
+            if self.sent:
+                base["flags"] = 64
+            else:
+                base["data"]["flags"] = 64
         initial = True if not self.sent else False
         resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
         self.sent = True
