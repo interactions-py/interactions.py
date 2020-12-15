@@ -41,7 +41,7 @@ class SlashContext:
                    content: str = "",
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
-                   allowed_mentions: typing.List[discord.AllowedMentions] = None,
+                   allowed_mentions: discord.AllowedMentions = None,
                    hidden: bool = False):
         """
         Sends response of the slash command.
@@ -58,7 +58,7 @@ class SlashContext:
         :param tts: Whether to speak message using tts. Default ``False``.
         :type tts: bool
         :param allowed_mentions: AllowedMentions of the message.
-        :type allowed_mentions: List[discord.AllowedMentions]
+        :type allowed_mentions: discord.AllowedMentions
         :param hidden: Whether the message is hidden, which means message content will only be seen to the author.
         :return: ``None``
         """
@@ -70,15 +70,15 @@ class SlashContext:
                 "tts": tts,
                 "content": content,
                 "embeds": [x.to_dict() for x in embeds] if embeds else [],
-                "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions
-                else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else []
+                "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
+                else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else {}
             }
         } if not self.sent else {
             "content": content,
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
-            "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions
-            else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else []
+            "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
+            else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else {}
         }
         if hidden:
             base["flags"] = 64
@@ -92,7 +92,7 @@ class SlashContext:
                    content: str = "",
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
-                   allowed_mentions: typing.List[discord.AllowedMentions] = None):
+                   allowed_mentions: discord.AllowedMentions = None):
         """
         Edits response of the slash command.
 
@@ -104,7 +104,7 @@ class SlashContext:
         :param tts: Whether to speak message using tts. Default ``False``.
         :type tts: bool
         :param allowed_mentions: AllowedMentions of the message.
-        :type allowed_mentions: List[discord.AllowedMentions]
+        :type allowed_mentions: discord.AllowedMentions
         :return: ``None``
         """
         if embeds and len(embeds) > 10:
@@ -113,8 +113,8 @@ class SlashContext:
             "content": content,
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
-            "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions
-            else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else []
+            "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
+            else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else {}
         }
         await self._http.edit(base, self._discord.user.id, self.__token, message_id)
 
