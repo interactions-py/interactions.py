@@ -24,8 +24,7 @@ class SlashCommand:
     """
     def __init__(self,
                  client: typing.Union[discord.Client, commands.Bot],
-                 auto_register: bool = False
-                 ):
+                 auto_register: bool = False):
         if isinstance(client, discord.Client) and not isinstance(client, commands.Bot):
             raise Exception("Currently only commands.Bot is supported.")
         self._discord = client
@@ -92,16 +91,8 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.commands[cmd.__name__ if not name else name] = [cmd, auto_convert]
+            self.commands[cmd.__name__ if not name else name] = [cmd, auto_convert, description, guild_id, options]
             self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
-            """
-            if self.auto_register:
-                manage_commands.add_slash_command(self._discord.user.id,
-                                                  self._discord.http.token,
-                                                  guild_id,
-                                                  cmd.__name__ if not name else name,
-                                                  description)
-            """
             return cmd
         return wrapper
 
