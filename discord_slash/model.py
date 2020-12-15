@@ -10,6 +10,9 @@ class SlashContext:
     Context of the slash command.\n
     Kinda similar with discord.ext.commands.Context.
 
+    .. warning::
+        Do not manually init this model.
+
     :ivar name: Name of the command.
     :ivar interaction_id: Interaction ID of the command message.
     :ivar command_id: ID of the command.
@@ -24,7 +27,7 @@ class SlashContext:
     def __init__(self,
                  _http: http.SlashCommandRequest,
                  _json: dict,
-                 _discord: commands.Bot):
+                 _discord: typing.Union[discord.Client, commands.Bot]):
         self.__token = _json["token"]
         self.name = _json["data"]["name"]
         self.interaction_id = _json["id"]
