@@ -36,6 +36,37 @@ class SlashCommand:
         else:
             self._discord.add_listener(self.on_socket_response)
 
+    def add_slash_command(self,
+                          cmd,
+                          name: str = None,
+                          description: str = None,
+                          auto_convert: dict = None,
+                          guild_id: int = None,
+                          options: list = None,
+                          subcommand: dict = None):
+        """
+        Registers slash command to SlashCommand.
+
+        :param cmd: Command Coroutine.
+        :param name: Name of the slash command. Default name of the coroutine.
+        :param description: Description of the slash command. Default ``None``.
+        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
+        :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
+        :param subcommand: Subcommand if any.
+        :return: ``None``
+        """
+        _cmd = {
+            "func": cmd,
+            "description": description,
+            "auto_convert": auto_convert,
+            "guild_id": guild_id,
+            "api_options": options,
+            "subcommands": subcommand
+        }
+        self.commands[cmd.__name__ if not name else name] = _cmd
+        self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
+
     def slash(self,
               *,
               name: str = None,
@@ -93,8 +124,7 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.commands[cmd.__name__ if not name else name] = [cmd, auto_convert, description, guild_id, options]
-            self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
+            self.add_slash_command(cmd, name, description, auto_convert, guild_id, options)
             return cmd
         return wrapper
 
@@ -155,6 +185,10 @@ class SlashCommand:
         if to_use["data"]["name"] in self.commands.keys():
             selected_cmd = self.commands[to_use["data"]["name"]]
             ctx = model.SlashContext(self.req, to_use, self._discord)
-            args = self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd[1]) if "options" in to_use["data"] else []
+            if selected_cmd["guild_id"]:
+                if selected_cmd["guild_id"] != ctx.guild.id:
+                    return
+            args = self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
+                if "options" in to_use["data"] else []
             self.logger.debug(f"Command {to_use['data']['name']} invoked.")
-            await selected_cmd[0](ctx, *args)
+            await selected_cmd["func"](ctx, *args)
