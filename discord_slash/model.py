@@ -65,13 +65,15 @@ class SlashContext:
                 "tts": tts,
                 "content": content,
                 "embeds": [x.to_dict() for x in embeds] if embeds else [],
-                "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions else self._discord.allowed_mentions.to_dict()
+                "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions
+                else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else []
             }
         } if not self.sent else {
             "content": content,
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
-            "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions else self._discord.allowed_mentions.to_dict()
+            "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions
+                else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else []
         }
         initial = True if not self.sent else False
         resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
