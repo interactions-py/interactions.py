@@ -89,34 +89,32 @@ class SlashContext:
 
     async def edit(self,
                    message_id: typing.Union[int, str] = "@original",
-                   send_type: int = 4,
-                   text: str = "",
+                   content: str = "",
                    embeds: typing.List[discord.Embed] = None,
-                   tts: bool = False):
+                   tts: bool = False,
+                   allowed_mentions: typing.List[discord.AllowedMentions] = None):
         """
         Edits response of the slash command.
 
         :param message_id: Response message ID. Default initial message.
-        :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default ``4``.
-        :type send_type: int
-        :param text: Text of the response. Can be ``None``.
-        :type text: str
+        :param content: Text of the response. Can be ``None``.
+        :type content: str
         :param embeds: Embeds of the response. Maximum 10, can be empty.
         :type embeds: List[discord.Embed]
         :param tts: Whether to speak message using tts. Default ``False``.
         :type tts: bool
+        :param allowed_mentions: AllowedMentions of the message.
+        :type allowed_mentions: List[discord.AllowedMentions]
         :return: ``None``
         """
         if embeds and len(embeds) > 10:
             raise error.IncorrectFormat("Embed must be 10 or fewer.")
         base = {
-            "type": send_type,
-            "data": {
-                "tts": tts,
-                "content": text,
-                "embeds": [x.to_dict() for x in embeds] if embeds else [],
-                "allowed_mentions": []
-            }
+            "content": content,
+            "tts": tts,
+            "embeds": [x.to_dict() for x in embeds] if embeds else [],
+            "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions
+            else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else []
         }
         await self._http.edit(base, self._discord.user.id, self.__token, message_id)
 
