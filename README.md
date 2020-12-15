@@ -15,7 +15,7 @@ slash = SlashCommand(bot)
 @slash.slash(name="test")
 async def _test(ctx: SlashContext):
     embed = discord.Embed(title="embed test")
-    await ctx.send(text="test", embeds=[embed])
+    await ctx.send(content="test", embeds=[embed])
 
 
 bot.run("discord_token")

@@ -62,12 +62,12 @@ class SlashCommand:
 
             @slash.slash(name="ping")
             async def _slash(ctx): # Normal usage.
-                await ctx.send(text=f"Pong! (`{round(bot.latency*1000)}`ms)")
+                await ctx.send(content=f"Pong! (`{round(bot.latency*1000)}`ms)")
 
 
             @slash.slash(name="pick")
             async def _pick(ctx, choice1, choice2): # Command with 1 or more args.
-                await ctx.send(text=str(random.choice([choice1, choice2])))
+                await ctx.send(content=str(random.choice([choice1, choice2])))
 
         Example of formatting ``auto_convert``:
 
