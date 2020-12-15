@@ -39,7 +39,8 @@ class SlashContext:
                    send_type: int = 4,
                    text: str = "",
                    embeds: typing.List[discord.Embed] = None,
-                   tts: bool = False):
+                   tts: bool = False,
+                   allowed_mentions: typing.List[discord.AllowedMentions] = None):
         """
         Sends response of the slash command.
 
@@ -61,7 +62,7 @@ class SlashContext:
                 "tts": tts,
                 "content": text,
                 "embeds": [x.to_dict() for x in embeds] if embeds else [],
-                "allowed_mentions": []
+                "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions else self._discord.allowed_mentions.to_dict()
             }
         }
         initial = True if not self.sent else False
