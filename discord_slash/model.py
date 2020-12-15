@@ -41,9 +41,13 @@ class SlashContext:
                    content: str = "",
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
-                   allowed_mentions: typing.List[discord.AllowedMentions] = None):
+                   allowed_mentions: typing.List[discord.AllowedMentions] = None,
+                   hidden: bool = False):
         """
         Sends response of the slash command.
+
+        .. note::
+            Param ``hidden`` ONLY works without embeds.
 
         :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default ``4``.
         :type send_type: int
@@ -55,6 +59,7 @@ class SlashContext:
         :type tts: bool
         :param allowed_mentions: AllowedMentions of the message.
         :type allowed_mentions: List[discord.AllowedMentions]
+        :param hidden: Whether the message is hidden, which means message content will only be seen to the author.
         :return: ``None``
         """
         if embeds and len(embeds) > 10:
@@ -75,6 +80,8 @@ class SlashContext:
             "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions
             else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else []
         }
+        if hidden:
+            base["flags"] = 64
         initial = True if not self.sent else False
         resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
         self.sent = True
