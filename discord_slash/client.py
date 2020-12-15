@@ -11,9 +11,9 @@ class SlashCommand:
     """
     Slash command extension class.
 
-    :param client: discord.py Bot class. Although it accepts :class:`discord.Client` at init, using it is not allowed since :class:`discord.Client` doesn't support :func:`add_listener`.
+    :param client: discord.py Client or Bot instance.
     :type client: Union[discord.Client, discord.ext.commands.Bot]
-    :param auto_register: Whether to register commands automatically. Default `False`.
+    :param auto_register: Whether to register commands automatically. Default `False`. Currently not implemented.
     :type auto_register: bool
 
     :ivar _discord: Discord client of this client.
@@ -25,14 +25,16 @@ class SlashCommand:
     def __init__(self,
                  client: typing.Union[discord.Client, commands.Bot],
                  auto_register: bool = False):
-        if isinstance(client, discord.Client) and not isinstance(client, commands.Bot):
-            raise Exception("Currently only commands.Bot is supported.")
         self._discord = client
         self.commands = {}
         self.req = http.SlashCommandRequest()
         self.logger = logging.getLogger("discord_slash")
         self.auto_register = auto_register
-        self._discord.add_listener(self.on_socket_response)
+        if not isinstance(client, commands.Bot):
+            self.logger.info("Detected discord.Client! Overriding on_socket_response.")
+            self._discord.on_socket_response = self.on_socket_response
+        else:
+            self._discord.add_listener(self.on_socket_response)
 
     def slash(self,
               *,
