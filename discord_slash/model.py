@@ -38,7 +38,7 @@ class SlashContext:
 
     async def send(self,
                    send_type: int = 4,
-                   text: str = "",
+                   content: str = "",
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
                    allowed_mentions: typing.List[discord.AllowedMentions] = None):
@@ -47,8 +47,8 @@ class SlashContext:
 
         :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default ``4``.
         :type send_type: int
-        :param text: Text of the response. Can be ``None``.
-        :type text: str
+        :param content: Content of the response. Can be ``None``.
+        :type content: str
         :param embeds: Embeds of the response. Maximum 10, can be empty.
         :type embeds: List[discord.Embed]
         :param tts: Whether to speak message using tts. Default ``False``.
@@ -62,12 +62,12 @@ class SlashContext:
             "type": send_type,
             "data": {
                 "tts": tts,
-                "content": text,
+                "content": content,
                 "embeds": [x.to_dict() for x in embeds] if embeds else [],
                 "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions else self._discord.allowed_mentions.to_dict()
             }
         } if not self.sent else {
-            "content": text,
+            "content": content,
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
             "allowed_mentions": [x.to_dict() for x in allowed_mentions] if allowed_mentions else self._discord.allowed_mentions.to_dict()
