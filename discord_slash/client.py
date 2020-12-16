@@ -27,9 +27,12 @@ class SlashCommand:
                  auto_register: bool = False):
         self._discord = client
         self.commands = {}
+        self.subcommands = {}
         self.req = http.SlashCommandRequest()
         self.logger = logging.getLogger("discord_slash")
         self.auto_register = auto_register
+        if self.auto_register:
+            self.logger.warning("auto_register is NOT implemented! Please manually add commands to Discord API.")
         if not isinstance(client, commands.Bot):
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
             self._discord.on_socket_response = self.on_socket_response
@@ -41,7 +44,7 @@ class SlashCommand:
                           name: str = None,
                           description: str = None,
                           auto_convert: dict = None,
-                          guild_id: int = None,
+                          guild_ids: list = None,
                           options: list = None,
                           has_subcommands: bool = False):
         """
@@ -51,7 +54,7 @@ class SlashCommand:
         :param name: Name of the slash command. Default name of the coroutine.
         :param description: Description of the slash command. Default ``None``.
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-        :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :param has_subcommands: Whether it has subcommand. Default ``False``.
         :return: ``None``
@@ -60,15 +63,54 @@ class SlashCommand:
             "func": cmd,
             "description": description,
             "auto_convert": auto_convert,
-            "guild_id": guild_id,
+            "guild_ids": guild_ids,
             "api_options": options,
             "has_subcommands": has_subcommands
         }
         self.commands[cmd.__name__ if not name else name] = _cmd
         self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
 
-    def add_subcommand(self,):
-        pass
+    def add_subcommand(self,
+                       cmd,
+                       base,
+                       subcommand_group=None,
+                       name=None,
+                       description: str = None,
+                       auto_convert: dict = None,
+                       guild_ids: list = None):
+        """
+        Registers subcommand to SlashCommand.
+
+        :param cmd:
+        :param base:
+        :param subcommand_group:
+        :param name:
+        :param description:
+        :param auto_convert:
+        :param guild_ids:
+        :return:
+        """
+        name = cmd.__name__ if not name else name
+        _cmd = {
+            "guild_ids": guild_ids,
+            "has_subcommands": True
+        }
+        _sub = {
+            "func": cmd,
+            "name": name,
+            "description": description,
+            "auto_convert": auto_convert,
+            "guild_ids": guild_ids,
+        }
+        self.commands[base] = _cmd
+        if base not in self.subcommands.keys():
+            self.subcommands[base] = {}
+        if subcommand_group:
+            if subcommand_group not in self.subcommands[base].keys():
+                self.subcommands[base][subcommand_group] = {}
+            self.subcommands[base][subcommand_group][name] = _sub
+        else:
+            self.subcommands[base][name] = _sub
 
     def slash(self,
               *,
@@ -76,6 +118,7 @@ class SlashCommand:
               description: str = None,
               auto_convert: dict = None,
               guild_id: int = None,
+              guild_ids: list = None,
               options: list = None):
         """
         Decorator that registers coroutine as a slash command.\n
@@ -115,9 +158,15 @@ class SlashCommand:
         :param name: Name of the slash command. Default name of the coroutine.
         :param description: Description of the slash command. Default ``None``.
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-        :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :param guild_id: Deprecated. Use ``guild_ids`` instead.
+        :param guild_ids: Guild ID of where the command will be used. Default ``None``, which will be global command.
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         """
+
+        if guild_id:
+            self.logger.warning("`guild_id` is deprecated! `Use guild_ids` instead.")
+            guild_ids = [guild_id]
+
         if options:
             # Overrides original auto_convert.
             auto_convert = {}
@@ -127,7 +176,7 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.add_slash_command(cmd, name, description, auto_convert, guild_id, options)
+            self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
             return cmd
         return wrapper
 
@@ -138,7 +187,7 @@ class SlashCommand:
                    name=None,
                    description: str = None,
                    auto_convert: dict = None,
-                   guild_id: int = None):
+                   guild_ids: int = None):
         """
         Decorator that registers subcommand.
         Unlike discord.py, you don't need base command.
@@ -159,7 +208,7 @@ class SlashCommand:
         :param name: Name of the subcommand. Default name of the coroutine.
         :param description: Description of the subcommand. Default ``None``.
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-        :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :return:
         """
         def wrapper(cmd):
@@ -220,25 +269,24 @@ class SlashCommand:
         if msg["t"] != "INTERACTION_CREATE":
             return
         to_use = msg["d"]
-        print(to_use)
         if to_use["data"]["name"] in self.commands.keys():
             selected_cmd = self.commands[to_use["data"]["name"]]
             ctx = model.SlashContext(self.req, to_use, self._discord)
-            if selected_cmd["guild_id"]:
-                if selected_cmd["guild_id"] != ctx.guild.id:
+            if selected_cmd["guild_ids"]:
+                if ctx.guild.id not in selected_cmd["guild_ids"]:
                     return
             if selected_cmd["has_subcommands"]:
-                return await self.handle_subcommand(to_use)
+                return await self.handle_subcommand(ctx, to_use)
             args = self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
                 if "options" in to_use["data"] else []
             self.logger.debug(f"Command {to_use['data']['name']} invoked.")
             await selected_cmd["func"](ctx, *args)
 
-    async def handle_subcommand(self, data: dict):
+    async def handle_subcommand(self, ctx: model.SlashContext, data: dict):
         """
         Coroutine for handling subcommand.
 
+        :param ctx:
         :param data:
-        :return:
         """
         pass
