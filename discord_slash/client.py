@@ -43,7 +43,7 @@ class SlashCommand:
                           auto_convert: dict = None,
                           guild_id: int = None,
                           options: list = None,
-                          subcommand: dict = None):
+                          has_subcommands: bool = False):
         """
         Registers slash command to SlashCommand.
 
@@ -53,7 +53,7 @@ class SlashCommand:
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
-        :param subcommand: Subcommand if any.
+        :param has_subcommands: Whether it has subcommand. Default ``False``.
         :return: ``None``
         """
         _cmd = {
@@ -62,10 +62,13 @@ class SlashCommand:
             "auto_convert": auto_convert,
             "guild_id": guild_id,
             "api_options": options,
-            "subcommands": subcommand
+            "has_subcommands": has_subcommands
         }
         self.commands[cmd.__name__ if not name else name] = _cmd
         self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
+
+    def add_subcommand(self,):
+        pass
 
     def slash(self,
               *,
@@ -128,6 +131,41 @@ class SlashCommand:
             return cmd
         return wrapper
 
+    def subcommand(self,
+                   *,
+                   base,
+                   subcommand_group=None,
+                   name=None,
+                   description: str = None,
+                   auto_convert: dict = None,
+                   guild_id: int = None):
+        """
+        Decorator that registers subcommand.
+        Unlike discord.py, you don't need base command.
+
+        Example:
+
+        .. code-block:: python
+            @slash.subcommand(base="group", name="say")
+            async def _group_say(ctx, _str):
+                await ctx.send(content=_str)
+
+        .. note::
+            Unlike normal slash command, this doesn't support ``options`` arg, since it will be very complicated.\n
+            Also, subcommands won't be automatically registered to Discord API even if you set ``auto_register`` to ``True``.
+
+        :param base: Name of the base command.
+        :param subcommand_group: Name of the subcommand group, if any. Default ``None`` which represents there is no sub group.
+        :param name: Name of the subcommand. Default name of the coroutine.
+        :param description: Description of the subcommand. Default ``None``.
+        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
+        :param guild_id: Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :return:
+        """
+        def wrapper(cmd):
+            return cmd
+        return wrapper
+
     def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> list:
         """
         Processes Role, User, and Channel option types to discord.py's models.
@@ -182,13 +220,25 @@ class SlashCommand:
         if msg["t"] != "INTERACTION_CREATE":
             return
         to_use = msg["d"]
+        print(to_use)
         if to_use["data"]["name"] in self.commands.keys():
             selected_cmd = self.commands[to_use["data"]["name"]]
             ctx = model.SlashContext(self.req, to_use, self._discord)
             if selected_cmd["guild_id"]:
                 if selected_cmd["guild_id"] != ctx.guild.id:
                     return
+            if selected_cmd["has_subcommands"]:
+                return await self.handle_subcommand(to_use)
             args = self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
                 if "options" in to_use["data"] else []
             self.logger.debug(f"Command {to_use['data']['name']} invoked.")
             await selected_cmd["func"](ctx, *args)
+
+    async def handle_subcommand(self, data: dict):
+        """
+        Coroutine for handling subcommand.
+
+        :param data:
+        :return:
+        """
+        pass
