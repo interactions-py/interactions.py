@@ -195,8 +195,9 @@ class SlashCommand:
                    auto_convert: dict = None,
                    guild_ids: int = None):
         """
-        Decorator that registers subcommand.
-        Unlike discord.py, you don't need base command.
+        Decorator that registers subcommand.\n
+        Unlike discord.py, you don't need base command.\n
+        Not implemented.
 
         Example:
 
@@ -217,6 +218,7 @@ class SlashCommand:
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :return:
         """
+        raise NotImplementedError
         def wrapper(cmd):
             return cmd
         return wrapper
@@ -291,6 +293,7 @@ class SlashCommand:
     async def handle_subcommand(self, ctx: model.SlashContext, data: dict):
         """
         Coroutine for handling subcommand.
+        Not implemented.
 
         :param ctx:
         :param data:
