@@ -165,7 +165,7 @@ class SlashCommand:
         :param description: Description of the slash command. Default ``None``.
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :param guild_id: Deprecated. Use ``guild_ids`` instead.
-        :param guild_ids: Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         """
 
