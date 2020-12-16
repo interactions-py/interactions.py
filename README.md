@@ -33,5 +33,5 @@ Or you can wait until discord.py supports slash command.
 
 ## DOCS
 https://discord-py-slash-command.readthedocs.io/en/latest/  
-See [discord-api-docs](https://github.com/discord/discord-api-docs/blob/feature/interactions/docs/interactions/Slash_Commands.md) for some more information
+See [discord-api-docs](https://discord.com/developers/docs/interactions/slash-commands) for some more information
 about some formats.
