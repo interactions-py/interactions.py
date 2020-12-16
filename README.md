@@ -63,3 +63,7 @@ Or you can wait until discord.py supports slash command.
 https://discord-py-slash-command.readthedocs.io/en/latest/  
 See [discord-api-docs](https://discord.com/developers/docs/interactions/slash-commands) for some more information
 about some formats.
+
+## TODO
+- Support subcommands
+- Try supporting most of the features supported by discord.py commands extension
