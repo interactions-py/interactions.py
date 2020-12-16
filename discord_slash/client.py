@@ -15,6 +15,8 @@ class SlashCommand:
     :type client: Union[discord.Client, discord.ext.commands.Bot]
     :param auto_register: Whether to register commands automatically. Default `False`. Currently not implemented.
     :type auto_register: bool
+    :param override_type: Whether to override checking type of the client and try register event.
+    :type override_type: bool
 
     :ivar _discord: Discord client of this client.
     :ivar commands: Dictionary of the registered commands via :func:`.slash` decorator.
@@ -24,7 +26,8 @@ class SlashCommand:
     """
     def __init__(self,
                  client: typing.Union[discord.Client, commands.Bot],
-                 auto_register: bool = False):
+                 auto_register: bool = False,
+                 override_type: bool = False):
         self._discord = client
         self.commands = {}
         self.subcommands = {}
@@ -33,7 +36,7 @@ class SlashCommand:
         self.auto_register = auto_register
         if self.auto_register:
             self.logger.warning("auto_register is NOT implemented! Please manually add commands to Discord API.")
-        if not isinstance(client, commands.Bot):
+        if not isinstance(client, commands.Bot) and not override_type:
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
             self._discord.on_socket_response = self.on_socket_response
         else:
