@@ -39,6 +39,9 @@ class SlashCommand:
         else:
             self._discord.add_listener(self.on_socket_response)
 
+    def remove(self):
+        self._discord.remove_listener(self.on_socket_response)
+
     def add_slash_command(self,
                           cmd,
                           name: str = None,
