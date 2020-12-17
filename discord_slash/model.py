@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 from . import http
 from . import error
-from .client import SlashCommand
 
 
 class SlashContext:
@@ -30,7 +29,7 @@ class SlashContext:
                  _http: http.SlashCommandRequest,
                  _json: dict,
                  _discord: typing.Union[discord.Client, commands.Bot],
-                 slashcommand: SlashCommand):
+                 slashcommand):
         self.__token = _json["token"]
         self.name = _json["data"]["name"]
         self.interaction_id = _json["id"]

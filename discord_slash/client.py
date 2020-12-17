@@ -208,6 +208,7 @@ class SlashCommand:
         Example:
 
         .. code-block:: python
+
             @slash.subcommand(base="group", name="say")
             async def _group_say(ctx, _str):
                 await ctx.send(content=_str)
@@ -289,7 +290,7 @@ class SlashCommand:
         to_use = msg["d"]
         if to_use["data"]["name"] in self.commands.keys():
             selected_cmd = self.commands[to_use["data"]["name"]]
-            ctx = model.SlashContext(self.req, to_use, self._discord)
+            ctx = model.SlashContext(self.req, to_use, self._discord, self)
             if selected_cmd["guild_ids"]:
                 if ctx.guild.id not in selected_cmd["guild_ids"]:
                     return
