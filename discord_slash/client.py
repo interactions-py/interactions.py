@@ -5,6 +5,7 @@ from discord.ext import commands
 from . import http
 from . import model
 from .utils import manage_commands
+from inspect import iscoroutinefunction
 
 
 class SlashCommand:
@@ -231,7 +232,7 @@ class SlashCommand:
             return cmd
         return wrapper
 
-    def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> list:
+    async def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> list:
         """
         Processes Role, User, and Channel option types to discord.py's models.
 
@@ -248,7 +249,7 @@ class SlashCommand:
             return [x["value"] for x in options]
         if not auto_convert:
             return [x["value"] for x in options]
-        converters = [guild.get_member, guild.get_channel, guild.get_role]
+        converters = [guild.fetch_member, guild.get_channel, guild.get_role]
         types = {
             "user": 0,
             "USER": 0,
@@ -273,7 +274,9 @@ class SlashCommand:
                     to_return.append(selected["value"])
                     continue
                 loaded_converter = converters[types[auto_convert[selected["name"]]]]
-                to_return.append(loaded_converter(int(selected["value"])))
+                to_return.append(await loaded_converter(int(selected["value"]))) \
+                    if iscoroutinefunction(loaded_converter) else \
+                    to_return.append(loaded_converter(int(selected["value"])))
         return to_return
 
     async def on_socket_response(self, msg):
@@ -296,7 +299,7 @@ class SlashCommand:
                     return
             if selected_cmd["has_subcommands"]:
                 return await self.handle_subcommand(ctx, to_use)
-            args = self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
+            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
                 if "options" in to_use["data"] else []
             self.logger.debug(f"Command {to_use['data']['name']} invoked.")
             await selected_cmd["func"](ctx, *args)
