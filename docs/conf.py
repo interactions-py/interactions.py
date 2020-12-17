@@ -49,6 +49,8 @@ language = 'en'
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', "test.py", "test2.py", ".idea", "setup.py"]
 
+# This should fix wrong sort
+autodoc_member_order = 'bysource'
 
 # -- Options for HTML output -------------------------------------------------
 
