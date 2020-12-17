@@ -124,8 +124,8 @@ class SlashCommand:
               description: str = None,
               auto_convert: dict = None,
               guild_id: int = None,
-              guild_ids: list = None,
-              options: list = None):
+              guild_ids: typing.List[int] = None,
+              options: typing.List[dict] = None):
         """
         Decorator that registers coroutine as a slash command.\n
         All decorator args must be passed as keyword-only args.\n
@@ -162,11 +162,17 @@ class SlashCommand:
              "option_channel": "CHANNEL"} # and all upper case.
 
         :param name: Name of the slash command. Default name of the coroutine.
+        :type name: str
         :param description: Description of the slash command. Default ``None``.
+        :type description: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
+        :type auto_convert: dict
         :param guild_id: Deprecated. Use ``guild_ids`` instead.
+        :type guild_id: int
         :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
+        :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
+        :type options: List[dict]
         """
 
         if guild_id:
