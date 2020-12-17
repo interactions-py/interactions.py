@@ -45,7 +45,8 @@ class SlashContext:
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
                    allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False):
+                   hidden: bool = False,
+                   complete_hidden: bool = False):
         """
         Sends response of the slash command.
 
@@ -63,10 +64,17 @@ class SlashContext:
         :param allowed_mentions: AllowedMentions of the message.
         :type allowed_mentions: discord.AllowedMentions
         :param hidden: Whether the message is hidden, which means message content will only be seen to the author.
+        :type hidden: bool
+        :param complete_hidden: If this is ``True``, it will be both hidden and `send_type` will be 3. Default ``False``.
+        :type complete_hidden: bool
         :return: ``None``
         """
         if embeds and len(embeds) > 10:
             raise error.IncorrectFormat("Embed must be 10 or fewer.")
+        if complete_hidden:
+            # Overrides both `hidden` and `send_type`.
+            hidden = True
+            send_type = 3
         base = {
             "type": send_type,
             "data": {
