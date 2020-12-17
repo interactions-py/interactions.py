@@ -178,7 +178,7 @@ class SlashCommand:
             auto_convert = {}
             for x in options:
                 if x["type"] < 3:
-                    raise Exception("Currently subcommand is NOT supported.")
+                    raise Exception("Please use `subcommand()` decorator for subcommands!")
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
@@ -218,8 +218,9 @@ class SlashCommand:
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :return:
         """
-        raise NotImplementedError
+
         def wrapper(cmd):
+            self.add_subcommand(cmd, base, subcommand_group, name, description, auto_convert, guild_ids)
             return cmd
         return wrapper
 
@@ -240,7 +241,7 @@ class SlashCommand:
             return [x["value"] for x in options]
         if not auto_convert:
             return [x["value"] for x in options]
-        converters = [guild.get_member, guild.get_role, guild.get_role]
+        converters = [guild.get_member, guild.get_channel, guild.get_role]
         types = {
             "user": 0,
             "USER": 0,
@@ -261,6 +262,9 @@ class SlashCommand:
         for x in options:
             selected = x
             if selected["name"] in auto_convert.keys():
+                if auto_convert[selected["name"]] not in types.keys():
+                    to_return.append(selected["value"])
+                    continue
                 loaded_converter = converters[types[auto_convert[selected["name"]]]]
                 to_return.append(loaded_converter(int(selected["value"])))
         return to_return
