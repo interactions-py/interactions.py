@@ -64,6 +64,10 @@ https://discord-py-slash-command.readthedocs.io/en/latest/
 See [discord-api-docs](https://discord.com/developers/docs/interactions/slash-commands) for some more information
 about some formats.
 
+## Any Questions?
+[Discord Server](https://discord.gg/KkgMBVuEkx)  
+Or you can ask at [Discussions](https://github.com/eunwoo1104/discord-py-slash-command/discussions).
+
 ## TODO
 - Support subcommands
 - Try supporting most of the features supported by discord.py commands extension
