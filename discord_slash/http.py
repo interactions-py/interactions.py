@@ -49,6 +49,11 @@ class SlashCommandRequest:
         req_url = f"https://discord.com/api/v8/webhooks/{bot_id}/{token}/messages/{message_id}"
         async with aiohttp.ClientSession() as session:
             async with session.patch(req_url, json=_resp) as resp:
+                if resp.status == 429:
+                    _json = await resp.json()
+                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
+                    await asyncio.sleep(_json["retry_after"])
+                    return await self.edit(_resp, bot_id, token, message_id)
                 if not 200 <= resp.status < 300:
                     raise RequestFailure(resp.status, await resp.text())
                 return True
@@ -66,6 +71,11 @@ class SlashCommandRequest:
         req_url = f"https://discord.com/api/v8/webhooks/{bot_id}/{token}/messages/{message_id}"
         async with aiohttp.ClientSession() as session:
             async with session.delete(req_url) as resp:
+                if resp.status == 429:
+                    _json = await resp.json()
+                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
+                    await asyncio.sleep(_json["retry_after"])
+                    return await self.delete(bot_id, token, message_id)
                 if not 200 <= resp.status < 300:
                     raise RequestFailure(resp.status, await resp.text())
                 return True
