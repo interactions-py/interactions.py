@@ -1,10 +1,11 @@
 import aiohttp
+import asyncio
 from .error import RequestFailure
 
 
 class SlashCommandRequest:
-    def __init__(self):
-        pass
+    def __init__(self, logger):
+        self.logger = logger
 
     async def post(self, _resp, bot_id, interaction_id, token, initial=False) -> None:
         """
@@ -24,6 +25,11 @@ class SlashCommandRequest:
             else f"https://discord.com/api/v8/webhooks/{bot_id}/{token}"
         async with aiohttp.ClientSession() as session:
             async with session.post(req_url, json=_resp) as resp:
+                if resp.status == 429:
+                    _json = await resp.json()
+                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
+                    await asyncio.sleep(_json["retry_after"])
+                    return await self.post(_resp, bot_id, interaction_id, token, initial)
                 if not 200 <= resp.status < 300:
                     raise RequestFailure(resp.status, await resp.text())
                 return None
