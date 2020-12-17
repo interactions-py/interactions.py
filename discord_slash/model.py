@@ -18,7 +18,7 @@ class SlashContext:
     :ivar command_id: ID of the command.
     :ivar _http: :class:`.http.SlashCommandRequest` of the client.
     :ivar _discord: :class:`discord.ext.commands.Bot`
-    :ivar slashcommand: :class:`.client.SlashCommand`
+    :ivar logger: Logger instance.
     :ivar sent: Whether you sent the initial response.
     :ivar guild: :class:`discord.Guild` instance of the command message.
     :ivar author: :class:`discord.Member` instance representing author of the command message.
@@ -29,14 +29,14 @@ class SlashContext:
                  _http: http.SlashCommandRequest,
                  _json: dict,
                  _discord: typing.Union[discord.Client, commands.Bot],
-                 slashcommand):
+                 logger):
         self.__token = _json["token"]
         self.name = _json["data"]["name"]
         self.interaction_id = _json["id"]
         self.command_id = _json["data"]["id"]
         self._http = _http
         self._discord = _discord
-        self.slashcommand = slashcommand
+        self.logger = logger
         self.sent = False
         self.guild: discord.Guild = _discord.get_guild(int(_json["guild_id"]))
         self.author: discord.Member = self.guild.get_member(int(_json["member"]["user"]["id"])) if self.guild else None
@@ -100,7 +100,7 @@ class SlashContext:
             else:
                 base["data"]["flags"] = 64
         if hidden and embeds:
-            self.slashcommand.logger.warning("You cannot use both `hidden` and `embeds`!")
+            self.logger.warning("You cannot use both `hidden` and `embeds` at the same time!")
         initial = True if not self.sent else False
         resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
         self.sent = True

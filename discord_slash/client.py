@@ -31,8 +31,8 @@ class SlashCommand:
         self._discord = client
         self.commands = {}
         self.subcommands = {}
-        self.req = http.SlashCommandRequest()
         self.logger = logging.getLogger("discord_slash")
+        self.req = http.SlashCommandRequest(self.logger)
         self.auto_register = auto_register
         if self.auto_register:
             self.logger.warning("auto_register is NOT implemented! Please manually add commands to Discord API.")
@@ -290,7 +290,7 @@ class SlashCommand:
         to_use = msg["d"]
         if to_use["data"]["name"] in self.commands.keys():
             selected_cmd = self.commands[to_use["data"]["name"]]
-            ctx = model.SlashContext(self.req, to_use, self._discord, self)
+            ctx = model.SlashContext(self.req, to_use, self._discord, self.logger)
             if selected_cmd["guild_ids"]:
                 if ctx.guild.id not in selected_cmd["guild_ids"]:
                     return
