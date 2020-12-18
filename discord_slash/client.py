@@ -51,20 +51,26 @@ class SlashCommand:
                           name: str = None,
                           description: str = None,
                           auto_convert: dict = None,
-                          guild_ids: list = None,
+                          guild_ids: typing.List[int] = None,
                           options: list = None,
                           has_subcommands: bool = False):
         """
         Registers slash command to SlashCommand.
 
         :param cmd: Command Coroutine.
+        :type cmd: Coroutine
         :param name: Name of the slash command. Default name of the coroutine.
+        :type name: str
         :param description: Description of the slash command. Default ``None``.
+        :type description: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
+        :type auto_convert: dict
         :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
-        :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
+        :type guild_ids: List[int]
+        :param options: Options of the slash command.
+        :type options: list
         :param has_subcommands: Whether it has subcommand. Default ``False``.
-        :return: ``None``
+        :type has_subcommands: bool
         """
         _cmd = {
             "func": cmd,
@@ -84,18 +90,24 @@ class SlashCommand:
                        name=None,
                        description: str = None,
                        auto_convert: dict = None,
-                       guild_ids: list = None):
+                       guild_ids: typing.List[int] = None):
         """
         Registers subcommand to SlashCommand.
 
-        :param cmd:
-        :param base:
-        :param subcommand_group:
-        :param name:
-        :param description:
-        :param auto_convert:
-        :param guild_ids:
-        :return:
+        :param cmd: Subcommand Coroutine.
+        :type cmd: Coroutine
+        :param base: Name of the base command.
+        :type base: str
+        :param subcommand_group: Name of the subcommand group, if any. Default ``None`` which represents there is no sub group.
+        :type subcommand_group: str
+        :param name: Name of the subcommand. Default name of the coroutine.
+        :type name: str
+        :param description: Description of the subcommand. Default ``None``.
+        :type description: str
+        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
+        :type auto_convert: dict
+        :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
+        :type guild_ids: List[int]
         """
         name = cmd.__name__ if not name else name
         _cmd = {
@@ -118,6 +130,7 @@ class SlashCommand:
             self.subcommands[base][subcommand_group][name] = _sub
         else:
             self.subcommands[base][name] = _sub
+        self.logger.debug(f"Added subcommand `{base} {subcommand_group if subcommand_group else ''} {cmd.__name__ if not name else name}`")
 
     def slash(self,
               *,
@@ -200,31 +213,44 @@ class SlashCommand:
                    name=None,
                    description: str = None,
                    auto_convert: dict = None,
-                   guild_ids: int = None):
+                   guild_ids: typing.List[int] = None):
         """
         Decorator that registers subcommand.\n
-        Unlike discord.py, you don't need base command.\n
-        Not implemented.
+        Unlike discord.py, you don't need base command.
 
         Example:
 
         .. code-block:: python
 
+            # /group say <str>
             @slash.subcommand(base="group", name="say")
             async def _group_say(ctx, _str):
                 await ctx.send(content=_str)
+
+            # /group kick user <user>
+            @slash.subcommand(base="group",
+                              subcommand_group="kick",
+                              name="user",
+                              auto_convert={"user": "user"})
+            async def _group_kick_user(ctx, user):
+                ...
 
         .. note::
             Unlike normal slash command, this doesn't support ``options`` arg, since it will be very complicated.\n
             Also, subcommands won't be automatically registered to Discord API even if you set ``auto_register`` to ``True``.
 
         :param base: Name of the base command.
+        :type base: str
         :param subcommand_group: Name of the subcommand group, if any. Default ``None`` which represents there is no sub group.
+        :type subcommand_group: str
         :param name: Name of the subcommand. Default name of the coroutine.
+        :type name: str
         :param description: Description of the subcommand. Default ``None``.
+        :type description: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
+        :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
-        :return:
+        :type guild_ids: List[int]
         """
 
         def wrapper(cmd):
@@ -315,15 +341,31 @@ class SlashCommand:
                 return await self.handle_subcommand(ctx, to_use)
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
                 if "options" in to_use["data"] else []
-            self.logger.debug(f"Command {to_use['data']['name']} invoked.")
             await selected_cmd["func"](ctx, *args)
 
     async def handle_subcommand(self, ctx: model.SlashContext, data: dict):
         """
         Coroutine for handling subcommand.
-        Not implemented.
 
-        :param ctx:
-        :param data:
+        .. warning::
+            Do not manually call this.
+
+        :param ctx: :class:`.model.SlashContext` instance.
+        :param data: Gateway message.
         """
-        pass
+        base = self.subcommands[data["data"]["name"]]
+        sub = data["data"]["options"][0]
+        sub_name = sub["name"]
+        sub_opts = sub["options"] if "options" in sub else []
+        for x in sub_opts:
+            if "options" in x.keys():
+                sub_group = x["name"]
+                selected = base[sub_name][sub_group]
+                args = await self.process_options(ctx.guild, x["options"], selected["auto_convert"]) \
+                    if "options" in x.keys() else []
+                await selected["func"](ctx, *args)
+                return
+        selected = base[sub_name]
+        args = await self.process_options(ctx.guild, sub_opts, selected["auto_convert"]) \
+            if sub["options"] else []
+        await selected["func"](ctx, *args)
