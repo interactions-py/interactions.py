@@ -20,7 +20,7 @@ class SlashContext:
     :ivar _discord: :class:`discord.ext.commands.Bot`
     :ivar logger: Logger instance.
     :ivar sent: Whether you sent the initial response.
-    :ivar guild: :class:`discord.Guild` instance of the command message.
+    :ivar guild: :class:`discord.Guild` instance or guild ID of the command message.
     :ivar author: :class:`discord.Member` instance or user ID representing author of the command message.
     :ivar channel: :class:`discord.TextChannel` instance or channel ID representing channel of the command message.
     """
@@ -38,7 +38,7 @@ class SlashContext:
         self._discord = _discord
         self.logger = logger
         self.sent = False
-        self.guild: discord.Guild = _discord.get_guild(int(_json["guild_id"]))
+        self.guild: typing.Union[discord.Guild, int] = _discord.get_guild(int(_json["guild_id"]))
         self.author: typing.Union[discord.Member, int] = self.guild.get_member(int(_json["member"]["user"]["id"])) \
             if self.guild else None
         self.channel: typing.Union[discord.TextChannel, int] = self.guild.get_channel(int(_json["channel_id"])) \
@@ -47,6 +47,9 @@ class SlashContext:
             self.author = int(_json["member"]["user"]["id"])
         if not self.channel:
             self.channel = int(_json["channel_id"])
+        if not self.guild:
+            # Should be set after every others are set.
+            self.guild = int(_json["guild_id"])
 
     async def send(self,
                    send_type: int = 4,
