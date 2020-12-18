@@ -346,7 +346,7 @@ class SlashCommand:
                 return await self.handle_subcommand(ctx, to_use)
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
                 if "options" in to_use["data"] else []
-            await self._discord.dispatch("slash_command", to_use["data"]["name"], selected_cmd)
+            self._discord.dispatch("slash_command", to_use["data"]["name"], selected_cmd, ctx)
             await selected_cmd["func"](ctx, *args)
 
     async def handle_subcommand(self, ctx: model.SlashContext, data: dict):
@@ -375,11 +375,11 @@ class SlashCommand:
                 selected = base[sub_name][sub_group]
                 args = await self.process_options(ctx.guild, x["options"], selected["auto_convert"]) \
                     if "options" in x.keys() else []
-                await self._discord.dispatch("slash_command", sub_name, selected)
+                self._discord.dispatch("slash_command", f"{data['data']['name']} {sub_name} {sub_group}", selected, ctx)
                 await selected["func"](ctx, *args)
                 return
         selected = base[sub_name]
         args = await self.process_options(ctx.guild, sub_opts, selected["auto_convert"]) \
             if "options" in sub.keys() else []
-        await self._discord.dispatch("slash_command", sub_name, selected)
+        self._discord.dispatch("slash_command", f"{data['data']['name']} {sub_name}", selected, ctx)
         await selected["func"](ctx, *args)
