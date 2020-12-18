@@ -202,7 +202,7 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
+            self.add_slash_command(cmd, name.lower(), description, auto_convert, guild_ids, options)
             return cmd
         return wrapper
 
@@ -254,7 +254,7 @@ class SlashCommand:
         """
 
         def wrapper(cmd):
-            self.add_subcommand(cmd, base, subcommand_group, name, description, auto_convert, guild_ids)
+            self.add_subcommand(cmd, base.lower(), subcommand_group.lower(), name.lower(), description, auto_convert, guild_ids)
             return cmd
         return wrapper
 
@@ -367,5 +367,5 @@ class SlashCommand:
                 return
         selected = base[sub_name]
         args = await self.process_options(ctx.guild, sub_opts, selected["auto_convert"]) \
-            if sub["options"] else []
+            if "options" in sub.keys() else []
         await selected["func"](ctx, *args)
