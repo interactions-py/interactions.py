@@ -358,13 +358,19 @@ class SlashCommand:
         :param ctx: :class:`.model.SlashContext` instance.
         :param data: Gateway message.
         """
+        if data["data"]["name"] not in self.subcommands.keys():
+            return
         base = self.subcommands[data["data"]["name"]]
         sub = data["data"]["options"][0]
         sub_name = sub["name"]
+        if sub_name not in base.keys():
+            return
         sub_opts = sub["options"] if "options" in sub else []
         for x in sub_opts:
             if "options" in x.keys() or "value" not in x.keys():
                 sub_group = x["name"]
+                if sub_group not in base[sub_name].keys():
+                    return
                 selected = base[sub_name][sub_group]
                 args = await self.process_options(ctx.guild, x["options"], selected["auto_convert"]) \
                     if "options" in x.keys() else []
