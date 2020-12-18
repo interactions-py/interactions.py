@@ -339,6 +339,7 @@ class SlashCommand:
         if to_use["data"]["name"] in self.commands.keys():
             selected_cmd = self.commands[to_use["data"]["name"]]
             ctx = model.SlashContext(self.req, to_use, self._discord, self.logger)
+            await self._discord.dispatch("slash_command", to_use["data"]["name"], selected_cmd)
             if selected_cmd["guild_ids"]:
                 if ctx.guild.id not in selected_cmd["guild_ids"]:
                     return
