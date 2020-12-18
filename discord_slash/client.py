@@ -72,6 +72,8 @@ class SlashCommand:
         :param has_subcommands: Whether it has subcommand. Default ``False``.
         :type has_subcommands: bool
         """
+        name = cmd.__name__ if not name else name
+        name = name.lower()
         _cmd = {
             "func": cmd,
             "description": description,
@@ -80,8 +82,8 @@ class SlashCommand:
             "api_options": options,
             "has_subcommands": has_subcommands
         }
-        self.commands[cmd.__name__ if not name else name] = _cmd
-        self.logger.debug(f"Added command `{cmd.__name__ if not name else name}`")
+        self.commands[name] = _cmd
+        self.logger.debug(f"Added command `{name}`")
 
     def add_subcommand(self,
                        cmd,
@@ -109,7 +111,10 @@ class SlashCommand:
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
         """
+        base = base.lower()
+        subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
         name = cmd.__name__ if not name else name
+        name = name.lower()
         _cmd = {
             "guild_ids": guild_ids,
             "has_subcommands": True
@@ -202,7 +207,7 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.add_slash_command(cmd, name.lower(), description, auto_convert, guild_ids, options)
+            self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
             return cmd
         return wrapper
 
@@ -254,7 +259,7 @@ class SlashCommand:
         """
 
         def wrapper(cmd):
-            self.add_subcommand(cmd, base.lower(), subcommand_group.lower(), name.lower(), description, auto_convert, guild_ids)
+            self.add_subcommand(cmd, base, subcommand_group, name, description, auto_convert, guild_ids)
             return cmd
         return wrapper
 
@@ -358,7 +363,7 @@ class SlashCommand:
         sub_name = sub["name"]
         sub_opts = sub["options"] if "options" in sub else []
         for x in sub_opts:
-            if "options" in x.keys():
+            if "options" in x.keys() or "value" not in x.keys():
                 sub_group = x["name"]
                 selected = base[sub_name][sub_group]
                 args = await self.process_options(ctx.guild, x["options"], selected["auto_convert"]) \
