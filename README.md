@@ -22,7 +22,7 @@ async def _test(ctx: SlashContext):
 bot.run("discord_token")
 ```
 
-Cog(Not Recommended):
+Cog (__Not Recommended__):
 ```py
 import discord
 from discord.ext import commands
