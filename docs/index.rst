@@ -16,7 +16,7 @@ Example:
     import discord
     from discord.ext import commands
     from discord_slash import SlashCommand
-    from discord_slash.model import SlashContext
+    from discord_slash import SlashContext
 
     bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
     slash = SlashCommand(bot)
