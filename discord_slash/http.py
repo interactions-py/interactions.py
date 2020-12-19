@@ -1,81 +1,62 @@
-import aiohttp
 import asyncio
-from .error import RequestFailure
 
+from discord.http import (
+    HTTPClient,
+    Route
+)
 
-class SlashCommandRequest:
-    def __init__(self, logger):
-        self.logger = logger
+class HTTPClient(HTTPClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.app_info = None
+        self._app_info_event = asyncio.Event()
 
-    async def post(self, _resp, bot_id, interaction_id, token, initial=False) -> None:
-        """
-        Sends command response POST request to Discord API.
+    async def static_login(self, *args, **kwargs):
+        data = await super().static_login(*args, **kwargs)
+        if self.bot_token:
+            self.app_info = await self.application_info()
+            self._app_info_event.set()
+        return data
 
-        :param _resp: Command response.
-        :type _resp: dict
-        :param bot_id: Bot ID.
-        :param interaction_id: Interaction ID.
-        :param token: Command message token.
-        :param initial: Whether this request is initial. Default ``False``
-        :return: ``None``, since Discord API doesn't return anything.
-        :raises: :class:`.error.RequestFailure` - Requesting to API has failed.
-        """
-        req_url = f"https://discord.com/api/v8/interactions/{interaction_id}/{token}/callback" \
-            if initial \
-            else f"https://discord.com/api/v8/webhooks/{bot_id}/{token}"
-        async with aiohttp.ClientSession() as session:
-            async with session.post(req_url, json=_resp) as resp:
-                if resp.status == 429:
-                    _json = await resp.json()
-                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
-                    await asyncio.sleep(_json["retry_after"])
-                    return await self.post(_resp, bot_id, interaction_id, token, initial)
-                if not 200 <= resp.status < 300:
-                    raise RequestFailure(resp.status, await resp.text())
-                return None
+    def get_application_commands(self, application_id, guild_id=None):
+        if guild_id is None:
+            r = Route('GET', '/applications/{application_id}/commands', application_id=application_id)
+        else:
+            r = Route('GET', '/applications/{application_id}/guilds/{guild_id}/commands')
 
-    async def edit(self, _resp, bot_id, token, message_id="@original"):
-        """
-        Sends edit command response POST request to Discord API.
+        return self.request(r)
 
-        :param _resp: Edited response.
-        :type _resp: dict
-        :param bot_id: Bot ID.
-        :param token: Command message token.
-        :param message_id: Message ID to edit. Default initial message.
-        :return: True if succeeded.
-        :raises: :class:`.error.RequestFailure` - Requesting to API has failed.
-        """
-        req_url = f"https://discord.com/api/v8/webhooks/{bot_id}/{token}/messages/{message_id}"
-        async with aiohttp.ClientSession() as session:
-            async with session.patch(req_url, json=_resp) as resp:
-                if resp.status == 429:
-                    _json = await resp.json()
-                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
-                    await asyncio.sleep(_json["retry_after"])
-                    return await self.edit(_resp, bot_id, token, message_id)
-                if not 200 <= resp.status < 300:
-                    raise RequestFailure(resp.status, await resp.text())
-                return True
+    def create_application_command(self, application_id, guild_id=None, data=None):
+        if guild_id is None:
+            r = Route('POST', '/applications/{application_id}/commands', application_id=application_id)
+        else:
+            r = Route('POST', '/applications/{application_id}/guilds/{guild_id}/commands', application_id=application_id, guild_id=guild_id)
 
-    async def delete(self, bot_id, token, message_id="@original"):
-        """
-        Sends delete command response POST request to Discord API.
+        return self.request(r, json=data)
 
-        :param bot_id: Bot ID.
-        :param token: Command message token.
-        :param message_id: Message ID to delete. Default initial message.
-        :return: True if succeeded.
-        :raises: :class:`.error.RequestFailure` - Requesting to API has failed.
-        """
-        req_url = f"https://discord.com/api/v8/webhooks/{bot_id}/{token}/messages/{message_id}"
-        async with aiohttp.ClientSession() as session:
-            async with session.delete(req_url) as resp:
-                if resp.status == 429:
-                    _json = await resp.json()
-                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
-                    await asyncio.sleep(_json["retry_after"])
-                    return await self.delete(bot_id, token, message_id)
-                if not 200 <= resp.status < 300:
-                    raise RequestFailure(resp.status, await resp.text())
-                return True
+    def edit_application_command(self, application_id, command_id, guild_id=None, **options):
+        if guild_id is None:
+            r = Route('PATCH', '/applications/{application_id}/commands/{command_id}', application_id=application_id, command_id=command_id)
+        else:
+            r = Route('PATCH', '/applications/{application_id}/guilds/{guild_id}/commands/{command_id}', application_id=application_id, command_id=command_id, guild_id=guild_id)
+
+        payload = options
+        
+        if name is not None:
+            payload['name'] = name
+
+        if description is not None:
+            payload['description'] = description
+
+        return self.request(r, json=payload)
+
+    def delete_application_command(self, application_id, command_id, guild_id=None):
+        if guild_id is None:
+            r = Route('DELETE', '/applications/{application_id}/commands/{command_id}', application_id=application_id, command_id=command_id)
+        else:
+            r = Route('DELETE', '/applications/{application_id}/guilds/{guild_id}/commands/{command_id}', application_id=application_id, guild_id=guild_id, command_id=command_id)
+
+    def create_interaction_response(self, interaction_id, interaction_token, interaction_response):
+        r = Route('POST', '/interactions/{interaction_id}/{interaction_token}/callback', interaction_id=interaction_id, interaction_token=interaction_token)
+
+        return self.request(r, json=interaction_response)

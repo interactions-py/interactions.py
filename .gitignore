@@ -3,3 +3,4 @@ __pycache__
 test.py
 test2.py
 docs/_build
+.replit
