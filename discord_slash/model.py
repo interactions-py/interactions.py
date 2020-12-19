@@ -54,6 +54,7 @@ class SlashContext:
     async def send(self,
                    send_type: int = 4,
                    content: str = "",
+                   *,
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
                    allowed_mentions: discord.AllowedMentions = None,
@@ -63,7 +64,10 @@ class SlashContext:
         Sends response of the slash command.
 
         .. note::
-            Param ``hidden`` ONLY works without embeds.
+            Every args except `send_type` and `content` must be passed as keyword args.
+
+        .. warning::
+            Param ``hidden`` only works without embeds.
 
         :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default ``4``.
         :type send_type: int
@@ -118,6 +122,7 @@ class SlashContext:
         return resp
 
     async def edit(self,
+                   *,
                    message_id: typing.Union[int, str] = "@original",
                    content: str = "",
                    embeds: typing.List[discord.Embed] = None,
@@ -125,6 +130,9 @@ class SlashContext:
                    allowed_mentions: discord.AllowedMentions = None):
         """
         Edits response of the slash command.
+
+        .. note::
+            All args must be passed as keyword args.
 
         :param message_id: Response message ID. Default initial message.
         :param content: Text of the response. Can be ``None``.
