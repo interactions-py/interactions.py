@@ -56,7 +56,7 @@ def setup(bot):
 
 ## Simple note before you use this
 Since slash commands are currently not officially released (They're in public beta),
-there will be many breaking changes to this extension which may cause it to be unstable, 
+there will be many breaking changes to this extension which may cause it to become unstable, 
 so I'd recommend waiting until discord officially releases slash commands,
 and waiting until Release 1.1.0, which I'm planning to finish implementing most of the features.  
 Or you can wait until discord.py supports slash commands.
