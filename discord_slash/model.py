@@ -110,6 +110,8 @@ class SlashContext:
                 base["data"]["flags"] = 64
         if hidden and embeds:
             self.logger.warning("You cannot use both `hidden` and `embeds` at the same time!")
+        if (send_type == 2 or send_type == 5) and not self.sent:
+            base = {"type": send_type}
         initial = True if not self.sent else False
         resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
         self.sent = True
