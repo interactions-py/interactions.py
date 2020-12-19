@@ -1,5 +1,5 @@
 # discord-py-slash-command
-Simple Discord Slash Command extension for [discord.py](https://github.com/Rapptz/discord.py).
+Simple Discord Slash Commands extension for [discord.py](https://github.com/Rapptz/discord.py).
 
 ## Example
 Normal usage:
@@ -55,11 +55,11 @@ def setup(bot):
 `pip install -U discord-py-slash-command`
 
 ## Simple note before you use this
-Since slash command feature is not officially released, 
-there will be many breaking changes to this extension and may be unstable, 
-so I'd recommend waiting until discord officially releases slash command, 
-and wait until Release 1.1.0, which I'm planning to finish implementing most of the feature.  
-Or you can wait until discord.py supports slash command.
+Since slash commands are currently not officially released (They're in public beta),
+there will be many breaking changes to this extension which may cause it to become unstable, 
+so I'd recommend waiting until discord officially releases slash commands,
+and waiting until Release 1.1.0, which I'm planning to finish implementing most of the features.  
+Or you can wait until discord.py supports slash commands.
 
 ## DOCS
 https://discord-py-slash-command.readthedocs.io/en/latest/  
