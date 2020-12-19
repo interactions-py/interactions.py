@@ -1,4 +1,5 @@
 import aiohttp
+from ..error import RequestFailure
 
 
 async def add_slash_command(bot_id,
@@ -17,6 +18,7 @@ async def add_slash_command(bot_id,
     :param description: Description of the command.
     :param options: List of the function.
     :return: JSON Response of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}"
     url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
@@ -28,6 +30,8 @@ async def add_slash_command(bot_id,
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers={"Authorization": f"Bot {bot_token}"}, json=base) as resp:
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
 
 
@@ -43,13 +47,37 @@ async def remove_slash_command(bot_id,
     :param guild_id: ID of the guild to remove command. Pass `None` to remove global command.
     :param cmd_id: ID of the command.
     :return: Response code of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}"
     url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
     url += f"/{cmd_id}"
     async with aiohttp.ClientSession() as session:
         async with session.delete(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
             return resp.status
+
+
+async def get_all_commands(bot_id,
+                           bot_token,
+                           guild_id):
+    """
+    A coroutine that sends a slash command get request to Discord API.
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to get commands. Pass `None` to get all global commands.
+    :return: JSON Response of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}"
+    url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
 
 
 def create_option(name: str,
