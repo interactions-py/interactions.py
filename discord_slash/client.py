@@ -47,9 +47,22 @@ class SlashCommand:
             self.has_listener = True
 
     def remove(self):
+        """
+        Removes :func:`on_socket_response` event listener from discord.py Client.
+
+        .. note::
+            This only works if it is :class:`discord.ext.commands.Bot` or
+            :class:`discord.ext.commands.AutoShardedBot`.
+        """
+        if not self.has_listener:
+            return
         self._discord.remove_listener(self.on_socket_response)
 
     async def register_all_commands(self):
+        """
+        Registers all slash commands except subcommands to Discord API.\n
+        If ``auto_register`` is ``True``, then this will be automatically called.
+        """
         await self._discord.wait_until_ready() # In case commands are still not registered to SlashCommand.
         self.logger.info("Registering commands...")
         for x in self.commands.keys():
