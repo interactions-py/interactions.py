@@ -103,7 +103,7 @@ class SlashCommand:
         name = name.lower()
         _cmd = {
             "func": cmd,
-            "description": description,
+            "description": description if description else "No description.",
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
             "api_options": options if options else [],
