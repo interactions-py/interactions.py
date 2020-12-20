@@ -35,6 +35,7 @@ Example:
    :caption: Contents:
    
    discord_slash.rst
+   events.rst
    discord_slash.utils.rst
 
 
