@@ -14,7 +14,7 @@ class SlashContext:
         Do not manually init this model.
 
     :ivar name: Name of the command.
-    :ivar subcommand: Subcommand of the command.
+    :ivar subcommand_name: Subcommand of the command.
     :ivar subcommand_group: Subcommand group of the command.
     :ivar interaction_id: Interaction ID of the command message.
     :ivar command_id: ID of the command.
@@ -34,7 +34,7 @@ class SlashContext:
                  logger):
         self.__token = _json["token"]
         self.name = _json["data"]["name"]
-        self.subcommand = None
+        self.subcommand_name = None
         self.subcommand_group = None
         self.interaction_id = _json["id"]
         self.command_id = _json["data"]["id"]
