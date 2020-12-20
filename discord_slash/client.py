@@ -160,7 +160,10 @@ class SlashCommand:
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
         }
-        self.commands[base] = _cmd
+        if base not in self.commands.keys():
+            self.commands[base] = _cmd
+        else:
+            self.subcommands[base]["has_subcommands"] = True
         if base not in self.subcommands.keys():
             self.subcommands[base] = {}
         if subcommand_group:
@@ -317,7 +320,8 @@ class SlashCommand:
         converters = [
             [guild.get_member, guild.fetch_member],
             guild.get_channel,
-            guild.get_role]
+            guild.get_role
+        ]
 
         types = {
             "user": 0,
