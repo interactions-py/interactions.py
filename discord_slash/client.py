@@ -424,6 +424,31 @@ class SlashCommand:
             await self.on_slash_command_error(ctx, ex)
 
     async def on_slash_command_error(self, ctx, ex):
+        """
+        Handles Exception occurred from invoking command.
+
+        Example of adding event:
+
+        .. code-block:: python
+
+            @client.event
+            async def on_slash_command_error(ctx, ex):
+                ...
+
+        Example of adding listener:
+
+        .. code-block:: python
+
+            @bot.listen()
+            async def on_slash_command_error(ctx, ex):
+                ...
+
+        :param ctx: Context of the command.
+        :type ctx: :class:`.model.SlashContext`
+        :param ex: Exception from the command invoke.
+        :type ex: Exception
+        :return:
+        """
         if self.has_listener:
             if self._discord.extra_events.get('on_slash_command_error'):
                 self._discord.dispatch("slash_command_error", ctx, ex)
