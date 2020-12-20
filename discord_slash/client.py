@@ -104,6 +104,10 @@ class SlashCommand:
         """
         name = cmd.__name__ if not name else name
         name = name.lower()
+        if name in self.commands.keys():
+            tgt = self.subcommands[name]
+            has_subcommands = tgt["has_subcommands"]
+            guild_ids += tgt["guild_ids"]
         _cmd = {
             "func": cmd,
             "description": description if description else "No description.",
