@@ -14,7 +14,7 @@ class SlashCommand:
 
     :param client: discord.py Client or Bot instance.
     :type client: Union[discord.Client, discord.ext.commands.Bot]
-    :param auto_register: Whether to register commands automatically. Default `False`. Currently not implemented.
+    :param auto_register: Whether to register commands automatically. Default `False`.
     :type auto_register: bool
     :param override_type: Whether to override checking type of the client and try register event.
     :type override_type: bool
