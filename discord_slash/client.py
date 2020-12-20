@@ -24,6 +24,7 @@ class SlashCommand:
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
     :ivar logger: Logger of this client.
     :ivar auto_register: Whether to register commands automatically.
+    :ivar has_listener: Whether discord client has listener add function.
     """
     def __init__(self,
                  client: typing.Union[discord.Client, commands.Bot],
@@ -37,11 +38,13 @@ class SlashCommand:
         self.auto_register = auto_register
         if self.auto_register:
             self._discord.loop.create_task(self.register_all_commands())
-        if not isinstance(client, commands.Bot) or not isinstance(client, commands.AutoShardedBot) and not override_type:
+        if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
             self._discord.on_socket_response = self.on_socket_response
+            self.has_listener = False
         else:
             self._discord.add_listener(self.on_socket_response)
+            self.has_listener = True
 
     def remove(self):
         self._discord.remove_listener(self.on_socket_response)
@@ -374,7 +377,10 @@ class SlashCommand:
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
                 if "options" in to_use["data"] else []
             self._discord.dispatch("slash_command", to_use["data"]["name"], selected_cmd, ctx)
-            await selected_cmd["func"](ctx, *args)
+            try:
+                await selected_cmd["func"](ctx, *args)
+            except Exception as ex:
+                await self.on_slash_command_error(ctx, ex)
 
     async def handle_subcommand(self, ctx: model.SlashContext, data: dict):
         """
@@ -403,10 +409,27 @@ class SlashCommand:
                 args = await self.process_options(ctx.guild, x["options"], selected["auto_convert"]) \
                     if "options" in x.keys() else []
                 self._discord.dispatch("slash_command", f"{data['data']['name']} {sub_name} {sub_group}", selected, ctx)
-                await selected["func"](ctx, *args)
+                try:
+                    await selected["func"](ctx, *args)
+                except Exception as ex:
+                    await self.on_slash_command_error(ctx, ex)
                 return
         selected = base[sub_name]
         args = await self.process_options(ctx.guild, sub_opts, selected["auto_convert"]) \
             if "options" in sub.keys() else []
         self._discord.dispatch("slash_command", f"{data['data']['name']} {sub_name}", selected, ctx)
-        await selected["func"](ctx, *args)
+        try:
+            await selected["func"](ctx, *args)
+        except Exception as ex:
+            await self.on_slash_command_error(ctx, ex)
+
+    async def on_slash_command_error(self, ctx, ex):
+        if self.has_listener:
+            if self._discord.extra_events.get('on_slash_command_error'):
+                self._discord.dispatch("slash_command_error", ctx, ex)
+                return
+        if hasattr(self._discord, "on_slash_command_error"):
+            self._discord.dispatch("slash_command_error", ctx, ex)
+            return
+        # Prints exception if not overrided or has no listener for error.
+        self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
