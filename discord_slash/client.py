@@ -36,8 +36,8 @@ class SlashCommand:
         self.req = http.SlashCommandRequest(self.logger)
         self.auto_register = auto_register
         if self.auto_register:
-            self.logger.warning("auto_register is NOT implemented! Please manually add commands to Discord API.")
-        if not isinstance(client, commands.Bot) and not override_type:
+            self._discord.loop.create_task(self.register_all_commands())
+        if not isinstance(client, commands.Bot) or not isinstance(client, commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
             self._discord.on_socket_response = self.on_socket_response
         else:
@@ -45,6 +45,33 @@ class SlashCommand:
 
     def remove(self):
         self._discord.remove_listener(self.on_socket_response)
+
+    async def register_all_commands(self):
+        await self._discord.wait_until_ready() # In case commands are still not registered to SlashCommand.
+        self.logger.info("Registering commands...")
+        for x in self.commands.keys():
+            selected = self.commands[x]
+            if selected["has_subcommands"] and "func" not in selected.keys():
+                # Just in case it has subcommands but also has base command.
+                # More specific, it will skip if it has subcommands and doesn't have base command coroutine.
+                self.logger.debug("Skipping registering subcommands.")
+                continue
+            if selected["guild_ids"]:
+                for y in selected["guild_ids"]:
+                    await manage_commands.add_slash_command(self._discord.user.id,
+                                                            self._discord.http.token,
+                                                            y,
+                                                            x,
+                                                            selected["description"],
+                                                            selected["api_options"])
+            else:
+                await manage_commands.add_slash_command(self._discord.user.id,
+                                                        self._discord.http.token,
+                                                        None,
+                                                        x,
+                                                        selected["description"],
+                                                        selected["api_options"])
+        self.logger.info("Completed registering all commands!")
 
     def add_slash_command(self,
                           cmd,
@@ -79,7 +106,7 @@ class SlashCommand:
             "description": description,
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
-            "api_options": options,
+            "api_options": options if options else [],
             "has_subcommands": has_subcommands
         }
         self.commands[name] = _cmd
