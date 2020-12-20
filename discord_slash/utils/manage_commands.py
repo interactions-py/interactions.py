@@ -1,3 +1,4 @@
+import asyncio
 import aiohttp
 from ..error import RequestFailure
 
@@ -30,6 +31,10 @@ async def add_slash_command(bot_id,
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers={"Authorization": f"Bot {bot_token}"}, json=base) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await add_slash_command(bot_id, bot_token, guild_id, cmd_name, description, options)
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
@@ -54,6 +59,10 @@ async def remove_slash_command(bot_id,
     url += f"/{cmd_id}"
     async with aiohttp.ClientSession() as session:
         async with session.delete(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await remove_slash_command(bot_id, bot_token, guild_id, cmd_id)
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return resp.status
@@ -75,6 +84,10 @@ async def get_all_commands(bot_id,
     url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await remove_slash_command(bot_id, bot_token, guild_id)
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
