@@ -403,12 +403,14 @@ class SlashCommand:
         sub_name = sub["name"]
         if sub_name not in base.keys():
             return
+        ctx.subcommand = sub_name
         sub_opts = sub["options"] if "options" in sub else []
         for x in sub_opts:
             if "options" in x.keys() or "value" not in x.keys():
                 sub_group = x["name"]
                 if sub_group not in base[sub_name].keys():
                     return
+                ctx.subcommand_group = sub_group
                 selected = base[sub_name][sub_group]
                 args = await self.process_options(ctx.guild, x["options"], selected["auto_convert"]) \
                     if "options" in x.keys() else []
