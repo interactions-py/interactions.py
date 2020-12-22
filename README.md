@@ -71,5 +71,6 @@ about some formats.
 Or you can ask at [Discussions](https://github.com/eunwoo1104/discord-py-slash-command/discussions).
 
 ## TODO
-- Support subcommands
+- Rewrite `http.py` and webhook part (Maybe use discord.py's webhook support?)
+- Properly support Cog
 - Try supporting most of the features supported by discord.py commands extension
