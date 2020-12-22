@@ -87,7 +87,7 @@ async def get_all_commands(bot_id,
             if resp.status == 429:
                 _json = await resp.json()
                 await asyncio.sleep(_json["retry_after"])
-                return await remove_slash_command(bot_id, bot_token, guild_id)
+                return await get_all_commands(bot_id, bot_token, guild_id)
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
