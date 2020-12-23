@@ -25,3 +25,11 @@ class IncorrectFormat(SlashCommandError):
     """
     def __init__(self, msg: str):
         super().__init__(msg)
+
+
+class DuplicateCommand(SlashCommandError):
+    """
+    There is a duplicate command name.
+    """
+    def __init__(self, name: str):
+        super().__init__(f"Duplicate command name detected: {name}")

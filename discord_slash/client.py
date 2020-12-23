@@ -26,6 +26,7 @@ class SlashCommand:
     :ivar auto_register: Whether to register commands automatically.
     :ivar has_listener: Whether discord client has listener add function.
     """
+
     def __init__(self,
                  client: typing.Union[discord.Client, commands.Bot],
                  auto_register: bool = False,
@@ -38,7 +39,8 @@ class SlashCommand:
         self.auto_register = auto_register
         if self.auto_register:
             self._discord.loop.create_task(self.register_all_commands())
-        if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
+        if not isinstance(client, commands.Bot) and not isinstance(client,
+                                                                   commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
             self._discord.on_socket_response = self.on_socket_response
             self.has_listener = False
@@ -50,6 +52,9 @@ class SlashCommand:
         """
         Removes :func:`on_socket_response` event listener from discord.py Client.
 
+        .. warning::
+            This is deprecated and will be removed soon.
+
         .. note::
             This only works if it is :class:`discord.ext.commands.Bot` or
             :class:`discord.ext.commands.AutoShardedBot`.
@@ -58,35 +63,107 @@ class SlashCommand:
             return
         self._discord.remove_listener(self.on_socket_response)
 
+    def get_cog_commands(self, cog: commands.Cog):
+        """
+        Gets slash command from :class:`discord.ext.commands.Cog`.
+
+        :param cog: Cog that has slash commands.
+        :type cog: discord.ext.commands.Cog
+        """
+        func_list = [getattr(cog, x) for x in dir(cog)]
+        res = [x for x in func_list if
+               isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
+        for x in res:
+            x.cog = cog
+            if isinstance(x, model.CogCommandObject):
+                self.commands[x.name] = x
+            else:
+                if x.base in self.commands.keys():
+                    self.commands[x.base].allowed_guild_ids += x.allowed_guild_ids
+                    self.commands[x.base].has_subcommands = True
+                else:
+                    _cmd = {
+                        "func": None,
+                        "description": "No description.",
+                        "auto_convert": {},
+                        "guild_ids": x.allowed_guild_ids,
+                        "api_options": [],
+                        "has_subcommands": True
+                    }
+                    self.commands[x.base] = model.CommandObject(x.base, _cmd)
+                if x.base not in self.subcommands.keys():
+                    self.subcommands[x.base] = {}
+                if x.subcommand_group:
+                    if x.subcommand_group not in self.subcommands:
+                        self.subcommands[x.base][x.subcommand_group] = {}
+                    self.subcommands[x.base][x.subcommand_group][x.name] = x
+                else:
+                    self.subcommands[x.base][x.name] = x
+
+    def remove_cog_commands(self, cog):
+        """
+        Removes slash command from :class:`discord.ext.commands.Cog`.
+
+        :param cog: Cog that has slash commands.
+        :type cog: discord.ext.commands.Cog
+        """
+        func_list = [getattr(cog, x) for x in dir(cog)]
+        res = [x for x in func_list if
+               isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
+        for x in res:
+            if isinstance(x, model.CogCommandObject):
+                if x.name not in self.commands.keys():
+                    continue # Just in case it is removed due to subcommand.
+                if x.name in self.subcommands.keys():
+                    self.commands[x.name].func = None
+                    continue # Let's remove completely when every subcommand is removed.
+                del self.commands[x.name]
+            else:
+                if x.base not in self.subcommands.keys():
+                    continue # Just in case...
+                if x.subcommand_group:
+                    del self.subcommands[x.base][x.subcommand_group][x.name]
+                    if not self.subcommands[x.base][x.subcommand_group]:
+                        del self.subcommands[x.base][x.subcommand_group]
+                else:
+                    del self.subcommands[x.base][x.name]
+                if not self.subcommands[x.base]:
+                    del self.subcommands[x.base]
+                    if x.base in self.commands.keys():
+                        if self.commands[x.base].func:
+                            self.commands[x.base].has_subcommands = False
+                        else:
+                            del self.commands[x.base]
+
     async def register_all_commands(self):
         """
         Registers all slash commands except subcommands to Discord API.\n
         If ``auto_register`` is ``True``, then this will be automatically called.
         """
-        await self._discord.wait_until_ready() # In case commands are still not registered to SlashCommand.
+        await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
         self.logger.info("Registering commands...")
         for x in self.commands.keys():
             selected = self.commands[x]
-            if selected["has_subcommands"] and "func" not in selected.keys():
+            if selected.has_subcommands and not hasattr(selected, "invoke"):
                 # Just in case it has subcommands but also has base command.
                 # More specific, it will skip if it has subcommands and doesn't have base command coroutine.
                 self.logger.debug("Skipping registering subcommands.")
                 continue
-            if selected["guild_ids"]:
-                for y in selected["guild_ids"]:
+            if selected.allowed_guild_ids:
+                for y in selected.allowed_guild_ids:
                     await manage_commands.add_slash_command(self._discord.user.id,
                                                             self._discord.http.token,
                                                             y,
                                                             x,
-                                                            selected["description"],
-                                                            selected["api_options"])
+                                                            selected.description,
+                                                            selected.options)
             else:
                 await manage_commands.add_slash_command(self._discord.user.id,
                                                         self._discord.http.token,
                                                         None,
                                                         x,
-                                                        selected["description"],
-                                                        selected["api_options"])
+                                                        selected.description,
+                                                        selected.options)
         self.logger.info("Completed registering all commands!")
 
     def add_slash_command(self,
@@ -129,7 +206,7 @@ class SlashCommand:
             "api_options": options if options else [],
             "has_subcommands": has_subcommands
         }
-        self.commands[name] = _cmd
+        self.commands[name] = model.CommandObject(name, _cmd)
         self.logger.debug(f"Added command `{name}`")
 
     def add_subcommand(self,
@@ -163,7 +240,11 @@ class SlashCommand:
         name = cmd.__name__ if not name else name
         name = name.lower()
         _cmd = {
+            "func": None,
+            "description": "No description.",
+            "auto_convert": {},
             "guild_ids": guild_ids,
+            "api_options": [],
             "has_subcommands": True
         }
         _sub = {
@@ -174,18 +255,20 @@ class SlashCommand:
             "guild_ids": guild_ids,
         }
         if base not in self.commands.keys():
-            self.commands[base] = _cmd
+            self.commands[base] = model.CommandObject(base, _cmd)
         else:
-            self.subcommands[base]["has_subcommands"] = True
+            self.commands[base].has_subcommands = True
+            self.commands[base].allowed_guild_ids += guild_ids
         if base not in self.subcommands.keys():
             self.subcommands[base] = {}
         if subcommand_group:
             if subcommand_group not in self.subcommands[base].keys():
                 self.subcommands[base][subcommand_group] = {}
-            self.subcommands[base][subcommand_group][name] = _sub
+            self.subcommands[base][subcommand_group][name] = model.SubcommandObject(_sub, base, name, subcommand_group)
         else:
-            self.subcommands[base][name] = _sub
-        self.logger.debug(f"Added subcommand `{base} {subcommand_group if subcommand_group else ''} {cmd.__name__ if not name else name}`")
+            self.subcommands[base][name] = model.SubcommandObject(_sub, base, name)
+        self.logger.debug(
+            f"Added subcommand `{base} {subcommand_group if subcommand_group else ''} {cmd.__name__ if not name else name}`")
 
     def slash(self,
               *,
@@ -259,6 +342,7 @@ class SlashCommand:
         def wrapper(cmd):
             self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
             return cmd
+
         return wrapper
 
     def subcommand(self,
@@ -311,6 +395,7 @@ class SlashCommand:
         def wrapper(cmd):
             self.add_subcommand(cmd, base, subcommand_group, name, description, auto_convert, guild_ids)
             return cmd
+
         return wrapper
 
     async def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> list:
@@ -388,18 +473,21 @@ class SlashCommand:
             return
         to_use = msg["d"]
         if to_use["data"]["name"] in self.commands.keys():
-            selected_cmd = self.commands[to_use["data"]["name"]]
             ctx = model.SlashContext(self.req, to_use, self._discord, self.logger)
-            if selected_cmd["guild_ids"]:
-                if ctx.guild.id not in selected_cmd["guild_ids"]:
-                    return
-            if selected_cmd["has_subcommands"]:
+            cmd_name = to_use["data"]["name"]
+            if cmd_name not in self.commands.keys() and cmd_name in self.subcommands.keys():
                 return await self.handle_subcommand(ctx, to_use)
-            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd["auto_convert"]) \
+            selected_cmd = self.commands[to_use["data"]["name"]]
+            if selected_cmd.allowed_guild_ids:
+                if ctx.guild.id not in selected_cmd.allowed_guild_ids:
+                    return
+            if selected_cmd.has_subcommands:
+                return await self.handle_subcommand(ctx, to_use)
+            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.auto_convert) \
                 if "options" in to_use["data"] else []
             self._discord.dispatch("slash_command", ctx)
             try:
-                await selected_cmd["func"](ctx, *args)
+                await selected_cmd.invoke(ctx, *args)
             except Exception as ex:
                 await self.on_slash_command_error(ctx, ex)
 
@@ -429,20 +517,20 @@ class SlashCommand:
                     return
                 ctx.subcommand_group = sub_group
                 selected = base[sub_name][sub_group]
-                args = await self.process_options(ctx.guild, x["options"], selected["auto_convert"]) \
+                args = await self.process_options(ctx.guild, x["options"], selected.auto_convert) \
                     if "options" in x.keys() else []
                 self._discord.dispatch("slash_command", ctx)
                 try:
-                    await selected["func"](ctx, *args)
+                    await selected.invoke(ctx, *args)
                 except Exception as ex:
                     await self.on_slash_command_error(ctx, ex)
                 return
         selected = base[sub_name]
-        args = await self.process_options(ctx.guild, sub_opts, selected["auto_convert"]) \
+        args = await self.process_options(ctx.guild, sub_opts, selected.auto_convert) \
             if "options" in sub.keys() else []
         self._discord.dispatch("slash_command", ctx)
         try:
-            await selected["func"](ctx, *args)
+            await selected.invoke(ctx, *args)
         except Exception as ex:
             await self.on_slash_command_error(ctx, ex)
 
