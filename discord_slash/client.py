@@ -90,26 +90,26 @@ class SlashCommand:
         self.logger.info("Registering commands...")
         for x in self.commands.keys():
             selected = self.commands[x]
-            if selected["has_subcommands"] and "func" not in selected.keys():
+            if selected.has_subcommands and not hasattr(selected, "invoke"):
                 # Just in case it has subcommands but also has base command.
                 # More specific, it will skip if it has subcommands and doesn't have base command coroutine.
                 self.logger.debug("Skipping registering subcommands.")
                 continue
-            if selected["guild_ids"]:
-                for y in selected["guild_ids"]:
+            if selected.allowed_guild_ids:
+                for y in selected.allowed_guild_ids:
                     await manage_commands.add_slash_command(self._discord.user.id,
                                                             self._discord.http.token,
                                                             y,
                                                             x,
-                                                            selected["description"],
-                                                            selected["api_options"])
+                                                            selected.description,
+                                                            selected.options)
             else:
                 await manage_commands.add_slash_command(self._discord.user.id,
                                                         self._discord.http.token,
                                                         None,
                                                         x,
-                                                        selected["description"],
-                                                        selected["api_options"])
+                                                        selected.description,
+                                                        selected.options)
         self.logger.info("Completed registering all commands!")
 
     def add_slash_command(self,
@@ -203,8 +203,8 @@ class SlashCommand:
         if base not in self.commands.keys():
             self.commands[base] = model.CommandObject(base, _cmd)
         else:
-            self.subcommands[base].has_subcommands = True
-            self.subcommands[base].guild_ids += guild_ids
+            self.commands[base].has_subcommands = True
+            self.commands[base].allowed_guild_ids += guild_ids
         if base not in self.subcommands.keys():
             self.subcommands[base] = {}
         if subcommand_group:
