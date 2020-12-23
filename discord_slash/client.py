@@ -72,15 +72,29 @@ class SlashCommand:
                 if x.base in self.commands.keys():
                     self.commands[x.base].allowed_guild_ids += x.allowed_guild_ids
                     self.commands[x.base].has_subcommands = True
+                else:
+                    _cmd = {
+                        "func": None,
+                        "description": "No description.",
+                        "auto_convert": {},
+                        "guild_ids": x.allowed_guild_ids,
+                        "api_options": [],
+                        "has_subcommands": True
+                    }
+                    self.commands[x.base] = model.CommandObject(x.base, _cmd)
                 if x.base not in self.subcommands.keys():
                     self.subcommands[x.base] = {}
                 if x.subcommand_group:
                     if x.subcommand_group not in self.subcommands:
                         self.subcommands[x.base][x.subcommand_group] = {}
-                    else:
-                        self.subcommands[x.base][x.subcommand_group][x.name] = x
+                    self.subcommands[x.base][x.subcommand_group][x.name] = x
                 else:
                     self.subcommands[x.base][x.name] = x
+
+    def remove_cog_commands(self, cog):
+        func_list = [getattr(cog, x) for x in dir(cog)]
+        res = [x for x in func_list if
+               isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
 
     async def register_all_commands(self):
         """
@@ -188,7 +202,7 @@ class SlashCommand:
         name = name.lower()
         _cmd = {
             "func": None,
-            "description": description if description else "No description.",
+            "description": "No description.",
             "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],

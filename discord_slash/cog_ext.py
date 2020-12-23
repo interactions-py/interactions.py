@@ -1,5 +1,4 @@
 import typing
-from discord.ext import commands
 from .model import CogCommandObject, CogSubcommandObject
 
 
@@ -22,6 +21,20 @@ def cog_slash(*,
     return wrapper
 
 
-def register_cog_slash(cls):
-    func_list = [getattr(cls, x) for x in dir(cls)]
-    return [x for x in func_list if isinstance(x, CogCommandObject) or isinstance(x, CogSubcommandObject)]
+def cog_subcommand(*,
+                   base,
+                   subcommand_group=None,
+                   name=None,
+                   description: str = None,
+                   auto_convert: dict = None,
+                   guild_ids: typing.List[int] = None):
+    def wrapper(cmd):
+        _sub = {
+            "func": cmd,
+            "name": name,
+            "description": description,
+            "auto_convert": auto_convert,
+            "guild_ids": guild_ids,
+        }
+        return CogSubcommandObject(_sub, base, name, subcommand_group)
+    return wrapper
