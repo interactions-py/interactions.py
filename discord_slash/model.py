@@ -173,7 +173,7 @@ class SlashContext:
 class CommandObject:
     def __init__(self, name, cmd, *subcommands): # Let's reuse old command formatting.
         self.name = name
-        self.invoke = cmd["func"]
+        self.func = cmd["func"]
         self.description = cmd["description"]
         self.auto_convert = cmd["auto_convert"]
         self.allowed_guild_ids = cmd["guild_ids"]
@@ -181,23 +181,37 @@ class CommandObject:
         self.has_subcommands = cmd["has_subcommands"]
         self.subcommands = subcommands
 
+    def invoke(self, *args):
+        return self.func(*args)
+
 
 class SubcommandObject:
     def __init__(self, sub, base, name, sub_group=None):
         self.base = base
         self.subcommand_group = sub_group
         self.name = name
-        self.invoke = sub["func"]
+        self.func = sub["func"]
         self.description = sub["description"]
         self.auto_convert = sub["auto_convert"]
         self.allowed_guild_ids = sub["guild_ids"]
+
+    def invoke(self, *args):
+        return self.func(*args)
 
 
 class CogCommandObject(CommandObject):
     def __init__(self, *args):
         super().__init__(*args)
+        self.cog = None # Manually set this later.
+
+    def invoke(self, *args):
+        return self.func(self.cog, *args)
 
 
 class CogSubcommandObject(SubcommandObject):
     def __init__(self, *args):
         super().__init__(*args)
+        self.cog = None # Manually set this later.
+
+    def invoke(self, *args):
+        return self.func(self.cog, *args)

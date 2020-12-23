@@ -65,6 +65,7 @@ class SlashCommand:
         res = [x for x in func_list if
                isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
         for x in res:
+            x.cog = cog
             if isinstance(x, model.CogCommandObject):
                 self.commands[x.name] = x
             else:
