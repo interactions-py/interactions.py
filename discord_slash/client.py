@@ -52,6 +52,9 @@ class SlashCommand:
         """
         Removes :func:`on_socket_response` event listener from discord.py Client.
 
+        .. warning::
+            This is deprecated and will be removed soon.
+
         .. note::
             This only works if it is :class:`discord.ext.commands.Bot` or
             :class:`discord.ext.commands.AutoShardedBot`.
@@ -61,6 +64,12 @@ class SlashCommand:
         self._discord.remove_listener(self.on_socket_response)
 
     def get_cog_commands(self, cog: commands.Cog):
+        """
+        Gets slash command from :class:`discord.ext.commands.Cog`.
+
+        :param cog: Cog that has slash commands.
+        :type cog: discord.ext.commands.Cog
+        """
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
                isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
@@ -92,9 +101,39 @@ class SlashCommand:
                     self.subcommands[x.base][x.name] = x
 
     def remove_cog_commands(self, cog):
+        """
+        Removes slash command from :class:`discord.ext.commands.Cog`.
+
+        :param cog: Cog that has slash commands.
+        :type cog: discord.ext.commands.Cog
+        """
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
                isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
+        for x in res:
+            if isinstance(x, model.CogCommandObject):
+                if x.name not in self.commands.keys():
+                    continue # Just in case it is removed due to subcommand.
+                if x.name in self.subcommands.keys():
+                    self.commands[x.name].func = None
+                    continue # Let's remove completely when every subcommand is removed.
+                del self.commands[x.name]
+            else:
+                if x.base not in self.subcommands.keys():
+                    continue # Just in case...
+                if x.subcommand_group:
+                    del self.subcommands[x.base][x.subcommand_group][x.name]
+                    if not self.subcommands[x.base][x.subcommand_group]:
+                        del self.subcommands[x.base][x.subcommand_group]
+                else:
+                    del self.subcommands[x.base][x.name]
+                if not self.subcommands[x.base]:
+                    del self.subcommands[x.base]
+                    if x.base in self.commands.keys():
+                        if self.commands[x.base].func:
+                            self.commands[x.base].has_subcommands = False
+                        else:
+                            del self.commands[x.base]
 
     async def register_all_commands(self):
         """

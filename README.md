@@ -22,7 +22,7 @@ async def _test(ctx: SlashContext):
 bot.run("discord_token")
 ```
 
-Cog (__Not Recommended__):
+Cog:
 ```py
 import discord
 from discord.ext import commands
@@ -33,11 +33,14 @@ from discord_slash import SlashContext
 
 class Slash(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
         if not hasattr(bot, "slash"):
             # Creates new SlashCommand instance to bot if bot doesn't have.
-            self.bot.slash = SlashCommand(bot, override_type=True)
+            bot.slash = SlashCommand(bot, override_type=True)
+        self.bot = bot
         self.bot.slash.get_cog_commands(self)
+
+    def cog_unload(self):
+        self.bot.slash.remove_cog_commands(self)
 
     @cog_ext.cog_slash(name="test")
     async def _test(self, ctx: SlashContext):
