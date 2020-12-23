@@ -13,6 +13,7 @@ def cog_slash(*,
     Almost same as :func:`.client.SlashCommand.slash`.
 
     Example:
+
     .. code-block:: python
 
         class ExampleCog(commands.Cog):
@@ -74,6 +75,7 @@ def cog_subcommand(*,
     Almost same as :func:`.client.SlashCommand.subcommand`.
 
     Example:
+
     .. code-block:: python
 
         class ExampleCog(commands.Cog):
