@@ -171,7 +171,20 @@ class SlashContext:
 
 
 class CommandObject:
-    def __init__(self, name, cmd, *subcommands): # Let's reuse old command formatting.
+    """
+    Slash command object of this extension.
+
+    .. warning::
+        Do not manually init this model.
+
+    :ivar name: Name of the command.
+    :ivar func: The coroutine of the command.
+    :ivar description: Description of the command.
+    :ivar auto_convert: Dictionary of the `auto_convert` of the command.
+    :ivar allowed_guild_ids: List of the allowed guild id.
+    :ivar options: List of the option of the command. Used for `auto_register`.
+    """
+    def __init__(self, name, cmd): # Let's reuse old command formatting.
         self.name = name
         self.func = cmd["func"]
         self.description = cmd["description"]
@@ -179,13 +192,32 @@ class CommandObject:
         self.allowed_guild_ids = cmd["guild_ids"]
         self.options = cmd["api_options"]
         self.has_subcommands = cmd["has_subcommands"]
-        self.subcommands = subcommands
 
     def invoke(self, *args):
+        """
+        Invokes the command.
+
+        :param args: Args for the command.
+        :return: Coroutine
+        """
         return self.func(*args)
 
 
 class SubcommandObject:
+    """
+    Subcommand object of this extension.
+
+    .. warning::
+        Do not manually init this model.
+
+    :ivar base: Name of the base slash command.
+    :ivar subcommand_group: Name of the subcommand group. ``None`` if not exist.
+    :ivar name: Name of the subcommand.
+    :ivar func: The coroutine of the command.
+    :ivar description: Description of the command.
+    :ivar auto_convert: Dictionary of the `auto_convert` of the command.
+    :ivar allowed_guild_ids: List of the allowed guild id.
+    """
     def __init__(self, sub, base, name, sub_group=None):
         self.base = base
         self.subcommand_group = sub_group
@@ -196,22 +228,52 @@ class SubcommandObject:
         self.allowed_guild_ids = sub["guild_ids"]
 
     def invoke(self, *args):
+        """
+        Invokes the command.
+
+        :param args: Args for the command.
+        :return: Coroutine
+        """
         return self.func(*args)
 
 
 class CogCommandObject(CommandObject):
+    """
+    Slash command object but for Cog.
+
+    .. warning::
+        Do not manually init this model.
+    """
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None # Manually set this later.
 
     def invoke(self, *args):
+        """
+        Invokes the command.
+
+        :param args: Args for the command.
+        :return: Coroutine
+        """
         return self.func(self.cog, *args)
 
 
 class CogSubcommandObject(SubcommandObject):
+    """
+    Subcommand object but for Cog.
+
+    .. warning::
+        Do not manually init this model.
+        """
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None # Manually set this later.
 
     def invoke(self, *args):
+        """
+        Invokes the command.
+
+        :param args: Args for the command.
+        :return: Coroutine
+        """
         return self.func(self.cog, *args)
