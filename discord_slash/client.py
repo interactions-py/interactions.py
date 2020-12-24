@@ -413,8 +413,13 @@ class SlashCommand:
         if not guild:
             self.logger.info("This command invoke is missing guild. Skipping option process.")
             return [x["value"] for x in options]
+
+        if not isinstance(guild, discord.Guild):
+            return [x["value"] for x in options]
+
         if not auto_convert:
             return [x["value"] for x in options]
+
         converters = [
             [guild.get_member, guild.fetch_member],
             guild.get_channel,
@@ -471,21 +476,37 @@ class SlashCommand:
         """
         if msg["t"] != "INTERACTION_CREATE":
             return
+
         to_use = msg["d"]
+
         if to_use["data"]["name"] in self.commands.keys():
+
             ctx = model.SlashContext(self.req, to_use, self._discord, self.logger)
             cmd_name = to_use["data"]["name"]
+
             if cmd_name not in self.commands.keys() and cmd_name in self.subcommands.keys():
                 return await self.handle_subcommand(ctx, to_use)
+
             selected_cmd = self.commands[to_use["data"]["name"]]
+
             if selected_cmd.allowed_guild_ids:
-                if ctx.guild.id not in selected_cmd.allowed_guild_ids:
+                guild_id = (
+                    ctx.guild.id if isinstance(ctx.guild, discord.Guild) 
+                    else
+                        ctx.guild
+                )
+
+                if guild_id not in selected_cmd.allowed_guild_ids:
                     return
+
             if selected_cmd.has_subcommands:
                 return await self.handle_subcommand(ctx, to_use)
+
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.auto_convert) \
                 if "options" in to_use["data"] else []
+
             self._discord.dispatch("slash_command", ctx)
+
             try:
                 await selected_cmd.invoke(ctx, *args)
             except Exception as ex:
