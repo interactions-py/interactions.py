@@ -188,9 +188,9 @@ class CommandObject:
         self.name = name
         self.func = cmd["func"]
         self.description = cmd["description"]
-        self.auto_convert = cmd["auto_convert"]
-        self.allowed_guild_ids = cmd["guild_ids"]
-        self.options = cmd["api_options"]
+        self.auto_convert = cmd["auto_convert"] if cmd["auto_convert"] else {}
+        self.allowed_guild_ids = cmd["guild_ids"] if cmd["guild_ids"] else []
+        self.options = cmd["api_options"] if cmd["api_options"] else []
         self.has_subcommands = cmd["has_subcommands"]
 
     def invoke(self, *args):
@@ -224,8 +224,8 @@ class SubcommandObject:
         self.name = name
         self.func = sub["func"]
         self.description = sub["description"]
-        self.auto_convert = sub["auto_convert"]
-        self.allowed_guild_ids = sub["guild_ids"]
+        self.auto_convert = sub["auto_convert"] if sub["auto_convert"] else {}
+        self.allowed_guild_ids = sub["guild_ids"] if sub["guild_ids"] else []
 
     def invoke(self, *args):
         """
