@@ -502,6 +502,11 @@ class SlashCommand:
             if selected_cmd.has_subcommands and not selected_cmd.func:
                 return await self.handle_subcommand(ctx, to_use)
 
+            if "options" in to_use["data"]:
+                for x in to_use["data"]["options"]:
+                    if "value" not in x.keys():
+                        return await self.handle_subcommand(ctx, to_use)
+
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.auto_convert) \
                 if "options" in to_use["data"] else []
 
