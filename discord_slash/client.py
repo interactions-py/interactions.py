@@ -499,7 +499,7 @@ class SlashCommand:
                 if guild_id not in selected_cmd.allowed_guild_ids:
                     return
 
-            if selected_cmd.has_subcommands:
+            if selected_cmd.has_subcommands and not selected_cmd.func:
                 return await self.handle_subcommand(ctx, to_use)
 
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.auto_convert) \
