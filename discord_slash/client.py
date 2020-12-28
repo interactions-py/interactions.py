@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from . import http
 from . import model
+from . import error
 from .utils import manage_commands
 from inspect import iscoroutinefunction
 
@@ -165,6 +166,47 @@ class SlashCommand:
                                                         selected.description,
                                                         selected.options)
         self.logger.info("Completed registering all commands!")
+
+    async def remove_all_commands(self):
+        """
+        Remove all slash commands except subcommands to Discord API.
+        """
+
+        await self.remove_all_commands_in('global')
+
+        for guild in self._discord.guilds:
+            try: await self.remove_all_commands_in(guild.id)
+            except error.RequestFailure:
+                pass
+
+    async def remove_all_commands_in(self, area):
+        """
+        Remove all slash commands in area except subcommands to Discord API.
+
+        :param area: 'global' or guild ID where removing all commands.
+        :type area: Union[str, int]
+        """
+        await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
+
+        self.logger.info("Removing commands...")
+
+        for x in self.commands.keys():
+
+            commands = await manage_commands.get_all_commands(
+                self._discord.user.id,
+                self._discord.http.token,
+                None if area == 'global' else area
+            )
+
+            for command in commands:
+                await manage_commands.remove_slash_command(
+                    self._discord.user.id,
+                    self._discord.http.token,
+                    None if area == 'global' else area,
+                    command['id']
+                )
+
+        self.logger.info("Completed removing all commands !")
 
     def add_slash_command(self,
                           cmd,
