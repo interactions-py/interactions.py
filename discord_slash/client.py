@@ -169,7 +169,7 @@ class SlashCommand:
 
     async def remove_all_commands(self):
         """
-        Remove all slash commands except subcommands to Discord API.
+        Remove all slash commands.
         """
 
         await self.remove_all_commands_in('global')
@@ -181,7 +181,7 @@ class SlashCommand:
 
     async def remove_all_commands_in(self, area):
         """
-        Remove all slash commands in area except subcommands to Discord API.
+        Remove all slash commands in area.
 
         :param area: 'global' or guild ID where removing all commands.
         :type area: Union[str, int]
