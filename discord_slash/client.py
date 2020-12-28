@@ -35,7 +35,7 @@ class SlashCommand:
         self.commands = {}
         self.subcommands = {}
         self.logger = logging.getLogger("discord_slash")
-        self.req = http.SlashCommandRequest(self.logger)
+        self.req = http.SlashCommandRequest(self.logger, self._discord)
         self.auto_register = auto_register
         if self.auto_register:
             self._discord.loop.create_task(self.register_all_commands())

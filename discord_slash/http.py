@@ -1,13 +1,19 @@
-import aiohttp
-import asyncio
-from .error import RequestFailure
+import typing
+import discord
+from discord.http import Route
+
+
+class CustomRoute(Route):
+    """discord.py's Route but changed ``BASE`` to use at slash command."""
+    BASE = "https://discord.com/api/v8"
 
 
 class SlashCommandRequest:
-    def __init__(self, logger):
+    def __init__(self, logger, _discord):
         self.logger = logger
+        self._discord: typing.Union[discord.Client, discord.AutoShardedClient] = _discord
 
-    async def post(self, _resp, bot_id, interaction_id, token, initial=False) -> None:
+    def post(self, _resp, bot_id, interaction_id, token, initial=False):
         """
         Sends command response POST request to Discord API.
 
@@ -17,24 +23,13 @@ class SlashCommandRequest:
         :param interaction_id: Interaction ID.
         :param token: Command message token.
         :param initial: Whether this request is initial. Default ``False``
-        :return: ``None``, since Discord API doesn't return anything.
-        :raises: :class:`.error.RequestFailure` - Requesting to API has failed.
+        :return: Coroutine
         """
-        req_url = f"https://discord.com/api/v8/interactions/{interaction_id}/{token}/callback" \
-            if initial \
-            else f"https://discord.com/api/v8/webhooks/{bot_id}/{token}"
-        async with aiohttp.ClientSession() as session:
-            async with session.post(req_url, json=_resp) as resp:
-                if resp.status == 429:
-                    _json = await resp.json()
-                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
-                    await asyncio.sleep(_json["retry_after"])
-                    return await self.post(_resp, bot_id, interaction_id, token, initial)
-                if not 200 <= resp.status < 300:
-                    raise RequestFailure(resp.status, await resp.text())
-                return None
+        req_url = f"/interactions/{interaction_id}/{token}/callback" if initial else f"/webhooks/{bot_id}/{token}"
+        route = CustomRoute("POST", req_url)
+        return self._discord.http.request(route, json=_resp)
 
-    async def edit(self, _resp, bot_id, token, message_id="@original"):
+    def edit(self, _resp, bot_id, token, message_id="@original"):
         """
         Sends edit command response POST request to Discord API.
 
@@ -43,39 +38,21 @@ class SlashCommandRequest:
         :param bot_id: Bot ID.
         :param token: Command message token.
         :param message_id: Message ID to edit. Default initial message.
-        :return: True if succeeded.
-        :raises: :class:`.error.RequestFailure` - Requesting to API has failed.
+        :return: Coroutine
         """
-        req_url = f"https://discord.com/api/v8/webhooks/{bot_id}/{token}/messages/{message_id}"
-        async with aiohttp.ClientSession() as session:
-            async with session.patch(req_url, json=_resp) as resp:
-                if resp.status == 429:
-                    _json = await resp.json()
-                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
-                    await asyncio.sleep(_json["retry_after"])
-                    return await self.edit(_resp, bot_id, token, message_id)
-                if not 200 <= resp.status < 300:
-                    raise RequestFailure(resp.status, await resp.text())
-                return True
+        req_url = f"/webhooks/{bot_id}/{token}/messages/{message_id}"
+        route = CustomRoute("PATCH", req_url)
+        return self._discord.http.request(route, json=_resp)
 
-    async def delete(self, bot_id, token, message_id="@original"):
+    def delete(self, bot_id, token, message_id="@original"):
         """
         Sends delete command response POST request to Discord API.
 
         :param bot_id: Bot ID.
         :param token: Command message token.
         :param message_id: Message ID to delete. Default initial message.
-        :return: True if succeeded.
-        :raises: :class:`.error.RequestFailure` - Requesting to API has failed.
+        :return: Coroutine
         """
-        req_url = f"https://discord.com/api/v8/webhooks/{bot_id}/{token}/messages/{message_id}"
-        async with aiohttp.ClientSession() as session:
-            async with session.delete(req_url) as resp:
-                if resp.status == 429:
-                    _json = await resp.json()
-                    self.logger.warning(f"We are being rate limited, retrying after {_json['retry_after']} seconds.")
-                    await asyncio.sleep(_json["retry_after"])
-                    return await self.delete(bot_id, token, message_id)
-                if not 200 <= resp.status < 300:
-                    raise RequestFailure(resp.status, await resp.text())
-                return True
+        req_url = f"/webhooks/{bot_id}/{token}/messages/{message_id}"
+        route = CustomRoute("DELETE", req_url)
+        return self._discord.http.request(route)
