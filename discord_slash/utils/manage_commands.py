@@ -147,7 +147,7 @@ def create_option(name: str,
     Creates option used for creating slash command.
 
     :param name: Name of the option.
-    :param description: Descrption of the option.
+    :param description: Description of the option.
     :param option_type: Type of the option.
     :param required: Whether this option is required.
     :param choices: Choices of the option. Can be empty.
