@@ -185,7 +185,7 @@ class CommandObject:
     :ivar options: List of the option of the command. Used for `auto_register`.
     """
     def __init__(self, name, cmd): # Let's reuse old command formatting.
-        self.name = name
+        self.name = name.lower()
         self.func = cmd["func"]
         self.description = cmd["description"]
         self.auto_convert = cmd["auto_convert"] if cmd["auto_convert"] else {}
@@ -219,9 +219,9 @@ class SubcommandObject:
     :ivar allowed_guild_ids: List of the allowed guild id.
     """
     def __init__(self, sub, base, name, sub_group=None):
-        self.base = base
-        self.subcommand_group = sub_group
-        self.name = name
+        self.base = base.lower()
+        self.subcommand_group = sub_group.lower() if sub_group else sub_group
+        self.name = name.lower()
         self.func = sub["func"]
         self.description = sub["description"]
         self.auto_convert = sub["auto_convert"] if sub["auto_convert"] else {}
@@ -264,7 +264,7 @@ class CogSubcommandObject(SubcommandObject):
 
     .. warning::
         Do not manually init this model.
-        """
+    """
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None # Manually set this later.

@@ -59,7 +59,7 @@ def cog_slash(*,
             "api_options": options if options else [],
             "has_subcommands": False
         }
-        return CogCommandObject(name, _cmd)
+        return CogCommandObject(cmd.__name__ if not name else name, _cmd)
     return wrapper
 
 
@@ -109,10 +109,10 @@ def cog_subcommand(*,
     def wrapper(cmd):
         _sub = {
             "func": cmd,
-            "name": name,
+            "name": cmd.__name__ if not name else name,
             "description": description,
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
         }
-        return CogSubcommandObject(_sub, base, name, subcommand_group)
+        return CogSubcommandObject(_sub, base, cmd.__name__ if not name else name, subcommand_group)
     return wrapper
