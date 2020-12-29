@@ -93,50 +93,49 @@ async def get_all_commands(bot_id,
             return await resp.json()
 
 
-async def remove_all_commands(slash):
+async def remove_all_commands(bot_id,
+                              bot_token,
+                              guild_ids):
     """
     Remove all slash commands.
 
-    :param slash: Instance of SlashCommand.
-    :type slash: SlashCommand
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_ids: List ID of the guild to remove commands.
     """
 
-    await remove_all_commands_in(slash, 'global')
+    await remove_all_commands_in(bot_id, bot_token, None)
 
-    for guild in slash._discord.guilds:
-        try: await remove_all_commands_in(slash, guild.id)
+    for x in guild_ids:
+        try:
+            await remove_all_commands_in(bot_id, bot_token, x)
         except RequestFailure:
             pass
 
 
-async def remove_all_commands_in(slash, area):
+async def remove_all_commands_in(bot_id,
+                                 bot_token,
+                                 guild_id=None):
     """
     Remove all slash commands in area.
 
-    :param slash: Instance of SlashCommand.
-    :type slash: SlashCommand
-    :param area: 'global' or guild ID where removing all commands.
-    :type area: Union[str, int]
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to remove commands. Pass `None` to remove all global commands.
     """
-    await slash._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
-
-    slash.logger.info("Removing commands...")
-
     commands = await get_all_commands(
-        slash._discord.user.id,
-        slash._discord.http.token,
-        None if area == 'global' else area
+        bot_id,
+        bot_token,
+        guild_id
     )
 
-    for command in commands:
+    for x in commands:
         await remove_slash_command(
-            slash._discord.user.id,
-            slash._discord.http.token,
-            None if area == 'global' else area,
-            command['id']
+            bot_id,
+            bot_token,
+            guild_id,
+            x['id']
         )
-
-    slash.logger.info("Completed removing all commands !")
 
 
 def create_option(name: str,
