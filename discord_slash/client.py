@@ -190,21 +190,19 @@ class SlashCommand:
 
         self.logger.info("Removing commands...")
 
-        for x in self.commands.keys():
+        commands = await manage_commands.get_all_commands(
+            self._discord.user.id,
+            self._discord.http.token,
+            None if area == 'global' else area
+        )
 
-            commands = await manage_commands.get_all_commands(
+        for command in commands:
+            await manage_commands.remove_slash_command(
                 self._discord.user.id,
                 self._discord.http.token,
-                None if area == 'global' else area
+                None if area == 'global' else area,
+                command['id']
             )
-
-            for command in commands:
-                await manage_commands.remove_slash_command(
-                    self._discord.user.id,
-                    self._discord.http.token,
-                    None if area == 'global' else area,
-                    command['id']
-                )
 
         self.logger.info("Completed removing all commands !")
 
