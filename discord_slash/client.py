@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from . import http
 from . import model
+from . import error
 from .utils import manage_commands
 from inspect import iscoroutinefunction
 
@@ -24,12 +25,14 @@ class SlashCommand:
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
     :ivar logger: Logger of this client.
     :ivar auto_register: Whether to register commands automatically.
+    :ivar auto_delete: Whether to delete commands not found in the project automatically.
     :ivar has_listener: Whether discord client has listener add function.
     """
 
     def __init__(self,
                  client: typing.Union[discord.Client, commands.Bot],
                  auto_register: bool = False,
+                 auto_delete: bool = False,
                  override_type: bool = False):
         self._discord = client
         self.commands = {}
@@ -37,8 +40,11 @@ class SlashCommand:
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord)
         self.auto_register = auto_register
+        self.auto_delete = auto_delete
         if self.auto_register:
             self._discord.loop.create_task(self.register_all_commands())
+        if self.auto_delete:
+            self._discord.loop.create_task(self.delete_unused_commands())
         if not isinstance(client, commands.Bot) and not isinstance(client,
                                                                    commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
@@ -165,6 +171,45 @@ class SlashCommand:
                                                         selected.description,
                                                         selected.options)
         self.logger.info("Completed registering all commands!")
+
+    async def delete_unused_commands(self):
+        """
+        Unregisters all slash commands which are not used by the project to Discord API.\n
+        This might take some time because for every guild the bot is on an API call is made.\n
+        If ``auto_delete`` is ```True``, then this will be automatically called.
+        """
+        await self._discord.wait_until_ready()
+        self.logger.info("Deleting unused commands...")
+        registered_commands = {}
+        global_commands = await manage_commands.get_all_commands(self._discord.user.id,
+                                                                 self._discord.http.token,
+                                                                 None)
+        for cmd in global_commands:
+            registered_commands[cmd["name"]] = {"id": cmd["id"], "guild_id": None}
+
+        for guild in self._discord.guilds:
+            # Since we can only get commands per guild we need to loop through every one
+            try:
+                guild_commands = await manage_commands.get_all_commands(self._discord.user.id,
+                                                                        self._discord.http.token,
+                                                                        guild.id)
+            except error.RequestFailure:
+                # In case a guild has not granted permissions to access commands
+                continue
+
+            for cmd in guild_commands:
+                registered_commands[cmd["name"]] = {"id": cmd["id"], "guild_id": guild.id}
+
+        for x in registered_commands.keys():
+            if x not in self.commands.keys():
+                # Delete command if not found locally
+                selected = registered_commands[x]
+                await manage_commands.remove_slash_command(self._discord.user.id,
+                                                           self._discord.http.token,
+                                                           selected["guild_id"],
+                                                           selected["id"])
+
+        self.logger.info("Completed deleting unused commands!")
 
     def add_slash_command(self,
                           cmd,
