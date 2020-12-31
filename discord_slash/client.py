@@ -143,20 +143,20 @@ class SlashCommand:
 
     async def register_all_commands(self):
         """
-        Registers all slash commands except subcommands to Discord API.\n
+        Registers all slash commands to Discord API.\n
         If ``auto_register`` is ``True``, then this will be automatically called.
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
         self.logger.info("Registering commands...")
         for x in self.commands.keys():
             selected = self.commands[x]
-            if selected.has_subcommands and hasattr(selected, "invoke"):
+            if selected.has_subcommands and selected.func:
                 # Registering both subcommand and command with same base name / name
-                # will result in only one type of command being registered,
-                # so we will only register subcommands.
-                self.logger.warning(f"Detected command name with same subcommand base name! Skipping registering this command: {x}")
-                continue
-            if selected.has_subcommands and not hasattr(selected, "invoke"):
+                # will result in only subcommand being registered,
+                # so we will warn this at registering subcommands.
+                self.logger.warning(f"Detected command name with same subcommand base name! "
+                                    f"This command will only have subcommand: {x}")
+            if selected.has_subcommands:
                 tgt = self.subcommands[x]
                 options = []
                 for y in tgt.keys():
@@ -171,7 +171,7 @@ class SlashCommand:
                         options.append(_dict)
                     else:
                         base_dict = {
-                            "name": sub.subcommand_group,
+                            "name": y,
                             "description": "No Description.",
                             "type": 2,
                             "options": []
@@ -344,7 +344,7 @@ class SlashCommand:
         name = name.lower()
         _cmd = {
             "func": None,
-            "description": "No description.",
+            "description": base_desc,
             "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],
@@ -517,7 +517,7 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.add_subcommand(cmd, base, subcommand_group, sub_group_desc, name, description, auto_convert, guild_ids, options)
+            self.add_subcommand(cmd, base, subcommand_group, name, description, base_desc, sub_group_desc, auto_convert, guild_ids, options)
             return cmd
 
         return wrapper
