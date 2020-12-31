@@ -1,3 +1,4 @@
+import typing
 import asyncio
 import aiohttp
 from ..error import RequestFailure
@@ -95,18 +96,18 @@ async def get_all_commands(bot_id,
 
 async def remove_all_commands(bot_id,
                               bot_token,
-                              guild_ids):
+                              guild_ids: typing.List[int] = None):
     """
     Remove all slash commands.
 
     :param bot_id: User ID of the bot.
     :param bot_token: Token of the bot.
-    :param guild_ids: List ID of the guild to remove commands.
+    :param guild_ids: List of the guild ID to remove commands. Pass ``None`` to remove only the global commands.
     """
 
     await remove_all_commands_in(bot_id, bot_token, None)
 
-    for x in guild_ids:
+    for x in guild_ids if guild_ids else []:
         try:
             await remove_all_commands_in(bot_id, bot_token, x)
         except RequestFailure:
