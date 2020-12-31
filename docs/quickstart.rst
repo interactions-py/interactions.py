@@ -101,3 +101,8 @@ Again, I'll explain what is changed:
 What you need to see is ``options``. Unlike discord.py's ext.commands, slash command requires extra effort to add args.
 Hopefully, this extension comes with utility function that helps this, which is ``manage_commands.create_option``.
 Any other steps are automatically processed by the extension, since we set ``auto_register=True``.
+
+Congratulations! You just created a very simple slash command bot! Yes, this tutorial doesn't cover everything, but
+this still has basis of this extension. Now, you should read this document for much more usage and improvement to your bot.
+
+Still have any questions? Feel free to join our discord server by clicking `this <https://discord.gg/KkgMBVuEkx>`_.
