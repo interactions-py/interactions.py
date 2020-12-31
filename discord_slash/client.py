@@ -82,6 +82,8 @@ class SlashCommand:
         for x in res:
             x.cog = cog
             if isinstance(x, model.CogCommandObject):
+                if x.name in self.commands.keys():
+                    raise error.DuplicateCommand(x.name)
                 self.commands[x.name] = x
             else:
                 if x.base in self.commands.keys():
@@ -102,8 +104,12 @@ class SlashCommand:
                 if x.subcommand_group:
                     if x.subcommand_group not in self.subcommands:
                         self.subcommands[x.base][x.subcommand_group] = {}
+                    if x.name in self.subcommands[x.base][x.subcommand_group].keys():
+                        raise error.DuplicateCommand(f"{x.base} {x.subcommand_group} {x.name}")
                     self.subcommands[x.base][x.subcommand_group][x.name] = x
                 else:
+                    if x.name in self.subcommands[x.base].keys():
+                        raise error.DuplicateCommand(f"{x.base} {x.name}")
                     self.subcommands[x.base][x.name] = x
 
     def remove_cog_commands(self, cog):
@@ -290,8 +296,10 @@ class SlashCommand:
         name = name.lower()
         if name in self.commands.keys():
             tgt = self.subcommands[name]
-            has_subcommands = tgt["has_subcommands"]
-            guild_ids += tgt["guild_ids"]
+            if not tgt.has_subcommands:
+                raise error.DuplicateCommand(name)
+            has_subcommands = tgt.has_subcommands
+            guild_ids += tgt.allowed_guild_ids
         _cmd = {
             "func": cmd,
             "description": description if description else "No description.",
@@ -370,8 +378,12 @@ class SlashCommand:
         if subcommand_group:
             if subcommand_group not in self.subcommands[base].keys():
                 self.subcommands[base][subcommand_group] = {}
+            if name in self.subcommands[base][subcommand_group].keys():
+                raise error.DuplicateCommand(f"{base} {subcommand_group} {name}")
             self.subcommands[base][subcommand_group][name] = model.SubcommandObject(_sub, base, name, subcommand_group)
         else:
+            if name in self.subcommands[base].keys():
+                raise error.DuplicateCommand(f"{base} {name}")
             self.subcommands[base][name] = model.SubcommandObject(_sub, base, name)
         self.logger.debug(
             f"Added subcommand `{base} {subcommand_group if subcommand_group else ''} {cmd.__name__ if not name else name}`")
