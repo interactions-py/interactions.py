@@ -215,6 +215,8 @@ class SubcommandObject:
     :ivar name: Name of the subcommand.
     :ivar func: The coroutine of the command.
     :ivar description: Description of the command.
+    :ivar base_desc: Description of the base command.
+    :ivar sub_group_desc: Description of the subcommand_group.
     :ivar auto_convert: Dictionary of the `auto_convert` of the command.
     :ivar allowed_guild_ids: List of the allowed guild id.
     """
@@ -224,8 +226,11 @@ class SubcommandObject:
         self.name = name.lower()
         self.func = sub["func"]
         self.description = sub["description"]
+        self.base_desc = sub["base_desc"]
+        self.sub_group_desc = sub["sub_group_desc"]
         self.auto_convert = sub["auto_convert"] if sub["auto_convert"] else {}
         self.allowed_guild_ids = sub["guild_ids"] if sub["guild_ids"] else []
+        self.options = sub["api_options"] if sub["api_options"] else []
 
     def invoke(self, *args):
         """

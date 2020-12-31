@@ -68,8 +68,11 @@ def cog_subcommand(*,
                    subcommand_group=None,
                    name=None,
                    description: str = None,
+                   base_desc: str = None,
+                   sub_group_desc: str = None,
                    auto_convert: dict = None,
-                   guild_ids: typing.List[int] = None):
+                   guild_ids: typing.List[int] = None,
+                   options: typing.List[dict] = None):
     """
     Decorator for Cog to add subcommand.\n
     Almost same as :func:`.client.SlashCommand.subcommand`.
@@ -101,18 +104,36 @@ def cog_subcommand(*,
     :type name: str
     :param description: Description of the subcommand. Default ``None``.
     :type description: str
+    :param base_desc: Description of the base command. Default ``None``.
+    :type base_desc: str
+    :param sub_group_desc: Description of the subcommand_group. Default ``None``.
+    :type sub_group_desc: str
     :param auto_convert: Dictionary of how to convert option values. Default ``None``.
     :type auto_convert: dict
     :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
     :type guild_ids: List[int]
+    :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
+    :type options: List[dict]
     """
+
+    if options:
+        # Overrides original auto_convert.
+        auto_convert = {}
+        for x in options:
+            if x["type"] < 3:
+                raise Exception("You can't use subcommand or subcommand_group type!")
+            auto_convert[x["name"]] = x["type"]
+
     def wrapper(cmd):
         _sub = {
             "func": cmd,
             "name": cmd.__name__ if not name else name,
             "description": description,
+            "base_desc": base_desc,
+            "sub_group_desc": sub_group_desc,
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
+            "api_options": options if options else []
         }
         return CogSubcommandObject(_sub, base, cmd.__name__ if not name else name, subcommand_group)
     return wrapper

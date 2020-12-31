@@ -1,12 +1,12 @@
 import logging
 import typing
 import discord
+from inspect import iscoroutinefunction
 from discord.ext import commands
 from . import http
 from . import model
 from . import error
 from .utils import manage_commands
-from inspect import iscoroutinefunction
 
 
 class SlashCommand:
@@ -90,7 +90,7 @@ class SlashCommand:
                 else:
                     _cmd = {
                         "func": None,
-                        "description": "No description.",
+                        "description": x.base_desc,
                         "auto_convert": {},
                         "guild_ids": x.allowed_guild_ids,
                         "api_options": [],
@@ -150,10 +150,59 @@ class SlashCommand:
         self.logger.info("Registering commands...")
         for x in self.commands.keys():
             selected = self.commands[x]
+            if selected.has_subcommands and hasattr(selected, "invoke"):
+                # Registering both subcommand and command with same base name / name
+                # will result in only one type of command being registered,
+                # so we will only register subcommands.
+                self.logger.warning(f"Detected command name with same subcommand base name! Skipping registering this command: {x}")
+                continue
             if selected.has_subcommands and not hasattr(selected, "invoke"):
-                # Just in case it has subcommands but also has base command.
-                # More specific, it will skip if it has subcommands and doesn't have base command coroutine.
-                self.logger.debug("Skipping registering subcommands.")
+                tgt = self.subcommands[x]
+                options = []
+                for y in tgt.keys():
+                    sub = tgt[y]
+                    if isinstance(sub, model.SubcommandObject):
+                        _dict = {
+                            "name": sub.name,
+                            "description": sub.description if sub.description else "No Description.",
+                            "type": 1,
+                            "options": sub.options if sub.options else []
+                        }
+                        options.append(_dict)
+                    else:
+                        base_dict = {
+                            "name": sub.subcommand_group,
+                            "description": "No Description.",
+                            "type": 2,
+                            "options": []
+                        }
+                        for z in sub.keys():
+                            sub_sub = sub[z]
+                            _dict = {
+                                "name": sub_sub.name,
+                                "description": sub_sub.description if sub_sub.description else "No Description.",
+                                "type": 1,
+                                "options": sub_sub.options if sub_sub.options else []
+                            }
+                            base_dict["options"].append(_dict)
+                            if sub_sub.sub_group_desc:
+                                base_dict["description"] = sub_sub.sub_group_desc
+                        options.append(base_dict)
+                if selected.allowed_guild_ids:
+                    for y in selected.allowed_guild_ids:
+                        await manage_commands.add_slash_command(self._discord.user.id,
+                                                                self._discord.http.token,
+                                                                y,
+                                                                x,
+                                                                selected.description,
+                                                                options)
+                else:
+                    await manage_commands.add_slash_command(self._discord.user.id,
+                                                            self._discord.http.token,
+                                                            None,
+                                                            x,
+                                                            selected.description,
+                                                            options)
                 continue
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
@@ -260,8 +309,11 @@ class SlashCommand:
                        subcommand_group=None,
                        name=None,
                        description: str = None,
+                       base_desc: str = None,
+                       sub_group_desc: str = None,
                        auto_convert: dict = None,
-                       guild_ids: typing.List[int] = None):
+                       guild_ids: typing.List[int] = None,
+                       options: list = None):
         """
         Registers subcommand to SlashCommand.
 
@@ -275,10 +327,16 @@ class SlashCommand:
         :type name: str
         :param description: Description of the subcommand. Default ``None``.
         :type description: str
+        :param base_desc: Description of the base command. Default ``None``.
+        :type base_desc: str
+        :param sub_group_desc: Description of the subcommand_group. Default ``None``.
+        :type sub_group_desc: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
+        :param options: Options of the subcommand.
+        :type options: list
         """
         base = base.lower()
         subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
@@ -296,8 +354,11 @@ class SlashCommand:
             "func": cmd,
             "name": name,
             "description": description,
+            "base_desc": base_desc,
+            "sub_group_desc": sub_group_desc,
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
+            "api_options": options if options else []
         }
         if base not in self.commands.keys():
             self.commands[base] = model.CommandObject(base, _cmd)
@@ -328,7 +389,7 @@ class SlashCommand:
         All decorator args must be passed as keyword-only args.\n
         1 arg for command coroutine is required for ctx(:class:`.model.SlashContext`),
         and if your slash command has some args, then those args are also required.\n
-        All args are passed in order.
+        All args must be passed as keyword-args.
 
         .. note::
             Role, User, and Channel types are passed as id if you don't set ``auto_convert``, since API doesn't give type of the option for now.\n
@@ -396,11 +457,15 @@ class SlashCommand:
                    subcommand_group=None,
                    name=None,
                    description: str = None,
+                   base_desc: str = None,
+                   sub_group_desc: str = None,
                    auto_convert: dict = None,
-                   guild_ids: typing.List[int] = None):
+                   guild_ids: typing.List[int] = None,
+                   options: typing.List[dict] = None):
         """
         Decorator that registers subcommand.\n
-        Unlike discord.py, you don't need base command.
+        Unlike discord.py, you don't need base command.\n
+        All args must be passed as keyword-args.
 
         Example:
 
@@ -431,14 +496,28 @@ class SlashCommand:
         :type name: str
         :param description: Description of the subcommand. Default ``None``.
         :type description: str
+        :param base_desc: Description of the base command. Default ``None``.
+        :type base_desc: str
+        :param sub_group_desc: Description of the subcommand_group. Default ``None``.
+        :type sub_group_desc: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
+        :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
+        :type options: List[dict]
         """
 
+        if options:
+            # Overrides original auto_convert.
+            auto_convert = {}
+            for x in options:
+                if x["type"] < 3:
+                    raise Exception("You can't use subcommand or subcommand_group type!")
+                auto_convert[x["name"]] = x["type"]
+
         def wrapper(cmd):
-            self.add_subcommand(cmd, base, subcommand_group, name, description, auto_convert, guild_ids)
+            self.add_subcommand(cmd, base, subcommand_group, sub_group_desc, name, description, auto_convert, guild_ids, options)
             return cmd
 
         return wrapper
