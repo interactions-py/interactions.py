@@ -7,6 +7,7 @@ from . import http
 from . import model
 from . import error
 from .utils import manage_commands
+from enum import IntEnum
 
 
 class SlashCommand:
@@ -427,9 +428,10 @@ class SlashCommand:
 
         .. code-block:: python
 
-            {"option_role": "role",       # For key put name of the option and for value put type of the option.
-             "option_user": 6,            # Also can use number for type
-             "option_channel": "CHANNEL"} # and all upper case.
+            {"option_role": "role",                      # For key put name of the option and for value put type of the option.
+             "option_user": SlashCommandOptionType.USER, # Also can use an enumeration member for the type
+             "option_user_two": 6,                       # or number
+             "option_channel": "CHANNEL"}                # or upper case string.
 
         :param name: Name of the slash command. Default name of the coroutine.
         :type name: str
@@ -565,15 +567,15 @@ class SlashCommand:
         types = {
             "user": 0,
             "USER": 0,
-            6: 0,
+            SlashCommandOptionType.USER: 0,
             "6": 0,
             "channel": 1,
             "CHANNEL": 1,
-            7: 1,
+            SlashCommandOptionType.CHANNEL: 1,
             "7": 1,
             "role": 2,
             "ROLE": 2,
-            8: 2,
+            SlashCommandOptionType.ROLE: 2,
             "8": 2
         }
 
@@ -731,3 +733,17 @@ class SlashCommand:
             return
         # Prints exception if not overrided or has no listener for error.
         self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
+
+
+class SlashCommandOptionType(IntEnum):
+    """
+    Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_  in the Discord API.
+    """
+    SUB_COMMAND = 1
+    SUB_COMMAND_GROUP = 2
+    STRING = 3
+    INTEGER = 4
+    BOOLEAN = 5
+    USER = 6
+    CHANNEL = 7
+    ROLE = 8
