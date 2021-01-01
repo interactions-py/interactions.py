@@ -352,7 +352,7 @@ class SlashCommand:
         name = name.lower()
         _cmd = {
             "func": None,
-            "description": base_description,
+            "description": base_description if base_description else "No Description.",
             "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],
@@ -361,9 +361,9 @@ class SlashCommand:
         _sub = {
             "func": cmd,
             "name": name,
-            "description": description,
-            "base_desc": base_description,
-            "sub_group_desc": subcommand_group_description,
+            "description": description if description else "No Description.",
+            "base_desc": base_description if base_description else "No Description.",
+            "sub_group_desc": subcommand_group_description if subcommand_group_description else "No Description.",
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
             "api_options": options if options else []

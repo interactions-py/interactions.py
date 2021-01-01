@@ -68,8 +68,8 @@ def cog_subcommand(*,
                    subcommand_group=None,
                    name=None,
                    description: str = None,
-                   base_desc: str = None,
-                   sub_group_desc: str = None,
+                   base_description: str = None,
+                   subcommand_group_description: str = None,
                    auto_convert: dict = None,
                    guild_ids: typing.List[int] = None,
                    options: typing.List[dict] = None):
@@ -104,10 +104,10 @@ def cog_subcommand(*,
     :type name: str
     :param description: Description of the subcommand. Default ``None``.
     :type description: str
-    :param base_desc: Description of the base command. Default ``None``.
-    :type base_desc: str
-    :param sub_group_desc: Description of the subcommand_group. Default ``None``.
-    :type sub_group_desc: str
+    :param base_description: Description of the base command. Default ``None``.
+    :type base_description: str
+    :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
+    :type subcommand_group_description: str
     :param auto_convert: Dictionary of how to convert option values. Default ``None``.
     :type auto_convert: dict
     :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
@@ -128,9 +128,9 @@ def cog_subcommand(*,
         _sub = {
             "func": cmd,
             "name": cmd.__name__ if not name else name,
-            "description": description,
-            "base_desc": base_desc,
-            "sub_group_desc": sub_group_desc,
+            "description": description if description else "No Description.",
+            "base_desc": base_description if base_description else "No Description.",
+            "sub_group_desc": subcommand_group_description if subcommand_group_description else "No Description.",
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
             "api_options": options if options else []
