@@ -35,7 +35,7 @@ Or you can made requests directly to discord's api, see their `docs <https://dis
 
 Add the command to your bot
 ---------------------------
-To add a slash command to your bot you need to use the decarator on a function, much like discord.py's command system but a bit different.
+To add a slash command to your bot you need to use the decorator on a function, much like discord.py's command system but a bit different.
 
 
 See :ref:`quickstart` for an example.
@@ -52,9 +52,14 @@ You can enable auto deletion of unused commands by setting :py:attr:`SlashComman
 .. note::
    This will make a request for **every** single guild your bot is in.
 
-Or you can use :py:func:`utils.manage_commands.delete` or a request directly to `discord <https://discord.com/developers/docs/interactions/slash-commands#delete-global-application-command>`_ 
+Or you can do it manually:
 
-To delete the command yourself you'll have to have the command id, which can be found by getting all commands for a guild / global commands.
+* Deleting a single command with :py:func:`utils.manage_commands.remove_slash_command`
+* Deleting all commands with :py:func:`utils.manage_commands.remove_all_commands`
+* Deleting all commands in a specified guild, or all global commands :py:func:`utils.manage_commands.remove_all_commands_in`
+* Making a request directly to `discord <https://discord.com/developers/docs/interactions/slash-commands#delete-global-application-command>`_ 
+
+To delete a single command yourself you'll have to have the command id, which can be found by getting all commands for a guild / global commands.
 
 What is the difference between ctx.send and ctx.channel.send?
 *************************************************************
@@ -72,7 +77,7 @@ What can this do?
 However, a few things are not supported:
 
 1. Send files.
-2. Get sent message as discord.Message. (can't react etc)
+2. Get sent message as :py:func:`discord.Message <discord:Message>`. (can't react etc)
 3. delete_after, etc.
 4. Unable to use after 15 mins from the invocation.
 
