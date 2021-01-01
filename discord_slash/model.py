@@ -1,9 +1,9 @@
 import typing
 import discord
+from enum import IntEnum
 from discord.ext import commands
 from . import http
 from . import error
-from enum import IntEnum
 
 
 class SlashContext:

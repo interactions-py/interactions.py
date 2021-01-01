@@ -566,15 +566,18 @@ class SlashCommand:
         types = {
             "user": 0,
             "USER": 0,
-            SlashCommandOptionType.USER: 0,
+            model.SlashCommandOptionType.USER: 0,
             "6": 0,
+            6: 0,
             "channel": 1,
             "CHANNEL": 1,
-            SlashCommandOptionType.CHANNEL: 1,
+            model.SlashCommandOptionType.CHANNEL: 1,
             "7": 1,
+            7: 1,
             "role": 2,
             "ROLE": 2,
-            SlashCommandOptionType.ROLE: 2,
+            model.SlashCommandOptionType.ROLE: 2,
+            8: 2,
             "8": 2
         }
 
