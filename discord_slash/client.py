@@ -295,7 +295,7 @@ class SlashCommand:
         name = cmd.__name__ if not name else name
         name = name.lower()
         if name in self.commands.keys():
-            tgt = self.subcommands[name]
+            tgt = self.commands[name]
             if not tgt.has_subcommands:
                 raise error.DuplicateCommand(name)
             has_subcommands = tgt.has_subcommands
