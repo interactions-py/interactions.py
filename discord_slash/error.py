@@ -10,6 +10,10 @@ class RequestFailure(SlashCommandError):
     """
     Request to Discord API has failed.
 
+    .. note::
+        Since release ``1.0.8``, this is only used at :mod:`.utils.manage_commands`. :class:`.http.SlashCommandRequest` uses
+        exception from discord.py such as :class:`discord.HTTPException`.
+
     :ivar status: Status code of failed response.
     :ivar msg: Message of failed response.
     """
