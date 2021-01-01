@@ -497,10 +497,6 @@ class SlashCommand:
             async def _group_kick_user(ctx, user):
                 ...
 
-        .. note::
-            Unlike normal slash command, this doesn't support ``options`` arg, since it will be very complicated.\n
-            Also, subcommands won't be automatically registered to Discord API even if you set ``auto_register`` to ``True``.
-
         :param base: Name of the base command.
         :type base: str
         :param subcommand_group: Name of the subcommand group, if any. Default ``None`` which represents there is no sub group.
