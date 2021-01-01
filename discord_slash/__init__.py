@@ -9,6 +9,7 @@ Simple Discord Slash Command extension for discord.py
 """
 
 from .client import SlashCommand
+from .model import SlashCommandOptionType
 from .model import SlashContext
 from .utils import manage_commands
 

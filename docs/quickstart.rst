@@ -72,6 +72,7 @@ Let's do some more complicated things:
 
     import discord
     from discord_slash import SlashCommand
+    from discord_slash import SlashCommandOptionType
     from discord_slash.utils import manage_commands
 
     client = discord.Client(intents=discord.Intents.all())
@@ -87,7 +88,7 @@ Let's do some more complicated things:
     async def _ping(ctx):
         await ctx.send(content=f"Pong! ({client.latency*1000}ms)")
 
-    @slash.slash(name="echo", guild_ids=guild_ids, options=[manage_commands.create_option("string", "A random string.", 3, True)])
+    @slash.slash(name="echo", guild_ids=guild_ids, options=[manage_commands.create_option("string", "A random string.", SlashCommandOptionType.STRING, True)])
     async def _echo(ctx, string):
         await ctx.send(content=string)
 

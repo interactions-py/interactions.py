@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from . import http
 from . import error
+from enum import IntEnum
 
 
 class SlashContext:
@@ -282,3 +283,17 @@ class CogSubcommandObject(SubcommandObject):
         :return: Coroutine
         """
         return self.func(self.cog, *args)
+
+
+class SlashCommandOptionType(IntEnum):
+    """
+    Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_  in the Discord API.
+    """
+    SUB_COMMAND = 1
+    SUB_COMMAND_GROUP = 2
+    STRING = 3
+    INTEGER = 4
+    BOOLEAN = 5
+    USER = 6
+    CHANNEL = 7
+    ROLE = 8
