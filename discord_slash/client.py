@@ -92,7 +92,7 @@ class SlashCommand:
                 else:
                     _cmd = {
                         "func": None,
-                        "description": x.base_desc,
+                        "description": x.base_description if x.base_description else "No Description.",
                         "auto_convert": {},
                         "guild_ids": x.allowed_guild_ids,
                         "api_options": [],
@@ -191,8 +191,8 @@ class SlashCommand:
                                 "options": sub_sub.options if sub_sub.options else []
                             }
                             base_dict["options"].append(_dict)
-                            if sub_sub.sub_group_desc:
-                                base_dict["description"] = sub_sub.sub_group_desc
+                            if sub_sub.subcommand_group_description:
+                                base_dict["description"] = sub_sub.subcommand_group_description
                         options.append(base_dict)
                 if selected.allowed_guild_ids:
                     for y in selected.allowed_guild_ids:
@@ -317,8 +317,8 @@ class SlashCommand:
                        subcommand_group=None,
                        name=None,
                        description: str = None,
-                       base_desc: str = None,
-                       sub_group_desc: str = None,
+                       base_description: str = None,
+                       subcommand_group_description: str = None,
                        auto_convert: dict = None,
                        guild_ids: typing.List[int] = None,
                        options: list = None):
@@ -335,10 +335,10 @@ class SlashCommand:
         :type name: str
         :param description: Description of the subcommand. Default ``None``.
         :type description: str
-        :param base_desc: Description of the base command. Default ``None``.
-        :type base_desc: str
-        :param sub_group_desc: Description of the subcommand_group. Default ``None``.
-        :type sub_group_desc: str
+        :param base_description: Description of the base command. Default ``None``.
+        :type base_description: str
+        :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
+        :type subcommand_group_description: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
@@ -352,7 +352,7 @@ class SlashCommand:
         name = name.lower()
         _cmd = {
             "func": None,
-            "description": base_desc,
+            "description": base_description,
             "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],
@@ -362,8 +362,8 @@ class SlashCommand:
             "func": cmd,
             "name": name,
             "description": description,
-            "base_desc": base_desc,
-            "sub_group_desc": sub_group_desc,
+            "base_desc": base_description,
+            "sub_group_desc": subcommand_group_description,
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
             "api_options": options if options else []
@@ -470,8 +470,8 @@ class SlashCommand:
                    subcommand_group=None,
                    name=None,
                    description: str = None,
-                   base_desc: str = None,
-                   sub_group_desc: str = None,
+                   base_description: str = None,
+                   subcommand_group_description: str = None,
                    auto_convert: dict = None,
                    guild_ids: typing.List[int] = None,
                    options: typing.List[dict] = None):
@@ -505,10 +505,10 @@ class SlashCommand:
         :type name: str
         :param description: Description of the subcommand. Default ``None``.
         :type description: str
-        :param base_desc: Description of the base command. Default ``None``.
-        :type base_desc: str
-        :param sub_group_desc: Description of the subcommand_group. Default ``None``.
-        :type sub_group_desc: str
+        :param base_description: Description of the base command. Default ``None``.
+        :type base_description: str
+        :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
+        :type subcommand_group_description: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
@@ -526,7 +526,7 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.add_subcommand(cmd, base, subcommand_group, name, description, base_desc, sub_group_desc, auto_convert, guild_ids, options)
+            self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, auto_convert, guild_ids, options)
             return cmd
 
         return wrapper
