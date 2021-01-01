@@ -7,7 +7,6 @@ from . import http
 from . import model
 from . import error
 from .utils import manage_commands
-from enum import IntEnum
 
 
 class SlashCommand:
@@ -733,17 +732,3 @@ class SlashCommand:
             return
         # Prints exception if not overrided or has no listener for error.
         self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
-
-
-class SlashCommandOptionType(IntEnum):
-    """
-    Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_  in the Discord API.
-    """
-    SUB_COMMAND = 1
-    SUB_COMMAND_GROUP = 2
-    STRING = 3
-    INTEGER = 4
-    BOOLEAN = 5
-    USER = 6
-    CHANNEL = 7
-    ROLE = 8
