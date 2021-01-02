@@ -471,7 +471,9 @@ class SlashCommand:
                    name=None,
                    description: str = None,
                    base_description: str = None,
+                   base_desc: str = None,
                    subcommand_group_description: str = None,
+                   sub_group_desc: str = None,
                    auto_convert: dict = None,
                    guild_ids: typing.List[int] = None,
                    options: typing.List[dict] = None):
@@ -507,8 +509,10 @@ class SlashCommand:
         :type description: str
         :param base_description: Description of the base command. Default ``None``.
         :type base_description: str
+        :param base_desc: Alias of ``base_description``.
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
+        :param sub_group_desc: Alias of ``subcommand_group_description``.
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
@@ -524,6 +528,9 @@ class SlashCommand:
                 if x["type"] < 3:
                     raise Exception("You can't use subcommand or subcommand_group type!")
                 auto_convert[x["name"]] = x["type"]
+
+        base_description = base_description if base_description else base_desc
+        subcommand_group_description = subcommand_group_description if subcommand_group_description else sub_group_desc
 
         def wrapper(cmd):
             self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, auto_convert, guild_ids, options)
