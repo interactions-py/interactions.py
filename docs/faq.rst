@@ -21,7 +21,7 @@ Creating a slash command is a two part process.
 
 Create a slash command on Discord  
 ---------------------------------
-Set :py:attr:`SlashCommand.auto_register` to ``True`` when you register the slash command client.
+Set :py:attr:`auto_register <client.SlashCommand.auto_register>` to ``True`` when you register the slash command client.
 
 .. code-block:: python
 
@@ -29,7 +29,7 @@ Set :py:attr:`SlashCommand.auto_register` to ``True`` when you register the slas
    
    slash = SlashCommand(client, auto_register=True)
 
-Or if you prefer to have more control then you can use :py:mod:`utils.manage_commands`
+Or if you prefer to have more control then you can use :py:mod:`discord_slash.utils.manage_commands`
 
 Or you can made requests directly to discord's api, see their `docs <https://discord.com/developers/docs/interactions/slash-commands#registering-a-command>`_ on it.
 
@@ -41,13 +41,18 @@ To add a slash command to your bot you need to use the decorator on a function, 
 See :ref:`quickstart` for an example.
 
 
-For normal commands: :py:attr:`SlashCommand.slash`, and for Subcommands: :py:attr:`SlashCommand.subcommand`
+For normal commands: :py:meth:`SlashCommand.slash() <client.SlashCommand.slash>`, and for Subcommands: :py:meth:`SlashCommand.subcommand() <client.SlashCommand.subcommand>`
 
 
 How to delete slash commands?
 *****************************
 
-You can enable auto deletion of unused commands by setting :py:attr:`SlashCommand.auto_delete` to ``True``
+You can enable auto deletion of unused commands by setting :py:attr:`auto_delete <client.SlashCommand.auto_delete>` to ``True``.
+
+.. code-block:: python
+   
+   from discord_slash import SlashCommand
+   slash = SlashCommand(auto_delete = True)
 
 .. note::
    This will make a request for **every** single guild your bot is in.
@@ -77,7 +82,7 @@ What can this do?
 However, a few things are not supported:
 
 1. Send files.
-2. Get sent message as :py:func:`discord.Message <discord:Message>`. (can't react etc)
+2. Get sent message as :py:class:`discord.Message <discord:Message>`. (can't react etc)
 3. delete_after, etc.
 4. Unable to use after 15 mins from the invocation.
 
