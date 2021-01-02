@@ -191,7 +191,7 @@ class SlashCommand:
                                 "options": sub_sub.options if sub_sub.options else []
                             }
                             base_dict["options"].append(_dict)
-                            if sub_sub.subcommand_group_description:
+                            if sub_sub.subcommand_group_description != "No Description.":
                                 base_dict["description"] = sub_sub.subcommand_group_description
                         options.append(base_dict)
                 if selected.allowed_guild_ids:
@@ -373,6 +373,8 @@ class SlashCommand:
         else:
             self.commands[base].has_subcommands = True
             self.commands[base].allowed_guild_ids += guild_ids
+            if self.commands[base].description != "No Description":
+                _cmd["description"] = self.commands[base].description
         if base not in self.subcommands.keys():
             self.subcommands[base] = {}
         if subcommand_group:
