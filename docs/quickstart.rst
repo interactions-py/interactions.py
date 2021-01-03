@@ -12,6 +12,13 @@ First of all, let's install this extension.
 
     pip install -U discord-py-slash-command
 
+Then, let's invite the bot. See discord.py's bot account create tutorial.
+After reading that, there is one more step before inviting your bot. You need to set the scope like this:
+
+.. image:: images/scope.jpg
+
+Then, invite your bot to your guild.
+
 Now, let's create a simple bot. Create one Python code file.
 I'll use ``main.py``.
 
