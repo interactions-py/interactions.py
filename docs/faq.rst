@@ -9,7 +9,7 @@ If your slash commands don't show up, then you have not added them to Discord co
 
 * Ensure that your application has the ``applications.commands`` scope in that guild.
 * If you're creating global command, then you may have to wait up to 1 hour for them to update. It's suggested to use guild command for testing.
-* Follow the steps below.
+* See `How to add slash commands?`.
 
 How to add slash commands?
 ******************************
