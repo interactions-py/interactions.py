@@ -231,7 +231,7 @@ class SlashCommand:
         """
         Unregisters all slash commands which are not used by the project to Discord API.\n
         This might take some time because for every guild the bot is on an API call is made.\n
-        If ``auto_delete`` is ```True``, then this will be automatically called.
+        If ``auto_delete`` is ``True``, then this will be automatically called.
         """
         await self._discord.wait_until_ready()
         self.logger.info("Deleting unused commands...")
