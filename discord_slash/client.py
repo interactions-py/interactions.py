@@ -1,7 +1,7 @@
 import logging
 import typing
 import discord
-from inspect import iscoroutinefunction
+from inspect import iscoroutinefunction, getdoc
 from discord.ext import commands
 from . import http
 from . import model
@@ -231,7 +231,7 @@ class SlashCommand:
         """
         Unregisters all slash commands which are not used by the project to Discord API.\n
         This might take some time because for every guild the bot is on an API call is made.\n
-        If ``auto_delete`` is ```True``, then this will be automatically called.
+        If ``auto_delete`` is ``True``, then this will be automatically called.
         """
         await self._discord.wait_until_ready()
         self.logger.info("Deleting unused commands...")
@@ -281,7 +281,7 @@ class SlashCommand:
         :type cmd: Coroutine
         :param name: Name of the slash command. Default name of the coroutine.
         :type name: str
-        :param description: Description of the slash command. Default ``None``.
+        :param description: Description of the slash command. Defaults to command docstring or ``None``.
         :type description: str
         :param auto_convert: Dictionary of how to convert option values. Default ``None``.
         :type auto_convert: dict
@@ -300,6 +300,10 @@ class SlashCommand:
                 raise error.DuplicateCommand(name)
             has_subcommands = tgt.has_subcommands
             guild_ids += tgt.allowed_guild_ids
+
+        if not description:
+            description = getdoc(cmd)
+
         _cmd = {
             "func": cmd,
             "description": description if description else "No description.",
@@ -333,7 +337,7 @@ class SlashCommand:
         :type subcommand_group: str
         :param name: Name of the subcommand. Default name of the coroutine.
         :type name: str
-        :param description: Description of the subcommand. Default ``None``.
+        :param description: Description of the subcommand. Defaults to command docstring or ``None``.
         :type description: str
         :param base_description: Description of the base command. Default ``None``.
         :type base_description: str
@@ -350,6 +354,9 @@ class SlashCommand:
         subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
         name = cmd.__name__ if not name else name
         name = name.lower()
+        if not description:
+            description = getdoc(cmd)
+
         _cmd = {
             "func": None,
             "description": base_description if base_description else "No Description.",
