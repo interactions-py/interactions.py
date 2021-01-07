@@ -71,7 +71,7 @@ async def remove_slash_command(bot_id,
 
 async def get_all_commands(bot_id,
                            bot_token,
-                           guild_id):
+                           guild_id=None):
     """
     A coroutine that sends a slash command get request to Discord API.
 
