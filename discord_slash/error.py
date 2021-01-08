@@ -3,7 +3,6 @@ class SlashCommandError(Exception):
     All exceptions of this extension can be captured with this.
     Note that discord.py doesn't trigger `on_command_error` event.
     """
-    pass
 
 
 class RequestFailure(SlashCommandError):
@@ -27,8 +26,6 @@ class IncorrectFormat(SlashCommandError):
     """
     Some formats are incorrect. See Discord API DOCS for proper format.
     """
-    def __init__(self, msg: str):
-        super().__init__(msg)
 
 
 class DuplicateCommand(SlashCommandError):

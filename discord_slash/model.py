@@ -90,8 +90,11 @@ class SlashContext:
         :type complete_hidden: bool
         :return: ``None``
         """
-        if embeds and len(embeds) > 10:
-            raise error.IncorrectFormat("Embed must be 10 or fewer.")
+        if not isinstance(embeds, list):
+            raise error.IncorrectFormat("Provide a list of embeds.")
+        elif len(embeds) > 10:
+            raise error.IncorrectFormat("Do not provide more than 10 embeds.")
+
         if complete_hidden:
             # Overrides both `hidden` and `send_type`.
             hidden = True
@@ -119,10 +122,9 @@ class SlashContext:
                 base["data"]["flags"] = 64
         if hidden and embeds:
             self.logger.warning("You cannot use both `hidden` and `embeds` at the same time!")
-        if (send_type == 2 or send_type == 5) and not self.sent:
+        if send_type in (2, 5) and not self.sent:
             base = {"type": send_type}
-        initial = True if not self.sent else False
-        resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, initial)
+        resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, not self.sent)
         self.sent = True
         return resp
 
@@ -185,7 +187,7 @@ class CommandObject:
     :ivar allowed_guild_ids: List of the allowed guild id.
     :ivar options: List of the option of the command. Used for `auto_register`.
     """
-    def __init__(self, name, cmd): # Let's reuse old command formatting.
+    def __init__(self, name, cmd):  # Let's reuse old command formatting.
         self.name = name.lower()
         self.func = cmd["func"]
         self.description = cmd["description"]
@@ -252,7 +254,7 @@ class CogCommandObject(CommandObject):
     """
     def __init__(self, *args):
         super().__init__(*args)
-        self.cog = None # Manually set this later.
+        self.cog = None  # Manually set this later.
 
     def invoke(self, *args):
         """
@@ -273,7 +275,7 @@ class CogSubcommandObject(SubcommandObject):
     """
     def __init__(self, *args):
         super().__init__(*args)
-        self.cog = None # Manually set this later.
+        self.cog = None  # Manually set this later.
 
     def invoke(self, *args):
         """

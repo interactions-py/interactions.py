@@ -77,16 +77,15 @@ class SlashCommand:
         :type cog: discord.ext.commands.Cog
         """
         func_list = [getattr(cog, x) for x in dir(cog)]
-        res = [x for x in func_list if
-               isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
+        res = [x for x in func_list if isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
         for x in res:
             x.cog = cog
             if isinstance(x, model.CogCommandObject):
-                if x.name in self.commands.keys():
+                if x.name in self.commands:
                     raise error.DuplicateCommand(x.name)
                 self.commands[x.name] = x
             else:
-                if x.base in self.commands.keys():
+                if x.base in self.commands:
                     self.commands[x.base].allowed_guild_ids += x.allowed_guild_ids
                     self.commands[x.base].has_subcommands = True
                 else:
@@ -99,16 +98,16 @@ class SlashCommand:
                         "has_subcommands": True
                     }
                     self.commands[x.base] = model.CommandObject(x.base, _cmd)
-                if x.base not in self.subcommands.keys():
+                if x.base not in self.subcommands:
                     self.subcommands[x.base] = {}
                 if x.subcommand_group:
                     if x.subcommand_group not in self.subcommands:
                         self.subcommands[x.base][x.subcommand_group] = {}
-                    if x.name in self.subcommands[x.base][x.subcommand_group].keys():
+                    if x.name in self.subcommands[x.base][x.subcommand_group]:
                         raise error.DuplicateCommand(f"{x.base} {x.subcommand_group} {x.name}")
                     self.subcommands[x.base][x.subcommand_group][x.name] = x
                 else:
-                    if x.name in self.subcommands[x.base].keys():
+                    if x.name in self.subcommands[x.base]:
                         raise error.DuplicateCommand(f"{x.base} {x.name}")
                     self.subcommands[x.base][x.name] = x
 
@@ -121,18 +120,18 @@ class SlashCommand:
         """
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
-               isinstance(x, model.CogCommandObject) or isinstance(x, model.CogSubcommandObject)]
+               isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
         for x in res:
             if isinstance(x, model.CogCommandObject):
-                if x.name not in self.commands.keys():
-                    continue # Just in case it is removed due to subcommand.
-                if x.name in self.subcommands.keys():
+                if x.name not in self.commands:
+                    continue  # Just in case it is removed due to subcommand.
+                if x.name in self.subcommands:
                     self.commands[x.name].func = None
-                    continue # Let's remove completely when every subcommand is removed.
+                    continue  # Let's remove completely when every subcommand is removed.
                 del self.commands[x.name]
             else:
-                if x.base not in self.subcommands.keys():
-                    continue # Just in case...
+                if x.base not in self.subcommands:
+                    continue  # Just in case...
                 if x.subcommand_group:
                     del self.subcommands[x.base][x.subcommand_group][x.name]
                     if not self.subcommands[x.base][x.subcommand_group]:
@@ -141,7 +140,7 @@ class SlashCommand:
                     del self.subcommands[x.base][x.name]
                 if not self.subcommands[x.base]:
                     del self.subcommands[x.base]
-                    if x.base in self.commands.keys():
+                    if x.base in self.commands:
                         if self.commands[x.base].func:
                             self.commands[x.base].has_subcommands = False
                         else:
@@ -154,7 +153,7 @@ class SlashCommand:
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
         self.logger.info("Registering commands...")
-        for x in self.commands.keys():
+        for x in self.commands:
             selected = self.commands[x]
             if selected.has_subcommands and selected.func:
                 # Registering both subcommand and command with same base name / name
@@ -165,7 +164,7 @@ class SlashCommand:
             if selected.has_subcommands:
                 tgt = self.subcommands[x]
                 options = []
-                for y in tgt.keys():
+                for y in tgt:
                     sub = tgt[y]
                     if isinstance(sub, model.SubcommandObject):
                         _dict = {
@@ -182,7 +181,7 @@ class SlashCommand:
                             "type": 2,
                             "options": []
                         }
-                        for z in sub.keys():
+                        for z in sub:
                             sub_sub = sub[z]
                             _dict = {
                                 "name": sub_sub.name,
@@ -255,8 +254,8 @@ class SlashCommand:
             for cmd in guild_commands:
                 registered_commands[cmd["name"]] = {"id": cmd["id"], "guild_id": guild.id}
 
-        for x in registered_commands.keys():
-            if x not in self.commands.keys():
+        for x in registered_commands:
+            if x not in self.commands:
                 # Delete command if not found locally
                 selected = registered_commands[x]
                 await manage_commands.remove_slash_command(self._discord.user.id,
@@ -294,7 +293,7 @@ class SlashCommand:
         """
         name = cmd.__name__ if not name else name
         name = name.lower()
-        if name in self.commands.keys():
+        if name in self.commands:
             tgt = self.commands[name]
             if not tgt.has_subcommands:
                 raise error.DuplicateCommand(name)
@@ -375,23 +374,23 @@ class SlashCommand:
             "guild_ids": guild_ids,
             "api_options": options if options else []
         }
-        if base not in self.commands.keys():
+        if base not in self.commands:
             self.commands[base] = model.CommandObject(base, _cmd)
         else:
             self.commands[base].has_subcommands = True
             self.commands[base].allowed_guild_ids += guild_ids
             if self.commands[base].description != "No Description":
                 _cmd["description"] = self.commands[base].description
-        if base not in self.subcommands.keys():
+        if base not in self.subcommands:
             self.subcommands[base] = {}
         if subcommand_group:
-            if subcommand_group not in self.subcommands[base].keys():
+            if subcommand_group not in self.subcommands[base]:
                 self.subcommands[base][subcommand_group] = {}
-            if name in self.subcommands[base][subcommand_group].keys():
+            if name in self.subcommands[base][subcommand_group]:
                 raise error.DuplicateCommand(f"{base} {subcommand_group} {name}")
             self.subcommands[base][subcommand_group][name] = model.SubcommandObject(_sub, base, name, subcommand_group)
         else:
-            if name in self.subcommands[base].keys():
+            if name in self.subcommands[base]:
                 raise error.DuplicateCommand(f"{base} {name}")
             self.subcommands[base][name] = model.SubcommandObject(_sub, base, name)
         self.logger.debug(
@@ -597,8 +596,8 @@ class SlashCommand:
 
         for x in options:
             selected = x
-            if selected["name"] in auto_convert.keys():
-                if auto_convert[selected["name"]] not in types.keys():
+            if selected["name"] in auto_convert:
+                if auto_convert[selected["name"]] not in types:
                     to_return.append(selected["value"])
                     continue
                 loaded_converter = converters[types[auto_convert[selected["name"]]]]
@@ -631,19 +630,19 @@ class SlashCommand:
 
         to_use = msg["d"]
 
-        if to_use["data"]["name"] in self.commands.keys():
+        if to_use["data"]["name"] in self.commands:
 
             ctx = model.SlashContext(self.req, to_use, self._discord, self.logger)
             cmd_name = to_use["data"]["name"]
 
-            if cmd_name not in self.commands.keys() and cmd_name in self.subcommands.keys():
+            if cmd_name not in self.commands and cmd_name in self.subcommands:
                 return await self.handle_subcommand(ctx, to_use)
 
             selected_cmd = self.commands[to_use["data"]["name"]]
 
             if selected_cmd.allowed_guild_ids:
                 guild_id = (
-                    ctx.guild.id if isinstance(ctx.guild, discord.Guild) 
+                    ctx.guild.id if isinstance(ctx.guild, discord.Guild)
                     else
                         ctx.guild
                 )
@@ -656,7 +655,7 @@ class SlashCommand:
 
             if "options" in to_use["data"]:
                 for x in to_use["data"]["options"]:
-                    if "value" not in x.keys():
+                    if "value" not in x:
                         return await self.handle_subcommand(ctx, to_use)
 
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.auto_convert) \
@@ -679,24 +678,24 @@ class SlashCommand:
         :param ctx: :class:`.model.SlashContext` instance.
         :param data: Gateway message.
         """
-        if data["data"]["name"] not in self.subcommands.keys():
+        if data["data"]["name"] not in self.subcommands:
             return
         base = self.subcommands[data["data"]["name"]]
         sub = data["data"]["options"][0]
         sub_name = sub["name"]
-        if sub_name not in base.keys():
+        if sub_name not in base:
             return
         ctx.subcommand = sub_name
         sub_opts = sub["options"] if "options" in sub else []
         for x in sub_opts:
-            if "options" in x.keys() or "value" not in x.keys():
+            if "options" in x or "value" not in x:
                 sub_group = x["name"]
-                if sub_group not in base[sub_name].keys():
+                if sub_group not in base[sub_name]:
                     return
                 ctx.subcommand_group = sub_group
                 selected = base[sub_name][sub_group]
                 args = await self.process_options(ctx.guild, x["options"], selected.auto_convert) \
-                    if "options" in x.keys() else []
+                    if "options" in x else []
                 self._discord.dispatch("slash_command", ctx)
                 try:
                     await selected.invoke(ctx, *args)
@@ -705,7 +704,7 @@ class SlashCommand:
                 return
         selected = base[sub_name]
         args = await self.process_options(ctx.guild, sub_opts, selected.auto_convert) \
-            if "options" in sub.keys() else []
+            if "options" in sub else []
         self._discord.dispatch("slash_command", ctx)
         try:
             await selected.invoke(ctx, *args)
