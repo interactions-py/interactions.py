@@ -1,6 +1,6 @@
 import typing
 import inspect
-from .model import CogCommandObject, CogSubcommandObject, SlashCommandOptionType
+from .model import CogCommandObject, CogSubcommandObject
 from .utils import manage_commands
 
 
