@@ -165,9 +165,9 @@ def create_option(name: str,
     }
 
 
-def create_options_from_args(function: Callable, description: str = "No description.") -> list:
+def generate_options(function: Callable, description: str = "No description.") -> list:
     """
-    Creates a list of options from the type hints of a command.
+    Generates a list of options from the type hints of a command.
     You currently can type hint: str, int, bool, discord.User, discord.Channel, discord.Role
 
     .. warning::
@@ -192,6 +192,24 @@ def create_options_from_args(function: Callable, description: str = "No descript
         options.append(create_option(argument, description, option_type, required))
 
     return options
+
+
+def generate_auto_convert(options: list) -> dict:
+    """
+    Generate an auto_convert dict from command options.
+
+    .. note::
+        This is automatically used if you pass options.
+
+    :param options: The list of options.
+    """
+    auto_convert = {}
+    for x in options:
+        if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
+            raise Exception("You can't use subcommand or subcommand_group type!")
+        auto_convert[x["name"]] = x["type"]
+
+    return auto_convert
 
 
 def create_choice(value: str, name: str):

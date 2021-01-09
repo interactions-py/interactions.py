@@ -44,20 +44,15 @@ def cog_slash(*,
     :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
     """
-    if options:
-        # Overrides original auto_convert.
-        auto_convert = {}
-        for x in options:
-            if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
-                raise Exception("Please use `cog_subcommand()` decorator for cog subcommands!")
-            auto_convert[x["name"]] = x["type"]
-
     def wrapper(cmd):
         desc = description or inspect.getdoc(cmd) or "No description"
         if options is None:
-            opts = manage_commands.create_options_from_args(cmd, desc)
+            opts = manage_commands.generate_options(cmd, desc)
         else:
             opts = options
+
+        if opts:
+            auto_convert = manage_commands.generate_auto_convert(opts)
 
         _cmd = {
             "func": cmd,
@@ -127,23 +122,18 @@ def cog_subcommand(*,
     :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
     """
-    if options:
-        # Overrides original auto_convert.
-        auto_convert = {}
-        for x in options:
-            if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
-                raise Exception("You can't use subcommand or subcommand_group type!")
-            auto_convert[x["name"]] = x["type"]
-
     base_description = base_description or base_desc
     subcommand_group_description = subcommand_group_description or sub_group_desc
 
     def wrapper(cmd):
         desc = description or inspect.getdoc(cmd) or "No description"
         if options is None:
-            opts = manage_commands.create_options_from_args(cmd, desc)
+            opts = manage_commands.generate_options(cmd, desc)
         else:
             opts = options
+
+        if opts:
+            auto_convert = manage_commands.generate_auto_convert(opts)
 
         _sub = {
             "func": cmd,
