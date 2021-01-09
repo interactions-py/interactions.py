@@ -1,5 +1,5 @@
 import typing
-from .model import CogCommandObject, CogSubcommandObject
+from .model import CogCommandObject, CogSubcommandObject, SlashCommandOptionType
 
 
 def cog_slash(*,
@@ -46,7 +46,7 @@ def cog_slash(*,
         # Overrides original auto_convert.
         auto_convert = {}
         for x in options:
-            if x["type"] < 3:
+            if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
                 raise Exception("Please use `cog_subcommand()` decorator for cog subcommands!")
             auto_convert[x["name"]] = x["type"]
 
@@ -119,12 +119,11 @@ def cog_subcommand(*,
     :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
     """
-
     if options:
         # Overrides original auto_convert.
         auto_convert = {}
         for x in options:
-            if x["type"] < 3:
+            if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
                 raise Exception("You can't use subcommand or subcommand_group type!")
             auto_convert[x["name"]] = x["type"]
 
