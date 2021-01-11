@@ -54,21 +54,6 @@ class SlashCommand:
             self._discord.add_listener(self.on_socket_response)
             self.has_listener = True
 
-    def remove(self):
-        """
-        Removes :func:`on_socket_response` event listener from discord.py Client.
-
-        .. warning::
-            This is deprecated and will be removed soon.
-
-        .. note::
-            This only works if it is :class:`discord.ext.commands.Bot` or
-            :class:`discord.ext.commands.AutoShardedBot`.
-        """
-        if not self.has_listener:
-            return
-        self._discord.remove_listener(self.on_socket_response)
-
     def get_cog_commands(self, cog: commands.Cog):
         """
         Gets slash command from :class:`discord.ext.commands.Cog`.
@@ -401,7 +386,6 @@ class SlashCommand:
               name: str = None,
               description: str = None,
               auto_convert: dict = None,
-              guild_id: int = None,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None):
         """
@@ -454,10 +438,6 @@ class SlashCommand:
         :type options: List[dict]
         """
 
-        if guild_id:
-            self.logger.warning("`guild_id` is deprecated! `Use guild_ids` instead.")
-            guild_ids = [guild_id]
-
         if options:
             # Overrides original auto_convert.
             auto_convert = {}
@@ -467,7 +447,12 @@ class SlashCommand:
                 auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
-            self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
+            if not guild_ids:
+                res = input(f"WARNING! Command {name} will be global and registered only over a hour! Do you want to proceed? (Y/N)")
+                if res == "Y":
+                    self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
+                else:
+                    return
             return cmd
 
         return wrapper
