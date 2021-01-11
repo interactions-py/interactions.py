@@ -2,8 +2,6 @@ import typing
 import asyncio
 import aiohttp
 from ..error import RequestFailure
-from ..model import SlashCommandOptionType
-from collections.abc import Callable
 
 
 async def add_slash_command(bot_id,
@@ -163,53 +161,6 @@ def create_option(name: str,
         "required": required,
         "choices": choices if choices else []
     }
-
-
-def generate_options(function: Callable, description: str = "No description.") -> list:
-    """
-    Generates a list of options from the type hints of a command.
-    You currently can type hint: str, int, bool, discord.User, discord.Channel, discord.Role
-
-    .. warning::
-        This is automatically used if you do not pass any options directly. It is not recommended to use this.
-
-    :param function: The function callable of the command.
-    :param description: The default argument description.
-    """
-    options = []
-    for i, (argument, hint) in enumerate(typing.get_type_hints(function).items()):
-        if i == 0:  # First element is ctx
-            continue
-
-        required = True
-        if typing.get_origin(hint) is typing.Union:
-            # Make a command argument optional with typing.Optional[type] or typing.Union[type, None]
-            args = typing.get_args(hint)
-            hint = args[0]
-            required = not args[-1] is type(None)
-
-        option_type = SlashCommandOptionType.from_type(hint)  # If no type hint is passed, then defaults to string
-        options.append(create_option(argument, description, option_type, required))
-
-    return options
-
-
-def generate_auto_convert(options: list) -> dict:
-    """
-    Generate an auto_convert dict from command options.
-
-    .. note::
-        This is automatically used if you pass options.
-
-    :param options: The list of options.
-    """
-    auto_convert = {}
-    for x in options:
-        if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
-            raise Exception("You can't use subcommand or subcommand_group type!")
-        auto_convert[x["name"]] = x["type"]
-
-    return auto_convert
 
 
 def create_choice(value: str, name: str):
