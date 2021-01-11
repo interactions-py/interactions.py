@@ -1,7 +1,4 @@
 # discord-py-slash-command
-
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/224bdbe58f8f43f28a093a33a7546456)](https://app.codacy.com/gh/eunwoo1104/discord-py-slash-command?utm_source=github.com&utm_medium=referral&utm_content=eunwoo1104/discord-py-slash-command&utm_campaign=Badge_Grade_Settings)
-
 Simple Discord Slash Commands extension for [discord.py](https://github.com/Rapptz/discord.py).
 
 ## Example

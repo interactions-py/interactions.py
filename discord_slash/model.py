@@ -90,10 +90,11 @@ class SlashContext:
         :type complete_hidden: bool
         :return: ``None``
         """
-        if not isinstance(embeds, list):
-            raise error.IncorrectFormat("Provide a list of embeds.")
-        elif len(embeds) > 10:
-            raise error.IncorrectFormat("Do not provide more than 10 embeds.")
+        if embeds is not None:
+            if not isinstance(embeds, list):
+                raise error.IncorrectFormat("Provide a list of embeds.")
+            elif len(embeds) > 10:
+                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
 
         if complete_hidden:
             # Overrides both `hidden` and `send_type`.
@@ -299,3 +300,18 @@ class SlashCommandOptionType(IntEnum):
     USER = 6
     CHANNEL = 7
     ROLE = 8
+
+    @classmethod
+    def from_type(cls, t: type):
+        """
+        Get a specific SlashCommandOptionType from a type (or object).
+
+        :param t: The type or object to get a SlashCommandOptionType for.
+        :return: :class:`.model.SlashCommandOptionType` or ``None``
+        """
+        if issubclass(t, str): return cls.STRING
+        if issubclass(t, int): return cls.INTEGER
+        if issubclass(t, bool): return cls.BOOLEAN
+        if issubclass(t, discord.abc.User): return cls.USER
+        if issubclass(t, discord.abc.GuildChannel): return cls.CHANNEL
+        if issubclass(t, discord.abc.Role): return cls.ROLE
