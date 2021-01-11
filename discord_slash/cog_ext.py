@@ -52,17 +52,19 @@ def cog_slash(*,
             opts = options
 
         if opts:
-            auto_convert = manage_commands.generate_auto_convert(opts)
+            auto_conv = manage_commands.generate_auto_convert(opts)
+        else:
+            auto_conv = auto_convert
 
         _cmd = {
             "func": cmd,
             "description": desc,
-            "auto_convert": auto_convert,
+            "auto_convert": auto_conv,
             "guild_ids": guild_ids,
             "api_options": opts,
             "has_subcommands": False
         }
-        return CogCommandObject(cmd.__name__ if not name else name, _cmd)
+        return CogCommandObject(name or cmd.__name__, _cmd)
     return wrapper
 
 
@@ -133,15 +135,17 @@ def cog_subcommand(*,
             opts = options
 
         if opts:
-            auto_convert = manage_commands.generate_auto_convert(opts)
+            auto_conv = manage_commands.generate_auto_convert(opts)
+        else:
+            auto_conv = auto_convert
 
         _sub = {
             "func": cmd,
-            "name": cmd.__name__ if not name else name,
+            "name": name or cmd.__name__,
             "description": desc,
             "base_desc": base_description or "No Description.",
             "sub_group_desc": subcommand_group_description or "No Description.",
-            "auto_convert": auto_convert,
+            "auto_convert": auto_conv,
             "guild_ids": guild_ids,
             "api_options": opts
         }

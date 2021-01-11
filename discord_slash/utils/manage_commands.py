@@ -1,4 +1,5 @@
 import typing
+import inspect
 import asyncio
 import aiohttp
 from ..error import RequestFailure
@@ -29,7 +30,7 @@ async def add_slash_command(bot_id,
     base = {
         "name": cmd_name,
         "description": description,
-        "options": options if options else []
+        "options": options or []
     }
 
     async with aiohttp.ClientSession() as session:
@@ -109,7 +110,7 @@ async def remove_all_commands(bot_id,
 
     await remove_all_commands_in(bot_id, bot_token, None)
 
-    for x in guild_ids if guild_ids else []:
+    for x in guild_ids or []:
         try:
             await remove_all_commands_in(bot_id, bot_token, x)
         except RequestFailure:
@@ -161,7 +162,7 @@ def create_option(name: str,
         "description": description,
         "type": option_type,
         "required": required,
-        "choices": choices if choices else []
+        "choices": choices or []
     }
 
 
@@ -177,19 +178,26 @@ def generate_options(function: Callable, description: str = "No description.") -
     :param description: The default argument description.
     """
     options = []
-    for i, (argument, hint) in enumerate(typing.get_type_hints(function).items()):
-        if i == 0:  # First element is ctx
-            continue
+    params = iter(inspect.signature(function).parameters.values())
+    if next(params).name in ("self", "cls"):
+        # Skip 1. (+ 2.) parameter, self/cls and ctx
+        next(params)
 
+    for param in params:
         required = True
-        if typing.get_origin(hint) is typing.Union:
-            # Make a command argument optional with typing.Optional[type] or typing.Union[type, None]
-            args = typing.get_args(hint)
-            hint = args[0]
-            required = not args[-1] is type(None)
+        if isinstance(param.annotation, str):
+            # if from __future__ import annotations, then annotations are strings and should be converted back to types
+            param = param.replace(annotation=eval(param.annotation, function.__globals__))
 
-        option_type = SlashCommandOptionType.from_type(hint)  # If no type hint is passed, then defaults to string
-        options.append(create_option(argument, description, option_type, required))
+        if getattr(param.annotation, "__origin__", None) is typing.Union:
+            # Make a command argument optional with typing.Optional[type] or typing.Union[type, None]
+            args = getattr(param.annotation, "__args__", None)
+            if args:
+                param = param.replace(annotation=args[0])
+                required = not args[-1] is type(None)
+
+        option_type = SlashCommandOptionType.from_type(param.annotation) or SlashCommandOptionType.STRING
+        options.append(create_option(param.name, description, option_type, required))
 
     return options
 
