@@ -3,6 +3,7 @@ import inspect
 import asyncio
 import aiohttp
 from ..error import RequestFailure
+from ..model import SlashCommandOptionType
 
 
 async def add_slash_command(bot_id,
@@ -164,7 +165,7 @@ def create_option(name: str,
     }
 
 
-def generate_options(function: Callable, description: str = "No description.") -> list:
+def generate_options(function: typing.Callable, description: str = "No description.") -> list:
     """
     Generates a list of options from the type hints of a command.
     You currently can type hint: str, int, bool, discord.User, discord.Channel, discord.Role
