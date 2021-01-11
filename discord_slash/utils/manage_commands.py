@@ -3,8 +3,6 @@ import inspect
 import asyncio
 import aiohttp
 from ..error import RequestFailure
-from ..model import SlashCommandOptionType
-from collections.abc import Callable
 
 
 async def add_slash_command(bot_id,

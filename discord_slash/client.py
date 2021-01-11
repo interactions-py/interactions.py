@@ -178,7 +178,7 @@ class SlashCommand:
                         base_dict = {
                             "name": y,
                             "description": "No Description.",
-                            "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
+                            "type": 2,
                             "options": []
                         }
                         for z in sub:
@@ -286,7 +286,7 @@ class SlashCommand:
         :type auto_convert: dict
         :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
-        :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
+        :param options: Options of the slash command.
         :type options: list
         :param has_subcommands: Whether it has subcommand. Default ``False``.
         :type has_subcommands: bool
@@ -300,20 +300,15 @@ class SlashCommand:
             has_subcommands = tgt.has_subcommands
             guild_ids += tgt.allowed_guild_ids
 
-        description = description or getdoc(cmd) or "No description"
-
-        if options is None:
-            options = manage_commands.generate_options(cmd, description)
-
-        if options:
-            auto_convert = manage_commands.generate_auto_convert(options)
+        if not description:
+            description = getdoc(cmd)
 
         _cmd = {
             "func": cmd,
-            "description": description,
+            "description": description if description else "No description.",
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
-            "api_options": options,
+            "api_options": options if options else [],
             "has_subcommands": has_subcommands
         }
         self.commands[name] = model.CommandObject(name, _cmd)
@@ -351,24 +346,19 @@ class SlashCommand:
         :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
-        :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
+        :param options: Options of the subcommand.
         :type options: list
         """
         base = base.lower()
         subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
         name = name or cmd.__name__
         name = name.lower()
-        description = description or getdoc(cmd) or "No description"
-
-        if options is None:
-            options = manage_commands.generate_options(cmd, description)
-
-        if options:
-            auto_convert = manage_commands.generate_auto_convert(options)
+        if not description:
+            description = getdoc(cmd)
 
         _cmd = {
             "func": None,
-            "description": base_description or "No Description.",
+            "description": base_description if base_description else "No Description.",
             "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],
@@ -377,12 +367,12 @@ class SlashCommand:
         _sub = {
             "func": cmd,
             "name": name,
-            "description": description,
-            "base_desc": base_description or "No Description.",
-            "sub_group_desc": subcommand_group_description or "No Description.",
+            "description": description if description else "No Description.",
+            "base_desc": base_description if base_description else "No Description.",
+            "sub_group_desc": subcommand_group_description if subcommand_group_description else "No Description.",
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
-            "api_options": options
+            "api_options": options if options else []
         }
         if base not in self.commands:
             self.commands[base] = model.CommandObject(base, _cmd)
@@ -463,9 +453,18 @@ class SlashCommand:
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: List[dict]
         """
+
         if guild_id:
             self.logger.warning("`guild_id` is deprecated! `Use guild_ids` instead.")
             guild_ids = [guild_id]
+
+        if options:
+            # Overrides original auto_convert.
+            auto_convert = {}
+            for x in options:
+                if x["type"] < 3:
+                    raise Exception("Please use `subcommand()` decorator for subcommands!")
+                auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
             self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)

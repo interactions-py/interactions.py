@@ -1,7 +1,5 @@
 import typing
-import inspect
 from .model import CogCommandObject, CogSubcommandObject
-from .utils import manage_commands
 
 
 def cog_slash(*,
@@ -56,12 +54,13 @@ def cog_slash(*,
         else:
             auto_conv = auto_convert
 
+    def wrapper(cmd):
         _cmd = {
             "func": cmd,
             "description": desc,
             "auto_convert": auto_conv,
             "guild_ids": guild_ids,
-            "api_options": opts,
+            "api_options": options if options else [],
             "has_subcommands": False
         }
         return CogCommandObject(name or cmd.__name__, _cmd)
@@ -124,21 +123,21 @@ def cog_subcommand(*,
     :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
     """
-    base_description = base_description or base_desc
-    subcommand_group_description = subcommand_group_description or sub_group_desc
 
-    def wrapper(cmd):
-        desc = description or inspect.getdoc(cmd) or "No description"
-        if options is None:
-            opts = manage_commands.generate_options(cmd, desc)
-        else:
-            opts = options
+    if options:
+        # Overrides original auto_convert.
+        auto_convert = {}
+        for x in options:
+            if x["type"] < 3:
+                raise Exception("You can't use subcommand or subcommand_group type!")
+            auto_convert[x["name"]] = x["type"]
 
         if opts:
             auto_conv = manage_commands.generate_auto_convert(opts)
         else:
             auto_conv = auto_convert
 
+    def wrapper(cmd):
         _sub = {
             "func": cmd,
             "name": name or cmd.__name__,
@@ -147,7 +146,7 @@ def cog_subcommand(*,
             "sub_group_desc": subcommand_group_description or "No Description.",
             "auto_convert": auto_conv,
             "guild_ids": guild_ids,
-            "api_options": opts
+            "api_options": options if options else []
         }
-        return CogSubcommandObject(_sub, base, name or cmd.__name__, subcommand_group)
+        return CogSubcommandObject(_sub, base, cmd.__name__ if not name else name, subcommand_group)
     return wrapper
