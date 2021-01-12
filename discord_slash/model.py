@@ -90,10 +90,11 @@ class SlashContext:
         :type complete_hidden: bool
         :return: ``None``
         """
-        if not isinstance(embeds, list):
-            raise error.IncorrectFormat("Provide a list of embeds.")
-        elif len(embeds) > 10:
-            raise error.IncorrectFormat("Do not provide more than 10 embeds.")
+        if embeds is not None:
+            if not isinstance(embeds, list):
+                raise error.IncorrectFormat("Provide a list of embeds.")
+            elif len(embeds) > 10:
+                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
 
         if complete_hidden:
             # Overrides both `hidden` and `send_type`.
@@ -191,9 +192,9 @@ class CommandObject:
         self.name = name.lower()
         self.func = cmd["func"]
         self.description = cmd["description"]
-        self.auto_convert = cmd["auto_convert"] if cmd["auto_convert"] else {}
-        self.allowed_guild_ids = cmd["guild_ids"] if cmd["guild_ids"] else []
-        self.options = cmd["api_options"] if cmd["api_options"] else []
+        self.auto_convert = cmd["auto_convert"] or {}
+        self.allowed_guild_ids = cmd["guild_ids"] or []
+        self.options = cmd["api_options"] or []
         self.has_subcommands = cmd["has_subcommands"]
 
     def invoke(self, *args):
@@ -231,9 +232,9 @@ class SubcommandObject:
         self.description = sub["description"]
         self.base_description = sub["base_desc"]
         self.subcommand_group_description = sub["sub_group_desc"]
-        self.auto_convert = sub["auto_convert"] if sub["auto_convert"] else {}
-        self.allowed_guild_ids = sub["guild_ids"] if sub["guild_ids"] else []
-        self.options = sub["api_options"] if sub["api_options"] else []
+        self.auto_convert = sub["auto_convert"] or {}
+        self.allowed_guild_ids = sub["guild_ids"] or []
+        self.options = sub["api_options"] or []
 
     def invoke(self, *args):
         """
@@ -299,3 +300,18 @@ class SlashCommandOptionType(IntEnum):
     USER = 6
     CHANNEL = 7
     ROLE = 8
+
+    @classmethod
+    def from_type(cls, t: type):
+        """
+        Get a specific SlashCommandOptionType from a type (or object).
+
+        :param t: The type or object to get a SlashCommandOptionType for.
+        :return: :class:`.model.SlashCommandOptionType` or ``None``
+        """
+        if issubclass(t, str): return cls.STRING
+        if issubclass(t, int): return cls.INTEGER
+        if issubclass(t, bool): return cls.BOOLEAN
+        if issubclass(t, discord.abc.User): return cls.USER
+        if issubclass(t, discord.abc.GuildChannel): return cls.CHANNEL
+        if issubclass(t, discord.abc.Role): return cls.ROLE

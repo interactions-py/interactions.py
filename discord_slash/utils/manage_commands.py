@@ -1,7 +1,10 @@
 import typing
+import inspect
 import asyncio
 import aiohttp
 from ..error import RequestFailure
+from ..model import SlashCommandOptionType
+from collections.abc import Callable
 
 
 async def add_slash_command(bot_id,
@@ -27,7 +30,7 @@ async def add_slash_command(bot_id,
     base = {
         "name": cmd_name,
         "description": description,
-        "options": options if options else []
+        "options": options or []
     }
 
     async with aiohttp.ClientSession() as session:
@@ -107,7 +110,7 @@ async def remove_all_commands(bot_id,
 
     await remove_all_commands_in(bot_id, bot_token, None)
 
-    for x in guild_ids if guild_ids else []:
+    for x in guild_ids or []:
         try:
             await remove_all_commands_in(bot_id, bot_token, x)
         except RequestFailure:
@@ -159,8 +162,62 @@ def create_option(name: str,
         "description": description,
         "type": option_type,
         "required": required,
-        "choices": choices if choices else []
+        "choices": choices or []
     }
+
+
+def generate_options(function: Callable, description: str = "No description.") -> list:
+    """
+    Generates a list of options from the type hints of a command.
+    You currently can type hint: str, int, bool, discord.User, discord.Channel, discord.Role
+
+    .. warning::
+        This is automatically used if you do not pass any options directly. It is not recommended to use this.
+
+    :param function: The function callable of the command.
+    :param description: The default argument description.
+    """
+    options = []
+    params = iter(inspect.signature(function).parameters.values())
+    if next(params).name in ("self", "cls"):
+        # Skip 1. (+ 2.) parameter, self/cls and ctx
+        next(params)
+
+    for param in params:
+        required = True
+        if isinstance(param.annotation, str):
+            # if from __future__ import annotations, then annotations are strings and should be converted back to types
+            param = param.replace(annotation=eval(param.annotation, function.__globals__))
+
+        if getattr(param.annotation, "__origin__", None) is typing.Union:
+            # Make a command argument optional with typing.Optional[type] or typing.Union[type, None]
+            args = getattr(param.annotation, "__args__", None)
+            if args:
+                param = param.replace(annotation=args[0])
+                required = not args[-1] is type(None)
+
+        option_type = SlashCommandOptionType.from_type(param.annotation) or SlashCommandOptionType.STRING
+        options.append(create_option(param.name, description, option_type, required))
+
+    return options
+
+
+def generate_auto_convert(options: list) -> dict:
+    """
+    Generate an auto_convert dict from command options.
+
+    .. note::
+        This is automatically used if you pass options.
+
+    :param options: The list of options.
+    """
+    auto_convert = {}
+    for x in options:
+        if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
+            raise Exception("You can't use subcommand or subcommand_group type!")
+        auto_convert[x["name"]] = x["type"]
+
+    return auto_convert
 
 
 def create_choice(value: str, name: str):

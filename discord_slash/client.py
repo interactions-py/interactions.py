@@ -91,7 +91,7 @@ class SlashCommand:
                 else:
                     _cmd = {
                         "func": None,
-                        "description": x.base_description if x.base_description else "No Description.",
+                        "description": x.base_description or "No Description.",
                         "auto_convert": {},
                         "guild_ids": x.allowed_guild_ids,
                         "api_options": [],
@@ -169,25 +169,25 @@ class SlashCommand:
                     if isinstance(sub, model.SubcommandObject):
                         _dict = {
                             "name": sub.name,
-                            "description": sub.description if sub.description else "No Description.",
-                            "type": 1,
-                            "options": sub.options if sub.options else []
+                            "description": sub.description or "No Description.",
+                            "type": model.SlashCommandOptionType.SUB_COMMAND,
+                            "options": sub.options or []
                         }
                         options.append(_dict)
                     else:
                         base_dict = {
                             "name": y,
                             "description": "No Description.",
-                            "type": 2,
+                            "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
                             "options": []
                         }
                         for z in sub:
                             sub_sub = sub[z]
                             _dict = {
                                 "name": sub_sub.name,
-                                "description": sub_sub.description if sub_sub.description else "No Description.",
-                                "type": 1,
-                                "options": sub_sub.options if sub_sub.options else []
+                                "description": sub_sub.description or "No Description.",
+                                "type": model.SlashCommandOptionType.SUB_COMMAND,
+                                "options": sub_sub.options or []
                             }
                             base_dict["options"].append(_dict)
                             if sub_sub.subcommand_group_description != "No Description.":
@@ -286,12 +286,12 @@ class SlashCommand:
         :type auto_convert: dict
         :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
-        :param options: Options of the slash command.
+        :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: list
         :param has_subcommands: Whether it has subcommand. Default ``False``.
         :type has_subcommands: bool
         """
-        name = cmd.__name__ if not name else name
+        name = name or cmd.__name__
         name = name.lower()
         if name in self.commands:
             tgt = self.commands[name]
@@ -300,15 +300,20 @@ class SlashCommand:
             has_subcommands = tgt.has_subcommands
             guild_ids += tgt.allowed_guild_ids
 
-        if not description:
-            description = getdoc(cmd)
+        description = description or getdoc(cmd) or "No description"
+
+        if options is None:
+            options = manage_commands.generate_options(cmd, description)
+
+        if options:
+            auto_convert = manage_commands.generate_auto_convert(options)
 
         _cmd = {
             "func": cmd,
-            "description": description if description else "No description.",
+            "description": description,
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
-            "api_options": options if options else [],
+            "api_options": options,
             "has_subcommands": has_subcommands
         }
         self.commands[name] = model.CommandObject(name, _cmd)
@@ -346,19 +351,24 @@ class SlashCommand:
         :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
-        :param options: Options of the subcommand.
+        :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: list
         """
         base = base.lower()
         subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
-        name = cmd.__name__ if not name else name
+        name = name or cmd.__name__
         name = name.lower()
-        if not description:
-            description = getdoc(cmd)
+        description = description or getdoc(cmd) or "No description"
+
+        if options is None:
+            options = manage_commands.generate_options(cmd, description)
+
+        if options:
+            auto_convert = manage_commands.generate_auto_convert(options)
 
         _cmd = {
             "func": None,
-            "description": base_description if base_description else "No Description.",
+            "description": base_description or "No Description.",
             "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],
@@ -367,12 +377,12 @@ class SlashCommand:
         _sub = {
             "func": cmd,
             "name": name,
-            "description": description if description else "No Description.",
-            "base_desc": base_description if base_description else "No Description.",
-            "sub_group_desc": subcommand_group_description if subcommand_group_description else "No Description.",
+            "description": description,
+            "base_desc": base_description or "No Description.",
+            "sub_group_desc": subcommand_group_description or "No Description.",
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
-            "api_options": options if options else []
+            "api_options": options
         }
         if base not in self.commands:
             self.commands[base] = model.CommandObject(base, _cmd)
@@ -394,7 +404,7 @@ class SlashCommand:
                 raise error.DuplicateCommand(f"{base} {name}")
             self.subcommands[base][name] = model.SubcommandObject(_sub, base, name)
         self.logger.debug(
-            f"Added subcommand `{base} {subcommand_group if subcommand_group else ''} {cmd.__name__ if not name else name}`")
+            f"Added subcommand `{base} {subcommand_group or ''} {name or cmd.__name__}`")
 
     def slash(self,
               *,
@@ -453,18 +463,9 @@ class SlashCommand:
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: List[dict]
         """
-
         if guild_id:
             self.logger.warning("`guild_id` is deprecated! `Use guild_ids` instead.")
             guild_ids = [guild_id]
-
-        if options:
-            # Overrides original auto_convert.
-            auto_convert = {}
-            for x in options:
-                if x["type"] < 3:
-                    raise Exception("Please use `subcommand()` decorator for subcommands!")
-                auto_convert[x["name"]] = x["type"]
 
         def wrapper(cmd):
             self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
@@ -528,17 +529,8 @@ class SlashCommand:
         :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: List[dict]
         """
-
-        if options:
-            # Overrides original auto_convert.
-            auto_convert = {}
-            for x in options:
-                if x["type"] < 3:
-                    raise Exception("You can't use subcommand or subcommand_group type!")
-                auto_convert[x["name"]] = x["type"]
-
-        base_description = base_description if base_description else base_desc
-        subcommand_group_description = subcommand_group_description if subcommand_group_description else sub_group_desc
+        base_description = base_description or base_desc
+        subcommand_group_description = subcommand_group_description or sub_group_desc
 
         def wrapper(cmd):
             self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, auto_convert, guild_ids, options)
