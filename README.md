@@ -10,7 +10,7 @@ A simple Discord Slash Command extension for [discord.py](https://github.com/Rap
 ## About
 Discord Slash Commands are a new implementation for the Bot API that utilize the forward-slash "/" symbol.
 Released on 15 December 2020, many bot developers are still learning to learn how to implement this into
-their very own bots. This library aims to help serve as a guidance for those looking into wanting to add
+their very own bots. This extension aims to help serve as a guidance for those looking into wanting to add
 these new slash commands into their bots for those that use discord.py, building off of the current library
 code and substituting its own for where it's needed. *discord-py-slash-command* stands as the first public
 slash command extension library to be made for Discord Bot API libraries.
