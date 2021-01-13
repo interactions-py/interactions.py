@@ -83,8 +83,9 @@ the many subclasses offered in *discord-py-slash-command*.
   client.run("your_bot_token_here")
   
 The main changes that you need to know about are with the lines calling the import
-of ``manage_commands``, as well as the ``options = [] ...`` code within the `@slash.slash()`
-context coroutine. 
+of ``manage_commands``, as well as the ``options = [] ...`` code within the ``@slash.slash()``
+context coroutine. This will now create a new option called "argOne" when shown for
+the slash command.
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
