@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to discord-py-slash-command's documentation!
+Welcome to discord-py-slash-command!
 ====================================================
 
-discord-py-slash-command is simple discord.py extension
-for using Discord's Slash Command feature.
+discord-py-slash-command is a simple discord.py extension
+for using Discord's new Slash Command feature.
 
 Example:
 
