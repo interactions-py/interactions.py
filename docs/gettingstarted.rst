@@ -72,7 +72,7 @@ the many subclasses offered in *discord-py-slash-command*.
     options=[manage_commands.create_option(
       name = "argOne",
       description = "description of first argument",
-      option_type = 3, # STRING type,
+      option_type = "STRING", # We can pass the name of the type directly
       required = True
     )],
     guild_ids=guild_ids
