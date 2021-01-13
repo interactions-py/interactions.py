@@ -38,7 +38,7 @@ slash commands through their Bot API. For visualization purposes, we'll quickly
 make a JSON example (although we won't be using it) in order to explain how this
 works:
 
-.. code-block:: json
+.. code-block:: python
   {
     "name": "argOne",
     "description": "description of first argument",
