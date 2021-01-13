@@ -3,44 +3,30 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to discord-py-slash-command's documentation!
+Welcome to discord-py-slash-command's official documentation!
 ====================================================
 
-discord-py-slash-command is simple discord.py extension
-for using Discord's Slash Command feature.
+discord-py-slash-command is a simple discord.py library extension
+for using Discord's new Slash Command feature.
 
-Example:
+Before going into the advanced sections that guide you through
+added more complex stuff documentation-wise, it is highly recommended
+to check out the `quickstart`_ page first from here or below in the contents.
 
-.. code-block:: python
+If there are any questions that you have about the documentation
+of this library extension that the docs do not currently cover over, please
+feel free to reach out to others on the `Discord`_ server or by starting a
+discussion on GitHub!
 
-    import discord
-    from discord.ext import commands
-    from discord_slash import SlashCommand
-    from discord_slash import SlashContext
-
-    bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
-    slash = SlashCommand(bot)
-
-
-    @slash.slash(name="test")
-    async def _test(ctx: SlashContext):
-        embed = discord.Embed(title="embed test")
-        await ctx.send(content="test", embeds=[embed])
-
-
-    bot.run("discord_token")
+.. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
+.. _Discord: https://discord.gg/KkgMBVuEkx
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    quickstart.rst
-   discord_slash.rst
-   events.rst
-   discord_slash.utils.rst
    faq.rst
-
-
 
 Indices and tables
 ==================
