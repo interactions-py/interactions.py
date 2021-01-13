@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to discord-py-slash-command's official documentation!
-====================================================
+=============================================================
 
 discord-py-slash-command is a simple discord.py library extension
 for using Discord's new Slash Command feature.
