@@ -65,11 +65,13 @@ Let's explain some of the major code differences between the prior examples show
 here to give a better understanding of what is going on:
 
 - ``guild_ids = [789032594456576001]``: This is for adding your command as a guild command.
+
 Otherwise, you need to wait for an hour to wait until your command is added. This is due
 to the code recognizing the new slash command as a **global** command instead of what we
 originally want, a *guild* slash command.
 
 - ``@slash.slash(name="ping", ...`` ~ ``await ctx.send(...)``: This adds a new slash command.
+
 This command basically sends a request to the API declaring a new command to exist as an HTTP
 request through the Bot v8 API.
 
