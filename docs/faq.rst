@@ -105,6 +105,45 @@ You can use them both together, just be aware of permissions. Try this:
    await ctx.send(5) # Show command usage but don't send message 
    msg = await ctx.channel.send(...) # Send message with the channel object
 
+Can I use something of discord.py's in this extension?
+******************************************************
+Most things work, but a few that are listed below don't.
+
+Checks
+------
+discord.py check decorators won't work due to the context of this extension being different from discord.py's. 
+
+Examples: ``@commands.check()``, ``@commands.has_permissions()``, ``@commands.guild_only()``
+
+
+Events
+------
+Command-related events like ``on_command_error``, ``on_command``, etc.
+This extension triggers some events, check the `events docs <https://discord-py-slash-command.readthedocs.io/en/latest/events.html#>`_ 
+
+Converters
+----------
+Use ``options=[...]`` or ``auto_convert=[...]`` on the slash command / subcommand decorator instead.
+
+Note:
+Pretty much anything from the discord's commands extension doesn't work, also some bot things.
+
+.. warning::
+   If you use something that might take a while, eg ``wait_for`` you'll run into two issues:
+
+   1. If you don't respond within 3 seconds (``ctx.send()``) discord invalidates the interaction.
+   2. The interaction only lasts for 15 minutes, so if you try and send something with the interaction (``ctx.send``) more than 15 mins after the command was ran it won't work.
+
+   As an alternative you can use ``ctx.channel.send`` but this relies on the the bot being in the guild, and the bot having send perms in that channel.
+
+Why isn't [something] in SlashContext?
+**************************************
+Simple answer is this: The way discord handles slash commands means that the slash command handler has to be different to discord.py's command handler.
+
+One example is ``ctx.message``:  
+``message`` is not available because the slash command usage sending is dependant on what send_type you respond with on ``ctx.send``, so discord doesn't supply the message when sending the interaction.
+Others things are also missing due to similar reasons.
+
 Any more questions?
 *******************
 Join the `discord server <https://discord.gg/KkgMBVuEkx>`_ and ask in ``#questions``!
