@@ -23,7 +23,7 @@ You are able to easily install the *discord-py-slash-command* library by using t
 ## Disclaimer
 Since slash commands are currently not officially released (They're in public beta), there will be many breaking
 changes to this extension which may cause it to become unstable. It is recommended to wait until discord officially
-releases slash commands. Waiting until Release 1.1.0, which is planned to have most features implemented in the code.
+releases slash commands. Waiting until Release 1.1.0, which is planned to have most features implemented in the code, is also recommended.
 At this time, the developer of *discord.py* has no plans to officially support slash commands for their library.
 
 ## Examples
