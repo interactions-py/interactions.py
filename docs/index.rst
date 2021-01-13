@@ -26,6 +26,9 @@ discussion on GitHub!
    :caption: Contents:
 
    quickstart.rst
+   discord_slash.rst
+   events.rst
+   discord_slash.utils.rst
    faq.rst
 
 Indices and tables
