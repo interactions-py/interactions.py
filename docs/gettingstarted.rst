@@ -39,12 +39,52 @@ make a JSON example (although we won't be using it) in order to explain how this
 works:
 
 .. code-block:: python
+
   {
     "name": "argOne",
     "description": "description of first argument",
     "type": 3, # STRING type,
     "required": True
   }
+  
+With this very basic understanding in mind, now we are able to begin programming
+a simple Python script that will allow us to utilize this ability through one of
+the many subclasses offered in *discord-py-slash-command*.
+
+.. code-block:: python
+
+  import discord
+  from discord_slash import SlashCommand
+  from discord_slash.utils import manage_commands # Allows us to manage the command settings.
+
+  client = discord.Client(intents=discord.Intents.all())
+  slash = SlashCommand(client, auto_register=True)
+
+  guild_ids = [789032594456576001]
+
+  @client.event
+  async def on_ready():
+      print("Ready!")
+
+  @slash.slash(
+    name="test",
+    description="this returns the bot latency",
+    options=[manage_commands.create_option(
+      name = "argOne",
+      description = "description of first argument",
+      option_type = 3, # STRING type,
+      required = True
+    )],
+    guild_ids=guild_ids
+  )
+  async def _test(ctx, argOne: str):
+      await ctx.send(content=f"You responded with {argOne}.")
+
+  client.run("your_bot_token_here")
+  
+The main changes that you need to know about are with the lines calling the import
+of `manage_commands`, as well as the `options = [] ...` code within the `@slash.slash()`
+context coroutine. 
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
