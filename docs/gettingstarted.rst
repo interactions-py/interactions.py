@@ -90,21 +90,3 @@ the slash command.
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
 .. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoption
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   quickstart.rst
-   gettingstarted.rst
-   discord_slash.rst
-   events.rst
-   discord_slash.utils.rst
-   faq.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
