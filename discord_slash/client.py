@@ -6,6 +6,7 @@ from discord.ext import commands
 from . import http
 from . import model
 from . import error
+from . import context
 from .utils import manage_commands
 
 
@@ -608,7 +609,7 @@ class SlashCommand:
 
         if to_use["data"]["name"] in self.commands:
 
-            ctx = model.SlashContext(self.req, to_use, self._discord, self.logger)
+            ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
             cmd_name = to_use["data"]["name"]
 
             if cmd_name not in self.commands and cmd_name in self.subcommands:
@@ -617,11 +618,7 @@ class SlashCommand:
             selected_cmd = self.commands[to_use["data"]["name"]]
 
             if selected_cmd.allowed_guild_ids:
-                guild_id = (
-                    ctx.guild.id if isinstance(ctx.guild, discord.Guild)
-                    else
-                        ctx.guild
-                )
+                guild_id = ctx.guild.id if isinstance(ctx.guild, discord.Guild) else ctx.guild
 
                 if guild_id not in selected_cmd.allowed_guild_ids:
                     return
@@ -644,7 +641,7 @@ class SlashCommand:
             except Exception as ex:
                 await self.on_slash_command_error(ctx, ex)
 
-    async def handle_subcommand(self, ctx: model.SlashContext, data: dict):
+    async def handle_subcommand(self, ctx: context.SlashContext, data: dict):
         """
         Coroutine for handling subcommand.
 
