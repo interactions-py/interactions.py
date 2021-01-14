@@ -1,6 +1,8 @@
 import typing
+import asyncio
 import discord
 from enum import IntEnum
+from contextlib import suppress
 from discord.ext import commands
 from . import http
 from . import error
@@ -20,7 +22,7 @@ class SlashContext:
     :ivar interaction_id: Interaction ID of the command message.
     :ivar command_id: ID of the command.
     :ivar _http: :class:`.http.SlashCommandRequest` of the client.
-    :ivar _discord: :class:`discord.ext.commands.Bot`
+    :ivar bot: discord.py client.
     :ivar logger: Logger instance.
     :ivar sent: Whether you sent the initial response.
     :ivar guild: :class:`discord.Guild` instance or guild ID of the command message.
@@ -34,13 +36,14 @@ class SlashContext:
                  _discord: typing.Union[discord.Client, commands.Bot],
                  logger):
         self.__token = _json["token"]
-        self.name = _json["data"]["name"]
-        self.subcommand_name = None
-        self.subcommand_group = None
+        self.message = None # Should be set later.
+        self.name = self.command = self.invoked_with = _json["data"]["name"]
+        self.subcommand_name = self.invoked_subcommand = self.subcommand_passed = None
+        self.subcommand_group = self.invoked_subcommand_group = self.subcommand_group_passed = None
         self.interaction_id = _json["id"]
         self.command_id = _json["data"]["id"]
         self._http = _http
-        self._discord = _discord
+        self.bot = _discord
         self.logger = logger
         self.sent = False
         self.guild: typing.Union[discord.Guild, int] = _discord.get_guild(int(_json["guild_id"]))
@@ -56,93 +59,52 @@ class SlashContext:
             # Should be set after every others are set.
             self.guild = int(_json["guild_id"])
 
-    async def send(self,
-                   send_type: int = 4,
-                   content: str = "",
-                   *,
-                   embeds: typing.List[discord.Embed] = None,
-                   tts: bool = False,
-                   allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False,
-                   complete_hidden: bool = False):
+    async def respond(self, eat: bool = False):
         """
-        Sends response of the slash command.
+        Sends command invoke response.\n
+        You should call this first.
 
         .. note::
-            Every args except `send_type` and `content` must be passed as keyword args.
+            If `eat` is ``False``, there is a chance that ``message`` variable is present.
 
-        .. warning::
-            Param ``hidden`` only works without embeds.
-
-        :param send_type: Type of the response. Refer Discord API DOCS for more info about types. Default ``4``.
-        :type send_type: int
-        :param content: Content of the response. Can be ``None``.
-        :type content: str
-        :param embeds: Embeds of the response. Maximum 10, can be empty.
-        :type embeds: List[discord.Embed]
-        :param tts: Whether to speak message using tts. Default ``False``.
-        :type tts: bool
-        :param allowed_mentions: AllowedMentions of the message.
-        :type allowed_mentions: discord.AllowedMentions
-        :param hidden: Whether the message is hidden, which means message content will only be seen to the author.
-        :type hidden: bool
-        :param complete_hidden: If this is ``True``, it will be both hidden and `send_type` will be 3. Default ``False``.
-        :type complete_hidden: bool
-        :return: ``None``
+        :param eat: Whether to eat user's input. Default ``False``.
         """
-        if embeds is not None:
-            if not isinstance(embeds, list):
-                raise error.IncorrectFormat("Provide a list of embeds.")
-            elif len(embeds) > 10:
-                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
-
-        if complete_hidden:
-            # Overrides both `hidden` and `send_type`.
-            hidden = True
-            send_type = 3
-        base = {
-            "type": send_type,
-            "data": {
-                "tts": tts,
-                "content": content,
-                "embeds": [x.to_dict() for x in embeds] if embeds else [],
-                "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
-                else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else {}
-            }
-        } if not self.sent else {
-            "content": content,
-            "tts": tts,
-            "embeds": [x.to_dict() for x in embeds] if embeds else [],
-            "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
-            else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else {}
-        }
-        if hidden:
-            if self.sent:
-                base["flags"] = 64
-            else:
-                base["data"]["flags"] = 64
-        if hidden and embeds:
-            self.logger.warning("You cannot use both `hidden` and `embeds` at the same time!")
-        if send_type in (2, 5) and not self.sent:
-            base = {"type": send_type}
-        resp = await self._http.post(base, self._discord.user.id, self.interaction_id, self.__token, not self.sent)
+        base = {"type": 2 if eat else 5}
+        self.bot.loop.create_task(self._http.post(base, self.bot.user.id, self.interaction_id, self.__token, True))
         self.sent = True
-        return resp
+        if not eat:
+            with suppress(asyncio.TimeoutError):
+                def check(message: discord.Message):
+                    user_id = self.author if isinstance(self.author, int) else self.author.id
+                    is_author = message.author.id == user_id
+                    channel_id = self.channel if isinstance(self.channel, int) else self.channel.id
+                    is_channel = channel_id == message.channel.id
+                    is_user_input = message.type == 20
+                    is_correct_command = message.content.startswith(f"</{self.name}:{self.command_id}>")
+                    return is_author and is_channel and is_user_input and is_correct_command
 
-    async def edit(self,
-                   *,
-                   message_id: typing.Union[int, str] = "@original",
-                   content: str = "",
-                   embeds: typing.List[discord.Embed] = None,
-                   tts: bool = False,
-                   allowed_mentions: discord.AllowedMentions = None):
+                self.message = await self.bot.wait_for("message", timeout=3, check=check)
+
+    @property
+    def ack(self):
+        """Alias of :meth:`.respond`."""
+        return self.respond
+
+    async def send(self):
+        raise NotImplementedError
+
+    async def edit_original(self,
+                            *,
+                            content: str = "",
+                            embeds: typing.List[discord.Embed] = None,
+                            tts: bool = False,
+                            allowed_mentions: discord.AllowedMentions = None):
         """
         Edits response of the slash command.
 
         .. note::
             All args must be passed as keyword args.
 
-        :param message_id: Response message ID. Default initial message.
         :param content: Text of the response. Can be ``None``.
         :type content: str
         :param embeds: Embeds of the response. Maximum 10, can be empty.
@@ -160,18 +122,18 @@ class SlashContext:
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
             "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
-            else self._discord.allowed_mentions.to_dict() if self._discord.allowed_mentions else {}
+            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
-        await self._http.edit(base, self._discord.user.id, self.__token, message_id)
+        await self._http.edit(base, self.bot.user.id, self.__token, "@original")
 
-    async def delete(self, message_id: typing.Union[int, str] = "@original"):
+    async def delete_original(self):
         """
         Deletes response of the slash command.
 
         :param message_id: Response message ID. Default initial message.
         :return: ``None``
         """
-        await self._http.delete(self._discord.user.id, self.__token, message_id)
+        await self._http.delete(self.bot.user.id, self.__token, "@original")
 
 
 class CommandObject:
