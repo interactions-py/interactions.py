@@ -388,8 +388,7 @@ class SlashCommand:
             if name in self.subcommands[base]:
                 raise error.DuplicateCommand(f"{base} {name}")
             self.subcommands[base][name] = model.SubcommandObject(_sub, base, name)
-        self.logger.debug(
-            f"Added subcommand `{base} {subcommand_group+' ' or ''}{name or cmd.__name__}`")
+        self.logger.debug(f"Added subcommand `{base} {subcommand_group or ''} {name or cmd.__name__}`")
 
     def slash(self,
               *,

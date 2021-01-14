@@ -197,7 +197,7 @@ def generate_options(function: Callable, description: str = "No description.") -
                 required = not args[-1] is type(None)
 
         option_type = SlashCommandOptionType.from_type(param.annotation) or SlashCommandOptionType.STRING
-        options.append(create_option(param.name, description, option_type, required))
+        options.append(create_option(param.name, description or "No Description.", option_type, required))
 
     return options
 
