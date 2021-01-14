@@ -54,21 +54,6 @@ class SlashCommand:
             self._discord.add_listener(self.on_socket_response)
             self.has_listener = True
 
-    def remove(self):
-        """
-        Removes :func:`on_socket_response` event listener from discord.py Client.
-
-        .. warning::
-            This is deprecated and will be removed soon.
-
-        .. note::
-            This only works if it is :class:`discord.ext.commands.Bot` or
-            :class:`discord.ext.commands.AutoShardedBot`.
-        """
-        if not self.has_listener:
-            return
-        self._discord.remove_listener(self.on_socket_response)
-
     def get_cog_commands(self, cog: commands.Cog):
         """
         Gets slash command from :class:`discord.ext.commands.Cog`.
@@ -91,7 +76,7 @@ class SlashCommand:
                 else:
                     _cmd = {
                         "func": None,
-                        "description": x.base_description or "No Description.",
+                        "description": x.base_description,
                         "auto_convert": {},
                         "guild_ids": x.allowed_guild_ids,
                         "api_options": [],
@@ -190,7 +175,7 @@ class SlashCommand:
                                 "options": sub_sub.options or []
                             }
                             base_dict["options"].append(_dict)
-                            if sub_sub.subcommand_group_description != "No Description.":
+                            if sub_sub.subcommand_group_description:
                                 base_dict["description"] = sub_sub.subcommand_group_description
                         options.append(base_dict)
                 if selected.allowed_guild_ids:
@@ -199,14 +184,14 @@ class SlashCommand:
                                                                 self._discord.http.token,
                                                                 y,
                                                                 x,
-                                                                selected.description,
+                                                                selected.description or "No Description.",
                                                                 options)
                 else:
                     await manage_commands.add_slash_command(self._discord.user.id,
                                                             self._discord.http.token,
                                                             None,
                                                             x,
-                                                            selected.description,
+                                                            selected.description or "No Description.",
                                                             options)
                 continue
             if selected.allowed_guild_ids:
@@ -215,14 +200,14 @@ class SlashCommand:
                                                             self._discord.http.token,
                                                             y,
                                                             x,
-                                                            selected.description,
+                                                            selected.description or "No Description.",
                                                             selected.options)
             else:
                 await manage_commands.add_slash_command(self._discord.user.id,
                                                         self._discord.http.token,
                                                         None,
                                                         x,
-                                                        selected.description,
+                                                        selected.description or "No Description.",
                                                         selected.options)
         self.logger.info("Completed registering all commands!")
 
@@ -300,7 +285,7 @@ class SlashCommand:
             has_subcommands = tgt.has_subcommands
             guild_ids += tgt.allowed_guild_ids
 
-        description = description or getdoc(cmd) or "No description"
+        description = description or getdoc(cmd)
 
         if options is None:
             options = manage_commands.generate_options(cmd, description)
@@ -358,7 +343,7 @@ class SlashCommand:
         subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
         name = name or cmd.__name__
         name = name.lower()
-        description = description or getdoc(cmd) or "No description"
+        description = description or getdoc(cmd)
 
         if options is None:
             options = manage_commands.generate_options(cmd, description)
@@ -368,7 +353,7 @@ class SlashCommand:
 
         _cmd = {
             "func": None,
-            "description": base_description or "No Description.",
+            "description": base_description,
             "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],
@@ -378,8 +363,8 @@ class SlashCommand:
             "func": cmd,
             "name": name,
             "description": description,
-            "base_desc": base_description or "No Description.",
-            "sub_group_desc": subcommand_group_description or "No Description.",
+            "base_desc": base_description,
+            "sub_group_desc": subcommand_group_description,
             "auto_convert": auto_convert,
             "guild_ids": guild_ids,
             "api_options": options
@@ -389,7 +374,7 @@ class SlashCommand:
         else:
             self.commands[base].has_subcommands = True
             self.commands[base].allowed_guild_ids += guild_ids
-            if self.commands[base].description != "No Description":
+            if self.commands[base].description:
                 _cmd["description"] = self.commands[base].description
         if base not in self.subcommands:
             self.subcommands[base] = {}
@@ -404,7 +389,7 @@ class SlashCommand:
                 raise error.DuplicateCommand(f"{base} {name}")
             self.subcommands[base][name] = model.SubcommandObject(_sub, base, name)
         self.logger.debug(
-            f"Added subcommand `{base} {subcommand_group or ''} {name or cmd.__name__}`")
+            f"Added subcommand `{base} {subcommand_group+' ' or ''}{name or cmd.__name__}`")
 
     def slash(self,
               *,

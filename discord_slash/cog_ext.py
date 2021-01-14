@@ -45,7 +45,7 @@ def cog_slash(*,
     :type options: List[dict]
     """
     def wrapper(cmd):
-        desc = description or inspect.getdoc(cmd) or "No description"
+        desc = description or inspect.getdoc(cmd)
         if options is None:
             opts = manage_commands.generate_options(cmd, desc)
         else:
@@ -128,7 +128,7 @@ def cog_subcommand(*,
     subcommand_group_description = subcommand_group_description or sub_group_desc
 
     def wrapper(cmd):
-        desc = description or inspect.getdoc(cmd) or "No description"
+        desc = description or inspect.getdoc(cmd)
         if options is None:
             opts = manage_commands.generate_options(cmd, desc)
         else:
@@ -143,8 +143,8 @@ def cog_subcommand(*,
             "func": cmd,
             "name": name or cmd.__name__,
             "description": desc,
-            "base_desc": base_description or "No Description.",
-            "sub_group_desc": subcommand_group_description or "No Description.",
+            "base_desc": base_description,
+            "sub_group_desc": subcommand_group_description,
             "auto_convert": auto_conv,
             "guild_ids": guild_ids,
             "api_options": opts
