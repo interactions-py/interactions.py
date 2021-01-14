@@ -5,7 +5,9 @@
 
 A simple Discord Slash Command extension for [discord.py](https://github.com/Rapptz/discord.py).
 
-[**Discussions**](https://github.com/eunwoo1104/discord-py-slash-command/discussions).
+[**Discussions**](https://github.com/eunwoo1104/discord-py-slash-command/discussions).  
+
+Note that `master` branch is in development. For release version, please see `hotfix-command-register` branch.
 
 ## About
 Discord Slash Commands are a new implementation for the Bot API that utilize the forward-slash "/" symbol.
