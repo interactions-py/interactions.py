@@ -1,7 +1,9 @@
 import typing
 import asyncio
+import aiohttp
 import discord
 from contextlib import suppress
+from discord import Webhook, AsyncWebhookAdapter, WebhookMessage
 from discord.ext import commands
 from . import http
 from . import error
@@ -42,6 +44,7 @@ class SlashContext:
         self.interaction_id = _json["id"]
         self.command_id = _json["data"]["id"]
         self._http = _http
+        self.session = None # Set at 1st `send` call.
         self.bot = _discord
         self.logger = logger
         self.sent = False
@@ -57,6 +60,10 @@ class SlashContext:
         if not self.guild:
             # Should be set after every others are set.
             self.guild = int(_json["guild_id"])
+
+    def __del__(self):
+        if self.session:
+            self.bot.loop.create_task(self.session.close())
 
     async def respond(self, eat: bool = False):
         """
@@ -95,9 +102,44 @@ class SlashContext:
                    embed: discord.Embed = None,
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
+                   file: discord.File = None,
+                   files: typing.List[discord.File] = None,
                    allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False):
+                   hidden: bool = False) -> typing.Optional[WebhookMessage]:
+        if not self.sent:
+            self.logger.warning(f"At command `{self.name}`: It is highly recommended to call `.respond()` first!")
+            await self.respond()
+        if hidden:
+            if embeds or embed:
+                self.logger.warning("Embed is not supported for `hidden`!")
+            return await self.send_hidden(content)
+        if embed and embeds:
+            raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
+        if embed:
+            embeds = [embed]
+        if embeds:
+            if not isinstance(embeds, list):
+                raise error.IncorrectFormat("Provide a list of embeds.")
+            elif len(embeds) > 10:
+                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
+        if file and files:
+            raise error.IncorrectFormat("You can't use both `file` and `files`!")
         raise NotImplementedError
+        """
+        if not self.session:
+            self.session = aiohttp.ClientSession()
+        # Yes I know this is inefficient but this is the only way for now.
+        url = f"https://discord.com/api/v8/webhooks/{self.bot.user.id}/{self.__token}"
+        hook = Webhook.from_url(url, adapter=AsyncWebhookAdapter(self.session))
+        return await hook.send(content, wait=wait, tts=tts, file=file, files=files, embed=embed, embeds=embeds, allowed_mentions=allowed_mentions or self.bot.allowed_mentions)
+        """
+
+    def send_hidden(self, content: str = ""):
+        base = {
+            "content": content,
+            "flags": 64
+        }
+        return self._http.post(base, self.bot.user.id, self.interaction_id, self.__token)
 
     async def edit_original(self,
                             *,
@@ -106,7 +148,7 @@ class SlashContext:
                             tts: bool = False,
                             allowed_mentions: discord.AllowedMentions = None):
         """
-        Edits response of the slash command.
+        Edits initial response of the slash command.
 
         .. note::
             All args must be passed as keyword args.
@@ -133,6 +175,6 @@ class SlashContext:
 
     async def delete_original(self):
         """
-        Deletes response of the slash command.
+        Deletes initial response of the slash command.
         """
         await self._http.delete(self.bot.user.id, self.__token, "@original")
