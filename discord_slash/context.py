@@ -76,7 +76,7 @@ class SlashContext:
         :param eat: Whether to eat user's input. Default ``False``.
         """
         base = {"type": 2 if eat else 5}
-        self.bot.loop.create_task(self._http.post(base, self.bot.user.id, self.interaction_id, self.__token, True))
+        _task = self.bot.loop.create_task(self._http.post(base, self.bot.user.id, self.interaction_id, self.__token, True))
         self.sent = True
         if not eat:
             with suppress(asyncio.TimeoutError):
@@ -90,6 +90,7 @@ class SlashContext:
                     return is_author and is_channel and is_user_input and is_correct_command
 
                 self.message = await self.bot.wait_for("message", timeout=3, check=check)
+        await _task
 
     @property
     def ack(self):
