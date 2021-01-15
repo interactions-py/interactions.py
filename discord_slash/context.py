@@ -105,7 +105,7 @@ class SlashContext:
                    file: discord.File = None,
                    files: typing.List[discord.File] = None,
                    allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False) -> typing.Optional[WebhookMessage]:
+                   hidden: bool = False):
         if not self.sent:
             self.logger.warning(f"At command `{self.name}`: It is highly recommended to call `.respond()` first!")
             await self.respond()
@@ -124,8 +124,9 @@ class SlashContext:
                 raise error.IncorrectFormat("Do not provide more than 10 embeds.")
         if file and files:
             raise error.IncorrectFormat("You can't use both `file` and `files`!")
-        raise NotImplementedError
+
         """
+        # Maybe reuse later but for now, no.
         if not self.session:
             self.session = aiohttp.ClientSession()
         # Yes I know this is inefficient but this is the only way for now.
@@ -133,6 +134,19 @@ class SlashContext:
         hook = Webhook.from_url(url, adapter=AsyncWebhookAdapter(self.session))
         return await hook.send(content, wait=wait, tts=tts, file=file, files=files, embed=embed, embeds=embeds, allowed_mentions=allowed_mentions or self.bot.allowed_mentions)
         """
+
+        self.logger.warning("This version's `.send` method is still in development! Please rather use PyPi's version.")
+        return await self._legacy_send(content, tts, embeds, allowed_mentions)
+
+    def _legacy_send(self, content, tts, embeds, allowed_mentions):
+        base = {
+            "content": content,
+            "tts": tts,
+            "embeds": [x.to_dict() for x in embeds] if embeds else [],
+            "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
+            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
+        }
+        return self._http.post(base, self.bot.user.id, self.interaction_id, self.__token)
 
     def send_hidden(self, content: str = ""):
         base = {
