@@ -9,6 +9,7 @@ Submodules
 
    discord_slash.client
    discord_slash.cog_ext
+   discord_slash.context
    discord_slash.error
    discord_slash.http
    discord_slash.model

@@ -1,4 +1,4 @@
-discord-py-slash-command Events
+discord_slash Events
 ================================
 This page is about events of this extension.
 These events can be registered to discord.py's listener or
