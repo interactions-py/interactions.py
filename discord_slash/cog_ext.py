@@ -24,7 +24,6 @@ def cog_slash(*,
                     # Creates new SlashCommand instance to bot if bot doesn't have.
                     bot.slash = SlashCommand(bot, override_type=True)
                 self.bot = bot
-                self.bot.slash.get_cog_commands(self)
 
             def cog_unload(self):
                 self.bot.slash.remove_cog_commands(self)

@@ -59,6 +59,9 @@ class SlashCommand:
         """
         Gets slash command from :class:`discord.ext.commands.Cog`.
 
+        .. note::
+            This gets called automatically during ``register_all_commands()``.
+
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
