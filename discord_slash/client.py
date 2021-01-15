@@ -62,6 +62,10 @@ class SlashCommand:
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
+        if hasattr(cog, '_slash_registered'): # Temporary warning
+            return self.logger.warning("Calling get_cog_commands is no longer required "
+            "to add cog slash commands. Make sure to remove all calls to this function.")
+        cog._slash_registered = True # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
         for x in res:
@@ -139,6 +143,9 @@ class SlashCommand:
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
         self.logger.info("Registering commands...")
+        if isinstance(self._discord, commands.Bot):
+            for cog in self._discord.cogs.values():
+                self.get_cog_commands(cog)
         for x in self.commands:
             selected = self.commands[x]
             if selected.has_subcommands and selected.func:
