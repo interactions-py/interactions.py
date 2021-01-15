@@ -108,6 +108,8 @@ class SlashCommand:
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
+        if hasattr(cog, '_slash_registered'):
+            del cog._slash_registered
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
                isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
