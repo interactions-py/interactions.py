@@ -70,7 +70,7 @@ class SlashCommand:
         Gets slash command from :class:`discord.ext.commands.Cog`.
 
         .. note::
-            This gets called automatically during ``register_all_commands()``.
+            Since version ``1.0.X``, this gets called automatically during cog initialization.
 
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
@@ -117,6 +117,9 @@ class SlashCommand:
     def remove_cog_commands(self, cog):
         """
         Removes slash command from :class:`discord.ext.commands.Cog`.
+
+        .. note::
+            Since version ``1.0.X``, this gets called automatically during cog deinitialization.
 
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
