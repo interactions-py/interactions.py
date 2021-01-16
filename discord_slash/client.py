@@ -122,7 +122,7 @@ class SlashCommand:
         Removes slash command from :class:`discord.ext.commands.Cog`.
 
         .. note::
-            Since version ``1.0.X``, this gets called automatically during cog deinitialization.
+            Since version ``1.0.9``, this gets called automatically during cog deinitialization.
 
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
