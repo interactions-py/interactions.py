@@ -76,7 +76,7 @@ class SlashContext:
         :param eat: Whether to eat user's input. Default ``False``.
         """
         base = {"type": 2 if eat else 5}
-        _task = self.bot.loop.create_task(self._http.post(base, self.bot.user.id, self.interaction_id, self.__token, True))
+        _task = self.bot.loop.create_task(self._http.post(base, False, self.bot.user.id, self.interaction_id, self.__token, True))
         self.sent = True
         if not eat:
             with suppress(asyncio.TimeoutError):
@@ -99,14 +99,43 @@ class SlashContext:
 
     async def send(self,
                    content: str = "", *,
-                   wait: bool = True,
+                   wait: bool = False,
                    embed: discord.Embed = None,
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
                    file: discord.File = None,
                    files: typing.List[discord.File] = None,
                    allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False):
+                   hidden: bool = False) -> typing.Union[discord.Message, dict]:
+        """
+        Sends response of the slash command.
+
+        .. note::
+            - Param ``hidden`` doesn't support embed.
+
+        .. warning::
+            - Since Release 1.0.9, this is completely changed. If you are migrating from older that that, please make sure to fix the usage.
+            - You can't use both ``embed`` and ``embeds`` at the same time, also applies to ``file`` and ``files``.
+
+        :param content:  Content of the response.
+        :type content: str
+        :param wait: Whether the server should wait before sending a response.
+        :param embed: Embed of the response.
+        :type embed: discord.Embed
+        :param embeds: Embeds of the response. Maximum 10.
+        :type embeds: List[discord.Embed]
+        :param tts: Whether to speak message using tts. Default ``False``.
+        :type tts: bool
+        :param file: File to send.
+        :type file: discord.File
+        :param files: Files to send.
+        :type files: List[discord.File]
+        :param allowed_mentions: AllowedMentions of the message.
+        :type allowed_mentions: discord.AllowedMentions
+        :param hidden: Whether the message is hidden, which means message content will only be seen to the author.
+        :type hidden: bool
+        :return: Union[discord.Message, dict]
+        """
         if not self.sent:
             self.logger.warning(f"At command `{self.name}`: It is highly recommended to call `.respond()` first!")
             await self.respond()
@@ -125,19 +154,24 @@ class SlashContext:
                 raise error.IncorrectFormat("Do not provide more than 10 embeds.")
         if file and files:
             raise error.IncorrectFormat("You can't use both `file` and `files`!")
+        if file:
+            files = [file]
 
-        """
-        # Maybe reuse later but for now, no.
-        if not self.session:
-            self.session = aiohttp.ClientSession()
-        # Yes I know this is inefficient but this is the only way for now.
-        url = f"https://discord.com/api/v8/webhooks/{self.bot.user.id}/{self.__token}"
-        hook = Webhook.from_url(url, adapter=AsyncWebhookAdapter(self.session))
-        return await hook.send(content, wait=wait, tts=tts, file=file, files=files, embed=embed, embeds=embeds, allowed_mentions=allowed_mentions or self.bot.allowed_mentions)
-        """
+        base = {
+            "content": content,
+            "tts": tts,
+            "embeds": [x.to_dict() for x in embeds] if embeds else [],
+            "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
+            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
+        }
 
-        self.logger.warning("This version's `.send` method is still in development! Please rather use PyPi's version.")
-        return await self._legacy_send(content, tts, embeds, allowed_mentions)
+        resp = await self._http.post(base, wait, self.bot.user.id, self.interaction_id, self.__token, files=files)
+        try:
+            if isinstance(self.channel, discord.TextChannel) and isinstance(resp, dict):
+                return await self.channel.fetch_message(resp["id"])
+            return resp
+        except (discord.Forbidden, discord.NotFound, discord.HTTPException):
+            return resp
 
     def _legacy_send(self, content, tts, embeds, allowed_mentions):
         base = {
@@ -147,14 +181,14 @@ class SlashContext:
             "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
-        return self._http.post(base, self.bot.user.id, self.interaction_id, self.__token)
+        return self._http.post(base, True, self.bot.user.id, self.interaction_id, self.__token)
 
     def send_hidden(self, content: str = ""):
         base = {
             "content": content,
             "flags": 64
         }
-        return self._http.post(base, self.bot.user.id, self.interaction_id, self.__token)
+        return self._http.post(base, False, self.bot.user.id, self.interaction_id, self.__token)
 
     async def edit_original(self,
                             *,
