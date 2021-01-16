@@ -4,7 +4,7 @@ discord-py-slash-command
 
 Simple Discord Slash Command extension for discord.py
 
-:copyright: (c) 2020 eunwoo1104
+:copyright: (c) 2020-2021 eunwoo1104
 :license: MIT
 """
 

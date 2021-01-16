@@ -17,6 +17,7 @@ class SlashContext:
     .. warning::
         Do not manually init this model.
 
+    :ivar message: Message that invoked the slash command.
     :ivar name: Name of the command.
     :ivar subcommand_name: Subcommand of the command.
     :ivar subcommand_group: Subcommand group of the command.
@@ -44,7 +45,6 @@ class SlashContext:
         self.interaction_id = _json["id"]
         self.command_id = _json["data"]["id"]
         self._http = _http
-        self.session = None # Set at 1st `send` call.
         self.bot = _discord
         self.logger = logger
         self.sent = False
@@ -60,10 +60,6 @@ class SlashContext:
         if not self.guild:
             # Should be set after every others are set.
             self.guild = int(_json["guild_id"])
-
-    def __del__(self):
-        if self.session:
-            self.bot.loop.create_task(self.session.close())
 
     async def respond(self, eat: bool = False):
         """
@@ -166,6 +162,7 @@ class SlashContext:
         }
 
         resp = await self._http.post(base, wait, self.bot.user.id, self.interaction_id, self.__token, files=files)
+        print(resp)
         try:
             if isinstance(self.channel, discord.TextChannel) and isinstance(resp, dict):
                 return await self.channel.fetch_message(resp["id"])
