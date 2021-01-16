@@ -54,6 +54,16 @@ class SlashCommand:
         else:
             self._discord.add_listener(self.on_socket_response)
             self.has_listener = True
+            default_add_function = self._discord.add_cog
+            def override_add_cog(cog: commands.Cog):
+                self.get_cog_commands(cog)
+                default_add_function(cog)
+            self._discord.add_cog = override_add_cog
+            default_remove_function = self._discord.remove_cog
+            def override_remove_cog(cog: commands.Cog):
+                self.remove_cog_commands(cog)
+                default_remove_function(cog)
+            self._discord.remove_cog = override_remove_cog
 
     def get_cog_commands(self, cog: commands.Cog):
         """
@@ -148,9 +158,6 @@ class SlashCommand:
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
         self.logger.info("Registering commands...")
-        if isinstance(self._discord, commands.Bot):
-            for cog in self._discord.cogs.values():
-                self.get_cog_commands(cog)
         for x in self.commands:
             selected = self.commands[x]
             if selected.has_subcommands and selected.func:
