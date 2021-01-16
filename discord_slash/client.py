@@ -54,14 +54,34 @@ class SlashCommand:
         else:
             self._discord.add_listener(self.on_socket_response)
             self.has_listener = True
+            default_add_function = self._discord.add_cog
+            def override_add_cog(cog: commands.Cog):
+                default_add_function(cog)
+                self.get_cog_commands(cog)
+            self._discord.add_cog = override_add_cog
+            default_remove_function = self._discord.remove_cog
+            def override_remove_cog(name: str):
+                cog = self._discord.get_cog(name)
+                if cog is None:
+                    return
+                self.remove_cog_commands(cog)
+                default_remove_function(name)
+            self._discord.remove_cog = override_remove_cog
 
     def get_cog_commands(self, cog: commands.Cog):
         """
         Gets slash command from :class:`discord.ext.commands.Cog`.
 
+        .. note::
+            Since version ``1.0.9``, this gets called automatically during cog initialization.
+
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
+        if hasattr(cog, '_slash_registered'): # Temporary warning
+            return self.logger.warning("Calling get_cog_commands is no longer required "
+            "to add cog slash commands. Make sure to remove all calls to this function.")
+        cog._slash_registered = True # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
         for x in res:
@@ -101,9 +121,14 @@ class SlashCommand:
         """
         Removes slash command from :class:`discord.ext.commands.Cog`.
 
+        .. note::
+            Since version ``1.0.9``, this gets called automatically during cog deinitialization.
+
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
+        if hasattr(cog, '_slash_registered'):
+            del cog._slash_registered
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
                isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
