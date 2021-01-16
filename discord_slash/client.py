@@ -60,9 +60,12 @@ class SlashCommand:
                 self.get_cog_commands(cog)
             self._discord.add_cog = override_add_cog
             default_remove_function = self._discord.remove_cog
-            def override_remove_cog(cog: commands.Cog):
-                default_remove_function(cog)
+            def override_remove_cog(name: str):
+                cog = self._discord.get_cog(name)
+                if cog is None:
+                    return
                 self.remove_cog_commands(cog)
+                default_remove_function(name)
             self._discord.remove_cog = override_remove_cog
 
     def get_cog_commands(self, cog: commands.Cog):
