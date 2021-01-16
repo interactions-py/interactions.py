@@ -56,13 +56,13 @@ class SlashCommand:
             self.has_listener = True
             default_add_function = self._discord.add_cog
             def override_add_cog(cog: commands.Cog):
-                self.get_cog_commands(cog)
                 default_add_function(cog)
+                self.get_cog_commands(cog)
             self._discord.add_cog = override_add_cog
             default_remove_function = self._discord.remove_cog
             def override_remove_cog(cog: commands.Cog):
-                self.remove_cog_commands(cog)
                 default_remove_function(cog)
+                self.remove_cog_commands(cog)
             self._discord.remove_cog = override_remove_cog
 
     def get_cog_commands(self, cog: commands.Cog):
