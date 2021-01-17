@@ -143,16 +143,3 @@ class SlashCommandOptionType(IntEnum):
         if issubclass(t, discord.abc.User): return cls.USER
         if issubclass(t, discord.abc.GuildChannel): return cls.CHANNEL
         if issubclass(t, discord.abc.Role): return cls.ROLE
-
-
-class AlternativeMessage:
-    """
-    An alternative message object in case getting message has failed.
-    """
-
-    def __init__(self, _discord, http, token, resp):
-        self._discord = _discord
-        self._http = http
-        self.__token = token
-        self.id = resp["id"]
-        self.content = resp["content"]

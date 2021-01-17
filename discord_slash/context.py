@@ -102,7 +102,7 @@ class SlashContext:
                    file: discord.File = None,
                    files: typing.List[discord.File] = None,
                    allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False) -> typing.Union[discord.Message, dict]:
+                   hidden: bool = False) -> discord.Message:
         """
         Sends response of the slash command.
 
@@ -165,12 +165,7 @@ class SlashContext:
 
         resp = await self._http.post(base, wait, self.bot.user.id, self.interaction_id, self.__token, files=files)
         print(resp)
-        try:
-            if isinstance(self.channel, discord.TextChannel) and isinstance(resp, dict) and resp:
-                return await self.channel.fetch_message(resp["id"])
-            return resp
-        except (discord.Forbidden, discord.NotFound, discord.HTTPException):
-            return resp
+        return discord.Message(state=self.bot._connection, data=resp, channel=self.channel if isinstance(self.channel, discord.TextChannel) else discord.Object(id=self.channel))
 
     def _legacy_send(self, content, tts, embeds, allowed_mentions):
         base = {
@@ -180,7 +175,7 @@ class SlashContext:
             "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
-        return self._http.post(base, True, self.bot.user.id, self.interaction_id, self.__token)
+        return self._http.post(base, False, self.bot.user.id, self.interaction_id, self.__token)
 
     def send_hidden(self, content: str = ""):
         base = {
