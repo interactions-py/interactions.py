@@ -107,10 +107,10 @@ class SlashContext:
         Sends response of the slash command.
 
         .. note::
-            - Param ``hidden`` doesn't support embed.
+            - Param ``hidden`` doesn't support embed and file.
 
         .. warning::
-            - Since Release 1.0.9, this is completely changed. If you are migrating from older that that, please make sure to fix the usage.
+            - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
             - You can't use both ``embed`` and ``embeds`` at the same time, also applies to ``file`` and ``files``.
 
         :param content:  Content of the response.
@@ -132,6 +132,8 @@ class SlashContext:
         :type hidden: bool
         :return: Union[discord.Message, dict]
         """
+        if isinstance(content, int) and 2 <= content <= 5:
+            raise error.IncorrectFormat("`.send` Method is rewritten at Release 1.0.9. Please read the docs and fix all the usages.")
         if not self.sent:
             self.logger.warning(f"At command `{self.name}`: It is highly recommended to call `.respond()` first!")
             await self.respond()
@@ -164,7 +166,7 @@ class SlashContext:
         resp = await self._http.post(base, wait, self.bot.user.id, self.interaction_id, self.__token, files=files)
         print(resp)
         try:
-            if isinstance(self.channel, discord.TextChannel) and isinstance(resp, dict):
+            if isinstance(self.channel, discord.TextChannel) and isinstance(resp, dict) and resp:
                 return await self.channel.fetch_message(resp["id"])
             return resp
         except (discord.Forbidden, discord.NotFound, discord.HTTPException):
