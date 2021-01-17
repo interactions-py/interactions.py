@@ -152,12 +152,14 @@ class SlashCommandOptionType(IntEnum):
 class SlashMessage(discord.Message):
     """discord.py's :class:`discord.Message` but overridden ``edit`` and ``delete`` to work for slash command."""
     def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, bot_id, interaction_token):
+        # Yes I know it isn't the best way but this makes implementation simple.
         super().__init__(state=state, channel=channel, data=data)
         self._http = _http
         self.bot_id = bot_id
         self.__interaction_token = interaction_token
 
     async def edit(self, **fields):
+        """Refer :meth:`discord.Message.edit`."""
         try:
             await super().edit(**fields)
         except discord.Forbidden:
@@ -191,6 +193,7 @@ class SlashMessage(discord.Message):
                 await self.delete(delay=delete_after)
 
     async def delete(self, *, delay=None):
+        """Refer :meth:`discord.Message.delete`."""
         try:
             await super().delete(delay=delay)
         except discord.Forbidden:
