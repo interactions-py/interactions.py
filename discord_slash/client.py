@@ -80,7 +80,7 @@ class SlashCommand:
         """
         if hasattr(cog, '_slash_registered'): # Temporary warning
             return self.logger.warning("Calling get_cog_commands is no longer required "
-            "to add cog slash commands. Make sure to remove all calls to this function.")
+                                       "to add cog slash commands. Make sure to remove all calls to this function.")
         cog._slash_registered = True # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
@@ -92,7 +92,9 @@ class SlashCommand:
                 self.commands[x.name] = x
             else:
                 if x.base in self.commands:
-                    self.commands[x.base].allowed_guild_ids += x.allowed_guild_ids
+                    for i in self.commands[x.base].allowed_guild_ids:
+                        if i not in x.allowed_guild_ids:
+                            x.allowed_guild_ids.append(i)
                     self.commands[x.base].has_subcommands = True
                 else:
                     _cmd = {
@@ -107,7 +109,7 @@ class SlashCommand:
                 if x.base not in self.subcommands:
                     self.subcommands[x.base] = {}
                 if x.subcommand_group:
-                    if x.subcommand_group not in self.subcommands:
+                    if x.subcommand_group not in self.subcommands[x.base]:
                         self.subcommands[x.base][x.subcommand_group] = {}
                     if x.name in self.subcommands[x.base][x.subcommand_group]:
                         raise error.DuplicateCommand(f"{x.base} {x.subcommand_group} {x.name}")
@@ -122,7 +124,7 @@ class SlashCommand:
         Removes slash command from :class:`discord.ext.commands.Cog`.
 
         .. note::
-            Since version ``1.0.9``, this gets called automatically during cog deinitialization.
+            Since version ``1.0.9``, this gets called automatically during cog de-initialization.
 
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
@@ -309,7 +311,9 @@ class SlashCommand:
             if not tgt.has_subcommands:
                 raise error.DuplicateCommand(name)
             has_subcommands = tgt.has_subcommands
-            guild_ids += tgt.allowed_guild_ids
+            for x in tgt.allowed_guild_ids:
+                if x not in guild_ids:
+                    guild_ids.append(x)
 
         description = description or getdoc(cmd)
 
@@ -371,6 +375,12 @@ class SlashCommand:
         name = name.lower()
         description = description or getdoc(cmd)
 
+        if name in self.commands:
+            tgt = self.commands[name]
+            for x in tgt.allowed_guild_ids:
+                if x not in guild_ids:
+                    guild_ids.append(x)
+
         if options is None:
             options = manage_commands.generate_options(cmd, description)
 
@@ -399,7 +409,7 @@ class SlashCommand:
             self.commands[base] = model.CommandObject(base, _cmd)
         else:
             self.commands[base].has_subcommands = True
-            self.commands[base].allowed_guild_ids += guild_ids
+            self.commands[base].allowed_guild_ids = guild_ids
             if self.commands[base].description:
                 _cmd["description"] = self.commands[base].description
         if base not in self.subcommands:
