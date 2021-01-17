@@ -1,12 +1,11 @@
 import typing
 import asyncio
-import aiohttp
 import discord
 from contextlib import suppress
-from discord import Webhook, AsyncWebhookAdapter, WebhookMessage
 from discord.ext import commands
 from . import http
 from . import error
+from . import model
 
 
 class SlashContext:
@@ -102,7 +101,8 @@ class SlashContext:
                    file: discord.File = None,
                    files: typing.List[discord.File] = None,
                    allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False) -> discord.Message:
+                   hidden: bool = False,
+                   delete_after: float = None) -> model.SlashMessage:
         """
         Sends response of the slash command.
 
@@ -130,6 +130,8 @@ class SlashContext:
         :type allowed_mentions: discord.AllowedMentions
         :param hidden: Whether the message is hidden, which means message content will only be seen to the author.
         :type hidden: bool
+        :param delete_after: If provided, the number of seconds to wait in the background before deleting the message we just sent. If the deletion fails, then it is silently ignored.
+        :type delete_after: float
         :return: Union[discord.Message, dict]
         """
         if isinstance(content, int) and 2 <= content <= 5:
@@ -165,7 +167,15 @@ class SlashContext:
 
         resp = await self._http.post(base, wait, self.bot.user.id, self.interaction_id, self.__token, files=files)
         print(resp)
-        return discord.Message(state=self.bot._connection, data=resp, channel=self.channel if isinstance(self.channel, discord.TextChannel) else discord.Object(id=self.channel))
+        smsg = model.SlashMessage(state=self.bot._connection,
+                                  data=resp,
+                                  channel=self.channel if isinstance(self.channel, discord.TextChannel) else discord.Object(id=self.channel),
+                                  _http=self._http,
+                                  bot_id=self.bot.user.id,
+                                  interaction_token=self.__token)
+        if delete_after:
+            self.bot.loop.create_task(smsg.delete(delay=delete_after))
+        return smsg
 
     def _legacy_send(self, content, tts, embeds, allowed_mentions):
         base = {
