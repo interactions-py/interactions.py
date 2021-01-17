@@ -166,7 +166,6 @@ class SlashContext:
         }
 
         resp = await self._http.post(base, wait, self.bot.user.id, self.interaction_id, self.__token, files=files)
-        print(resp)
         smsg = model.SlashMessage(state=self.bot._connection,
                                   data=resp,
                                   channel=self.channel if isinstance(self.channel, discord.TextChannel) else discord.Object(id=self.channel),
