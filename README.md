@@ -17,7 +17,8 @@
 </p>
    
 
-Note that `master` branch is in development. For release version, please see `hotfix-command-register` branch.
+Note that `master` branch is in development. **This means the example, etc. in the bottom is not 100% compatible with the release version.**
+For release version, please see [`hotfix-command-register`](https://github.com/eunwoo1104/discord-py-slash-command/tree/hotfix-command-register) branch.
 
 ## About
 Discord Slash Commands are a new implementation for the Bot API that utilize the forward-slash "/" symbol.
