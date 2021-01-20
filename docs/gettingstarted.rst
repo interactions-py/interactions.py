@@ -41,7 +41,7 @@ works:
 .. code-block:: python
 
   {
-    "name": "argOne",
+    "name": "argone",
     "description": "description of first argument",
     "type": 3, # STRING type,
     "required": True
@@ -70,15 +70,15 @@ the many subclasses offered in *discord-py-slash-command*.
     name="test",
     description="this returns the bot latency",
     options=[manage_commands.create_option(
-      name = "argOne",
+      name = "argone",
       description = "description of first argument",
       option_type = 3,
       required = True
     )],
     guild_ids=guild_ids
   )
-  async def _test(ctx, argOne: str):
-      await ctx.send(content=f"You responded with {argOne}.")
+  async def _test(ctx, argone: str):
+      await ctx.send(content=f"You responded with {argone}.")
 
   client.run("your_bot_token_here")
   
