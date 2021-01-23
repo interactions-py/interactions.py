@@ -15,6 +15,64 @@ class SlashCommandRequest:
         self.logger = logger
         self._discord: typing.Union[discord.Client, discord.AutoShardedClient] = _discord
 
+    def remove_slash_command(self, bot_id, guild_id, cmd_id):
+        """
+        Sends a slash command delete request to Discord API.
+
+        :param bot_id: User ID of the bot.
+        :param guild_id: ID of the guild to add command. Pass `None` to add global command.
+        :param cmd_id: ID of the command.
+        :return: Response code of the request.
+        """
+        return self.command_request(
+            method="DELETE", bot_id=bot_id, guild_id=guild_id, url_ending=f"/{cmd_id}"
+        )
+
+    def get_all_commands(self, bot_id, guild_id=None):
+        """
+        Sends a slash command get request to Discord API for all commands.
+
+        :param bot_id: User ID of the bot.
+        :param guild_id: ID of the guild to add command. Pass `None` to add global command.
+        :return: JSON Response of the request.
+        """
+        return self.command_request(method="GET", bot_id=bot_id, guild_id=guild_id)
+
+    def add_slash_command(
+        self, bot_id, guild_id, cmd_name: str, description: str, options: list = None
+    ):
+        """
+        Sends a slash command add request to Discord API.
+
+        :param bot_id: User ID of the bot.
+        :param guild_id: ID of the guild to add command. Pass `None` to add global command.
+        :param cmd_name: Name of the command. Must be 3 or longer and 32 or shorter.
+        :param description: Description of the command.
+        :param options: List of the function.
+        :return: JSON Response of the request.
+        """
+        base = {"name": cmd_name, "description": description, "options": options or []}
+        return self.command_request(json=base, method="POST", bot_id = bot_id, guild_id = guild_id)
+
+    def command_request(self, method, bot_id, guild_id, url_ending="", **kwargs):
+        r"""
+        Sends a command request to discord (post, get, delete, etc)
+
+        :param method: HTTP method.
+        :param bot_id: User ID of the bot.
+        :param guild_id: ID of the guild to make the request on. `None` to make a request on the global scope.
+        :param url_ending: String to append onto the end of the url.
+        :param \**kwargs: Kwargs to pass into discord.py's `request function <https://github.com/Rapptz/discord.py/blob/master/discord/http.py#L134>`_
+        """
+        url = f"/applications/{bot_id}"
+        url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
+        url += url_ending
+        route = CustomRoute(method, url)
+        self.logger.info(method)
+        self.logger.info(url)
+        self.logger.info(kwargs)
+        return self._discord.http.request(route, **kwargs)
+
     def post(self, _resp, wait: bool, bot_id, interaction_id, token, initial=False, files: typing.List[discord.File] = None):
         """
         Sends command response POST request to Discord API.

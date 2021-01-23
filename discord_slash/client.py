@@ -208,35 +208,39 @@ class SlashCommand:
                         options.append(base_dict)
                 if selected.allowed_guild_ids:
                     for y in selected.allowed_guild_ids:
-                        await manage_commands.add_slash_command(self._discord.user.id,
-                                                                self._discord.http.token,
-                                                                y,
-                                                                x,
-                                                                selected.description or "No Description.",
-                                                                options)
+                        await self.req.add_slash_command(
+                            self._discord.user.id,
+                            y,
+                            x,
+                            selected.description or "No Description.",
+                            options,
+                        )
                 else:
-                    await manage_commands.add_slash_command(self._discord.user.id,
-                                                            self._discord.http.token,
-                                                            None,
-                                                            x,
-                                                            selected.description or "No Description.",
-                                                            options)
+                     await self.req.add_slash_command(
+                        self._discord.user.id,
+                        None,
+                        x,
+                        selected.description or "No Description.",
+                        options,
+                    )
                 continue
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
-                    await manage_commands.add_slash_command(self._discord.user.id,
-                                                            self._discord.http.token,
-                                                            y,
-                                                            x,
-                                                            selected.description or "No Description.",
-                                                            selected.options)
+                    await self.req.add_slash_command(
+                        self._discord.user.id,
+                        y,
+                        x,
+                        selected.description or "No Description.",
+                        selected.options,
+                    )
             else:
-                await manage_commands.add_slash_command(self._discord.user.id,
-                                                        self._discord.http.token,
-                                                        None,
-                                                        x,
-                                                        selected.description or "No Description.",
-                                                        selected.options)
+                await self.req.add_slash_command(
+                    self._discord.user.id,
+                    None,
+                    x,
+                    selected.description or "No Description.",
+                    selected.options,
+                )
         self.logger.info("Completed registering all commands!")
 
     async def delete_unused_commands(self):
@@ -248,19 +252,18 @@ class SlashCommand:
         await self._discord.wait_until_ready()
         self.logger.info("Deleting unused commands...")
         registered_commands = {}
-        global_commands = await manage_commands.get_all_commands(self._discord.user.id,
-                                                                 self._discord.http.token,
-                                                                 None)
+        global_commands = await self.req.get_all_commands(self._discord.user.id, None)
+
         for cmd in global_commands:
             registered_commands[cmd["name"]] = {"id": cmd["id"], "guild_id": None}
 
         for guild in self._discord.guilds:
             # Since we can only get commands per guild we need to loop through every one
             try:
-                guild_commands = await manage_commands.get_all_commands(self._discord.user.id,
-                                                                        self._discord.http.token,
-                                                                        guild.id)
-            except error.RequestFailure:
+                guild_commands = await self.req.get_all_commands(
+                    self._discord.user.id, guild.id
+                )
+            except discord.Forbidden:
                 # In case a guild has not granted permissions to access commands
                 continue
 
@@ -271,10 +274,9 @@ class SlashCommand:
             if x not in self.commands:
                 # Delete command if not found locally
                 selected = registered_commands[x]
-                await manage_commands.remove_slash_command(self._discord.user.id,
-                                                           self._discord.http.token,
-                                                           selected["guild_id"],
-                                                           selected["id"])
+                await self.req.remove_slash_command(
+                    self._discord.user.id, selected["guild_id"], selected["id"]
+                )
 
         self.logger.info("Completed deleting unused commands!")
 
