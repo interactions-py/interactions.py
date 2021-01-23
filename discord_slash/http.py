@@ -68,9 +68,6 @@ class SlashCommandRequest:
         url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
         url += url_ending
         route = CustomRoute(method, url)
-        self.logger.info(method)
-        self.logger.info(url)
-        self.logger.info(kwargs)
         return self._discord.http.request(route, **kwargs)
 
     def post(self, _resp, wait: bool, bot_id, interaction_id, token, initial=False, files: typing.List[discord.File] = None):
