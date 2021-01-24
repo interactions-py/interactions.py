@@ -71,7 +71,7 @@ class SlashContext:
         :param eat: Whether to eat user's input. Default ``False``.
         """
         base = {"type": 2 if eat else 5}
-        _task = self.bot.loop.create_task(self._http.post(base, False, self.bot.user.id, self.interaction_id, self.__token, True))
+        _task = self.bot.loop.create_task(self._http.post(base, False, self.interaction_id, self.__token, True))
         self.sent = True
         if not eat:
             with suppress(asyncio.TimeoutError):
@@ -165,12 +165,11 @@ class SlashContext:
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
 
-        resp = await self._http.post(base, wait, self.bot.user.id, self.interaction_id, self.__token, files=files)
+        resp = await self._http.post(base, wait, self.interaction_id, self.__token, files=files)
         smsg = model.SlashMessage(state=self.bot._connection,
                                   data=resp,
                                   channel=self.channel if isinstance(self.channel, discord.TextChannel) else discord.Object(id=self.channel),
                                   _http=self._http,
-                                  bot_id=self.bot.user.id,
                                   interaction_token=self.__token)
         if delete_after:
             self.bot.loop.create_task(smsg.delete(delay=delete_after))
@@ -184,11 +183,11 @@ class SlashContext:
             "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
-        return self._http.post(base, False, self.bot.user.id, self.interaction_id, self.__token)
+        return self._http.post(base, False, self.interaction_id, self.__token)
 
     def send_hidden(self, content: str = ""):
         base = {
             "content": content,
             "flags": 64
         }
-        return self._http.post(base, False, self.bot.user.id, self.interaction_id, self.__token)
+        return self._http.post(base, False, self.interaction_id, self.__token)
