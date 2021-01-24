@@ -151,11 +151,10 @@ class SlashCommandOptionType(IntEnum):
 
 class SlashMessage(discord.Message):
     """discord.py's :class:`discord.Message` but overridden ``edit`` and ``delete`` to work for slash command."""
-    def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, bot_id, interaction_token):
+    def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, interaction_token):
         # Yes I know it isn't the best way but this makes implementation simple.
         super().__init__(state=state, channel=channel, data=data)
         self._http = _http
-        self.bot_id = bot_id
         self.__interaction_token = interaction_token
 
     async def edit(self, **fields):
@@ -186,7 +185,7 @@ class SlashMessage(discord.Message):
             _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
                 self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
 
-            await self._http.edit(_resp, self.bot_id, self.__interaction_token, self.id)
+            await self._http.edit(_resp, self.__interaction_token, self.id)
 
             delete_after = fields.get("delete_after")
             if delete_after:
@@ -198,10 +197,10 @@ class SlashMessage(discord.Message):
             await super().delete(delay=delay)
         except discord.Forbidden:
             if not delay:
-                return await self._http.delete(self.bot_id, self.__interaction_token, self.id)
+                return await self._http.delete(self.__interaction_token, self.id)
 
             async def wrap():
                 with suppress(discord.HTTPException):
                     await asyncio.sleep(delay)
-                    await self._http.delete(self.bot_id, self.__interaction_token, self.id)
+                    await self._http.delete(self.__interaction_token, self.id)
             self._state.loop.create_task(wrap())

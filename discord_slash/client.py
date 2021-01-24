@@ -209,7 +209,6 @@ class SlashCommand:
                 if selected.allowed_guild_ids:
                     for y in selected.allowed_guild_ids:
                         await self.req.add_slash_command(
-                            self._discord.user.id,
                             y,
                             x,
                             selected.description or "No Description.",
@@ -217,7 +216,6 @@ class SlashCommand:
                         )
                 else:
                      await self.req.add_slash_command(
-                        self._discord.user.id,
                         None,
                         x,
                         selected.description or "No Description.",
@@ -227,7 +225,6 @@ class SlashCommand:
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
                     await self.req.add_slash_command(
-                        self._discord.user.id,
                         y,
                         x,
                         selected.description or "No Description.",
@@ -235,7 +232,6 @@ class SlashCommand:
                     )
             else:
                 await self.req.add_slash_command(
-                    self._discord.user.id,
                     None,
                     x,
                     selected.description or "No Description.",
@@ -252,7 +248,7 @@ class SlashCommand:
         await self._discord.wait_until_ready()
         self.logger.info("Deleting unused commands...")
         registered_commands = {}
-        global_commands = await self.req.get_all_commands(self._discord.user.id, None)
+        global_commands = await self.req.get_all_commands(None)
 
         for cmd in global_commands:
             registered_commands[cmd["name"]] = {"id": cmd["id"], "guild_id": None}
@@ -260,9 +256,7 @@ class SlashCommand:
         for guild in self._discord.guilds:
             # Since we can only get commands per guild we need to loop through every one
             try:
-                guild_commands = await self.req.get_all_commands(
-                    self._discord.user.id, guild.id
-                )
+                guild_commands = await self.req.get_all_commands(guild.id)
             except discord.Forbidden:
                 # In case a guild has not granted permissions to access commands
                 continue
@@ -274,9 +268,7 @@ class SlashCommand:
             if x not in self.commands:
                 # Delete command if not found locally
                 selected = registered_commands[x]
-                await self.req.remove_slash_command(
-                    self._discord.user.id, selected["guild_id"], selected["id"]
-                )
+                await self.req.remove_slash_command(selected["guild_id"], selected["id"])
 
         self.logger.info("Completed deleting unused commands!")
 
