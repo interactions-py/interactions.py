@@ -159,13 +159,27 @@ class SlashCommand:
                         else:
                             del self.commands[x.base]
 
-    async def register_all_commands(self):
+    async def to_dict(self):
         """
-        Registers all slash commands to Discord API.\n
-        If ``auto_register`` is ``True``, then this will be automatically called.
+        Converts all commands currently registered to :class:`SlashCommand` to a dictionary.
+        Returns a dictionary in the format:
+
+        .. code-block:: python
+
+            {
+                "global" : [], # list of global commands
+                "guild" : {
+                    0000: [] # list of commands in the guild 0000
+                }
+            }
+
+        Commands are in the format specified by discord `here <https://discord.com/developers/docs/interactions/slash-commands#applicationcommand>`_
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
-        self.logger.info("Registering commands...")
+        commands = {
+            "global": [],
+            "guild": {}
+        }
         for x in self.commands:
             selected = self.commands[x]
             if selected.has_subcommands and selected.func:
@@ -207,22 +221,41 @@ class SlashCommand:
                             if sub_sub.subcommand_group_description:
                                 base_dict["description"] = sub_sub.subcommand_group_description
                         options.append(base_dict)
-                        
+
+            command_dict = {
+                "name": x,
+                "description": selected.description or "No Description.",
+                "options": selected.options if not options else options
+            }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
-                    await self.req.add_slash_command(
-                        y,
-                        x,
-                        selected.description or "No Description.",
-                        selected.options if not options else options,
-                    )
+                    try:
+                        commands["guild"][y].append(command_dict)
+                    except KeyError:
+                        commands["guild"][y] = [command_dict]
             else:
-                await self.req.add_slash_command(
-                    None,
-                    x,
-                    selected.description or "No Description.",
-                    selected.options if not options else options,
-                )
+                commands["global"].append(command_dict)
+
+        return commands
+
+    async def register_all_commands(self):
+        """
+        Registers all slash commands to Discord API.\n
+        If ``auto_register`` is ``True``, then this will be automatically called.
+        """
+        self.logger.info("Registering commands...")
+        commands = await self.to_dict()
+        for command in commands["global"]:
+            name = command.pop('name')
+            self.logger.debug(f"Registering global command {name}")
+            await self.req.add_slash_command(guild_id = None, cmd_name = name, **command)
+        
+        for guild in commands["guild"]:
+            guild_cmds = commands["guild"][guild]
+            for command in guild_cmds:
+                name = command.pop('name')
+                self.logger.debug(f"Registering guild command {name} in guild: {guild}")
+                await self.req.add_slash_command(guild_id = guild, cmd_name = name, **command)
         self.logger.info("Completed registering all commands!")
 
     async def delete_unused_commands(self):
