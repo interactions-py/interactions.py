@@ -174,9 +174,10 @@ class SlashCommand:
                 # so we will warn this at registering subcommands.
                 self.logger.warning(f"Detected command name with same subcommand base name! "
                                     f"This command will only have subcommand: {x}")
+            
+            options = []
             if selected.has_subcommands:
                 tgt = self.subcommands[x]
-                options = []
                 for y in tgt:
                     sub = tgt[y]
                     if isinstance(sub, model.SubcommandObject):
@@ -206,36 +207,21 @@ class SlashCommand:
                             if sub_sub.subcommand_group_description:
                                 base_dict["description"] = sub_sub.subcommand_group_description
                         options.append(base_dict)
-                if selected.allowed_guild_ids:
-                    for y in selected.allowed_guild_ids:
-                        await self.req.add_slash_command(
-                            y,
-                            x,
-                            selected.description or "No Description.",
-                            options,
-                        )
-                else:
-                     await self.req.add_slash_command(
-                        None,
-                        x,
-                        selected.description or "No Description.",
-                        options,
-                    )
-                continue
+                        
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
                     await self.req.add_slash_command(
                         y,
                         x,
                         selected.description or "No Description.",
-                        selected.options,
+                        selected.options if not options else options,
                     )
             else:
                 await self.req.add_slash_command(
                     None,
                     x,
                     selected.description or "No Description.",
-                    selected.options,
+                    selected.options if not options else options,
                 )
         self.logger.info("Completed registering all commands!")
 
