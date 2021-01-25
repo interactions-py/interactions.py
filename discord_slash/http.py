@@ -15,6 +15,18 @@ class SlashCommandRequest:
         self.logger = logger
         self._discord: typing.Union[discord.Client, discord.AutoShardedClient] = _discord
 
+    def put_slash_commands(self, slash_commands: list, guild_id):
+        """
+        Sends a slash command put request to the Discord API
+
+        ``slash_commands`` must contain all the commands
+        :param slash_commands: List of all the slash commands to make a put request to discord with.
+        :param guild_id: ID of the guild to set the commands on. Pass `None` for the global scope.
+        """
+        return self.command_request(
+            method="PUT", guild_id = guild_id, json = slash_commands
+        )
+
     def remove_slash_command(self, guild_id, cmd_id):
         """
         Sends a slash command delete request to Discord API.
