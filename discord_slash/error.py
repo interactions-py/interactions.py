@@ -1,3 +1,9 @@
+class DuplicateSlashClient(Exception):
+    """
+    There are duplicate :class:`client.SlashCommand` instances.
+    """
+
+
 class SlashCommandError(Exception):
     """
     All exceptions of this extension can be captured with this.

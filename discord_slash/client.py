@@ -52,6 +52,11 @@ class SlashCommand:
             self._discord.on_socket_response = self.on_socket_response
             self.has_listener = False
         else:
+            if not hasattr(self._discord, 'slash'):
+                self._discord.slash = self
+            else:
+                raise error.DuplicateSlashClient("You can't have duplicate SlashCommand instances!")
+            
             self._discord.add_listener(self.on_socket_response)
             self.has_listener = True
             default_add_function = self._discord.add_cog
@@ -67,6 +72,8 @@ class SlashCommand:
                 self.remove_cog_commands(cog)
                 default_remove_function(name)
             self._discord.remove_cog = override_remove_cog
+        
+        
 
     def get_cog_commands(self, cog: commands.Cog):
         """
