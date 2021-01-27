@@ -254,15 +254,14 @@ class SlashCommand:
         commands = await self.to_dict()
         self.logger.info("Syncing commands...")
         all_bot_guilds = [guild.id for guild in self._discord.guilds]
-        print(all_bot_guilds)
         # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
-        # But it's the only way until discord make an endpoint to request all the guild with cmds registered.
+        # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
+
         await self.req.put_slash_commands(slash_commands = commands["global"], guild_id = None)
         
         for guild in commands["guild"]:
             await self.req.put_slash_commands(slash_commands = commands["guild"][guild], guild_id = guild)
             all_bot_guilds.remove(guild)
-        print(all_bot_guilds)
         if delete_from_unused_guilds:
             for guild in all_bot_guilds:
                 await self.req.put_slash_commands(slash_commands=[], guild_id = guild)
