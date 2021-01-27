@@ -20,9 +20,6 @@ def cog_slash(*,
 
         class ExampleCog(commands.Cog):
             def __init__(self, bot):
-                if not hasattr(bot, "slash"):
-                    # Creates new SlashCommand instance to bot if bot doesn't have.
-                    bot.slash = SlashCommand(bot, override_type=True)
                 self.bot = bot
 
             @cog_ext.cog_slash(name="ping")
@@ -86,9 +83,6 @@ def cog_subcommand(*,
 
         class ExampleCog(commands.Cog):
             def __init__(self, bot):
-                if not hasattr(bot, "slash"):
-                    # Creates new SlashCommand instance to bot if bot doesn't have.
-                    bot.slash = SlashCommand(bot, override_type=True)
                 self.bot = bot
 
             @cog_ext.cog_subcommand(base="group", name="say")
