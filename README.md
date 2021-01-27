@@ -61,15 +61,23 @@ bot.run("discord_token")
 ### Advanced
 This offers implementation of the slash command library in the usage of a cog.
 ```py
+# bot.py
+from discord.ext import commands
+from discord_slash import SlashCommand
+
+bot = commands.Bot(command_prefix="prefix")
+slash = SlashCommand(bot, override_type = True)
+
+bot.load_extension("cog")
+bot.run("TOKEN")
+
+# cog.py
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext, SlashCommand, SlashContext
+from discord_slash import cog_ext, SlashContext
 
 class Slash(commands.Cog):
     def __init__(self, bot):
-        if not hasattr(bot, "slash"):
-            # Creates new SlashCommand instance to bot if bot doesn't have.
-            bot.slash = SlashCommand(bot, override_type=True)
         self.bot = bot
 
     @cog_ext.cog_slash(name="test")
