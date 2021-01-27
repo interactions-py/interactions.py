@@ -1,6 +1,6 @@
 class DuplicateSlashClient(Exception):
     """
-    There are duplicate :class:`client.SlashCommand` instances.
+    There are duplicate :class:`.SlashCommand` instances.
     """
 
 
