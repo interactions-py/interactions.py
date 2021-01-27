@@ -42,10 +42,14 @@ class SlashCommand:
         self.req = http.SlashCommandRequest(self.logger, self._discord)
         self.auto_register = auto_register
         self.auto_delete = auto_delete
-        if self.auto_register:
+
+        if self.auto_register and self.auto_delete:
+            self._discord.loop.create_task(self.sync_all_commands())
+        elif self.auto_register:
             self._discord.loop.create_task(self.register_all_commands())
-        if self.auto_delete:
+        elif self.auto_delete:
             self._discord.loop.create_task(self.delete_unused_commands())
+        
         if not isinstance(client, commands.Bot) and not isinstance(client,
                                                                    commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
@@ -166,13 +170,27 @@ class SlashCommand:
                         else:
                             del self.commands[x.base]
 
-    async def register_all_commands(self):
+    async def to_dict(self):
         """
-        Registers all slash commands to Discord API.\n
-        If ``auto_register`` is ``True``, then this will be automatically called.
+        Converts all commands currently registered to :class:`SlashCommand` to a dictionary.
+        Returns a dictionary in the format:
+
+        .. code-block:: python
+
+            {
+                "global" : [], # list of global commands
+                "guild" : {
+                    0000: [] # list of commands in the guild 0000
+                }
+            }
+
+        Commands are in the format specified by discord `here <https://discord.com/developers/docs/interactions/slash-commands#applicationcommand>`_
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
-        self.logger.info("Registering commands...")
+        commands = {
+            "global": [],
+            "guild": {}
+        }
         for x in self.commands:
             selected = self.commands[x]
             if selected.has_subcommands and selected.func:
@@ -181,9 +199,10 @@ class SlashCommand:
                 # so we will warn this at registering subcommands.
                 self.logger.warning(f"Detected command name with same subcommand base name! "
                                     f"This command will only have subcommand: {x}")
+            
+            options = []
             if selected.has_subcommands:
                 tgt = self.subcommands[x]
-                options = []
                 for y in tgt:
                     sub = tgt[y]
                     if isinstance(sub, model.SubcommandObject):
@@ -213,44 +232,74 @@ class SlashCommand:
                             if sub_sub.subcommand_group_description:
                                 base_dict["description"] = sub_sub.subcommand_group_description
                         options.append(base_dict)
-                if selected.allowed_guild_ids:
-                    for y in selected.allowed_guild_ids:
-                        await self.req.add_slash_command(
-                            y,
-                            x,
-                            selected.description or "No Description.",
-                            options,
-                        )
-                else:
-                     await self.req.add_slash_command(
-                        None,
-                        x,
-                        selected.description or "No Description.",
-                        options,
-                    )
-                continue
+
+            command_dict = {
+                "name": x,
+                "description": selected.description or "No Description.",
+                "options": selected.options if not options else options
+            }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
-                    await self.req.add_slash_command(
-                        y,
-                        x,
-                        selected.description or "No Description.",
-                        selected.options,
-                    )
+                    try:
+                        commands["guild"][y].append(command_dict)
+                    except KeyError:
+                        commands["guild"][y] = [command_dict]
             else:
-                await self.req.add_slash_command(
-                    None,
-                    x,
-                    selected.description or "No Description.",
-                    selected.options,
-                )
+                commands["global"].append(command_dict)
+
+        return commands
+
+    async def sync_all_commands(self, delete_from_unused_guilds = True):
+        """
+        Matches commands registered on Discord to commands registered here.
+        Deletes any commands on Discord but not here, and registers any not on Discord.
+        This is done with a `put` request.
+        If ``auto_register`` and ``auto_delete`` are ``True`` then this will be automatically called.
+
+        :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands regestered in :class:``SlashCommand``
+        """
+        commands = await self.to_dict()
+        self.logger.info("Syncing commands...")
+        all_bot_guilds = [guild.id for guild in self._discord.guilds]
+        # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
+        # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
+
+        await self.req.put_slash_commands(slash_commands = commands["global"], guild_id = None)
+        
+        for guild in commands["guild"]:
+            await self.req.put_slash_commands(slash_commands = commands["guild"][guild], guild_id = guild)
+            all_bot_guilds.remove(guild)
+        if delete_from_unused_guilds:
+            for guild in all_bot_guilds:
+                await self.req.put_slash_commands(slash_commands=[], guild_id = guild)
+        
+        self.logger.info("Completed syncing all commands!")
+
+    async def register_all_commands(self):
+        """
+        Registers all slash commands to Discord API.\n
+        If ``auto_register`` is ``True`` and ``auto_delete`` is ``False``, then this will be automatically called.
+        """
+        self.logger.info("Registering commands...")
+        commands = await self.to_dict()
+        for command in commands["global"]:
+            name = command.pop('name')
+            self.logger.debug(f"Registering global command {name}")
+            await self.req.add_slash_command(guild_id = None, cmd_name = name, **command)
+        
+        for guild in commands["guild"]:
+            guild_cmds = commands["guild"][guild]
+            for command in guild_cmds:
+                name = command.pop('name')
+                self.logger.debug(f"Registering guild command {name} in guild: {guild}")
+                await self.req.add_slash_command(guild_id = guild, cmd_name = name, **command)
         self.logger.info("Completed registering all commands!")
 
     async def delete_unused_commands(self):
         """
         Unregisters all slash commands which are not used by the project to Discord API.\n
         This might take some time because for every guild the bot is on an API call is made.\n
-        If ``auto_delete`` is ``True``, then this will be automatically called.
+        If ``auto_delete`` is ``True`` and ``auto_register`` is ``False``, then this will be automatically called.
         """
         await self._discord.wait_until_ready()
         self.logger.info("Deleting unused commands...")
