@@ -4,8 +4,8 @@
     <h2 align = "center">A simple discord slash command extension for <a href="https://github.com/Rapptz/discord.py">discord.py</a></h2>
 </p>
 <p align="center">
-        <a href="https://app.codacy.com/gh/eunwoo1104/discord-py-slash-command?utm_source=github.com&utm_medium=referral&utm_content=eunwoo1104/discord-py-slash-command&utm_campaign=Badge_Grade_Settings"><img src="https://api.codacy.com/project/badge/Grade/224bdbe58f8f43f28a093a33a7546456" alt="Codacy Badge'></a>
-        <a href="https://discord.gg/KkgMBVuEkx"> <img alt="Discord" src="https://img.shields.io/discord/789032594456576001"> </a>
+        <a href="https://app.codacy.com/gh/eunwoo1104/discord-py-slash-command?utm_source=github.com&utm_medium=referral&utm_content=eunwoo1104/discord-py-slash-command&utm_campaign=Badge_Grade_Settings"><img src="https://api.codacy.com/project/badge/Grade/224bdbe58f8f43f28a093a33a7546456" alt="Codacy Badge"></a>
+        <a href="https://discord.gg/KkgMBVuEkx"> <img alt="Discord" src="https://img.shields.io/discord/789032594456576001"></a>
 </p>
 <p align="center">
    <a href="#about">About</a> ⦿
