@@ -85,7 +85,7 @@ class SubcommandObject(CommandObject):
     Subcommand object of this extension.
 
     .. note::
-        This model inherits :class:`.model.CommandObject', so this has every variables from that.
+        This model inherits :class:`.model.CommandObject`, so this has every variables from that.
 
     .. warning::
         Do not manually init this model.
