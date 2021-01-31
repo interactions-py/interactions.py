@@ -1,9 +1,3 @@
-class DuplicateSlashClient(Exception):
-    """
-    There are duplicate :class:`.SlashCommand` instances.
-    """
-
-
 class SlashCommandError(Exception):
     """
     All exceptions of this extension can be captured with this.
@@ -40,3 +34,9 @@ class DuplicateCommand(SlashCommandError):
     """
     def __init__(self, name: str):
         super().__init__(f"Duplicate command name detected: {name}")
+
+
+class DuplicateSlashClient(SlashCommandError):
+    """
+    There are duplicate :class:`.SlashCommand` instances.
+    """
