@@ -1,7 +1,9 @@
 class SlashCommandError(Exception):
     """
     All exceptions of this extension can be captured with this.
-    Note that discord.py doesn't trigger `on_command_error` event.
+
+    .. note::
+        discord.py doesn't trigger `on_command_error` event. Use this extension's `on_slash_command_error`.
     """
 
 
@@ -39,4 +41,10 @@ class DuplicateCommand(SlashCommandError):
 class DuplicateSlashClient(SlashCommandError):
     """
     There are duplicate :class:`.SlashCommand` instances.
+    """
+
+
+class CheckFailure(SlashCommandError):
+    """
+    Command check has failed.
     """

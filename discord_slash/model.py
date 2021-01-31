@@ -2,6 +2,7 @@ import asyncio
 import discord
 from enum import IntEnum
 from contextlib import suppress
+from inspect import iscoroutinefunction
 from . import http
 from . import error
 
@@ -19,6 +20,7 @@ class CommandObject:
     :ivar auto_convert: Dictionary of the `auto_convert` of the command.
     :ivar allowed_guild_ids: List of the allowed guild id.
     :ivar options: List of the option of the command. Used for `auto_register`.
+    :ivar __commands_checks__: Check of the command.
     """
     def __init__(self, name, cmd):  # Let's reuse old command formatting.
         self.name = name.lower()
@@ -28,54 +30,78 @@ class CommandObject:
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.has_subcommands = cmd["has_subcommands"]
+        # Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L1447
+        # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
+        # add checks at this var.
+        self.__commands_checks__ = []
 
-    def invoke(self, *args):
+    async def invoke(self, *args):
         """
         Invokes the command.
 
         :param args: Args for the command.
-        :return: Coroutine
+        :raises: .error.CheckFailure
         """
-        return self.func(*args)
+        can_run = await self.can_run(args[0])
+        if not can_run:
+            raise error.CheckFailure
+
+        return await self.func(*args)
+
+    def add_check(self, func):
+        """
+        Adds check to the command.
+
+        :param func: Any callable. Coroutines are supported.
+        """
+        self.__commands_checks__.append(func)
+
+    def remove_check(self, func):
+        """
+        Removes check to the command.
+
+        .. note::
+            If the function is not found at the command check, it will ignore.
+
+        :param func: Any callable. Coroutines are supported.
+        """
+        with suppress(ValueError):
+            self.__commands_checks__.remove(func)
+
+    async def can_run(self, ctx) -> bool:
+        """
+        Whether the command can be run.
+
+        :param ctx: SlashContext for the check running.
+        :type ctx: .context.SlashContext
+        :return: bool
+        """
+        res = [bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx)) for x in self.__commands_checks__]
+        return False not in res
 
 
-class SubcommandObject:
+class SubcommandObject(CommandObject):
     """
     Subcommand object of this extension.
+
+    .. note::
+        This model inherits :class:`.model.CommandObject', so this has every variables from that.
 
     .. warning::
         Do not manually init this model.
 
     :ivar base: Name of the base slash command.
     :ivar subcommand_group: Name of the subcommand group. ``None`` if not exist.
-    :ivar name: Name of the subcommand.
-    :ivar func: The coroutine of the command.
-    :ivar description: Description of the command.
     :ivar base_description: Description of the base command.
     :ivar subcommand_group_description: Description of the subcommand_group.
-    :ivar auto_convert: Dictionary of the `auto_convert` of the command.
-    :ivar allowed_guild_ids: List of the allowed guild id.
     """
     def __init__(self, sub, base, name, sub_group=None):
+        sub["has_subcommands"] = True # For the inherited class.
+        super().__init__(name, sub)
         self.base = base.lower()
         self.subcommand_group = sub_group.lower() if sub_group else sub_group
-        self.name = name.lower()
-        self.func = sub["func"]
-        self.description = sub["description"]
         self.base_description = sub["base_desc"]
         self.subcommand_group_description = sub["sub_group_desc"]
-        self.auto_convert = sub["auto_convert"] or {}
-        self.allowed_guild_ids = sub["guild_ids"] or []
-        self.options = sub["api_options"] or []
-
-    def invoke(self, *args):
-        """
-        Invokes the command.
-
-        :param args: Args for the command.
-        :return: Coroutine
-        """
-        return self.func(*args)
 
 
 class CogCommandObject(CommandObject):
@@ -89,14 +115,18 @@ class CogCommandObject(CommandObject):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
 
-    def invoke(self, *args):
+    async def invoke(self, *args):
         """
         Invokes the command.
 
         :param args: Args for the command.
-        :return: Coroutine
+        :raises: .error.CheckFailure
         """
-        return self.func(self.cog, *args)
+        can_run = await self.can_run(args[0])
+        if not can_run:
+            raise error.CheckFailure
+
+        return await self.func(self.cog, *args)
 
 
 class CogSubcommandObject(SubcommandObject):
@@ -110,14 +140,18 @@ class CogSubcommandObject(SubcommandObject):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
 
-    def invoke(self, *args):
+    async def invoke(self, *args):
         """
         Invokes the command.
 
         :param args: Args for the command.
-        :return: Coroutine
+        :raises: .error.CheckFailure
         """
-        return self.func(self.cog, *args)
+        can_run = await self.can_run(args[0])
+        if not can_run:
+            raise error.CheckFailure
+
+        return await self.func(self.cog, *args)
 
 
 class SlashCommandOptionType(IntEnum):
