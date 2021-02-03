@@ -161,7 +161,7 @@ def create_option(name: str,
         original_type = option_type
         option_type = SlashCommandOptionType.from_type(original_type)
         if option_type is None:
-            raise IncorrectType(f"The type {original_type} is not reconsied as a type that Discord accepts for slash commands.")
+            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash commands.")
     return {
         "name": name,
         "description": description,
