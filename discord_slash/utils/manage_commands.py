@@ -2,7 +2,7 @@ import typing
 import inspect
 import asyncio
 import aiohttp
-from ..error import RequestFailure
+from ..error import RequestFailure, IncorrectType
 from ..model import SlashCommandOptionType
 from collections.abc import Callable
 
@@ -144,7 +144,7 @@ async def remove_all_commands_in(bot_id,
 
 def create_option(name: str,
                   description: str,
-                  option_type: int,
+                  option_type: typing.Union[int, type],
                   required: bool,
                   choices: list = None) -> dict:
     """
@@ -157,6 +157,11 @@ def create_option(name: str,
     :param choices: Choices of the option. Can be empty.
     :return: dict
     """
+    if not isinstance(option_type, int) or isinstance(option_type, bool): #Bool values are a subclass of int
+        original_type = option_type
+        option_type = SlashCommandOptionType.from_type(original_type)
+        if option_type is None:
+            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash commands.")
     return {
         "name": name,
         "description": description,

@@ -48,3 +48,8 @@ class CheckFailure(SlashCommandError):
     """
     Command check has failed.
     """
+
+class IncorrectType(SlashCommandError):
+    """
+    Type passed was incorrect
+    """

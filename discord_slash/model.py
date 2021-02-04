@@ -176,8 +176,9 @@ class SlashCommandOptionType(IntEnum):
         :return: :class:`.model.SlashCommandOptionType` or ``None``
         """
         if issubclass(t, str): return cls.STRING
-        if issubclass(t, int): return cls.INTEGER
         if issubclass(t, bool): return cls.BOOLEAN
+        # The check for bool MUST be above the check for integers as booleans subclass integers
+        if issubclass(t, int): return cls.INTEGER
         if issubclass(t, discord.abc.User): return cls.USER
         if issubclass(t, discord.abc.GuildChannel): return cls.CHANNEL
         if issubclass(t, discord.abc.Role): return cls.ROLE
