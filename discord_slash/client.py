@@ -425,8 +425,8 @@ class SlashCommand:
         name = name.lower()
         description = description or getdoc(cmd)
 
-        if name in self.commands:
-            tgt = self.commands[name]
+        if base in self.commands:
+            tgt = self.commands[base]
             for x in tgt.allowed_guild_ids:
                 if x not in guild_ids:
                     guild_ids.append(x)
