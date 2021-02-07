@@ -76,8 +76,6 @@ class SlashCommand:
                 self.remove_cog_commands(cog)
                 default_remove_function(name)
             self._discord.remove_cog = override_remove_cog
-        
-        
 
     def get_cog_commands(self, cog: commands.Cog):
         """
@@ -608,7 +606,7 @@ class SlashCommand:
 
         return wrapper
 
-    async def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> list:
+    async def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> typing.Union[list, dict]:
         """
         Processes Role, User, and Channel option types to discord.py's models.
 
@@ -618,7 +616,7 @@ class SlashCommand:
         :type options: list
         :param auto_convert: Dictionary of how to convert option values.
         :type auto_convert: dict
-        :return: list
+        :return: Union[list, dict]
         """
         if not guild:
             self.logger.info("This command invoke is missing guild. Skipping option process.")
@@ -631,6 +629,9 @@ class SlashCommand:
             return [x["value"] for x in options]
 
         converters = [
+            # If extra converters are added and some needs to fetch it,
+            # you should pass as a list with 1st item as a cache get method
+            # and 2nd as a actual fetching method.
             [guild.get_member, guild.fetch_member],
             guild.get_channel,
             guild.get_role
@@ -654,29 +655,57 @@ class SlashCommand:
             "8": 2
         }
 
-        to_return = []
+        to_return = {}
 
         for x in options:
             selected = x
             if selected["name"] in auto_convert:
+                processed = None # This isn't the best way, but we should to reduce duplicate lines.
                 if auto_convert[selected["name"]] not in types:
-                    to_return.append(selected["value"])
-                    continue
-                loaded_converter = converters[types[auto_convert[selected["name"]]]]
-                if isinstance(loaded_converter, list):
-                    cache_first = loaded_converter[0](int(selected["value"]))
-                    if cache_first:
-                        to_return.append(cache_first)
-                        continue
-                    loaded_converter = loaded_converter[1]
-                try:
-                    to_return.append(await loaded_converter(int(selected["value"]))) \
-                        if iscoroutinefunction(loaded_converter) else \
-                        to_return.append(loaded_converter(int(selected["value"])))
-                except (discord.Forbidden, discord.HTTPException):
-                    self.logger.warning("Failed fetching user! Passing ID instead.")
-                    to_return.append(int(selected["value"]))
+                    processed = selected["value"]
+                else:
+                    loaded_converter = converters[types[auto_convert[selected["name"]]]]
+                    if isinstance(loaded_converter, list): # For user type.
+                        cache_first = loaded_converter[0](int(selected["value"]))
+                        if cache_first:
+                            processed = cache_first
+                        else:
+                            loaded_converter = loaded_converter[1]
+                    if not processed:
+                        try:
+                            processed = await loaded_converter(int(selected["value"])) \
+                                if iscoroutinefunction(loaded_converter) else \
+                                loaded_converter(int(selected["value"]))
+                        except (discord.Forbidden, discord.HTTPException, discord.NotFound): # Just in case.
+                            self.logger.warning("Failed fetching discord object! Passing ID instead.")
+                            processed = int(selected["value"])
+                to_return[selected["name"]] = processed
+            else:
+                to_return[selected["name"]] = selected["value"]
         return to_return
+
+    async def invoke_command(self, func, ctx, args):
+        """
+        Invokes command.
+
+        :param func: Command coroutine.
+        :param ctx: Context.
+        :param args: Args. Can be list or dict.
+        """
+        try:
+            not_kwargs = False
+            if isinstance(args, dict):
+                try:
+                    await func.invoke(ctx, **args)
+                except TypeError:
+                    args = list(args.values())
+                    not_kwargs = True
+            else:
+                not_kwargs = True
+            if not_kwargs:
+                await func.invoke(ctx, *args)
+        except Exception as ex:
+            await self.on_slash_command_error(ctx, ex)
 
     async def on_socket_response(self, msg):
         """
@@ -721,10 +750,7 @@ class SlashCommand:
 
             self._discord.dispatch("slash_command", ctx)
 
-            try:
-                await selected_cmd.invoke(ctx, *args)
-            except Exception as ex:
-                await self.on_slash_command_error(ctx, ex)
+            await self.invoke_command(selected_cmd, ctx, args)
 
     async def handle_subcommand(self, ctx: context.SlashContext, data: dict):
         """
@@ -755,19 +781,13 @@ class SlashCommand:
                 args = await self.process_options(ctx.guild, x["options"], selected.auto_convert) \
                     if "options" in x else []
                 self._discord.dispatch("slash_command", ctx)
-                try:
-                    await selected.invoke(ctx, *args)
-                except Exception as ex:
-                    await self.on_slash_command_error(ctx, ex)
+                await self.invoke_command(selected, ctx, args)
                 return
         selected = base[sub_name]
         args = await self.process_options(ctx.guild, sub_opts, selected.auto_convert) \
             if "options" in sub else []
         self._discord.dispatch("slash_command", ctx)
-        try:
-            await selected.invoke(ctx, *args)
-        except Exception as ex:
-            await self.on_slash_command_error(ctx, ex)
+        await self.invoke_command(selected, ctx, args)
 
     async def on_slash_command_error(self, ctx, ex):
         """
