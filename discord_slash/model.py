@@ -35,7 +35,7 @@ class CommandObject:
         # add checks at this var.
         self.__commands_checks__ = []
 
-    async def invoke(self, *args):
+    async def invoke(self, *args, **kwargs):
         """
         Invokes the command.
 
@@ -46,7 +46,7 @@ class CommandObject:
         if not can_run:
             raise error.CheckFailure
 
-        return await self.func(*args)
+        return await self.func(*args, **kwargs)
 
     def add_check(self, func):
         """
@@ -115,7 +115,7 @@ class CogCommandObject(CommandObject):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
 
-    async def invoke(self, *args):
+    async def invoke(self, *args, **kwargs):
         """
         Invokes the command.
 
@@ -126,7 +126,7 @@ class CogCommandObject(CommandObject):
         if not can_run:
             raise error.CheckFailure
 
-        return await self.func(self.cog, *args)
+        return await self.func(self.cog, *args, **kwargs)
 
 
 class CogSubcommandObject(SubcommandObject):
@@ -140,7 +140,7 @@ class CogSubcommandObject(SubcommandObject):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
 
-    async def invoke(self, *args):
+    async def invoke(self, *args, **kwargs):
         """
         Invokes the command.
 
@@ -151,7 +151,7 @@ class CogSubcommandObject(SubcommandObject):
         if not can_run:
             raise error.CheckFailure
 
-        return await self.func(self.cog, *args)
+        return await self.func(self.cog, *args, **kwargs)
 
 
 class SlashCommandOptionType(IntEnum):

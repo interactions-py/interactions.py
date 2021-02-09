@@ -49,7 +49,7 @@ class SlashCommand:
             self._discord.loop.create_task(self.register_all_commands())
         elif self.auto_delete:
             self._discord.loop.create_task(self.delete_unused_commands())
-        
+
         if not isinstance(client, commands.Bot) and not isinstance(client,
                                                                    commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! Overriding on_socket_response.")
@@ -60,21 +60,25 @@ class SlashCommand:
                 self._discord.slash = self
             else:
                 raise error.DuplicateSlashClient("You can't have duplicate SlashCommand instances!")
-            
+
             self._discord.add_listener(self.on_socket_response)
             self.has_listener = True
             default_add_function = self._discord.add_cog
+
             def override_add_cog(cog: commands.Cog):
                 default_add_function(cog)
                 self.get_cog_commands(cog)
+
             self._discord.add_cog = override_add_cog
             default_remove_function = self._discord.remove_cog
+
             def override_remove_cog(name: str):
                 cog = self._discord.get_cog(name)
                 if cog is None:
                     return
                 self.remove_cog_commands(cog)
                 default_remove_function(name)
+
             self._discord.remove_cog = override_remove_cog
 
     def get_cog_commands(self, cog: commands.Cog):
@@ -87,10 +91,10 @@ class SlashCommand:
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
-        if hasattr(cog, '_slash_registered'): # Temporary warning
+        if hasattr(cog, '_slash_registered'):  # Temporary warning
             return self.logger.warning("Calling get_cog_commands is no longer required "
                                        "to add cog slash commands. Make sure to remove all calls to this function.")
-        cog._slash_registered = True # Assuming all went well
+        cog._slash_registered = True  # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
         for x in res:
@@ -197,7 +201,7 @@ class SlashCommand:
                 # so we will warn this at registering subcommands.
                 self.logger.warning(f"Detected command name with same subcommand base name! "
                                     f"This command will only have subcommand: {x}")
-            
+
             options = []
             if selected.has_subcommands:
                 tgt = self.subcommands[x]
@@ -247,7 +251,7 @@ class SlashCommand:
 
         return commands
 
-    async def sync_all_commands(self, delete_from_unused_guilds = True):
+    async def sync_all_commands(self, delete_from_unused_guilds=True):
         """
         Matches commands registered on Discord to commands registered here.
         Deletes any commands on Discord but not here, and registers any not on Discord.
@@ -262,15 +266,15 @@ class SlashCommand:
         # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
         # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
 
-        await self.req.put_slash_commands(slash_commands = commands["global"], guild_id = None)
-        
+        await self.req.put_slash_commands(slash_commands=commands["global"], guild_id=None)
+
         for guild in commands["guild"]:
-            await self.req.put_slash_commands(slash_commands = commands["guild"][guild], guild_id = guild)
+            await self.req.put_slash_commands(slash_commands=commands["guild"][guild], guild_id=guild)
             all_bot_guilds.remove(guild)
         if delete_from_unused_guilds:
             for guild in all_bot_guilds:
-                await self.req.put_slash_commands(slash_commands=[], guild_id = guild)
-        
+                await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
+
         self.logger.info("Completed syncing all commands!")
 
     async def register_all_commands(self):
@@ -283,14 +287,14 @@ class SlashCommand:
         for command in commands["global"]:
             name = command.pop('name')
             self.logger.debug(f"Registering global command {name}")
-            await self.req.add_slash_command(guild_id = None, cmd_name = name, **command)
-        
+            await self.req.add_slash_command(guild_id=None, cmd_name=name, **command)
+
         for guild in commands["guild"]:
             guild_cmds = commands["guild"][guild]
             for command in guild_cmds:
                 name = command.pop('name')
                 self.logger.debug(f"Registering guild command {name} in guild: {guild}")
-                await self.req.add_slash_command(guild_id = guild, cmd_name = name, **command)
+                await self.req.add_slash_command(guild_id=guild, cmd_name=name, **command)
         self.logger.info("Completed registering all commands!")
 
     async def delete_unused_commands(self):
@@ -660,12 +664,12 @@ class SlashCommand:
         for x in options:
             selected = x
             if selected["name"] in auto_convert:
-                processed = None # This isn't the best way, but we should to reduce duplicate lines.
+                processed = None  # This isn't the best way, but we should to reduce duplicate lines.
                 if auto_convert[selected["name"]] not in types:
                     processed = selected["value"]
                 else:
                     loaded_converter = converters[types[auto_convert[selected["name"]]]]
-                    if isinstance(loaded_converter, list): # For user type.
+                    if isinstance(loaded_converter, list):  # For user type.
                         cache_first = loaded_converter[0](int(selected["value"]))
                         if cache_first:
                             processed = cache_first
@@ -676,7 +680,7 @@ class SlashCommand:
                             processed = await loaded_converter(int(selected["value"])) \
                                 if iscoroutinefunction(loaded_converter) else \
                                 loaded_converter(int(selected["value"]))
-                        except (discord.Forbidden, discord.HTTPException, discord.NotFound): # Just in case.
+                        except (discord.Forbidden, discord.HTTPException, discord.NotFound):  # Just in case.
                             self.logger.warning("Failed fetching discord object! Passing ID instead.")
                             processed = int(selected["value"])
                 to_return[selected["name"]] = processed
