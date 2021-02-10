@@ -47,16 +47,16 @@ class SlashContext:
         self.bot = _discord
         self.logger = logger
         self.sent = False
-        self.guild: typing.Union[discord.Guild, int] = _discord.get_guild(int(_json["guild_id"]))
+        self.guild: typing.Union[discord.Guild, int] = _discord.get_guild(int(_json["guild_id"])) if "guild_id" in _json.keys() else None
         self.author: typing.Union[discord.Member, int] = self.guild.get_member(int(_json["member"]["user"]["id"])) \
-            if self.guild else None
+            if self.guild and "member" in _json.keys() else self.bot.get_user(int(_json["user"]["id"])) if self.guild else None
         self.channel: typing.Union[discord.TextChannel, int] = self.guild.get_channel(int(_json["channel_id"])) \
             if self.guild else None
-        if not self.author:
-            self.author = int(_json["member"]["user"]["id"])
+        if not self.author and ("member" in _json.keys() or "user" in _json.keys()):
+            self.author = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
         if not self.channel:
             self.channel = int(_json["channel_id"])
-        if not self.guild:
+        if not self.guild and "guild_id" in _json.keys():
             # Should be set after every others are set.
             self.guild = int(_json["guild_id"])
 
