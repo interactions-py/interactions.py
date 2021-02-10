@@ -13,7 +13,8 @@
    <a href="#disclaimer">Disclaimer</a> ⦿
    <a href="#examples">Examples</a> ⦿
    <a href="https://discord-py-slash-command.readthedocs.io/en/latest/">Documentation</a> ⦿
-   <a href="https://github.com/eunwoo1104/discord-py-slash-command/discussions">Discussions</a>
+   <a href="https://github.com/eunwoo1104/discord-py-slash-command/discussions">Discussions</a> ⦿
+   <a href="https://discord.gg/KkgMBVuEkx">Discord Server</a>
 </p>
    
 
@@ -88,3 +89,10 @@ class Slash(commands.Cog):
 def setup(bot):
     bot.add_cog(Slash(bot))
 ```
+
+--------
+This library is based on gateway event. If you are looking for webserver based, have a look at this:  
+[dispike](https://github.com/ms7m/dispike)  
+[discord-interactions-python](https://github.com/discord/discord-interactions-python)  
+Or for other languages:  
+[discord-api-docs Community Resources: Interactions](https://discord.com/developers/docs/topics/community-resources#interactions)
