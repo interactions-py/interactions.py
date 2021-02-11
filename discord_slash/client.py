@@ -341,6 +341,7 @@ class SlashCommand:
                           description: str = None,
                           guild_ids: typing.List[int] = None,
                           options: list = None,
+                          connector: dict = None,
                           has_subcommands: bool = False):
         """
         Registers slash command to SlashCommand.
@@ -355,6 +356,8 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: list
+        :param connector: Kwargs connector for the command. Default ``None``.
+        :type connector: dict
         :param has_subcommands: Whether it has subcommand. Default ``False``.
         :type has_subcommands: bool
         """
@@ -379,6 +382,7 @@ class SlashCommand:
             "description": description,
             "guild_ids": guild_ids,
             "api_options": options,
+            "connector": connector or {},
             "has_subcommands": has_subcommands
         }
         self.commands[name] = model.CommandObject(name, _cmd)
@@ -393,7 +397,8 @@ class SlashCommand:
                        base_description: str = None,
                        subcommand_group_description: str = None,
                        guild_ids: typing.List[int] = None,
-                       options: list = None):
+                       options: list = None,
+                       connector: dict = None):
         """
         Registers subcommand to SlashCommand.
 
@@ -415,6 +420,8 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: list
+        :param connector: Kwargs connector for the command. Default ``None``.
+        :type connector: dict
         """
         base = base.lower()
         subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
@@ -436,6 +443,7 @@ class SlashCommand:
             "description": base_description,
             "guild_ids": guild_ids,
             "api_options": [],
+            "connector": {},
             "has_subcommands": True
         }
         _sub = {
@@ -445,7 +453,8 @@ class SlashCommand:
             "base_desc": base_description,
             "sub_group_desc": subcommand_group_description,
             "guild_ids": guild_ids,
-            "api_options": options
+            "api_options": options,
+            "connector": connector or {}
         }
         if base not in self.commands:
             self.commands[base] = model.CommandObject(base, _cmd)
@@ -474,7 +483,8 @@ class SlashCommand:
               description: str = None,
               guild_id: int = None,
               guild_ids: typing.List[int] = None,
-              options: typing.List[dict] = None):
+              options: typing.List[dict] = None,
+              connector: dict = None):
         """
         Decorator that registers coroutine as a slash command.\n
         All decorator args must be passed as keyword-only args.\n
@@ -502,6 +512,20 @@ class SlashCommand:
             async def _pick(ctx, choice1, choice2): # Command with 1 or more args.
                 await ctx.send(content=str(random.choice([choice1, choice2])))
 
+        To format the connector, follow this example.
+
+        .. code-block:: python
+
+            {
+                "example-arg": "example_arg",
+                "시간": "hour"
+                # Formatting connector is required for
+                # using other than english for option parameter name
+                # for in case.
+            }
+
+        Set discord UI's parameter name as key, and set command coroutine's arg name as value.
+
         :param name: Name of the slash command. Default name of the coroutine.
         :type name: str
         :param description: Description of the slash command. Default ``None``.
@@ -512,13 +536,15 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: List[dict]
+        :param connector: Kwargs connector for the command. Default ``None``.
+        :type connector: dict
         """
         if guild_id:
             self.logger.warning("`guild_id` is deprecated! `Use guild_ids` instead.")
             guild_ids = [guild_id]
 
         def wrapper(cmd):
-            self.add_slash_command(cmd, name, description, guild_ids, options)
+            self.add_slash_command(cmd, name, description, guild_ids, options, connector)
             return cmd
 
         return wrapper
@@ -534,7 +560,8 @@ class SlashCommand:
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
                    guild_ids: typing.List[int] = None,
-                   options: typing.List[dict] = None):
+                   options: typing.List[dict] = None,
+                   connector: dict = None):
         """
         Decorator that registers subcommand.\n
         Unlike discord.py, you don't need base command.\n
@@ -582,17 +609,19 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: List[dict]
+        :param connector: Kwargs connector for the command. Default ``None``.
+        :type connector: dict
         """
         base_description = base_description or base_desc
         subcommand_group_description = subcommand_group_description or sub_group_desc
 
         def wrapper(cmd):
-            self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, guild_ids, options)
+            self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, guild_ids, options, connector)
             return cmd
 
         return wrapper
 
-    async def process_options(self, guild: discord.Guild, options: list) -> dict:
+    async def process_options(self, guild: discord.Guild, options: list, connector: dict) -> dict:
         """
         Processes Role, User, and Channel option types to discord.py's models.
 
@@ -600,11 +629,12 @@ class SlashCommand:
         :type guild: discord.Guild
         :param options: Dict of options.
         :type options: list
+        :param connector: Kwarg connector.
         :return: Union[list, dict]
         """
 
         if not guild or not isinstance(guild, discord.Guild):
-            return {x["name"]: x["value"] for x in options}
+            return {connector.get(x["name"]) or x["name"]: x["value"] for x in options}
 
         converters = [
             # If extra converters are added and some needs to fetch it,
@@ -655,7 +685,7 @@ class SlashCommand:
                     except (discord.Forbidden, discord.HTTPException, discord.NotFound):  # Just in case.
                         self.logger.warning("Failed fetching discord object! Passing ID instead.")
                         processed = int(x["value"])
-            to_return[x["name"]] = processed
+            to_return[connector.get(x["name"]) or x["name"]] = processed
         return to_return
 
     async def invoke_command(self, func, ctx, args):
@@ -719,7 +749,7 @@ class SlashCommand:
                     if "value" not in x:
                         return await self.handle_subcommand(ctx, to_use)
 
-            args = await self.process_options(ctx.guild, to_use["data"]["options"]) \
+            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.connector) \
                 if "options" in to_use["data"] else []
 
             self._discord.dispatch("slash_command", ctx)
@@ -752,13 +782,13 @@ class SlashCommand:
                     return
                 ctx.subcommand_group = sub_group
                 selected = base[sub_name][sub_group]
-                args = await self.process_options(ctx.guild, x["options"]) \
+                args = await self.process_options(ctx.guild, x["options"], selected.connector) \
                     if "options" in x else []
                 self._discord.dispatch("slash_command", ctx)
                 await self.invoke_command(selected, ctx, args)
                 return
         selected = base[sub_name]
-        args = await self.process_options(ctx.guild, sub_opts) \
+        args = await self.process_options(ctx.guild, sub_opts, selected.connector) \
             if "options" in sub else []
         self._discord.dispatch("slash_command", ctx)
         await self.invoke_command(selected, ctx, args)

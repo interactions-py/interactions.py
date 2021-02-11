@@ -8,7 +8,8 @@ def cog_slash(*,
               name: str = None,
               description: str = None,
               guild_ids: typing.List[int] = None,
-              options: typing.List[dict] = None):
+              options: typing.List[dict] = None,
+              connector: dict = None):
     """
     Decorator for Cog to add slash command.\n
     Almost same as :func:`.client.SlashCommand.slash`.
@@ -33,6 +34,8 @@ def cog_slash(*,
     :type guild_ids: List[int]
     :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
+    :param connector: Kwargs connector for the command. Default ``None``.
+    :type connector: dict
     """
     def wrapper(cmd):
         desc = description or inspect.getdoc(cmd)
@@ -46,6 +49,7 @@ def cog_slash(*,
             "description": desc,
             "guild_ids": guild_ids,
             "api_options": opts,
+            "connector": connector,
             "has_subcommands": False
         }
         return CogCommandObject(name or cmd.__name__, _cmd)
@@ -62,7 +66,8 @@ def cog_subcommand(*,
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
                    guild_ids: typing.List[int] = None,
-                   options: typing.List[dict] = None):
+                   options: typing.List[dict] = None,
+                   connector: dict = None):
     """
     Decorator for Cog to add subcommand.\n
     Almost same as :func:`.client.SlashCommand.subcommand`.
@@ -97,6 +102,8 @@ def cog_subcommand(*,
     :type guild_ids: List[int]
     :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
+    :param connector: Kwargs connector for the command. Default ``None``.
+    :type connector: dict
     """
     base_description = base_description or base_desc
     subcommand_group_description = subcommand_group_description or sub_group_desc
@@ -115,7 +122,8 @@ def cog_subcommand(*,
             "base_desc": base_description,
             "sub_group_desc": subcommand_group_description,
             "guild_ids": guild_ids,
-            "api_options": opts
+            "api_options": opts,
+            "connector": connector
         }
         return CogSubcommandObject(_sub, base, name or cmd.__name__, subcommand_group)
     return wrapper

@@ -19,6 +19,7 @@ class CommandObject:
     :ivar description: Description of the command.
     :ivar allowed_guild_ids: List of the allowed guild id.
     :ivar options: List of the option of the command. Used for `auto_register`.
+    :ivar connector: Kwargs connector of the command.
     :ivar __commands_checks__: Check of the command.
     """
     def __init__(self, name, cmd):  # Let's reuse old command formatting.
@@ -27,6 +28,7 @@ class CommandObject:
         self.description = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
+        self.connector = cmd["connector"] or {}
         self.has_subcommands = cmd["has_subcommands"]
         # Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L1447
         # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
