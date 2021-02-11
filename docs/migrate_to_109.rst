@@ -88,14 +88,11 @@ After:
 
     class Slash(commands.Cog):
         def __init__(self, bot):
-            if not hasattr(bot, "slash"):
-                # Creates new SlashCommand instance to bot if bot doesn't have.
-                bot.slash = SlashCommand(bot, override_type=True)
             self.bot = bot
 
         ...
 
-Note that removing `if not hasattr(...):` block then moving to main file like this is also recommended.
+As you can seem `if not hasattr(...):` block is removed, moving to main file like this is necessary.
 
 .. code-block:: python
 
