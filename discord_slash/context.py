@@ -26,9 +26,9 @@ class SlashContext:
     :ivar bot: discord.py client.
     :ivar logger: Logger instance.
     :ivar sent: Whether you sent the initial response.
-    :ivar guild: :class:`discord.Guild` instance or guild ID of the command message.
-    :ivar author: :class:`discord.Member` instance or user ID representing author of the command message.
-    :ivar channel: :class:`discord.TextChannel` instance or channel ID representing channel of the command message.
+    :ivar guild_id: Guild ID of the command message. If the command was invoked in DM, then it is ``None``
+    :ivar author_id: User ID representing author of the command message.
+    :ivar channel_id: Channel ID representing channel of the command message.
     """
 
     def __init__(self,
@@ -47,18 +47,37 @@ class SlashContext:
         self.bot = _discord
         self.logger = logger
         self.sent = False
-        self.guild: typing.Union[discord.Guild, int] = _discord.get_guild(int(_json["guild_id"])) if "guild_id" in _json.keys() else None
-        self.author: typing.Union[discord.Member, int] = self.guild.get_member(int(_json["member"]["user"]["id"])) \
-            if self.guild and "member" in _json.keys() else self.bot.get_user(int(_json["user"]["id"])) if self.guild else None
-        self.channel: typing.Union[discord.TextChannel, int] = self.guild.get_channel(int(_json["channel_id"])) \
-            if self.guild else None
-        if not self.author and ("member" in _json.keys() or "user" in _json.keys()):
-            self.author = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
-        if not self.channel:
-            self.channel = int(_json["channel_id"])
-        if not self.guild and "guild_id" in _json.keys():
-            # Should be set after every others are set.
-            self.guild = int(_json["guild_id"])
+        self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
+        self.author_id = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
+        self.channel_id = int(_json["channel_id"])
+
+    @property
+    def guild(self) -> typing.Optional[discord.Guild]:
+        """
+        Guild instance of the command invoke. If the command was invoked in DM, then it is ``None``
+
+        :return: Optional[discord.Guild]
+        """
+        return self.bot.get_guild(self.guild_id) if self.guild_id else None
+
+    @property
+    def author(self) -> typing.Optional[typing.Union[discord.Member, discord.User]]:
+        """
+        User or Member instance of the command invoke.
+
+        :return: Optional[Union[discord.Member, discord.User]]
+        """
+        guild = self.guild
+        return guild.get_member(self.author_id) if guild else self.bot.get_user(self.author_id)
+
+    @property
+    def channel(self) -> typing.Optional[typing.Union[discord.abc.GuildChannel, discord.abc.PrivateChannel]]:
+        """
+        Channel instance of the command invoke.
+
+        :return: Optional[Union[discord.abc.GuildChannel, discord.abc.PrivateChannel]]
+        """
+        return self.bot.get_channel(self.channel_id)
 
     async def respond(self, eat: bool = False):
         """
@@ -76,9 +95,9 @@ class SlashContext:
         if not eat:
             with suppress(asyncio.TimeoutError):
                 def check(message: discord.Message):
-                    user_id = self.author if isinstance(self.author, int) else self.author.id
+                    user_id = self.author_id
                     is_author = message.author.id == user_id
-                    channel_id = self.channel if isinstance(self.channel, int) else self.channel.id
+                    channel_id = self.channel_id
                     is_channel = channel_id == message.channel.id
                     is_user_input = message.type == 20
                     is_correct_command = message.content.startswith(f"</{self.name}:{self.command_id}>")
@@ -168,7 +187,7 @@ class SlashContext:
         resp = await self._http.post(base, wait, self.interaction_id, self.__token, files=files)
         smsg = model.SlashMessage(state=self.bot._connection,
                                   data=resp,
-                                  channel=self.channel if isinstance(self.channel, discord.TextChannel) else discord.Object(id=self.channel),
+                                  channel=self.channel or discord.Object(id=self.channel),
                                   _http=self._http,
                                   interaction_token=self.__token)
         if delete_after:
