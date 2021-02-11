@@ -207,24 +207,6 @@ def generate_options(function: Callable, description: str = "No description.") -
     return options
 
 
-def generate_auto_convert(options: list) -> dict:
-    """
-    Generate an auto_convert dict from command options.
-
-    .. note::
-        This is automatically used if you pass options.
-
-    :param options: The list of options.
-    """
-    auto_convert = {}
-    for x in options:
-        if x["type"] in (SlashCommandOptionType.SUB_COMMAND, SlashCommandOptionType.SUB_COMMAND_GROUP):
-            raise Exception("You can't use subcommand or subcommand_group type!")
-        auto_convert[x["name"]] = x["type"]
-
-    return auto_convert
-
-
 def create_choice(value: str, name: str):
     """
     Creates choices used for creating command option.

@@ -17,7 +17,6 @@ class CommandObject:
     :ivar name: Name of the command.
     :ivar func: The coroutine of the command.
     :ivar description: Description of the command.
-    :ivar auto_convert: Dictionary of the `auto_convert` of the command.
     :ivar allowed_guild_ids: List of the allowed guild id.
     :ivar options: List of the option of the command. Used for `auto_register`.
     :ivar __commands_checks__: Check of the command.
@@ -26,7 +25,6 @@ class CommandObject:
         self.name = name.lower()
         self.func = cmd["func"]
         self.description = cmd["description"]
-        self.auto_convert = cmd["auto_convert"] or {}
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.has_subcommands = cmd["has_subcommands"]

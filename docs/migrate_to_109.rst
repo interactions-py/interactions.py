@@ -104,4 +104,7 @@ Note that removing `if not hasattr(...):` block then moving to main file like th
     # No worries for not doing `bot.slash` because its automatically added now.
     ...
 
+Auto-convert
+------------
 
+It got deleted, so please remove all of it if you used it.

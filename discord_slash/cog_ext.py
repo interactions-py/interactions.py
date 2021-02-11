@@ -7,7 +7,6 @@ from .utils import manage_commands
 def cog_slash(*,
               name: str = None,
               description: str = None,
-              auto_convert: dict = None,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None):
     """
@@ -30,8 +29,6 @@ def cog_slash(*,
     :type name: str
     :param description: Description of the slash command. Default ``None``.
     :type description: str
-    :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-    :type auto_convert: dict
     :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
     :type guild_ids: List[int]
     :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
@@ -44,15 +41,9 @@ def cog_slash(*,
         else:
             opts = options
 
-        if opts:
-            auto_conv = manage_commands.generate_auto_convert(opts)
-        else:
-            auto_conv = auto_convert
-
         _cmd = {
             "func": cmd,
             "description": desc,
-            "auto_convert": auto_conv,
             "guild_ids": guild_ids,
             "api_options": opts,
             "has_subcommands": False
@@ -70,7 +61,6 @@ def cog_subcommand(*,
                    base_desc: str = None,
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
-                   auto_convert: dict = None,
                    guild_ids: typing.List[int] = None,
                    options: typing.List[dict] = None):
     """
@@ -103,8 +93,6 @@ def cog_subcommand(*,
     :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
     :type subcommand_group_description: str
     :param sub_group_desc: Alias of ``subcommand_group_description``.
-    :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-    :type auto_convert: dict
     :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
     :type guild_ids: List[int]
     :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
@@ -120,18 +108,12 @@ def cog_subcommand(*,
         else:
             opts = options
 
-        if opts:
-            auto_conv = manage_commands.generate_auto_convert(opts)
-        else:
-            auto_conv = auto_convert
-
         _sub = {
             "func": cmd,
             "name": name or cmd.__name__,
             "description": desc,
             "base_desc": base_description,
             "sub_group_desc": subcommand_group_description,
-            "auto_convert": auto_conv,
             "guild_ids": guild_ids,
             "api_options": opts
         }

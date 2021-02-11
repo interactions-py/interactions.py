@@ -339,7 +339,6 @@ class SlashCommand:
                           cmd,
                           name: str = None,
                           description: str = None,
-                          auto_convert: dict = None,
                           guild_ids: typing.List[int] = None,
                           options: list = None,
                           has_subcommands: bool = False):
@@ -352,8 +351,6 @@ class SlashCommand:
         :type name: str
         :param description: Description of the slash command. Defaults to command docstring or ``None``.
         :type description: str
-        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-        :type auto_convert: dict
         :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
@@ -377,13 +374,9 @@ class SlashCommand:
         if options is None:
             options = manage_commands.generate_options(cmd, description)
 
-        if options:
-            auto_convert = manage_commands.generate_auto_convert(options)
-
         _cmd = {
             "func": cmd,
             "description": description,
-            "auto_convert": auto_convert,
             "guild_ids": guild_ids,
             "api_options": options,
             "has_subcommands": has_subcommands
@@ -399,7 +392,6 @@ class SlashCommand:
                        description: str = None,
                        base_description: str = None,
                        subcommand_group_description: str = None,
-                       auto_convert: dict = None,
                        guild_ids: typing.List[int] = None,
                        options: list = None):
         """
@@ -419,8 +411,6 @@ class SlashCommand:
         :type base_description: str
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
-        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-        :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
         :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
@@ -441,13 +431,9 @@ class SlashCommand:
         if options is None:
             options = manage_commands.generate_options(cmd, description)
 
-        if options:
-            auto_convert = manage_commands.generate_auto_convert(options)
-
         _cmd = {
             "func": None,
             "description": base_description,
-            "auto_convert": {},
             "guild_ids": guild_ids,
             "api_options": [],
             "has_subcommands": True
@@ -458,7 +444,6 @@ class SlashCommand:
             "description": description,
             "base_desc": base_description,
             "sub_group_desc": subcommand_group_description,
-            "auto_convert": auto_convert,
             "guild_ids": guild_ids,
             "api_options": options
         }
@@ -487,7 +472,6 @@ class SlashCommand:
               *,
               name: str = None,
               description: str = None,
-              auto_convert: dict = None,
               guild_id: int = None,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None):
@@ -499,11 +483,11 @@ class SlashCommand:
         All args must be passed as keyword-args.
 
         .. note::
-            Role, User, and Channel types are passed as id if you don't set ``auto_convert``, since API doesn't give type of the option for now.\n
-            Also, if ``options`` is passed, then ``auto_convert`` will be automatically created or overrided.
+            If you don't pass `options` but has extra args, then it will automatically generate options.
+            However, it is not recommended to use it since descriptions will be "No Description." or the command's description.
 
         .. warning::
-            Unlike discord.py's command, ``*args``, keyword-only args, converters, etc. are NOT supported.
+            Unlike discord.py's command, ``*args``, keyword-only args, converters, etc. are not supported or behave differently.
 
         Example:
 
@@ -518,21 +502,10 @@ class SlashCommand:
             async def _pick(ctx, choice1, choice2): # Command with 1 or more args.
                 await ctx.send(content=str(random.choice([choice1, choice2])))
 
-        Example of formatting ``auto_convert``:
-
-        .. code-block:: python
-
-            {"option_role": "role",                      # For key put name of the option and for value put type of the option.
-             "option_user": SlashCommandOptionType.USER, # Also can use an enumeration member for the type
-             "option_user_two": 6,                       # or number
-             "option_channel": "CHANNEL"}                # or upper case string.
-
         :param name: Name of the slash command. Default name of the coroutine.
         :type name: str
         :param description: Description of the slash command. Default ``None``.
         :type description: str
-        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-        :type auto_convert: dict
         :param guild_id: Deprecated. Use ``guild_ids`` instead.
         :type guild_id: int
         :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
@@ -545,7 +518,7 @@ class SlashCommand:
             guild_ids = [guild_id]
 
         def wrapper(cmd):
-            self.add_slash_command(cmd, name, description, auto_convert, guild_ids, options)
+            self.add_slash_command(cmd, name, description, guild_ids, options)
             return cmd
 
         return wrapper
@@ -560,13 +533,19 @@ class SlashCommand:
                    base_desc: str = None,
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
-                   auto_convert: dict = None,
                    guild_ids: typing.List[int] = None,
                    options: typing.List[dict] = None):
         """
         Decorator that registers subcommand.\n
         Unlike discord.py, you don't need base command.\n
         All args must be passed as keyword-args.
+
+        .. note::
+            If you don't pass `options` but has extra args, then it will automatically generate options.
+            However, it is not recommended to use it since descriptions will be "No Description." or the command's description.
+
+        .. warning::
+            Unlike discord.py's command, ``*args``, keyword-only args, converters, etc. are not supported or behave differently.
 
         Example:
 
@@ -599,8 +578,6 @@ class SlashCommand:
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
         :param sub_group_desc: Alias of ``subcommand_group_description``.
-        :param auto_convert: Dictionary of how to convert option values. Default ``None``.
-        :type auto_convert: dict
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
         :param options: Options of the subcommand. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
@@ -610,7 +587,7 @@ class SlashCommand:
         subcommand_group_description = subcommand_group_description or sub_group_desc
 
         def wrapper(cmd):
-            self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, auto_convert, guild_ids, options)
+            self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, guild_ids, options)
             return cmd
 
         return wrapper
