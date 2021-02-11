@@ -60,3 +60,48 @@ After:
     channel_id = ctx.channel_id
     guild_id = ctx.guild_id
     ...
+
+
+Cog Support
+***********
+
+Before:
+
+.. code-block:: python
+
+    class Slash(commands.Cog):
+        def __init__(self, bot):
+            if not hasattr(bot, "slash"):
+                # Creates new SlashCommand instance to bot if bot doesn't have.
+                bot.slash = SlashCommand(bot, override_type=True)
+            self.bot = bot
+            self.bot.slash.get_cog_commands(self)
+
+        def cog_unload(self):
+            self.bot.slash.remove_cog_commands(self)
+
+        ...
+
+After:
+
+.. code-block:: python
+
+    class Slash(commands.Cog):
+        def __init__(self, bot):
+            if not hasattr(bot, "slash"):
+                # Creates new SlashCommand instance to bot if bot doesn't have.
+                bot.slash = SlashCommand(bot, override_type=True)
+            self.bot = bot
+
+        ...
+
+Note that removing `if not hasattr(...):` block then moving to main file like this is also recommended.
+
+.. code-block:: python
+
+    bot = commands.Bot(...)
+    slash = SlashCommand(bot)
+    # No worries for not doing `bot.slash` because its automatically added now.
+    ...
+
+
