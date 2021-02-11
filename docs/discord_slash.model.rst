@@ -5,3 +5,4 @@ discord\_slash.model module
    :members:
    :undoc-members:
    :show-inheritance:
+   :inherited-members: Message

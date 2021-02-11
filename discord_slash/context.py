@@ -29,6 +29,7 @@ class SlashContext:
     :ivar guild_id: Guild ID of the command message. If the command was invoked in DM, then it is ``None``
     :ivar author_id: User ID representing author of the command message.
     :ivar channel_id: Channel ID representing channel of the command message.
+    :ivar author: User or Member instance of the command invoke.
     """
 
     def __init__(self,
@@ -50,6 +51,10 @@ class SlashContext:
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         self.author_id = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
         self.channel_id = int(_json["channel_id"])
+        if self.guild:
+            self.author = discord.Member(data=_json["member"], state=self.bot._connection, guild=self.guild)
+        else:
+            self.author = discord.User(data=_json["user"], state=self.bot._connection)
 
     @property
     def guild(self) -> typing.Optional[discord.Guild]:
@@ -59,16 +64,6 @@ class SlashContext:
         :return: Optional[discord.Guild]
         """
         return self.bot.get_guild(self.guild_id) if self.guild_id else None
-
-    @property
-    def author(self) -> typing.Optional[typing.Union[discord.Member, discord.User]]:
-        """
-        User or Member instance of the command invoke.
-
-        :return: Optional[Union[discord.Member, discord.User]]
-        """
-        guild = self.guild
-        return guild.get_member(self.author_id) if guild else self.bot.get_user(self.author_id)
 
     @property
     def channel(self) -> typing.Optional[typing.Union[discord.abc.GuildChannel, discord.abc.PrivateChannel]]:

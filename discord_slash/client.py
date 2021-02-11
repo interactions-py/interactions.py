@@ -53,7 +53,7 @@ class SlashCommand:
         if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! It is highly recommended to use `commands.Bot`.")
             original_sock_event = self._discord.on_socket_response
-            
+
             def wrap(*args):
                 original_sock_event(*args)
                 self.on_socket_response(*args)
@@ -263,7 +263,7 @@ class SlashCommand:
         This is done with a `put` request.
         If ``auto_register`` and ``auto_delete`` are ``True`` then this will be automatically called.
 
-        :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands regestered in :class:``SlashCommand``
+        :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
         """
         commands = await self.to_dict()
         self.logger.info("Syncing commands...")
@@ -615,7 +615,7 @@ class SlashCommand:
 
         return wrapper
 
-    async def process_options(self, guild: discord.Guild, options: list, auto_convert: dict) -> typing.Union[list, dict]:
+    async def process_options(self, guild: discord.Guild, options: list) -> dict:
         """
         Processes Role, User, and Channel option types to discord.py's models.
 
@@ -623,19 +623,11 @@ class SlashCommand:
         :type guild: discord.Guild
         :param options: Dict of options.
         :type options: list
-        :param auto_convert: Dictionary of how to convert option values.
-        :type auto_convert: dict
         :return: Union[list, dict]
         """
-        if not guild:
-            self.logger.info("This command invoke is missing guild. Skipping option process.")
-            return [x["value"] for x in options]
 
-        if not isinstance(guild, discord.Guild):
-            return [x["value"] for x in options]
-
-        if not auto_convert:
-            return [x["value"] for x in options]
+        if not guild or not isinstance(guild, discord.Guild):
+            return {x["name"]: x["value"] for x in options}
 
         converters = [
             # If extra converters are added and some needs to fetch it,
@@ -667,30 +659,26 @@ class SlashCommand:
         to_return = {}
 
         for x in options:
-            selected = x
-            if selected["name"] in auto_convert:
-                processed = None  # This isn't the best way, but we should to reduce duplicate lines.
-                if auto_convert[selected["name"]] not in types:
-                    processed = selected["value"]
-                else:
-                    loaded_converter = converters[types[auto_convert[selected["name"]]]]
-                    if isinstance(loaded_converter, list):  # For user type.
-                        cache_first = loaded_converter[0](int(selected["value"]))
-                        if cache_first:
-                            processed = cache_first
-                        else:
-                            loaded_converter = loaded_converter[1]
-                    if not processed:
-                        try:
-                            processed = await loaded_converter(int(selected["value"])) \
-                                if iscoroutinefunction(loaded_converter) else \
-                                loaded_converter(int(selected["value"]))
-                        except (discord.Forbidden, discord.HTTPException, discord.NotFound):  # Just in case.
-                            self.logger.warning("Failed fetching discord object! Passing ID instead.")
-                            processed = int(selected["value"])
-                to_return[selected["name"]] = processed
+            processed = None  # This isn't the best way, but we should to reduce duplicate lines.
+            if x["type"] not in types:
+                processed = x["value"]
             else:
-                to_return[selected["name"]] = selected["value"]
+                loaded_converter = converters[types[x["type"]]]
+                if isinstance(loaded_converter, list):  # For user type.
+                    cache_first = loaded_converter[0](int(x["value"]))
+                    if cache_first:
+                        processed = cache_first
+                    else:
+                        loaded_converter = loaded_converter[1]
+                if not processed:
+                    try:
+                        processed = await loaded_converter(int(x["value"])) \
+                            if iscoroutinefunction(loaded_converter) else \
+                            loaded_converter(int(x["value"]))
+                    except (discord.Forbidden, discord.HTTPException, discord.NotFound):  # Just in case.
+                        self.logger.warning("Failed fetching discord object! Passing ID instead.")
+                        processed = int(x["value"])
+            to_return[x["name"]] = processed
         return to_return
 
     async def invoke_command(self, func, ctx, args):
@@ -754,7 +742,7 @@ class SlashCommand:
                     if "value" not in x:
                         return await self.handle_subcommand(ctx, to_use)
 
-            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.auto_convert) \
+            args = await self.process_options(ctx.guild, to_use["data"]["options"]) \
                 if "options" in to_use["data"] else []
 
             self._discord.dispatch("slash_command", ctx)
@@ -787,13 +775,13 @@ class SlashCommand:
                     return
                 ctx.subcommand_group = sub_group
                 selected = base[sub_name][sub_group]
-                args = await self.process_options(ctx.guild, x["options"], selected.auto_convert) \
+                args = await self.process_options(ctx.guild, x["options"]) \
                     if "options" in x else []
                 self._discord.dispatch("slash_command", ctx)
                 await self.invoke_command(selected, ctx, args)
                 return
         selected = base[sub_name]
-        args = await self.process_options(ctx.guild, sub_opts, selected.auto_convert) \
+        args = await self.process_options(ctx.guild, sub_opts) \
             if "options" in sub else []
         self._discord.dispatch("slash_command", ctx)
         await self.invoke_command(selected, ctx, args)
