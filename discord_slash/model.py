@@ -34,6 +34,8 @@ class CommandObject:
         # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
         # add checks at this var.
         self.__commands_checks__ = []
+        if hasattr(self.func, '__commands_checks__'):
+            self.__commands_checks__ = self.func.__commands_checks__
 
     async def invoke(self, *args, **kwargs):
         """
