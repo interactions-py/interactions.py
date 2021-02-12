@@ -62,6 +62,25 @@ After:
     ...
 
 
+Auto-registering
+****************
+
+We've changed the method of automatically registering commands to API to reduce the request amount
+and prevent rate limit. So, `auto_register` and `auto_delete` parameter is now removed. Please change your SlashContext
+params like this.
+
+Before:
+
+.. code-block:: python
+
+    slash = SlashContext(..., auto_register=True, auto_delete=True)
+
+After:
+
+.. code-block:: python
+
+    slash = SlashContext(..., sync_commands=True)
+
 Cog Support
 ***********
 
@@ -74,6 +93,8 @@ Before:
             if not hasattr(bot, "slash"):
                 # Creates new SlashCommand instance to bot if bot doesn't have.
                 bot.slash = SlashCommand(bot, override_type=True)
+            # Note that hasattr block is optional, meaning you might not have it.
+            # Its completely fine, and ignore it.
             self.bot = bot
             self.bot.slash.get_cog_commands(self)
 
@@ -92,7 +113,7 @@ After:
 
         ...
 
-As you can seem `if not hasattr(...):` block is removed, moving to main file like this is necessary.
+As you can see `if not hasattr(...):` block is removed, moving to main file like this is necessary.
 
 .. code-block:: python
 
@@ -105,3 +126,15 @@ Auto-convert
 ------------
 
 It got deleted, so please remove all of it if you used it.
+
+Also, we've added `connector` parameter, which is for helping passing options as kwargs
+if your command option is other that english.
+
+Usage:
+
+.. code-block:: python
+
+    {
+        "example-arg": "example_arg",
+        "시간": "hour"
+    }
