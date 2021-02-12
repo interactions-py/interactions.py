@@ -17,8 +17,8 @@ class SlashCommand:
 
     :param client: discord.py Client or Bot instance.
     :type client: Union[discord.Client, discord.ext.commands.Bot]
-    :param auto_register: Whether to register commands automatically. Default `False`.
-    :type auto_register: bool
+    :param sync_commands: Whether to sync commands automatically. Default `False`.
+    :type sync_commands: bool
     :param override_type: Whether to override checking type of the client and try register event.
     :type override_type: bool
 
@@ -26,22 +26,22 @@ class SlashCommand:
     :ivar commands: Dictionary of the registered commands via :func:`.slash` decorator.
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
     :ivar logger: Logger of this client.
-    :ivar auto_register: Whether to register commands automatically.
+    :ivar sync_commands: Whether to sync commands automatically.
     :ivar has_listener: Whether discord client has listener add function.
     """
 
     def __init__(self,
                  client: typing.Union[discord.Client, commands.Bot],
-                 auto_register: bool = False,
+                 sync_commands: bool = False,
                  override_type: bool = False):
         self._discord = client
         self.commands = {}
         self.subcommands = {}
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord)
-        self.auto_register = auto_register
+        self.sync_commands = sync_commands
 
-        if self.auto_register:
+        if self.sync_commands:
             self._discord.loop.create_task(self.sync_all_commands())
 
         if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
@@ -188,7 +188,7 @@ class SlashCommand:
         Commands are in the format specified by discord `here <https://discord.com/developers/docs/interactions/slash-commands#applicationcommand>`_
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
-        commands = {
+        cmds = {
             "global": [],
             "guild": {}
         }
@@ -242,13 +242,13 @@ class SlashCommand:
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
                     try:
-                        commands["guild"][y].append(command_dict)
+                        cmds["guild"][y].append(command_dict)
                     except KeyError:
-                        commands["guild"][y] = [command_dict]
+                        cmds["guild"][y] = [command_dict]
             else:
-                commands["global"].append(command_dict)
+                cmds["global"].append(command_dict)
 
-        return commands
+        return cmds
 
     async def sync_all_commands(self, delete_from_unused_guilds=False):
         """
@@ -260,7 +260,7 @@ class SlashCommand:
         :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
         """
         cmds = await self.to_dict()
-        self.logger.info("Registering commands...")
+        self.logger.info("Syncing commands...")
         other_guilds = [x.id for x in self._discord.guilds if x.id not in cmds["guild"]]
         # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
         # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
@@ -274,7 +274,7 @@ class SlashCommand:
                 with suppress(discord.Forbidden):
                     await self.req.put_slash_commands(slash_commands=[], guild_id=x)
 
-        self.logger.info("Completed registering all commands!")
+        self.logger.info("Completed syncing all commands!")
 
     def add_slash_command(self,
                           cmd,
