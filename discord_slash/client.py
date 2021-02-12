@@ -257,11 +257,11 @@ class SlashCommand:
                         if sub_sub.allowed_guild_ids:
                             for i in sub_sub.allowed_guild_ids:
                                 if i not in queue:
-                                    queue[i] = base_dict
+                                    queue[i] = copy.deepcopy(base_dict)
                                 queue[i]["options"].append(_dict)
                         else:
                             if "global" not in queue:
-                                queue["global"] = base_dict
+                                queue["global"] = copy.deepcopy(base_dict)
                             queue["global"]["options"].append(_dict)
                     for i in queue:
                         wait[i][x]["options"].append(queue[i])
