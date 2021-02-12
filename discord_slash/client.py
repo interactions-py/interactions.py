@@ -114,7 +114,7 @@ class SlashCommand:
                         "func": None,
                         "description": x.base_description,
                         "auto_convert": {},
-                        "guild_ids": x.allowed_guild_ids,
+                        "guild_ids": x.allowed_guild_ids.copy(),
                         "api_options": [],
                         "has_subcommands": True
                     }
@@ -407,7 +407,7 @@ class SlashCommand:
         _cmd = {
             "func": None,
             "description": base_description,
-            "guild_ids": guild_ids,
+            "guild_ids": guild_ids.copy(),
             "api_options": [],
             "connector": {},
             "has_subcommands": True
