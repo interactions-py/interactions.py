@@ -78,14 +78,12 @@ class SlashCommandRequest:
         route = CustomRoute(method, url)
         return self._discord.http.request(route, **kwargs)
 
-    def post(self, _resp, wait: bool, interaction_id, token, initial=False, files: typing.List[discord.File] = None):
+    def post(self, _resp, interaction_id, token, initial=False, files: typing.List[discord.File] = None):
         """
         Sends command response POST request to Discord API.
 
         :param _resp: Command response.
         :type _resp: dict
-        :param wait: Whether the server should wait before sending a response.
-        :type wait: bool
         :param interaction_id: Interaction ID.
         :param token: Command message token.
         :param initial: Whether this request is initial. Default ``False``
@@ -94,13 +92,13 @@ class SlashCommandRequest:
         :return: Coroutine
         """
         if files:
-            return self.post_with_files(_resp, wait, files, token)
-        req_url = f"/interactions/{interaction_id}/{token}/callback" if initial else f"/webhooks/{self._discord.user.id}/{token}?wait={'true' if wait else 'false'}"
+            return self.post_with_files(_resp, files, token)
+        req_url = f"/interactions/{interaction_id}/{token}/callback" if initial else f"/webhooks/{self._discord.user.id}/{token}"
         route = CustomRoute("POST", req_url)
         return self._discord.http.request(route, json=_resp)
 
-    def post_with_files(self, _resp, wait: bool, files: typing.List[discord.File], token):
-        req_url = f"/webhooks/{self._discord.user.id}/{token}?wait={'true' if wait else 'false'}"
+    def post_with_files(self, _resp, files: typing.List[discord.File], token):
+        req_url = f"/webhooks/{self._discord.user.id}/{token}"
         route = CustomRoute("POST", req_url)
         form = aiohttp.FormData()
         form.add_field("payload_json", json.dumps(_resp))

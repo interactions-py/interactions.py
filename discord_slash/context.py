@@ -85,7 +85,7 @@ class SlashContext:
         :param eat: Whether to eat user's input. Default ``False``.
         """
         base = {"type": 2 if eat else 5}
-        _task = self.bot.loop.create_task(self._http.post(base, False, self.interaction_id, self.__token, True))
+        _task = self.bot.loop.create_task(self._http.post(base, self.interaction_id, self.__token, True))
         self.sent = True
         if not eat:
             with suppress(asyncio.TimeoutError):
@@ -108,7 +108,6 @@ class SlashContext:
 
     async def send(self,
                    content: str = "", *,
-                   wait: bool = False,
                    embed: discord.Embed = None,
                    embeds: typing.List[discord.Embed] = None,
                    tts: bool = False,
@@ -129,7 +128,6 @@ class SlashContext:
 
         :param content:  Content of the response.
         :type content: str
-        :param wait: Whether the server should wait before sending a response.
         :param embed: Embed of the response.
         :type embed: discord.Embed
         :param embeds: Embeds of the response. Maximum 10.
@@ -179,7 +177,7 @@ class SlashContext:
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
 
-        resp = await self._http.post(base, wait, self.interaction_id, self.__token, files=files)
+        resp = await self._http.post(base, self.interaction_id, self.__token, files=files)
         smsg = model.SlashMessage(state=self.bot._connection,
                                   data=resp,
                                   channel=self.channel or discord.Object(id=self.channel),
