@@ -152,7 +152,7 @@ class SlashContext:
             raise error.IncorrectFormat("`.send` Method is rewritten at Release 1.0.9. Please read the docs and fix all the usages.")
         if not self.sent:
             self.logger.warning(f"At command `{self.name}`: It is highly recommended to call `.respond()` first!")
-            await self.respond()
+            await self.respond(eat=hidden)
         if hidden:
             if embeds or embed:
                 self.logger.warning("Embed is not supported for `hidden`!")
