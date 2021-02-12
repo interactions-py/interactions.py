@@ -1,3 +1,4 @@
+import copy
 import logging
 import typing
 import discord
@@ -104,16 +105,16 @@ class SlashCommand:
                 self.commands[x.name] = x
             else:
                 if x.base in self.commands:
-                    for i in self.commands[x.base].allowed_guild_ids:
-                        if i not in x.allowed_guild_ids:
-                            x.allowed_guild_ids.append(i)
+                    for i in x.allowed_guild_ids:
+                        if i not in self.commands[x.base].allowed_guild_ids:
+                            self.commands[x.base].allowed_guild_ids.append(i)
                     self.commands[x.base].has_subcommands = True
                 else:
                     _cmd = {
                         "func": None,
                         "description": x.base_description,
                         "auto_convert": {},
-                        "guild_ids": x.allowed_guild_ids,
+                        "guild_ids": x.allowed_guild_ids.copy(),
                         "api_options": [],
                         "has_subcommands": True
                     }
@@ -188,65 +189,88 @@ class SlashCommand:
         Commands are in the format specified by discord `here <https://discord.com/developers/docs/interactions/slash-commands#applicationcommand>`_
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
+        all_guild_ids = []
+        for x in self.commands:
+            for i in self.commands[x].allowed_guild_ids:
+                if i not in all_guild_ids:
+                    all_guild_ids.append(i)
         cmds = {
             "global": [],
-            "guild": {}
+            "guild": {x: [] for x in all_guild_ids}
         }
+        wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
         for x in self.commands:
             selected = self.commands[x]
-            if selected.has_subcommands and selected.func:
-                # Registering both subcommand and command with same base name / name
-                # will result in only subcommand being registered,
-                # so we will warn this at registering subcommands.
-                self.logger.warning(f"Detected command name with same subcommand base name! "
-                                    f"This command will only have subcommand: {x}")
-
-            options = []
-            if selected.has_subcommands:
-                tgt = self.subcommands[x]
-                for y in tgt:
-                    sub = tgt[y]
-                    if isinstance(sub, model.SubcommandObject):
-                        _dict = {
-                            "name": sub.name,
-                            "description": sub.description or "No Description.",
-                            "type": model.SlashCommandOptionType.SUB_COMMAND,
-                            "options": sub.options or []
-                        }
-                        options.append(_dict)
-                    else:
-                        base_dict = {
-                            "name": y,
-                            "description": "No Description.",
-                            "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
-                            "options": []
-                        }
-                        for z in sub:
-                            sub_sub = sub[z]
-                            _dict = {
-                                "name": sub_sub.name,
-                                "description": sub_sub.description or "No Description.",
-                                "type": model.SlashCommandOptionType.SUB_COMMAND,
-                                "options": sub_sub.options or []
-                            }
-                            base_dict["options"].append(_dict)
-                            if sub_sub.subcommand_group_description:
-                                base_dict["description"] = sub_sub.subcommand_group_description
-                        options.append(base_dict)
-
             command_dict = {
                 "name": x,
                 "description": selected.description or "No Description.",
-                "options": selected.options if not options else options
+                "options": selected.options or []
             }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
-                    try:
-                        cmds["guild"][y].append(command_dict)
-                    except KeyError:
-                        cmds["guild"][y] = [command_dict]
+                    if y not in wait:
+                        wait[y] = {}
+                    wait[y][x] = copy.deepcopy(command_dict)
             else:
-                cmds["global"].append(command_dict)
+                if "global" not in wait:
+                    wait["global"] = {}
+                wait["global"][x] = copy.deepcopy(command_dict)
+
+        # Separated normal command add and subcommand add not to
+        # merge subcommands to one. More info at Issue #88
+        # https://github.com/eunwoo1104/discord-py-slash-command/issues/88
+
+        for x in self.commands:
+            if not self.commands[x].has_subcommands:
+                continue
+            tgt = self.subcommands[x]
+            for y in tgt:
+                sub = tgt[y]
+                if isinstance(sub, model.SubcommandObject):
+                    _dict = {
+                        "name": sub.name,
+                        "description": sub.description or "No Description.",
+                        "type": model.SlashCommandOptionType.SUB_COMMAND,
+                        "options": sub.options or []
+                    }
+                    if sub.allowed_guild_ids:
+                        for z in sub.allowed_guild_ids:
+                            wait[z][x]["options"].append(_dict)
+                    else:
+                        wait["global"][x]["options"].append(_dict)
+                else:
+                    queue = {}
+                    base_dict = {
+                        "name": y,
+                        "description": "No Description.",
+                        "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
+                        "options": []
+                    }
+                    for z in sub:
+                        sub_sub = sub[z]
+                        _dict = {
+                            "name": sub_sub.name,
+                            "description": sub_sub.description or "No Description.",
+                            "type": model.SlashCommandOptionType.SUB_COMMAND,
+                            "options": sub_sub.options or []
+                        }
+                        if sub_sub.allowed_guild_ids:
+                            for i in sub_sub.allowed_guild_ids:
+                                if i not in queue:
+                                    queue[i] = copy.deepcopy(base_dict)
+                                queue[i]["options"].append(_dict)
+                        else:
+                            if "global" not in queue:
+                                queue["global"] = copy.deepcopy(base_dict)
+                            queue["global"]["options"].append(_dict)
+                    for i in queue:
+                        wait[i][x]["options"].append(queue[i])
+
+        for x in wait:
+            if x == "global":
+                [cmds["global"].append(n) for n in wait["global"].values()]
+            else:
+                [cmds["guild"][x].append(n) for n in wait[x].values()]
 
         return cmds
 
@@ -326,8 +350,10 @@ class SlashCommand:
             "connector": connector or {},
             "has_subcommands": has_subcommands
         }
-        self.commands[name] = model.CommandObject(name, _cmd)
+        obj = model.CommandObject(name, _cmd)
+        self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
+        return obj
 
     def add_subcommand(self,
                        cmd,
@@ -371,10 +397,9 @@ class SlashCommand:
         description = description or getdoc(cmd)
 
         if base in self.commands:
-            tgt = self.commands[base]
-            for x in tgt.allowed_guild_ids:
-                if x not in guild_ids:
-                    guild_ids.append(x)
+            for x in guild_ids:
+                if x not in self.commands[base].allowed_guild_ids:
+                    self.commands[base].allowed_guild_ids.append(x)
 
         if options is None:
             options = manage_commands.generate_options(cmd, description)
@@ -382,7 +407,7 @@ class SlashCommand:
         _cmd = {
             "func": None,
             "description": base_description,
-            "guild_ids": guild_ids,
+            "guild_ids": guild_ids.copy(),
             "api_options": [],
             "connector": {},
             "has_subcommands": True
@@ -401,7 +426,6 @@ class SlashCommand:
             self.commands[base] = model.CommandObject(base, _cmd)
         else:
             self.commands[base].has_subcommands = True
-            self.commands[base].allowed_guild_ids = guild_ids
             if self.commands[base].description:
                 _cmd["description"] = self.commands[base].description
         if base not in self.subcommands:
@@ -411,12 +435,15 @@ class SlashCommand:
                 self.subcommands[base][subcommand_group] = {}
             if name in self.subcommands[base][subcommand_group]:
                 raise error.DuplicateCommand(f"{base} {subcommand_group} {name}")
-            self.subcommands[base][subcommand_group][name] = model.SubcommandObject(_sub, base, name, subcommand_group)
+            obj = model.SubcommandObject(_sub, base, name, subcommand_group)
+            self.subcommands[base][subcommand_group][name] = obj
         else:
             if name in self.subcommands[base]:
                 raise error.DuplicateCommand(f"{base} {name}")
-            self.subcommands[base][name] = model.SubcommandObject(_sub, base, name)
+            obj = model.SubcommandObject(_sub, base, name)
+            self.subcommands[base][name] = obj
         self.logger.debug(f"Added subcommand `{base} {subcommand_group or ''} {name or cmd.__name__}`")
+        return obj
 
     def slash(self,
               *,
@@ -485,8 +512,8 @@ class SlashCommand:
             guild_ids = [guild_id]
 
         def wrapper(cmd):
-            self.add_slash_command(cmd, name, description, guild_ids, options, connector)
-            return cmd
+            obj = self.add_slash_command(cmd, name, description, guild_ids, options, connector)
+            return obj
 
         return wrapper
 
@@ -557,8 +584,8 @@ class SlashCommand:
         subcommand_group_description = subcommand_group_description or sub_group_desc
 
         def wrapper(cmd):
-            self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, guild_ids, options, connector)
-            return cmd
+            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, guild_ids, options, connector)
+            return obj
 
         return wrapper
 
