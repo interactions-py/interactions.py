@@ -1,3 +1,4 @@
+import copy
 import logging
 import typing
 import discord
@@ -209,11 +210,11 @@ class SlashCommand:
                 for y in selected.allowed_guild_ids:
                     if y not in wait:
                         wait[y] = {}
-                    wait[y][x] = command_dict
+                    wait[y][x] = copy.deepcopy(command_dict)
             else:
                 if "global" not in wait:
                     wait["global"] = {}
-                wait["global"][x] = command_dict
+                wait["global"][x] = copy.deepcopy(command_dict)
 
         # Separated normal command add and subcommand add not to
         # merge subcommands to one. More info at Issue #88
@@ -262,7 +263,6 @@ class SlashCommand:
                             if "global" not in queue:
                                 queue["global"] = base_dict
                             queue["global"]["options"].append(_dict)
-                    print(__import__("json").dumps(queue, indent=2))
                     for i in queue:
                         wait[i][x]["options"].append(queue[i])
 
