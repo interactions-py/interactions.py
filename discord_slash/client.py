@@ -27,6 +27,10 @@ class SlashCommand:
     :param override_type: Whether to override checking type of the client and try register event.
     :type override_type: bool
 
+    .. note::
+        If ``sync_on_cog_reload`` is enabled, command syncing will be triggered when :meth:`discord.ext.commands.Bot.reload_extension`
+        is triggered.
+
     :ivar _discord: Discord client of this client.
     :ivar commands: Dictionary of the registered commands via :func:`.slash` decorator.
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
