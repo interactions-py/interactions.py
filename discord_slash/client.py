@@ -361,7 +361,7 @@ class SlashCommand:
         description = description or getdoc(cmd)
 
         if options is None:
-            options = manage_commands.generate_options(cmd, description)
+            options = manage_commands.generate_options(cmd, description, connector)
 
         _cmd = {
             "func": cmd,
@@ -423,7 +423,7 @@ class SlashCommand:
                     self.commands[base].allowed_guild_ids.append(x)
 
         if options is None:
-            options = manage_commands.generate_options(cmd, description)
+            options = manage_commands.generate_options(cmd, description, connector)
 
         _cmd = {
             "func": None,

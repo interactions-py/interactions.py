@@ -40,7 +40,7 @@ def cog_slash(*,
     def wrapper(cmd):
         desc = description or inspect.getdoc(cmd)
         if options is None:
-            opts = manage_commands.generate_options(cmd, desc)
+            opts = manage_commands.generate_options(cmd, desc, connector)
         else:
             opts = options
 
@@ -111,7 +111,7 @@ def cog_subcommand(*,
     def wrapper(cmd):
         desc = description or inspect.getdoc(cmd)
         if options is None:
-            opts = manage_commands.generate_options(cmd, desc)
+            opts = manage_commands.generate_options(cmd, desc, connector)
         else:
             opts = options
 

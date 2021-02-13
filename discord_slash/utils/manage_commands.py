@@ -171,7 +171,7 @@ def create_option(name: str,
     }
 
 
-def generate_options(function: Callable, description: str = "No description.") -> list:
+def generate_options(function: Callable, description: str = "No description.", connector: dict = None) -> list:
     """
     Generates a list of options from the type hints of a command.
     You currently can type hint: str, int, bool, discord.User, discord.Channel, discord.Role
@@ -181,8 +181,11 @@ def generate_options(function: Callable, description: str = "No description.") -
 
     :param function: The function callable of the command.
     :param description: The default argument description.
+    :param connector: Kwargs connector of the command.
     """
     options = []
+    if connector:
+        connector = {y: x for x, y in connector.items()} # Flip connector.
     params = iter(inspect.signature(function).parameters.values())
     if next(params).name in ("self", "cls"):
         # Skip 1. (+ 2.) parameter, self/cls and ctx
@@ -204,7 +207,8 @@ def generate_options(function: Callable, description: str = "No description.") -
                 required = not args[-1] is type(None)
 
         option_type = SlashCommandOptionType.from_type(param.annotation) or SlashCommandOptionType.STRING
-        options.append(create_option(param.name, description or "No Description.", option_type, required))
+        name = param.name if not connector else connector[param.name]
+        options.append(create_option(name, description or "No Description.", option_type, required))
 
     return options
 
