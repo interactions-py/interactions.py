@@ -22,8 +22,8 @@ class SlashCommand:
     :type sync_commands: bool
     :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``. Default `False`.
     :type delete_from_unused_guilds: bool
-    :param sync_on_cog_edit: Whether to sync commands on cog load/unload/reload. Default `False`.
-    :type sync_on_cog_edit: bool
+    :param sync_on_cog_reload: Whether to sync commands on cog reload. Default `False`.
+    :type sync_on_cog_reload: bool
     :param override_type: Whether to override checking type of the client and try register event.
     :type override_type: bool
 
@@ -32,7 +32,7 @@ class SlashCommand:
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
     :ivar logger: Logger of this client.
     :ivar sync_commands: Whether to sync commands automatically.
-    :ivar sync_on_cog_edit: Whether to sync commands on cog load/unload/reload.
+    :ivar sync_on_cog_reload: Whether to sync commands on cog reload.
     :ivar has_listener: Whether discord client has listener add function.
     """
 
@@ -40,7 +40,7 @@ class SlashCommand:
                  client: typing.Union[discord.Client, commands.Bot],
                  sync_commands: bool = False,
                  delete_from_unused_guilds: bool = False,
-                 sync_on_cog_edit: bool = False,
+                 sync_on_cog_reload: bool = False,
                  override_type: bool = False):
         self._discord = client
         self.commands = {}
@@ -48,7 +48,7 @@ class SlashCommand:
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord)
         self.sync_commands = sync_commands
-        self.sync_on_cog_edit = sync_on_cog_edit
+        self.sync_on_cog_reload = sync_on_cog_reload
 
         if self.sync_commands:
             self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
@@ -88,6 +88,15 @@ class SlashCommand:
                 default_remove_function(name)
 
             self._discord.remove_cog = override_remove_cog
+
+            if self.sync_on_cog_reload:
+                orig_reload = self._discord.reload_extension
+
+                def override_reload_extension(*args):
+                    orig_reload(*args)
+                    self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
+
+                self._discord.reload_extension = override_reload_extension
 
     def get_cog_commands(self, cog: commands.Cog):
         """
