@@ -194,7 +194,9 @@ def generate_options(function: Callable, description: str = "No description.") -
             # if from __future__ import annotations, then annotations are strings and should be converted back to types
             param = param.replace(annotation=eval(param.annotation, function.__globals__))
 
-        if getattr(param.annotation, "__origin__", None) is typing.Union:
+        if param.default is not inspect._empty:
+            required = False
+        elif getattr(param.annotation, "__origin__", None) is typing.Union:
             # Make a command argument optional with typing.Optional[type] or typing.Union[type, None]
             args = getattr(param.annotation, "__args__", None)
             if args:
