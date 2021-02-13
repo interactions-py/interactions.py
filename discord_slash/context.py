@@ -80,7 +80,9 @@ class SlashContext:
         You should call this first.
 
         .. note::
-            If `eat` is ``False``, there is a chance that ``message`` variable is present.
+            - If `eat` is ``False``, there is a chance that ``message`` variable is present.
+            - While it is recommended to be manually called, this will still be automatically called
+              if this isn't called but :meth:`.send()` is called.
 
         :param eat: Whether to eat user's input. Default ``False``.
         """
