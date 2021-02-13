@@ -152,8 +152,8 @@ class SlashContext:
             self.logger.info(f"At command `{self.name}`: It is recommended to call `.respond()` first!")
             await self.respond(eat=hidden)
         if hidden:
-            if embeds or embed:
-                self.logger.warning("Embed is not supported for `hidden`!")
+            if embeds or embed or files or file:
+                self.logger.warning("Embed/File is not supported for `hidden`!")
             return await self.send_hidden(content)
         if embed and embeds:
             raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
