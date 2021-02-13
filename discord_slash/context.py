@@ -190,8 +190,15 @@ class SlashContext:
         return smsg
 
     def send_hidden(self, content: str = ""):
+        """
+        Sends hidden response.\n
+        This is automatically used if you pass ``hidden=True`` at :meth:`.send`.
+
+        :param content: Message content.
+        :return: Coroutine
+        """
         base = {
             "content": content,
             "flags": 64
         }
-        return self._http.post(base, False, self.interaction_id, self.__token)
+        return self._http.post(base, self.interaction_id, self.__token)
