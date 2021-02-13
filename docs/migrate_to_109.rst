@@ -30,14 +30,14 @@ After:
 .. code-block:: python
 
     # Case 1
-    await ctx.respond()
+    await ctx.respond()  # This is optional, but still recommended to.
     msg = await ctx.send("Hello, World! This is initial message.")
     await msg.edit(content="Or nevermind.")
     await msg.delete()
     await ctx.send("This is followup message.")
 
     # Case 2
-    await ctx.respond(eat=True)
+    await ctx.respond(eat=True)  # Again, this is optional, but still recommended to.
     await ctx.send("This is secret message.", hidden=True)
 
 Objects of the command invoke
@@ -73,7 +73,7 @@ Before:
 
 .. code-block:: python
 
-    slash = SlashContext(..., auto_register=True, auto_delete=True)
+    slash = SlashContext(..., auto_register=True, auto_delete=True)  # Either one can be false.
 
 After:
 
