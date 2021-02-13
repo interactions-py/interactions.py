@@ -470,7 +470,6 @@ class SlashCommand:
               *,
               name: str = None,
               description: str = None,
-              guild_id: int = None,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
               connector: dict = None):
@@ -519,8 +518,6 @@ class SlashCommand:
         :type name: str
         :param description: Description of the slash command. Default ``None``.
         :type description: str
-        :param guild_id: Deprecated. Use ``guild_ids`` instead.
-        :type guild_id: int
         :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
@@ -528,10 +525,7 @@ class SlashCommand:
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         """
-        if guild_id:
-            self.logger.warning("`guild_id` is deprecated! `Use guild_ids` instead.")
-            guild_ids = [guild_id]
-
+        
         def wrapper(cmd):
             obj = self.add_slash_command(cmd, name, description, guild_ids, options, connector)
             return obj
