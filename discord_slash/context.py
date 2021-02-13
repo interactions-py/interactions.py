@@ -189,16 +189,6 @@ class SlashContext:
             self.bot.loop.create_task(smsg.delete(delay=delete_after))
         return smsg
 
-    def _legacy_send(self, content, tts, embeds, allowed_mentions):
-        base = {
-            "content": content,
-            "tts": tts,
-            "embeds": [x.to_dict() for x in embeds] if embeds else [],
-            "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
-            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
-        }
-        return self._http.post(base, False, self.interaction_id, self.__token)
-
     def send_hidden(self, content: str = ""):
         base = {
             "content": content,

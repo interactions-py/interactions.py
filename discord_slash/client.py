@@ -525,7 +525,7 @@ class SlashCommand:
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         """
-        
+
         def wrapper(cmd):
             obj = self.add_slash_command(cmd, name, description, guild_ids, options, connector)
             return obj
