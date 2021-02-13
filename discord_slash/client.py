@@ -300,7 +300,7 @@ class SlashCommand:
         Matches commands registered on Discord to commands registered here.
         Deletes any commands on Discord but not here, and registers any not on Discord.
         This is done with a `put` request.
-        If ``auto_register`` is ``True``, then this will be automatically called.
+        If ``sync_commands`` is ``True``, then this will be automatically called.
 
         :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
         """
@@ -575,8 +575,7 @@ class SlashCommand:
             # /group kick user <user>
             @slash.subcommand(base="group",
                               subcommand_group="kick",
-                              name="user",
-                              auto_convert={"user": "user"})
+                              name="user")
             async def _group_kick_user(ctx, user):
                 ...
 
