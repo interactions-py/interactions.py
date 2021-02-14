@@ -13,4 +13,4 @@ from .model import SlashCommandOptionType
 from .context import SlashContext
 from .utils import manage_commands
 
-__version__ = "1.0.9.2"
+__version__ = "1.0.9.3"
