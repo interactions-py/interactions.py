@@ -53,6 +53,8 @@ class SlashContext:
         self.channel_id = int(_json["channel_id"])
         if self.guild:
             self.author = discord.Member(data=_json["member"], state=self.bot._connection, guild=self.guild)
+        elif self.guild_id:
+            self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
 
