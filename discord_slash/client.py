@@ -137,7 +137,8 @@ class SlashCommand:
                         "auto_convert": {},
                         "guild_ids": x.allowed_guild_ids.copy(),
                         "api_options": [],
-                        "has_subcommands": True
+                        "has_subcommands": True,
+                        "connector": {}
                     }
                     self.commands[x.base] = model.CommandObject(x.base, _cmd)
                 if x.base not in self.subcommands:
