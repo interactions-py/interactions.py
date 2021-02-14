@@ -603,7 +603,8 @@ class SlashCommand:
 
         return wrapper
 
-    async def process_options(self, guild: discord.Guild, options: list, connector: dict) -> dict:
+    async def process_options(self, guild: discord.Guild, options: list, connector: dict,
+                              temporary_auto_convert: dict = None) -> dict:
         """
         Processes Role, User, and Channel option types to discord.py's models.
 
@@ -612,6 +613,7 @@ class SlashCommand:
         :param options: Dict of options.
         :type options: list
         :param connector: Kwarg connector.
+        :param temporary_auto_convert: Temporary parameter, use this if options doesn't have ``type`` keyword.
         :return: Union[list, dict]
         """
 
@@ -649,6 +651,12 @@ class SlashCommand:
 
         for x in options:
             processed = None  # This isn't the best way, but we should to reduce duplicate lines.
+
+            # This is to temporarily fix Issue #97, that on Android device
+            # does not give option type from API.
+            if "type" not in x:
+                x["type"] = temporary_auto_convert[x["name"]]
+
             if x["type"] not in types:
                 processed = x["value"]
             else:
@@ -731,8 +739,14 @@ class SlashCommand:
                     if "value" not in x:
                         return await self.handle_subcommand(ctx, to_use)
 
-            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.connector) \
-                if "options" in to_use["data"] else []
+            # This is to temporarily fix Issue #97, that on Android device
+            # does not give option type from API.
+            temporary_auto_convert = {}
+            for x in selected_cmd.options:
+                temporary_auto_convert[x["name"]] = x["type"]
+
+            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.connector, temporary_auto_convert) \
+                if "options" in to_use["data"] else {}
 
             self._discord.dispatch("slash_command", ctx)
 
@@ -764,14 +778,28 @@ class SlashCommand:
                     return
                 ctx.subcommand_group = sub_group
                 selected = base[sub_name][sub_group]
-                args = await self.process_options(ctx.guild, x["options"], selected.connector) \
-                    if "options" in x else []
+
+                # This is to temporarily fix Issue #97, that on Android device
+                # does not give option type from API.
+                temporary_auto_convert = {}
+                for n in selected.options:
+                    temporary_auto_convert[n["name"]] = n["type"]
+
+                args = await self.process_options(ctx.guild, x["options"], selected.connector, temporary_auto_convert) \
+                    if "options" in x else {}
                 self._discord.dispatch("slash_command", ctx)
                 await self.invoke_command(selected, ctx, args)
                 return
         selected = base[sub_name]
-        args = await self.process_options(ctx.guild, sub_opts, selected.connector) \
-            if "options" in sub else []
+
+        # This is to temporarily fix Issue #97, that on Android device
+        # does not give option type from API.
+        temporary_auto_convert = {}
+        for n in selected.options:
+            temporary_auto_convert[n["name"]] = n["type"]
+
+        args = await self.process_options(ctx.guild, sub_opts, selected.connector, temporary_auto_convert) \
+            if "options" in sub else {}
         self._discord.dispatch("slash_command", ctx)
         await self.invoke_command(selected, ctx, args)
 
