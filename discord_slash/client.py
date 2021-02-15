@@ -58,14 +58,8 @@ class SlashCommand:
             self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
 
         if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
-            self.logger.info("Detected discord.Client! It is highly recommended to use `commands.Bot`.")
-            original_sock_event = self._discord.on_socket_response if hasattr(self._discord, "on_socket_response") else lambda x: None
-
-            def wrap(*args):
-                original_sock_event(*args)
-                self.on_socket_response(*args)
-
-            self._discord.on_socket_response = wrap
+            self.logger.warning("Detected discord.Client! It is highly recommended to use `commands.Bot`. Do not add any `on_socket_response` event.")
+            self._discord.on_socket_response = self.on_socket_response
             self.has_listener = False
         else:
             if not hasattr(self._discord, 'slash'):
