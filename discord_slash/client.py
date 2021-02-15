@@ -59,7 +59,7 @@ class SlashCommand:
 
         if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
             self.logger.info("Detected discord.Client! It is highly recommended to use `commands.Bot`.")
-            original_sock_event = self._discord.on_socket_response
+            original_sock_event = self._discord.on_socket_response if hasattr(self._discord, "on_socket_response") else lambda x: None
 
             def wrap(*args):
                 original_sock_event(*args)
