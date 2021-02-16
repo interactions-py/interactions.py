@@ -58,7 +58,7 @@ the many subclasses offered in *discord-py-slash-command*.
   from discord_slash.utils import manage_commands # Allows us to manage the command settings.
 
   client = discord.Client(intents=discord.Intents.all())
-  slash = SlashCommand(client, auto_register=True)
+  slash = SlashCommand(client, sync_commands=True)
 
   guild_ids = [789032594456576001]
 
@@ -78,13 +78,14 @@ the many subclasses offered in *discord-py-slash-command*.
     guild_ids=guild_ids
   )
   async def _test(ctx, argone: str):
-      await ctx.send(content=f"You responded with {argone}.")
+      await ctx.respond()
+      await ctx.send(f"You responded with {argone}.")
 
   client.run("your_bot_token_here")
   
 The main changes that you need to know about are with the lines calling the import
 of ``manage_commands``, as well as the ``options = [] ...`` code within the ``@slash.slash()``
-context coroutine. This will now create a new option called "argOne" when shown for
+context coroutine. This will now create a new option called "argone" when shown for
 the slash command.
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html

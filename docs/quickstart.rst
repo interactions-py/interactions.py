@@ -28,7 +28,7 @@ For this example, ``main.py`` will be used.
     from discord_slash import SlashCommand # Importing the newly installed library.
 
     client = discord.Client(intents=discord.Intents.all())
-    slash = SlashCommand(client, auto_register=True) # Declares slash commands through the client.
+    slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
 
     @client.event
     async def on_ready():
@@ -47,7 +47,7 @@ We can do so by adding this code shown here:
     from discord_slash import SlashCommand # Importing the newly installed library.
 
     client = discord.Client(intents=discord.Intents.all())
-    slash = SlashCommand(client, auto_register=True) # Declares slash commands through the client.
+    slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
 
     guild_ids = [789032594456576001] # Put your server ID in this array.
 
@@ -57,7 +57,8 @@ We can do so by adding this code shown here:
 
     @slash.slash(name="ping", guild_ids=guild_ids)
     async def _ping(ctx): # Defines a new "context" (ctx) command called "ping."
-        await ctx.send(content=f"Pong! ({client.latency*1000}ms)")
+        await ctx.respond()
+        await ctx.send(f"Pong! ({client.latency*1000}ms)")
 
     client.run("your_bot_token_here")
 
