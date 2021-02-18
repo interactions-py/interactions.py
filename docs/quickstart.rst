@@ -2,7 +2,7 @@ Quickstart
 ==========
 
 Before doing anything, it is highly recommended to read discord.py's quickstart.
-You can find it by clicking :ref:`this <discord:quickstart>`.
+You can find it by clicking `here <https://discordpy.readthedocs.io/en/latest/quickstart.html>`_.
 
 Firstly, we will begin by installing the python library extension for discord.py:
 
