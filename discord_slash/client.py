@@ -649,7 +649,6 @@ class SlashCommand:
 
             # This is to temporarily fix Issue #97, that on Android device
             # does not give option type from API.
-            print(temporary_auto_convert)
             if "type" not in x:
                 x["type"] = temporary_auto_convert[x["name"]]
 
