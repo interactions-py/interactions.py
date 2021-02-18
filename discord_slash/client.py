@@ -738,7 +738,7 @@ class SlashCommand:
             # does not give option type from API.
             temporary_auto_convert = {}
             for x in selected_cmd.options:
-                temporary_auto_convert[x["name"]] = x["type"]
+                temporary_auto_convert[x["name"].lower()] = x["type"]
 
             args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.connector, temporary_auto_convert) \
                 if "options" in to_use["data"] else {}
@@ -778,7 +778,7 @@ class SlashCommand:
                 # does not give option type from API.
                 temporary_auto_convert = {}
                 for n in selected.options:
-                    temporary_auto_convert[n["name"]] = n["type"]
+                    temporary_auto_convert[n["name"].lower()] = n["type"]
 
                 args = await self.process_options(ctx.guild, x["options"], selected.connector, temporary_auto_convert) \
                     if "options" in x else {}
@@ -791,7 +791,7 @@ class SlashCommand:
         # does not give option type from API.
         temporary_auto_convert = {}
         for n in selected.options:
-            temporary_auto_convert[n["name"]] = n["type"]
+            temporary_auto_convert[n["name"].lower()] = n["type"]
 
         args = await self.process_options(ctx.guild, sub_opts, selected.connector, temporary_auto_convert) \
             if "options" in sub else {}
