@@ -649,6 +649,7 @@ class SlashCommand:
 
             # This is to temporarily fix Issue #97, that on Android device
             # does not give option type from API.
+            print(temporary_auto_convert)
             if "type" not in x:
                 x["type"] = temporary_auto_convert[x["name"]]
 
@@ -778,7 +779,7 @@ class SlashCommand:
                 # does not give option type from API.
                 temporary_auto_convert = {}
                 for n in selected.options:
-                    temporary_auto_convert[n["name"]] = n["type"]
+                    temporary_auto_convert[n["name"].lower()] = n["type"]
 
                 args = await self.process_options(ctx.guild, x["options"], selected.connector, temporary_auto_convert) \
                     if "options" in x else {}
@@ -791,7 +792,7 @@ class SlashCommand:
         # does not give option type from API.
         temporary_auto_convert = {}
         for n in selected.options:
-            temporary_auto_convert[n["name"]] = n["type"]
+            temporary_auto_convert[n["name"].lower()] = n["type"]
 
         args = await self.process_options(ctx.guild, sub_opts, selected.connector, temporary_auto_convert) \
             if "options" in sub else {}
