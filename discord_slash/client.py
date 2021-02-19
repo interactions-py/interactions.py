@@ -764,7 +764,7 @@ class SlashCommand:
         sub_name = sub["name"]
         if sub_name not in base:
             return
-        ctx.subcommand = sub_name
+        ctx.subcommand_name = sub_name
         sub_opts = sub["options"] if "options" in sub else []
         for x in sub_opts:
             if "options" in x or "value" not in x:
