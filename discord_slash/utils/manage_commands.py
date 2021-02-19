@@ -156,12 +156,17 @@ def create_option(name: str,
     :param required: Whether this option is required.
     :param choices: Choices of the option. Can be empty.
     :return: dict
+
+    .. note::
+        ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
+        or a list of single string values. 
     """
     if not isinstance(option_type, int) or isinstance(option_type, bool): #Bool values are a subclass of int
         original_type = option_type
         option_type = SlashCommandOptionType.from_type(original_type)
         if option_type is None:
             raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash commands.")
+    choices = [choice if isinstance(choice, dict) else {"name": choice, "value": choice} for choice in choices]
     return {
         "name": name,
         "description": description,
