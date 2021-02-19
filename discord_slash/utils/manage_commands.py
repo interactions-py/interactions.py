@@ -157,8 +157,9 @@ def create_option(name: str,
     :param choices: Choices of the option. Can be empty.
     :return: dict
 
-    ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
-    or a list of single string values. 
+    .. note::
+        ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
+        or a list of single string values. 
     """
     if not isinstance(option_type, int) or isinstance(option_type, bool): #Bool values are a subclass of int
         original_type = option_type
