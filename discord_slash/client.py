@@ -344,6 +344,7 @@ class SlashCommand:
         """
         name = name or cmd.__name__
         name = name.lower()
+        guild_ids = guild_ids if guild_ids else []
         if name in self.commands:
             tgt = self.commands[name]
             if not tgt.has_subcommands:
@@ -411,6 +412,7 @@ class SlashCommand:
         name = name or cmd.__name__
         name = name.lower()
         description = description or getdoc(cmd)
+        guild_ids = guild_ids if guild_ids else []
 
         if base in self.commands:
             for x in guild_ids:
