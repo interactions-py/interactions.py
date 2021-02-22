@@ -91,7 +91,7 @@ class SlashContext:
         base = {"type": 2 if eat else 5}
         _task = self.bot.loop.create_task(self._http.post(base, self.interaction_id, self.__token, True))
         self.sent = True
-        if not eat:
+        if not eat and (not self.guild_id or (self.channel and self.channel.permissions_for(self.guild.me).view_channel)):
             with suppress(asyncio.TimeoutError):
                 def check(message: discord.Message):
                     user_id = self.author_id
