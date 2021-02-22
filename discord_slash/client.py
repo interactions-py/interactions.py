@@ -722,11 +722,8 @@ class SlashCommand:
 
             selected_cmd = self.commands[to_use["data"]["name"]]
 
-            if selected_cmd.allowed_guild_ids:
-                guild_id = ctx.guild.id if isinstance(ctx.guild, discord.Guild) else ctx.guild
-
-                if guild_id not in selected_cmd.allowed_guild_ids:
-                    return
+            if selected_cmd.allowed_guild_ids and ctx.guild_id not in selected_cmd.allowed_guild_ids:
+                return
 
             if selected_cmd.has_subcommands and not selected_cmd.func:
                 return await self.handle_subcommand(ctx, to_use)
