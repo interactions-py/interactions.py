@@ -27,7 +27,7 @@ If you want your commands automatically registered, set ``sync_commands`` to ``T
 
    from discord_slash import SlashCommand
    
-   slash = SlashCommand(client, auto_register=True)
+   slash = SlashCommand(client, sync_commands=True)
 
 Or, if you prefer to have more control, you can use :mod:`.utils.manage_commands`.
 
@@ -44,17 +44,9 @@ For normal slash command, use :meth:`.client.SlashCommand.slash`, and for subcom
 How to delete slash commands?
 *****************************
 
-You can enable auto deletion of unused commands by setting ``auto_delete`` to ``True`` at :class:`.client.SlashCommand`.
+If ``sync_commands`` is set to ``True``, commands will automatically be removed as needed.
 
-.. code-block:: python
-   
-   from discord_slash import SlashCommand
-   slash = SlashCommand(auto_delete = True)
-
-.. note::
-   This will make a request for **every** single guild your bot is in.
-
-Or you can do it manually by this methods:
+However, if you are not using ``sync_commands`` you can do it manually by this methods:
 
 * Deleting a single command with :meth:`utils.manage_commands.remove_slash_command`
 * Deleting all commands using :meth:`utils.manage_commands.remove_all_commands`
