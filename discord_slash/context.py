@@ -196,6 +196,9 @@ class SlashContext:
         Sends hidden response.\n
         This is automatically used if you pass ``hidden=True`` at :meth:`.send`.
 
+        .. note::
+            This is not intended to be manually called. Please use :meth:`.send` instead.
+
         :param content: Message content.
         :return: Coroutine
         """
