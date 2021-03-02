@@ -68,7 +68,7 @@ class SlashContext:
         return self.bot.get_guild(self.guild_id) if self.guild_id else None
 
     @property
-    def channel(self) -> typing.Optional[typing.Union[discord.abc.GuildChannel, discord.abc.PrivateChannel]]:
+    def channel(self) -> typing.Optional[typing.Union[discord.TextChannel, discord.DMChannel]]:
         """
         Channel instance of the command invoke.
 
