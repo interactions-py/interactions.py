@@ -31,7 +31,7 @@ If you want your commands automatically registered, set ``sync_commands`` to ``T
 
 Or, if you prefer to have more control, you can use :mod:`.utils.manage_commands`.
 
-Or, you can made requests directly to Discord API, read the `docs <https://discord.com/developers/docs/interactions/slash-commands#registering-a-command>`_.
+Or, you can make requests directly to Discord API, read the `docs <https://discord.com/developers/docs/interactions/slash-commands#registering-a-command>`_.
 
 Add the command to your bot
 ---------------------------
