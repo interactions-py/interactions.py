@@ -56,6 +56,9 @@ the many subclasses offered in *discord-py-slash-command*.
   import discord
   from discord_slash import SlashCommand
   from discord_slash.utils import manage_commands # Allows us to manage the command settings.
+  # You can use these instead:
+  # from discord.ext.slash import SlashCommand
+  # from discord.ext.slash.utils import manage_commands
 
   client = discord.Client(intents=discord.Intents.all())
   slash = SlashCommand(client, sync_commands=True)
