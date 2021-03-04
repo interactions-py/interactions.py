@@ -327,6 +327,10 @@ class SlashCommand:
         """
         Registers slash command to SlashCommand.
 
+        .. warning::
+            Just using this won't register slash command to Discord API.
+            To register it, check :meth:`.utils.manage_commands.add_slash_command` or simply enable `sync_commands`.
+
         :param cmd: Command Coroutine.
         :type cmd: Coroutine
         :param name: Name of the slash command. Default name of the coroutine.
