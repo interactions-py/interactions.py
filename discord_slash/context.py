@@ -86,6 +86,8 @@ class SlashContext:
 
         :param hidden: Whether the deffered response should be ephemeral . Default ``False``.
         """
+        if self._deffered or self._sent:
+            raise error.AlreadyResponded("You have already responded to this command!")
         base = {"type": 5}
         if hidden:
             base["data"] = {"flags": 64}
