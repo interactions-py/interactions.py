@@ -178,8 +178,11 @@ class SlashContext:
                 resp = await self._http.edit(base, self.__token)
                 self._deffered = False
             else:
-                base["type"] = 4
-                resp = await self._http.post_initial_response(base, self._interaction_id, self.__token)
+                json_data = {
+                    "type": 4,
+                    "data": base
+                }
+                resp = await self._http.post_initial_response(json_data, self._interaction_id, self.__token)
             self._sent = True
         else:
             resp = await self._http.post_followup(base, self.__token, files=files)
