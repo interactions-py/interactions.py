@@ -182,7 +182,8 @@ class SlashContext:
                     "type": 4,
                     "data": base
                 }
-                resp = await self._http.post_initial_response(json_data, self._interaction_id, self.__token)
+                await self._http.post_initial_response(json_data, self._interaction_id, self.__token)
+                resp = await self._http.edit({}, self.__token)
             self._sent = True
         else:
             resp = await self._http.post_followup(base, self.__token, files=files)
