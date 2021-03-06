@@ -45,12 +45,13 @@ class SlashCommand:
                  sync_commands: bool = False,
                  delete_from_unused_guilds: bool = False,
                  sync_on_cog_reload: bool = False,
-                 override_type: bool = False):
+                 override_type: bool = False,
+                 application_id: typing.Optional[int] = None):
         self._discord = client
         self.commands = {}
         self.subcommands = {}
         self.logger = logging.getLogger("discord_slash")
-        self.req = http.SlashCommandRequest(self.logger, self._discord)
+        self.req = http.SlashCommandRequest(self.logger, self._discord, application_id)
         self.sync_commands = sync_commands
         self.sync_on_cog_reload = sync_on_cog_reload
 

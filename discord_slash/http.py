@@ -11,9 +11,14 @@ class CustomRoute(Route):
 
 
 class SlashCommandRequest:
-    def __init__(self, logger, _discord):
+    def __init__(self, logger, _discord, application_id):
         self.logger = logger
         self._discord: typing.Union[discord.Client, discord.AutoShardedClient] = _discord
+        self._application_id = application_id
+
+    @property
+    def application_id(self):
+        return self._application_id or self._discord.user.id
 
     def put_slash_commands(self, slash_commands: list, guild_id):
         """
@@ -72,7 +77,7 @@ class SlashCommandRequest:
         :param url_ending: String to append onto the end of the url.
         :param \**kwargs: Kwargs to pass into discord.py's `request function <https://github.com/Rapptz/discord.py/blob/master/discord/http.py#L134>`_
         """
-        url = f"/applications/{self._discord.user.id}"
+        url = f"/applications/{self.application_id}"
         url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
         url += url_ending
         route = CustomRoute(method, url)
@@ -93,12 +98,12 @@ class SlashCommandRequest:
         """
         if files:
             return self.post_with_files(_resp, files, token)
-        req_url = f"/interactions/{interaction_id}/{token}/callback" if initial else f"/webhooks/{self._discord.user.id}/{token}"
+        req_url = f"/interactions/{interaction_id}/{token}/callback" if initial else f"/webhooks/{self.application_id}/{token}"
         route = CustomRoute("POST", req_url)
         return self._discord.http.request(route, json=_resp)
 
     def post_with_files(self, _resp, files: typing.List[discord.File], token):
-        req_url = f"/webhooks/{self._discord.user.id}/{token}"
+        req_url = f"/webhooks/{self.application_id}/{token}"
         route = CustomRoute("POST", req_url)
         form = aiohttp.FormData()
         form.add_field("payload_json", json.dumps(_resp))
@@ -118,7 +123,7 @@ class SlashCommandRequest:
         :param message_id: Message ID to edit. Default initial message.
         :return: Coroutine
         """
-        req_url = f"/webhooks/{self._discord.user.id}/{token}/messages/{message_id}"
+        req_url = f"/webhooks/{self.application_id}/{token}/messages/{message_id}"
         route = CustomRoute("PATCH", req_url)
         return self._discord.http.request(route, json=_resp)
 
@@ -130,6 +135,6 @@ class SlashCommandRequest:
         :param message_id: Message ID to delete. Default initial message.
         :return: Coroutine
         """
-        req_url = f"/webhooks/{self._discord.user.id}/{token}/messages/{message_id}"
+        req_url = f"/webhooks/{self.application_id}/{token}/messages/{message_id}"
         route = CustomRoute("DELETE", req_url)
         return self._discord.http.request(route)
