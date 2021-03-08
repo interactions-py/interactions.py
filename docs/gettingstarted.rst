@@ -161,7 +161,8 @@ Now, we can finally visualize this by coding an example of this being used in th
                  )
                ])
   async def test(ctx, OptOne: str):
-    pass
+    await ctx.respond()
+    await ctx.send(content=f"I got you, you said {OptOne}!")
     
 Additionally, we could also declare the type of our command's option through this method shown here:
 
@@ -220,13 +221,18 @@ a string or integer. Below is an implementation of this design in the Python cod
                    choices=[
                     create_choice(
                       name="ChoiceOne",
-                      value="Hello command, this is my value!"
+                      value="DOGE!"
+                    ),
+                    create_choice(
+                      name="ChoiceTwo",
+                      value="NO DOGE"
                     )
                   ]
                  )
                ])
   async def test(ctx, OptOne: str):
-    pass
+    await ctx.respond()
+    await ctx.send(content=f"Wow, you actually chose {OptOne}? :(")
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
