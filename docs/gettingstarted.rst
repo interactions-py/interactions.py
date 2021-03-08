@@ -64,6 +64,8 @@ the *logical* part of our code, the command function:
 - ``ctx.respond()``: This is a way for us to handle responses. In short, the API
 requires some way to "acknowledge" an interaction response that we want to send off.
 
+(An alias of this would be ``ctx.ack()``)
+
 Giving some options for variety.
 --------------------------------
 
