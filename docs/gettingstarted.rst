@@ -156,7 +156,7 @@ Now, we can finally visualize this by coding an example of this being used in th
                description="This is just a test command, nothing more.",
                options=[
                  create_option(
-                   name="OptOne",
+                   name="optone",
                    description="This is the first option we have.",
                    option_type=3,
                    required=False
