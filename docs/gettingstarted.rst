@@ -150,7 +150,7 @@ Now, we can finally visualize this by coding an example of this being used in th
 
 .. code-block:: python
 
-  from discord_slash.manage_commands import create_option
+  from discord_slash.utils.manage_commands import create_option
   
   @slash.slash(name="test",
                description="This is just a test command, nothing more.",
@@ -210,7 +210,7 @@ a string or integer. Below is an implementation of this design in the Python cod
 
 .. code-block:: python
 
-  from discord_slash.manage_commands import create_option, create_choice
+  from discord_slash.utils.manage_commands import create_option, create_choice
   
   @slash.slash(name="test",
                description="This is just a test command, nothing more.",
