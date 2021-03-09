@@ -162,7 +162,7 @@ Now, we can finally visualize this by coding an example of this being used in th
                    required=False
                  )
                ])
-  async def test(ctx, OptOne: str):
+  async def test(ctx, optone: str):
     await ctx.respond()
     await ctx.send(content=f"I got you, you said {OptOne}!")
     
