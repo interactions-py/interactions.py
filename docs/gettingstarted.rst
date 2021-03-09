@@ -234,7 +234,7 @@ a string or integer. Below is an implementation of this design in the Python cod
                ])
   async def test(ctx, optone: str):
     await ctx.respond()
-    await ctx.send(content=f"Wow, you actually chose {OptOne}? :(")
+    await ctx.send(content=f"Wow, you actually chose {optone}? :(")
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
