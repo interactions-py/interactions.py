@@ -104,7 +104,7 @@ example in order to visualize this concept even further:
     "description": "This is just a test command, nothing more.",
     "options": [
       {
-        "name": "OptOne",
+        "name": "optone",
         "description": "This is the first option we have.",
         "type": 3,
         "required": "false"
