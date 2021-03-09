@@ -216,7 +216,7 @@ a string or integer. Below is an implementation of this design in the Python cod
                description="This is just a test command, nothing more.",
                options=[
                  create_option(
-                   name="OptOne",
+                   name="optone",
                    description="This is the first option we have.",
                    option_type=3,
                    required=False,
