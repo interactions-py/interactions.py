@@ -2,7 +2,7 @@ Quickstart
 ==========
 
 Before doing anything, it is highly recommended to read discord.py's quickstart.
-You can find it by clicking :ref:`this <discord:quickstart>`.
+You can find it by clicking :ref:`this here <discord:quickstart>`.
 
 Firstly, we will begin by installing the python library extension for discord.py:
 
@@ -38,38 +38,32 @@ For this example, ``main.py`` will be used.
 
 Let's give this a run. When you run this code, you'll see... nothing but ``Ready!``.
 
-That's completely normal, because we haven't defined any slash commands yet.
-We can do so by adding this code shown here:
+That's completely normal. Why is that? Well, it's because we haven't defined any actual
+slash commands just yet. We can do that by adding this code shown here:
 
 .. code-block:: python
 
-    import discord
-    from discord_slash import SlashCommand # Importing the newly installed library.
-
-    client = discord.Client(intents=discord.Intents.all())
-    slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
-
+    """
+        Make sure this code is added before the client.run() call!
+        It also needs to be under on_ready, otherwise, this will not work.
+    """
+    
     guild_ids = [789032594456576001] # Put your server ID in this array.
-
-    @client.event
-    async def on_ready():
-        print("Ready!")
 
     @slash.slash(name="ping", guild_ids=guild_ids)
     async def _ping(ctx): # Defines a new "context" (ctx) command called "ping."
         await ctx.respond()
         await ctx.send(f"Pong! ({client.latency*1000}ms)")
 
-    client.run("your_bot_token_here")
-
-Let's explain some of the major code differences between the prior examples shown
-here to give a better understanding of what is going on:
+Let's compare some of the major code differences between the prior examples in order
+to explain what's going on here:
 
 - ``guild_ids = [789032594456576001]``: This is for adding your command as a guild command.
 
-Otherwise, you need to wait for an hour to wait until your command is added. This is due
-to the code recognizing the new slash command as a **global** command instead of what we
-originally want, a *guild* slash command.
+It is very important for us to make sure that we're declaring this cpart of the ``@slash.slash``
+decorator if we're wanting to declare a guild command and not a **global** one. The reason as for
+why this is needed is because the Discord Bot API can take up to 1 hour to register a global
+command that is called via. the code here when this key-word argument is not passed.
 
 - ``@slash.slash(name="ping", ...`` ~ ``await ctx.send(...)``: This adds a new slash command.
 
