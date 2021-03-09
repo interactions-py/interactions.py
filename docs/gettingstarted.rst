@@ -170,11 +170,11 @@ Additionally, we could also declare the type of our command's option through thi
 
 .. code-block:: python
 
-  from discord_slash.model import SubCommandOptionType
+  from discord_slash.model import SlashCommandOptionType
   
   (...)
   
-                  option_type=SubCommandOptionType.STRING
+                  option_type=SlashCommandOptionType.STRING
                   
 More in the option? Give them a choice.
 ---------------------------------------
