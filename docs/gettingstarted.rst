@@ -164,7 +164,7 @@ Now, we can finally visualize this by coding an example of this being used in th
                ])
   async def test(ctx, optone: str):
     await ctx.respond()
-    await ctx.send(content=f"I got you, you said {OptOne}!")
+    await ctx.send(content=f"I got you, you said {optone}!")
     
 Additionally, we could also declare the type of our command's option through this method shown here:
 
