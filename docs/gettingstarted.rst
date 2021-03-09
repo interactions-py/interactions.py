@@ -232,7 +232,7 @@ a string or integer. Below is an implementation of this design in the Python cod
                   ]
                  )
                ])
-  async def test(ctx, OptOne: str):
+  async def test(ctx, optone: str):
     await ctx.respond()
     await ctx.send(content=f"Wow, you actually chose {OptOne}? :(")
 
