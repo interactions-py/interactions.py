@@ -3,14 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to discord-py-slash-command's official documentation!
-=============================================================
+Welcome
+=======
 
-discord-py-slash-command is a simple discord.py library extension
-for using Discord's new Slash Command feature.
+Hello there! Welcome to the official documentation of our library
+extension made for discord.py: being able to use Discord Slash Commands.
 
-Before going into the advanced sections that guide you through
-added more complex stuff documentation-wise, it is highly recommended
+Before we start going into the advanced stuff, it is highly recommended
 to check out the `quickstart`_ page first from here or below in the contents.
 
 If there are any questions that you have about the documentation
