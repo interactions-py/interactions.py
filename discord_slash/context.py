@@ -151,6 +151,8 @@ class SlashContext:
             raise error.IncorrectFormat("You can't use both `file` and `files`!")
         if file:
             files = [file]
+        if delete_after and hidden:
+            raise error.IncorrectFormat("You can't delete a hidden message!")
 
         base = {
             "content": content,
@@ -183,18 +185,23 @@ class SlashContext:
                     "data": base
                 }
                 await self._http.post_initial_response(json_data, self._interaction_id, self.__token)
-                resp = await self._http.edit({}, self.__token)
+                if not hidden:
+                    resp = await self._http.edit({}, self.__token)
+                else:
+                    resp = {}
             self._sent = True
         else:
             resp = await self._http.post_followup(base, self.__token, files=files)
-
-        smsg = model.SlashMessage(state=self.bot._connection,
-                                  data=resp,
-                                  channel=self.channel or discord.Object(id=self.channel_id),
-                                  _http=self._http,
-                                  interaction_token=self.__token)
-        if delete_after:
-            self.bot.loop.create_task(smsg.delete(delay=delete_after))
-        if initial_message:
-            self.message = smsg
-        return smsg
+        if not hidden:
+            smsg = model.SlashMessage(state=self.bot._connection,
+                                    data=resp,
+                                    channel=self.channel or discord.Object(id=self.channel_id),
+                                    _http=self._http,
+                                    interaction_token=self.__token)
+            if delete_after:
+                self.bot.loop.create_task(smsg.delete(delay=delete_after))
+            if initial_message:
+                self.message = smsg
+            return smsg
+        else:
+            return resp
