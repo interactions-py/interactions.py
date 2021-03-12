@@ -736,7 +736,8 @@ class SlashCommand:
         print(f"Looking for {cmd_name}")
 
         # check guild commands and global commands for this command
-        if to_use["data"]["name"] in self.commands[ctx.guild_id]:
+        if ctx.guild_id in self.commands and \
+                to_use["data"]["name"] in self.commands[ctx.guild_id]:
             selected_cmd = self.commands[ctx.guild_id][to_use["data"]["name"]]
         elif to_use["data"]["name"] in self.commands["global"]:
             selected_cmd = self.commands["global"][to_use["data"]["name"]]
