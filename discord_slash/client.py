@@ -114,47 +114,46 @@ class SlashCommand:
         if hasattr(cog, '_slash_registered'):  # Temporary warning
             return self.logger.warning("Calling get_cog_commands is no longer required "
                                        "to add cog slash commands. Make sure to remove all calls to this function.")
-        print("Loading cog...")
         cog._slash_registered = True  # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
-        for cmdObj in res:
-            guild_ids = cmdObj.allowed_guild_ids if cmdObj.allowed_guild_ids else ["global"]
+        for cmd_obj in res:
+            guild_ids = cmd_obj.allowed_guild_ids if cmd_obj.allowed_guild_ids else ["global"]
             for guild in guild_ids:
-                cmdObj.cog = cog
-                if isinstance(cmdObj, model.CogCommandObject):
-                    if cmdObj.name in self.commands[guild]:
-                        raise error.DuplicateCommand(cmdObj.name)
-                    self.commands[guild][cmdObj.name] = cmdObj
+                cmd_obj.cog = cog
+                if isinstance(cmd_obj, model.CogCommandObject):
+                    if cmd_obj.name in self.commands[guild]:
+                        raise error.DuplicateCommand(cmd_obj.name)
+                    self.commands[guild][cmd_obj.name] = cmd_obj
                 else:
-                    if cmdObj.base in self.commands[guild]:
-                        for i in cmdObj.allowed_guild_ids:
-                            if i not in self.commands[guild][cmdObj.base].allowed_guild_ids:
-                                self.commands[guild][cmdObj.base].allowed_guild_ids.append(i)
-                        self.commands[guild][cmdObj.base].has_subcommands = True
+                    if cmd_obj.base in self.commands[guild]:
+                        for i in cmd_obj.allowed_guild_ids:
+                            if i not in self.commands[guild][cmd_obj.base].allowed_guild_ids:
+                                self.commands[guild][cmd_obj.base].allowed_guild_ids.append(i)
+                        self.commands[guild][cmd_obj.base].has_subcommands = True
                     else:
                         _cmd = {
                             "func": None,
-                            "description": cmdObj.base_description,
+                            "description": cmd_obj.base_description,
                             "auto_convert": {},
-                            "guild_ids": cmdObj.allowed_guild_ids.copy(),
+                            "guild_ids": cmd_obj.allowed_guild_ids.copy(),
                             "api_options": [],
                             "has_subcommands": True,
                             "connector": {}
                         }
-                        self.commands[guild][cmdObj.base] = model.CommandObject(cmdObj.base, _cmd)
-                    if cmdObj.base not in self.subcommands[guild]:
-                        self.subcommands[guild][cmdObj.base] = {}
-                    if cmdObj.subcommand_group:
-                        if cmdObj.subcommand_group not in self.subcommands[guild][cmdObj.base]:
-                            self.subcommands[guild][cmdObj.base][cmdObj.subcommand_group] = {}
-                        if cmdObj.name in self.subcommands[guild][cmdObj.base][cmdObj.subcommand_group]:
-                            raise error.DuplicateCommand(f"{cmdObj.base} {cmdObj.subcommand_group} {cmdObj.name}")
-                        self.subcommands[guild][cmdObj.base][cmdObj.subcommand_group][cmdObj.name] = cmdObj
+                        self.commands[guild][cmd_obj.base] = model.CommandObject(cmd_obj.base, _cmd)
+                    if cmd_obj.base not in self.subcommands[guild]:
+                        self.subcommands[guild][cmd_obj.base] = {}
+                    if cmd_obj.subcommand_group:
+                        if cmd_obj.subcommand_group not in self.subcommands[guild][cmd_obj.base]:
+                            self.subcommands[guild][cmd_obj.base][cmd_obj.subcommand_group] = {}
+                        if cmd_obj.name in self.subcommands[guild][cmd_obj.base][cmd_obj.subcommand_group]:
+                            raise error.DuplicateCommand(f"{cmd_obj.base} {cmd_obj.subcommand_group} {cmd_obj.name}")
+                        self.subcommands[guild][cmd_obj.base][cmd_obj.subcommand_group][cmd_obj.name] = cmd_obj
                     else:
-                        if cmdObj.name in self.subcommands[guild][cmdObj.base]:
-                            raise error.DuplicateCommand(f"{cmdObj.base} {cmdObj.name}")
-                        self.subcommands[guild][cmdObj.base][cmdObj.name] = cmdObj
+                        if cmd_obj.name in self.subcommands[guild][cmd_obj.base]:
+                            raise error.DuplicateCommand(f"{cmd_obj.base} {cmd_obj.name}")
+                        self.subcommands[guild][cmd_obj.base][cmd_obj.name] = cmd_obj
 
     def remove_cog_commands(self, cog):
         """
@@ -171,32 +170,32 @@ class SlashCommand:
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
                isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
-        for cmdObj in res:
-            if isinstance(cmdObj, model.CogCommandObject):
+        for cmd_obj in res:
+            if isinstance(cmd_obj, model.CogCommandObject):
                 for guild in self.commands:
-                    if cmdObj.name not in self.commands[guild]:
+                    if cmd_obj.name not in self.commands[guild]:
                         continue  # Just in case it is removed due to subcommand.
-                    if cmdObj.name in self.subcommands[guild]:
-                        self.commands[guild][cmdObj.name].func = None
+                    if cmd_obj.name in self.subcommands[guild]:
+                        self.commands[guild][cmd_obj.name].func = None
                         continue  # Let's remove completely when every subcommand is removed.
-                    del self.commands[guild][cmdObj.name]
+                    del self.commands[guild][cmd_obj.name]
             else:
                 for guild in self.subcommands:
-                    if cmdObj.base not in self.subcommands[guild]:
+                    if cmd_obj.base not in self.subcommands[guild]:
                         continue  # Just in case...
-                    if cmdObj.subcommand_group:
-                        del self.subcommands[guild][cmdObj.base][cmdObj.subcommand_group][cmdObj.name]
-                        if not self.subcommands[guild][cmdObj.base][cmdObj.subcommand_group]:
-                            del self.subcommands[guild][cmdObj.base][cmdObj.subcommand_group]
+                    if cmd_obj.subcommand_group:
+                        del self.subcommands[guild][cmd_obj.base][cmd_obj.subcommand_group][cmd_obj.name]
+                        if not self.subcommands[guild][cmd_obj.base][cmd_obj.subcommand_group]:
+                            del self.subcommands[guild][cmd_obj.base][cmd_obj.subcommand_group]
                     else:
-                        del self.subcommands[guild][cmdObj.base][cmdObj.name]
-                    if not self.subcommands[guild][cmdObj.base]:
-                        del self.subcommands[guild][cmdObj.base]
-                        if cmdObj.base in self.commands[guild]:
-                            if self.commands[guild][cmdObj.base].func:
-                                self.commands[guild][cmdObj.base].has_subcommands = False
+                        del self.subcommands[guild][cmd_obj.base][cmd_obj.name]
+                    if not self.subcommands[guild][cmd_obj.base]:
+                        del self.subcommands[guild][cmd_obj.base]
+                        if cmd_obj.base in self.commands[guild]:
+                            if self.commands[guild][cmd_obj.base].func:
+                                self.commands[guild][cmd_obj.base].has_subcommands = False
                             else:
-                                del self.commands[guild][cmdObj.base]
+                                del self.commands[guild][cmd_obj.base]
 
     async def to_dict(self):
         """
@@ -215,7 +214,6 @@ class SlashCommand:
         Commands are in the format specified by discord `here <https://discord.com/developers/docs/interactions/slash-commands#applicationcommand>`_
         """
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
-        all_guild_ids = []
 
         output = {}
         cmds = {
@@ -224,29 +222,26 @@ class SlashCommand:
         }
         for guild in self.commands:
             for command in self.commands[guild].values():
-                try:
-                    command_dict = {
-                        "name": command.name,
-                        "description": command.description or "No Description",
-                        "options": command.options or []
-                    }
-                    if guild not in output:
-                        output[guild] = {}
-                    output[guild][command.name] = copy.deepcopy(command_dict)
-                except Exception as e:
-                    return print(command)
+                command_dict = {
+                    "name": command.name,
+                    "description": command.description or "No Description",
+                    "options": command.options or []
+                }
+                if guild not in output:
+                    output[guild] = {}
+                output[guild][command.name] = copy.deepcopy(command_dict)
 
         # Separated normal command add and subcommand add not to
         # merge subcommands to one. More info at Issue #88
         # https://github.com/eunwoo1104/discord-py-slash-command/issues/88
 
         for guild in self.commands:
-            for commandName in self.commands[guild]:
-                if not self.commands[guild][commandName].has_subcommands:
+            for command_name in self.commands[guild]:
+                if not self.commands[guild][command_name].has_subcommands:
                     continue
-                tgt = self.subcommands[guild][commandName]
-                for x in tgt:
-                    sub = tgt[x]
+                subcommand_object = self.subcommands[guild][command_name]
+                for subcommand_name in subcommand_object:
+                    sub = subcommand_object[subcommand_name]
                     if isinstance(sub, model.SubcommandObject):
                         _dict = {
                             "name": sub.name,
@@ -254,18 +249,18 @@ class SlashCommand:
                             "type": model.SlashCommandOptionType.SUB_COMMAND,
                             "options": sub.options or []
                         }
-                        output[guild][commandName]["options"].append(_dict)
+                        output[guild][command_name]["options"].append(_dict)
 
                     else:
                         queue = {}
                         base_dict = {
-                            "name": x,
+                            "name": subcommand_name,
                             "description": "No Description.",
                             "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
                             "options": []
                         }
-                        for y in sub:
-                            sub_sub = sub[y]
+                        for z in sub:
+                            sub_sub = sub[z]
                             _dict = {
                                 "name": sub_sub.name,
                                 "description": sub_sub.description or "No Description.",
@@ -276,12 +271,12 @@ class SlashCommand:
                                 queue[guild] = copy.deepcopy(base_dict)
                             queue[guild]["options"].append(_dict)
                         for i in queue:
-                            output[i][x]["options"].append(queue[guild])
-        for x in output:
-            if x == "global":
+                            output[i][command_name]["options"].append(queue[guild])
+        for subcommand_name in output:
+            if subcommand_name == "global":
                 [cmds['global'].append(n) for n in output['global'].values()]
             else:
-                [cmds['guild'][x].append(n) for n in output[x].values()]
+                [cmds['guild'][subcommand_name].append(n) for n in output[subcommand_name].values()]
         return cmds
 
     async def sync_all_commands(self, delete_from_unused_guilds=False):
@@ -726,14 +721,11 @@ class SlashCommand:
         """
         if msg["t"] != "INTERACTION_CREATE":
             return
-        print("on socket")
 
         to_use = msg["d"]
 
         ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
         cmd_name = to_use["data"]["name"]
-
-        print(f"Looking for {cmd_name}")
 
         # check guild commands and global commands for this command
         if ctx.guild_id in self.commands and \
@@ -755,7 +747,6 @@ class SlashCommand:
                 return
 
         if selected_cmd.has_subcommands and not selected_cmd.func:
-            print("handle sub")
             return await self.handle_subcommand(ctx, to_use)
 
         if "options" in to_use["data"]:
