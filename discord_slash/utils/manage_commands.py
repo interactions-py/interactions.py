@@ -156,7 +156,11 @@ def create_option(name: str,
     :param required: Whether this option is required.
     :param choices: Choices of the option. Can be empty.
     :return: dict
-
+    
+    .. note::
+        a field with the value of ``False`` for ``required`` will return NOTHING if it is not filled. if you wish to have it default to something if not filled,_
+        append ``argname = None`` to the ``async def`` portion of the command.
+        
     .. note::
         ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
         or a list of single string values. 
