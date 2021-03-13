@@ -27,6 +27,7 @@ class CommandObject:
     :ivar connector: Kwargs connector of the command.
     :ivar __commands_checks__: Check of the command.
     """
+
     def __init__(self, name, cmd):  # Let's reuse old command formatting.
         self.name = name.lower()
         self.func = cmd["func"]
@@ -64,7 +65,7 @@ class CommandObject:
                 raise CommandOnCooldown(bucket, retry_after)
 
     async def _concurrency_checks(self, ctx):
-        """The checks required for cooldown and max concurrency"""
+        """The checks required for cooldown and max concurrency."""
         # max concurrency checks
         if self._max_concurrency is not None:
             await self._max_concurrency.acquire(ctx)
@@ -93,6 +94,7 @@ class CommandObject:
 
     def is_on_cooldown(self, ctx):
         """Checks whether the command is currently on cooldown.
+
         Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L797
 
         Parameters
@@ -115,6 +117,7 @@ class CommandObject:
 
     def reset_cooldown(self, ctx):
         """Resets the cooldown on this command.
+
         Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L818
 
         Parameters
@@ -128,6 +131,7 @@ class CommandObject:
 
     def get_cooldown_retry_after(self, ctx):
         """Retrieves the amount of seconds before this command can be tried again.
+
         Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L830
 
         Parameters
@@ -180,6 +184,7 @@ class CommandObject:
         res = [bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx)) for x in self.__commands_checks__]
         return False not in res
 
+
 class SubcommandObject(CommandObject):
     """
     Subcommand object of this extension.
@@ -195,8 +200,9 @@ class SubcommandObject(CommandObject):
     :ivar base_description: Description of the base command.
     :ivar subcommand_group_description: Description of the subcommand_group.
     """
+
     def __init__(self, sub, base, name, sub_group=None):
-        sub["has_subcommands"] = True # For the inherited class.
+        sub["has_subcommands"] = True  # For the inherited class.
         super().__init__(name, sub)
         self.base = base.lower()
         self.subcommand_group = sub_group.lower() if sub_group else sub_group
@@ -211,6 +217,7 @@ class CogCommandObject(CommandObject):
     .. warning::
         Do not manually init this model.
     """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
@@ -238,6 +245,7 @@ class CogSubcommandObject(SubcommandObject):
     .. warning::
         Do not manually init this model.
     """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
@@ -290,6 +298,7 @@ class SlashCommandOptionType(IntEnum):
 
 class SlashMessage(discord.Message):
     """discord.py's :class:`discord.Message` but overridden ``edit`` and ``delete`` to work for slash command."""
+
     def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, interaction_token):
         # Yes I know it isn't the best way but this makes implementation simple.
         super().__init__(state=state, channel=channel, data=data)
@@ -342,4 +351,5 @@ class SlashMessage(discord.Message):
                 with suppress(discord.HTTPException):
                     await asyncio.sleep(delay)
                     await self._http.delete(self.__interaction_token, self.id)
+
             self._state.loop.create_task(wrap())
