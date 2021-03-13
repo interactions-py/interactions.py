@@ -1,5 +1,7 @@
 import typing
 import asyncio
+from datetime import datetime
+
 import discord
 from contextlib import suppress
 from discord.ext import commands
@@ -57,6 +59,7 @@ class SlashContext:
             self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
+        self.received_at = datetime.now()  # the time this context was created (used for cooldowns)
 
     @property
     def guild(self) -> typing.Optional[discord.Guild]:

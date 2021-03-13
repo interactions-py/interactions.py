@@ -1,8 +1,13 @@
 import asyncio
+import datetime
+
 import discord
 from enum import IntEnum
 from contextlib import suppress
 from inspect import iscoroutinefunction
+
+from discord.ext.commands import CooldownMapping, CommandOnCooldown
+
 from . import http
 from . import error
 
@@ -37,6 +42,40 @@ class CommandObject:
         if hasattr(self.func, '__commands_checks__'):
             self.__commands_checks__ = self.func.__commands_checks__
 
+        cooldown = None
+        if hasattr(self.func, "__commands_cooldown__"):
+            cooldown = self.func.__commands_cooldown__
+        self._buckets = CooldownMapping(cooldown)
+
+        self._max_concurrency = None
+        if hasattr(self.func, "__commands_max_concurrency__"):
+            self._max_concurrency = self.func.__commands_max_concurrency__
+
+    def _prepare_cooldowns(self, ctx):
+        """
+        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L765
+        """
+        if self._buckets.valid:
+            dt = ctx.received_at
+            current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+            bucket = self._buckets.get_bucket(ctx, current)
+            retry_after = bucket.update_rate_limit(current)
+            if retry_after:
+                raise CommandOnCooldown(bucket, retry_after)
+
+    async def _concurrency_checks(self, ctx):
+        """The checks required for cooldown and max concurrency"""
+        # max concurrency checks
+        if self._max_concurrency is not None:
+            await self._max_concurrency.acquire(ctx)
+        try:
+            # cooldown checks
+            self._prepare_cooldowns(ctx)
+        except:
+            if self._max_concurrency is not None:
+                await self._max_concurrency.release(ctx)
+            raise
+
     async def invoke(self, *args, **kwargs):
         """
         Invokes the command.
@@ -48,7 +87,67 @@ class CommandObject:
         if not can_run:
             raise error.CheckFailure
 
+        await self._concurrency_checks(args[0])
+
         return await self.func(*args, **kwargs)
+
+    def is_on_cooldown(self, ctx):
+        """Checks whether the command is currently on cooldown.
+        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L797
+
+        Parameters
+        -----------
+        ctx: :class:`.Context`
+            The invocation context to use when checking the commands cooldown status.
+
+        Returns
+        --------
+        :class:`bool`
+            A boolean indicating if the command is on cooldown.
+        """
+        if not self._buckets.valid:
+            return False
+
+        bucket = self._buckets.get_bucket(ctx.message)
+        dt = ctx.message.edited_at or ctx.message.created_at
+        current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+        return bucket.get_tokens(current) == 0
+
+    def reset_cooldown(self, ctx):
+        """Resets the cooldown on this command.
+        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L818
+
+        Parameters
+        -----------
+        ctx: :class:`.Context`
+            The invocation context to reset the cooldown under.
+        """
+        if self._buckets.valid:
+            bucket = self._buckets.get_bucket(ctx.message)
+            bucket.reset()
+
+    def get_cooldown_retry_after(self, ctx):
+        """Retrieves the amount of seconds before this command can be tried again.
+        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L830
+
+        Parameters
+        -----------
+        ctx: :class:`.Context`
+            The invocation context to retrieve the cooldown from.
+
+        Returns
+        --------
+        :class:`float`
+            The amount of time left on this command's cooldown in seconds.
+            If this is ``0.0`` then the command isn't on cooldown.
+        """
+        if self._buckets.valid:
+            bucket = self._buckets.get_bucket(ctx.message)
+            dt = ctx.message.edited_at or ctx.message.created_at
+            current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+            return bucket.get_retry_after(current)
+
+        return 0.0
 
     def add_check(self, func):
         """
@@ -80,7 +179,6 @@ class CommandObject:
         """
         res = [bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx)) for x in self.__commands_checks__]
         return False not in res
-
 
 class SubcommandObject(CommandObject):
     """
@@ -128,6 +226,8 @@ class CogCommandObject(CommandObject):
         if not can_run:
             raise error.CheckFailure
 
+        await self._concurrency_checks(args[0])
+
         return await self.func(self.cog, *args, **kwargs)
 
 
@@ -152,6 +252,8 @@ class CogSubcommandObject(SubcommandObject):
         can_run = await self.can_run(args[0])
         if not can_run:
             raise error.CheckFailure
+
+        await self._concurrency_checks(args[0])
 
         return await self.func(self.cog, *args, **kwargs)
 
