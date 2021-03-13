@@ -120,6 +120,12 @@ class SlashCommand:
         for cmd_obj in res:
             guild_ids = cmd_obj.allowed_guild_ids if cmd_obj.allowed_guild_ids else ["global"]
             for guild in guild_ids:
+                # make sure guild reference exists in command dicts
+                if guild not in self.commands:
+                    self.commands[guild] = {}
+                if guild not in self.subcommands:
+                    self.commands[guild] = {}
+
                 cmd_obj.cog = cog
                 if isinstance(cmd_obj, model.CogCommandObject):
                     if cmd_obj.name in self.commands[guild]:
@@ -732,21 +738,33 @@ class SlashCommand:
         ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
         cmd_name = to_use["data"]["name"]
 
-        # check guild commands and global commands for this command
-        if ctx.guild_id in self.commands and \
-                to_use["data"]["name"] in self.commands[ctx.guild_id]:
-            selected_cmd = self.commands[ctx.guild_id][to_use["data"]["name"]]
-        elif to_use["data"]["name"] in self.commands["global"]:
-            selected_cmd = self.commands["global"][to_use["data"]["name"]]
-        else:
-            # command not in self.commands, might be a subcommand
-            if cmd_name in self.subcommands[ctx.guild_id] or \
-                    cmd_name in self.subcommands["global"]:
-                return await self.handle_subcommand(ctx, to_use)
+        selected_cmd = None
 
+        # check Global for command
+        if cmd_name in self.commands["global"]:
+            selected_cmd = self.commands["global"][cmd_name]
+        # check guildID for command
+        if ctx.guild_id in self.commands and \
+                cmd_name in self.commands[ctx.guild_id]:
+            if selected_cmd:
+                # flag warning if theres a duplicate command in guild commands
+                # if discord adds data signifying if a cmd is global or not we can remove this
+                if not selected_cmd.has_subcommands:
+                    # silence warning if cmd has subcmd, as this will be handled by handle_subcommand
+                    self.logger.warning(f"Command in {ctx.guild_id} and Global share the name "
+                                        f"\"{cmd_name}\", Global command will be used")
+            else:
+                selected_cmd = self.commands[ctx.guild_id][cmd_name]
+
+        # command not in self.commands, might be a subcommand
+        if not selected_cmd:
+            if (ctx.guild_id in self.subcommands and cmd_name in self.subcommands[ctx.guild_id]) or \
+                    cmd_name in self.subcommands[ctx.guild_id]:
+                return await self.handle_subcommand(ctx, to_use)
             else:
                 # command not found
                 return
+
         if selected_cmd.allowed_guild_ids and "global" not in selected_cmd.allowed_guild_ids:
             if selected_cmd.allowed_guild_ids and ctx.guild_id not in selected_cmd.allowed_guild_ids:
                 return
@@ -783,13 +801,24 @@ class SlashCommand:
         :param ctx: :class:`.model.SlashContext` instance.
         :param data: Gateway message.
         """
-        if ctx.guild_id in self.subcommands:
-            if data["data"]["name"] in self.subcommands[ctx.guild_id]:
-                local = ctx.guild_id
-        elif data["data"]["name"] in self.subcommands["global"]:
-            local = "global"
-        else:
-            return
+        basecmd_name = data["data"]["name"]
+        subcmd_name = data["data"]["options"][0]["name"]
+        local = None
+
+        # check Global for sub-cmd
+        if basecmd_name in self.subcommands["global"]:
+            if subcmd_name in self.subcommands["global"][basecmd_name]:
+                local = "global"
+        # check guildID for command
+        if ctx.guild_id in self.subcommands and basecmd_name in self.subcommands[ctx.guild_id]:
+            if subcmd_name in self.subcommands[ctx.guild_id][basecmd_name]:
+                if local:
+                    # flag warning if theres a duplicate command in guild commands
+                    # if discord adds data signifying if a cmd is global or not we can remove this
+                    self.logger.warning(f"Subcommand in {ctx.guild_id} and Global share the name "
+                                        f"\"{basecmd_name}\", Global subcommand will be used")
+                else:
+                    local = ctx.guild_id
 
         base = self.subcommands[local][data["data"]["name"]]
         sub = data["data"]["options"][0]
