@@ -172,7 +172,8 @@ class SlashCommand:
                isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
         for cmd_obj in res:
             if isinstance(cmd_obj, model.CogCommandObject):
-                for guild in self.commands:
+                guild_ids = cmd_obj.allowed_guild_ids if cmd_obj.allowed_guild_ids else ["global"]
+                for guild in guild_ids:
                     if cmd_obj.name not in self.commands[guild]:
                         continue  # Just in case it is removed due to subcommand.
                     if cmd_obj.name in self.subcommands[guild]:
@@ -225,7 +226,7 @@ class SlashCommand:
                 command_dict = {
                     "name": command.name,
                     "description": command.description or "No Description",
-                    "options": command.options or []
+                    "options": copy.copy(command.options) or []
                 }
                 if guild not in output:
                     output[guild] = {}
@@ -319,6 +320,10 @@ class SlashCommand:
                           has_subcommands: bool = False):
         """
         Registers slash command to SlashCommand.
+
+        ..warning::
+            Just using this won't register slash command to Discord API.
+            To register it, check :meth:`.utils.manage_commands.add_slash_command` or simply enable `sync_commands`.
 
         :param cmd: Command Coroutine.
         :type cmd: Coroutine
@@ -451,7 +456,7 @@ class SlashCommand:
             "connector": connector or {}
         }
         for guild in guild_ids:
-            if base not in self.commands:
+            if base not in self.commands[guild]:
                 self.commands[guild][base] = model.CommandObject(base, _cmd)
             else:
                 self.commands[guild][base].has_subcommands = True
