@@ -57,7 +57,7 @@ class CommandObject:
         Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L765
         """
         if self._buckets.valid:
-            dt = ctx.received_at
+            dt = ctx.created_at
             current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
             bucket = self._buckets.get_bucket(ctx, current)
             retry_after = bucket.update_rate_limit(current)
