@@ -158,8 +158,8 @@ def create_option(name: str,
     :return: dict
 
     .. note::
-        a field with the value of ``False`` for ``required`` will return NOTHING if it is not filled. if you wish to have it default to something if not filled,_
-        append ``argname = None`` to the ``async def`` portion of the command.
+        An option with ``required=False`` will not pass anything to the command function if the user doesn't pass that option when invoking the command.
+        You must set the the relevant argument's function to a default argument, eg ``argname = None``.
 
     .. note::
         ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
