@@ -6,6 +6,94 @@ from inspect import iscoroutinefunction
 from . import http
 from . import error
 
+class ChoiceData:
+    """
+    Command choice data object
+
+    :ivar name: Name of the choice, this is what the user will see
+    :ivar value: Values of the choice, this is what discord will return to you
+    """
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def __eq__(self, other):
+        return isinstance(other, ChoiceData) and self.__dict__ == other.__dict__
+
+
+class OptionData:
+    """
+    Command option data object
+
+    :ivar name: Name of the option.
+    :ivar description: Description of the option.
+    :ivar required: If the option is required.
+    :ivar choices: A list of :class:`ChoiceData`, cannot be present on subcommand groups
+    :ivar options: List of :class:`OptionData`, this will be present if it's a subcommand group
+    """
+    def __init__(
+        self, name, description, required=False, choices=None, options=None, **kwargs
+    ):
+        self.name = name
+        self.description = description
+        self.type = kwargs.get("type")
+        if self.type is None:
+            raise error.IncorrectCommandData("type is required for options")
+        self.required = required
+        if choices is not None:
+            self.choices = []
+            for choice in choices:
+                self.choices.append(ChoiceData(**choice))
+        else:
+            self.choices = None
+
+        if self.type in (1, 2):
+            self.options = []
+            if options is not None:
+                for option in options:
+                    self.options.append(OptionData(**option))
+            elif self.type == 2:
+                raise error.IncorrectCommandData(
+                    "Options are required for subcommands / subcommand groups"
+                )
+
+    def __eq__(self, other):
+        return isinstance(other, OptionData) and self.__dict__ == other.__dict__
+
+
+class CommandData:
+    """
+    Slash command data object
+
+    :ivar name: Name of the command.
+    :ivar description: Description of the command.
+    :ivar options: List of :class:`OptionData`.
+    :ivar id: Command id, this is received from discord so may not be present
+    """
+
+    def __init__(
+        self, name, description, options, id=None, **kwargs
+    ):
+        self.name = name
+        self.description = description
+        self.id = id
+        if options is not None:
+            self.options = []
+            for option in options:
+                self.options.append(OptionData(**option))
+        else:
+            self.options = None
+
+    def __eq__(self, other):
+        if isinstance(other, CommandData):
+            return (
+                self.name == other.name
+                and self.description == other.description
+                and self.options == other.options
+            )
+        else:
+            return False
+
 
 class CommandObject:
     """
