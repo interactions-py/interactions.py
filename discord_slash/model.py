@@ -72,11 +72,13 @@ class CommandData:
     """
 
     def __init__(
-        self, name, description, options, id=None, **kwargs
+        self, name, description, options = [], id=None, application_id = None, version = None, **kwargs
     ):
         self.name = name
         self.description = description
         self.id = id
+        self.application_id = application_id
+        self.version = version
         if options is not None:
             self.options = []
             for option in options:
