@@ -52,7 +52,6 @@ slash commands just yet. We can do that by adding this code shown here:
 
     @slash.slash(name="ping", guild_ids=guild_ids)
     async def _ping(ctx): # Defines a new "context" (ctx) command called "ping."
-        await ctx.respond()
         await ctx.send(f"Pong! ({client.latency*1000}ms)")
 
 Let's compare some of the major code differences between the prior examples in order

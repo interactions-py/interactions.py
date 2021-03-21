@@ -109,7 +109,7 @@ Pretty much anything from the discord's commands extension doesn't work, also so
 .. warning::
    If you use something that might take a while, eg ``wait_for`` you'll run into two issues:
 
-   1. If you don't respond within 3 seconds (``ctx.respond()``) discord invalidates the interaction.
+   1. If you don't respond within 3 seconds (``ctx.defer()`` or `ctx.send(..)``) discord invalidates the interaction.
    2. The interaction only lasts for 15 minutes, so if you try and send something with the interaction (``ctx.send``) more than 15 mins after the command was ran it won't work.
 
    As an alternative you can use ``ctx.channel.send`` but this relies on the the bot being in the guild, and the bot having send perms in that channel.
