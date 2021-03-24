@@ -18,6 +18,8 @@ class SlashContext:
 
     :ivar message: Message that invoked the slash command.
     :ivar name: Name of the command.
+    :ivar args: List of processed arguments invoked with the command.
+    :ivar kwargs: Dictionary of processed arguments invoked with the command.
     :ivar subcommand_name: Subcommand of the command.
     :ivar subcommand_group: Subcommand group of the command.
     :ivar interaction_id: Interaction ID of the command message.
@@ -40,6 +42,8 @@ class SlashContext:
         self.__token = _json["token"]
         self.message = None # Should be set later.
         self.name = self.command = self.invoked_with = _json["data"]["name"]
+        self.args = []
+        self.kwargs = {}
         self.subcommand_name = self.invoked_subcommand = self.subcommand_passed = None
         self.subcommand_group = self.invoked_subcommand_group = self.subcommand_group_passed = None
         self.interaction_id = _json["id"]
