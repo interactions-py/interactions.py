@@ -95,6 +95,9 @@ class CommandObject(commands.Command):
             return f"{self.base} {group}{self.name}"
         return self.name
 
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError("Please use SlashContext.InvokeCommand")
+
     @property
     def full_parent_name(self):
         """:class:`str`: Retrieves the fully qualified parent command name.
