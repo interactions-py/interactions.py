@@ -38,9 +38,12 @@ class CommandObject(commands.Command):
         # dpy commands set a load of attributes that break slash_commands
         # to prevent refactoring, call init first, then override with the below
 
+        # overwrite specific dpy attributes
+        self.aliases = []
+
         self.name = name.lower()
-        self.func = cmd["func"]
-        self.description = cmd["description"]
+        self.func = cmd['func']
+        self.description = self.brief = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.connector = cmd["connector"] or {}
@@ -88,8 +91,22 @@ class CommandObject(commands.Command):
         """
         if hasattr(self, "base"):
             # subcmd
-            return f"{self.base} {self.subcommand_group} {self.name}"
+            group = f"{self.subcommand_group + ' ' if self.subcommand_group is not None else ''}"
+            return f"{self.base} {group}{self.name}"
         return self.name
+
+    @property
+    def full_parent_name(self):
+        """:class:`str`: Retrieves the fully qualified parent command name.
+
+        This the base command name required to execute it. For example,
+        in ``?one two three`` the parent name would be ``one two``.
+        """
+        if hasattr(self, "base"):
+            group = f"{self.subcommand_group + ' ' if self.subcommand_group is not None else ''}"
+            return f"{self.base}{group}".strip()
+        else:
+            return None
 
     async def prepare(self, ctx):
         ctx.command = self
@@ -188,7 +205,6 @@ class CommandObject(commands.Command):
         injected = hooked_wrapped_callback(self, args[0], self.callback)
         return await injected(*args, **kwargs)
 
-
     # in case someone tries to run unsupported functions
 
 
@@ -207,13 +223,15 @@ class SubcommandObject(CommandObject):
     :ivar base_description: Description of the base command.
     :ivar subcommand_group_description: Description of the subcommand_group.
     """
+
     def __init__(self, sub, base, name, sub_group=None):
         sub["has_subcommands"] = True  # For the inherited class.
-        super().__init__(name, sub)
         self.base = base.lower()
         self.subcommand_group = sub_group.lower() if sub_group else sub_group
         self.base_description = sub["base_desc"]
         self.subcommand_group_description = sub["sub_group_desc"]
+        super().__init__(name, sub)
+
 
 
 class CogCommandObject(CommandObject):
