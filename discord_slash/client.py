@@ -701,6 +701,13 @@ class SlashCommand:
             if not_kwargs:
                 await func.invoke(ctx, *args)
         except Exception as ex:
+
+            if hasattr(func, "on_error"):
+                # support error decorator
+                try:
+                    await func.on_error(ctx, ex)
+                except Exception as e:
+                    logging.error(f"{ctx.command}:: Error using error decorator: {e}")
             await self.on_slash_command_error(ctx, ex)
 
     async def on_socket_response(self, msg):
