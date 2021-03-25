@@ -136,8 +136,6 @@ class SlashContext:
         :type delete_after: float
         :return: Union[discord.Message, dict]
         """
-        if isinstance(content, int) and 2 <= content <= 5:
-            raise error.IncorrectFormat("`.send` Method is rewritten at Release 1.0.9. Please read the docs and fix all the usages.")
         if embed and embeds:
             raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
         if embed:
