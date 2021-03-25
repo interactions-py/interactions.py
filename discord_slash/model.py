@@ -1,19 +1,16 @@
 import asyncio
 import datetime
-import inspect
+from contextlib import suppress
 from copy import deepcopy
+from enum import IntEnum
 
 import discord
 from discord.ext import commands
-from enum import IntEnum
-from contextlib import suppress
-from inspect import iscoroutinefunction
-
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.core import hooked_wrapped_callback
 
-from . import http
 from . import error
+from . import http
 
 
 class CommandObject(commands.Command):
@@ -209,10 +206,15 @@ class CommandObject(commands.Command):
         """
         await self.prepare(args[0])
 
+        if self.cog:
+            # handle cog commands without override
+            await self.prepare(args[0])
+
+            injected = hooked_wrapped_callback(self, args[0], self.callback)
+            return await injected(self.cog, *args, **kwargs)
+
         injected = hooked_wrapped_callback(self, args[0], self.callback)
         return await injected(*args, **kwargs)
-
-    # in case someone tries to run unsupported functions
 
 
 class SubcommandObject(CommandObject):
@@ -240,7 +242,6 @@ class SubcommandObject(CommandObject):
         super().__init__(name, sub)
 
 
-
 class CogCommandObject(CommandObject):
     """
     Slash command object but for Cog.
@@ -248,21 +249,10 @@ class CogCommandObject(CommandObject):
     .. warning::
         Do not manually init this model.
     """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
-
-    async def invoke(self, *args, **kwargs):
-        """
-        Invokes the command.
-
-        :param args: Args for the command.
-        :raises: .error.CheckFailure
-        """
-        await self.prepare(args[0])
-
-        injected = hooked_wrapped_callback(self, args[0], self.callback)
-        return await injected(self.cog, *args, **kwargs)
 
 
 class CogSubcommandObject(SubcommandObject):
@@ -276,18 +266,6 @@ class CogSubcommandObject(SubcommandObject):
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
-
-    async def invoke(self, *args, **kwargs):
-        """
-        Invokes the command.
-
-        :param args: Args for the command.
-        :raises: .error.CheckFailure
-        """
-        await self.prepare(args[0])
-
-        injected = hooked_wrapped_callback(self, args[0], self.callback)
-        return await injected(self.cog, *args, **kwargs)
 
 
 class SlashCommandOptionType(IntEnum):
@@ -322,6 +300,7 @@ class SlashCommandOptionType(IntEnum):
 
 class SlashMessage(discord.Message):
     """discord.py's :class:`discord.Message` but overridden ``edit`` and ``delete`` to work for slash command."""
+
     def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, interaction_token):
         # Yes I know it isn't the best way but this makes implementation simple.
         super().__init__(state=state, channel=channel, data=data)
@@ -374,4 +353,5 @@ class SlashMessage(discord.Message):
                 with suppress(discord.HTTPException):
                     await asyncio.sleep(delay)
                     await self._http.delete(self.__interaction_token, self.id)
+
             self._state.loop.create_task(wrap())
