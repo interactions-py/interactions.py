@@ -19,6 +19,7 @@ from . import error
 class CommandObject(commands.Command):
     """
     Slash command object of this extension.
+    This is based on discord.ext.commands.Command, certain methods have been overridden / disabled to work with slash
 
     .. warning::
         Do not manually init this model.
@@ -96,6 +97,9 @@ class CommandObject(commands.Command):
         return self.name
 
     def __call__(self, *args, **kwargs):
+
+        # context contains a method that is far better suited to invoking slash commands
+        # so in order to remove potential bugs with this method, ive disabled it
         raise NotImplementedError("Please use SlashContext.InvokeCommand")
 
     @property
@@ -257,7 +261,7 @@ class CogCommandObject(CommandObject):
         """
         await self.prepare(args[0])
 
-        injected = hooked_wrapped_callback(self.func, args[0], self.callback)
+        injected = hooked_wrapped_callback(self, args[0], self.callback)
         return await injected(self.cog, *args, **kwargs)
 
 
@@ -282,7 +286,7 @@ class CogSubcommandObject(SubcommandObject):
         """
         await self.prepare(args[0])
 
-        injected = hooked_wrapped_callback(self.func, args[0], self.callback)
+        injected = hooked_wrapped_callback(self, args[0], self.callback)
         return await injected(self.cog, *args, **kwargs)
 
 
