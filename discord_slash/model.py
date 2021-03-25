@@ -76,13 +76,26 @@ class CommandObject(commands.Command):
         of parameters in that they are passed to the :class:`Command` or
         subclass constructors, sans the name and callback.
         """
-        self.__init__(*self.__original_args__ ,**dict(self.__original_kwargs__, **kwargs))
+        self.__init__(*self.__original_args__, **dict(self.__original_kwargs__, **kwargs))
+
+    @property
+    def qualified_name(self):
+        """:class:`str`: Retrieves the fully qualified command name.
+
+        This is the full parent name with the command name as well.
+        For example, in ``?one two three`` the qualified name would be
+        ``one two three``.
+        """
+        if hasattr(self, "base"):
+            # subcmd
+            return f"{self.base} {self.subcommand_group} {self.name}"
+        return self.name
 
     async def prepare(self, ctx):
         ctx.command = self
 
         if not await self.can_run(ctx):
-            raise commands.CheckFailure('The check functions for command {0.qualified_name} failed.'.format(self))
+            raise error.CheckFailure
 
         if self._max_concurrency is not None:
             await self._max_concurrency.acquire(ctx)
@@ -174,6 +187,9 @@ class CommandObject(commands.Command):
 
         injected = hooked_wrapped_callback(self, args[0], self.callback)
         return await injected(*args, **kwargs)
+
+
+    # in case someone tries to run unsupported functions
 
 
 class SubcommandObject(CommandObject):
