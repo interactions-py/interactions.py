@@ -1,13 +1,22 @@
 import asyncio
+import datetime
+import inspect
+from copy import deepcopy
+
 import discord
+from discord.ext import commands
 from enum import IntEnum
 from contextlib import suppress
 from inspect import iscoroutinefunction
+
+from discord.ext.commands import CommandOnCooldown
+from discord.ext.commands.core import hooked_wrapped_callback
+
 from . import http
 from . import error
 
 
-class CommandObject:
+class CommandObject(commands.Command):
     """
     Slash command object of this extension.
 
@@ -22,7 +31,13 @@ class CommandObject:
     :ivar connector: Kwargs connector of the command.
     :ivar __commands_checks__: Check of the command.
     """
+
     def __init__(self, name, cmd):  # Let's reuse old command formatting.
+        if cmd['func'] is not None:
+            super().__init__(cmd['func'])
+        # dpy commands set a load of attributes that break slash_commands
+        # to prevent refactoring, call init first, then override with the below
+
         self.name = name.lower()
         self.func = cmd["func"]
         self.description = cmd["description"]
@@ -30,12 +45,123 @@ class CommandObject:
         self.options = cmd["api_options"] or []
         self.connector = cmd["connector"] or {}
         self.has_subcommands = cmd["has_subcommands"]
-        # Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L1447
-        # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
-        # add checks at this var.
-        self.__commands_checks__ = []
-        if hasattr(self.func, '__commands_checks__'):
-            self.__commands_checks__ = self.func.__commands_checks__
+
+    def __new__(cls, *args, **kwargs):
+        # if you're wondering why this is done, it's because we need to ensure
+        # we have a complete original copy of **kwargs even for classes that
+        # mess with it by popping before delegating to the subclass __init__.
+        # In order to do this, we need to control the instance creation and
+        # inject the original kwargs through __new__ rather than doing it
+        # inside __init__.
+        self = super().__new__(cls)
+
+        # we do a shallow copy because it's probably the most common use case.
+        # this could potentially break if someone modifies a list or something
+        # while it's in movement, but for now this is the cheapest and
+        # fastest way to do what we want.
+        self.__original_kwargs__ = kwargs.copy()
+
+        # dpy slash uses args as well, so to avoid breaking, ive added this line
+        self.__original_args__ = deepcopy(args)
+        return self
+
+    def copy(self):
+        ret = self.__class__(*self.__original_args__, **self.__original_kwargs__)
+        return ret
+
+    def update(self, **kwargs):
+        """Updates :class:`Command` instance with updated attribute.
+
+        This works similarly to the :func:`.command` decorator in terms
+        of parameters in that they are passed to the :class:`Command` or
+        subclass constructors, sans the name and callback.
+        """
+        self.__init__(*self.__original_args__ ,**dict(self.__original_kwargs__, **kwargs))
+
+    async def prepare(self, ctx):
+        ctx.command = self
+
+        if not await self.can_run(ctx):
+            raise commands.CheckFailure('The check functions for command {0.qualified_name} failed.'.format(self))
+
+        if self._max_concurrency is not None:
+            await self._max_concurrency.acquire(ctx)
+
+        try:
+            if self.cooldown_after_parsing:
+                self._prepare_cooldowns(ctx)
+            else:
+                self._prepare_cooldowns(ctx)
+
+            await self.call_before_hooks(ctx)
+        except:
+            if self._max_concurrency is not None:
+                await self._max_concurrency.release(ctx)
+            raise
+
+    def _prepare_cooldowns(self, ctx):
+        if self._buckets.valid:
+            dt = ctx.created_at
+            current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+            bucket = self._buckets.get_bucket(ctx, current)
+            retry_after = bucket.update_rate_limit(current)
+            if retry_after:
+                raise CommandOnCooldown(bucket, retry_after)
+
+    def is_on_cooldown(self, ctx):
+        """Checks whether the command is currently on cooldown.
+
+        Parameters
+        -----------
+        ctx: :class:`.Context`
+            The invocation context to use when checking the commands cooldown status.
+
+        Returns
+        --------
+        :class:`bool`
+            A boolean indicating if the command is on cooldown.
+        """
+        if not self._buckets.valid:
+            return False
+
+        bucket = self._buckets.get_bucket(ctx)
+        dt = ctx.created_at
+        current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+        return bucket.get_tokens(current) == 0
+
+    def reset_cooldown(self, ctx):
+        """Resets the cooldown on this command.
+
+        Parameters
+        -----------
+        ctx: :class:`.Context`
+            The invocation context to reset the cooldown under.
+        """
+        if self._buckets.valid:
+            bucket = self._buckets.get_bucket(ctx)
+            bucket.reset()
+
+    def get_cooldown_retry_after(self, ctx):
+        """Retrieves the amount of seconds before this command can be tried again.
+
+        .. versionadded:: 1.4
+
+        Parameters
+        -----------
+        ctx: :class:`.Context`
+            The invocation context to retrieve the cooldown from.
+
+        Returns
+        --------
+        :class:`float`
+            The amount of time left on this command's cooldown in seconds.
+            If this is ``0.0`` then the command isn't on cooldown.
+        """
+        if self._buckets.valid:
+            bucket = self._buckets.get_bucket(ctx)
+            dt = ctx.created_at
+            current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+            return bucket.get_retry_after(current)
 
     async def invoke(self, *args, **kwargs):
         """
@@ -44,42 +170,10 @@ class CommandObject:
         :param args: Args for the command.
         :raises: .error.CheckFailure
         """
-        can_run = await self.can_run(args[0])
-        if not can_run:
-            raise error.CheckFailure
+        await self.prepare(args[0])
 
-        return await self.func(*args, **kwargs)
-
-    def add_check(self, func):
-        """
-        Adds check to the command.
-
-        :param func: Any callable. Coroutines are supported.
-        """
-        self.__commands_checks__.append(func)
-
-    def remove_check(self, func):
-        """
-        Removes check to the command.
-
-        .. note::
-            If the function is not found at the command check, it will ignore.
-
-        :param func: Any callable. Coroutines are supported.
-        """
-        with suppress(ValueError):
-            self.__commands_checks__.remove(func)
-
-    async def can_run(self, ctx) -> bool:
-        """
-        Whether the command can be run.
-
-        :param ctx: SlashContext for the check running.
-        :type ctx: .context.SlashContext
-        :return: bool
-        """
-        res = [bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx)) for x in self.__commands_checks__]
-        return False not in res
+        injected = hooked_wrapped_callback(self, args[0], self.callback)
+        return await injected(*args, **kwargs)
 
 
 class SubcommandObject(CommandObject):
@@ -98,7 +192,7 @@ class SubcommandObject(CommandObject):
     :ivar subcommand_group_description: Description of the subcommand_group.
     """
     def __init__(self, sub, base, name, sub_group=None):
-        sub["has_subcommands"] = True # For the inherited class.
+        sub["has_subcommands"] = True  # For the inherited class.
         super().__init__(name, sub)
         self.base = base.lower()
         self.subcommand_group = sub_group.lower() if sub_group else sub_group
@@ -124,11 +218,10 @@ class CogCommandObject(CommandObject):
         :param args: Args for the command.
         :raises: .error.CheckFailure
         """
-        can_run = await self.can_run(args[0])
-        if not can_run:
-            raise error.CheckFailure
+        await self.prepare(args[0])
 
-        return await self.func(self.cog, *args, **kwargs)
+        injected = hooked_wrapped_callback(self.func, args[0], self.callback)
+        return await injected(self.cog, *args, **kwargs)
 
 
 class CogSubcommandObject(SubcommandObject):
@@ -138,6 +231,7 @@ class CogSubcommandObject(SubcommandObject):
     .. warning::
         Do not manually init this model.
     """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
@@ -149,11 +243,10 @@ class CogSubcommandObject(SubcommandObject):
         :param args: Args for the command.
         :raises: .error.CheckFailure
         """
-        can_run = await self.can_run(args[0])
-        if not can_run:
-            raise error.CheckFailure
+        await self.prepare(args[0])
 
-        return await self.func(self.cog, *args, **kwargs)
+        injected = hooked_wrapped_callback(self.func, args[0], self.callback)
+        return await injected(self.cog, *args, **kwargs)
 
 
 class SlashCommandOptionType(IntEnum):

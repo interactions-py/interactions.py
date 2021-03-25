@@ -3,6 +3,8 @@ import asyncio
 import discord
 from contextlib import suppress
 from discord.ext import commands
+from discord.utils import snowflake_time
+
 from . import http
 from . import error
 from . import model
@@ -57,6 +59,7 @@ class SlashContext:
             self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
+        self.created_at = snowflake_time(int(self.interaction_id))  # the time this interaction was created
 
     @property
     def guild(self) -> typing.Optional[discord.Guild]:
