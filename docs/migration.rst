@@ -2,7 +2,7 @@ Migration
 +++++++++
 This page contains instructions on how to migrate between versions with breaking changes.
 
-Migrate To V1.0.10
+Migrate To V1.1.0
 ==================
 Changes that you'll need to make in this version are mainly becuase of a new ui from discord, more info `here <https://github.com/discord/discord-api-docs/pull/2615>`_
 

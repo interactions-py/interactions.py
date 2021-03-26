@@ -192,10 +192,10 @@ class SlashContext:
             resp = await self._http.post_followup(base, self.__token, files=files)
         if not hidden:
             smsg = model.SlashMessage(state=self.bot._connection,
-                                    data=resp,
-                                    channel=self.channel or discord.Object(id=self.channel_id),
-                                    _http=self._http,
-                                    interaction_token=self.__token)
+                                      data=resp,
+                                      channel=self.channel or discord.Object(id=self.channel_id),
+                                      _http=self._http,
+                                      interaction_token=self.__token)
             if delete_after:
                 self.bot.loop.create_task(smsg.delete(delay=delete_after))
             if initial_message:
