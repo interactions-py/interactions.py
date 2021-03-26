@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 from contextlib import suppress
-from copy import deepcopy
 from enum import IntEnum
 
 import discord
@@ -63,12 +62,12 @@ class CommandObject(commands.Command):
         self.__original_kwargs__ = kwargs.copy()
 
         # dpy slash uses args as well, so to avoid breaking, ive added this line
-        self.__original_args__ = deepcopy(args)
+        self.__original_args__ = args
         return self
 
     def copy(self):
         ret = self.__class__(*self.__original_args__, **self.__original_kwargs__)
-        return ret
+        return self._ensure_assignment_on_copy(ret)
 
     def update(self, **kwargs):
         """Updates :class:`Command` instance with updated attribute.
