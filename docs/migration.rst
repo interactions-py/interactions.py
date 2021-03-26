@@ -19,7 +19,7 @@ We suggest deferring if you might take more than three seconds to respond, but i
 .. note::
     You **must** respond with ``.send`` within 15 minutes of the command being invoked to avoid an "interaction failed" message, if you defer.
     This is especially relevant for bots that had 'invisible' commands, where the invocation was not shown.
-    If you wish to have the invocation of the command not visible, send an ephermical success message, and then do what you used to.
+    If you wish to have the invocation of the command not visible, send an ephemeral success message, and then do what you used to.
     It is no longer possible to "eat" the invocation.
     ``ctx.channel.send`` does **not** count as responding.
 
