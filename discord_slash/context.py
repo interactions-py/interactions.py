@@ -25,8 +25,8 @@ class SlashContext:
     :ivar bot: discord.py client.
     :ivar _http: :class:`.http.SlashCommandRequest` of the client.
     :ivar _logger: Logger instance.
-    :ivar deffered: Whether the command is current deffered (loading state)
-    :ivar _deffered_hidden: Internal var to check that state stays the same
+    :ivar deferred: Whether the command is current deferred (loading state)
+    :ivar _deferred_hidden: Internal var to check that state stays the same
     :ivar responded: Whether you have responded with a message to the interaction.
     :ivar guild_id: Guild ID of the command message. If the command was invoked in DM, then it is ``None``
     :ivar author_id: User ID representing author of the command message.
@@ -49,9 +49,9 @@ class SlashContext:
         self._http = _http
         self.bot = _discord
         self._logger = logger
-        self.deffered = False
+        self.deferred = False
         self.responded = False
-        self._deffered_hidden = False  # To check if the patch to the deffered response matches
+        self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         self.author_id = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
         self.channel_id = int(_json["channel_id"])
@@ -82,18 +82,18 @@ class SlashContext:
 
     async def defer(self, hidden: bool = False):
         """
-        'Deferes' the response, showing a loading state to the user
+        'Defers' the response, showing a loading state to the user
 
-        :param hidden: Whether the deffered response should be ephemeral . Default ``False``.
+        :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
         """
-        if self.deffered or self.responded:
+        if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
         base = {"type": 5}
         if hidden:
             base["data"] = {"flags": 64}
-            self._deffered_hidden = True
+            self._deferred_hidden = True
         await self._http.post_initial_response(base, self.interaction_id, self.__token)
-        self.deffered = True
+        self.deferred = True
 
     async def send(self,
                    content: str = "", *,
@@ -169,14 +169,14 @@ class SlashContext:
             initial_message = True
             if files:
                 raise error.IncorrectFormat("You cannot send files in the initial response!")
-            if self.deffered:
-                if self._deffered_hidden != hidden:
+            if self.deferred:
+                if self._deferred_hidden != hidden:
                     self._logger.warning(
-                        "Deffered response might not be what you set it to! (hidden / visible) "
-                        "This is because it was deffered in a different state"
+                        "deferred response might not be what you set it to! (hidden / visible) "
+                        "This is because it was deferred in a different state"
                     )
                 resp = await self._http.edit(base, self.__token)
-                self.deffered = False
+                self.deferred = False
             else:
                 json_data = {
                     "type": 4,
