@@ -64,7 +64,7 @@ to explain what's going on here:
 
 - ``guild_ids = [789032594456576001]``: This is for adding your command as a guild command.
 
-It is very important for us to make sure that we're declaring this cpart of the ``@slash.slash``
+It is very important for us to make sure that we're declaring this part of the ``@slash.slash``
 decorator if we're wanting to declare a guild command and not a **global** one. The reason as for
 why this is needed is because the Discord Bot API can take up to 1 hour to register a global
 command that is called via. the code here when this key-word argument is not passed.
