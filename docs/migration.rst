@@ -51,8 +51,9 @@ Sending hidden messages
 ***********************
 The method ``.send_hidden`` on :class:`SlashContext` has been removed. Use ``.send(hidden = True, ..)`` instead.
 
-
-
+SlashContext
+************
+``ctx.sent`` has been renamed to :attr:`ctx.responded <.SlashContext.responded>`
 
 
 Migrate To 1.0.9

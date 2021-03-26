@@ -27,7 +27,7 @@ class SlashContext:
     :ivar _logger: Logger instance.
     :ivar deffered: Whether the command is current deffered (loading state)
     :ivar _deffered_hidden: Internal var to check that state stays the same
-    :ivar sent: Whether you sent the initial response.
+    :ivar responded: Whether you have responded with a message to the interaction.
     :ivar guild_id: Guild ID of the command message. If the command was invoked in DM, then it is ``None``
     :ivar author_id: User ID representing author of the command message.
     :ivar channel_id: Channel ID representing channel of the command message.
@@ -50,7 +50,7 @@ class SlashContext:
         self.bot = _discord
         self._logger = logger
         self.deffered = False
-        self.sent = False
+        self.responded = False
         self._deffered_hidden = False  # To check if the patch to the deffered response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         self.author_id = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
@@ -86,7 +86,7 @@ class SlashContext:
 
         :param hidden: Whether the deffered response should be ephemeral . Default ``False``.
         """
-        if self.deffered or self.sent:
+        if self.deffered or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
         base = {"type": 5}
         if hidden:
@@ -165,7 +165,7 @@ class SlashContext:
             base["flags"] = 64
         
         initial_message = False
-        if not self.sent:
+        if not self.responded:
             initial_message = True
             if files:
                 raise error.IncorrectFormat("You cannot send files in the initial response!")
@@ -187,7 +187,7 @@ class SlashContext:
                     resp = await self._http.edit({}, self.__token)
                 else:
                     resp = {}
-            self.sent = True
+            self.responded = True
         else:
             resp = await self._http.post_followup(base, self.__token, files=files)
         if not hidden:
