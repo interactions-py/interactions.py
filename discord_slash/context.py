@@ -24,10 +24,12 @@ class SlashContext:
     :ivar subcommand_group: Subcommand group of the command.
     :ivar interaction_id: Interaction ID of the command message.
     :ivar command_id: ID of the command.
-    :ivar _http: :class:`.http.SlashCommandRequest` of the client.
     :ivar bot: discord.py client.
-    :ivar logger: Logger instance.
-    :ivar sent: Whether you sent the initial response.
+    :ivar _http: :class:`.http.SlashCommandRequest` of the client.
+    :ivar _logger: Logger instance.
+    :ivar deffered: Whether the command is current deffered (loading state)
+    :ivar _deffered_hidden: Internal var to check that state stays the same
+    :ivar responded: Whether you have responded with a message to the interaction.
     :ivar guild_id: Guild ID of the command message. If the command was invoked in DM, then it is ``None``
     :ivar author_id: User ID representing author of the command message.
     :ivar channel_id: Channel ID representing channel of the command message.
@@ -48,8 +50,10 @@ class SlashContext:
         self.command_id = _json["data"]["id"]
         self._http = _http
         self.bot = _discord
-        self.logger = logger
-        self.sent = False
+        self._logger = logger
+        self.deffered = False
+        self.responded = False
+        self._deffered_hidden = False  # To check if the patch to the deffered response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         self.author_id = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
         self.channel_id = int(_json["channel_id"])
@@ -79,39 +83,20 @@ class SlashContext:
         """
         return self.bot.get_channel(self.channel_id)
 
-    async def respond(self, eat: bool = False):
+    async def defer(self, hidden: bool = False):
         """
-        Sends command invoke response.\n
-        You should call this first.
+        'Deferes' the response, showing a loading state to the user
 
-        .. note::
-            - If `eat` is ``False``, there is a chance that ``message`` variable is present.
-            - While it is recommended to be manually called, this will still be automatically called
-              if this isn't called but :meth:`.send()` is called.
-
-        :param eat: Whether to eat user's input. Default ``False``.
+        :param hidden: Whether the deffered response should be ephemeral . Default ``False``.
         """
-        base = {"type": 2 if eat else 5}
-        _task = self.bot.loop.create_task(self._http.post(base, self.interaction_id, self.__token, True))
-        self.sent = True
-        if not eat and (not self.guild_id or (self.channel and self.channel.permissions_for(self.guild.me).view_channel)):
-            with suppress(asyncio.TimeoutError):
-                def check(message: discord.Message):
-                    user_id = self.author_id
-                    is_author = message.author.id == user_id
-                    channel_id = self.channel_id
-                    is_channel = channel_id == message.channel.id
-                    is_user_input = message.type == 20
-                    is_correct_command = message.content.startswith(f"</{self.name}:{self.command_id}>")
-                    return is_author and is_channel and is_user_input and is_correct_command
-
-                self.message = await self.bot.wait_for("message", timeout=3, check=check)
-        await _task
-
-    @property
-    def ack(self):
-        """Alias of :meth:`.respond`."""
-        return self.respond
+        if self.deffered or self.responded:
+            raise error.AlreadyResponded("You have already responded to this command!")
+        base = {"type": 5}
+        if hidden:
+            base["data"] = {"flags": 64}
+            self._deffered_hidden = True
+        await self._http.post_initial_response(base, self.interaction_id, self.__token)
+        self.deffered = True
 
     async def send(self,
                    content: str = "", *,
@@ -132,6 +117,7 @@ class SlashContext:
         .. warning::
             - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
             - You can't use both ``embed`` and ``embeds`` at the same time, also applies to ``file`` and ``files``.
+            - You cannot send files in the initial response
 
         :param content:  Content of the response.
         :type content: str
@@ -153,15 +139,6 @@ class SlashContext:
         :type delete_after: float
         :return: Union[discord.Message, dict]
         """
-        if isinstance(content, int) and 2 <= content <= 5:
-            raise error.IncorrectFormat("`.send` Method is rewritten at Release 1.0.9. Please read the docs and fix all the usages.")
-        if not self.sent:
-            self.logger.info(f"At command `{self.name}`: It is recommended to call `.respond()` first!")
-            await self.respond(eat=hidden)
-        if hidden:
-            if embeds or embed or files or file:
-                self.logger.warning("Embed/File is not supported for `hidden`!")
-            return await self.send_hidden(content)
         if embed and embeds:
             raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
         if embed:
@@ -175,6 +152,8 @@ class SlashContext:
             raise error.IncorrectFormat("You can't use both `file` and `files`!")
         if file:
             files = [file]
+        if delete_after and hidden:
+            raise error.IncorrectFormat("You can't delete a hidden message!")
 
         base = {
             "content": content,
@@ -183,30 +162,47 @@ class SlashContext:
             "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
-
-        resp = await self._http.post(base, self.interaction_id, self.__token, files=files)
-        smsg = model.SlashMessage(state=self.bot._connection,
-                                  data=resp,
-                                  channel=self.channel or discord.Object(id=self.channel_id),
-                                  _http=self._http,
-                                  interaction_token=self.__token)
-        if delete_after:
-            self.bot.loop.create_task(smsg.delete(delay=delete_after))
-        return smsg
-
-    def send_hidden(self, content: str = ""):
-        """
-        Sends hidden response.\n
-        This is automatically used if you pass ``hidden=True`` at :meth:`.send`.
-
-        .. note::
-            This is not intended to be manually called. Please use :meth:`.send` instead.
-
-        :param content: Message content.
-        :return: Coroutine
-        """
-        base = {
-            "content": content,
-            "flags": 64
-        }
-        return self._http.post(base, self.interaction_id, self.__token)
+        if hidden:
+            if embeds or files:
+                self._logger.warning("Embed/File is not supported for `hidden`!")
+            base["flags"] = 64
+        
+        initial_message = False
+        if not self.responded:
+            initial_message = True
+            if files:
+                raise error.IncorrectFormat("You cannot send files in the initial response!")
+            if self.deffered:
+                if self._deffered_hidden != hidden:
+                    self._logger.warning(
+                        "Deffered response might not be what you set it to! (hidden / visible) "
+                        "This is because it was deffered in a different state"
+                    )
+                resp = await self._http.edit(base, self.__token)
+                self.deffered = False
+            else:
+                json_data = {
+                    "type": 4,
+                    "data": base
+                }
+                await self._http.post_initial_response(json_data, self.interaction_id, self.__token)
+                if not hidden:
+                    resp = await self._http.edit({}, self.__token)
+                else:
+                    resp = {}
+            self.responded = True
+        else:
+            resp = await self._http.post_followup(base, self.__token, files=files)
+        if not hidden:
+            smsg = model.SlashMessage(state=self.bot._connection,
+                                      data=resp,
+                                      channel=self.channel or discord.Object(id=self.channel_id),
+                                      _http=self._http,
+                                      interaction_token=self.__token)
+            if delete_after:
+                self.bot.loop.create_task(smsg.delete(delay=delete_after))
+            if initial_message:
+                self.message = smsg
+            return smsg
+        else:
+            return resp

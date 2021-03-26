@@ -26,7 +26,7 @@ discussion on GitHub!
 
    quickstart.rst
    gettingstarted.rst
-   migrate_to_109.rst
+   migration.rst
    discord_slash.rst
    events.rst
    discord_slash.utils.rst
