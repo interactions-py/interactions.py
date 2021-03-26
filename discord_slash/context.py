@@ -163,7 +163,7 @@ class SlashContext:
             if embeds or files:
                 self._logger.warning("Embed/File is not supported for `hidden`!")
             base["flags"] = 64
-        
+
         initial_message = False
         if not self.responded:
             initial_message = True

@@ -33,7 +33,7 @@ Example
     async def command(ctx, ...):
         await ctx.respond()
         await ctx.send(...)
-    
+
     # After 1
     @slash.slash(...)
     async def command(ctx, ...):
@@ -46,7 +46,7 @@ Example
         # Process that takes time
         await ctx.send(...)
 
-    
+
 Sending hidden messages
 ***********************
 The method ``.send_hidden`` on :class:`SlashContext` has been removed. Use ``.send(hidden = True, ..)`` instead.
