@@ -52,8 +52,12 @@ slash commands just yet. We can do that by adding this code shown here:
 
     @slash.slash(name="ping", guild_ids=guild_ids)
     async def _ping(ctx): # Defines a new "context" (ctx) command called "ping."
-        await ctx.respond()
         await ctx.send(f"Pong! ({client.latency*1000}ms)")
+
+.. note::
+    In this example we responded directly to the interaction, however if you want to delay the response (if you need more than 3 seconds before sending a message)
+    you can defer the response for up to 15 minutes with :meth:`ctx.defer() <.SlashContext.defer()>`, this displays a "Bot is thinking" message.
+    However do not defer the response if you will be able to respond (send) within three seconds as this will cause a message to flash up
 
 Let's compare some of the major code differences between the prior examples in order
 to explain what's going on here:
