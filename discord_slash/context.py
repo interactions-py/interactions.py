@@ -1,5 +1,7 @@
 import typing
 import asyncio
+from warnings import warn
+
 import discord
 from contextlib import suppress
 from discord.ext import commands
@@ -61,6 +63,26 @@ class SlashContext:
             self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
+
+    @property
+    def _deffered_hidden(self):
+        warn("`_deffered_hidden` as been renamed to `_deferred_hidden`.", DeprecationWarning, stacklevel=2)
+        return self._deferred_hidden
+
+    @_deffered_hidden.setter
+    def _deffered_hidden(self, value):
+        warn("`_deffered_hidden` as been renamed to `_deferred_hidden`.", DeprecationWarning, stacklevel=2)
+        self._deferred_hidden = value
+
+    @property
+    def deffered(self):
+        warn("`deffered` as been renamed to `deferred`.", DeprecationWarning, stacklevel=2)
+        return self.deferred
+
+    @deffered.setter
+    def deffered(self, value):
+        warn("`deffered` as been renamed to `deferred`.", DeprecationWarning, stacklevel=2)
+        self.deferred = value
 
     @property
     def guild(self) -> typing.Optional[discord.Guild]:
