@@ -691,12 +691,15 @@ class SlashCommand:
         try:
             not_kwargs = False
             if isinstance(args, dict):
+                ctx.kwargs = args
+                ctx.args = list(args.values())
                 try:
                     await func.invoke(ctx, **args)
                 except TypeError:
                     args = list(args.values())
                     not_kwargs = True
             else:
+                ctx.args = args
                 not_kwargs = True
             if not_kwargs:
                 await func.invoke(ctx, *args)
