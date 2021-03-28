@@ -118,7 +118,7 @@ class SlashContext:
         .. warning::
             - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
             - You can't use both ``embed`` and ``embeds`` at the same time, also applies to ``file`` and ``files``.
-            - You cannot send files in the initial response
+            - If you send files in the initial response, this will defer if it's not been deferred, and then PATCH with the message
 
         :param content:  Content of the response.
         :type content: str
