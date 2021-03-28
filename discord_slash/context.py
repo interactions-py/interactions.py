@@ -171,15 +171,15 @@ class SlashContext:
         initial_message = False
         if not self.responded:
             initial_message = True
-            if files:
-                raise error.IncorrectFormat("You cannot send files in the initial response!")
+            if files and not self.deffered:
+                await self.defer(hidden=hidden)
             if self.deffered:
                 if self._deffered_hidden != hidden:
                     self._logger.warning(
                         "Deffered response might not be what you set it to! (hidden / visible) "
                         "This is because it was deffered in a different state"
                     )
-                resp = await self._http.edit(base, self.__token)
+                resp = await self._http.edit(base, self.__token, files = files)
                 self.deffered = False
             else:
                 json_data = {
