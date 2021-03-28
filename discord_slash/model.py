@@ -206,6 +206,9 @@ class SlashMessage(discord.Message):
 
         embed = fields.get("embed")
         embeds = fields.get("embeds")
+        file = fields.get("file")
+        files = fields.get("files")
+
         if embed and embeds:
             raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
         if file and files:
@@ -225,7 +228,7 @@ class SlashMessage(discord.Message):
         _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
             self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
 
-        await self._http.edit(_resp, self.__interaction_token, self.id, files = fileso)
+        await self._http.edit(_resp, self.__interaction_token, self.id, files = files)
 
         delete_after = fields.get("delete_after")
         if delete_after:
@@ -234,10 +237,13 @@ class SlashMessage(discord.Message):
 
     async def edit(self, **fields):
         """Refer :meth:`discord.Message.edit`."""
-        try:
-            await super().edit(**fields)
-        except discord.Forbidden:
-           await self._slash_edit(**fields)
+        if ("file", "files") in fields:
+            await self._slash_edit(**fields)
+        else:
+            try:
+                await super().edit(**fields)
+            except discord.Forbidden:
+                await self._slash_edit(**fields)
 
     async def delete(self, *, delay=None):
         """Refer :meth:`discord.Message.delete`."""
