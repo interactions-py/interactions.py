@@ -194,7 +194,7 @@ class SlashMessage(discord.Message):
         self._http = _http
         self.__interaction_token = interaction_token
 
-    async def _slash_edit(self, **kwargs):
+    async def _slash_edit(self, **fields):
         """
         An internal function
         """
@@ -225,7 +225,7 @@ class SlashMessage(discord.Message):
         _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
             self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
 
-        await self._http.edit(_resp, self.__interaction_token, self.id, files = files)
+        await self._http.edit(_resp, self.__interaction_token, self.id, files = fileso)
 
         delete_after = fields.get("delete_after")
         if delete_after:
