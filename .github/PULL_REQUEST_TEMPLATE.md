@@ -13,5 +13,5 @@ What changes were made?
     - Issue:
 - [ ] This adds something new.
 - [ ] There is/are breaking change(s).
-- [ ] (If required) Relavent documentation has been updated/added.
+- [ ] (If required) Relevant documentation has been updated/added.
 - [ ] This is not a code change. (README, docs, etc.)

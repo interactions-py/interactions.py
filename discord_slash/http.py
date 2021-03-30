@@ -3,6 +3,7 @@ import typing
 import aiohttp
 import discord
 from discord.http import Route
+from . import error
 
 
 class CustomRoute(Route):
@@ -83,39 +84,65 @@ class SlashCommandRequest:
         route = CustomRoute(method, url)
         return self._discord.http.request(route, **kwargs)
 
-    def post(self, _resp, interaction_id, token, initial=False, files: typing.List[discord.File] = None):
+    def post_followup(self, _resp, token, files: typing.List[discord.File] = None):
         """
-        Sends command response POST request to Discord API.
+        Sends command followup response POST request to Discord API.
 
         :param _resp: Command response.
         :type _resp: dict
-        :param interaction_id: Interaction ID.
         :param token: Command message token.
-        :param initial: Whether this request is initial. Default ``False``
         :param files: Files to send. Default ``None``
         :type files: List[discord.File]
         :return: Coroutine
         """
         if files:
             return self.post_with_files(_resp, files, token)
-        req_url = f"/interactions/{interaction_id}/{token}/callback" if initial else f"/webhooks/{self.application_id}/{token}"
-        route = CustomRoute("POST", req_url)
-        return self._discord.http.request(route, json=_resp)
+        return self.command_response(token, True, "POST", json=_resp)
+
+    def post_initial_response(self, _resp, interaction_id, token):
+        """
+        Sends an initial "POST" response to the Discord API.
+         
+        :param _resp: Command response.
+        :type _resp: dict
+        :param interaction_id: Interaction ID.
+        :param token: Command message token.
+        :return: Coroutine
+        """
+        return self.command_response(token, False, "POST", interaction_id, json=_resp)
+
+    def command_response(self, token, use_webhook, method, interaction_id= None, url_ending = "", **kwargs):
+        """
+        Sends a command response to discord (POST, PATCH, DELETE)
+
+        :param token: Interaction token
+        :param use_webhook: Whether to use webhooks
+        :param method: The HTTP request to use
+        :param interaction_id: The id of the interaction
+        :param url_ending: String to append onto the end of the url.
+        :param \**kwargs: Kwargs to pass into discord.py's `request function <https://github.com/Rapptz/discord.py/blob/master/discord/http.py#L134>`_
+        :return: Coroutine
+        """
+        if not use_webhook and not interaction_id:
+            raise error.IncorrectFormat("Internal Error! interaction_id must be set if use_webhook is False")
+        req_url = f"/webhooks/{self.application_id}/{token}" if use_webhook else f"/interactions/{interaction_id}/{token}/callback"
+        req_url += url_ending
+        route = CustomRoute(method, req_url)
+        return self._discord.http.request(route, **kwargs)
 
     def post_with_files(self, _resp, files: typing.List[discord.File], token):
-        req_url = f"/webhooks/{self.application_id}/{token}"
-        route = CustomRoute("POST", req_url)
+
         form = aiohttp.FormData()
         form.add_field("payload_json", json.dumps(_resp))
         for x in range(len(files)):
             name = f"file{x if len(files) > 1 else ''}"
             sel = files[x]
             form.add_field(name, sel.fp, filename=sel.filename, content_type="application/octet-stream")
-        return self._discord.http.request(route, data=form, files=files)
+        return self.command_response(token, True, "POST", data=form, files=files)
 
     def edit(self, _resp, token, message_id="@original"):
         """
-        Sends edit command response POST request to Discord API.
+        Sends edit command response PATCH request to Discord API.
 
         :param _resp: Edited response.
         :type _resp: dict
@@ -123,9 +150,9 @@ class SlashCommandRequest:
         :param message_id: Message ID to edit. Default initial message.
         :return: Coroutine
         """
-        req_url = f"/webhooks/{self.application_id}/{token}/messages/{message_id}"
-        route = CustomRoute("PATCH", req_url)
-        return self._discord.http.request(route, json=_resp)
+        req_url = f"/messages/{message_id}"
+        return self.command_response(token, True, "PATCH", url_ending = req_url, json=_resp)
+
 
     def delete(self, token, message_id="@original"):
         """
@@ -135,6 +162,6 @@ class SlashCommandRequest:
         :param message_id: Message ID to delete. Default initial message.
         :return: Coroutine
         """
-        req_url = f"/webhooks/{self.application_id}/{token}/messages/{message_id}"
-        route = CustomRoute("DELETE", req_url)
-        return self._discord.http.request(route)
+        req_url = f"/messages/{message_id}"
+        return self.command_response(token, True, "DELETE", url_ending = req_url)
+

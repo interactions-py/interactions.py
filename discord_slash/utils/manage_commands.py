@@ -158,6 +158,10 @@ def create_option(name: str,
     :return: dict
 
     .. note::
+        An option with ``required=False`` will not pass anything to the command function if the user doesn't pass that option when invoking the command.
+        You must set the the relevant argument's function to a default argument, eg ``argname = None``.
+
+    .. note::
         ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
         or a list of single string values. 
     """

@@ -54,17 +54,12 @@ code as shown below:
   @slash.slash(name="test",
                description="This is just a test command, nothing more.")
   async def test(ctx):
-    await ctx.respond()
     await ctx.send(content="Hello World!")
     
 Now that we've gone over how Discord handles the declaration of slash commands
 through their Bot API, let's go over what some of the other things mean within
 the *logical* part of our code, the command function:
 
-- ``ctx.respond()``: This is a way for us to handle responses. In short, the API
-requires some way to "acknowledge" an interaction response that we want to send off.
-
-(An alias of this would be ``ctx.ack()``)
 
 Giving some options for variety.
 --------------------------------
@@ -150,7 +145,7 @@ Now, we can finally visualize this by coding an example of this being used in th
 
 .. code-block:: python
 
-  from discord_slash.manage_commands import create_option
+  from discord_slash.utils.manage_commands import create_option
   
   @slash.slash(name="test",
                description="This is just a test command, nothing more.",
@@ -163,7 +158,6 @@ Now, we can finally visualize this by coding an example of this being used in th
                  )
                ])
   async def test(ctx, optone: str):
-    await ctx.respond()
     await ctx.send(content=f"I got you, you said {optone}!")
     
 Additionally, we could also declare the type of our command's option through this method shown here:
@@ -210,7 +204,7 @@ a string or integer. Below is an implementation of this design in the Python cod
 
 .. code-block:: python
 
-  from discord_slash.manage_commands import create_option, create_choice
+  from discord_slash.utils.manage_commands import create_option, create_choice
   
   @slash.slash(name="test",
                description="This is just a test command, nothing more.",
@@ -233,7 +227,6 @@ a string or integer. Below is an implementation of this design in the Python cod
                  )
                ])
   async def test(ctx, optone: str):
-    await ctx.respond()
     await ctx.send(content=f"Wow, you actually chose {optone}? :(")
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html

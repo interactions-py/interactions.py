@@ -298,7 +298,7 @@ class SlashCommand:
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
         other_guilds = [x.id for x in self._discord.guilds if x.id not in cmds["guild"]]
-        # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
+        # This is an extremely bad way to do this, because slash cmds can be in guilds the bot isn't in
         # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
 
         self.logger.debug("Syncing global commands...")
@@ -709,12 +709,15 @@ class SlashCommand:
         try:
             not_kwargs = False
             if isinstance(args, dict):
+                ctx.kwargs = args
+                ctx.args = list(args.values())
                 try:
                     await func.invoke(ctx, **args)
                 except TypeError:
                     args = list(args.values())
                     not_kwargs = True
             else:
+                ctx.args = args
                 not_kwargs = True
             if not_kwargs:
                 await func.invoke(ctx, *args)
@@ -892,5 +895,5 @@ class SlashCommand:
         if hasattr(self._discord, "on_slash_command_error"):
             self._discord.dispatch("slash_command_error", ctx, ex)
             return
-        # Prints exception if not overrided or has no listener for error.
+        # Prints exception if not overridden or has no listener for error.
         self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
