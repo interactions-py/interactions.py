@@ -350,7 +350,7 @@ class SlashCommand:
         name = name.lower()
         guild_ids = guild_ids if guild_ids else ["global"]
 
-        for i in range(len(guild_ids)):
+        for guild in guild_ids:
             if guild_ids[i] is None:
                 guild_ids[i] = "global"
 
