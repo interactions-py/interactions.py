@@ -200,7 +200,7 @@ class SlashMessage(discord.Message):
         """
         _resp = {}
 
-        content = str(fields.get("content"))
+        content = fields.get("content")
         if content:
             _resp["content"] = str(content)
 
@@ -240,7 +240,7 @@ class SlashMessage(discord.Message):
 
     async def edit(self, **fields):
         """Refer :meth:`discord.Message.edit`."""
-        if ("file", "files") in fields:
+        if "file" in fields or "files" in fields:
             await self._slash_edit(**fields)
         else:
             try:
