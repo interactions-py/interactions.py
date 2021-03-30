@@ -349,16 +349,17 @@ class SlashCommand:
         name = name or cmd.__name__
         name = name.lower()
         guild_ids = guild_ids if guild_ids else ["global"]
+        cp_guild_ids = guild_ids.copy()
 
-        for guild in guild_ids:
-            if guild_ids[i] is None:
-                guild_ids[i] = "global"
+        for guild in cp_guild_ids:
+            if guild is None:
+                guild = "global"
 
-            if guild_ids[i] not in self.commands:
-                self.commands[guild_ids[i]] = {}
-            if name in self.commands[guild_ids[i]]:
+            if guild not in self.commands:
+                self.commands[guild] = {}
+            if name in self.commands[guild]:
                 # prevent duplicate commands in guild
-                tgt = self.commands[guild_ids[i]][name]
+                tgt = self.commands[guild][name]
                 if not tgt.has_subcommands:
                     raise error.DuplicateCommand(name)
                 has_subcommands = tgt.has_subcommands
