@@ -4,15 +4,15 @@ This page contains instructions on how to migrate between versions with breaking
 
 Migrate To V1.1.0
 ==================
-Changes that you'll need to make in this version are mainly becuase of a new ui from discord, more info `here <https://github.com/discord/discord-api-docs/pull/2615>`_
+Changes that you'll need to make in this version are mainly because of a new ui from discord, more info `here <https://github.com/discord/discord-api-docs/pull/2615>`_
 
 Responding / Deferring
 **********************
 
-In regards to :class:`SlashContext` the methods ``.respond`` and ``.ack`` have been removed, and ``.defer`` added. 
+In regards to :class:`SlashContext` the methods ``.respond`` and ``.ack`` have been removed, and ``.defer`` added.
 Deferring a message will allow you to respond for up to 15 mins, but you'll have to defer within three seconds.
-When you defer the user will see a "this bot is thinking" message until you send a message, This message can be ephermical (hidden) or visible.
-``.defer`` has a ``hidden`` parameter, which will make the deferred message ephermical.
+When you defer the user will see a "this bot is thinking" message until you send a message, This message can be ephemeral (hidden) or visible.
+``.defer`` has a ``hidden`` parameter, which will make the deferred message ephemeral.
 
 We suggest deferring if you might take more than three seconds to respond, but if you will call ``.send`` before three seconds then don't.
 
@@ -33,7 +33,7 @@ Example
     async def command(ctx, ...):
         await ctx.respond()
         await ctx.send(...)
-    
+
     # After 1
     @slash.slash(...)
     async def command(ctx, ...):
@@ -46,7 +46,7 @@ Example
         # Process that takes time
         await ctx.send(...)
 
-    
+
 Sending hidden messages
 ***********************
 The method ``.send_hidden`` on :class:`SlashContext` has been removed. Use ``.send(hidden = True, ..)`` instead.
