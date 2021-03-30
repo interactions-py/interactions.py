@@ -194,6 +194,9 @@ class SlashContext:
             self.responded = True
         else:
             resp = await self._http.post_followup(base, self.__token, files=files)
+        if files:
+            for file in files:
+                file.close()
         if not hidden:
             smsg = model.SlashMessage(state=self.bot._connection,
                                       data=resp,

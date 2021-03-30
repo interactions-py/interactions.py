@@ -233,6 +233,9 @@ class SlashMessage(discord.Message):
         delete_after = fields.get("delete_after")
         if delete_after:
             await self.delete(delay=delete_after)
+        if files:
+            for file in files:
+                file.close()
 
 
     async def edit(self, **fields):
