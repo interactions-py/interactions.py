@@ -413,7 +413,6 @@ class SlashCommand:
         subcommand_group = subcommand_group.lower() if subcommand_group else subcommand_group
         name = name or cmd.__name__
         name = name.lower()
-        description = description
         guild_ids = guild_ids if guild_ids else []
 
         if base in self.commands:
