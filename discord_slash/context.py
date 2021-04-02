@@ -197,8 +197,6 @@ class SlashContext:
                 await self.defer(hidden=hidden)
             if self.defered:
                 if self._defered_hidden != hidden:
-            if files:
-                raise error.IncorrectFormat("You cannot send files in the initial response!")
             if self.deferred:
                 if self._deferred_hidden != hidden:
                     self._logger.warning(
