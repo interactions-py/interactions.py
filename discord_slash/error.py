@@ -55,6 +55,13 @@ class IncorrectType(SlashCommandError):
     Type passed was incorrect
     """
 
+
+class IncorrectCommandData(SlashCommandError):
+    """
+    Incorrect data was passed to a slash command data object
+    """
+    
+
 class AlreadyResponded(SlashCommandError):
     """
     The interaction was already responded to

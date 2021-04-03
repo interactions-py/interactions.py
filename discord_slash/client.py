@@ -296,24 +296,62 @@ class SlashCommand:
         Matches commands registered on Discord to commands registered here.
         Deletes any commands on Discord but not here, and registers any not on Discord.
         This is done with a `put` request.
+        A PUT request will only be made if there are changes detected.
         If ``sync_commands`` is ``True``, then this will be automatically called.
 
         :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
         """
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
-        other_guilds = [x.id for x in self._discord.guilds if x.id not in cmds["guild"]]
-        # This is an extremely bad way to do this, because slash cmds can be in guilds the bot isn't in
-        # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
+        cmds_formatted = {None: cmds['global']}
+        for guild in cmds['guild']:
+            cmds_formatted[guild] = cmds['guild'][guild]
+                
+        for scope in cmds_formatted:
+            new_cmds = cmds_formatted[scope]
+            existing_cmds = await self.req.get_all_commands(guild_id = scope)
+            existing_by_name = {}
+            to_send=[]
+            changed = False
+            for cmd in existing_cmds:
+                existing_by_name[cmd["name"]] = model.CommandData(**cmd)
 
-        await self.req.put_slash_commands(slash_commands=cmds["global"], guild_id=None)
+            if len(new_cmds) != len(existing_cmds): 
+                changed = True
 
-        for x in cmds["guild"]:
-            await self.req.put_slash_commands(slash_commands=cmds["guild"][x], guild_id=x)
+            for command in new_cmds:
+                cmd_name = command["name"]
+                if cmd_name in existing_by_name:
+                    cmd_data = model.CommandData(**command)
+                    existing_cmd = existing_by_name[cmd_name]
+                    if cmd_data != existing_cmd:
+                        changed=True
+                        to_send.append(command)
+                    else:
+                        command_with_id = command
+                        command_with_id["id"] = existing_cmd.id
+                        to_send.append(command_with_id)
+                else:
+                    changed=True
+                    to_send.append(command)
+
+            
+            if changed:
+                self.logger.debug(f"Detected changes on {scope if scope is not None else 'global'}, updating them")
+                await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
+            else:
+                self.logger.debug(f"Detected no changes on {scope if scope is not None else 'global'}, skipping")
+
         if delete_from_unused_guilds:
-            for x in other_guilds:
+            other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
+            # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
+            # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
+            
+            for guild in other_guilds:
                 with suppress(discord.Forbidden):
-                    await self.req.put_slash_commands(slash_commands=[], guild_id=x)
+                    existing = self.req.get_all_commands(guild_id = guild)
+                    if len(existing) != 0:
+                        await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
 
         self.logger.info("Completed syncing all commands!")
 
