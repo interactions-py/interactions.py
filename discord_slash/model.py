@@ -207,7 +207,6 @@ class CommandObject(commands.Command):
 
         if self.cog:
             # handle cog commands without override
-            await self.prepare(args[0])
 
             injected = hooked_wrapped_callback(self, args[0], self.callback)
             return await injected(self.cog, *args, **kwargs)
