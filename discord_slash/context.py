@@ -193,10 +193,8 @@ class SlashContext:
         initial_message = False
         if not self.responded:
             initial_message = True
-            if files and not self.defered:
+            if files and not self.deferred:
                 await self.defer(hidden=hidden)
-            if self.defered:
-                if self._defered_hidden != hidden:
             if self.deferred:
                 if self._deferred_hidden != hidden:
                     self._logger.warning(
@@ -204,8 +202,6 @@ class SlashContext:
                         "This is because it was deferred in a different state"
                     )
                 resp = await self._http.edit(base, self.__token, files = files)
-                self.defered = False
-                resp = await self._http.edit(base, self.__token)
                 self.deferred = False
             else:
                 json_data = {
