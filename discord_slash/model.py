@@ -284,39 +284,59 @@ class SlashMessage(discord.Message):
         self._http = _http
         self.__interaction_token = interaction_token
 
+    async def _slash_edit(self, **fields):
+        """
+        An internal function
+        """
+        _resp = {}
+
+        content = fields.get("content")
+        if content:
+            _resp["content"] = str(content)
+
+        embed = fields.get("embed")
+        embeds = fields.get("embeds")
+        file = fields.get("file")
+        files = fields.get("files")
+
+        if embed and embeds:
+            raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
+        if file and files:
+            raise error.IncorrectFormat("You can't use both `file` and `files`!")
+        if file:
+            files = [file]
+        if embed:
+            embeds = [embed]
+        if embeds:
+            if not isinstance(embeds, list):
+                raise error.IncorrectFormat("Provide a list of embeds.")
+            elif len(embeds) > 10:
+                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
+            _resp["embeds"] = [x.to_dict() for x in embeds]
+
+        allowed_mentions = fields.get("allowed_mentions")
+        _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
+            self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
+
+        await self._http.edit(_resp, self.__interaction_token, self.id, files = files)
+
+        delete_after = fields.get("delete_after")
+        if delete_after:
+            await self.delete(delay=delete_after)
+        if files:
+            for file in files:
+                file.close()
+
+
     async def edit(self, **fields):
         """Refer :meth:`discord.Message.edit`."""
-        try:
-            await super().edit(**fields)
-        except discord.Forbidden:
-            _resp = {}
-
-            content = str(fields.get("content"))
-            if content:
-                _resp["content"] = str(content)
-
-            embed = fields.get("embed")
-            embeds = fields.get("embeds")
-            if embed and embeds:
-                raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
-            if embed:
-                embeds = [embed]
-            if embeds:
-                if not isinstance(embeds, list):
-                    raise error.IncorrectFormat("Provide a list of embeds.")
-                elif len(embeds) > 10:
-                    raise error.IncorrectFormat("Do not provide more than 10 embeds.")
-                _resp["embeds"] = [x.to_dict() for x in embeds]
-
-            allowed_mentions = fields.get("allowed_mentions")
-            _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
-                self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
-
-            await self._http.edit(_resp, self.__interaction_token, self.id)
-
-            delete_after = fields.get("delete_after")
-            if delete_after:
-                await self.delete(delay=delete_after)
+        if "file" in fields or "files" in fields:
+            await self._slash_edit(**fields)
+        else:
+            try:
+                await super().edit(**fields)
+            except discord.Forbidden:
+                await self._slash_edit(**fields)
 
     async def delete(self, *, delay=None):
         """Refer :meth:`discord.Message.delete`."""

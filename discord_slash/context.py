@@ -140,7 +140,7 @@ class SlashContext:
         .. warning::
             - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
             - You can't use both ``embed`` and ``embeds`` at the same time, also applies to ``file`` and ``files``.
-            - You cannot send files in the initial response
+            - If you send files in the initial response, this will defer if it's not been deferred, and then PATCH with the message
 
         :param content:  Content of the response.
         :type content: str
@@ -193,15 +193,15 @@ class SlashContext:
         initial_message = False
         if not self.responded:
             initial_message = True
-            if files:
-                raise error.IncorrectFormat("You cannot send files in the initial response!")
+            if files and not self.deferred:
+                await self.defer(hidden=hidden)
             if self.deferred:
                 if self._deferred_hidden != hidden:
                     self._logger.warning(
                         "deferred response might not be what you set it to! (hidden / visible) "
                         "This is because it was deferred in a different state"
                     )
-                resp = await self._http.edit(base, self.__token)
+                resp = await self._http.edit(base, self.__token, files = files)
                 self.deferred = False
             else:
                 json_data = {
@@ -216,6 +216,9 @@ class SlashContext:
             self.responded = True
         else:
             resp = await self._http.post_followup(base, self.__token, files=files)
+        if files:
+            for file in files:
+                file.close()
         if not hidden:
             smsg = model.SlashMessage(state=self.bot._connection,
                                       data=resp,

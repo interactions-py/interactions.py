@@ -96,7 +96,7 @@ class SlashCommandRequest:
         :return: Coroutine
         """
         if files:
-            return self.post_with_files(_resp, files, token)
+            return self.request_with_files(_resp, files, token, "POST")
         return self.command_response(token, True, "POST", json=_resp)
 
     def post_initial_response(self, _resp, interaction_id, token):
@@ -130,7 +130,7 @@ class SlashCommandRequest:
         route = CustomRoute(method, req_url)
         return self._discord.http.request(route, **kwargs)
 
-    def post_with_files(self, _resp, files: typing.List[discord.File], token):
+    def request_with_files(self, _resp, files: typing.List[discord.File], token, method, url_ending = ""):
 
         form = aiohttp.FormData()
         form.add_field("payload_json", json.dumps(_resp))
@@ -138,9 +138,9 @@ class SlashCommandRequest:
             name = f"file{x if len(files) > 1 else ''}"
             sel = files[x]
             form.add_field(name, sel.fp, filename=sel.filename, content_type="application/octet-stream")
-        return self.command_response(token, True, "POST", data=form, files=files)
+        return self.command_response(token, True, method, data=form, files=files, url_ending=url_ending)
 
-    def edit(self, _resp, token, message_id="@original"):
+    def edit(self, _resp, token, message_id="@original", files: typing.List[discord.File] = None):
         """
         Sends edit command response PATCH request to Discord API.
 
@@ -148,9 +148,13 @@ class SlashCommandRequest:
         :type _resp: dict
         :param token: Command message token.
         :param message_id: Message ID to edit. Default initial message.
+        :param files: Files. Default ``None``
+        :type files: List[discord.File]
         :return: Coroutine
         """
         req_url = f"/messages/{message_id}"
+        if files:
+            return self.request_with_files(_resp, files, token, "PATCH", url_ending = req_url)
         return self.command_response(token, True, "PATCH", url_ending = req_url, json=_resp)
 
 
