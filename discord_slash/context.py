@@ -44,7 +44,7 @@ class SlashContext:
                  _discord: typing.Union[discord.Client, commands.Bot],
                  logger):
         self.__token = _json["token"]
-        self.message = None # Should be set later.
+        self.message = None  # Should be set later.
         self.name = self.command = self.invoked_with = _json["data"]["name"]
         self.args = []
         self.kwargs = {}
@@ -198,10 +198,10 @@ class SlashContext:
             if self.deferred:
                 if self._deferred_hidden != hidden:
                     self._logger.warning(
-                        "deferred response might not be what you set it to! (hidden / visible) "
-                        "This is because it was deferred in a different state"
+                        "Deferred response might not be what you set it to! (hidden / visible) "
+                        "This is because it was deferred in a different state."
                     )
-                resp = await self._http.edit(base, self.__token, files = files)
+                resp = await self._http.edit(base, self.__token, files=files)
                 self.deferred = False
             else:
                 json_data = {

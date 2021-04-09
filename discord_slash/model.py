@@ -6,6 +6,7 @@ from inspect import iscoroutinefunction
 from . import http
 from . import error
 
+
 class ChoiceData:
     """
     Command choice data object
@@ -13,6 +14,7 @@ class ChoiceData:
     :ivar name: Name of the choice, this is what the user will see
     :ivar value: Values of the choice, this is what discord will return to you
     """
+
     def __init__(self, name, value):
         self.name = name
         self.value = value
@@ -31,8 +33,9 @@ class OptionData:
     :ivar choices: A list of :class:`ChoiceData`, cannot be present on subcommand groups
     :ivar options: List of :class:`OptionData`, this will be present if it's a subcommand group
     """
+
     def __init__(
-        self, name, description, required=False, choices=None, options=None, **kwargs
+            self, name, description, required=False, choices=None, options=None, **kwargs
     ):
         self.name = name
         self.description = description
@@ -72,7 +75,7 @@ class CommandData:
     """
 
     def __init__(
-        self, name, description, options = [], id=None, application_id = None, version = None, **kwargs
+            self, name, description, options=None, id=None, application_id=None, version=None, **kwargs
     ):
         self.name = name
         self.description = description
@@ -89,9 +92,9 @@ class CommandData:
     def __eq__(self, other):
         if isinstance(other, CommandData):
             return (
-                self.name == other.name
-                and self.description == other.description
-                and self.options == other.options
+                    self.name == other.name
+                    and self.description == other.description
+                    and self.options == other.options
             )
         else:
             return False
@@ -112,6 +115,7 @@ class CommandObject:
     :ivar connector: Kwargs connector of the command.
     :ivar __commands_checks__: Check of the command.
     """
+
     def __init__(self, name, cmd):  # Let's reuse old command formatting.
         self.name = name.lower()
         self.func = cmd["func"]
@@ -187,8 +191,9 @@ class SubcommandObject(CommandObject):
     :ivar base_description: Description of the base command.
     :ivar subcommand_group_description: Description of the subcommand_group.
     """
+
     def __init__(self, sub, base, name, sub_group=None):
-        sub["has_subcommands"] = True # For the inherited class.
+        sub["has_subcommands"] = True  # For the inherited class.
         super().__init__(name, sub)
         self.base = base.lower()
         self.subcommand_group = sub_group.lower() if sub_group else sub_group
@@ -203,6 +208,7 @@ class CogCommandObject(CommandObject):
     .. warning::
         Do not manually init this model.
     """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
@@ -228,6 +234,7 @@ class CogSubcommandObject(SubcommandObject):
     .. warning::
         Do not manually init this model.
     """
+
     def __init__(self, *args):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
@@ -278,6 +285,7 @@ class SlashCommandOptionType(IntEnum):
 
 class SlashMessage(discord.Message):
     """discord.py's :class:`discord.Message` but overridden ``edit`` and ``delete`` to work for slash command."""
+
     def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, interaction_token):
         # Yes I know it isn't the best way but this makes implementation simple.
         super().__init__(state=state, channel=channel, data=data)
@@ -318,15 +326,13 @@ class SlashMessage(discord.Message):
         _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
             self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
 
-        await self._http.edit(_resp, self.__interaction_token, self.id, files = files)
+        await self._http.edit(_resp, self.__interaction_token, self.id, files=files)
 
         delete_after = fields.get("delete_after")
         if delete_after:
             await self.delete(delay=delete_after)
         if files:
-            for file in files:
-                file.close()
-
+            [x.close() for x in files]
 
     async def edit(self, **fields):
         """Refer :meth:`discord.Message.edit`."""
@@ -350,4 +356,5 @@ class SlashMessage(discord.Message):
                 with suppress(discord.HTTPException):
                     await asyncio.sleep(delay)
                     await self._http.delete(self.__interaction_token, self.id)
+
             self._state.loop.create_task(wrap())

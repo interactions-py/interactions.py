@@ -157,7 +157,6 @@ class SlashCommandRequest:
             return self.request_with_files(_resp, files, token, "PATCH", url_ending = req_url)
         return self.command_response(token, True, "PATCH", url_ending = req_url, json=_resp)
 
-
     def delete(self, token, message_id="@original"):
         """
         Sends delete command response POST request to Discord API.
