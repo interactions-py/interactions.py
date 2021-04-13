@@ -14,8 +14,7 @@ to check out the `quickstart`_ page first from here or below in the contents.
 
 If there are any questions that you have about the documentation
 of this library extension that the docs do not currently cover over, please
-feel free to reach out to others on the `Discord`_ server or by starting a
-discussion on GitHub!
+feel free to reach out to others on the `Discord`_!
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _Discord: https://discord.gg/KkgMBVuEkx

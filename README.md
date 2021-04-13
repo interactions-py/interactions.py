@@ -13,7 +13,6 @@
    <a href="#disclaimer">Disclaimer</a> ⦿
    <a href="#examples">Examples</a> ⦿
    <a href="https://discord-py-slash-command.readthedocs.io/en/latest/">Documentation</a> ⦿
-   <a href="https://github.com/eunwoo1104/discord-py-slash-command/discussions">Discussions</a> ⦿
    <a href="https://discord.gg/KkgMBVuEkx">Discord Server</a>
 </p>
    
