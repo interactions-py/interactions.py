@@ -349,7 +349,7 @@ class SlashCommand:
             
             for guild in other_guilds:
                 with suppress(discord.Forbidden):
-                    existing = self.req.get_all_commands(guild_id = guild)
+                    existing = await self.req.get_all_commands(guild_id = guild)
                     if len(existing) != 0:
                         await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
 
