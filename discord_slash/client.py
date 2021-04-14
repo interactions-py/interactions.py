@@ -732,7 +732,7 @@ class SlashCommand:
                 ctx.kwargs = args
                 ctx.args = list(args.values())
                 try:
-                    await func.invoke(ctx, **args)
+                    coro = func.invoke(ctx, **args)
                 except TypeError:
                     args = list(args.values())
                     not_kwargs = True
@@ -740,7 +740,8 @@ class SlashCommand:
                 ctx.args = args
                 not_kwargs = True
             if not_kwargs:
-                await func.invoke(ctx, *args)
+                coro = func.invoke(ctx, *args)
+            await coro
         except Exception as ex:
             await self.on_slash_command_error(ctx, ex)
 
