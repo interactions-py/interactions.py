@@ -730,7 +730,7 @@ class SlashCommand:
 
             selected_cmd = self.commands[to_use["data"]["name"]]
 
-            if selected_cmd.allowed_guild_ids and ctx.guild_id not in selected_cmd.allowed_guild_ids:
+            if selected_cmd.allowed_guild_ids and str(ctx.guild_id) not in selected_cmd.allowed_guild_ids:
                 return
 
             if selected_cmd.has_subcommands and not selected_cmd.func:
