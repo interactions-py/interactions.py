@@ -227,7 +227,7 @@ class SlashCommand:
                     "options": selected.options or [],
                     "default_permission": selected.default_permission
                 },
-                "perms": selected.permissions or []
+                "permissions": selected.permissions or []
             }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
@@ -358,7 +358,7 @@ class SlashCommand:
                 id_name_map[cmd["name"]] = cmd["id"]
 
             for full_command in new_cmds:
-                cmd_permissions = full_command["perms"]
+                cmd_permissions = full_command["permissions"]
                 cmd_id = id_name_map[full_command["name"]]
 
                 for permission_data in cmd_permissions:
@@ -374,7 +374,7 @@ class SlashCommand:
 
         self.logger.debug(permissions_map)
         for scope in permissions_map:
-            existing_perms = await self.req.get_all_command_permissions(scope)
+            existing_perms = await self.req.get_all_guild_commands_permissions(scope)
             new_perms = permissions_map[scope]
 
             changed = False
@@ -391,7 +391,7 @@ class SlashCommand:
             
             if changed:
                 self.logger.debug(f"Detected permissions changes on {scope}, updating them")
-                await self.req.put_command_permissions(scope, new_perms)
+                await self.req.update_guild_commands_permissions(scope, new_perms)
             else:
                 self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
 

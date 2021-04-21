@@ -54,7 +54,7 @@ class SlashCommandRequest:
         """
         return self.command_request(method="GET", guild_id=guild_id)
 
-    def get_all_command_permissions(self, guild_id):
+    def get_all_guild_commands_permissions(self, guild_id):
         """
         Sends a slash command get request to Discord API for all permissions of a guild.
 
@@ -63,7 +63,7 @@ class SlashCommandRequest:
         """
         return self.command_request(method="GET", guild_id=guild_id, url_ending="/permissions")
 
-    def put_command_permissions(self, guild_id, perms_dict):
+    def update_guild_commands_permissions(self, guild_id, perms_dict):
         """
         Sends a slash command put request to the Discord API for setting all command permissions of a guild.
 

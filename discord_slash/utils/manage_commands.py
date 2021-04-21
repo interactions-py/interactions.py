@@ -244,7 +244,7 @@ def create_guild_permissions(applicable_guilds: typing.List[int], permissions: t
     }
 
 
-def create_permission(id: typing.Union[str, int], id_type: int, permission: bool):
+def create_permission(id: typing.Union[int], id_type: int, permission: bool):
     if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
         original_type = id_type
         id_type = SlashCommandPermissionsType.from_type(original_type)
