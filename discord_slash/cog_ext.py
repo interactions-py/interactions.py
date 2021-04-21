@@ -10,7 +10,7 @@ def cog_slash(*,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
               default_permission: bool = True,
-              permissions: typing.List[dict] = None,
+              permissions: dict = None,
               connector: dict = None):
     """
     Decorator for Cog to add slash command.\n
@@ -39,7 +39,7 @@ def cog_slash(*,
     :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
     :type default_permission: bool
     :param permissions: Permission requirements of the slash command. Default ``None``.
-    :type permissions: list
+    :type permissions: dict
     :param connector: Kwargs connector for the command. Default ``None``.
     :type connector: dict
     """

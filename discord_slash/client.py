@@ -361,15 +361,14 @@ class SlashCommand:
                 cmd_permissions = full_command["permissions"]
                 cmd_id = id_name_map[full_command["name"]]
 
-                for permission_data in cmd_permissions:
+                for applicable_guild in cmd_permissions:
+                    if applicable_guild not in permissions_map:
+                        permissions_map[applicable_guild] = []
                     permission = {
                         "id": cmd_id,
-                        "permissions": permission_data["permissions"]
+                        "permissions": cmd_permissions[applicable_guild]
                     }
-                    for applicable_guild in permission_data["applicable_guilds"]:
-                        if applicable_guild not in permissions_map.keys():
-                            permissions_map[applicable_guild] = []
-                        permissions_map[applicable_guild].append(permission)
+                    permissions_map[applicable_guild].append(permission)
 
 
         self.logger.debug(permissions_map)
@@ -425,7 +424,7 @@ class SlashCommand:
                           guild_ids: typing.List[int] = None,
                           options: list = None,
                           default_permission: bool = True,
-                          permissions: list = None,
+                          permissions: dict = None,
                           connector: dict = None,
                           has_subcommands: bool = False):
         """
@@ -448,7 +447,7 @@ class SlashCommand:
         :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
         :type default_permission: bool
         :param permissions: Permission requirements of the slash command. Default ``None``.
-        :type permissions: list
+        :type permissions: dict
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         :param has_subcommands: Whether it has subcommand. Default ``False``.
@@ -584,7 +583,7 @@ class SlashCommand:
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
               default_permission: bool = True,
-              permissions: typing.List[dict] = None,
+              permissions: dict = None,
               connector: dict = None):
         """
         Decorator that registers coroutine as a slash command.\n
@@ -638,7 +637,7 @@ class SlashCommand:
         :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
         :type default_permission: bool
         :param permissions: Permission requirements of the slash command. Default ``None``.
-        :type permissions: list
+        :type permissions: dict
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         """
