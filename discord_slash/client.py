@@ -297,7 +297,9 @@ class SlashCommand:
 
         return cmds
 
-    async def sync_all_commands(self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False):
+    async def sync_all_commands(
+        self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
+    ):
         """
         Matches commands registered on Discord to commands registered here.
         Deletes any commands on Discord but not here, and registers any not on Discord.
@@ -313,7 +315,7 @@ class SlashCommand:
         cmds_formatted = {None: cmds['global']}
         for guild in cmds['guild']:
             cmds_formatted[guild] = cmds['guild'][guild]
-        
+
         for scope in cmds_formatted:
             new_cmds = cmds_formatted[scope]
             existing_cmds = await self.req.get_all_commands(guild_id = scope)
@@ -346,7 +348,7 @@ class SlashCommand:
             
             if changed:
                 self.logger.debug(f"Detected changes on {scope if scope is not None else 'global'}, updating them")
-                existing_cmds = await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)                    
+                existing_cmds = await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
             else:
                 self.logger.debug(f"Detected no changes on {scope if scope is not None else 'global'}, skipping")
 
@@ -388,7 +390,7 @@ class SlashCommand:
             
             if changed:
                 self.logger.debug(f"Detected permissions changes on {scope}, updating them")
-                await self.req.put_command_permissions(scope, new_perms) 
+                await self.req.put_command_permissions(scope, new_perms)
             else:
                 self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
 
@@ -411,7 +413,7 @@ class SlashCommand:
                 with suppress(discord.Forbidden):
                     existing_perms = await self.req.get_all_command_permissions(guild)
                     if len(existing_perms) != 0:
-                        await self.req.put_command_permissions(guild_id, [])
+                        await self.req.put_command_permissions(guild, [])
 
         self.logger.info("Completed syncing all commands!")
 
@@ -422,7 +424,7 @@ class SlashCommand:
                           guild_ids: typing.List[int] = None,
                           options: list = None,
                           default_permission: bool = True,
-                          permissions: list = None, 
+                          permissions: list = None,
                           connector: dict = None,
                           has_subcommands: bool = False):
         """
