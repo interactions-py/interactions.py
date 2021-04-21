@@ -362,6 +362,20 @@ class SlashMessage(discord.Message):
             self._state.loop.create_task(wrap())
 
 
+class PermissionsData:
+    def __init__(self, id, permissions, **kwargs):
+        self.id = id
+        self.permissions = permissions
+
+    def __eq__(self, other):
+        if isinstance(other, PermissionsData):
+            return (
+                self.id == other.id
+                and self.permissions == other.permissions
+            )
+        else:
+            return False
+
 class SlashCommandPermissionsType(IntEnum):
     """
     Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_  in the Discord API.

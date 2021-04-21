@@ -375,9 +375,10 @@ class SlashCommand:
             new_perms = permissions_map[guild_id]
             print(existing_perms)
             print(new_perms)
-            if existing_perms == permissions_map[guild_id]:
+            if model.PermissionsData(existing_perms) == model.PermissionsData(new_perms):
+                print("repeated")
                 continue
-            await self.req.put_command_permissions(guild_id, permissions_map[guild_id])        
+            await self.req.put_command_permissions(guild_id, new_perms)        
 
 
         if delete_from_unused_guilds:
