@@ -235,3 +235,11 @@ def create_choice(value: str, name: str):
         "value": value,
         "name": name
     }
+
+
+def create_permission(id: typing.Union[str, int], id_type: int, permission: bool):
+    return {
+        "id": str(id),
+        "type": id_type,
+        "permission": permission
+    }

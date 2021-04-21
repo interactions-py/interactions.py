@@ -9,6 +9,7 @@ def cog_slash(*,
               description: str = None,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
+              permissions: typing.List[dict] = None,
               connector: dict = None):
     """
     Decorator for Cog to add slash command.\n
@@ -49,6 +50,7 @@ def cog_slash(*,
             "description": desc,
             "guild_ids": guild_ids,
             "api_options": opts,
+            "api_permissions": permissions,
             "connector": connector,
             "has_subcommands": False
         }

@@ -122,6 +122,7 @@ class CommandObject:
         self.description = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
+        self.permissions = cmd["api_permissions"] or []
         self.connector = cmd["connector"] or {}
         self.has_subcommands = cmd["has_subcommands"]
         # Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L1447
@@ -358,3 +359,11 @@ class SlashMessage(discord.Message):
                     await self._http.delete(self.__interaction_token, self.id)
 
             self._state.loop.create_task(wrap())
+
+
+class SlashCommandPermissionsType(IntEnum):
+    """
+    Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_  in the Discord API.
+    """
+    ROLE = 1
+    USER = 2

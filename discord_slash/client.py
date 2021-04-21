@@ -132,6 +132,7 @@ class SlashCommand:
                         "auto_convert": {},
                         "guild_ids": x.allowed_guild_ids.copy(),
                         "api_options": [],
+                        "api_permissions": None,
                         "has_subcommands": True,
                         "connector": {}
                     }
@@ -216,12 +217,19 @@ class SlashCommand:
             "guild": {x: [] for x in all_guild_ids}
         }
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
+        wait_perms = {}
         for x in self.commands:
             selected = self.commands[x]
             command_dict = {
                 "name": x,
-                "description": selected.description or "No Description.",
-                "options": selected.options or []
+                "cmd": {
+                    "name": x,
+                    "description": selected.description or "No Description.",
+                    "options": selected.options or []
+                },
+                "perms": {
+                    "permissions": selected.permissions or []
+                }
             }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
@@ -252,9 +260,9 @@ class SlashCommand:
                     }
                     if sub.allowed_guild_ids:
                         for z in sub.allowed_guild_ids:
-                            wait[z][x]["options"].append(_dict)
+                            wait[z][x]["cmds"]["options"].append(_dict)
                     else:
-                        wait["global"][x]["options"].append(_dict)
+                        wait["global"][x]["cmds"]["options"].append(_dict)
                 else:
                     queue = {}
                     base_dict = {
@@ -281,7 +289,7 @@ class SlashCommand:
                                 queue["global"] = copy.deepcopy(base_dict)
                             queue["global"]["options"].append(_dict)
                     for i in queue:
-                        wait[i][x]["options"].append(queue[i])
+                        wait[i][x]["cmd"]["options"].append(queue[i])
 
         for x in wait:
             if x == "global":
@@ -306,7 +314,9 @@ class SlashCommand:
         cmds_formatted = {None: cmds['global']}
         for guild in cmds['guild']:
             cmds_formatted[guild] = cmds['guild'][guild]
-                
+        
+        print(cmds_formatted)
+
         for scope in cmds_formatted:
             new_cmds = cmds_formatted[scope]
             existing_cmds = await self.req.get_all_commands(guild_id = scope)
@@ -319,7 +329,8 @@ class SlashCommand:
             if len(new_cmds) != len(existing_cmds): 
                 changed = True
 
-            for command in new_cmds:
+            for full_command in new_cmds:
+                command = full_command["cmd"]
                 cmd_name = command["name"]
                 if cmd_name in existing_by_name:
                     cmd_data = model.CommandData(**command)
@@ -338,9 +349,33 @@ class SlashCommand:
             
             if changed:
                 self.logger.debug(f"Detected changes on {scope if scope is not None else 'global'}, updating them")
-                await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
+                existing_cmds = await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)                    
             else:
                 self.logger.debug(f"Detected no changes on {scope if scope is not None else 'global'}, skipping")
+
+            print(existing_cmds)
+
+            # Permissions only supported on guild commands
+            if scope is None:
+                continue
+
+            permissions = await self.req.get_all_command_permissions(scope)
+            print(permissions)
+
+            permission_send = []
+            id_name_map = {}
+            for cmd in existing_cmds:
+                id_name_map[cmd["name"]] = cmd["id"]
+
+            for full_command in new_cmds:
+                cmd_id = id_name_map[full_command["name"]]
+                cmd_permissions = full_command["perms"]
+                cmd_permissions["id"] = cmd_id
+                permission_send.append(cmd_permissions)
+
+            perm_result = await self.req.put_command_permissions(scope, permission_send)
+            print(perm_result)
+            
 
         if delete_from_unused_guilds:
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
