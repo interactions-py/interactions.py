@@ -411,9 +411,9 @@ class SlashCommand:
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in permissions_map.keys()]
             for guild in other_guilds:
                 with suppress(discord.Forbidden):
-                    existing_perms = await self.req.get_all_command_permissions(guild)
+                    existing_perms = await self.req.get_all_guild_commands_permissions(guild)
                     if len(existing_perms) != 0:
-                        await self.req.put_command_permissions(guild, [])
+                        await self.req.update_guild_commands_permissions(guild, [])
 
         self.logger.info("Completed syncing all commands!")
 
