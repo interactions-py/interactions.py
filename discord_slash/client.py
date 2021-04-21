@@ -372,8 +372,10 @@ class SlashCommand:
         self.logger.debug(permissions_map)
         for guild_id in permissions_map:
             existing_perms = await self.req.get_all_command_permissions(guild_id)
+            new_perms = permissions_map[guild_id]
+            print(existing_perms)
+            print(new_perms)
             if existing_perms == permissions_map[guild_id]:
-                print("perms already registered!")
                 continue
             await self.req.put_command_permissions(guild_id, permissions_map[guild_id])        
 
