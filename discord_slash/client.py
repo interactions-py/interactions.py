@@ -308,6 +308,7 @@ class SlashCommand:
         If ``sync_commands`` is ``True``, then this will be automatically called.
 
         :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
+        :param delete_perms_from_unused_guilds: If the bot should make a request to clear permissions for guilds that haven't got any permissions registered in :class:``SlashCommand``
         """
         permissions_map = {}
         cmds = await self.to_dict()
@@ -444,6 +445,10 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: list
+        :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: list
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         :param has_subcommands: Whether it has subcommand. Default ``False``.
@@ -471,8 +476,8 @@ class SlashCommand:
             "description": description,
             "guild_ids": guild_ids,
             "api_options": options,
-            "api_permissions": permissions,
             "default_permission": default_permission,
+            "api_permissions": permissions,
             "connector": connector or {},
             "has_subcommands": has_subcommands
         }
@@ -576,9 +581,9 @@ class SlashCommand:
               *,
               name: str = None,
               description: str = None,
-              default_permission: bool = True,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
+              default_permission: bool = True,
               permissions: typing.List[dict] = None,
               connector: dict = None):
         """
@@ -630,6 +635,10 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: List[dict]
+        :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: list
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         """

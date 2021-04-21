@@ -7,9 +7,9 @@ from .utils import manage_commands
 def cog_slash(*,
               name: str = None,
               description: str = None,
-              default_permission: bool = True,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
+              default_permission: bool = True,
               permissions: typing.List[dict] = None,
               connector: dict = None):
     """
@@ -36,6 +36,10 @@ def cog_slash(*,
     :type guild_ids: List[int]
     :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
+    :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+    :type default_permission: bool
+    :param permissions: Permission requirements of the slash command. Default ``None``.
+    :type permissions: list
     :param connector: Kwargs connector for the command. Default ``None``.
     :type connector: dict
     """
@@ -49,9 +53,9 @@ def cog_slash(*,
         _cmd = {
             "func": cmd,
             "description": desc,
-            "default_permission": default_permission,
             "guild_ids": guild_ids,
             "api_options": opts,
+            "default_permission": default_permission,
             "api_permissions": permissions,
             "connector": connector,
             "has_subcommands": False

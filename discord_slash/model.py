@@ -363,6 +363,12 @@ class SlashMessage(discord.Message):
 
 
 class PermissionsData:
+    """
+    Slash permissions data object
+
+    :ivar id: Command id, provided by discord.
+    :ivar permissions: List of permissions dict.
+    """
     def __init__(self, id, permissions, **kwargs):
         self.id = id
         self.permissions = permissions
@@ -375,6 +381,7 @@ class PermissionsData:
             )
         else:
             return False
+
 
 class SlashCommandPermissionsType(IntEnum):
     """

@@ -243,6 +243,7 @@ def create_guild_permissions(guild_ids: typing.List[int], permissions: typing.Li
         "permissions": permissions
     }
 
+
 def create_permission(id: typing.Union[str, int], id_type: int, permission: bool):
     if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
         original_type = id_type
