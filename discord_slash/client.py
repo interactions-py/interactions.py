@@ -396,6 +396,7 @@ class SlashCommand:
                           description: str = None,
                           guild_ids: typing.List[int] = None,
                           options: list = None,
+                          permissions: list = None,
                           connector: dict = None,
                           has_subcommands: bool = False):
         """
@@ -442,6 +443,7 @@ class SlashCommand:
             "description": description,
             "guild_ids": guild_ids,
             "api_options": options,
+            "api_permissions": permissions,
             "connector": connector or {},
             "has_subcommands": has_subcommands
         }
@@ -547,6 +549,7 @@ class SlashCommand:
               description: str = None,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
+              permissions: typing.List[dict] = None,
               connector: dict = None):
         """
         Decorator that registers coroutine as a slash command.\n
@@ -602,7 +605,7 @@ class SlashCommand:
         """
 
         def wrapper(cmd):
-            obj = self.add_slash_command(cmd, name, description, guild_ids, options, connector)
+            obj = self.add_slash_command(cmd, name, description, guild_ids, options, permissions, connector)
             return obj
 
         return wrapper
