@@ -3,7 +3,7 @@ import inspect
 import asyncio
 import aiohttp
 from ..error import RequestFailure, IncorrectType
-from ..model import SlashCommandOptionType
+from ..model import SlashCommandOptionType, SlashCommandPermissionsType
 from collections.abc import Callable
 
 
@@ -238,6 +238,11 @@ def create_choice(value: str, name: str):
 
 
 def create_permission(id: typing.Union[str, int], id_type: int, permission: bool):
+    if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
+        original_type = id_type
+        id_type = SlashCommandPermissionsType.from_type(original_type)
+        if id_type is None:
+            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")
     return {
         "id": str(id),
         "type": id_type,

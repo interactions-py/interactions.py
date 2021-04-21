@@ -367,3 +367,8 @@ class SlashCommandPermissionsType(IntEnum):
     """
     ROLE = 1
     USER = 2
+
+    @classmethod
+    def from_type(cls, t: type):
+        if issubclass(t, discord.abc.Role): return cls.ROLE
+        if issubclass(t, discord.abc.User): return cls.USER
