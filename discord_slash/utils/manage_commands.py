@@ -248,3 +248,25 @@ def create_permission(id: typing.Union[int], id_type: int, permission: bool):
         "type": id_type,
         "permission": permission
     }
+
+
+def create_multi_ids_permission(ids: typing.List[int], id_type: int, permission: bool):
+    return [create_permission(id, id_type, permission) for id in ids]
+
+
+def generate_permissions(
+    allowed_roles: typing.List[int] = None, allowed_users: typing.List[int]  = None, 
+    disallowed_roles: typing.List[int]  = None, disallowed_users: typing.List[int] = None
+):
+    permissions = []
+    
+    if allowed_roles:
+        permissions.extend(create_multi_ids_permission(allowed_roles, 1, True))
+    if allowed_users:
+        permissions.extend(create_multi_ids_permission(allowed_users, 2, True))
+    if disallowed_roles:
+        permissions.extend(create_multi_ids_permission(disallowed_roles, 1, False))
+    if disallowed_users:
+        permissions.extend(create_multi_ids_permission(disallowed_users, 2, False))
+
+    return permissions
