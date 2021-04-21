@@ -237,9 +237,9 @@ def create_choice(value: str, name: str):
     }
 
 
-def create_guild_permissions(guild_ids: typing.List[int], permissions: typing.List[dict]):
+def create_guild_permissions(applicable_guilds: typing.List[int], permissions: typing.List[dict]):
     return {
-        "applicable_guilds": guild_ids,
+        "applicable_guilds": applicable_guilds,
         "permissions": permissions
     }
 
