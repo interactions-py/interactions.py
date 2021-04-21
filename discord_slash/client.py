@@ -132,7 +132,7 @@ class SlashCommand:
                         "auto_convert": {},
                         "guild_ids": x.allowed_guild_ids.copy(),
                         "api_options": [],
-                        "api_permissions": None,
+                        "api_permissions": [],
                         "has_subcommands": True,
                         "connector": {}
                     }
