@@ -227,9 +227,7 @@ class SlashCommand:
                     "options": selected.options or [],
                     "default_permission": selected.default_permission
                 },
-                "perms": {
-                    "permissions": selected.permissions or []
-                }
+                "perms": selected.permissions or []
             }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
@@ -309,14 +307,13 @@ class SlashCommand:
 
         :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
         """
+        permissions_map = {}
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
         cmds_formatted = {None: cmds['global']}
         for guild in cmds['guild']:
             cmds_formatted[guild] = cmds['guild'][guild]
         
-        print(cmds_formatted)
-
         for scope in cmds_formatted:
             new_cmds = cmds_formatted[scope]
             existing_cmds = await self.req.get_all_commands(guild_id = scope)
@@ -355,27 +352,30 @@ class SlashCommand:
 
             print(existing_cmds)
 
-            # Permissions only supported on guild commands
-            if scope is None:
-                continue
+            # existing_perms = await self.req.get_all_command_permissions(scope)
+            # print(existing_perms)
 
-            permissions = await self.req.get_all_command_permissions(scope)
-            print(permissions)
-
-            permission_send = []
             id_name_map = {}
             for cmd in existing_cmds:
                 id_name_map[cmd["name"]] = cmd["id"]
 
             for full_command in new_cmds:
-                cmd_id = id_name_map[full_command["name"]]
                 cmd_permissions = full_command["perms"]
-                cmd_permissions["id"] = cmd_id
-                permission_send.append(cmd_permissions)
+                cmd_id = id_name_map[full_command["name"]]
+                permission = {
+                    "id": cmd_id,
+                    "permissions": cmd_permissions["permissions"]
+                }
+                for applicable_guild in cmd_permissions["applicable_guilds"]:
+                    if applicable_guild not in permissions_map:
+                        permissions_map[applicable_guild] = []
+                    permissions_map[applicable_guild].append(permission)
 
-            perm_result = await self.req.put_command_permissions(scope, permission_send)
+        print(permissions_map)
+        for guild_id in permissions_map:
+            perm_result = await self.req.put_command_permissions(guild_id, permissions_map[guild_id])
             print(perm_result)
-            
+        
 
         if delete_from_unused_guilds:
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
