@@ -362,14 +362,16 @@ class SlashCommand:
             for full_command in new_cmds:
                 cmd_permissions = full_command["perms"]
                 cmd_id = id_name_map[full_command["name"]]
-                permission = {
-                    "id": cmd_id,
-                    "permissions": cmd_permissions["permissions"]
-                }
-                for applicable_guild in cmd_permissions["applicable_guilds"]:
-                    if applicable_guild not in permissions_map:
-                        permissions_map[applicable_guild] = []
-                    permissions_map[applicable_guild].append(permission)
+
+                for permission_data in cmd_permissions:
+                    permission = {
+                        "id": cmd_id,
+                        "permissions": permission_data["permissions"]
+                    }
+                    for applicable_guild in permission_data["applicable_guilds"]:
+                        if applicable_guild not in permissions_map:
+                            permissions_map[applicable_guild] = []
+                        permissions_map[applicable_guild].append(permission)
 
         print(permissions_map)
         for guild_id in permissions_map:

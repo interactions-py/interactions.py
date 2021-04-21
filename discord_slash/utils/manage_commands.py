@@ -237,17 +237,20 @@ def create_choice(value: str, name: str):
     }
 
 
-def create_permission(guild_ids: typing.List[int], id: typing.Union[str, int], id_type: int, permission: bool):
+def create_guild_permissions(guild_ids: typing.List[int], permissions: typing.List[dict]):
+    return {
+        "applicable_guilds": guild_ids,
+        "permissions": permissions
+    }
+
+def create_permission(id: typing.Union[str, int], id_type: int, permission: bool):
     if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
         original_type = id_type
         id_type = SlashCommandPermissionsType.from_type(original_type)
         if id_type is None:
-            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")
+            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")      
     return {
-        "applicable_guilds": guild_ids,
-        "permissions": {
-            "id": str(id),
-            "type": id_type,
-            "permission": permission
-        }
+        "id": str(id),
+        "type": id_type,
+        "permission": permission
     }
