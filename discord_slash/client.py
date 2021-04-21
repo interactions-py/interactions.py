@@ -217,7 +217,6 @@ class SlashCommand:
             "guild": {x: [] for x in all_guild_ids}
         }
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
-        wait_perms = {}
         for x in self.commands:
             selected = self.commands[x]
             command_dict = {
@@ -225,7 +224,8 @@ class SlashCommand:
                 "cmd": {
                     "name": x,
                     "description": selected.description or "No Description.",
-                    "options": selected.options or []
+                    "options": selected.options or [],
+                    "default_permission": selected.default_permission
                 },
                 "perms": {
                     "permissions": selected.permissions or []
@@ -396,7 +396,8 @@ class SlashCommand:
                           description: str = None,
                           guild_ids: typing.List[int] = None,
                           options: list = None,
-                          permissions: list = None,
+                          default_permission: bool = True,
+                          permissions: list = None, 
                           connector: dict = None,
                           has_subcommands: bool = False):
         """
@@ -444,6 +445,7 @@ class SlashCommand:
             "guild_ids": guild_ids,
             "api_options": options,
             "api_permissions": permissions,
+            "default_permission": default_permission,
             "connector": connector or {},
             "has_subcommands": has_subcommands
         }
@@ -547,6 +549,7 @@ class SlashCommand:
               *,
               name: str = None,
               description: str = None,
+              default_permission: bool = True,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
               permissions: typing.List[dict] = None,
@@ -605,7 +608,7 @@ class SlashCommand:
         """
 
         def wrapper(cmd):
-            obj = self.add_slash_command(cmd, name, description, guild_ids, options, permissions, connector)
+            obj = self.add_slash_command(cmd, name, description, default_permission, guild_ids, options, permissions, connector)
             return obj
 
         return wrapper

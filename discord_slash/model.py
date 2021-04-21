@@ -120,6 +120,7 @@ class CommandObject:
         self.name = name.lower()
         self.func = cmd["func"]
         self.description = cmd["description"]
+        self.default_permission = cmd["default_permission"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.permissions = cmd["api_permissions"] or []
