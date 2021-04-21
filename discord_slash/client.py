@@ -297,7 +297,7 @@ class SlashCommand:
 
         return cmds
 
-    async def sync_all_commands(self, delete_from_unused_guilds=False):
+    async def sync_all_commands(self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False):
         """
         Matches commands registered on Discord to commands registered here.
         Deletes any commands on Discord but not here, and registers any not on Discord.
@@ -369,9 +369,10 @@ class SlashCommand:
                         "permissions": permission_data["permissions"]
                     }
                     for applicable_guild in permission_data["applicable_guilds"]:
-                        if applicable_guild not in permissions_map:
+                        if applicable_guild not in permissions_map.keys():
                             permissions_map[applicable_guild] = []
                         permissions_map[applicable_guild].append(permission)
+
 
         print(permissions_map)
         for guild_id in permissions_map:
@@ -389,6 +390,15 @@ class SlashCommand:
                     existing = await self.req.get_all_commands(guild_id = guild)
                     if len(existing) != 0:
                         await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
+
+
+        if delete_perms_from_unused_guilds:
+            other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in permissions_map.keys()]
+            for guild in other_guilds:
+                with suppress(discord.Forbidden):
+                    existing_perms = await self.req.get_all_command_permissions(guild)
+                    if len(existing_perms) != 0:
+                        await self.req.put_command_permissions(guild_id, [])
 
         self.logger.info("Completed syncing all commands!")
 
