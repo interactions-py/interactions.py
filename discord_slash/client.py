@@ -350,11 +350,6 @@ class SlashCommand:
             else:
                 self.logger.debug(f"Detected no changes on {scope if scope is not None else 'global'}, skipping")
 
-            print(existing_cmds)
-
-            # existing_perms = await self.req.get_all_command_permissions(scope)
-            # print(existing_perms)
-
             id_name_map = {}
             for cmd in existing_cmds:
                 id_name_map[cmd["name"]] = cmd["id"]
@@ -374,11 +369,10 @@ class SlashCommand:
                         permissions_map[applicable_guild].append(permission)
 
 
-        print(permissions_map)
+        self.logger.debug(permissions_map)
         for guild_id in permissions_map:
-            perm_result = await self.req.put_command_permissions(guild_id, permissions_map[guild_id])
-            print(perm_result)
-        
+            await self.req.put_command_permissions(guild_id, permissions_map[guild_id])        
+
 
         if delete_from_unused_guilds:
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
