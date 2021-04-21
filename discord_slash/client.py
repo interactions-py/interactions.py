@@ -370,12 +370,9 @@ class SlashCommand:
 
 
         self.logger.debug(permissions_map)
-        for guild_id in permissions_map:
-            existing_perms = await self.req.get_all_command_permissions(guild_id)
-            new_perms = permissions_map[guild_id]
-
-            print(existing_perms)
-            print(new_perms)
+        for scope in permissions_map:
+            existing_perms = await self.req.get_all_command_permissions(scope)
+            new_perms = permissions_map[scope]
 
             changed = False
             if len(existing_perms) != len(new_perms):
@@ -390,9 +387,10 @@ class SlashCommand:
                         break
             
             if changed:
-                await self.req.put_command_permissions(guild_id, new_perms) 
+                self.logger.debug(f"Detected permissions changes on {scope}, updating them")
+                await self.req.put_command_permissions(scope, new_perms) 
             else:
-                print("repeated!")
+                self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
 
 
         if delete_from_unused_guilds:
