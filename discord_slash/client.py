@@ -373,12 +373,23 @@ class SlashCommand:
         for guild_id in permissions_map:
             existing_perms = await self.req.get_all_command_permissions(guild_id)
             new_perms = permissions_map[guild_id]
-            print(existing_perms)
-            print(new_perms)
-            if model.PermissionsData(**existing_perms) == model.PermissionsData(**new_perms):
-                print("repeated")
-                continue
-            await self.req.put_command_permissions(guild_id, new_perms)        
+
+            changed = False
+            if len(existing_perms) != len(new_perms):
+                changed = True
+            else:
+                existing_perms_model = {}
+                for perm in existing_perms:
+                    existing_perms_model[perm["id"]] = model.PermissionsData(**perm)
+                for new_perm in new_perms:
+                    if existing_perms_model[perm["id"]] != model.PermissionsData(**new_perm):
+                        changed = True
+                        break
+            
+            if changed:
+                await self.req.put_command_permissions(guild_id, new_perms) 
+            else:
+                print("repeated!")       
 
 
         if delete_from_unused_guilds:
