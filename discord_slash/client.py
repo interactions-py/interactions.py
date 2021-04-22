@@ -219,21 +219,30 @@ class SlashCommand:
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
         for x in self.commands:
             selected = self.commands[x]
-            command_dict = {
-                "name": x,
-                "description": selected.description or "No Description.",
-                "options": selected.options or [],
-                "default_permission": selected.default_permission,
-                "permissions": selected.permissions or []
-            }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
                     if y not in wait:
                         wait[y] = {}
+                    command_dict = {
+                        "name": x,
+                        "description": selected.description or "No Description.",
+                        "options": selected.options or [],
+                        "default_permission": selected.default_permission,
+                        "permissions": {}
+                    }
+                    if y in selected.permissions:
+                        command_dict["permissions"][y] = selected.permissions[y]
                     wait[y][x] = copy.deepcopy(command_dict)
             else:
                 if "global" not in wait:
                     wait["global"] = {}
+                command_dict = {
+                    "name": x,
+                    "description": selected.description or "No Description.",
+                    "options": selected.options or [],
+                    "default_permission": selected.default_permission,
+                    "permissions": selected.permissions or {}
+                }
                 wait["global"][x] = copy.deepcopy(command_dict)
 
         # Separated normal command add and subcommand add not to
@@ -381,6 +390,9 @@ class SlashCommand:
                 for existing_perm in existing_perms:
                     existing_perms_model[existing_perm["id"]] = model.PermissionsData(**existing_perm)
                 for new_perm in new_perms:
+                    if new_perm["id"] not in existing_perms_model:
+                        changed = True
+                        break
                     if existing_perms_model[new_perm["id"]] != model.PermissionsData(**new_perm):
                         changed = True
                         break
@@ -640,7 +652,7 @@ class SlashCommand:
         """
 
         def wrapper(cmd):
-            obj = self.add_slash_command(cmd, name, description, default_permission, guild_ids, options, permissions, connector)
+            obj = self.add_slash_command(cmd, name, description, guild_ids, options, default_permission, permissions, connector)
             return obj
 
         return wrapper
