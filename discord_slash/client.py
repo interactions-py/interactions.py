@@ -221,12 +221,9 @@ class SlashCommand:
             selected = self.commands[x]
             command_dict = {
                 "name": x,
-                "cmd": {
-                    "name": x,
-                    "description": selected.description or "No Description.",
-                    "options": selected.options or [],
-                    "default_permission": selected.default_permission
-                },
+                "description": selected.description or "No Description.",
+                "options": selected.options or [],
+                "default_permission": selected.default_permission,
                 "permissions": selected.permissions or []
             }
             if selected.allowed_guild_ids:
@@ -318,6 +315,7 @@ class SlashCommand:
             cmds_formatted[guild] = cmds['guild'][guild]
 
         for scope in cmds_formatted:
+            permissions = {}
             new_cmds = cmds_formatted[scope]
             existing_cmds = await self.req.get_all_commands(guild_id = scope)
             existing_by_name = {}
@@ -329,9 +327,9 @@ class SlashCommand:
             if len(new_cmds) != len(existing_cmds): 
                 changed = True
 
-            for full_command in new_cmds:
-                command = full_command["cmd"]
+            for command in new_cmds:
                 cmd_name = command["name"]
+                permissions[cmd_name] = command.pop("permissions")
                 if cmd_name in existing_by_name:
                     cmd_data = model.CommandData(**command)
                     existing_cmd = existing_by_name[cmd_name]
@@ -357,10 +355,9 @@ class SlashCommand:
             for cmd in existing_cmds:
                 id_name_map[cmd["name"]] = cmd["id"]
 
-            for full_command in new_cmds:
-                cmd_permissions = full_command["permissions"]
-                cmd_id = id_name_map[full_command["name"]]
-
+            for cmd_name in permissions:
+                cmd_permissions = permissions[cmd_name]
+                cmd_id = id_name_map[cmd_name]
                 for applicable_guild in cmd_permissions:
                     if applicable_guild not in permissions_map:
                         permissions_map[applicable_guild] = []
