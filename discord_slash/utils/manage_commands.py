@@ -142,6 +142,84 @@ async def remove_all_commands_in(bot_id,
         )
 
 
+async def get_all_guild_commands_permissions(bot_id,
+                                             bot_token,
+                                             guild_id):
+    """
+    A coroutine that sends a slash command get request to Discord API.
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to get permissions.
+    :return: JSON Response of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/permissions"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await get_all_guild_commands_permissions(bot_id, bot_token, guild_id)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
+async def update_single_command_permissions(bot_id,
+                                            bot_token,
+                                            guild_id,
+                                            command_id,
+                                            permissions):
+    """
+    A coroutine that sends a slash command put request to Discord API.
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to update permissions on.
+    :param command_id: ID for the command to update permissions on.
+    :param permissions: List of permissions for the command.
+    :return: JSON Response of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/commands/{command_id}/permissions"
+    async with aiohttp.ClientSession() as session:
+        async with session.put(url, headers={"Authorization": f"Bot {bot_token}"}, json=permissions) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await update_guild_commands_permissions(bot_id, bot_token, guild_id, permissions)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
+async def update_guild_commands_permissions(bot_id,
+                                            bot_token,
+                                            guild_id,
+                                            cmd_permissions):
+    """
+    A coroutine that sends a slash command put request to Discord API.
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to update permissions.
+    :param permissions: List of dict with permissions for each commands.
+    :return: JSON Response of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/permissions"
+    async with aiohttp.ClientSession() as session:
+        async with session.put(url, headers={"Authorization": f"Bot {bot_token}"}, json=cmd_permissions) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await update_guild_commands_permissions(bot_id, bot_token, guild_id, cmd_permissions)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
 def create_option(name: str,
                   description: str,
                   option_type: typing.Union[int, type],
