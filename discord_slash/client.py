@@ -656,8 +656,14 @@ class SlashCommand:
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         """
+        if not permissions:
+            permissions = {}
 
         def wrapper(cmd):
+            decorator_permissions = getattr(cmd, "__permissions__", None)
+            if decorator_permissions:
+                permissions.update(decorator_permissions)
+
             obj = self.add_slash_command(cmd, name, description, guild_ids, options, default_permission, permissions, connector)
             return obj
 
@@ -729,10 +735,28 @@ class SlashCommand:
         """
         base_description = base_description or base_desc
         subcommand_group_description = subcommand_group_description or sub_group_desc
+        if not base_permissions:
+            base_permissions = {}
 
         def wrapper(cmd):
+            decorator_permissions = getattr(cmd, "__permissions__", None)
+            if decorator_permissions:
+                base_permissions.update(decorator_permissions)
+
             obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, base_default_permission, base_permissions, subcommand_group_description, guild_ids, options, connector)
             return obj
+
+        return wrapper
+
+    def permission(self, guild_id: int, permissions: list):
+        """
+        Decorator that add permissions
+        """
+        def wrapper(cmd):
+            if not getattr(cmd, "__permissions__", None):
+                cmd.__permissions__ = {}
+            cmd.__permissions__[guild_id] = permissions
+            return cmd
 
         return wrapper
 
