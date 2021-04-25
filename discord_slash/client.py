@@ -264,9 +264,9 @@ class SlashCommand:
                     }
                     if sub.allowed_guild_ids:
                         for z in sub.allowed_guild_ids:
-                            wait[z][x]["cmds"]["options"].append(_dict)
+                            wait[z][x]["options"].append(_dict)
                     else:
-                        wait["global"][x]["cmds"]["options"].append(_dict)
+                        wait["global"][x]["options"].append(_dict)
                 else:
                     queue = {}
                     base_dict = {
@@ -293,7 +293,7 @@ class SlashCommand:
                                 queue["global"] = copy.deepcopy(base_dict)
                             queue["global"]["options"].append(_dict)
                     for i in queue:
-                        wait[i][x]["cmd"]["options"].append(queue[i])
+                        wait[i][x]["options"].append(queue[i])
 
         for x in wait:
             if x == "global":
@@ -501,6 +501,8 @@ class SlashCommand:
                        name=None,
                        description: str = None,
                        base_description: str = None,
+                       base_default_permission: bool = True,
+                       base_permissions: dict = None,
                        subcommand_group_description: str = None,
                        guild_ids: typing.List[int] = None,
                        options: list = None,
@@ -549,6 +551,8 @@ class SlashCommand:
             "description": base_description,
             "guild_ids": guild_ids.copy(),
             "api_options": [],
+            "default_permission": base_default_permission,
+            "api_permissions": base_permissions,
             "connector": {},
             "has_subcommands": True
         }
@@ -560,6 +564,8 @@ class SlashCommand:
             "sub_group_desc": subcommand_group_description,
             "guild_ids": guild_ids,
             "api_options": options,
+            "default_permission": base_default_permission,
+            "api_permissions": base_permissions,
             "connector": connector or {}
         }
         if base not in self.commands:
@@ -665,6 +671,8 @@ class SlashCommand:
                    description: str = None,
                    base_description: str = None,
                    base_desc: str = None,
+                   base_default_permission: bool = True,
+                   base_permissions: dict = None,
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
                    guild_ids: typing.List[int] = None,
@@ -723,7 +731,7 @@ class SlashCommand:
         subcommand_group_description = subcommand_group_description or sub_group_desc
 
         def wrapper(cmd):
-            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, guild_ids, options, connector)
+            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, base_default_permission, base_permissions, subcommand_group_description, guild_ids, options, connector)
             return obj
 
         return wrapper
