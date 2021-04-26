@@ -151,7 +151,7 @@ async def get_all_guild_commands_permissions(bot_id,
     :param bot_id: User ID of the bot.
     :param bot_token: Token of the bot.
     :param guild_id: ID of the guild to get permissions.
-    :return: JSON Response of the request.
+    :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#get-application-command-permissions>.
     :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/permissions"
@@ -179,7 +179,7 @@ async def update_single_command_permissions(bot_id,
     :param guild_id: ID of the guild to update permissions on.
     :param command_id: ID for the command to update permissions on.
     :param permissions: List of permissions for the command.
-    :return: JSON Response of the request.
+    :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions>
     :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/commands/{command_id}/permissions"
@@ -205,7 +205,7 @@ async def update_guild_commands_permissions(bot_id,
     :param bot_token: Token of the bot.
     :param guild_id: ID of the guild to update permissions.
     :param permissions: List of dict with permissions for each commands.
-    :return: JSON Response of the request.
+    :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions>.
     :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/permissions"
