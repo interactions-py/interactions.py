@@ -120,12 +120,9 @@ class CommandObject:
         self.name = name.lower()
         self.func = cmd["func"]
         self.description = cmd["description"]
-        self.default_permission = cmd["default_permission"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
-        self.permissions = cmd["api_permissions"] or []
         self.connector = cmd["connector"] or {}
-        self.has_subcommands = cmd["has_subcommands"]
         # Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L1447
         # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
         # add checks at this var.
@@ -178,6 +175,28 @@ class CommandObject:
         return False not in res
 
 
+class BasecommandObject(CommandObject):
+    """
+    BaseCommand object of this extension.
+
+    .. note::
+        This model inherits :class:`.model.CommandObject`, so this has every variables from that.
+
+    .. warning::
+        Do not manually init this model.
+
+    :ivar has_subcommand: Indicates whether this base command has subcommands.
+    :ivar default_permissions: Indicates whether users should have permissions to run this command by default.
+    :ivar permissions: Permissions to restrict use of this command.
+    """
+
+    def __init__(self, name, cmd):  # Let's reuse old command formatting.
+        super().__init__(name, cmd)
+        self.has_subcommand = cmd["has_subcommands"]
+        self.default_permissions = ["default_permissions"]
+        self.permissions = ["api_permissions"] or []
+
+
 class SubcommandObject(CommandObject):
     """
     Subcommand object of this extension.
@@ -195,11 +214,6 @@ class SubcommandObject(CommandObject):
     """
 
     def __init__(self, sub, base, name, sub_group=None):
-        # For the inherited class.
-        sub["has_subcommands"] = True
-        sub["default_permissions"] = None
-        sub["permissions"] = None
-
         super().__init__(name, sub)
         self.base = base.lower()
         self.subcommand_group = sub_group.lower() if sub_group else sub_group
@@ -207,7 +221,7 @@ class SubcommandObject(CommandObject):
         self.subcommand_group_description = sub["sub_group_desc"]
 
 
-class CogCommandObject(CommandObject):
+class CogBasecommandObject(BasecommandObject):
     """
     Slash command object but for Cog.
 

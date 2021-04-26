@@ -1,6 +1,6 @@
 import typing
 import inspect
-from .model import CogCommandObject, CogSubcommandObject
+from .model import CogBasecommandObject, CogSubcommandObject
 from .utils import manage_commands
 
 
@@ -60,7 +60,7 @@ def cog_slash(*,
             "connector": connector,
             "has_subcommands": False
         }
-        return CogCommandObject(name or cmd.__name__, _cmd)
+        return CogBasecommandObject(name or cmd.__name__, _cmd)
     return wrapper
 
 
