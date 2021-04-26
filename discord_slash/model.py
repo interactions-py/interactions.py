@@ -72,6 +72,7 @@ class CommandData:
     :ivar description: Description of the command.
     :ivar options: List of :class:`OptionData`.
     :ivar id: Command id, this is received from discord so may not be present
+    :ivar application_id: The application id of the bot, required only when the application id and bot id are different. (old bots)
     """
 
     def __init__(
