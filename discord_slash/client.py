@@ -569,9 +569,15 @@ class SlashCommand:
         if base not in self.commands:
             self.commands[base] = model.CommandObject(base, _cmd)
         else:
-            self.commands[base].has_subcommands = True
-            if self.commands[base].description:
-                _cmd["description"] = self.commands[base].description
+            base_command = self.commands[base]
+            base_command.has_subcommands = True
+            if base_permissions:
+                for applicable_guild in base_permissions:
+                    if applicable_guild not in base_command.permissions:
+                        base_command.permissions[applicable_guild] = []
+                    base_command.permissions[applicable_guild].extend(base_permissions[applicable_guild])
+            if base_command.description:
+                _cmd["description"] = base_command.description
         if base not in self.subcommands:
             self.subcommands[base] = {}
         if subcommand_group:
