@@ -195,7 +195,11 @@ class SubcommandObject(CommandObject):
     """
 
     def __init__(self, sub, base, name, sub_group=None):
-        sub["has_subcommands"] = True  # For the inherited class.
+        # For the inherited class.
+        sub["has_subcommands"] = True
+        sub["default_permissions"] = None
+        sub["permissions"] = None
+
         super().__init__(name, sub)
         self.base = base.lower()
         self.subcommand_group = sub_group.lower() if sub_group else sub_group

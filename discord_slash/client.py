@@ -564,8 +564,6 @@ class SlashCommand:
             "sub_group_desc": subcommand_group_description,
             "guild_ids": guild_ids,
             "api_options": options,
-            "default_permission": base_default_permission,
-            "api_permissions": base_permissions,
             "connector": connector or {}
         }
         if base not in self.commands:
