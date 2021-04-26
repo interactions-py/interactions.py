@@ -366,19 +366,46 @@ class SlashMessage(discord.Message):
             self._state.loop.create_task(wrap())
 
 
-class PermissionsData:
+class PermissionData:
     """
-    Slash permissions data object
+    Single slash permission data.
+
+    :ivar id: User or role id, based on following type specfic.
+    :ivar type: The ``SlashCommandPermissionsType`` type of this permission.
+    :ivar permission: State of permission. ``True`` to allow, ``False`` to disallow.
+    """
+    def __init__(self, id, type, permission, **kwargs):
+        self.id = id
+        self.type = type
+        self.permission = permission
+
+    def __eq__(self, other):
+        if isinstance(other, PermissionData):
+            return (
+                self.id == other.id
+                and self.type == other.id
+                and self.permission == other.permission
+            )
+        else:
+            return False
+
+
+class GuildPermissionsData:
+    """
+    Slash permissions data for a guild.
 
     :ivar id: Command id, provided by discord.
     :ivar permissions: List of permissions dict.
     """
     def __init__(self, id, permissions, **kwargs):
         self.id = id
-        self.permissions = permissions
+        self.permissions = []
+        if permissions:
+            for permission in permissions:
+                self.permissions.append(PermissionData(**permission))
 
     def __eq__(self, other):
-        if isinstance(other, PermissionsData):
+        if isinstance(other, GuildPermissionsData):
             return (
                 self.id == other.id
                 and self.permissions == other.permissions

@@ -388,12 +388,12 @@ class SlashCommand:
             else:
                 existing_perms_model = {}
                 for existing_perm in existing_perms:
-                    existing_perms_model[existing_perm["id"]] = model.PermissionsData(**existing_perm)
+                    existing_perms_model[existing_perm["id"]] = model.GuildPermissionsData(**existing_perm)
                 for new_perm in new_perms:
                     if new_perm["id"] not in existing_perms_model:
                         changed = True
                         break
-                    if existing_perms_model[new_perm["id"]] != model.PermissionsData(**new_perm):
+                    if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(**new_perm):
                         changed = True
                         break
             
