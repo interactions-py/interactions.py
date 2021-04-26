@@ -315,7 +315,7 @@ def create_choice(value: str, name: str):
     }
 
 
-def create_permission(id: typing.Union[int], id_type: int, permission: bool):
+def create_permission(id:int, id_type: int, permission: typing.Union[bool, SlashCommandPermissionsType]):
     if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
         original_type = id_type
         id_type = SlashCommandPermissionsType.from_type(original_type)
