@@ -315,14 +315,14 @@ def create_choice(value: str, name: str):
     }
 
 
-def create_permission(id: typing.Union[int], id_type: int, permission: bool):
+def create_permission(id:int, id_type: int, permission: typing.Union[bool, SlashCommandPermissionsType]):
     if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
         original_type = id_type
         id_type = SlashCommandPermissionsType.from_type(original_type)
         if id_type is None:
             raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")
     return {
-        "id": str(id),
+        "id": id,
         "type": id_type,
         "permission": permission
     }
