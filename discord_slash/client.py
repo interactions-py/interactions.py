@@ -26,6 +26,8 @@ class SlashCommand:
     :type sync_on_cog_reload: bool
     :param override_type: Whether to override checking type of the client and try register event.
     :type override_type: bool
+    :param application_id: The application id of the bot, required only when the application id and bot id are different. (old bots)
+    :type application_id: int
 
     .. note::
         If ``sync_on_cog_reload`` is enabled, command syncing will be triggered when :meth:`discord.ext.commands.Bot.reload_extension`
