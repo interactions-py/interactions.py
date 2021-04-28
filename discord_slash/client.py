@@ -522,6 +522,10 @@ class SlashCommand:
         :type description: str
         :param base_description: Description of the base command. Default ``None``.
         :type base_description: str
+        :param default_permission: Sets if users have permission to run base command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the base command. Default ``None``.
+        :type permissions: dict
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
@@ -727,6 +731,10 @@ class SlashCommand:
         :param base_description: Description of the base command. Default ``None``.
         :type base_description: str
         :param base_desc: Alias of ``base_description``.
+        :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: dict
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
         :param sub_group_desc: Alias of ``subcommand_group_description``.

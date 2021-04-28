@@ -316,6 +316,14 @@ def create_choice(value: str, name: str):
 
 
 def create_permission(id:int, id_type: int, permission: typing.Union[bool, SlashCommandPermissionsType]):
+    """
+    Create a single command permission.
+
+    :param id: Target id to apply the permission on.
+    :param id_type: Type of the id. 
+    :param permission: State of the permission. ``True`` to allow access, ``False to disallow access.
+    :return: dict
+    """
     if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
         original_type = id_type
         id_type = SlashCommandPermissionsType.from_type(original_type)
@@ -329,6 +337,13 @@ def create_permission(id:int, id_type: int, permission: typing.Union[bool, Slash
 
 
 def create_multi_ids_permission(ids: typing.List[int], id_type: int, permission: bool):
+    """
+    Creates a list of permissions from list of ids with common id_type and permission state.
+
+    :param id: List of target ids to apply the permission on.
+    :param id_type: Type of the id. 
+    :param permission: State of the permission. ``True`` to allow access, ``False to disallow access.
+    """
     return [create_permission(id, id_type, permission) for id in ids]
 
 
@@ -336,6 +351,15 @@ def generate_permissions(
     allowed_roles: typing.List[int] = None, allowed_users: typing.List[int]  = None, 
     disallowed_roles: typing.List[int]  = None, disallowed_users: typing.List[int] = None
 ):
+    """
+    Creates a list of permissions.
+
+    :param allowed_roles: List of role ids that can access command.
+    :param allowed_users: List of user ids that can access command.
+    :param disallowed_roles: List of role ids that should not access command.
+    :param disallowed_users: List of users ids that should not access command.
+    :return: list
+    """
     permissions = []
     
     if allowed_roles:
