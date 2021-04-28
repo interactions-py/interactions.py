@@ -244,7 +244,7 @@ structure of how choices are represented for a single permission:
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
 | type        | int                                        | An `ApplicationCommandPermissionType`_.                                                             |
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
-| permission  | boolean                                    | true to allow, false, to disallow.                                                                  |
+| permission  | boolean                                    | ``true`` to allow, ``false`` to disallow.                                                           |
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
 
 How the type parameter works is very simple. Discord has many ids to represent different things. As you can 
@@ -259,6 +259,16 @@ following table shows the supported id types for permissions:
 | User              | 2         |
 +-------------------+-----------+
 
+This is an example of how a single permission will look when represented as a json object:
+
+.. code-block:: python
+
+  {
+    "id": 12345678,
+    "type": 1,
+    "permission": True 
+  }
+
 Now, let take a look simple example. The slash command decorator have a permissions parameter Where
 it takes in a dictionary. The key being the guild to apply permissions on, and value being the list
 of permissions to apply. For each permission, we can use the handy ``create_permission`` method to 
@@ -268,6 +278,8 @@ In this case, we are setting 2 permissions for guild with id of ``12345678``. Fi
 role with id ``99999999`` and disallowing user with id ``88888888`` from running the slash command.
 
 .. code-block:: python
+
+  from discord_slash.utils.manage_commands import create_permission
 
   @slash.slash(name="test",
               description="This is just a test command, nothing more.",
@@ -279,6 +291,16 @@ role with id ``99999999`` and disallowing user with id ``88888888`` from running
              })
   async def test(ctx):
     await ctx.send(content="Hello World!")
+
+Additionally, we could also declare the id type of our permission through this method shown here:
+
+.. code-block:: python
+
+  from discord_slash.model import SubcommandApplicationPermissionType
+  
+  (...)
+  
+                  option_type=SubcommandApplicationPermissionType.ROLE
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
