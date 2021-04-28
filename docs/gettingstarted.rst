@@ -229,7 +229,59 @@ a string or integer. Below is an implementation of this design in the Python cod
   async def test(ctx, optone: str):
     await ctx.send(content=f"Wow, you actually chose {optone}? :(")
 
+Want to restrict access? Setup permissions!
+-------------------------------------------
+
+Slash commands also supports ability to set permissions to allow only certain roles and/or users 
+to run a slash command. Permissions can be applied to both global and guild based commands. They 
+are defined per guild, and each guild can have multiple permissions. Here table that shows the JSON 
+structure of how choices are represented for a single permission:
+
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Field**   | **Type**                                   | **Description**                                                                                     |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| id          | int                                        | Snowflake value of type specified. Represents the target to apply permissions on.                   |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| type        | int                                        | An `ApplicationCommandPermissionType`_.                                                             |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| permission  | boolean                                    | true to allow, false, to disallow.                                                                  |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+
+How the type parameter works is very simple. Discord has many ids to represent different things. As you can 
+set permissions to apply for User or Role, `ApplicationCommandPermissionType`_ is used. It's a number and
+following table shows the supported id types for permissions:
+
++-------------------+-----------+
+| **Name**          | **Value** |
++-------------------+-----------+
+| Role              | 1         |
++-------------------+-----------+
+| User              | 2         |
++-------------------+-----------+
+
+Now, let take a look simple example. The slash command decorator have a permissions parameter Where
+it takes in a dictionary. The key being the guild to apply permissions on, and value being the list
+of permissions to apply. For each permission, we can use the handy ``create_permission`` method to 
+build the permission json explain above.
+
+In this case, we are setting 2 permissions for guild with id of ``12345678``. Firstly, we are allowing
+role with id ``99999999`` and disallowing user with id ``88888888`` from running the slash command.
+
+.. code-block:: python
+
+  @slash.slash(name="test",
+              description="This is just a test command, nothing more.",
+              permissions={
+                12345678: [
+                  create_permission(99999999, 1, True),
+                  create_permission(88888888, 2, False)
+                ]
+             })
+  async def test(ctx):
+    await ctx.send(content="Hello World!")
+
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
 .. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoption
+.. _ApplicationCommandPermissionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissions
