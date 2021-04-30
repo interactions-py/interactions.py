@@ -131,7 +131,7 @@ class SlashCommandRequest:
         return self.command_response(token, False, "POST", interaction_id, json=_resp)
 
     def command_response(self, token, use_webhook, method, interaction_id= None, url_ending = "", **kwargs):
-        """
+        r"""
         Sends a command response to discord (POST, PATCH, DELETE)
 
         :param token: Interaction token

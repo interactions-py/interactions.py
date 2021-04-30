@@ -338,12 +338,11 @@ class ComponentContext(InteractionContext):
             if self.deferred:
                 _json = await self._http.edit(_resp, self._token, files=files)
                 self.deferred = False
-            else:
-                json_data = {
-                    "type": 7,
-                    "data": _resp
-                }
-                _json = await self._http.post_initial_response(json_data, self.interaction_id, self._token)
+            else:  # noqa: F841
+                json_data = {"type": 7, "data": _resp}
+                _json = await self._http.post_initial_response(  # noqa: F841
+                    json_data, self.interaction_id, self._token
+                )
             self.responded = True
         else:
             raise error.IncorrectFormat("Already responded")

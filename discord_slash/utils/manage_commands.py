@@ -269,7 +269,7 @@ def create_option(name: str,
 
     .. note::
         ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
-        or a list of single string values. 
+        or a list of single string values.
     """
     if not isinstance(option_type, int) or isinstance(option_type, bool): #Bool values are a subclass of int
         original_type = option_type
@@ -320,7 +320,7 @@ def generate_options(function: Callable, description: str = "No description.", c
             args = getattr(param.annotation, "__args__", None)
             if args:
                 param = param.replace(annotation=args[0])
-                required = not args[-1] is type(None)
+                required = not isinstance(args[-1], type(None))
 
         option_type = SlashCommandOptionType.from_type(param.annotation) or SlashCommandOptionType.STRING
         name = param.name if not connector else connector[param.name]

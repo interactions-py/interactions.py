@@ -9,7 +9,6 @@ from . import http
 from . import model
 from . import error
 from . import context
-from . import dpy_overrides
 from .utils import manage_commands
 
 
@@ -336,7 +335,7 @@ class SlashCommand:
             for cmd in existing_cmds:
                 existing_by_name[cmd["name"]] = model.CommandData(**cmd)
 
-            if len(new_cmds) != len(existing_cmds): 
+            if len(new_cmds) != len(existing_cmds):
                 changed = True
 
             for command in new_cmds:
@@ -356,7 +355,7 @@ class SlashCommand:
                     changed=True
                     to_send.append(command)
 
-            
+
             if changed:
                 self.logger.debug(f"Detected changes on {scope if scope is not None else 'global'}, updating them")
                 existing_cmds = await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
@@ -401,7 +400,7 @@ class SlashCommand:
                     if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(**new_perm):
                         changed = True
                         break
-            
+
             if changed:
                 self.logger.debug(f"Detected permissions changes on {scope}, updating them")
                 await self.req.update_guild_commands_permissions(scope, new_perms)
@@ -414,7 +413,7 @@ class SlashCommand:
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
             # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
             # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
-            
+
             for guild in other_guilds:
                 with suppress(discord.Forbidden):
                     existing = await self.req.get_all_commands(guild_id = guild)
@@ -772,11 +771,11 @@ class SlashCommand:
     def permission(self, guild_id: int, permissions: list):
         """
         Decorator that add permissions. This will set the permissions for a single guild, you can use it more than once for each command.
-        :param guild_id: ID of the guild for the permissions. 
+        :param guild_id: ID of the guild for the permissions.
         :type guild_id: int
         :param permissions: Permission requirements of the slash command. Default ``None``.
         :type permissions: dict
-        
+
         """
         def wrapper(cmd):
             if not getattr(cmd, "__permissions__", None):

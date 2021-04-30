@@ -177,7 +177,7 @@ class CommandObject:
         try:
             # cooldown checks
             self._prepare_cooldowns(ctx)
-        except:
+        except Exception:
             if self._max_concurrency is not None:
                 await self._max_concurrency.release(ctx)
             raise
@@ -498,7 +498,7 @@ class GuildPermissionsData:
     Slash permissions data for a command in a guild.
 
     :ivar id: Command id, provided by discord.
-    :ivar guild_id: Guild id that the permissions are in. 
+    :ivar guild_id: Guild id that the permissions are in.
     :ivar permissions: List of permissions dict.
     """
     def __init__(self, id, guild_id, permissions, **kwargs):
