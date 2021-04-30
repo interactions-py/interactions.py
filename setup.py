@@ -11,12 +11,21 @@ with open("README.md", "r", encoding="UTF-8") as f:
 with open(path.join(HERE, PACKAGE_NAME, "const.py"), encoding="utf-8") as fp:
     VERSION = re.search('__version__ = "([^"]+)"', fp.read()).group(1)
 
+extras = {
+    "readthedocs": [
+        "sphinx",
+        "sphinx-rtd-theme"
+    ],
+}
+
 setuptools.setup(
     name="discord-py-slash-command",
     version=VERSION,
     author="eunwoo1104",
     author_email="sions04@naver.com",
     description="A simple discord slash command handler for discord.py.",
+    extras_require=extras,
+    install_requires=["discord.py", "aiohttp"],
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/eunwoo1104/discord-py-slash-command",
