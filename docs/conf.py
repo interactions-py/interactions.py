@@ -15,13 +15,15 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
+from discord_slash import __version__
 
 # -- Project information -----------------------------------------------------
 
 project = 'discord-py-slash-command'
 copyright = '2020-2021, eunwoo1104'
 author = 'eunwoo1104'
-
+release = __version__
+version = ".".join(__version__.split(".", 2)[:2])
 
 # -- General configuration ---------------------------------------------------
 
