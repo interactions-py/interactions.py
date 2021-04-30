@@ -15,5 +15,4 @@ from .context import ComponentContext
 from .dpy_overrides import ComponentMessage
 from .utils import manage_commands
 from .utils import manage_components
-
-__version__ = "1.2.2"
+from .const import __version__

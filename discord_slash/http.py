@@ -4,11 +4,12 @@ import aiohttp
 import discord
 from discord.http import Route
 from . import error
+from .const import BASE_API
 
 
 class CustomRoute(Route):
     """discord.py's Route but changed ``BASE`` to use at slash command."""
-    BASE = "https://discord.com/api/v8"
+    BASE = BASE_API
 
 
 class SlashCommandRequest:
@@ -120,7 +121,7 @@ class SlashCommandRequest:
     def post_initial_response(self, _resp, interaction_id, token):
         """
         Sends an initial "POST" response to the Discord API.
-         
+
         :param _resp: Command response.
         :type _resp: dict
         :param interaction_id: Interaction ID.
