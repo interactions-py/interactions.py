@@ -1,0 +1,7 @@
+[tool.black]
+exclude = '/(\.eggs|\.git|\.mypy_cache|\.venv.*|_build|build|dist)/'
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
