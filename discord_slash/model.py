@@ -255,8 +255,9 @@ class CogSubcommandObject(SubcommandObject):
         Do not manually init this model.
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, base, cmd, sub_group, name, sub):
+        super().__init__(sub, base, name, sub_group)
+        self.base_command_data = cmd
         self.cog = None  # Manually set this later.
 
     async def invoke(self, *args, **kwargs):

@@ -126,17 +126,7 @@ class SlashCommand:
                             self.commands[x.base].allowed_guild_ids.append(i)
                     self.commands[x.base].has_subcommands = True
                 else:
-                    _cmd = {
-                        "func": None,
-                        "description": x.base_description,
-                        "auto_convert": {},
-                        "guild_ids": x.allowed_guild_ids.copy(),
-                        "api_options": [],
-                        "api_permissions": [],
-                        "has_subcommands": True,
-                        "connector": {}
-                    }
-                    self.commands[x.base] = model.BasecommandObject(x.base, _cmd)
+                    self.commands[x.base] = model.BasecommandObject(x.base, x.base_command_data)
                 if x.base not in self.subcommands:
                     self.subcommands[x.base] = {}
                 if x.subcommand_group:
