@@ -234,7 +234,7 @@ Want to restrict access? Setup permissions!
 
 Slash commands also supports ability to set permissions to allow only certain roles and/or users 
 to run a slash command. Permissions can be applied to both global and guild based commands. They 
-are defined per guild, and each guild can have multiple permissions. Here table that shows the JSON 
+are defined per guild ,per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here table that shows the JSON 
 structure of how choices are represented for a single permission:
 
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
