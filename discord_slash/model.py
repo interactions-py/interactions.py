@@ -192,7 +192,7 @@ class BasecommandObject(CommandObject):
 
     def __init__(self, name, cmd):  # Let's reuse old command formatting.
         super().__init__(name, cmd)
-        self.has_subcommand = cmd["has_subcommands"]
+        self.has_subcommands = cmd["has_subcommands"]
         self.default_permission = cmd["default_permission"]
         self.permissions = cmd["api_permissions"] or []
 
