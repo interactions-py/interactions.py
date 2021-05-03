@@ -235,7 +235,7 @@ Want to restrict access? Setup permissions!
 Slash commands also supports ability to set permissions to allow only certain roles and/or users 
 to run a slash command. Permissions can be applied to both global and guild based commands. They 
 are defined per guild ,per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here table that shows the JSON 
-structure of how choices are represented for a single permission:
+structure of how permissions are represented:
 
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
 | **Field**   | **Type**                                   | **Description**                                                                                     |
@@ -280,27 +280,19 @@ role with id ``99999999`` and disallowing user with id ``88888888`` from running
 .. code-block:: python
 
   from discord_slash.utils.manage_commands import create_permission
+  from discord_slash.model import SubcommandApplicationPermissionType
 
   @slash.slash(name="test",
               description="This is just a test command, nothing more.",
               permissions={
                 12345678: [
-                  create_permission(99999999, 1, True),
-                  create_permission(88888888, 2, False)
+                  create_permission(99999999, SubcommandApplicationPermissionType.ROLE, True),
+                  create_permission(88888888, SubcommandApplicationPermissionType.USER, False)
                 ]
              })
   async def test(ctx):
     await ctx.send(content="Hello World!")
 
-Additionally, we could also declare the id type of our permission through this method shown here:
-
-.. code-block:: python
-
-  from discord_slash.model import SubcommandApplicationPermissionType
-  
-  (...)
-  
-                  option_type=SubcommandApplicationPermissionType.ROLE
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype

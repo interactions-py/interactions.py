@@ -320,7 +320,7 @@ def create_permission(id:int, id_type: int, permission: typing.Union[bool, Slash
     Create a single command permission.
 
     :param id: Target id to apply the permission on.
-    :param id_type: Type of the id. 
+    :param id_type: Type of the id, :class:`..model.SlashCommandPermissionsType`.
     :param permission: State of the permission. ``True`` to allow access, ``False to disallow access.
     :return: dict
     """
