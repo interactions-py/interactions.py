@@ -185,7 +185,7 @@ class BasecommandObject(CommandObject):
     .. warning::
         Do not manually init this model.
 
-    :ivar has_subcommand: Indicates whether this base command has subcommands.
+    :ivar has_subcommands: Indicates whether this base command has subcommands.
     :ivar default_permission: Indicates whether users should have permissions to run this command by default.
     :ivar permissions: Permissions to restrict use of this command.
     """
