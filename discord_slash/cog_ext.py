@@ -71,6 +71,8 @@ def cog_subcommand(*,
                    description: str = None,
                    base_description: str = None,
                    base_desc: str = None,
+                   base_default_permission: bool = True,
+                   base_permissions: dict = None,
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
                    guild_ids: typing.List[int] = None,
@@ -103,6 +105,10 @@ def cog_subcommand(*,
     :param base_description: Description of the base command. Default ``None``.
     :type base_description: str
     :param base_desc: Alias of ``base_description``.
+    :param base_default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+    :type base_default_permission: bool
+    :param base_permissions: Permission requirements of the slash command. Default ``None``.
+    :type base_permissions: dict
     :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
     :type subcommand_group_description: str
     :param sub_group_desc: Alias of ``subcommand_group_description``.
@@ -123,6 +129,17 @@ def cog_subcommand(*,
         else:
             opts = options
 
+        _cmd = {
+            "func": None,
+            "description": base_description,
+            "guild_ids": guild_ids.copy(),
+            "api_options": [],
+            "default_permission": base_default_permission,
+            "api_permissions": base_permissions,
+            "connector": {},
+            "has_subcommands": True
+        }
+
         _sub = {
             "func": cmd,
             "name": name or cmd.__name__,
@@ -133,5 +150,5 @@ def cog_subcommand(*,
             "api_options": opts,
             "connector": connector
         }
-        return CogSubcommandObject(_sub, base, name or cmd.__name__, subcommand_group)
+        return CogSubcommandObject(base, _cmd, subcommand_group, name or cmd.__name__, _sub)
     return wrapper
