@@ -186,15 +186,15 @@ class BasecommandObject(CommandObject):
         Do not manually init this model.
 
     :ivar has_subcommand: Indicates whether this base command has subcommands.
-    :ivar default_permissions: Indicates whether users should have permissions to run this command by default.
+    :ivar default_permission: Indicates whether users should have permissions to run this command by default.
     :ivar permissions: Permissions to restrict use of this command.
     """
 
     def __init__(self, name, cmd):  # Let's reuse old command formatting.
         super().__init__(name, cmd)
         self.has_subcommand = cmd["has_subcommands"]
-        self.default_permissions = ["default_permissions"]
-        self.permissions = ["api_permissions"] or []
+        self.default_permission = cmd["default_permission"]
+        self.permissions = cmd["api_permissions"] or []
 
 
 class SubcommandObject(CommandObject):
