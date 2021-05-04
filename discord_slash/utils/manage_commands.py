@@ -5,6 +5,7 @@ import aiohttp
 from ..error import RequestFailure, IncorrectType
 from ..model import SlashCommandOptionType
 from collections.abc import Callable
+from typing import Union
 
 
 async def add_slash_command(bot_id,
@@ -223,7 +224,7 @@ def generate_options(function: Callable, description: str = "No description.", c
     return options
 
 
-def create_choice(value: str, name: str):
+def create_choice(value: Union[str, int], name: str):
     """
     Creates choices used for creating command option.
 
