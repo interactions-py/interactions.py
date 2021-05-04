@@ -175,7 +175,7 @@ class CommandObject:
         return False not in res
 
 
-class BasecommandObject(CommandObject):
+class BaseCommandObject(CommandObject):
     """
     BaseCommand object of this extension.
 
@@ -221,7 +221,7 @@ class SubcommandObject(CommandObject):
         self.subcommand_group_description = sub["sub_group_desc"]
 
 
-class CogBasecommandObject(BasecommandObject):
+class CogBaseCommandObject(BaseCommandObject):
     """
     Slash command object but for Cog.
 

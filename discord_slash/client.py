@@ -112,10 +112,10 @@ class SlashCommand:
                                        "to add cog slash commands. Make sure to remove all calls to this function.")
         cog._slash_registered = True  # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
-        res = [x for x in func_list if isinstance(x, (model.CogBasecommandObject, model.CogSubcommandObject))]
+        res = [x for x in func_list if isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))]
         for x in res:
             x.cog = cog
-            if isinstance(x, model.CogBasecommandObject):
+            if isinstance(x, model.CogBaseCommandObject):
                 if x.name in self.commands:
                     raise error.DuplicateCommand(x.name)
                 self.commands[x.name] = x
@@ -126,7 +126,7 @@ class SlashCommand:
                             self.commands[x.base].allowed_guild_ids.append(i)
                     self.commands[x.base].has_subcommands = True
                 else:
-                    self.commands[x.base] = model.BasecommandObject(x.base, x.base_command_data)
+                    self.commands[x.base] = model.BaseCommandObject(x.base, x.base_command_data)
                 if x.base not in self.subcommands:
                     self.subcommands[x.base] = {}
                 if x.subcommand_group:
@@ -154,9 +154,9 @@ class SlashCommand:
             del cog._slash_registered
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
-               isinstance(x, (model.CogBasecommandObject, model.CogSubcommandObject))]
+               isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))]
         for x in res:
-            if isinstance(x, model.CogBasecommandObject):
+            if isinstance(x, model.CogBaseCommandObject):
                 if x.name not in self.commands:
                     continue  # Just in case it is removed due to subcommand.
                 if x.name in self.subcommands:
@@ -479,7 +479,7 @@ class SlashCommand:
             "connector": connector or {},
             "has_subcommands": has_subcommands
         }
-        obj = model.BasecommandObject(name, _cmd)
+        obj = model.BaseCommandObject(name, _cmd)
         self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
         return obj
@@ -561,7 +561,7 @@ class SlashCommand:
             "connector": connector or {}
         }
         if base not in self.commands:
-            self.commands[base] = model.BasecommandObject(base, _cmd)
+            self.commands[base] = model.BaseCommandObject(base, _cmd)
         else:
             base_command = self.commands[base]
             base_command.has_subcommands = True
