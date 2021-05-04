@@ -183,8 +183,6 @@ class SlashContext:
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
         if hidden:
-            if embeds or files:
-                self._logger.warning("Embed/File is not supported for `hidden`!")
             base["flags"] = 64
 
         initial_message = False
