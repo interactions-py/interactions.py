@@ -323,6 +323,9 @@ def create_permission(id:int, id_type: int, permission: typing.Union[bool, Slash
     :param id_type: Type of the id, :class:`..model.SlashCommandPermissionsType`.
     :param permission: State of the permission. ``True`` to allow access, ``False`` to disallow access.
     :return: dict
+
+    .. note::
+        For @everyone permission, set id_type as role and id as guild id.
     """
     if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
         original_type = id_type
@@ -349,7 +352,7 @@ def create_multi_ids_permission(ids: typing.List[int], id_type: int, permission:
 
 def generate_permissions(
     allowed_roles: typing.List[int] = None, allowed_users: typing.List[int]  = None, 
-    disallowed_roles: typing.List[int]  = None, disallowed_users: typing.List[int] = None
+    disallowed_roles: typing.List[int] = None, disallowed_users: typing.List[int] = None
 ):
     """
     Creates a list of permissions.
