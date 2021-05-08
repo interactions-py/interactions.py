@@ -407,9 +407,10 @@ class PermissionData:
 
 class GuildPermissionsData:
     """
-    Slash permissions data for a guild.
+    Slash permissions data for a command in a guild.
 
     :ivar id: Command id, provided by discord.
+    :ivar guild_id: Guild id that the permissions are in. 
     :ivar permissions: List of permissions dict.
     """
     def __init__(self, id, permissions, **kwargs):
