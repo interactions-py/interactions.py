@@ -362,6 +362,7 @@ class SlashCommand:
                         permissions_map[applicable_guild] = []
                     permission = {
                         "id": cmd_id,
+                        "guild_id": applicable_guild,
                         "permissions": cmd_permissions[applicable_guild]
                     }
                     permissions_map[applicable_guild].append(permission)

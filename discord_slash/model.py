@@ -413,8 +413,9 @@ class GuildPermissionsData:
     :ivar guild_id: Guild id that the permissions are in. 
     :ivar permissions: List of permissions dict.
     """
-    def __init__(self, id, permissions, **kwargs):
+    def __init__(self, id, guild_id, permissions, **kwargs):
         self.id = id
+        self.guild_id = guild_id
         self.permissions = []
         if permissions:
             for permission in permissions:
@@ -424,6 +425,7 @@ class GuildPermissionsData:
         if isinstance(other, GuildPermissionsData):
             return (
                 self.id == other.id
+                and self.guild_id == other.guild_id
                 and self.permissions == other.permissions
             )
         else:
