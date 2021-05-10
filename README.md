@@ -10,7 +10,6 @@
 <p align="center">
    <a href="#about">About</a> ⦿
    <a href="#installation">Installation</a> ⦿
-   <a href="#disclaimer">Disclaimer</a> ⦿
    <a href="#examples">Examples</a> ⦿
    <a href="https://discord-py-slash-command.readthedocs.io/en/latest/">Documentation</a> ⦿
    <a href="https://discord.gg/KkgMBVuEkx">Discord Server</a>
