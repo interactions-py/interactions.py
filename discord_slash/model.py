@@ -432,7 +432,7 @@ class GuildPermissionsData:
             return False
 
 
-class SlashCommandPermissionsType(IntEnum):
+class SlashCommandPermissionType(IntEnum):
     """
     Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_  in the Discord API.
     """

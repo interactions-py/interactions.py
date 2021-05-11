@@ -3,7 +3,7 @@ import inspect
 import asyncio
 import aiohttp
 from ..error import RequestFailure, IncorrectType
-from ..model import SlashCommandOptionType, SlashCommandPermissionsType
+from ..model import SlashCommandOptionType, SlashCommandPermissionType
 from collections.abc import Callable
 
 
@@ -315,7 +315,7 @@ def create_choice(value: str, name: str):
     }
 
 
-def create_permission(id:int, id_type: int, permission: typing.Union[bool, SlashCommandPermissionsType]):
+def create_permission(id:int, id_type: typing.Union[int, SlashCommandPermissionType], permission: bool):
     """
     Create a single command permission.
 
@@ -327,19 +327,19 @@ def create_permission(id:int, id_type: int, permission: typing.Union[bool, Slash
     .. note::
         For @everyone permission, set id_type as role and id as guild id.
     """
-    if not isinstance(id_type, int) or isinstance(id_type, bool): #Bool values are a subclass of int
+    if not (isinstance(id_type, int) or isinstance(id_type, bool)): #Bool values are a subclass of int
         original_type = id_type
-        id_type = SlashCommandPermissionsType.from_type(original_type)
+        id_type = SlashCommandPermissionType.from_type(original_type)
         if id_type is None:
             raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")
     return {
         "id": id,
-        "type": id_type,
+        "type": int(id_type),
         "permission": permission
     }
 
 
-def create_multi_ids_permission(ids: typing.List[int], id_type: int, permission: bool):
+def create_multi_ids_permission(ids: typing.List[int], id_type: typing.Union[int, SlashCommandPermissionType], permission: bool):
     """
     Creates a list of permissions from list of ids with common id_type and permission state.
 
@@ -366,12 +366,12 @@ def generate_permissions(
     permissions = []
     
     if allowed_roles:
-        permissions.extend(create_multi_ids_permission(allowed_roles, 1, True))
+        permissions.extend(create_multi_ids_permission(allowed_roles, SlashCommandPermissionType.ROLE, True))
     if allowed_users:
-        permissions.extend(create_multi_ids_permission(allowed_users, 2, True))
+        permissions.extend(create_multi_ids_permission(allowed_users, SlashCommandPermissionType.USER, True))
     if disallowed_roles:
-        permissions.extend(create_multi_ids_permission(disallowed_roles, 1, False))
+        permissions.extend(create_multi_ids_permission(disallowed_roles, SlashCommandPermissionType.ROLE, False))
     if disallowed_users:
-        permissions.extend(create_multi_ids_permission(disallowed_users, 2, False))
+        permissions.extend(create_multi_ids_permission(disallowed_users, SlashCommandPermissionType.USER, False))
 
     return permissions
