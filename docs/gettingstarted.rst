@@ -286,8 +286,8 @@ role with id ``99999999`` and disallowing user with id ``88888888`` from running
               description="This is just a test command, nothing more.",
               permissions={
                 12345678: [
-                  create_permission(99999999, SubcommandApplicationPermissionType.ROLE, True),
-                  create_permission(88888888, SubcommandApplicationPermissionType.USER, False)
+                  create_permission(99999999, SlashCommandPermissionsType.ROLE, True),
+                  create_permission(88888888, SlashCommandPermissionsType.USER, False)
                 ]
              })
   async def test(ctx):
