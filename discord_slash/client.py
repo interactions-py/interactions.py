@@ -753,7 +753,12 @@ class SlashCommand:
 
     def permission(self, guild_id: int, permissions: list):
         """
-        Decorator that add permissions
+        Decorator that add permissions. This will set the permissions for a single guild, you can use it more than once for each command.
+        :param guild_id: ID of the guild for the permissions. 
+        :type guild_id: int
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: dict
+        
         """
         def wrapper(cmd):
             if not getattr(cmd, "__permissions__", None):
