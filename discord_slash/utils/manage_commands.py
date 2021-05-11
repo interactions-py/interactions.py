@@ -334,7 +334,7 @@ def create_permission(id:int, id_type: typing.Union[int, SlashCommandPermissionT
             raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")
     return {
         "id": id,
-        "type": int(id_type),
+        "type": id_type,
         "permission": permission
     }
 
