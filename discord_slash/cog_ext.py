@@ -121,6 +121,7 @@ def cog_subcommand(*,
     """
     base_description = base_description or base_desc
     subcommand_group_description = subcommand_group_description or sub_group_desc
+    guild_ids = guild_ids if guild_ids else []
 
     def wrapper(cmd):
         desc = description or inspect.getdoc(cmd)
@@ -132,7 +133,7 @@ def cog_subcommand(*,
         _cmd = {
             "func": None,
             "description": base_description,
-            "guild_ids": guild_ids,
+            "guild_ids": guild_ids.copy(),
             "api_options": [],
             "default_permission": base_default_permission,
             "api_permissions": base_permissions,
