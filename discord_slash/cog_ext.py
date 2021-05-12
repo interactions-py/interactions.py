@@ -132,7 +132,7 @@ def cog_subcommand(*,
         _cmd = {
             "func": None,
             "description": base_description,
-            "guild_ids": guild_ids.copy(),
+            "guild_ids": guild_ids,
             "api_options": [],
             "default_permission": base_default_permission,
             "api_permissions": base_permissions,
