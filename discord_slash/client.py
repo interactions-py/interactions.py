@@ -368,7 +368,7 @@ class SlashCommand:
                     permissions_map[applicable_guild].append(permission)
 
 
-        self.logger.debug("Permissions for commands are " + permissions_map)
+        self.logger.debug(permissions_map)
         for scope in permissions_map:
             existing_perms = await self.req.get_all_guild_commands_permissions(scope)
             new_perms = permissions_map[scope]
