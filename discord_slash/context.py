@@ -134,9 +134,6 @@ class SlashContext:
         """
         Sends response of the slash command.
 
-        .. note::
-            - Param ``hidden`` doesn't support embed and file.
-
         .. warning::
             - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
             - You can't use both ``embed`` and ``embeds`` at the same time, also applies to ``file`` and ``files``.
@@ -186,8 +183,6 @@ class SlashContext:
             else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
         }
         if hidden:
-            if embeds or files:
-                self._logger.warning("Embed/File is not supported for `hidden`!")
             base["flags"] = 64
 
         initial_message = False
