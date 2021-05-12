@@ -293,6 +293,22 @@ role with id ``99999999`` and disallowing user with id ``88888888`` from running
   async def test(ctx):
     await ctx.send(content="Hello World!")
 
+Alternatively you can use the ``@slash.permission`` decorator to define your guild permissions for the command.
+
+.. code-block:: python
+
+  from discord_slash.utils.manage_commands import create_permission
+  from discord_slash.model import SubcommandApplicationPermissionType
+
+  @slash.slash(name="test",
+               description="This is just a test command, nothing more.")
+  @slash.permission(guild_id = 12345678, 
+                    permission = [
+                      create_permission(99999999, SlashCommandPermissionType.ROLE, True), 
+                      create_permission(88888888, SlashCommandPermissionType.USER, False)
+                    ])
+  async def test(ctx):
+    await ctx.send(content="Hello World!")
 
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
