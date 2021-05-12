@@ -368,7 +368,8 @@ class SlashCommand:
                     permissions_map[applicable_guild].append(permission)
 
 
-        self.logger.debug(permissions_map)
+        self.logger.info("Syncing permissions...")
+        self.logger.debug(f"Commands permission data are {permissions_map}")
         for scope in permissions_map:
             existing_perms = await self.req.get_all_guild_commands_permissions(scope)
             new_perms = permissions_map[scope]
@@ -396,6 +397,7 @@ class SlashCommand:
 
 
         if delete_from_unused_guilds:
+            self.logger.info("Deleting unused guild commands...")
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
             # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
             # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
@@ -404,13 +406,16 @@ class SlashCommand:
                 with suppress(discord.Forbidden):
                     existing = await self.req.get_all_commands(guild_id = guild)
                     if len(existing) != 0:
+                        self.logger.debug(f"Deleting commands from {guild}")
                         await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
 
 
         if delete_perms_from_unused_guilds:
+            self.logger.info("Deleting unused guild permissions...")
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in permissions_map.keys()]
             for guild in other_guilds:
                 with suppress(discord.Forbidden):
+                    self.logger.debug(f"Deleting permissions from {guild}")
                     existing_perms = await self.req.get_all_guild_commands_permissions(guild)
                     if len(existing_perms) != 0:
                         await self.req.update_guild_commands_permissions(guild, [])
