@@ -3,7 +3,7 @@ import inspect
 import asyncio
 import aiohttp
 from ..error import RequestFailure, IncorrectType
-from ..model import SlashCommandOptionType
+from ..model import SlashCommandOptionType, SlashCommandPermissionType
 from collections.abc import Callable
 
 
@@ -142,6 +142,84 @@ async def remove_all_commands_in(bot_id,
         )
 
 
+async def get_all_guild_commands_permissions(bot_id,
+                                             bot_token,
+                                             guild_id):
+    """
+    A coroutine that sends a slash command get request to Discord API.
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to get permissions.
+    :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#get-application-command-permissions>.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/permissions"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await get_all_guild_commands_permissions(bot_id, bot_token, guild_id)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
+async def update_single_command_permissions(bot_id,
+                                            bot_token,
+                                            guild_id,
+                                            command_id,
+                                            permissions):
+    """
+    A coroutine that sends a slash command put request to Discord API.
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to update permissions on.
+    :param command_id: ID for the command to update permissions on.
+    :param permissions: List of permissions for the command.
+    :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions>
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/commands/{command_id}/permissions"
+    async with aiohttp.ClientSession() as session:
+        async with session.put(url, headers={"Authorization": f"Bot {bot_token}"}, json=permissions) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await update_guild_commands_permissions(bot_id, bot_token, guild_id, permissions)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
+async def update_guild_commands_permissions(bot_id,
+                                            bot_token,
+                                            guild_id,
+                                            cmd_permissions):
+    """
+    A coroutine that sends a slash command put request to Discord API.
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to update permissions.
+    :param permissions: List of dict with permissions for each commands.
+    :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions>.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/permissions"
+    async with aiohttp.ClientSession() as session:
+        async with session.put(url, headers={"Authorization": f"Bot {bot_token}"}, json=cmd_permissions) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await update_guild_commands_permissions(bot_id, bot_token, guild_id, cmd_permissions)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
 def create_option(name: str,
                   description: str,
                   option_type: typing.Union[int, type],
@@ -235,3 +313,65 @@ def create_choice(value: str, name: str):
         "value": value,
         "name": name
     }
+
+
+def create_permission(id:int, id_type: typing.Union[int, SlashCommandPermissionType], permission: bool):
+    """
+    Create a single command permission.
+
+    :param id: Target id to apply the permission on.
+    :param id_type: Type of the id, :class:`..model.SlashCommandPermissionsType`.
+    :param permission: State of the permission. ``True`` to allow access, ``False`` to disallow access.
+    :return: dict
+
+    .. note::
+        For @everyone permission, set id_type as role and id as guild id.
+    """
+    if not (isinstance(id_type, int) or isinstance(id_type, bool)): #Bool values are a subclass of int
+        original_type = id_type
+        id_type = SlashCommandPermissionType.from_type(original_type)
+        if id_type is None:
+            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")
+    return {
+        "id": id,
+        "type": id_type,
+        "permission": permission
+    }
+
+
+def create_multi_ids_permission(ids: typing.List[int], id_type: typing.Union[int, SlashCommandPermissionType], permission: bool):
+    """
+    Creates a list of permissions from list of ids with common id_type and permission state.
+
+    :param id: List of target ids to apply the permission on.
+    :param id_type: Type of the id. 
+    :param permission: State of the permission. ``True`` to allow access, ``False`` to disallow access.
+    """
+    return [create_permission(id, id_type, permission) for id in set(ids)]
+
+
+def generate_permissions(
+    allowed_roles: typing.List[int] = None, allowed_users: typing.List[int]  = None, 
+    disallowed_roles: typing.List[int] = None, disallowed_users: typing.List[int] = None
+):
+    """
+    Creates a list of permissions.
+
+    :param allowed_roles: List of role ids that can access command.
+    :param allowed_users: List of user ids that can access command.
+    :param disallowed_roles: List of role ids that should not access command.
+    :param disallowed_users: List of users ids that should not access command.
+    :return: list
+    """
+    permissions = []
+    
+    if allowed_roles:
+        permissions.extend(create_multi_ids_permission(allowed_roles, SlashCommandPermissionType.ROLE, True))
+    if allowed_users:
+        permissions.extend(create_multi_ids_permission(allowed_users, SlashCommandPermissionType.USER, True))
+    if disallowed_roles:
+        permissions.extend(create_multi_ids_permission(disallowed_roles, SlashCommandPermissionType.ROLE, False))
+    if disallowed_users:
+        permissions.extend(create_multi_ids_permission(disallowed_users, SlashCommandPermissionType.USER, False))
+
+    return permissions

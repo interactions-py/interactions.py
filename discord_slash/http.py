@@ -54,6 +54,24 @@ class SlashCommandRequest:
         """
         return self.command_request(method="GET", guild_id=guild_id)
 
+    def get_all_guild_commands_permissions(self, guild_id):
+        """
+        Sends a slash command get request to Discord API for all permissions of a guild.
+
+        :param guild_id: ID of the target guild to get registered command permissions of.
+        :return: JSON Response of the request.
+        """
+        return self.command_request(method="GET", guild_id=guild_id, url_ending="/permissions")
+
+    def update_guild_commands_permissions(self, guild_id, perms_dict):
+        """
+        Sends a slash command put request to the Discord API for setting all command permissions of a guild.
+
+        :param guild_id: ID of the target guild to register command permissions.
+        :return: JSON Response of the request.
+        """
+        return self.command_request(method="PUT", guild_id=guild_id, json=perms_dict, url_ending="/permissions")
+
     def add_slash_command(
         self, guild_id, cmd_name: str, description: str, options: list = None
     ):
@@ -167,4 +185,3 @@ class SlashCommandRequest:
         """
         req_url = f"/messages/{message_id}"
         return self.command_response(token, True, "DELETE", url_ending = req_url)
-

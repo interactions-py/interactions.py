@@ -112,30 +112,31 @@ class SlashCommand:
                                        "to add cog slash commands. Make sure to remove all calls to this function.")
         cog._slash_registered = True  # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
-        res = [x for x in func_list if isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
+        res = [x for x in func_list if isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))]
         for x in res:
             x.cog = cog
-            if isinstance(x, model.CogCommandObject):
+            if isinstance(x, model.CogBaseCommandObject):
                 if x.name in self.commands:
                     raise error.DuplicateCommand(x.name)
                 self.commands[x.name] = x
             else:
                 if x.base in self.commands:
+                    base_command = self.commands[x.base]
                     for i in x.allowed_guild_ids:
-                        if i not in self.commands[x.base].allowed_guild_ids:
-                            self.commands[x.base].allowed_guild_ids.append(i)
+                        if i not in base_command.allowed_guild_ids:
+                            base_command.allowed_guild_ids.append(i)
+
+                    base_permissions = x.base_command_data["api_permissions"]
+                    if base_permissions:
+                        for applicable_guild in base_permissions:
+                            if applicable_guild not in base_command.permissions:
+                                base_command.permissions[applicable_guild] = []
+                            base_command.permissions[applicable_guild].extend(base_permissions[applicable_guild])
+
                     self.commands[x.base].has_subcommands = True
+
                 else:
-                    _cmd = {
-                        "func": None,
-                        "description": x.base_description,
-                        "auto_convert": {},
-                        "guild_ids": x.allowed_guild_ids.copy(),
-                        "api_options": [],
-                        "has_subcommands": True,
-                        "connector": {}
-                    }
-                    self.commands[x.base] = model.CommandObject(x.base, _cmd)
+                    self.commands[x.base] = model.BaseCommandObject(x.base, x.base_command_data)
                 if x.base not in self.subcommands:
                     self.subcommands[x.base] = {}
                 if x.subcommand_group:
@@ -163,9 +164,9 @@ class SlashCommand:
             del cog._slash_registered
         func_list = [getattr(cog, x) for x in dir(cog)]
         res = [x for x in func_list if
-               isinstance(x, (model.CogCommandObject, model.CogSubcommandObject))]
+               isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))]
         for x in res:
-            if isinstance(x, model.CogCommandObject):
+            if isinstance(x, model.CogBaseCommandObject):
                 if x.name not in self.commands:
                     continue  # Just in case it is removed due to subcommand.
                 if x.name in self.subcommands:
@@ -218,19 +219,30 @@ class SlashCommand:
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
         for x in self.commands:
             selected = self.commands[x]
-            command_dict = {
-                "name": x,
-                "description": selected.description or "No Description.",
-                "options": selected.options or []
-            }
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
                     if y not in wait:
                         wait[y] = {}
+                    command_dict = {
+                        "name": x,
+                        "description": selected.description or "No Description.",
+                        "options": selected.options or [],
+                        "default_permission": selected.default_permission,
+                        "permissions": {}
+                    }
+                    if y in selected.permissions:
+                        command_dict["permissions"][y] = selected.permissions[y]
                     wait[y][x] = copy.deepcopy(command_dict)
             else:
                 if "global" not in wait:
                     wait["global"] = {}
+                command_dict = {
+                    "name": x,
+                    "description": selected.description or "No Description.",
+                    "options": selected.options or [],
+                    "default_permission": selected.default_permission,
+                    "permissions": selected.permissions or {}
+                }
                 wait["global"][x] = copy.deepcopy(command_dict)
 
         # Separated normal command add and subcommand add not to
@@ -291,7 +303,9 @@ class SlashCommand:
 
         return cmds
 
-    async def sync_all_commands(self, delete_from_unused_guilds=False):
+    async def sync_all_commands(
+        self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
+    ):
         """
         Matches commands registered on Discord to commands registered here.
         Deletes any commands on Discord but not here, and registers any not on Discord.
@@ -300,14 +314,17 @@ class SlashCommand:
         If ``sync_commands`` is ``True``, then this will be automatically called.
 
         :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
+        :param delete_perms_from_unused_guilds: If the bot should make a request to clear permissions for guilds that haven't got any permissions registered in :class:``SlashCommand``
         """
+        permissions_map = {}
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
         cmds_formatted = {None: cmds['global']}
         for guild in cmds['guild']:
             cmds_formatted[guild] = cmds['guild'][guild]
-                
+
         for scope in cmds_formatted:
+            permissions = {}
             new_cmds = cmds_formatted[scope]
             existing_cmds = await self.req.get_all_commands(guild_id = scope)
             existing_by_name = {}
@@ -321,6 +338,7 @@ class SlashCommand:
 
             for command in new_cmds:
                 cmd_name = command["name"]
+                permissions[cmd_name] = command.pop("permissions")
                 if cmd_name in existing_by_name:
                     cmd_data = model.CommandData(**command)
                     existing_cmd = existing_by_name[cmd_name]
@@ -338,11 +356,58 @@ class SlashCommand:
             
             if changed:
                 self.logger.debug(f"Detected changes on {scope if scope is not None else 'global'}, updating them")
-                await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
+                existing_cmds = await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
             else:
                 self.logger.debug(f"Detected no changes on {scope if scope is not None else 'global'}, skipping")
 
+            id_name_map = {}
+            for cmd in existing_cmds:
+                id_name_map[cmd["name"]] = cmd["id"]
+
+            for cmd_name in permissions:
+                cmd_permissions = permissions[cmd_name]
+                cmd_id = id_name_map[cmd_name]
+                for applicable_guild in cmd_permissions:
+                    if applicable_guild not in permissions_map:
+                        permissions_map[applicable_guild] = []
+                    permission = {
+                        "id": cmd_id,
+                        "guild_id": applicable_guild,
+                        "permissions": cmd_permissions[applicable_guild]
+                    }
+                    permissions_map[applicable_guild].append(permission)
+
+
+        self.logger.info("Syncing permissions...")
+        self.logger.debug(f"Commands permission data are {permissions_map}")
+        for scope in permissions_map:
+            existing_perms = await self.req.get_all_guild_commands_permissions(scope)
+            new_perms = permissions_map[scope]
+
+            changed = False
+            if len(existing_perms) != len(new_perms):
+                changed = True
+            else:
+                existing_perms_model = {}
+                for existing_perm in existing_perms:
+                    existing_perms_model[existing_perm["id"]] = model.GuildPermissionsData(**existing_perm)
+                for new_perm in new_perms:
+                    if new_perm["id"] not in existing_perms_model:
+                        changed = True
+                        break
+                    if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(**new_perm):
+                        changed = True
+                        break
+            
+            if changed:
+                self.logger.debug(f"Detected permissions changes on {scope}, updating them")
+                await self.req.update_guild_commands_permissions(scope, new_perms)
+            else:
+                self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
+
+
         if delete_from_unused_guilds:
+            self.logger.info("Deleting unused guild commands...")
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
             # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
             # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
@@ -351,7 +416,19 @@ class SlashCommand:
                 with suppress(discord.Forbidden):
                     existing = await self.req.get_all_commands(guild_id = guild)
                     if len(existing) != 0:
+                        self.logger.debug(f"Deleting commands from {guild}")
                         await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
+
+
+        if delete_perms_from_unused_guilds:
+            self.logger.info("Deleting unused guild permissions...")
+            other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in permissions_map.keys()]
+            for guild in other_guilds:
+                with suppress(discord.Forbidden):
+                    self.logger.debug(f"Deleting permissions from {guild}")
+                    existing_perms = await self.req.get_all_guild_commands_permissions(guild)
+                    if len(existing_perms) != 0:
+                        await self.req.update_guild_commands_permissions(guild, [])
 
         self.logger.info("Completed syncing all commands!")
 
@@ -361,6 +438,8 @@ class SlashCommand:
                           description: str = None,
                           guild_ids: typing.List[int] = None,
                           options: list = None,
+                          default_permission: bool = True,
+                          permissions: dict = None,
                           connector: dict = None,
                           has_subcommands: bool = False):
         """
@@ -380,6 +459,10 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: list
+        :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: dict
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         :param has_subcommands: Whether it has subcommand. Default ``False``.
@@ -407,10 +490,12 @@ class SlashCommand:
             "description": description,
             "guild_ids": guild_ids,
             "api_options": options,
+            "default_permission": default_permission,
+            "api_permissions": permissions,
             "connector": connector or {},
             "has_subcommands": has_subcommands
         }
-        obj = model.CommandObject(name, _cmd)
+        obj = model.BaseCommandObject(name, _cmd)
         self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
         return obj
@@ -422,6 +507,8 @@ class SlashCommand:
                        name=None,
                        description: str = None,
                        base_description: str = None,
+                       base_default_permission: bool = True,
+                       base_permissions: dict = None,
                        subcommand_group_description: str = None,
                        guild_ids: typing.List[int] = None,
                        options: list = None,
@@ -441,6 +528,10 @@ class SlashCommand:
         :type description: str
         :param base_description: Description of the base command. Default ``None``.
         :type base_description: str
+        :param default_permission: Sets if users have permission to run base command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the base command. Default ``None``.
+        :type permissions: dict
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
@@ -470,6 +561,8 @@ class SlashCommand:
             "description": base_description,
             "guild_ids": guild_ids.copy(),
             "api_options": [],
+            "default_permission": base_default_permission,
+            "api_permissions": base_permissions,
             "connector": {},
             "has_subcommands": True
         }
@@ -484,11 +577,17 @@ class SlashCommand:
             "connector": connector or {}
         }
         if base not in self.commands:
-            self.commands[base] = model.CommandObject(base, _cmd)
+            self.commands[base] = model.BaseCommandObject(base, _cmd)
         else:
-            self.commands[base].has_subcommands = True
-            if self.commands[base].description:
-                _cmd["description"] = self.commands[base].description
+            base_command = self.commands[base]
+            base_command.has_subcommands = True
+            if base_permissions:
+                for applicable_guild in base_permissions:
+                    if applicable_guild not in base_command.permissions:
+                        base_command.permissions[applicable_guild] = []
+                    base_command.permissions[applicable_guild].extend(base_permissions[applicable_guild])
+            if base_command.description:
+                _cmd["description"] = base_command.description
         if base not in self.subcommands:
             self.subcommands[base] = {}
         if subcommand_group:
@@ -512,6 +611,8 @@ class SlashCommand:
               description: str = None,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
+              default_permission: bool = True,
+              permissions: dict = None,
               connector: dict = None):
         """
         Decorator that registers coroutine as a slash command.\n
@@ -562,12 +663,22 @@ class SlashCommand:
         :type guild_ids: List[int]
         :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
         :type options: List[dict]
+        :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: dict
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         """
+        if not permissions:
+            permissions = {}
 
         def wrapper(cmd):
-            obj = self.add_slash_command(cmd, name, description, guild_ids, options, connector)
+            decorator_permissions = getattr(cmd, "__permissions__", None)
+            if decorator_permissions:
+                permissions.update(decorator_permissions)
+
+            obj = self.add_slash_command(cmd, name, description, guild_ids, options, default_permission, permissions, connector)
             return obj
 
         return wrapper
@@ -580,6 +691,8 @@ class SlashCommand:
                    description: str = None,
                    base_description: str = None,
                    base_desc: str = None,
+                   base_default_permission: bool = True,
+                   base_permissions: dict = None,
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
                    guild_ids: typing.List[int] = None,
@@ -624,6 +737,10 @@ class SlashCommand:
         :param base_description: Description of the base command. Default ``None``.
         :type base_description: str
         :param base_desc: Alias of ``base_description``.
+        :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
+        :type default_permission: bool
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: dict
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
         :param sub_group_desc: Alias of ``subcommand_group_description``.
@@ -636,10 +753,33 @@ class SlashCommand:
         """
         base_description = base_description or base_desc
         subcommand_group_description = subcommand_group_description or sub_group_desc
+        if not base_permissions:
+            base_permissions = {}
 
         def wrapper(cmd):
-            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, subcommand_group_description, guild_ids, options, connector)
+            decorator_permissions = getattr(cmd, "__permissions__", None)
+            if decorator_permissions:
+                base_permissions.update(decorator_permissions)
+
+            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, base_default_permission, base_permissions, subcommand_group_description, guild_ids, options, connector)
             return obj
+
+        return wrapper
+
+    def permission(self, guild_id: int, permissions: list):
+        """
+        Decorator that add permissions. This will set the permissions for a single guild, you can use it more than once for each command.
+        :param guild_id: ID of the guild for the permissions. 
+        :type guild_id: int
+        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :type permissions: dict
+        
+        """
+        def wrapper(cmd):
+            if not getattr(cmd, "__permissions__", None):
+                cmd.__permissions__ = {}
+            cmd.__permissions__[guild_id] = permissions
+            return cmd
 
         return wrapper
 

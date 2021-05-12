@@ -229,7 +229,89 @@ a string or integer. Below is an implementation of this design in the Python cod
   async def test(ctx, optone: str):
     await ctx.send(content=f"Wow, you actually chose {optone}? :(")
 
+Want to restrict access? Setup permissions!
+-------------------------------------------
+
+Slash commands also supports ability to set permissions to allow only certain roles and/or users 
+to run a slash command. Permissions can be applied to both global and guild based commands. They 
+are defined per guild ,per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here table that shows the JSON 
+structure of how permissions are represented:
+
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Field**   | **Type**                                   | **Description**                                                                                     |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| id          | int                                        | Snowflake value of type specified. Represents the target to apply permissions on.                   |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| type        | int                                        | An `ApplicationCommandPermissionType`_.                                                             |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| permission  | boolean                                    | ``true`` to allow, ``false`` to disallow.                                                           |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+
+How the type parameter works is very simple. Discord has many ids to represent different things. As you can 
+set permissions to apply for User or Role, `ApplicationCommandPermissionType`_ is used. It's a number and
+following table shows the supported id types for permissions:
+
++-------------------+-----------+
+| **Name**          | **Value** |
++-------------------+-----------+
+| Role              | 1         |
++-------------------+-----------+
+| User              | 2         |
++-------------------+-----------+
+
+This is an example of how a single permission will look when represented as a json object:
+
+.. code-block:: python
+
+  {
+    "id": 12345678,
+    "type": 1,
+    "permission": True 
+  }
+
+Now, let take a look simple example. The slash command decorator have a permissions parameter Where
+it takes in a dictionary. The key being the guild to apply permissions on, and value being the list
+of permissions to apply. For each permission, we can use the handy ``create_permission`` method to 
+build the permission json explain above.
+
+In this case, we are setting 2 permissions for guild with id of ``12345678``. Firstly, we are allowing
+role with id ``99999999`` and disallowing user with id ``88888888`` from running the slash command.
+
+.. code-block:: python
+
+  from discord_slash.utils.manage_commands import create_permission
+  from discord_slash.model import SubcommandApplicationPermissionType
+
+  @slash.slash(name="test",
+              description="This is just a test command, nothing more.",
+              permissions={
+                12345678: [
+                  create_permission(99999999, SlashCommandPermissionType.ROLE, True),
+                  create_permission(88888888, SlashCommandPermissionType.USER, False)
+                ]
+             })
+  async def test(ctx):
+    await ctx.send(content="Hello World!")
+
+Alternatively you can use the ``@slash.permission`` decorator to define your guild permissions for the command.
+
+.. code-block:: python
+
+  from discord_slash.utils.manage_commands import create_permission
+  from discord_slash.model import SubcommandApplicationPermissionType
+
+  @slash.slash(name="test",
+               description="This is just a test command, nothing more.")
+  @slash.permission(guild_id = 12345678, 
+                    permission = [
+                      create_permission(99999999, SlashCommandPermissionType.ROLE, True), 
+                      create_permission(88888888, SlashCommandPermissionType.USER, False)
+                    ])
+  async def test(ctx):
+    await ctx.send(content="Hello World!")
+
 .. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
 .. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoption
+.. _ApplicationCommandPermissionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissions
