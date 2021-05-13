@@ -195,7 +195,7 @@ class BaseCommandObject(CommandObject):
         super().__init__(name, cmd)
         self.has_subcommands = cmd["has_subcommands"]
         self.default_permission = cmd["default_permission"]
-        self.permissions = cmd["api_permissions"] or []
+        self.permissions = cmd["api_permissions"] or {}
 
 
 class SubcommandObject(CommandObject):
