@@ -269,8 +269,8 @@ This is an example of how a single permission will look when represented as a js
     "permission": True 
   }
 
-Now, let take a look simple example. The slash command decorator have a permissions parameter Where
-it takes in a dictionary. The key being the guild to apply permissions on, and value being the list
+Now, let take a look at an example. The slash command decorator have a permissions parameter where
+it takes in a dictionary. The key being the guild id to apply permissions on, and value being the list
 of permissions to apply. For each permission, we can use the handy ``create_permission`` method to 
 build the permission json explain above.
 
@@ -293,12 +293,13 @@ role with id ``99999999`` and disallowing user with id ``88888888`` from running
   async def test(ctx):
     await ctx.send(content="Hello World!")
 
-Alternatively you can use the ``@slash.permission`` decorator to define your guild permissions for the command.
+Alternatively, you can use the ``@slash.permission`` decorator to define your guild permissions for the 
+command as show in the following example:
 
 .. code-block:: python
 
   from discord_slash.utils.manage_commands import create_permission
-  from discord_slash.model import SubcommandApplicationPermissionType
+  from discord_slash.model import SlashCommandPermissionType
 
   @slash.slash(name="test",
                description="This is just a test command, nothing more.")
