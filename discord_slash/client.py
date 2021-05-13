@@ -441,7 +441,7 @@ class SlashCommand:
                           guild_ids: typing.List[int] = None,
                           options: list = None,
                           default_permission: bool = True,
-                          permissions: dict = None,
+                          permissions: typing.Dict[int, list] = None,
                           connector: dict = None,
                           has_subcommands: bool = False):
         """
@@ -463,7 +463,7 @@ class SlashCommand:
         :type options: list
         :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
         :type default_permission: bool
-        :param permissions: Permission requirements of the slash command. Default ``None``.
+        :param permissions: Dictionary of permissions of the slash command. Key being target guild_id and value being a list of permissions to apply. Default ``None``.
         :type permissions: dict
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
@@ -510,7 +510,7 @@ class SlashCommand:
                        description: str = None,
                        base_description: str = None,
                        base_default_permission: bool = True,
-                       base_permissions: dict = None,
+                       base_permissions: typing.Dict[int, list] = None,
                        subcommand_group_description: str = None,
                        guild_ids: typing.List[int] = None,
                        options: list = None,
@@ -532,8 +532,8 @@ class SlashCommand:
         :type base_description: str
         :param default_permission: Sets if users have permission to run base command by default, when no permissions are set. Default ``True``.
         :type default_permission: bool
-        :param permissions: Permission requirements of the base command. Default ``None``.
-        :type permissions: dict
+        :param base_permissions: Dictionary of permissions of the slash command. Key being target guild_id and value being a list of permissions to apply. Default ``None``.
+        :type base_permissions: dict
         :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
         :type subcommand_group_description: str
         :param guild_ids: List of guild ID of where the command will be used. Default ``None``, which will be global command.
