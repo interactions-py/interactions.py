@@ -280,7 +280,7 @@ role with id ``99999999`` and disallowing user with id ``88888888`` from running
 .. code-block:: python
 
   from discord_slash.utils.manage_commands import create_permission
-  from discord_slash.model import SubcommandApplicationPermissionType
+  from discord_slash.model import SlashCommandPermissionType
 
   @slash.slash(name="test",
               description="This is just a test command, nothing more.",
@@ -302,8 +302,8 @@ Alternatively you can use the ``@slash.permission`` decorator to define your gui
 
   @slash.slash(name="test",
                description="This is just a test command, nothing more.")
-  @slash.permission(guild_id = 12345678, 
-                    permission = [
+  @slash.permission(guild_id=12345678, 
+                    permissions=[
                       create_permission(99999999, SlashCommandPermissionType.ROLE, True), 
                       create_permission(88888888, SlashCommandPermissionType.USER, False)
                     ])
