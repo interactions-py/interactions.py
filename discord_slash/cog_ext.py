@@ -10,7 +10,7 @@ def cog_slash(*,
               guild_ids: typing.List[int] = None,
               options: typing.List[dict] = None,
               default_permission: bool = True,
-              permissions: dict = None,
+              permissions: typing.Dict[int, list] = None,
               connector: dict = None):
     """
     Decorator for Cog to add slash command.\n
@@ -38,7 +38,7 @@ def cog_slash(*,
     :type options: List[dict]
     :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
     :type default_permission: bool
-    :param permissions: Permission requirements of the slash command. Default ``None``.
+    :param permissions: Dictionary of permissions of the slash command. Key being target guild_id and value being a list of permissions to apply. Default ``None``.
     :type permissions: dict
     :param connector: Kwargs connector for the command. Default ``None``.
     :type connector: dict
@@ -72,7 +72,7 @@ def cog_subcommand(*,
                    base_description: str = None,
                    base_desc: str = None,
                    base_default_permission: bool = True,
-                   base_permissions: dict = None,
+                   base_permissions: typing.Dict[int, list] = None,
                    subcommand_group_description: str = None,
                    sub_group_desc: str = None,
                    guild_ids: typing.List[int] = None,
@@ -107,7 +107,7 @@ def cog_subcommand(*,
     :param base_desc: Alias of ``base_description``.
     :param base_default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
     :type base_default_permission: bool
-    :param base_permissions: Permission requirements of the slash command. Default ``None``.
+    :param base_permissions: Dictionary of permissions of the slash command. Key being target guild_id and value being a list of permissions to apply. Default ``None``.
     :type base_permissions: dict
     :param subcommand_group_description: Description of the subcommand_group. Default ``None``.
     :type subcommand_group_description: str
