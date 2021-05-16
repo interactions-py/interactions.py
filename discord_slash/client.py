@@ -869,21 +869,7 @@ class SlashCommand:
         :param args: Args. Can be list or dict.
         """
         try:
-            not_kwargs = False
-            if isinstance(args, dict):
-                ctx.kwargs = args
-                ctx.args = list(args.values())
-                try:
-                    coro = func.invoke(ctx, **args)
-                except TypeError:
-                    args = list(args.values())
-                    not_kwargs = True
-            else:
-                ctx.args = args
-                not_kwargs = True
-            if not_kwargs:
-                coro = func.invoke(ctx, *args)
-            await coro
+            await func.invoke(ctx, args)
         except Exception as ex:
             await self.on_slash_command_error(ctx, ex)
 
