@@ -869,7 +869,22 @@ class SlashCommand:
         :param args: Args. Can be list or dict.
         """
         try:
-            await func.invoke(ctx, args)
+            # determine if args should be passed as kwargs or not
+            kwargs = False
+
+            if isinstance(args, dict):
+                for _arg_name in args.keys():
+                    if not hasattr(func, _arg_name):
+                        kwargs = False
+                        break
+                else:
+                    kwargs = True
+
+            if kwargs:
+                await func.invoke(ctx, **args)
+            else:
+                await func.invoke(ctx, *args)
+
         except Exception as ex:
             await self.on_slash_command_error(ctx, ex)
 
