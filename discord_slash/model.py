@@ -261,11 +261,31 @@ class CogBaseCommandObject(BaseCommandObject):
         :param args: Args for the command.
         :raises: .error.CheckFailure
         """
-        can_run = await self.can_run(args[0])
+        args = list(args)
+        ctx = args.pop(0)
+        can_run = await self.can_run(ctx)
         if not can_run:
             raise error.CheckFailure
 
-        return await self.func(self.cog, *args, **kwargs)
+        coro = None  # Get rid of annoying IDE complainings.
+
+        not_kwargs = False
+        if args and isinstance(args[0], dict):
+            kwargs = args[0]
+            ctx.kwargs = kwargs
+            ctx.args = list(kwargs.values())
+            try:
+                coro = self.func(self.cog, ctx, **kwargs)
+            except TypeError:
+                args = list(kwargs.values())
+                not_kwargs = True
+        else:
+            ctx.args = args
+            not_kwargs = True
+        if not_kwargs:
+            coro = self.func(self.cog, ctx, *args)
+
+        return await coro
 
 
 class CogSubcommandObject(SubcommandObject):
