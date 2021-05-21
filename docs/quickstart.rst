@@ -25,16 +25,17 @@ For this example, ``main.py`` will be used.
 .. code-block:: python
 
     import discord
+    from discord.ext import commands
     from discord_slash import SlashCommand # Importing the newly installed library.
 
-    client = discord.Client(intents=discord.Intents.all())
-    slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
+    bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
+    slash = SlashCommand(bot, sync_commands=True) # Declares slash commands through the client.
 
-    @client.event
+    @bot.event
     async def on_ready():
         print("Ready!")
 
-    client.run("your_bot_token_here")
+    bot.run("your_bot_token_here")
 
 Let's give this a run. When you run this code, you'll see... nothing but ``Ready!``.
 
@@ -44,7 +45,7 @@ slash commands just yet. We can do that by adding this code shown here:
 .. code-block:: python
 
     """
-        Make sure this code is added before the client.run() call!
+        Make sure this code is added before the bot.run() call!
         It also needs to be under on_ready, otherwise, this will not work.
     """
     
