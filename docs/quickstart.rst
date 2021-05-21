@@ -28,7 +28,7 @@ For this example, ``main.py`` will be used.
     from discord.ext import commands
     from discord_slash import SlashCommand # Importing the newly installed library.
 
-    bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
+    bot = commands.Bot(intents=discord.Intents.all())
     slash = SlashCommand(bot, sync_commands=True) # Declares slash commands through the client.
 
     @bot.event
