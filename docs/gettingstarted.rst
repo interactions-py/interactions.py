@@ -244,7 +244,7 @@ structure of how permissions are represented:
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
 | type        | int                                        | An `ApplicationCommandPermissionType`_.                                                             |
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
-| permission  | boolean                                    | ``true`` to allow, ``false`` to disallow.                                                           |
+| permission  | boolean                                    | ``True`` to allow, ``False`` to disallow.                                                           |
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
 
 How the type parameter works is very simple. Discord has many ids to represent different things. As you can 
