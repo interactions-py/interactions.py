@@ -344,7 +344,7 @@ def create_multi_ids_permission(ids: typing.List[int], id_type: typing.Union[int
     """
     Creates a list of permissions from list of ids with common id_type and permission state.
 
-    :param id: List of target ids to apply the permission on.
+    :param ids: List of target ids to apply the permission on.
     :param id_type: Type of the id. 
     :param permission: State of the permission. ``True`` to allow access, ``False`` to disallow access.
     """
