@@ -130,7 +130,8 @@ class SlashContext:
                    files: typing.List[discord.File] = None,
                    allowed_mentions: discord.AllowedMentions = None,
                    hidden: bool = False,
-                   delete_after: float = None) -> model.SlashMessage:
+                   delete_after: float = None,
+                   components: typing.List[dict] = None) -> model.SlashMessage:
         """
         Sends response of the slash command.
 
@@ -157,6 +158,8 @@ class SlashContext:
         :type hidden: bool
         :param delete_after: If provided, the number of seconds to wait in the background before deleting the message we just sent. If the deletion fails, then it is silently ignored.
         :type delete_after: float
+        :param components: Message components in the response. The top level must be made of ActionRows.
+        :type components: List[dict]
         :return: Union[discord.Message, dict]
         """
         if embed and embeds:
@@ -180,7 +183,8 @@ class SlashContext:
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
             "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
-            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
+            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {},
+            "components": components if components else []
         }
         if hidden:
             base["flags"] = 64

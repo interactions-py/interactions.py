@@ -2,7 +2,8 @@ import typing
 import inspect
 import asyncio
 import aiohttp
-from ..error import RequestFailure, IncorrectType
+import discord
+from ..error import RequestFailure, IncorrectType, IncorrectFormat
 from ..model import SlashCommandOptionType, SlashCommandPermissionType
 from collections.abc import Callable
 from typing import Union
@@ -257,6 +258,51 @@ def create_option(name: str,
         "type": option_type,
         "required": required,
         "choices": choices
+    }
+
+
+def create_actionrow(components: typing.List[dict]) -> dict:
+    """
+    Creates an ActionRow for message components.
+
+    :param components: Components to go within the ActionRow.
+    :return: dict
+    """
+
+    return {
+        "type": 1,
+        "components": components
+    }
+
+
+def create_button(style: int,
+                  label: str = None,
+                  emoji: Union[discord.Emoji, dict] = None,
+                  custom_id: str = None,
+                  url: str = None,
+                  disabled: bool = False) -> dict:
+    if style == 5 and custom_id:
+        raise IncorrectFormat("A link button cannot have a `custom_id`!")
+    if style == 5 and not url:
+        raise IncorrectFormat("A link button must have a `url`!")
+    if not custom_id and style != 5:
+        raise IncorrectFormat("A non-link button must have a `custom_id`!")
+    if url and style != 5:
+        raise IncorrectFormat("You can't have a URL on a non-link button!")
+    if not label and not emoji:
+        raise IncorrectFormat("You must have at least a label or emoji on a button.")
+
+    if isinstance(emoji, discord.Emoji):
+        emoji = {"name": emoji.name, "id": emoji.id, "animated": emoji.animated}
+
+    return {
+        "type": 2,
+        "style": style,
+        "label": label if label else "",
+        "emoji": emoji if emoji else {},
+        "custom_id": custom_id if custom_id else "",
+        "url": url if url else "",
+        "disabled": disabled
     }
 
 
