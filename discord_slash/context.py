@@ -177,6 +177,10 @@ class SlashContext:
             files = [file]
         if delete_after and hidden:
             raise error.IncorrectFormat("You can't delete a hidden message!")
+        if components:
+            for comp in components:
+                if comp.get("type") != 1:
+                    raise error.IncorrectFormat("The top level of the components list must be made of ActionRows!")
 
         base = {
             "content": content,
