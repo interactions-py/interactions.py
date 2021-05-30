@@ -14,4 +14,4 @@ from .context import SlashContext
 from .utils import manage_commands
 from .utils import manage_components
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
