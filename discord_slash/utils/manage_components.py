@@ -51,6 +51,8 @@ def create_button(style: int,
 
     if isinstance(emoji, discord.Emoji):
         emoji = {"name": emoji.name, "id": emoji.id, "animated": emoji.animated}
+    elif isinstance(emoji, str):
+        emoji = {"name": emoji, "id": None}
 
     return {
         "type": ComponentsType.button,
