@@ -47,7 +47,7 @@ def create_button(style: int,
     if not label and not emoji:
         raise IncorrectFormat("You must have at least a label or emoji on a button.")
     if not custom_id and style != 5:
-        custom_id = uuid.uuid4().int
+        custom_id = str(uuid.uuid4())
 
     if isinstance(emoji, discord.Emoji):
         emoji = {"name": emoji.name, "id": emoji.id, "animated": emoji.animated}
