@@ -8,6 +8,7 @@ from discord.ext import commands
 from . import http
 from . import error
 from . import model
+from . dpy_overrides import ComponentMessage
 
 
 class InteractionContext:
@@ -43,7 +44,7 @@ class InteractionContext:
                  _json: dict,
                  _discord: typing.Union[discord.Client, commands.Bot],
                  logger):
-        self.__token = _json["token"]
+        self._token = _json["token"]
         self.message = None  # Should be set later.
         self.interaction_id = _json["id"]
         self._http = _http
@@ -112,7 +113,7 @@ class InteractionContext:
         if hidden:
             base["data"] = {"flags": 64}
             self._deferred_hidden = True
-        await self._http.post_initial_response(base, self.interaction_id, self.__token)
+        await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
 
     async def send(self,
@@ -197,21 +198,21 @@ class InteractionContext:
                         "Deferred response might not be what you set it to! (hidden / visible) "
                         "This is because it was deferred in a different state."
                     )
-                resp = await self._http.edit(base, self.__token, files=files)
+                resp = await self._http.edit(base, self._token, files=files)
                 self.deferred = False
             else:
                 json_data = {
                     "type": 4,
                     "data": base
                 }
-                await self._http.post_initial_response(json_data, self.interaction_id, self.__token)
+                await self._http.post_initial_response(json_data, self.interaction_id, self._token)
                 if not hidden:
-                    resp = await self._http.edit({}, self.__token)
+                    resp = await self._http.edit({}, self._token)
                 else:
                     resp = {}
             self.responded = True
         else:
-            resp = await self._http.post_followup(base, self.__token, files=files)
+            resp = await self._http.post_followup(base, self._token, files=files)
         if files:
             for file in files:
                 file.close()
@@ -220,7 +221,7 @@ class InteractionContext:
                                       data=resp,
                                       channel=self.channel or discord.Object(id=self.channel_id),
                                       _http=self._http,
-                                      interaction_token=self.__token)
+                                      interaction_token=self._token)
             if delete_after:
                 self.bot.loop.create_task(smsg.delete(delay=delete_after))
             if initial_message:
@@ -255,3 +256,79 @@ class ComponentContext(InteractionContext):
         self.custom_id = self.component_id = _json["data"]["custom_id"]
         self.component_type = _json["data"]["component_type"]
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
+        self.origin_message = None
+        self.origin_message_id = int(_json["message"]["id"]) if "message" in _json.keys() else None
+
+        if self.origin_message_id:
+            self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
+                                                   data=_json["message"])
+
+    async def defer(self, hidden: bool = False, edit_origin = False):
+        """
+        'Defers' the response, showing a loading state to the user
+
+        :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
+        """
+        if self.deferred or self.responded:
+            raise error.AlreadyResponded("You have already responded to this command!")
+        base = {"type": 6 if edit_origin else 5}
+        if hidden and not edit_origin:
+            base["data"] = {"flags": 64}
+            self._deferred_hidden = True
+        await self._http.post_initial_response(base, self.interaction_id, self._token)
+        self.deferred = True
+
+    async def edit_origin(self, **fields) -> model.SlashMessage:
+        _resp = {}
+
+        content = fields.get("content")
+        if content:
+            _resp["content"] = str(content)
+
+        embed = fields.get("embed")
+        embeds = fields.get("embeds")
+        file = fields.get("file")
+        files = fields.get("files")
+        components = fields.get("components")
+
+        if components:
+            _resp["components"] = components
+
+        if embed and embeds:
+            raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
+        if file and files:
+            raise error.IncorrectFormat("You can't use both `file` and `files`!")
+        if file:
+            files = [file]
+        if embed:
+            embeds = [embed]
+        if embeds:
+            if not isinstance(embeds, list):
+                raise error.IncorrectFormat("Provide a list of embeds.")
+            elif len(embeds) > 10:
+                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
+            _resp["embeds"] = [x.to_dict() for x in embeds]
+
+        allowed_mentions = fields.get("allowed_mentions")
+        _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
+            self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
+
+        if not self.responded:
+            if files and not self.deferred:
+                await self.defer(edit_origin=True)
+            if self.deferred:
+                await self._http.edit(_resp, self._token, files=files)
+                self.deferred = False
+            else:
+                json_data = {
+                    "type": 7,
+                    "data": _resp
+                }
+                await self._http.post_initial_response(json_data, self.interaction_id, self._token)
+            self.responded = True
+        else:
+            raise error.IncorrectFormat("Already responded")
+
+        if files:
+            for file in files:
+                file.close()

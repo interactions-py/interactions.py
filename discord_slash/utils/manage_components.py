@@ -78,7 +78,7 @@ async def wait_for_any_component(client, message, check=None, timeout=None):
     def _check(ctx):
         if check and not check(ctx):
             return False
-        return message.id == ctx.custom_id
+        return message.id == ctx.origin_message_id
 
     return await client.wait_for("component", check=_check, timeout=timeout)
 
