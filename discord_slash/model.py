@@ -5,6 +5,7 @@ from contextlib import suppress
 from inspect import iscoroutinefunction
 from . import http
 from . import error
+from . dpy_overrides import ComponentMessage
 
 
 class ChoiceData:
@@ -365,7 +366,7 @@ class SlashCommandOptionType(IntEnum):
         if issubclass(t, discord.abc.Role): return cls.ROLE
 
 
-class SlashMessage(discord.Message):
+class SlashMessage(ComponentMessage):
     """discord.py's :class:`discord.Message` but overridden ``edit`` and ``delete`` to work for slash command."""
 
     def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, interaction_token):
@@ -388,6 +389,10 @@ class SlashMessage(discord.Message):
         embeds = fields.get("embeds")
         file = fields.get("file")
         files = fields.get("files")
+        components = fields.get("components")
+
+        if components:
+            _resp["components"] = components
 
         if embed and embeds:
             raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")

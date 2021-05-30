@@ -10,7 +10,7 @@ from . import error
 from . import model
 
 
-class SlashContext:
+class InteractionContext:
     """
     Context of the slash command.\n
     Kinda similar with discord.ext.commands.Context.
@@ -45,13 +45,7 @@ class SlashContext:
                  logger):
         self.__token = _json["token"]
         self.message = None  # Should be set later.
-        self.name = self.command = self.invoked_with = _json["data"]["name"]
-        self.args = []
-        self.kwargs = {}
-        self.subcommand_name = self.invoked_subcommand = self.subcommand_passed = None
-        self.subcommand_group = self.invoked_subcommand_group = self.subcommand_group_passed = None
         self.interaction_id = _json["id"]
-        self.command_id = _json["data"]["id"]
         self._http = _http
         self.bot = _discord
         self._logger = logger
@@ -130,7 +124,9 @@ class SlashContext:
                    files: typing.List[discord.File] = None,
                    allowed_mentions: discord.AllowedMentions = None,
                    hidden: bool = False,
-                   delete_after: float = None) -> model.SlashMessage:
+                   delete_after: float = None,
+                   components: typing.List[dict] = None,
+                   ) -> model.SlashMessage:
         """
         Sends response of the slash command.
 
@@ -157,6 +153,8 @@ class SlashContext:
         :type hidden: bool
         :param delete_after: If provided, the number of seconds to wait in the background before deleting the message we just sent. If the deletion fails, then it is silently ignored.
         :type delete_after: float
+        :param components: Message components in the response. The top level must be made of ActionRows.
+        :type components: List[dict]
         :return: Union[discord.Message, dict]
         """
         if embed and embeds:
@@ -174,13 +172,16 @@ class SlashContext:
             files = [file]
         if delete_after and hidden:
             raise error.IncorrectFormat("You can't delete a hidden message!")
+        if components and not all(comp.get("type") == 1 for comp in components):
+            raise error.IncorrectFormat("The top level of the components list must be made of ActionRows!")
 
         base = {
             "content": content,
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
             "allowed_mentions": allowed_mentions.to_dict() if allowed_mentions
-            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {}
+            else self.bot.allowed_mentions.to_dict() if self.bot.allowed_mentions else {},
+            "components": components or [],
         }
         if hidden:
             base["flags"] = 64
@@ -227,3 +228,30 @@ class SlashContext:
             return smsg
         else:
             return resp
+
+
+class SlashContext(InteractionContext):
+    def __init__(self,
+                 _http: http.SlashCommandRequest,
+                 _json: dict,
+                 _discord: typing.Union[discord.Client, commands.Bot],
+                 logger):
+        self.name = self.command = self.invoked_with = _json["data"]["name"]
+        self.args = []
+        self.kwargs = {}
+        self.subcommand_name = self.invoked_subcommand = self.subcommand_passed = None
+        self.subcommand_group = self.invoked_subcommand_group = self.subcommand_group_passed = None
+        self.command_id = _json["data"]["id"]
+
+        super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
+
+
+class ComponentContext(InteractionContext):
+    def __init__(self,
+                 _http: http.SlashCommandRequest,
+                 _json: dict,
+                 _discord: typing.Union[discord.Client, commands.Bot],
+                 logger):
+        self.custom_id = self.component_id = _json["data"]["custom_id"]
+        self.component_type = _json["data"]["component_type"]
+        super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)

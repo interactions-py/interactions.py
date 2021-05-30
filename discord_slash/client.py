@@ -9,6 +9,7 @@ from . import http
 from . import model
 from . import error
 from . import context
+from . import dpy_overrides
 from .utils import manage_commands
 
 
@@ -886,10 +887,19 @@ class SlashCommand:
             return
 
         to_use = msg["d"]
+        interaction_type = to_use["type"]
+        if interaction_type in (1, 2):
+            return await self._on_slash(to_use)
+        if interaction_type == 3:
+            return await self._on_component(to_use)
 
-        if to_use["type"] not in (1, 2):
-            return  # to only process ack and slash-commands and exclude other interactions like buttons
+        raise NotImplementedError
 
+    async def _on_component(self, to_use):
+        ctx = context.ComponentContext(self.req, to_use, self._discord, self.logger)
+        self._discord.dispatch("component", ctx)
+
+    async def _on_slash(self, to_use):
         if to_use["data"]["name"] in self.commands:
 
             ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
