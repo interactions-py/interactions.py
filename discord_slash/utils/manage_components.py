@@ -8,6 +8,7 @@ from ..error import IncorrectFormat
 class ComponentsType(enum.IntEnum):
     actionrow = 1
     button = 2
+    select = 3
 
 
 def create_actionrow(*components: dict) -> dict:
@@ -32,6 +33,14 @@ class ButtonStyle(enum.IntEnum):
     URL = 5
 
 
+def emoji_to_dict(emoji):
+    if isinstance(emoji, discord.Emoji):
+        emoji = {"name": emoji.name, "id": emoji.id, "animated": emoji.animated}
+    elif isinstance(emoji, str):
+        emoji = {"name": emoji, "id": None}
+    return emoji if emoji else {}
+
+
 def create_button(style: int,
                   label: str = None,
                   emoji: typing.Union[discord.Emoji, dict] = None,
@@ -49,19 +58,42 @@ def create_button(style: int,
     if not custom_id and style != 5:
         custom_id = str(uuid.uuid4())
 
-    if isinstance(emoji, discord.Emoji):
-        emoji = {"name": emoji.name, "id": emoji.id, "animated": emoji.animated}
-    elif isinstance(emoji, str):
-        emoji = {"name": emoji, "id": None}
+    emoji = emoji_to_dict(emoji)
 
     return {
         "type": ComponentsType.button,
         "style": style,
         "label": label if label else "",
-        "emoji": emoji if emoji else {},
-        "custom_id": custom_id if custom_id else "",
+        "emoji": emoji,
+        "custom_id": custom_id,
         "url": url if url else "",
         "disabled": disabled
+    }
+
+
+def create_select_option(label: str, value: str, emoji=None, description: str = None, default=False):
+    emoji = emoji_to_dict(emoji)
+
+    return {
+        "label": label,
+        "value": value,
+        "description": description,
+        "default": default,
+        "emoji": emoji
+    }
+
+
+def create_select(options: list[dict], custom_id=None, placeholder=None, min_values=None, max_values=None):
+    if not len(options) or len(options) > 25:
+        raise IncorrectFormat("Options length should be between 1 and 25.")
+
+    return {
+        "type": ComponentsType.select,
+        "options": options,
+        "custom_id": custom_id or str(uuid.uuid4()),
+        "placeholder": placeholder or "",
+        "min_values": min_values,
+        "max_values": max_values,
     }
 
 
