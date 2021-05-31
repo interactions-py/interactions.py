@@ -70,16 +70,18 @@ class CommandData:
 
     :ivar name: Name of the command.
     :ivar description: Description of the command.
+    :ivar default_permission: Indicates whether users should have permissions to run this command by default.
     :ivar options: List of :class:`OptionData`.
     :ivar id: Command id, this is received from discord so may not be present
     :ivar application_id: The application id of the bot, required only when the application id and bot id are different. (old bots)
     """
 
     def __init__(
-            self, name, description, options=None, id=None, application_id=None, version=None, **kwargs
+            self, name, description, options=None, default_permission=True, id=None, application_id=None, version=None, **kwargs
     ):
         self.name = name
         self.description = description
+        self.default_permission = default_permission
         self.id = id
         self.application_id = application_id
         self.version = version
@@ -96,6 +98,7 @@ class CommandData:
                     self.name == other.name
                     and self.description == other.description
                     and self.options == other.options
+                    and self.default_permission == other.default_permission
             )
         else:
             return False
