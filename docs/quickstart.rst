@@ -25,17 +25,16 @@ For this example, ``main.py`` will be used.
 .. code-block:: python
 
     import discord
-    from discord.ext import commands
     from discord_slash import SlashCommand # Importing the newly installed library.
 
-    bot = commands.Bot(intents=discord.Intents.all())
-    slash = SlashCommand(bot, sync_commands=True) # Declares slash commands through the client.
+    client = discord.Client(intents=discord.Intents.all())
+    slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
 
-    @bot.event
+    @client.event
     async def on_ready():
         print("Ready!")
 
-    bot.run("your_bot_token_here")
+    client.run("your_bot_token_here")
 
 Let's give this a run. When you run this code, you'll see... nothing but ``Ready!``.
 
@@ -45,7 +44,7 @@ slash commands just yet. We can do that by adding this code shown here:
 .. code-block:: python
 
     """
-        Make sure this code is added before the bot.run() call!
+        Make sure this code is added before the client.run() call!
         It also needs to be under on_ready, otherwise, this will not work.
     """
     
@@ -54,6 +53,38 @@ slash commands just yet. We can do that by adding this code shown here:
     @slash.slash(name="ping", guild_ids=guild_ids)
     async def _ping(ctx): # Defines a new "context" (ctx) command called "ping."
         await ctx.send(f"Pong! ({client.latency*1000}ms)")
+
+If you are using commands.Bot instead and want both discord.py commands and slash commands, you can do this:
+
+.. code-block:: python
+
+    import discord
+    from discord.ext import commands
+    from discord_slash import SlashCommand # Importing the newly installed library.
+
+    bot = commands.Bot(command_prefix=".", intents=discord.Intents.all()) # Choose your own prefix.
+    slash = SlashCommand(bot, sync_commands=True) # Declares slash commands through the client.
+
+    @bot.event
+    async def on_ready():
+        print("Ready!")
+
+    """
+        Make sure the code below is added before the bot.run() call!
+        It also needs to be under on_ready, otherwise, this will not work.
+    """
+    
+    @bot.command()
+    async def ping(ctx):
+        await ctx.send(f"Pong! ({bot.latency*1000}ms)")
+    
+    guild_ids = [789032594456576001] # Put your server ID in this array.
+
+    @slash.slash(name="ping", guild_ids=guild_ids)
+    async def _ping(ctx): # Defines a new "context" (ctx) command called "ping."
+        await ctx.send(f"Pong! ({bot.latency*1000}ms)")
+    
+    bot.run("your_bot_token_here")
 
 .. note::
     In this example we responded directly to the interaction, however if you want to delay the response (if you need more than 3 seconds before sending a message)
