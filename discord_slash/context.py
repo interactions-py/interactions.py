@@ -258,7 +258,7 @@ class ComponentContext(InteractionContext):
     :ivar custom_id: The custom ID of the component.
     :ivar component_type: The type of the component.
     :ivar origin_message: The origin message of the component. Not available if the origin message was ephemeral.
-    :ivar origin_message_id: The ID of the origin message. Not available if the origin message was ephemeral.
+    :ivar origin_message_id: The ID of the origin message.
     """
     def __init__(self,
                  _http: http.SlashCommandRequest,
