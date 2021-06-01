@@ -2,6 +2,7 @@ import uuid
 import enum
 import typing
 import discord
+from ..context import ComponentContext
 from ..error import IncorrectFormat
 
 
@@ -17,6 +18,10 @@ def create_actionrow(*components: dict) -> dict:
     :param components: Components to go within the ActionRow.
     :return: dict
     """
+    if not components or len(components) > 5:
+        raise IncorrectFormat("Number of components in one row should be between 1 and 25.")
+    if ComponentsType.select in [component["type"] for component in components] and len(components) > 1:
+        raise IncorrectFormat("Action row must have only one select component and nothing else")
 
     return {
         "type": ComponentsType.actionrow,
@@ -26,11 +31,17 @@ def create_actionrow(*components: dict) -> dict:
 
 class ButtonStyle(enum.IntEnum):
     blue = 1
+    blurple = 1
     gray = 2
     grey = 2
     green = 3
     red = 4
     URL = 5
+
+    primary = 1
+    secondary = 2
+    success = 3
+    danger = 4
 
 
 def emoji_to_dict(emoji):
@@ -41,34 +52,43 @@ def emoji_to_dict(emoji):
     return emoji if emoji else {}
 
 
-def create_button(style: int,
+def create_button(style: ButtonStyle,
                   label: str = None,
                   emoji: typing.Union[discord.Emoji, dict] = None,
                   custom_id: str = None,
                   url: str = None,
                   disabled: bool = False) -> dict:
-    if style == 5 and custom_id:
-        raise IncorrectFormat("A link button cannot have a `custom_id`!")
-    if style == 5 and not url:
-        raise IncorrectFormat("A link button must have a `url`!")
-    if url and style != 5:
+    if style == ButtonStyle.URL:
+        if custom_id:
+            raise IncorrectFormat("A link button cannot have a `custom_id`!")
+        if not url:
+            raise IncorrectFormat("A link button must have a `url`!")
+    elif url:
         raise IncorrectFormat("You can't have a URL on a non-link button!")
+
     if not label and not emoji:
         raise IncorrectFormat("You must have at least a label or emoji on a button.")
-    if not custom_id and style != 5:
-        custom_id = str(uuid.uuid4())
 
     emoji = emoji_to_dict(emoji)
 
-    return {
+    data = {
         "type": ComponentsType.button,
         "style": style,
-        "label": label if label else "",
-        "emoji": emoji,
-        "custom_id": custom_id,
-        "url": url if url else "",
-        "disabled": disabled
     }
+
+    if label:
+        data["label"] = label
+    if emoji:
+        data["emoji"] = emoji
+    if disabled:
+        data["disabled"] = disabled
+
+    if style == ButtonStyle.URL:
+        data["url"] = url
+    else:
+        data["custom_id"] = custom_id or str(uuid.uuid4())
+
+    return data
 
 
 def create_select_option(label: str, value: str, emoji=None, description: str = None, default=False):
@@ -97,7 +117,7 @@ def create_select(options: list[dict], custom_id=None, placeholder=None, min_val
     }
 
 
-async def wait_for_component(client, component, check=None, timeout=None):
+async def wait_for_component(client, component, check=None, timeout=None) -> ComponentContext:
     def _check(ctx):
         if check and not check(ctx):
             return False
@@ -106,7 +126,7 @@ async def wait_for_component(client, component, check=None, timeout=None):
     return await client.wait_for("component", check=_check, timeout=timeout)
 
 
-async def wait_for_any_component(client, message, check=None, timeout=None):
+async def wait_for_any_component(client, message, check=None, timeout=None) -> ComponentContext:
     def _check(ctx):
         if check and not check(ctx):
             return False
