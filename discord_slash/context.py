@@ -259,7 +259,7 @@ class ComponentContext(InteractionContext):
         self.origin_message = None
         self.origin_message_id = int(_json["message"]["id"]) if "message" in _json.keys() else None
 
-        if self.origin_message_id:
+        if self.origin_message_id and (_json["message"]["flags"] & 64) != 64:
             self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
                                                    data=_json["message"])
 
