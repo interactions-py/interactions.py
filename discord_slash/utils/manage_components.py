@@ -159,12 +159,15 @@ def create_select(options: list[dict], custom_id=None, placeholder=None, min_val
     }
 
 
-async def wait_for_component(client, component, check=None, timeout=None) -> ComponentContext:
+async def wait_for_component(client: discord.Client, component: typing.Union[dict, str], check=None, timeout=None) \
+        -> ComponentContext:
     """
     Waits for a component interaction. Only accepts interactions based on the custom ID of the component, and optionally a check function.
 
     :param client: The client/bot object.
-    :param component: The component dict.
+    :type client: :class:`discord.Client`
+    :param component: The component dict or custom ID.
+    :type component: Union[dict, str]
     :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
@@ -172,17 +175,20 @@ async def wait_for_component(client, component, check=None, timeout=None) -> Com
     def _check(ctx):
         if check and not check(ctx):
             return False
-        return component["custom_id"] == ctx.custom_id
+        return (component["custom_id"] if isinstance(component, dict) else component) == ctx.custom_id
 
     return await client.wait_for("component", check=_check, timeout=timeout)
 
 
-async def wait_for_any_component(client, message, check=None, timeout=None) -> ComponentContext:
+async def wait_for_any_component(client: discord.Client, message: typing.Union[discord.Message, int],
+                                 check=None, timeout=None) -> ComponentContext:
     """
     Waits for any component interaction. Only accepts interactions based on the message ID given and optionally a check function.
 
     :param client: The client/bot object.
-    :param message: The message object to check for.
+    :type client: :class:`discord.Client`
+    :param message: The message object to check for, or the message ID.
+    :type message: Union[discord.Message, int]
     :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
@@ -190,7 +196,6 @@ async def wait_for_any_component(client, message, check=None, timeout=None) -> C
     def _check(ctx):
         if check and not check(ctx):
             return False
-        return message.id == ctx.origin_message_id
+        return (message.id if isinstance(message, discord.Message) else message) == ctx.origin_message_id
 
     return await client.wait_for("component", check=_check, timeout=timeout)
-

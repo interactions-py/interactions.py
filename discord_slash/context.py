@@ -350,5 +350,6 @@ class ComponentContext(InteractionContext):
             for file in files:
                 file.close()
 
-        self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
-                                               data=_json["message"])
+        # Commented out for now as sometimes (or at least, when not deferred) _json is an empty string?
+        # self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
+        #                                        data=_json)
