@@ -20,3 +20,10 @@ These events can be registered to discord.py's listener or
     :param ex: Exception that raised.
     :type ex: Exception
 
+.. function:: on_component(ctx)
+
+    Called when a component is triggered.
+
+    :param ctx: ComponentContext of the triggered component.
+    :type ctx: :class:`.model.ComponentContext`
+
