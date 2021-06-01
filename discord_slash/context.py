@@ -13,20 +13,14 @@ from . dpy_overrides import ComponentMessage
 
 class InteractionContext:
     """
-    Context of the slash command.\n
+    Base context for interactions.\n
     Kinda similar with discord.ext.commands.Context.
 
     .. warning::
         Do not manually init this model.
 
     :ivar message: Message that invoked the slash command.
-    :ivar name: Name of the command.
-    :ivar args: List of processed arguments invoked with the command.
-    :ivar kwargs: Dictionary of processed arguments invoked with the command.
-    :ivar subcommand_name: Subcommand of the command.
-    :ivar subcommand_group: Subcommand group of the command.
     :ivar interaction_id: Interaction ID of the command message.
-    :ivar command_id: ID of the command.
     :ivar bot: discord.py client.
     :ivar _http: :class:`.http.SlashCommandRequest` of the client.
     :ivar _logger: Logger instance.
@@ -232,6 +226,16 @@ class InteractionContext:
 
 
 class SlashContext(InteractionContext):
+    """
+    Context of a slash command. Has all variables from :class:`InteractionContext`, plus the slash-command-specific ones below.
+
+    :ivar name: Name of the command.
+    :ivar args: List of processed arguments invoked with the command.
+    :ivar kwargs: Dictionary of processed arguments invoked with the command.
+    :ivar subcommand_name: Subcommand of the command.
+    :ivar subcommand_group: Subcommand group of the command.
+    :ivar command_id: ID of the command.
+    """
     def __init__(self,
                  _http: http.SlashCommandRequest,
                  _json: dict,
@@ -248,6 +252,14 @@ class SlashContext(InteractionContext):
 
 
 class ComponentContext(InteractionContext):
+    """
+    Context of a component interaction. Has all variables from :class:`InteractionContext`, plus the component-specific ones below.
+
+    :ivar custom_id: The custom ID of the component.
+    :ivar component_type: The type of the component.
+    :ivar origin_message: The origin message of the component. Not available if the origin message was ephemeral.
+    :ivar origin_message_id: The ID of the origin message. Not available if the origin message was ephemeral.
+    """
     def __init__(self,
                  _http: http.SlashCommandRequest,
                  _json: dict,
@@ -268,6 +280,7 @@ class ComponentContext(InteractionContext):
         'Defers' the response, showing a loading state to the user
 
         :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
+        :param edit_origin: Whether the response is editting the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
         """
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
@@ -278,7 +291,11 @@ class ComponentContext(InteractionContext):
         await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
 
-    async def edit_origin(self, **fields) -> model.SlashMessage:
+    async def edit_origin(self, **fields):
+        """
+        Edits the origin message of the component.
+        Refer to :meth:`discord.Message.edit` and :meth:`InteractionContext.send` for fields.
+        """
         _resp = {}
 
         content = fields.get("content")
@@ -317,14 +334,14 @@ class ComponentContext(InteractionContext):
             if files and not self.deferred:
                 await self.defer(edit_origin=True)
             if self.deferred:
-                await self._http.edit(_resp, self._token, files=files)
+                _json = await self._http.edit(_resp, self._token, files=files)
                 self.deferred = False
             else:
                 json_data = {
                     "type": 7,
                     "data": _resp
                 }
-                await self._http.post_initial_response(json_data, self.interaction_id, self._token)
+                _json = await self._http.post_initial_response(json_data, self.interaction_id, self._token)
             self.responded = True
         else:
             raise error.IncorrectFormat("Already responded")
@@ -332,3 +349,6 @@ class ComponentContext(InteractionContext):
         if files:
             for file in files:
                 file.close()
+
+        self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
+                                               data=_json["message"])

@@ -15,11 +15,12 @@ class ComponentsType(enum.IntEnum):
 def create_actionrow(*components: dict) -> dict:
     """
     Creates an ActionRow for message components.
+
     :param components: Components to go within the ActionRow.
     :return: dict
     """
     if not components or len(components) > 5:
-        raise IncorrectFormat("Number of components in one row should be between 1 and 25.")
+        raise IncorrectFormat("Number of components in one row should be between 1 and 5.")
     if ComponentsType.select in [component["type"] for component in components] and len(components) > 1:
         raise IncorrectFormat("Action row must have only one select component and nothing else")
 
@@ -44,7 +45,13 @@ class ButtonStyle(enum.IntEnum):
     danger = 4
 
 
-def emoji_to_dict(emoji):
+def emoji_to_dict(emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str]) -> dict:
+    """
+    Converts a default or custom emoji into a partial emoji dict.
+
+    :param emoji: The emoji to convert.
+    :type emoji: Union[discord.Emoji, discord.PartialEmoji, str]
+    """
     if isinstance(emoji, discord.Emoji):
         emoji = {"name": emoji.name, "id": emoji.id, "animated": emoji.animated}
     elif isinstance(emoji, str):
@@ -52,12 +59,32 @@ def emoji_to_dict(emoji):
     return emoji if emoji else {}
 
 
-def create_button(style: ButtonStyle,
+def create_button(style: typing.Union[ButtonStyle, int],
                   label: str = None,
-                  emoji: typing.Union[discord.Emoji, dict] = None,
+                  emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str] = None,
                   custom_id: str = None,
                   url: str = None,
                   disabled: bool = False) -> dict:
+    """
+    Creates a button component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
+
+    .. note::
+        At least a label or emoji is required for a button. You can have both, but not neither of them.
+
+    :param style: Style of the button. Refer to :class:`ButtonStyle`.
+    :type style: Union[ButtonStyle, int]
+    :param label: The label of the button.
+    :type label: Optional[str]
+    :param emoji: The emoji of the button.
+    :type emoji: Union[discord.Emoji, discord.PartialEmoji, dict]
+    :param custom_id: The custom_id of the button. Needed for non-link buttons.
+    :type custom_id: Optional[str]
+    :param url: The URL of the button. Needed for link buttons.
+    :type url: Optional[str]
+    :param disabled: Whether the button is disabled or not. Defaults to `False`.
+    :type disabled: bool
+    :returns: :class:`dict`
+    """
     if style == ButtonStyle.URL:
         if custom_id:
             raise IncorrectFormat("A link button cannot have a `custom_id`!")
@@ -91,7 +118,16 @@ def create_button(style: ButtonStyle,
     return data
 
 
-def create_select_option(label: str, value: str, emoji=None, description: str = None, default=False):
+def create_select_option(label: str, value: str, emoji=None, description: str = None, default: bool = False):
+    """
+    Creates an option for select components.
+
+    :param label: The label of the option.
+    :param value: The value that the bot will recieve when this option is selected.
+    :param emoji: The emoji of the option.
+    :param description: A description of the option.
+    :param default: Whether or not this is the default option.
+    """
     emoji = emoji_to_dict(emoji)
 
     return {
@@ -104,6 +140,12 @@ def create_select_option(label: str, value: str, emoji=None, description: str = 
 
 
 def create_select(options: list[dict], custom_id=None, placeholder=None, min_values=None, max_values=None):
+    """
+    Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
+
+    .. warning::
+        Currently, select components are not available for public use, nor have official documentation. The parameters will not be documented at this time.
+    """
     if not len(options) or len(options) > 25:
         raise IncorrectFormat("Options length should be between 1 and 25.")
 
@@ -118,6 +160,15 @@ def create_select(options: list[dict], custom_id=None, placeholder=None, min_val
 
 
 async def wait_for_component(client, component, check=None, timeout=None) -> ComponentContext:
+    """
+    Waits for a component interaction. Only accepts interactions based on the custom ID of the component, and optionally a check function.
+
+    :param client: The client/bot object.
+    :param component: The component dict.
+    :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
+    :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
+    :raises: :exc:`asyncio.TimeoutError`
+    """
     def _check(ctx):
         if check and not check(ctx):
             return False
@@ -127,6 +178,15 @@ async def wait_for_component(client, component, check=None, timeout=None) -> Com
 
 
 async def wait_for_any_component(client, message, check=None, timeout=None) -> ComponentContext:
+    """
+    Waits for any component interaction. Only accepts interactions based on the message ID given and optionally a check function.
+
+    :param client: The client/bot object.
+    :param message: The message object to check for.
+    :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
+    :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
+    :raises: :exc:`asyncio.TimeoutError`
+    """
     def _check(ctx):
         if check and not check(ctx):
             return False
