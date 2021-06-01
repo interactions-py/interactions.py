@@ -166,6 +166,33 @@ async def get_all_guild_commands_permissions(bot_id,
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
           
+   async def get_guild_command_permissions(bot_id,
+                                            bot_token,
+                                            guild_id,
+                                            command_id):
+    """
+    A coroutine that sends a request to get a single command's permissions in guild
+
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to update permissions on.
+    :param command_id: ID for the command to update permissions on.
+    :param permissions: List of permissions for the command.
+    :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions>
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/commands/{command_id}/permissions"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers={"Authorization": f"Bot {bot_token}"}) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await get_guild_command_permissions(bot_id, bot_token, guild_id)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+          
 
 async def update_single_command_permissions(bot_id,
                                             bot_token,
