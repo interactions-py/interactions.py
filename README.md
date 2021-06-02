@@ -1,7 +1,7 @@
 <p align="center">
     <br>
     <a href="https://pypi.org/project/discord-py-slash-command/"><img src="https://raw.githubusercontent.com/eunwoo1104/discord-py-slash-command/master/.github/discordpyslashlogo.png" alt="discord-py-slash-command" height="128"></a>
-    <h2 align = "center">A simple discord slash command handler for <a href="https://github.com/Rapptz/discord.py">discord.py</a></h2>
+    <h2 align = "center">A fork of a simple discord slash command handler for <a href="https://github.com/Rapptz/discord.py">discord.py</a> with support of discord components</h2>
 </p>
 <p align="center">
         <a href="https://app.codacy.com/gh/eunwoo1104/discord-py-slash-command?utm_source=github.com&utm_medium=referral&utm_content=eunwoo1104/discord-py-slash-command&utm_campaign=Badge_Grade_Settings"><img src="https://api.codacy.com/project/badge/Grade/224bdbe58f8f43f28a093a33a7546456" alt="Codacy Badge"></a>
@@ -24,9 +24,9 @@ code and substituting its own for where it's needed. *discord-py-slash-command* 
 slash command handler library to be made for Discord Bot API libraries.
 
 ## Installation
-You are able to easily install the *discord-py-slash-command* library by using the given PIP line below:
+You are able to easily install the *discord-py-interactions* library by using the given PIP line below:
 
-`pip install -U discord-py-slash-command`
+`pip install -U git+https://github.com/artem30801/discord-py-slash-command`
 
 ## Examples
 ### Quick Startup
