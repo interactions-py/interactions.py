@@ -227,7 +227,7 @@ class InteractionContext:
 
 class SlashContext(InteractionContext):
     """
-    Context of a slash command. Has all variables from :class:`InteractionContext`, plus the slash-command-specific ones below.
+    Context of a slash command. Has all attributes from :class:`InteractionContext`, plus the slash-command-specific ones below.
 
     :ivar name: Name of the command.
     :ivar args: List of processed arguments invoked with the command.
@@ -253,7 +253,7 @@ class SlashContext(InteractionContext):
 
 class ComponentContext(InteractionContext):
     """
-    Context of a component interaction. Has all variables from :class:`InteractionContext`, plus the component-specific ones below.
+    Context of a component interaction. Has all attributes from :class:`InteractionContext`, plus the component-specific ones below.
 
     :ivar custom_id: The custom ID of the component.
     :ivar component_type: The type of the component.
@@ -275,12 +275,12 @@ class ComponentContext(InteractionContext):
             self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
                                                    data=_json["message"])
 
-    async def defer(self, hidden: bool = False, edit_origin = False):
+    async def defer(self, hidden: bool = False, edit_origin: bool = False):
         """
         'Defers' the response, showing a loading state to the user
 
         :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
-        :param edit_origin: Whether the response is editting the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
+        :param edit_origin: Whether the response is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
         """
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
