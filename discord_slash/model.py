@@ -146,6 +146,14 @@ class CommandObject:
         if hasattr(self.func, "__commands_max_concurrency__"):
             self._max_concurrency = self.func.__commands_max_concurrency__
 
+        self.on_error = None
+
+    def error(self, coro):
+        if not asyncio.iscoroutinefunction(coro):
+            raise TypeError("The error handler must be a coroutine.")
+        self.on_error = coro
+        return coro
+
     def _prepare_cooldowns(self, ctx):
         """
         Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L765
@@ -295,7 +303,6 @@ class BaseCommandObject(CommandObject):
         self.has_subcommands = cmd["has_subcommands"]
         self.default_permission = cmd["default_permission"]
         self.permissions = cmd["api_permissions"] or {}
-
 
 class SubcommandObject(CommandObject):
     """
