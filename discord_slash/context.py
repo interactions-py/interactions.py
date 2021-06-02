@@ -1,3 +1,4 @@
+import datetime
 import typing
 import asyncio
 from warnings import warn
@@ -5,6 +6,8 @@ from warnings import warn
 import discord
 from contextlib import suppress
 from discord.ext import commands
+from discord.utils import snowflake_time
+
 from . import http
 from . import error
 from . import model
@@ -56,6 +59,7 @@ class InteractionContext:
             self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
+        self.created_at: datetime.datetime = snowflake_time(int(self.interaction_id))
 
     @property
     def _deffered_hidden(self):

@@ -870,7 +870,10 @@ class SlashCommand:
         :param args: Args. Can be list or dict.
         """
         try:
-            await func.invoke(ctx, args)
+            if isinstance(args, dict):
+                await func.invoke(ctx, **args)
+            else:
+                await func.invoke(ctx, *args)
         except Exception as ex:
             await self.on_slash_command_error(ctx, ex)
 
