@@ -442,7 +442,7 @@ class SlashMessage(ComponentMessage):
 
     async def edit(self, **fields):
         """Refer :meth:`discord.Message.edit`."""
-        if "file" in fields or "files" in fields:
+        if "file" in fields or "files" in fields or "embeds" in fields:
             await self._slash_edit(**fields)
         else:
             try:
