@@ -878,7 +878,10 @@ class SlashCommand:
             if hasattr(func, "on_error"):
                 if func.on_error is not None:
                     try:
-                        await func.on_error(ctx, ex)
+                        if hasattr(func, "cog"):
+                            await func.on_error(func.cog, ctx, ex)
+                        else:
+                            await func.on_error(ctx, ex)
                         return
                     except Exception as e:
                         self.logger.error(f"{ctx.command}:: Error using error decorator: {e}")
