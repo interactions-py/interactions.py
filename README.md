@@ -11,7 +11,7 @@
    <a href="#about">About</a> ⦿
    <a href="#installation">Installation</a> ⦿
    <a href="#examples">Examples</a> ⦿
-   <a href="https://discord-py-slash-command.readthedocs.io/en/latest/">Documentation</a> ⦿
+   <a href="https://discord-py-interactions.readthedocs.io/en/latest/">Documentation on the fork</a> ⦿
    <a href="https://discord.gg/KkgMBVuEkx">Discord Server</a>
 </p>
    
@@ -24,9 +24,9 @@ code and substituting its own for where it's needed. *discord-py-slash-command* 
 slash command handler library to be made for Discord Bot API libraries.
 
 ## Installation
-You are able to easily install the *discord-py-interactions* library by using the given PIP line below:
+You are able to easily install this *discord-py-interactions* library fork by using the given PIP line below:
 
-`pip install -U git+https://github.com/artem30801/discord-py-slash-command`
+`pip install -U git+https://github.com/artem30801/discord-py-interactions`
 
 ## Examples
 ### Quick Startup
