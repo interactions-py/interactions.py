@@ -139,7 +139,7 @@ def create_select_option(label: str, value: str, emoji=None, description: str = 
     }
 
 
-def create_select(options: list[dict], custom_id=None, placeholder=None, min_values=None, max_values=None):
+def create_select(options: typing.List[dict], custom_id=None, placeholder=None, min_values=None, max_values=None):
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
 
