@@ -165,11 +165,12 @@ async def get_all_guild_commands_permissions(bot_id,
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
-          
-   async def get_guild_command_permissions(bot_id,
-                                            bot_token,
-                                            guild_id,
-                                            command_id):
+
+
+async def get_guild_command_permissions(bot_id,
+                                        bot_token,
+                                        guild_id,
+                                        command_id):
     """
     A coroutine that sends a request to get a single command's permissions in guild
 
@@ -177,7 +178,6 @@ async def get_all_guild_commands_permissions(bot_id,
     :param bot_token: Token of the bot.
     :param guild_id: ID of the guild to update permissions on.
     :param command_id: ID for the command to update permissions on.
-    :param permissions: List of permissions for the command.
     :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#edit-application-command-permissions>
     :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
     """
@@ -187,7 +187,7 @@ async def get_all_guild_commands_permissions(bot_id,
             if resp.status == 429:
                 _json = await resp.json()
                 await asyncio.sleep(_json["retry_after"])
-                return await get_guild_command_permissions(bot_id, bot_token, guild_id)
+                return await get_guild_command_permissions(bot_id, bot_token, guild_id, command_id)
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
@@ -216,11 +216,10 @@ async def update_single_command_permissions(bot_id,
             if resp.status == 429:
                 _json = await resp.json()
                 await asyncio.sleep(_json["retry_after"])
-                return await update_single_command_permissions(bot_id, bot_token, guild_id, permissions)
+                return await update_single_command_permissions(bot_id, bot_token, guild_id, command_id, permissions)
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
-
 
 
 async def update_guild_commands_permissions(bot_id,
@@ -233,7 +232,7 @@ async def update_guild_commands_permissions(bot_id,
     :param bot_id: User ID of the bot.
     :param bot_token: Token of the bot.
     :param guild_id: ID of the guild to update permissions.
-    :param permissions: List of dict with permissions for each commands.
+    :param cmd_permissions: List of dict with permissions for each commands.
     :return: JSON Response of the request. A list of <https://discord.com/developers/docs/interactions/slash-commands#batch-edit-application-command-permissions>.
     :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
     """
