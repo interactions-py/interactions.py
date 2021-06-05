@@ -1,9 +1,7 @@
+import uuid
 import enum
 import typing
-import uuid
-
 import discord
-
 from ..context import ComponentContext
 from ..error import IncorrectFormat
 
@@ -23,13 +21,13 @@ def create_actionrow(*components: dict) -> dict:
     """
     if not components or len(components) > 5:
         raise IncorrectFormat("Number of components in one row should be between 1 and 5.")
-    if (
-        ComponentsType.select in [component["type"] for component in components]
-        and len(components) > 1
-    ):
+    if ComponentsType.select in [component["type"] for component in components] and len(components) > 1:
         raise IncorrectFormat("Action row must have only one select component and nothing else")
 
-    return {"type": ComponentsType.actionrow, "components": components}
+    return {
+        "type": ComponentsType.actionrow,
+        "components": components
+    }
 
 
 class ButtonStyle(enum.IntEnum):
@@ -61,14 +59,12 @@ def emoji_to_dict(emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str])
     return emoji if emoji else {}
 
 
-def create_button(
-    style: typing.Union[ButtonStyle, int],
-    label: str = None,
-    emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str] = None,
-    custom_id: str = None,
-    url: str = None,
-    disabled: bool = False,
-) -> dict:
+def create_button(style: typing.Union[ButtonStyle, int],
+                  label: str = None,
+                  emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str] = None,
+                  custom_id: str = None,
+                  url: str = None,
+                  disabled: bool = False) -> dict:
     """
     Creates a button component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
 
@@ -122,9 +118,7 @@ def create_button(
     return data
 
 
-def create_select_option(
-    label: str, value: str, emoji=None, description: str = None, default: bool = False
-):
+def create_select_option(label: str, value: str, emoji=None, description: str = None, default: bool = False):
     """
     Creates an option for select components.
 
@@ -141,13 +135,11 @@ def create_select_option(
         "value": value,
         "description": description,
         "default": default,
-        "emoji": emoji,
+        "emoji": emoji
     }
 
 
-def create_select(
-    options: typing.List[dict], custom_id=None, placeholder=None, min_values=None, max_values=None
-):
+def create_select(options: typing.List[dict], custom_id=None, placeholder=None, min_values=None, max_values=None):
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
 
@@ -167,34 +159,55 @@ def create_select(
     }
 
 
-async def wait_for_component(
-    client: discord.Client, component: typing.Union[dict, str], check=None, timeout=None
-) -> ComponentContext:
+def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Generator[str]:
+    """
+    Returns generator with 'custom_id' of component or components.
+
+    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
+    """
+
+    if isinstance(component, str):
+        yield component
+    elif isinstance(component, dict):
+        if component["type"] == ComponentsType.actionrow:
+            yield from (comp["custom_id"] for comp in component["components"])
+        else:
+            yield component["custom_id"]
+    elif isinstance(component, list):
+        # Either list of components (actionrows or buttons) or list of ids
+        yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
+    else:
+        raise IncorrectFormat(f"Unknown component type of {component} ({type(component)}). "
+                              f"Expected str, dict or list")
+
+
+async def wait_for_component(client: discord.Client, component: typing.Union[str, dict, list], check=None, timeout=None) \
+        -> ComponentContext:
     """
     Waits for a component interaction. Only accepts interactions based on the custom ID of the component, and optionally a check function.
 
     :param client: The client/bot object.
     :type client: :class:`discord.Client`
-    :param component: The component dict or custom ID.
+    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
     :type component: Union[dict, str]
     :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
     """
 
+    components_ids = list(get_components_ids(component))
+
     def _check(ctx):
         if check and not check(ctx):
             return False
-        return (
-            component["custom_id"] if isinstance(component, dict) else component
-        ) == ctx.custom_id
+        wanted_component = ctx.custom_id in components_ids or not components_ids  # if matches or components_ids empty
+        return wanted_component
 
     return await client.wait_for("component", check=_check, timeout=timeout)
 
 
-async def wait_for_any_component(
-    client: discord.Client, message: typing.Union[discord.Message, int], check=None, timeout=None
-) -> ComponentContext:
+async def wait_for_any_component(client: discord.Client, message: typing.Union[discord.Message, int],
+                                 check=None, timeout=None) -> ComponentContext:
     """
     Waits for any component interaction. Only accepts interactions based on the message ID given and optionally a check function.
 
@@ -210,8 +223,6 @@ async def wait_for_any_component(
     def _check(ctx):
         if check and not check(ctx):
             return False
-        return (
-            message.id if isinstance(message, discord.Message) else message
-        ) == ctx.origin_message_id
+        return (message.id if isinstance(message, discord.Message) else message) == ctx.origin_message_id
 
     return await client.wait_for("component", check=_check, timeout=timeout)
