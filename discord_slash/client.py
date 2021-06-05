@@ -9,6 +9,7 @@ from . import http
 from . import model
 from . import error
 from . import context
+from . import dpy_overrides
 from .utils import manage_commands
 
 
@@ -869,8 +870,21 @@ class SlashCommand:
         :param args: Args. Can be list or dict.
         """
         try:
-            await func.invoke(ctx, args)
+            if isinstance(args, dict):
+                await func.invoke(ctx, **args)
+            else:
+                await func.invoke(ctx, *args)
         except Exception as ex:
+            if hasattr(func, "on_error"):
+                if func.on_error is not None:
+                    try:
+                        if hasattr(func, "cog"):
+                            await func.on_error(func.cog, ctx, ex)
+                        else:
+                            await func.on_error(ctx, ex)
+                        return
+                    except Exception as e:
+                        self.logger.error(f"{ctx.command}:: Error using error decorator: {e}")
             await self.on_slash_command_error(ctx, ex)
 
     async def on_socket_response(self, msg):
@@ -886,10 +900,19 @@ class SlashCommand:
             return
 
         to_use = msg["d"]
+        interaction_type = to_use["type"]
+        if interaction_type in (1, 2):
+            return await self._on_slash(to_use)
+        if interaction_type == 3:
+            return await self._on_component(to_use)
 
-        if to_use["type"] not in (1, 2):
-            return  # to only process ack and slash-commands and exclude other interactions like buttons
+        raise NotImplementedError
 
+    async def _on_component(self, to_use):
+        ctx = context.ComponentContext(self.req, to_use, self._discord, self.logger)
+        self._discord.dispatch("component", ctx)
+
+    async def _on_slash(self, to_use):
         if to_use["data"]["name"] in self.commands:
 
             ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
