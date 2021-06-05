@@ -159,23 +159,49 @@ def create_select(options: typing.List[dict], custom_id=None, placeholder=None, 
     }
 
 
-async def wait_for_component(client: discord.Client, component: typing.Union[dict, str], check=None, timeout=None) \
+def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Generator[str]:
+    """
+    Returns generator with 'custom_id' of component or components.
+
+    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
+    """
+
+    if isinstance(component, str):
+        yield component
+    elif isinstance(component, dict):
+        if component["type"] == ComponentsType.actionrow:
+            yield from (comp["custom_id"] for comp in component["components"])
+        else:
+            yield component["custom_id"]
+    elif isinstance(component, list):
+        # Either list of components (actionrows or buttons) or list of ids
+        yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
+    else:
+        raise IncorrectFormat(f"Unknown component type of {component} ({type(component)}). "
+                              f"Expected str, dict or list")
+
+
+async def wait_for_component(client: discord.Client, component: typing.Union[str, dict, list], check=None, timeout=None) \
         -> ComponentContext:
     """
     Waits for a component interaction. Only accepts interactions based on the custom ID of the component, and optionally a check function.
 
     :param client: The client/bot object.
     :type client: :class:`discord.Client`
-    :param component: The component dict or custom ID.
+    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
     :type component: Union[dict, str]
     :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
     """
+
+    components_ids = list(get_components_ids(component))
+
     def _check(ctx):
         if check and not check(ctx):
             return False
-        return (component["custom_id"] if isinstance(component, dict) else component) == ctx.custom_id
+        wanted_component = ctx.custom_id in components_ids or not components_ids  # if matches or components_ids empty
+        return wanted_component
 
     return await client.wait_for("component", check=_check, timeout=timeout)
 
@@ -193,6 +219,7 @@ async def wait_for_any_component(client: discord.Client, message: typing.Union[d
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
     """
+
     def _check(ctx):
         if check and not check(ctx):
             return False
