@@ -79,8 +79,8 @@ def setup(bot):
 ```
 
 --------
-This library is based on gateway event. If you are looking for webserver based, have a look at this:  
-[dispike](https://github.com/ms7m/dispike)  
-[discord-interactions-python](https://github.com/discord/discord-interactions-python)  
-Or for other languages:  
-[discord-api-docs Community Resources: Interactions](https://discord.com/developers/docs/topics/community-resources#interactions)
+- This library is based on gateway event. If you are looking for webserver based, have a look at this:  
+    - [dispike](https://github.com/ms7m/dispike)  
+    - [discord-interactions-python](https://github.com/discord/discord-interactions-python)  
+- Or for other languages:  
+    - [discord-api-docs Community Resources: Interactions](https://discord.com/developers/docs/topics/community-resources#interactions)
