@@ -3,7 +3,7 @@ import enum
 import typing
 import discord
 from ..context import ComponentContext
-from ..error import IncorrectFormat
+from ..error import IncorrectFormat, IncorrectType
 
 
 class ComponentsType(enum.IntEnum):
@@ -187,7 +187,7 @@ def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Itera
         # Either list of components (actionrows or buttons) or list of ids
         yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
     else:
-        raise IncorrectFormat(
+        raise IncorrectType(
             f"Unknown component type of {component} ({type(component)}). "
             f"Expected str, dict or list"
         )
@@ -201,7 +201,7 @@ def _get_messages_ids(message: typing.Union[discord.Message, int, list]) -> typi
     elif isinstance(message, list):
         yield from (msg_id for msg in message for msg_id in _get_messages_ids(msg))
     else:
-        raise IncorrectFormat(
+        raise IncorrectType(
             f"Unknown component type of {message} ({type(message)}). "
             f"Expected discord.Message, int or list"
         )
