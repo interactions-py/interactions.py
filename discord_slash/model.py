@@ -531,3 +531,24 @@ class SlashCommandPermissionType(IntEnum):
     def from_type(cls, t: type):
         if issubclass(t, discord.abc.Role): return cls.ROLE
         if issubclass(t, discord.abc.User): return cls.USER
+
+
+class ComponentType(IntEnum):
+    actionrow = 1
+    button = 2
+    select = 3
+
+
+class ButtonStyle(IntEnum):
+    blue = 1
+    blurple = 1
+    gray = 2
+    grey = 2
+    green = 3
+    red = 4
+    URL = 5
+
+    primary = 1
+    secondary = 2
+    success = 3
+    danger = 4

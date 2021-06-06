@@ -4,12 +4,7 @@ import typing
 import discord
 from ..context import ComponentContext
 from ..error import IncorrectFormat, IncorrectType
-
-
-class ComponentsType(enum.IntEnum):
-    actionrow = 1
-    button = 2
-    select = 3
+from ..model import ComponentType, ButtonStyle
 
 
 def create_actionrow(*components: dict) -> dict:
@@ -22,27 +17,12 @@ def create_actionrow(*components: dict) -> dict:
     if not components or len(components) > 5:
         raise IncorrectFormat("Number of components in one row should be between 1 and 5.")
     if (
-        ComponentsType.select in [component["type"] for component in components]
+        ComponentType.select in [component["type"] for component in components]
         and len(components) > 1
     ):
         raise IncorrectFormat("Action row must have only one select component and nothing else")
 
-    return {"type": ComponentsType.actionrow, "components": components}
-
-
-class ButtonStyle(enum.IntEnum):
-    blue = 1
-    blurple = 1
-    gray = 2
-    grey = 2
-    green = 3
-    red = 4
-    URL = 5
-
-    primary = 1
-    secondary = 2
-    success = 3
-    danger = 4
+    return {"type": ComponentType.actionrow, "components": components}
 
 
 def emoji_to_dict(emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str]) -> dict:
@@ -101,7 +81,7 @@ def create_button(
     emoji = emoji_to_dict(emoji)
 
     data = {
-        "type": ComponentsType.button,
+        "type": ComponentType.button,
         "style": style,
     }
 
@@ -160,7 +140,7 @@ def create_select(
         raise IncorrectFormat("Options length should be between 1 and 25.")
 
     return {
-        "type": ComponentsType.select,
+        "type": ComponentType.select,
         "options": options,
         "custom_id": custom_id or str(uuid.uuid4()),
         "placeholder": placeholder or "",
@@ -179,7 +159,7 @@ def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Itera
     if isinstance(component, str):
         yield component
     elif isinstance(component, dict):
-        if component["type"] == ComponentsType.actionrow:
+        if component["type"] == ComponentType.actionrow:
             yield from (comp["custom_id"] for comp in component["components"])
         else:
             yield component["custom_id"]
