@@ -13,7 +13,7 @@ from .dpy_overrides import ComponentMessage
 class InteractionContext:
     """
     Base context for interactions.\n
-    Kinda similar with discord.ext.commands.Context.
+    In some ways similar with discord.ext.commands.Context.
 
     .. warning::
         Do not manually init this model.
@@ -139,7 +139,7 @@ class InteractionContext:
         components: typing.List[dict] = None,
     ) -> model.SlashMessage:
         """
-        Sends response of the slash command.
+        Sends response of the interaction.
 
         .. warning::
             - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
@@ -309,7 +309,7 @@ class ComponentContext(InteractionContext):
         'Defers' the response, showing a loading state to the user
 
         :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
-        :param edit_origin: Whether the response is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
+        :param edit_origin: Whether the type is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
         """
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
