@@ -327,6 +327,24 @@ class ComponentContext(InteractionContext):
         await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
 
+    async def send(self,
+                   content: str = "", *,
+                   embed: discord.Embed = None,
+                   embeds: typing.List[discord.Embed] = None,
+                   tts: bool = False,
+                   file: discord.File = None,
+                   files: typing.List[discord.File] = None,
+                   allowed_mentions: discord.AllowedMentions = None,
+                   hidden: bool = False,
+                   delete_after: float = None,
+                   components: typing.List[dict] = None,
+                   ) -> model.SlashMessage:
+        if self.deferred and self._deferred_edit_origin:
+            self._logger.warning(
+                "Deferred response might not be what you set it to! (edit origin / send response message) "
+                "This is because it was deferred with different response type."
+            )
+
     async def edit_origin(self, **fields):
         """
         Edits the origin message of the component.
@@ -378,7 +396,7 @@ class ComponentContext(InteractionContext):
                 if not self._deferred_edit_origin:
                     self._logger.warning(
                         "Deferred response might not be what you set it to! (edit origin / send response message) "
-                        "This is because it was deferred in a different state."
+                        "This is because it was deferred with different response type."
                     )
                 _json = await self._http.edit(_resp, self._token, files=files)
                 self.deferred = False
