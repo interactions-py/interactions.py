@@ -1,4 +1,3 @@
-import enum
 import typing
 import uuid
 
@@ -6,7 +5,7 @@ import discord
 
 from ..context import ComponentContext
 from ..error import IncorrectFormat, IncorrectType
-from ..model import ComponentType, ButtonStyle
+from ..model import ButtonStyle, ComponentType
 
 
 def create_actionrow(*components: dict) -> dict:
