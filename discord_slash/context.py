@@ -297,6 +297,8 @@ class ComponentContext(InteractionContext):
         self.origin_message = None
         self.origin_message_id = int(_json["message"]["id"]) if "message" in _json.keys() else None
 
+        self._deferred_edit_origin = False
+
         if self.origin_message_id and (_json["message"]["flags"] & 64) != 64:
             self.origin_message = ComponentMessage(
                 state=self.bot._connection, channel=self.channel, data=_json["message"]
@@ -311,12 +313,17 @@ class ComponentContext(InteractionContext):
         """
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
+
         base = {"type": 6 if edit_origin else 5}
+
         if hidden:
             if edit_origin:
                 raise error.IncorrectFormat("'hidden' and 'edit_origin' flags are mutually exclusive")
             base["data"] = {"flags": 64}
             self._deferred_hidden = True
+
+        self._deferred_edit_origin = edit_origin
+
         await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
 
@@ -368,6 +375,11 @@ class ComponentContext(InteractionContext):
             if files and not self.deferred:
                 await self.defer(edit_origin=True)
             if self.deferred:
+                if not self._deferred_edit_origin:
+                    self._logger.warning(
+                        "Deferred response might not be what you set it to! (edit origin / send response message) "
+                        "This is because it was deferred in a different state."
+                    )
                 _json = await self._http.edit(_resp, self._token, files=files)
                 self.deferred = False
             else:  # noqa: F841
