@@ -289,7 +289,9 @@ class ComponentContext(InteractionContext):
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
         base = {"type": 6 if edit_origin else 5}
-        if hidden and not edit_origin:
+        if hidden:
+            if edit_origin:
+                raise error.IncorrectFormat("'hidden' and 'edit_origin' flags are mutually exclusive")
             base["data"] = {"flags": 64}
             self._deferred_hidden = True
         await self._http.post_initial_response(base, self.interaction_id, self._token)
