@@ -1,14 +1,17 @@
 import json
 import typing
+
 import aiohttp
 import discord
 from discord.http import Route
+
 from . import error
 from .const import BASE_API
 
 
 class CustomRoute(Route):
     """discord.py's Route but changed ``BASE`` to use at slash command."""
+
     BASE = BASE_API
 
 
@@ -30,9 +33,7 @@ class SlashCommandRequest:
         :param slash_commands: List of all the slash commands to make a put request to discord with.
         :param guild_id: ID of the guild to set the commands on. Pass `None` for the global scope.
         """
-        return self.command_request(
-            method="PUT", guild_id = guild_id, json = slash_commands
-        )
+        return self.command_request(method="PUT", guild_id=guild_id, json=slash_commands)
 
     def remove_slash_command(self, guild_id, cmd_id):
         """
@@ -42,9 +43,7 @@ class SlashCommandRequest:
         :param cmd_id: ID of the command.
         :return: Response code of the request.
         """
-        return self.command_request(
-            method="DELETE", guild_id=guild_id, url_ending=f"/{cmd_id}"
-        )
+        return self.command_request(method="DELETE", guild_id=guild_id, url_ending=f"/{cmd_id}")
 
     def get_all_commands(self, guild_id=None):
         """
@@ -71,11 +70,11 @@ class SlashCommandRequest:
         :param guild_id: ID of the target guild to register command permissions.
         :return: JSON Response of the request.
         """
-        return self.command_request(method="PUT", guild_id=guild_id, json=perms_dict, url_ending="/permissions")
+        return self.command_request(
+            method="PUT", guild_id=guild_id, json=perms_dict, url_ending="/permissions"
+        )
 
-    def add_slash_command(
-        self, guild_id, cmd_name: str, description: str, options: list = None
-    ):
+    def add_slash_command(self, guild_id, cmd_name: str, description: str, options: list = None):
         """
         Sends a slash command add request to Discord API.
 
@@ -86,7 +85,7 @@ class SlashCommandRequest:
         :return: JSON Response of the request.
         """
         base = {"name": cmd_name, "description": description, "options": options or []}
-        return self.command_request(json=base, method="POST", guild_id = guild_id)
+        return self.command_request(json=base, method="POST", guild_id=guild_id)
 
     def command_request(self, method, guild_id, url_ending="", **kwargs):
         r"""
@@ -130,7 +129,9 @@ class SlashCommandRequest:
         """
         return self.command_response(token, False, "POST", interaction_id, json=_resp)
 
-    def command_response(self, token, use_webhook, method, interaction_id= None, url_ending = "", **kwargs):
+    def command_response(
+        self, token, use_webhook, method, interaction_id=None, url_ending="", **kwargs
+    ):
         r"""
         Sends a command response to discord (POST, PATCH, DELETE)
 
@@ -143,21 +144,33 @@ class SlashCommandRequest:
         :return: Coroutine
         """
         if not use_webhook and not interaction_id:
-            raise error.IncorrectFormat("Internal Error! interaction_id must be set if use_webhook is False")
-        req_url = f"/webhooks/{self.application_id}/{token}" if use_webhook else f"/interactions/{interaction_id}/{token}/callback"
+            raise error.IncorrectFormat(
+                "Internal Error! interaction_id must be set if use_webhook is False"
+            )
+        req_url = (
+            f"/webhooks/{self.application_id}/{token}"
+            if use_webhook
+            else f"/interactions/{interaction_id}/{token}/callback"
+        )
         req_url += url_ending
         route = CustomRoute(method, req_url)
         return self._discord.http.request(route, **kwargs)
 
-    def request_with_files(self, _resp, files: typing.List[discord.File], token, method, url_ending = ""):
+    def request_with_files(
+        self, _resp, files: typing.List[discord.File], token, method, url_ending=""
+    ):
 
         form = aiohttp.FormData()
         form.add_field("payload_json", json.dumps(_resp))
         for x in range(len(files)):
             name = f"file{x if len(files) > 1 else ''}"
             sel = files[x]
-            form.add_field(name, sel.fp, filename=sel.filename, content_type="application/octet-stream")
-        return self.command_response(token, True, method, data=form, files=files, url_ending=url_ending)
+            form.add_field(
+                name, sel.fp, filename=sel.filename, content_type="application/octet-stream"
+            )
+        return self.command_response(
+            token, True, method, data=form, files=files, url_ending=url_ending
+        )
 
     def edit(self, _resp, token, message_id="@original", files: typing.List[discord.File] = None):
         """
@@ -173,8 +186,8 @@ class SlashCommandRequest:
         """
         req_url = f"/messages/{message_id}"
         if files:
-            return self.request_with_files(_resp, files, token, "PATCH", url_ending = req_url)
-        return self.command_response(token, True, "PATCH", url_ending = req_url, json=_resp)
+            return self.request_with_files(_resp, files, token, "PATCH", url_ending=req_url)
+        return self.command_response(token, True, "PATCH", url_ending=req_url, json=_resp)
 
     def delete(self, token, message_id="@original"):
         """
@@ -185,4 +198,4 @@ class SlashCommandRequest:
         :return: Coroutine
         """
         req_url = f"/messages/{message_id}"
-        return self.command_response(token, True, "DELETE", url_ending = req_url)
+        return self.command_response(token, True, "DELETE", url_ending=req_url)
