@@ -1,4 +1,0 @@
-discord.py
-aiohttp
-sphinx
-sphinx-rtd-theme

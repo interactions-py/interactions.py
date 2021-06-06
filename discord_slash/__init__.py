@@ -8,12 +8,11 @@ Simple Discord Slash Command extension for discord.py
 :license: MIT
 """
 
-from .client import SlashCommand
-from .model import SlashCommandOptionType
-from .context import SlashContext
-from .context import ComponentContext
-from .dpy_overrides import ComponentMessage
-from .utils import manage_commands
-from .utils import manage_components
-
-__version__ = "1.2.2"
+from .client import SlashCommand  # noqa: F401
+from .const import __version__  # noqa: F401
+from .context import ComponentContext  # noqa: F401
+from .context import SlashContext  # noqa: F401
+from .dpy_overrides import ComponentMessage  # noqa: F401
+from .model import SlashCommandOptionType  # noqa: F401
+from .utils import manage_commands  # noqa: F401
+from .utils import manage_components  # noqa: F401

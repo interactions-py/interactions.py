@@ -14,7 +14,7 @@
    <a href="https://discord-py-slash-command.readthedocs.io/en/latest/">Documentation</a> ⦿
    <a href="https://discord.gg/KkgMBVuEkx">Discord Server</a>
 </p>
-   
+
 ## About
 Discord Slash Commands are a new implementation for the Bot API that utilize the forward-slash "/" symbol.
 Released on 15 December 2020, many bot developers are still learning to learn how to implement this into
@@ -79,8 +79,8 @@ def setup(bot):
 ```
 
 --------
-This library is based on gateway event. If you are looking for webserver based, have a look at this:  
-[dispike](https://github.com/ms7m/dispike)  
-[discord-interactions-python](https://github.com/discord/discord-interactions-python)  
-Or for other languages:  
-[discord-api-docs Community Resources: Interactions](https://discord.com/developers/docs/topics/community-resources#interactions)
+- This library is based on gateway event. If you are looking for webserver based, have a look at this:
+    - [dispike](https://github.com/ms7m/dispike)
+    - [discord-interactions-python](https://github.com/discord/discord-interactions-python)
+- Or for other languages:
+    - [discord-api-docs Community Resources: Interactions](https://discord.com/developers/docs/topics/community-resources#interactions)

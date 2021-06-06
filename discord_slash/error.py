@@ -18,6 +18,7 @@ class RequestFailure(SlashCommandError):
     :ivar status: Status code of failed response.
     :ivar msg: Message of failed response.
     """
+
     def __init__(self, status: int, msg: str):
         self.status = status
         self.msg = msg
@@ -34,6 +35,7 @@ class DuplicateCommand(SlashCommandError):
     """
     There is a duplicate command name.
     """
+
     def __init__(self, name: str):
         super().__init__(f"Duplicate command name detected: {name}")
 
@@ -60,7 +62,7 @@ class IncorrectCommandData(SlashCommandError):
     """
     Incorrect data was passed to a slash command data object
     """
-    
+
 
 class AlreadyResponded(SlashCommandError):
     """
