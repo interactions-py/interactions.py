@@ -169,7 +169,7 @@ def create_select(
     }
 
 
-def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Generator[str]:
+def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Iterator[str]:
     """
     Returns generator with 'custom_id' of component or components.
 
@@ -193,59 +193,53 @@ def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Gener
         )
 
 
+def _get_messages_ids(message: typing.Union[discord.Message, int, list]) -> typing.Iterator[int]:
+    if isinstance(message, int):
+        yield message
+    elif isinstance(message, discord.Message):
+        yield message.id
+    elif isinstance(message, list):
+        yield from (msg_id for msg in message for msg_id in _get_messages_ids(msg))
+    else:
+        raise IncorrectFormat(
+            f"Unknown component type of {message} ({type(message)}). "
+            f"Expected discord.Message, int or list"
+        )
+
+
 async def wait_for_component(
     client: discord.Client,
-    component: typing.Union[str, dict, list],
+    component: typing.Union[str, dict, list] = None,
+    message: typing.Union[discord.Message, int, list] = None,
     check=None,
     timeout=None,
 ) -> ComponentContext:
     """
-    Waits for a component interaction. Only accepts interactions based on the custom ID of the component, and optionally a check function.
+    Helper function - wrapper around 'client.wait_for("component", ...)'
+    Waits for a component interaction. Only accepts interactions based on the custom ID of the component or/and message ID, and optionally a check function.
 
     :param client: The client/bot object.
     :type client: :class:`discord.Client`
     :param component: Custom ID or component dict (actionrow or button) or list of previous two.
+    :param message: The message object to check for, or the message ID or list of previous two.
     :type component: Union[dict, str]
     :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
     """
 
-    components_ids = list(get_components_ids(component))
+    if not (component or message):
+        raise IncorrectFormat("You must specify component or message (or both)")
 
-    def _check(ctx):
+    components_ids = list(get_components_ids(component)) if component else None
+    message_ids = list(_get_messages_ids(message)) if message else None
+
+    def _check(ctx: ComponentContext):
         if check and not check(ctx):
             return False
-        # if matches or components_ids empty
-        wanted_component = ctx.custom_id in components_ids or not components_ids
-        return wanted_component
-
-    return await client.wait_for("component", check=_check, timeout=timeout)
-
-
-async def wait_for_any_component(
-    client: discord.Client,
-    message: typing.Union[discord.Message, int],
-    check=None,
-    timeout=None,
-) -> ComponentContext:
-    """
-    Waits for any component interaction. Only accepts interactions based on the message ID given and optionally a check function.
-
-    :param client: The client/bot object.
-    :type client: :class:`discord.Client`
-    :param message: The message object to check for, or the message ID.
-    :type message: Union[discord.Message, int]
-    :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
-    :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
-    :raises: :exc:`asyncio.TimeoutError`
-    """
-
-    def _check(ctx):
-        if check and not check(ctx):
-            return False
-        return (
-            message.id if isinstance(message, discord.Message) else message
-        ) == ctx.origin_message_id
+        # if components_ids is empty or there is a match
+        wanted_component = not components_ids or ctx.custom_id in components_ids
+        wanted_message = not message_ids or ctx.origin_message_id in message_ids
+        return wanted_component and wanted_message
 
     return await client.wait_for("component", check=_check, timeout=timeout)
