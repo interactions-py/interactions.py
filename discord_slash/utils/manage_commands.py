@@ -1,19 +1,18 @@
-import typing
-import inspect
 import asyncio
-import aiohttp
-from ..error import RequestFailure, IncorrectType
-from ..model import SlashCommandOptionType, SlashCommandPermissionType
+import inspect
+import typing
 from collections.abc import Callable
 from typing import Union
 
+import aiohttp
 
-async def add_slash_command(bot_id,
-                            bot_token: str,
-                            guild_id,
-                            cmd_name: str,
-                            description: str,
-                            options: list = None):
+from ..error import IncorrectType, RequestFailure
+from ..model import SlashCommandOptionType, SlashCommandPermissionType
+
+
+async def add_slash_command(
+    bot_id, bot_token: str, guild_id, cmd_name: str, description: str, options: list = None
+):
     """
     A coroutine that sends a slash command add request to Discord API.
 
@@ -28,27 +27,24 @@ async def add_slash_command(bot_id,
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}"
     url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
-    base = {
-        "name": cmd_name,
-        "description": description,
-        "options": options or []
-    }
+    base = {"name": cmd_name, "description": description, "options": options or []}
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers={"Authorization": f"Bot {bot_token}"}, json=base) as resp:
+        async with session.post(
+            url, headers={"Authorization": f"Bot {bot_token}"}, json=base
+        ) as resp:
             if resp.status == 429:
                 _json = await resp.json()
                 await asyncio.sleep(_json["retry_after"])
-                return await add_slash_command(bot_id, bot_token, guild_id, cmd_name, description, options)
+                return await add_slash_command(
+                    bot_id, bot_token, guild_id, cmd_name, description, options
+                )
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
 
 
-async def remove_slash_command(bot_id,
-                               bot_token,
-                               guild_id,
-                               cmd_id):
+async def remove_slash_command(bot_id, bot_token, guild_id, cmd_id):
     """
     A coroutine that sends a slash command remove request to Discord API.
 
@@ -73,9 +69,7 @@ async def remove_slash_command(bot_id,
             return resp.status
 
 
-async def get_all_commands(bot_id,
-                           bot_token,
-                           guild_id=None):
+async def get_all_commands(bot_id, bot_token, guild_id=None):
     """
     A coroutine that sends a slash command get request to Discord API.
 
@@ -98,9 +92,7 @@ async def get_all_commands(bot_id,
             return await resp.json()
 
 
-async def remove_all_commands(bot_id,
-                              bot_token,
-                              guild_ids: typing.List[int] = None):
+async def remove_all_commands(bot_id, bot_token, guild_ids: typing.List[int] = None):
     """
     Remove all slash commands.
 
@@ -118,9 +110,7 @@ async def remove_all_commands(bot_id,
             pass
 
 
-async def remove_all_commands_in(bot_id,
-                                 bot_token,
-                                 guild_id=None):
+async def remove_all_commands_in(bot_id, bot_token, guild_id=None):
     """
     Remove all slash commands in area.
 
@@ -128,24 +118,13 @@ async def remove_all_commands_in(bot_id,
     :param bot_token: Token of the bot.
     :param guild_id: ID of the guild to remove commands. Pass `None` to remove all global commands.
     """
-    commands = await get_all_commands(
-        bot_id,
-        bot_token,
-        guild_id
-    )
+    commands = await get_all_commands(bot_id, bot_token, guild_id)
 
     for x in commands:
-        await remove_slash_command(
-            bot_id,
-            bot_token,
-            guild_id,
-            x['id']
-        )
+        await remove_slash_command(bot_id, bot_token, guild_id, x["id"])
 
 
-async def get_all_guild_commands_permissions(bot_id,
-                                             bot_token,
-                                             guild_id):
+async def get_all_guild_commands_permissions(bot_id, bot_token, guild_id):
     """
     A coroutine that sends a gets all the commands permissions for that guild.
 
@@ -167,10 +146,7 @@ async def get_all_guild_commands_permissions(bot_id,
             return await resp.json()
 
 
-async def get_guild_command_permissions(bot_id,
-                                        bot_token,
-                                        guild_id,
-                                        command_id):
+async def get_guild_command_permissions(bot_id, bot_token, guild_id, command_id):
     """
     A coroutine that sends a request to get a single command's permissions in guild
 
@@ -192,13 +168,8 @@ async def get_guild_command_permissions(bot_id,
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
 
-          
 
-async def update_single_command_permissions(bot_id,
-                                            bot_token,
-                                            guild_id,
-                                            command_id,
-                                            permissions):
+async def update_single_command_permissions(bot_id, bot_token, guild_id, command_id, permissions):
     """
     A coroutine that sends a request to update a single command's permissions in guild
 
@@ -212,22 +183,23 @@ async def update_single_command_permissions(bot_id,
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/commands/{command_id}/permissions"
     async with aiohttp.ClientSession() as session:
-        async with session.put(url, headers={"Authorization": f"Bot {bot_token}"}, json=permissions) as resp:
+        async with session.put(
+            url, headers={"Authorization": f"Bot {bot_token}"}, json=permissions
+        ) as resp:
             if resp.status == 429:
                 _json = await resp.json()
                 await asyncio.sleep(_json["retry_after"])
-                return await update_single_command_permissions(bot_id, bot_token, guild_id, command_id, permissions)
+                return await update_single_command_permissions(
+                    bot_id, bot_token, guild_id, command_id, permissions
+                )
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
 
 
-async def update_guild_commands_permissions(bot_id,
-                                            bot_token,
-                                            guild_id,
-                                            cmd_permissions):
+async def update_guild_commands_permissions(bot_id, bot_token, guild_id, cmd_permissions):
     """
-    A coroutine that updates permissions for all commands in a guild. 
+    A coroutine that updates permissions for all commands in a guild.
 
     :param bot_id: User ID of the bot.
     :param bot_token: Token of the bot.
@@ -238,21 +210,27 @@ async def update_guild_commands_permissions(bot_id,
     """
     url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/commands/permissions"
     async with aiohttp.ClientSession() as session:
-        async with session.put(url, headers={"Authorization": f"Bot {bot_token}"}, json=cmd_permissions) as resp:
+        async with session.put(
+            url, headers={"Authorization": f"Bot {bot_token}"}, json=cmd_permissions
+        ) as resp:
             if resp.status == 429:
                 _json = await resp.json()
                 await asyncio.sleep(_json["retry_after"])
-                return await update_guild_commands_permissions(bot_id, bot_token, guild_id, cmd_permissions)
+                return await update_guild_commands_permissions(
+                    bot_id, bot_token, guild_id, cmd_permissions
+                )
             if not 200 <= resp.status < 300:
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
 
 
-def create_option(name: str,
-                  description: str,
-                  option_type: typing.Union[int, type],
-                  required: bool,
-                  choices: list = None) -> dict:
+def create_option(
+    name: str,
+    description: str,
+    option_type: typing.Union[int, type],
+    required: bool,
+    choices: list = None,
+) -> dict:
     """
     Creates option used for creating slash command.
 
@@ -269,25 +247,34 @@ def create_option(name: str,
 
     .. note::
         ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
-        or a list of single string values. 
+        or a list of single string values.
     """
-    if not isinstance(option_type, int) or isinstance(option_type, bool): #Bool values are a subclass of int
+    if not isinstance(option_type, int) or isinstance(
+        option_type, bool
+    ):  # Bool values are a subclass of int
         original_type = option_type
         option_type = SlashCommandOptionType.from_type(original_type)
         if option_type is None:
-            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash commands.")
+            raise IncorrectType(
+                f"The type {original_type} is not recognized as a type that Discord accepts for slash commands."
+            )
     choices = choices or []
-    choices = [choice if isinstance(choice, dict) else {"name": choice, "value": choice} for choice in choices]
+    choices = [
+        choice if isinstance(choice, dict) else {"name": choice, "value": choice}
+        for choice in choices
+    ]
     return {
         "name": name,
         "description": description,
         "type": option_type,
         "required": required,
-        "choices": choices
+        "choices": choices,
     }
 
 
-def generate_options(function: Callable, description: str = "No description.", connector: dict = None) -> list:
+def generate_options(
+    function: Callable, description: str = "No description.", connector: dict = None
+) -> list:
     """
     Generates a list of options from the type hints of a command.
     You currently can type hint: str, int, bool, discord.User, discord.Channel, discord.Role
@@ -301,7 +288,7 @@ def generate_options(function: Callable, description: str = "No description.", c
     """
     options = []
     if connector:
-        connector = {y: x for x, y in connector.items()} # Flip connector.
+        connector = {y: x for x, y in connector.items()}  # Flip connector.
     params = iter(inspect.signature(function).parameters.values())
     if next(params).name in ("self", "cls"):
         # Skip 1. (+ 2.) parameter, self/cls and ctx
@@ -320,9 +307,11 @@ def generate_options(function: Callable, description: str = "No description.", c
             args = getattr(param.annotation, "__args__", None)
             if args:
                 param = param.replace(annotation=args[0])
-                required = not args[-1] is type(None)
+                required = not isinstance(args[-1], type(None))
 
-        option_type = SlashCommandOptionType.from_type(param.annotation) or SlashCommandOptionType.STRING
+        option_type = (
+            SlashCommandOptionType.from_type(param.annotation) or SlashCommandOptionType.STRING
+        )
         name = param.name if not connector else connector[param.name]
         options.append(create_option(name, description or "No Description.", option_type, required))
 
@@ -337,13 +326,12 @@ def create_choice(value: Union[str, int], name: str):
     :param name: Name of the choice.
     :return: dict
     """
-    return {
-        "value": value,
-        "name": name
-    }
+    return {"value": value, "name": name}
 
 
-def create_permission(id:int, id_type: typing.Union[int, SlashCommandPermissionType], permission: bool):
+def create_permission(
+    id: int, id_type: typing.Union[int, SlashCommandPermissionType], permission: bool
+):
     """
     Create a single command permission.
 
@@ -355,32 +343,36 @@ def create_permission(id:int, id_type: typing.Union[int, SlashCommandPermissionT
     .. note::
         For @everyone permission, set id_type as role and id as guild id.
     """
-    if not (isinstance(id_type, int) or isinstance(id_type, bool)): #Bool values are a subclass of int
+    if not (
+        isinstance(id_type, int) or isinstance(id_type, bool)
+    ):  # Bool values are a subclass of int
         original_type = id_type
         id_type = SlashCommandPermissionType.from_type(original_type)
         if id_type is None:
-            raise IncorrectType(f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions.")
-    return {
-        "id": id,
-        "type": id_type,
-        "permission": permission
-    }
+            raise IncorrectType(
+                f"The type {original_type} is not recognized as a type that Discord accepts for slash command permissions."
+            )
+    return {"id": id, "type": id_type, "permission": permission}
 
 
-def create_multi_ids_permission(ids: typing.List[int], id_type: typing.Union[int, SlashCommandPermissionType], permission: bool):
+def create_multi_ids_permission(
+    ids: typing.List[int], id_type: typing.Union[int, SlashCommandPermissionType], permission: bool
+):
     """
     Creates a list of permissions from list of ids with common id_type and permission state.
 
     :param ids: List of target ids to apply the permission on.
-    :param id_type: Type of the id. 
+    :param id_type: Type of the id.
     :param permission: State of the permission. ``True`` to allow access, ``False`` to disallow access.
     """
     return [create_permission(id, id_type, permission) for id in set(ids)]
 
 
 def generate_permissions(
-    allowed_roles: typing.List[int] = None, allowed_users: typing.List[int]  = None, 
-    disallowed_roles: typing.List[int] = None, disallowed_users: typing.List[int] = None
+    allowed_roles: typing.List[int] = None,
+    allowed_users: typing.List[int] = None,
+    disallowed_roles: typing.List[int] = None,
+    disallowed_users: typing.List[int] = None,
 ):
     """
     Creates a list of permissions.
@@ -392,14 +384,22 @@ def generate_permissions(
     :return: list
     """
     permissions = []
-    
+
     if allowed_roles:
-        permissions.extend(create_multi_ids_permission(allowed_roles, SlashCommandPermissionType.ROLE, True))
+        permissions.extend(
+            create_multi_ids_permission(allowed_roles, SlashCommandPermissionType.ROLE, True)
+        )
     if allowed_users:
-        permissions.extend(create_multi_ids_permission(allowed_users, SlashCommandPermissionType.USER, True))
+        permissions.extend(
+            create_multi_ids_permission(allowed_users, SlashCommandPermissionType.USER, True)
+        )
     if disallowed_roles:
-        permissions.extend(create_multi_ids_permission(disallowed_roles, SlashCommandPermissionType.ROLE, False))
+        permissions.extend(
+            create_multi_ids_permission(disallowed_roles, SlashCommandPermissionType.ROLE, False)
+        )
     if disallowed_users:
-        permissions.extend(create_multi_ids_permission(disallowed_users, SlashCommandPermissionType.USER, False))
+        permissions.extend(
+            create_multi_ids_permission(disallowed_users, SlashCommandPermissionType.USER, False)
+        )
 
     return permissions

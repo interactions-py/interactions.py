@@ -1,10 +1,7 @@
 import discord
+from discord import AllowedMentions, File, InvalidArgument, abc, http, utils
 from discord.ext import commands
-from discord import AllowedMentions, InvalidArgument, File
 from discord.http import Route
-from discord import http
-from discord import abc
-from discord import utils
 
 
 class ComponentMessage(discord.Message):
@@ -12,7 +9,7 @@ class ComponentMessage(discord.Message):
 
     def __init__(self, *, state, channel, data):
         super().__init__(state=state, channel=channel, data=data)
-        self.components = data['components']
+        self.components = data["components"]
 
 
 def new_override(cls, *args, **kwargs):
@@ -25,71 +22,96 @@ def new_override(cls, *args, **kwargs):
 discord.message.Message.__new__ = new_override
 
 
-def send_files(self, channel_id, *, files, content=None, tts=False, embed=None, components=None,
-               nonce=None, allowed_mentions=None, message_reference=None):
-    r = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)
+def send_files(
+    self,
+    channel_id,
+    *,
+    files,
+    content=None,
+    tts=False,
+    embed=None,
+    components=None,
+    nonce=None,
+    allowed_mentions=None,
+    message_reference=None
+):
+    r = Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id)
     form = []
 
-    payload = {'tts': tts}
+    payload = {"tts": tts}
     if content:
-        payload['content'] = content
+        payload["content"] = content
     if embed:
-        payload['embed'] = embed
+        payload["embed"] = embed
     if components:
-        payload['components'] = components
+        payload["components"] = components
     if nonce:
-        payload['nonce'] = nonce
+        payload["nonce"] = nonce
     if allowed_mentions:
-        payload['allowed_mentions'] = allowed_mentions
+        payload["allowed_mentions"] = allowed_mentions
     if message_reference:
-        payload['message_reference'] = message_reference
+        payload["message_reference"] = message_reference
 
-    form.append({'name': 'payload_json', 'value': utils.to_json(payload)})
+    form.append({"name": "payload_json", "value": utils.to_json(payload)})
     if len(files) == 1:
         file = files[0]
-        form.append({
-            'name': 'file',
-            'value': file.fp,
-            'filename': file.filename,
-            'content_type': 'application/octet-stream'
-        })
+        form.append(
+            {
+                "name": "file",
+                "value": file.fp,
+                "filename": file.filename,
+                "content_type": "application/octet-stream",
+            }
+        )
     else:
         for index, file in enumerate(files):
-            form.append({
-                'name': 'file%s' % index,
-                'value': file.fp,
-                'filename': file.filename,
-                'content_type': 'application/octet-stream'
-            })
+            form.append(
+                {
+                    "name": "file%s" % index,
+                    "value": file.fp,
+                    "filename": file.filename,
+                    "content_type": "application/octet-stream",
+                }
+            )
 
     return self.request(r, form=form, files=files)
 
 
-def send_message(self, channel_id, content, *, tts=False, embed=None, components=None,
-                 nonce=None, allowed_mentions=None, message_reference=None):
-    r = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)
+def send_message(
+    self,
+    channel_id,
+    content,
+    *,
+    tts=False,
+    embed=None,
+    components=None,
+    nonce=None,
+    allowed_mentions=None,
+    message_reference=None
+):
+    r = Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id)
     payload = {}
 
     if content:
-        payload['content'] = content
+        payload["content"] = content
 
     if tts:
-        payload['tts'] = True
+        payload["tts"] = True
 
     if embed:
-        payload['embed'] = embed
+        payload["embed"] = embed
 
     if components:
-        payload['components'] = components
+        payload["components"] = components
 
     if nonce:
-        payload['nonce'] = nonce
+        payload["nonce"] = nonce
 
     if allowed_mentions:
-        payload['allowed_mentions'] = allowed_mentions
+        payload["allowed_mentions"] = allowed_mentions
 
     if message_reference:
-        payload['message_reference'] = message_reference
+        payload["message_reference"] = message_reference
 
     return self.request(r, json=payload)
 
@@ -98,10 +120,21 @@ http.HTTPClient.send_files = send_files
 http.HTTPClient.send_message = send_message
 
 
-async def send(self, content=None, *, tts=False, embed=None, file=None, components=None,
-               files=None, delete_after=None, nonce=None,
-               allowed_mentions=None, reference=None,
-               mention_author=None):
+async def send(
+    self,
+    content=None,
+    *,
+    tts=False,
+    embed=None,
+    file=None,
+    components=None,
+    files=None,
+    delete_after=None,
+    nonce=None,
+    allowed_mentions=None,
+    reference=None,
+    mention_author=None
+):
     """|coro|
 
     Sends a message to the destination with the content given.
@@ -195,47 +228,70 @@ async def send(self, content=None, *, tts=False, embed=None, file=None, componen
 
     if mention_author is not None:
         allowed_mentions = allowed_mentions or AllowedMentions().to_dict()
-        allowed_mentions['replied_user'] = bool(mention_author)
+        allowed_mentions["replied_user"] = bool(mention_author)
 
     if reference is not None:
         try:
             reference = reference.to_message_reference_dict()
         except AttributeError:
-            raise InvalidArgument('reference parameter must be Message or MessageReference') from None
+            raise InvalidArgument(
+                "reference parameter must be Message or MessageReference"
+            ) from None
 
     if file is not None and files is not None:
-        raise InvalidArgument('cannot pass both file and files parameter to send()')
+        raise InvalidArgument("cannot pass both file and files parameter to send()")
 
     if file is not None:
         if not isinstance(file, File):
-            raise InvalidArgument('file parameter must be File')
+            raise InvalidArgument("file parameter must be File")
 
         try:
-            data = await state.http.send_files(channel.id, files=[file], allowed_mentions=allowed_mentions,
-                                               content=content, tts=tts, embed=embed, nonce=nonce,
-                                               components=components,
-                                               message_reference=reference)
+            data = await state.http.send_files(
+                channel.id,
+                files=[file],
+                allowed_mentions=allowed_mentions,
+                content=content,
+                tts=tts,
+                embed=embed,
+                nonce=nonce,
+                components=components,
+                message_reference=reference,
+            )
         finally:
             file.close()
 
     elif files is not None:
         if len(files) > 10:
-            raise InvalidArgument('files parameter must be a list of up to 10 elements')
+            raise InvalidArgument("files parameter must be a list of up to 10 elements")
         elif not all(isinstance(file, File) for file in files):
-            raise InvalidArgument('files parameter must be a list of File')
+            raise InvalidArgument("files parameter must be a list of File")
 
         try:
-            data = await state.http.send_files(channel.id, files=files, content=content, tts=tts,
-                                               embed=embed, nonce=nonce, allowed_mentions=allowed_mentions,
-                                               components=components,
-                                               message_reference=reference)
+            data = await state.http.send_files(
+                channel.id,
+                files=files,
+                content=content,
+                tts=tts,
+                embed=embed,
+                nonce=nonce,
+                allowed_mentions=allowed_mentions,
+                components=components,
+                message_reference=reference,
+            )
         finally:
             for f in files:
                 f.close()
     else:
-        data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, components=components,
-                                             nonce=nonce, allowed_mentions=allowed_mentions,
-                                             message_reference=reference)
+        data = await state.http.send_message(
+            channel.id,
+            content,
+            tts=tts,
+            embed=embed,
+            components=components,
+            nonce=nonce,
+            allowed_mentions=allowed_mentions,
+            message_reference=reference,
+        )
 
     ret = state.create_message(channel=channel, data=data)
     if delete_after is not None:
@@ -250,5 +306,6 @@ async def send_override(context_or_channel, *args, **kwargs):
         channel = context_or_channel
 
     return await send(channel, *args, **kwargs)
+
 
 abc.Messageable.send = send_override

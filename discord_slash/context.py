@@ -1,18 +1,13 @@
 import datetime
 import typing
-import asyncio
 from warnings import warn
 
 import discord
-from contextlib import suppress
 from discord.ext import commands
 from discord.utils import snowflake_time
 
-from . import http
-from . import error
-from . import model
-from . dpy_overrides import ComponentMessage
-
+from . import error, http, model
+from .dpy_overrides import ComponentMessage
 
 class InteractionContext:
     """
@@ -36,11 +31,13 @@ class InteractionContext:
     :ivar author: User or Member instance of the command invoke.
     """
 
-    def __init__(self,
-                 _http: http.SlashCommandRequest,
-                 _json: dict,
-                 _discord: typing.Union[discord.Client, commands.Bot],
-                 logger):
+    def __init__(
+        self,
+        _http: http.SlashCommandRequest,
+        _json: dict,
+        _discord: typing.Union[discord.Client, commands.Bot],
+        logger,
+    ):
         self._token = _json["token"]
         self.message = None  # Should be set later.
         self.interaction_id = _json["id"]
@@ -51,10 +48,14 @@ class InteractionContext:
         self.responded = False
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
-        self.author_id = int(_json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"])
+        self.author_id = int(
+            _json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"]
+        )
         self.channel_id = int(_json["channel_id"])
         if self.guild:
-            self.author = discord.Member(data=_json["member"], state=self.bot._connection, guild=self.guild)
+            self.author = discord.Member(
+                data=_json["member"], state=self.bot._connection, guild=self.guild
+            )
         elif self.guild_id:
             self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
         else:
@@ -63,12 +64,20 @@ class InteractionContext:
 
     @property
     def _deffered_hidden(self):
-        warn("`_deffered_hidden` as been renamed to `_deferred_hidden`.", DeprecationWarning, stacklevel=2)
+        warn(
+            "`_deffered_hidden` as been renamed to `_deferred_hidden`.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._deferred_hidden
 
     @_deffered_hidden.setter
     def _deffered_hidden(self, value):
-        warn("`_deffered_hidden` as been renamed to `_deferred_hidden`.", DeprecationWarning, stacklevel=2)
+        warn(
+            "`_deffered_hidden` as been renamed to `_deferred_hidden`.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._deferred_hidden = value
 
     @property
@@ -114,18 +123,20 @@ class InteractionContext:
         await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
 
-    async def send(self,
-                   content: str = "", *,
-                   embed: discord.Embed = None,
-                   embeds: typing.List[discord.Embed] = None,
-                   tts: bool = False,
-                   file: discord.File = None,
-                   files: typing.List[discord.File] = None,
-                   allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False,
-                   delete_after: float = None,
-                   components: typing.List[dict] = None,
-                   ) -> model.SlashMessage:
+    async def send(
+        self,
+        content: str = "",
+        *,
+        embed: discord.Embed = None,
+        embeds: typing.List[discord.Embed] = None,
+        tts: bool = False,
+        file: discord.File = None,
+        files: typing.List[discord.File] = None,
+        allowed_mentions: discord.AllowedMentions = None,
+        hidden: bool = False,
+        delete_after: float = None,
+        components: typing.List[dict] = None,
+    ) -> model.SlashMessage:
         """
         Sends response of the interaction.
 

@@ -15,7 +15,7 @@ After reading that, there is one more step before inviting your bot.
 The second step will now be setting your scope correctly for the bot to
 properly recognize slash commands, as shown here:
 
-.. image:: images/scope.jpg
+.. image:: _static/scope.jpg
 
 Then, invite your bot to your guild.
 
@@ -47,7 +47,7 @@ slash commands just yet. We can do that by adding this code shown here:
         Make sure this code is added before the client.run() call!
         It also needs to be under on_ready, otherwise, this will not work.
     """
-    
+
     guild_ids = [789032594456576001] # Put your server ID in this array.
 
     @slash.slash(name="ping", guild_ids=guild_ids)
