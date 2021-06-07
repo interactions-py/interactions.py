@@ -1,16 +1,14 @@
 import asyncio
 import datetime
-
-import discord
-from enum import IntEnum
 from contextlib import suppress
+from enum import IntEnum
 from inspect import iscoroutinefunction
 
-from discord.ext.commands import CooldownMapping, CommandOnCooldown
+import discord
+from discord.ext.commands import CommandOnCooldown, CooldownMapping
 
-from . import http
-from . import error
-from . dpy_overrides import ComponentMessage
+from . import error, http
+from .dpy_overrides import ComponentMessage
 
 
 class ChoiceData:
@@ -40,9 +38,7 @@ class OptionData:
     :ivar options: List of :class:`OptionData`, this will be present if it's a subcommand group
     """
 
-    def __init__(
-            self, name, description, required=False, choices=None, options=None, **kwargs
-    ):
+    def __init__(self, name, description, required=False, choices=None, options=None, **kwargs):
         self.name = name
         self.description = description
         self.type = kwargs.get("type")
@@ -83,7 +79,15 @@ class CommandData:
     """
 
     def __init__(
-            self, name, description, options=None, default_permission=True, id=None, application_id=None, version=None, **kwargs
+        self,
+        name,
+        description,
+        options=None,
+        default_permission=True,
+        id=None,
+        application_id=None,
+        version=None,
+        **kwargs
     ):
         self.name = name
         self.description = description
@@ -101,10 +105,10 @@ class CommandData:
     def __eq__(self, other):
         if isinstance(other, CommandData):
             return (
-                    self.name == other.name
-                    and self.description == other.description
-                    and self.options == other.options
-                    and self.default_permission == other.default_permission
+                self.name == other.name
+                and self.description == other.description
+                and self.options == other.options
+                and self.default_permission == other.default_permission
             )
         else:
             return False
@@ -137,7 +141,7 @@ class CommandObject:
         # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
         # add checks at this var.
         self.__commands_checks__ = []
-        if hasattr(self.func, '__commands_checks__'):
+        if hasattr(self.func, "__commands_checks__"):
             self.__commands_checks__ = self.func.__commands_checks__
 
         cooldown = None
@@ -282,7 +286,10 @@ class CommandObject:
         :type ctx: .context.SlashContext
         :return: bool
         """
-        res = [bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx)) for x in self.__commands_checks__]
+        res = [
+            bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx))
+            for x in self.__commands_checks__
+        ]
         return False not in res
 
 
@@ -306,6 +313,7 @@ class BaseCommandObject(CommandObject):
         self.has_subcommands = cmd["has_subcommands"]
         self.default_permission = cmd["default_permission"]
         self.permissions = cmd["api_permissions"] or {}
+
 
 class SubcommandObject(CommandObject):
     """
@@ -362,6 +370,7 @@ class SlashCommandOptionType(IntEnum):
     """
     Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_  in the Discord API.
     """
+
     SUB_COMMAND = 1
     SUB_COMMAND_GROUP = 2
     STRING = 3
@@ -379,13 +388,19 @@ class SlashCommandOptionType(IntEnum):
         :param t: The type or object to get a SlashCommandOptionType for.
         :return: :class:`.model.SlashCommandOptionType` or ``None``
         """
-        if issubclass(t, str): return cls.STRING
-        if issubclass(t, bool): return cls.BOOLEAN
+        if issubclass(t, str):
+            return cls.STRING
+        if issubclass(t, bool):
+            return cls.BOOLEAN
         # The check for bool MUST be above the check for integers as booleans subclass integers
-        if issubclass(t, int): return cls.INTEGER
-        if issubclass(t, discord.abc.User): return cls.USER
-        if issubclass(t, discord.abc.GuildChannel): return cls.CHANNEL
-        if issubclass(t, discord.abc.Role): return cls.ROLE
+        if issubclass(t, int):
+            return cls.INTEGER
+        if issubclass(t, discord.abc.User):
+            return cls.USER
+        if issubclass(t, discord.abc.GuildChannel):
+            return cls.CHANNEL
+        if issubclass(t, discord.abc.Role):
+            return cls.ROLE
 
 
 class SlashMessage(ComponentMessage):
@@ -432,8 +447,13 @@ class SlashMessage(ComponentMessage):
             _resp["embeds"] = [x.to_dict() for x in embeds]
 
         allowed_mentions = fields.get("allowed_mentions")
-        _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
-            self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
+        _resp["allowed_mentions"] = (
+            allowed_mentions.to_dict()
+            if allowed_mentions
+            else self._state.allowed_mentions.to_dict()
+            if self._state.allowed_mentions
+            else {}
+        )
 
         await self._http.edit(_resp, self.__interaction_token, self.id, files=files)
 
@@ -477,6 +497,7 @@ class PermissionData:
     :ivar type: The ``SlashCommandPermissionsType`` type of this permission.
     :ivar permission: State of permission. ``True`` to allow, ``False`` to disallow.
     """
+
     def __init__(self, id, type, permission, **kwargs):
         self.id = id
         self.type = type
@@ -498,9 +519,10 @@ class GuildPermissionsData:
     Slash permissions data for a command in a guild.
 
     :ivar id: Command id, provided by discord.
-    :ivar guild_id: Guild id that the permissions are in. 
+    :ivar guild_id: Guild id that the permissions are in.
     :ivar permissions: List of permissions dict.
     """
+
     def __init__(self, id, guild_id, permissions, **kwargs):
         self.id = id
         self.guild_id = guild_id
@@ -524,13 +546,16 @@ class SlashCommandPermissionType(IntEnum):
     """
     Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_  in the Discord API.
     """
+
     ROLE = 1
     USER = 2
 
     @classmethod
     def from_type(cls, t: type):
-        if issubclass(t, discord.abc.Role): return cls.ROLE
-        if issubclass(t, discord.abc.User): return cls.USER
+        if issubclass(t, discord.abc.Role):
+            return cls.ROLE
+        if issubclass(t, discord.abc.User):
+            return cls.USER
 
 
 class ComponentType(IntEnum):

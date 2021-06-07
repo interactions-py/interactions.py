@@ -318,7 +318,9 @@ class ComponentContext(InteractionContext):
 
         if hidden:
             if edit_origin:
-                raise error.IncorrectFormat("'hidden' and 'edit_origin' flags are mutually exclusive")
+                raise error.IncorrectFormat(
+                    "'hidden' and 'edit_origin' flags are mutually exclusive"
+                )
             base["data"] = {"flags": 64}
             self._deferred_hidden = True
 
@@ -327,18 +329,20 @@ class ComponentContext(InteractionContext):
         await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
 
-    async def send(self,
-                   content: str = "", *,
-                   embed: discord.Embed = None,
-                   embeds: typing.List[discord.Embed] = None,
-                   tts: bool = False,
-                   file: discord.File = None,
-                   files: typing.List[discord.File] = None,
-                   allowed_mentions: discord.AllowedMentions = None,
-                   hidden: bool = False,
-                   delete_after: float = None,
-                   components: typing.List[dict] = None,
-                   ) -> model.SlashMessage:
+    async def send(
+        self,
+        content: str = "",
+        *,
+        embed: discord.Embed = None,
+        embeds: typing.List[discord.Embed] = None,
+        tts: bool = False,
+        file: discord.File = None,
+        files: typing.List[discord.File] = None,
+        allowed_mentions: discord.AllowedMentions = None,
+        hidden: bool = False,
+        delete_after: float = None,
+        components: typing.List[dict] = None,
+    ) -> model.SlashMessage:
         if self.deferred and self._deferred_edit_origin:
             self._logger.warning(
                 "Deferred response might not be what you set it to! (edit origin / send response message) "
