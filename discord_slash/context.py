@@ -278,10 +278,12 @@ class ComponentContext(InteractionContext):
     """
     Context of a component interaction. Has all attributes from :class:`InteractionContext`, plus the component-specific ones below.
 
-    :ivar custom_id: The custom ID of the component.
+    :ivar custom_id: The custom ID of the component (has alias component_id).
     :ivar component_type: The type of the component.
+    :ivar component: Component data retrieved from the message. Not available if the origin message was ephemeral.
     :ivar origin_message: The origin message of the component. Not available if the origin message was ephemeral.
     :ivar origin_message_id: The ID of the origin message.
+
     """
 
     def __init__(
@@ -297,12 +299,15 @@ class ComponentContext(InteractionContext):
         self.origin_message = None
         self.origin_message_id = int(_json["message"]["id"]) if "message" in _json.keys() else None
 
+        self.component = None
+
         self._deferred_edit_origin = False
 
         if self.origin_message_id and (_json["message"]["flags"] & 64) != 64:
             self.origin_message = ComponentMessage(
                 state=self.bot._connection, channel=self.channel, data=_json["message"]
             )
+            self.component = self.origin_message.get_component(self.custom_id)
 
     async def defer(self, hidden: bool = False, edit_origin: bool = False):
         """

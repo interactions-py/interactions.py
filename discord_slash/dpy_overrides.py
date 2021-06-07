@@ -1,3 +1,5 @@
+import typing
+
 import discord
 from discord import AllowedMentions, File, InvalidArgument, abc, http, utils
 from discord.ext import commands
@@ -10,6 +12,20 @@ class ComponentMessage(discord.Message):
     def __init__(self, *, state, channel, data):
         super().__init__(state=state, channel=channel, data=data)
         self.components = data["components"]
+
+    def get_component(self, custom_id: int) -> typing.Optional[dict]:
+        """
+        Returns first component with matching custom_id
+
+        :param custom_id: custom_id of component to get from message components
+        :return: Optional[dict]
+
+        """
+        for row in self.components:
+            for component in row["components"]:
+                if component["custom_id"] == custom_id:
+                    return component
+        return None
 
 
 def new_override(cls, *args, **kwargs):
