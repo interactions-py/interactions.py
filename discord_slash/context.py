@@ -344,6 +344,18 @@ class ComponentContext(InteractionContext):
                 "Deferred response might not be what you set it to! (edit origin / send response message) "
                 "This is because it was deferred with different response type."
             )
+        return await super().send(
+            content,
+            embed=embed,
+            embeds=embeds,
+            tts=tts,
+            file=file,
+            files=files,
+            allowed_mentions=allowed_mentions,
+            hidden=hidden,
+            delete_after=delete_after,
+            components=components,
+        )
 
     async def edit_origin(self, **fields):
         """
