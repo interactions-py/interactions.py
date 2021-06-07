@@ -181,7 +181,7 @@ class CommandObject:
         try:
             # cooldown checks
             self._prepare_cooldowns(ctx)
-        except:
+        except Exception:
             if self._max_concurrency is not None:
                 await self._max_concurrency.release(ctx)
             raise
