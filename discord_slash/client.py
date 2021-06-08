@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from . import context, error, http, model
-from .utils import manage_commands
+from .utils import manage_commands, manage_components
 
 
 class SlashCommand:
@@ -53,6 +53,7 @@ class SlashCommand:
         self._discord = client
         self.commands = {}
         self.subcommands = {}
+        self.components = {}
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord, application_id)
         self.sync_commands = sync_commands
@@ -847,6 +848,128 @@ class SlashCommand:
 
         return wrapper
 
+    def add_component_callback(self, callback: typing.Coroutine,
+                               component_type: int,
+                               custom_id: str = None,
+                               message_id: typing.Optional[int] = None):
+        """
+        Adds a coroutine callback to a component. Optionally, this can be made to only accept component interactions from a specific message.
+
+        :param callback: The coroutine to be called when the component is interacted with. Must accept a single argument with the type :class:`.context.ComponentContext`.
+        :type callback: Coroutine
+        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :type component_type: int
+        :param custom_id: The `custom_id` of the component. Defaults to the name of `callback`.
+        :type custom_id: str
+        :param message_id: If specified, only interactions from the message given will be accepted.
+        :type message_id: Optional[int]
+        :raises: .error.DuplicateCustomID
+        """
+        if 2 > component_type > 3:
+            raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
+
+        custom_id = custom_id or callback.__name__
+        key = (custom_id, component_type)
+
+        if message_id:
+            if key in self.components and self.components[key].funcList.get(message_id):
+                raise error.DuplicateCustomID(custom_id)
+            elif key in self.components:
+                obj = self.components[key]
+                obj.funcList[message_id] = callback
+            else:
+                obj = model.ComponentCallbackObject(custom_id, funcList={message_id: callback})
+                self.components[key] = obj
+
+            self.logger.debug(f"Added message-specific component callback for `{custom_id}`, message ID {message_id}")
+        else:
+            if key in self.components and self.components[key].func:
+                raise error.DuplicateCustomID(custom_id)
+            obj = model.ComponentCallbackObject(custom_id, func=callback)
+            self.components[key] = obj
+            self.logger.debug(f"Added component callback for `{custom_id}`")
+
+        return obj
+
+    def remove_component_callback(self, custom_id: str, component_type: int, message_id: typing.Optional[int] = None):
+        """
+        Removes a component callback. If the `message_id` is specified, only removes the callback for the specific message ID.
+
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: str
+        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :type component_type: int
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[int]
+        :raises: .error.IncorrectFormat
+        """
+        if 2 > component_type > 3:
+            raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
+
+        key = (custom_id, component_type)
+
+        if message_id:
+            if key in self.components and self.components[key].funcs.get(message_id):
+                obj = self.components[key]
+                del obj.funcList[message_id]
+                if len(obj.funcList) == 0 and not obj.func:
+                    del self.components[key]
+            elif custom_id in self.components:
+                raise error.IncorrectFormat(f"Message ID `{message_id}` is not registered to custom ID `{custom_id}`!")
+            else:
+                raise error.IncorrectFormat(f"Custom ID `{custom_id}` is not registered as a message-specific "
+                                            f"component!")
+        else:
+            if key in self.components:
+                del self.components[key]
+            else:
+                raise error.IncorrectFormat(f"Custom ID `{custom_id}` is not registered as a component!")
+
+    def component_callback(self,
+                           component_type: typing.Union[int, manage_components.ComponentsType],
+                           custom_id: str = None,
+                           *,
+                           message_id: typing.Optional[int] = None,
+                           message_ids: typing.Optional[typing.List[int]] = None):
+        """
+        Decorator that registers a coroutine as a component callback.\n
+        The second argument is the `custom_id` to listen for.
+        It will default to the coroutine name if unspecified.\n
+        The `message_id` keyword-only arg is optional,
+        but will make the callback only work with a specific message if given.\n
+        Alternatively, if it needs to accept interactions from multiple specific messages, the `message_ids` arg
+        accepts a list of message IDs.
+
+        .. note::
+            `message_id` and `message_ids` cannot be used at the same time.
+
+        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :type component_type: Union[int, manage_components.ComponentsType]
+        :param custom_id: The `custom_id` of the component. Defaults to the name of coroutine being decorated.
+        :type custom_id: str
+        :param message_id: If specified, only interactions from the message given will be accepted.
+        :type message_id: Optional[int]
+        :param message_ids: Acts like `message_id`, but accepts a list of message IDs instead.
+        :type message_ids: Optional[List[int]]
+        :raises: .error.IncorrectFormat
+        """
+        if message_id and message_ids:
+            raise error.IncorrectFormat("You cannot use both `message_id` and `message_ids`!")
+
+        if isinstance(component_type, manage_components.ComponentsType):
+            component_type = component_type.value
+
+        def wrapper(callback):
+            if message_ids:
+                for msg in message_ids:
+                    self.add_component_callback(callback, component_type, custom_id, msg)
+            elif message_id:
+                self.add_component_callback(callback, component_type, custom_id, message_id)
+            else:
+                self.add_component_callback(callback, component_type, custom_id)
+
+        return wrapper
+
     async def process_options(
         self,
         guild: discord.Guild,
@@ -983,6 +1106,8 @@ class SlashCommand:
     async def _on_component(self, to_use):
         ctx = context.ComponentContext(self.req, to_use, self._discord, self.logger)
         self._discord.dispatch("component", ctx)
+        if (ctx.custom_id, ctx.component_type) in self.components:
+            return await self.components[(ctx.custom_id, ctx.component_type)].invoke(ctx)
 
     async def _on_slash(self, to_use):
         if to_use["data"]["name"] in self.commands:

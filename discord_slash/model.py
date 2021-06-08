@@ -366,6 +366,37 @@ class CogSubcommandObject(SubcommandObject):
         self.cog = None  # Manually set this later.
 
 
+class ComponentCallbackObject:
+    """
+    Internal component object.
+
+    .. warning::
+        Do not manually init this model.
+
+    :ivar custom_id: Custom ID of the component.
+    :ivar func: An optional single callback coroutine for the component. If the message ID given isn't in ``funcList``, this function will be ran instead.
+    :ivar funcList: An optional :class:`dict` with message IDs as keys and callback coroutines as values. If a message ID is found in the dict, the corresponding coroutine will be ran.
+    """
+    def __init__(self, custom_id, func=None, funcList=None):
+        if funcList is None:
+            funcList = {}
+        self.custom_id = custom_id
+        self.func = func
+        self.funcList = funcList
+
+    async def invoke(self, ctx):
+        """
+        Invokes the component callback.
+
+        :param ctx: The :class:`.context.ComponentContext` for the interaction.
+        """
+        if self.funcList and self.funcList.get(ctx.origin_message_id):
+            coro = self.funcList.get(ctx.origin_message_id)
+            return await coro(ctx)
+        elif self.func:
+            return await self.func(ctx)
+
+
 class SlashCommandOptionType(IntEnum):
     """
     Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_  in the Discord API.
