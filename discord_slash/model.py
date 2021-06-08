@@ -156,6 +156,15 @@ class CommandObject:
         self.on_error = None
 
     def error(self, coro):
+        """
+        A decorator that registers a coroutine as a local error handler.
+
+        Works the same way as it does in d.py
+
+        :param: :ref:`coroutine <coroutine>` - The coroutine to register as the local error handler
+
+        :raises: TypeError - The coroutine passed is not a coroutine
+        """
         if not asyncio.iscoroutinefunction(coro):
             raise TypeError("The error handler must be a coroutine.")
         self.on_error = coro
@@ -205,17 +214,16 @@ class CommandObject:
             return await self.func(self.cog, *args, **kwargs)
         return await self.func(*args, **kwargs)
 
-    def is_on_cooldown(self, ctx):
-        """Checks whether the command is currently on cooldown.
-        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L797
-        Parameters
-        -----------
-        ctx: :class:`.Context`
-            The invocation context to use when checking the commands cooldown status.
-        Returns
-        --------
-        :class:`bool`
-            A boolean indicating if the command is on cooldown.
+    def is_on_cooldown(self, ctx) -> bool:
+        """
+        Checks whether the command is currently on cooldown.
+
+        Works the same way as it does in d.py
+
+        :param ctx: SlashContext
+        :type ctx: .context.SlashContext
+
+        :return: bool - indicating if the command is on cooldown.
         """
         if not self._buckets.valid:
             return False
@@ -226,29 +234,28 @@ class CommandObject:
         return bucket.get_tokens(current) == 0
 
     def reset_cooldown(self, ctx):
-        """Resets the cooldown on this command.
-        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L818
-        Parameters
-        -----------
-        ctx: :class:`.Context`
-            The invocation context to reset the cooldown under.
+        """
+        Resets the cooldown on this command.
+
+        Works the same way as it does in d.py
+
+        :param ctx: SlashContext
+        :type ctx: .context.SlashContext
         """
         if self._buckets.valid:
             bucket = self._buckets.get_bucket(ctx.message)
             bucket.reset()
 
-    def get_cooldown_retry_after(self, ctx):
-        """Retrieves the amount of seconds before this command can be tried again.
-        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L830
-        Parameters
-        -----------
-        ctx: :class:`.Context`
-            The invocation context to retrieve the cooldown from.
-        Returns
-        --------
-        :class:`float`
-            The amount of time left on this command's cooldown in seconds.
-            If this is ``0.0`` then the command isn't on cooldown.
+    def get_cooldown_retry_after(self, ctx) -> float:
+        """
+        Retrieves the amount of seconds before this command can be tried again.
+
+        Works the same way as it does in d.py
+
+        :param ctx: SlashContext
+        :type ctx: .context.SlashContext
+
+        :return: float - The amount of time left on this command's cooldown in seconds. If this is ``0.0`` then the command isn't on cooldown.
         """
         if self._buckets.valid:
             bucket = self._buckets.get_bucket(ctx.message)
