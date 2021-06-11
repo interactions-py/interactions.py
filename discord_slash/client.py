@@ -1159,17 +1159,34 @@ class SlashCommand:
             else:
                 await func.invoke(ctx, *args)
         except Exception as ex:
-            if hasattr(func, "on_error"):
-                if func.on_error is not None:
-                    try:
-                        if hasattr(func, "cog"):
-                            await func.on_error(func.cog, ctx, ex)
-                        else:
-                            await func.on_error(ctx, ex)
-                        return
-                    except Exception as e:
-                        self.logger.error(f"{ctx.command}:: Error using error decorator: {e}")
-            await self.on_slash_command_error(ctx, ex)
+            if not await self._handle_invoke_error(func, ctx, ex):
+                await self.on_slash_command_error(ctx, ex)
+
+    async def invoke_component_callback(self, func, ctx):
+        """
+        Invokes command.
+
+        :param func: Component callback coroutine.
+        :param ctx: Context.
+        """
+        try:
+            await func.invoke(ctx)
+        except Exception as ex:
+            if not await self._handle_invoke_error(func, ctx, ex):
+                await self.on_component_callback_error(ctx, ex)
+
+    async def _handle_invoke_error(self, func, ctx, ex):
+        if hasattr(func, "on_error"):
+            if func.on_error is not None:
+                try:
+                    if hasattr(func, "cog"):
+                        await func.on_error(func.cog, ctx, ex)
+                    else:
+                        await func.on_error(ctx, ex)
+                    return True
+                except Exception as e:
+                    self.logger.error(f"{ctx.command}:: Error using error decorator: {e}")
+        return False
 
     async def on_socket_response(self, msg):
         """
@@ -1201,7 +1218,7 @@ class SlashCommand:
         )
         if callback is not None:
             self._discord.dispatch("component_callback", ctx, callback)
-            await callback.invoke(ctx)
+            await self.invoke_component_callback(callback, ctx)
 
     async def _on_slash(self, to_use):
         if to_use["data"]["name"] in self.commands:
@@ -1310,6 +1327,17 @@ class SlashCommand:
         self._discord.dispatch("slash_command", ctx)
         await self.invoke_command(selected, ctx, args)
 
+    def _on_error(self, ctx, ex, event_name):
+        on_event = "on_"+event_name
+        if self.has_listener:
+            if self._discord.extra_events.get(on_event):
+                self._discord.dispatch(event_name, ctx, ex)
+                return True
+        if hasattr(self._discord, on_event):
+            self._discord.dispatch(event_name, ctx, ex)
+            return True
+        return False
+
     async def on_slash_command_error(self, ctx, ex):
         """
         Handles Exception occurred from invoking command.
@@ -1336,12 +1364,36 @@ class SlashCommand:
         :type ex: Exception
         :return:
         """
-        if self.has_listener:
-            if self._discord.extra_events.get("on_slash_command_error"):
-                self._discord.dispatch("slash_command_error", ctx, ex)
-                return
-        if hasattr(self._discord, "on_slash_command_error"):
-            self._discord.dispatch("slash_command_error", ctx, ex)
-            return
-        # Prints exception if not overridden or has no listener for error.
-        self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
+        if not self._on_error(ctx, ex, "slash_command_error"):
+            # Prints exception if not overridden or has no listener for error.
+            self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
+
+    async def on_component_callback_error(self, ctx, ex):
+        """
+        Handles Exception occurred from invoking component callback.
+
+        Example of adding event:
+
+        .. code-block:: python
+
+            @client.event
+            async def on_component_callback_error(ctx, ex):
+                ...
+
+        Example of adding listener:
+
+        .. code-block:: python
+
+            @bot.listen()
+            async def on_component_callback_error(ctx, ex):
+                ...
+
+        :param ctx: Context of the callback.
+        :type ctx: :class:`.model.ComponentContext`
+        :param ex: Exception from the command invoke.
+        :type ex: Exception
+        :return:
+        """
+        if not self._on_error(ctx, ex, "component_callback_error"):
+            # Prints exception if not overridden or has no listener for error.
+            self.logger.exception(f"An exception has occurred while executing component callback custom ID `{ctx.custom_id}`:")
