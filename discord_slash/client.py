@@ -987,7 +987,7 @@ class SlashCommand:
         :raises: .error.IncorrectFormat
         """
         try:
-            self.components[message_id][custom_id].pop(component_type)
+            callback = self.components[message_id][custom_id].pop(component_type)
             if not self.components[message_id][custom_id]:  # delete dict nesting levels if empty
                 self.components[message_id].pop(custom_id)
                 if not self.components[message_id]:
@@ -999,6 +999,9 @@ class SlashCommand:
                 f"custom_id `{custom_id or '<any>'}`, "
                 f"component_type `{component_type or '<any>'}` is not registered!"
             )
+        else:
+            callback.message_ids.remove(message_id)
+            callback.custom_ids.remove(custom_id)
 
     def remove_component_callback_obj(self, callback_obj: model.ComponentCallbackObject):
         """
