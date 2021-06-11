@@ -114,29 +114,20 @@ class CommandData:
             return False
 
 
-class CommandObject:
+class CallbackObject:
     """
-    Slash command object of this extension.
+    Callback object of this extension.
 
     .. warning::
         Do not manually init this model.
 
-    :ivar name: Name of the command.
     :ivar func: The coroutine of the command.
-    :ivar description: Description of the command.
-    :ivar allowed_guild_ids: List of the allowed guild id.
-    :ivar options: List of the option of the command. Used for `auto_register`.
-    :ivar connector: Kwargs connector of the command.
     :ivar __commands_checks__: Check of the command.
     """
 
-    def __init__(self, name, cmd):  # Let's reuse old command formatting.
-        self.name = name.lower()
-        self.func = cmd["func"]
-        self.description = cmd["description"]
-        self.allowed_guild_ids = cmd["guild_ids"] or []
-        self.options = cmd["api_options"] or []
-        self.connector = cmd["connector"] or {}
+    def __init__(self, func):
+        self.func = func
+
         # Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L1447
         # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
         # add checks at this var.
@@ -293,6 +284,29 @@ class CommandObject:
         return False not in res
 
 
+class CommandObject(CallbackObject):
+    """
+    Slash command object of this extension.
+
+    .. warning::
+        Do not manually init this model.
+
+    :ivar name: Name of the command.
+    :ivar description: Description of the command.
+    :ivar allowed_guild_ids: List of the allowed guild id.
+    :ivar options: List of the option of the command. Used for `auto_register`.
+    :ivar connector: Kwargs connector of the command.
+    """
+
+    def __init__(self, name, cmd):  # Let's reuse old command formatting.
+        super().__init__(cmd["func"])
+        self.name = name.lower()
+        self.description = cmd["description"]
+        self.allowed_guild_ids = cmd["guild_ids"] or []
+        self.options = cmd["api_options"] or []
+        self.connector = cmd["connector"] or {}
+
+
 class BaseCommandObject(CommandObject):
     """
     BaseCommand object of this extension.
@@ -366,7 +380,7 @@ class CogSubcommandObject(SubcommandObject):
         self.cog = None  # Manually set this later.
 
 
-class ComponentCallbackObject:
+class ComponentCallbackObject(CallbackObject):
     """
     Internal component object.
 
@@ -377,12 +391,18 @@ class ComponentCallbackObject:
     :ivar func: An optional single callback coroutine for the component. If the message ID given isn't in ``funcList``, this function will be ran instead.
     :ivar funcList: An optional :class:`dict` with message IDs as keys and callback coroutines as values. If a message ID is found in the dict, the corresponding coroutine will be ran.
     """
-    def __init__(self, custom_id, func=None, funcList=None):
-        if funcList is None:
-            funcList = {}
-        self.custom_id = custom_id
-        self.func = func
-        self.funcList = funcList
+
+    def __init__(
+        self,
+        func,
+        message_ids=None,
+        custom_ids=None,
+        component_type=None,
+    ):
+        super().__init__(func)
+        self.message_ids = message_ids or [None]
+        self.custom_ids = custom_ids or [None]
+        self.component_type = component_type
 
     async def invoke(self, ctx):
         """
@@ -390,11 +410,20 @@ class ComponentCallbackObject:
 
         :param ctx: The :class:`.context.ComponentContext` for the interaction.
         """
-        if self.funcList and self.funcList.get(ctx.origin_message_id):
-            coro = self.funcList.get(ctx.origin_message_id)
-            return await coro(ctx)
-        elif self.func:
-            return await self.func(ctx)
+        return await super().invoke(ctx)
+
+
+class CogComponentCallbackObject(ComponentCallbackObject):
+    """
+    Component callback object but for Cog.
+
+    .. warning::
+        Do not manually init this model.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cog = None  # Manually set this later.
 
 
 class SlashCommandOptionType(IntEnum):

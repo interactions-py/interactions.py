@@ -1,7 +1,8 @@
 import inspect
 import typing
 
-from .model import CogBaseCommandObject, CogSubcommandObject
+from . import error
+from .model import CogBaseCommandObject, CogComponentCallbackObject, CogSubcommandObject
 from .utils import manage_commands
 
 
@@ -13,7 +14,7 @@ def cog_slash(
     options: typing.List[dict] = None,
     default_permission: bool = True,
     permissions: typing.Dict[int, list] = None,
-    connector: dict = None
+    connector: dict = None,
 ):
     """
     Decorator for Cog to add slash command.\n
@@ -83,7 +84,7 @@ def cog_subcommand(
     sub_group_desc: str = None,
     guild_ids: typing.List[int] = None,
     options: typing.List[dict] = None,
-    connector: dict = None
+    connector: dict = None,
 ):
     """
     Decorator for Cog to add subcommand.\n
@@ -159,5 +160,50 @@ def cog_subcommand(
             "connector": connector,
         }
         return CogSubcommandObject(base, _cmd, subcommand_group, name or cmd.__name__, _sub)
+
+    return wrapper
+
+
+def cog_component(
+    *,
+    message_id: int = None,
+    message_ids: typing.List[int] = None,
+    custom_id: str = None,
+    custom_ids: typing.List[str] = None,
+    use_callback_name=True,
+    component_type: int = None,
+):
+    if message_id and message_ids:
+        raise error.IncorrectFormat("You cannot use both `message_id` and `message_ids`!")
+
+    if custom_id and custom_ids:
+        raise error.IncorrectFormat("You cannot use both `custom_id` and `custom_ids`!")
+
+    if message_id:
+        message_ids = [message_id]
+
+    if custom_id:
+        custom_ids = [custom_id]
+
+    if component_type not in (2, 3, None):
+        raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
+
+    def wrapper(callback):
+        nonlocal custom_ids
+
+        if use_callback_name:
+            custom_ids = custom_ids or [callback.__name__]
+
+        if not (message_ids or custom_ids):
+            raise error.IncorrectFormat(
+                "'message_ids' ('message_id') or 'custom_ids' ('custom_id') must be specified!"
+            )
+
+        return CogComponentCallbackObject(
+            callback,
+            message_ids=message_ids,
+            custom_ids=custom_ids,
+            component_type=component_type,
+        )
 
     return wrapper
