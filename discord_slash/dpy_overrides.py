@@ -23,9 +23,8 @@ class ComponentMessage(discord.Message):
         """
         for row in self.components:
             for component in row["components"]:
-                if component["custom_id"] == custom_id:
+                if component["custom_id"] is custom_id:
                     return component
-        return None
 
 
 def new_override(cls, *args, **kwargs):
