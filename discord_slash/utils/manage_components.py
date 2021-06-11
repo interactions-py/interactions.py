@@ -1,17 +1,11 @@
-import enum
 import typing
 import uuid
 
 import discord
 
 from ..context import ComponentContext
-from ..error import IncorrectFormat
-
-
-class ComponentsType(enum.IntEnum):
-    actionrow = 1
-    button = 2
-    select = 3
+from ..error import IncorrectFormat, IncorrectType
+from ..model import ButtonStyle, ComponentType
 
 
 def create_actionrow(*components: dict) -> dict:
@@ -24,27 +18,12 @@ def create_actionrow(*components: dict) -> dict:
     if not components or len(components) > 5:
         raise IncorrectFormat("Number of components in one row should be between 1 and 5.")
     if (
-        ComponentsType.select in [component["type"] for component in components]
+        ComponentType.select in [component["type"] for component in components]
         and len(components) > 1
     ):
         raise IncorrectFormat("Action row must have only one select component and nothing else")
 
-    return {"type": ComponentsType.actionrow, "components": components}
-
-
-class ButtonStyle(enum.IntEnum):
-    blue = 1
-    blurple = 1
-    gray = 2
-    grey = 2
-    green = 3
-    red = 4
-    URL = 5
-
-    primary = 1
-    secondary = 2
-    success = 3
-    danger = 4
+    return {"type": ComponentType.actionrow, "components": components}
 
 
 def emoji_to_dict(emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str]) -> dict:
@@ -103,7 +82,7 @@ def create_button(
     emoji = emoji_to_dict(emoji)
 
     data = {
-        "type": ComponentsType.button,
+        "type": ComponentType.button,
         "style": style,
     }
 
@@ -146,7 +125,11 @@ def create_select_option(
 
 
 def create_select(
-    options: typing.List[dict], custom_id=None, placeholder=None, min_values=None, max_values=None
+    options: typing.List[dict],
+    custom_id=None,
+    placeholder=None,
+    min_values=None,
+    max_values=None,
 ):
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
@@ -158,7 +141,7 @@ def create_select(
         raise IncorrectFormat("Options length should be between 1 and 25.")
 
     return {
-        "type": ComponentsType.select,
+        "type": ComponentType.select,
         "options": options,
         "custom_id": custom_id or str(uuid.uuid4()),
         "placeholder": placeholder or "",
@@ -167,51 +150,77 @@ def create_select(
     }
 
 
+def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Iterator[str]:
+    """
+    Returns generator with 'custom_id' of component or components.
+
+    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
+    """
+
+    if isinstance(component, str):
+        yield component
+    elif isinstance(component, dict):
+        if component["type"] == ComponentType.actionrow:
+            yield from (comp["custom_id"] for comp in component["components"])
+        else:
+            yield component["custom_id"]
+    elif isinstance(component, list):
+        # Either list of components (actionrows or buttons) or list of ids
+        yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
+    else:
+        raise IncorrectType(
+            f"Unknown component type of {component} ({type(component)}). "
+            f"Expected str, dict or list"
+        )
+
+
+def _get_messages_ids(message: typing.Union[discord.Message, int, list]) -> typing.Iterator[int]:
+    if isinstance(message, int):
+        yield message
+    elif isinstance(message, discord.Message):
+        yield message.id
+    elif isinstance(message, list):
+        yield from (msg_id for msg in message for msg_id in _get_messages_ids(msg))
+    else:
+        raise IncorrectType(
+            f"Unknown component type of {message} ({type(message)}). "
+            f"Expected discord.Message, int or list"
+        )
+
+
 async def wait_for_component(
-    client: discord.Client, component: typing.Union[dict, str], check=None, timeout=None
+    client: discord.Client,
+    component: typing.Union[str, dict, list] = None,
+    message: typing.Union[discord.Message, int, list] = None,
+    check=None,
+    timeout=None,
 ) -> ComponentContext:
     """
-    Waits for a component interaction. Only accepts interactions based on the custom ID of the component, and optionally a check function.
+    Helper function - wrapper around 'client.wait_for("component", ...)'
+    Waits for a component interaction. Only accepts interactions based on the custom ID of the component or/and message ID, and optionally a check function.
 
     :param client: The client/bot object.
     :type client: :class:`discord.Client`
-    :param component: The component dict or custom ID.
+    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
+    :param message: The message object to check for, or the message ID or list of previous two.
     :type component: Union[dict, str]
     :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
     """
 
-    def _check(ctx):
+    if not (component or message):
+        raise IncorrectFormat("You must specify component or message (or both)")
+
+    components_ids = list(get_components_ids(component)) if component else None
+    message_ids = list(_get_messages_ids(message)) if message else None
+
+    def _check(ctx: ComponentContext):
         if check and not check(ctx):
             return False
-        return (
-            component["custom_id"] if isinstance(component, dict) else component
-        ) == ctx.custom_id
-
-    return await client.wait_for("component", check=_check, timeout=timeout)
-
-
-async def wait_for_any_component(
-    client: discord.Client, message: typing.Union[discord.Message, int], check=None, timeout=None
-) -> ComponentContext:
-    """
-    Waits for any component interaction. Only accepts interactions based on the message ID given and optionally a check function.
-
-    :param client: The client/bot object.
-    :type client: :class:`discord.Client`
-    :param message: The message object to check for, or the message ID.
-    :type message: Union[discord.Message, int]
-    :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
-    :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
-    :raises: :exc:`asyncio.TimeoutError`
-    """
-
-    def _check(ctx):
-        if check and not check(ctx):
-            return False
-        return (
-            message.id if isinstance(message, discord.Message) else message
-        ) == ctx.origin_message_id
+        # if components_ids is empty or there is a match
+        wanted_component = not components_ids or ctx.custom_id in components_ids
+        wanted_message = not message_ids or ctx.origin_message_id in message_ids
+        return wanted_component and wanted_message
 
     return await client.wait_for("component", check=_check, timeout=timeout)

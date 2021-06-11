@@ -13,7 +13,7 @@ from .dpy_overrides import ComponentMessage
 class InteractionContext:
     """
     Base context for interactions.\n
-    Kinda similar with discord.ext.commands.Context.
+    In some ways similar with discord.ext.commands.Context.
 
     .. warning::
         Do not manually init this model.
@@ -139,7 +139,7 @@ class InteractionContext:
         components: typing.List[dict] = None,
     ) -> model.SlashMessage:
         """
-        Sends response of the slash command.
+        Sends response of the interaction.
 
         .. warning::
             - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
@@ -278,10 +278,12 @@ class ComponentContext(InteractionContext):
     """
     Context of a component interaction. Has all attributes from :class:`InteractionContext`, plus the component-specific ones below.
 
-    :ivar custom_id: The custom ID of the component.
+    :ivar custom_id: The custom ID of the component (has alias component_id).
     :ivar component_type: The type of the component.
+    :ivar component: Component data retrieved from the message. Not available if the origin message was ephemeral.
     :ivar origin_message: The origin message of the component. Not available if the origin message was ephemeral.
     :ivar origin_message_id: The ID of the origin message.
+
     """
 
     def __init__(
@@ -297,26 +299,72 @@ class ComponentContext(InteractionContext):
         self.origin_message = None
         self.origin_message_id = int(_json["message"]["id"]) if "message" in _json.keys() else None
 
+        self.component = None
+
+        self._deferred_edit_origin = False
+
         if self.origin_message_id and (_json["message"]["flags"] & 64) != 64:
             self.origin_message = ComponentMessage(
                 state=self.bot._connection, channel=self.channel, data=_json["message"]
             )
+            self.component = self.origin_message.get_component(self.custom_id)
 
     async def defer(self, hidden: bool = False, edit_origin: bool = False):
         """
         'Defers' the response, showing a loading state to the user
 
         :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
-        :param edit_origin: Whether the response is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
+        :param edit_origin: Whether the type is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
         """
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
+
         base = {"type": 6 if edit_origin else 5}
-        if hidden and not edit_origin:
+
+        if hidden:
+            if edit_origin:
+                raise error.IncorrectFormat(
+                    "'hidden' and 'edit_origin' flags are mutually exclusive"
+                )
             base["data"] = {"flags": 64}
             self._deferred_hidden = True
+
+        self._deferred_edit_origin = edit_origin
+
         await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
+
+    async def send(
+        self,
+        content: str = "",
+        *,
+        embed: discord.Embed = None,
+        embeds: typing.List[discord.Embed] = None,
+        tts: bool = False,
+        file: discord.File = None,
+        files: typing.List[discord.File] = None,
+        allowed_mentions: discord.AllowedMentions = None,
+        hidden: bool = False,
+        delete_after: float = None,
+        components: typing.List[dict] = None,
+    ) -> model.SlashMessage:
+        if self.deferred and self._deferred_edit_origin:
+            self._logger.warning(
+                "Deferred response might not be what you set it to! (edit origin / send response message) "
+                "This is because it was deferred with different response type."
+            )
+        return await super().send(
+            content,
+            embed=embed,
+            embeds=embeds,
+            tts=tts,
+            file=file,
+            files=files,
+            allowed_mentions=allowed_mentions,
+            hidden=hidden,
+            delete_after=delete_after,
+            components=components,
+        )
 
     async def edit_origin(self, **fields):
         """
@@ -366,6 +414,11 @@ class ComponentContext(InteractionContext):
             if files and not self.deferred:
                 await self.defer(edit_origin=True)
             if self.deferred:
+                if not self._deferred_edit_origin:
+                    self._logger.warning(
+                        "Deferred response might not be what you set it to! (edit origin / send response message) "
+                        "This is because it was deferred with different response type."
+                    )
                 _json = await self._http.edit(_resp, self._token, files=files)
                 self.deferred = False
             else:  # noqa: F841
