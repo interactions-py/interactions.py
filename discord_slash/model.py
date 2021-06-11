@@ -382,14 +382,14 @@ class CogSubcommandObject(SubcommandObject):
 
 class ComponentCallbackObject(CallbackObject):
     """
-    Internal component object.
+    Internal component object. Inherits :class:`CallbackObject`, so it has all variables from it.
 
     .. warning::
         Do not manually init this model.
 
-    :ivar custom_id: Custom ID of the component.
-    :ivar func: An optional single callback coroutine for the component. If the message ID given isn't in ``funcList``, this function will be ran instead.
-    :ivar funcList: An optional :class:`dict` with message IDs as keys and callback coroutines as values. If a message ID is found in the dict, the corresponding coroutine will be ran.
+    :ivar message_ids: The message IDs registered to this callback.
+    :ivar custom_ids: The component custom IDs registered to this callback.
+    :ivar component_type: Type of the component. See `:class.utils.manage_components.ComponentsType`
     """
 
     def __init__(
@@ -415,7 +415,7 @@ class ComponentCallbackObject(CallbackObject):
 
 class CogComponentCallbackObject(ComponentCallbackObject):
     """
-    Component callback object but for Cog.
+    Component callback object but for Cog. Has all variables from :class:`ComponentCallbackObject`.
 
     .. warning::
         Do not manually init this model.

@@ -18,7 +18,7 @@ def cog_slash(
 ):
     """
     Decorator for Cog to add slash command.\n
-    Almost same as :func:`.client.SlashCommand.slash`.
+    Almost same as :meth:`.client.SlashCommand.slash`.
 
     Example:
 
@@ -88,7 +88,7 @@ def cog_subcommand(
 ):
     """
     Decorator for Cog to add subcommand.\n
-    Almost same as :func:`.client.SlashCommand.subcommand`.
+    Almost same as :meth:`.client.SlashCommand.subcommand`.
 
     Example:
 
@@ -173,6 +173,27 @@ def cog_component(
     use_callback_name=True,
     component_type: int = None,
 ):
+    """
+    Decorator for component callbacks in cogs.\n
+    Almost same as :meth:`.client.SlashCommand.component_callback`.
+
+    .. note::
+        ``message_id`` and ``message_ids`` cannot be used at the same time.
+
+    :param message_id: If specified, only interactions from the message given will be accepted.
+    :type message_id: Optional[int]
+    :param message_ids: Similar to ``message_id``, but accepts a list of message IDs instead.
+    :type message_ids: Optional[List[int]]
+    :param custom_id: The ``custom_id`` of the component. Defaults to the name of ``callback`` if ``use_callback_name=True``.
+    :type custom_id: Optional[str]
+    :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead.
+    :type custom_ids: Optional[List[str]]
+    :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified.
+    :type use_callback_name: bool
+    :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+    :type component_type: Optional[int]
+    :raises: .error.IncorrectFormat
+    """
     if message_id and message_ids:
         raise error.IncorrectFormat("You cannot use both `message_id` and `message_ids`!")
 
