@@ -1199,10 +1199,9 @@ class SlashCommand:
         callback = self.get_component_callback(
             ctx.origin_message_id, ctx.custom_id, ctx.component_type
         )
-        print(callback)
-        print(self.components)
         if callback is not None:
-            return await callback.invoke(ctx)
+            self._discord.dispatch("component_callback", ctx, callback)
+            await callback.invoke(ctx)
 
     async def _on_slash(self, to_use):
         if to_use["data"]["name"] in self.commands:
