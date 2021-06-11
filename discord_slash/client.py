@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from . import context, error, http, model
-from .utils import manage_commands, manage_components
+from .utils import manage_commands
 
 
 def _get_val(d: dict, key):  # util function to get value from dict with fallback to None key
@@ -1328,7 +1328,7 @@ class SlashCommand:
         await self.invoke_command(selected, ctx, args)
 
     def _on_error(self, ctx, ex, event_name):
-        on_event = "on_"+event_name
+        on_event = "on_" + event_name
         if self.has_listener:
             if self._discord.extra_events.get(on_event):
                 self._discord.dispatch(event_name, ctx, ex)
@@ -1366,7 +1366,9 @@ class SlashCommand:
         """
         if not self._on_error(ctx, ex, "slash_command_error"):
             # Prints exception if not overridden or has no listener for error.
-            self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
+            self.logger.exception(
+                f"An exception has occurred while executing command `{ctx.name}`:"
+            )
 
     async def on_component_callback_error(self, ctx, ex):
         """
@@ -1396,4 +1398,6 @@ class SlashCommand:
         """
         if not self._on_error(ctx, ex, "component_callback_error"):
             # Prints exception if not overridden or has no listener for error.
-            self.logger.exception(f"An exception has occurred while executing component callback custom ID `{ctx.custom_id}`:")
+            self.logger.exception(
+                f"An exception has occurred while executing component callback custom ID `{ctx.custom_id}`:"
+            )
