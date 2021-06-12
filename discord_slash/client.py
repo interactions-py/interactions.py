@@ -60,8 +60,10 @@ class SlashCommand:
         if self.sync_commands:
             self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
 
-        if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
-            self.logger.warning("Detected discord.Client! It is highly recommended to use `commands.Bot`. Do not add any `on_socket_response` event.")
+        if not isinstance(client, commands.Bot) and not isinstance(client,
+                                                                   commands.AutoShardedBot) and not override_type:
+            self.logger.warning(
+                "Detected discord.Client! It is highly recommended to use `commands.Bot`. Do not add any `on_socket_response` event.")
             self._discord.on_socket_response = self.on_socket_response
             self.has_listener = False
         else:
@@ -306,7 +308,7 @@ class SlashCommand:
         return cmds
 
     async def sync_all_commands(
-        self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
+            self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
     ):
         """
         Matches commands registered on Discord to commands registered here.
@@ -328,14 +330,14 @@ class SlashCommand:
         for scope in cmds_formatted:
             permissions = {}
             new_cmds = cmds_formatted[scope]
-            existing_cmds = await self.req.get_all_commands(guild_id = scope)
+            existing_cmds = await self.req.get_all_commands(guild_id=scope)
             existing_by_name = {}
-            to_send=[]
+            to_send = []
             changed = False
             for cmd in existing_cmds:
                 existing_by_name[cmd["name"]] = model.CommandData(**cmd)
 
-            if len(new_cmds) != len(existing_cmds): 
+            if len(new_cmds) != len(existing_cmds):
                 changed = True
 
             for command in new_cmds:
@@ -345,17 +347,16 @@ class SlashCommand:
                     cmd_data = model.CommandData(**command)
                     existing_cmd = existing_by_name[cmd_name]
                     if cmd_data != existing_cmd:
-                        changed=True
+                        changed = True
                         to_send.append(command)
                     else:
                         command_with_id = command
                         command_with_id["id"] = existing_cmd.id
                         to_send.append(command_with_id)
                 else:
-                    changed=True
+                    changed = True
                     to_send.append(command)
 
-            
             if changed:
                 self.logger.debug(f"Detected changes on {scope if scope is not None else 'global'}, updating them")
                 existing_cmds = await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
@@ -379,7 +380,6 @@ class SlashCommand:
                     }
                     permissions_map[applicable_guild].append(permission)
 
-
         self.logger.info("Syncing permissions...")
         self.logger.debug(f"Commands permission data are {permissions_map}")
         for scope in permissions_map:
@@ -400,27 +400,25 @@ class SlashCommand:
                     if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(**new_perm):
                         changed = True
                         break
-            
+
             if changed:
                 self.logger.debug(f"Detected permissions changes on {scope}, updating them")
                 await self.req.update_guild_commands_permissions(scope, new_perms)
             else:
                 self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
 
-
         if delete_from_unused_guilds:
             self.logger.info("Deleting unused guild commands...")
             other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
             # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
             # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
-            
+
             for guild in other_guilds:
                 with suppress(discord.Forbidden):
-                    existing = await self.req.get_all_commands(guild_id = guild)
+                    existing = await self.req.get_all_commands(guild_id=guild)
                     if len(existing) != 0:
                         self.logger.debug(f"Deleting commands from {guild}")
                         await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
-
 
         if delete_perms_from_unused_guilds:
             self.logger.info("Deleting unused guild permissions...")
@@ -473,6 +471,9 @@ class SlashCommand:
         name = name or cmd.__name__
         name = name.lower()
         guild_ids = guild_ids if guild_ids else []
+        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+            raise Exception(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed.")
         if name in self.commands:
             tgt = self.commands[name]
             if not tgt.has_subcommands:
@@ -549,6 +550,9 @@ class SlashCommand:
         name = name.lower()
         description = description or getdoc(cmd)
         guild_ids = guild_ids if guild_ids else []
+        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+            raise Exception(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed.")
 
         if base in self.commands:
             for x in guild_ids:
@@ -680,7 +684,8 @@ class SlashCommand:
             if decorator_permissions:
                 permissions.update(decorator_permissions)
 
-            obj = self.add_slash_command(cmd, name, description, guild_ids, options, default_permission, permissions, connector)
+            obj = self.add_slash_command(cmd, name, description, guild_ids, options, default_permission, permissions,
+                                         connector)
             return obj
 
         return wrapper
@@ -763,7 +768,9 @@ class SlashCommand:
             if decorator_permissions:
                 base_permissions.update(decorator_permissions)
 
-            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, base_default_permission, base_permissions, subcommand_group_description, guild_ids, options, connector)
+            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description,
+                                      base_default_permission, base_permissions, subcommand_group_description,
+                                      guild_ids, options, connector)
             return obj
 
         return wrapper
@@ -771,12 +778,13 @@ class SlashCommand:
     def permission(self, guild_id: int, permissions: list):
         """
         Decorator that add permissions. This will set the permissions for a single guild, you can use it more than once for each command.
-        :param guild_id: ID of the guild for the permissions. 
+        :param guild_id: ID of the guild for the permissions.
         :type guild_id: int
         :param permissions: Permission requirements of the slash command. Default ``None``.
         :type permissions: dict
-        
+
         """
+
         def wrapper(cmd):
             if not getattr(cmd, "__permissions__", None):
                 cmd.__permissions__ = {}
@@ -917,7 +925,8 @@ class SlashCommand:
             for x in selected_cmd.options:
                 temporary_auto_convert[x["name"].lower()] = x["type"]
 
-            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.connector, temporary_auto_convert) \
+            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.connector,
+                                              temporary_auto_convert) \
                 if "options" in to_use["data"] else {}
 
             self._discord.dispatch("slash_command", ctx)
