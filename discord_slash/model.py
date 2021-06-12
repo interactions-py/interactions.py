@@ -338,6 +338,134 @@ class CogSubcommandObject(SubcommandObject):
         return await coro
 
 
+class NewCogBaseCommandObject(CogBaseCommandObject):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        # get help doc
+        help_doc = inspect.getdoc(self.func)
+        if isinstance(help_doc, bytes):
+            help_doc = help_doc.decode("utf-8")
+        self.help = help_doc
+
+    def error(self, coro):
+        """
+        Just like the regular command object, the command
+        to run on an error must be a coroutine.
+        By having this def error, we allow much more easier
+        handling of exceptions through the use of decorators
+        Because of this, we can do as follows:
+            @command_name.error
+            async def your_command_error_handler(self, ctx, exc):
+                ...
+        
+        
+        Ex:
+        @cog_ext.cog_slash(name="example", description="an example", ...)
+        def example(self, ctx):
+            ...
+        
+        @example.error
+        async def example_error_handler(self, ctx, exc):
+            ... # code to handle the exception
+        
+        NOTE: you can use these error handlers if you have your
+        bot's on_slash_command_error look similar to below:
+        
+            async def on_slash_command_error(self, ctx, exc):
+
+            func_name = ctx.name
+            subcmd_name = ctx.subcommand_name
+            all_commands = self.slash.commands
+            all_sub_cmds = {
+                name: func
+                for i in self.slash.subcommands.values()
+                for name, func in i.items()
+            }
+
+            # a different slash_obj is retrieved depending on if it is a subcmd or not
+            # (note that slash_obj refers to a class that has on_error methods)
+            if subcmd_name is None:
+                try:  # try to handle it if it is a command
+                    slash_obj = all_commands[func_name]
+                except Exception as e:
+                    raise exc
+            else:
+                try:  # try to handle it if it is a subcommand
+                    slash_obj = all_sub_cmds[subcmd_name]
+                except Exception as e:
+                    raise exc
+
+            try:
+                error_handler = slash_obj.on_error
+                # print("error_handler:", error_handler)
+                error_handler_name = error_handler.__name__
+                cog_obj = None
+                for cog in self.cogs.values():
+                    boolean = hasattr(cog, error_handler_name)
+                    # print(cog, boolean, "the attribute")
+                    if boolean:
+                        cog_obj = cog
+
+                await slash_obj.on_error(cog_obj, ctx, exc)
+            except:
+                # happens if no error handler was found
+                # you could put other code here, depending on your needs.
+                raise exc
+
+
+        Parameters
+            coro: :ref:`coroutine <coroutine>`
+                The coroutine to register as the local error handler.
+
+        Raises
+            TypeError - if the coroutine passed is not actually a coroutine.
+        """
+
+        if not asyncio.iscoroutinefunction(coro):
+            raise TypeError("The error handler must be a coroutine.")
+
+        self.on_error = coro
+        return coro
+
+
+class NewCogSubcommandObject(CogSubcommandObject):
+    def __init__(self, base, cmd, sub_group, name, sub):
+        super().__init__(base, cmd, sub_group, name, sub)
+
+        # get help doc
+        help_doc = inspect.getdoc(self.func)
+        if isinstance(help_doc, bytes):
+            help_doc = help_doc.decode("utf-8")  # if in bytes, decode it
+        self.help = help_doc
+
+    def error(self, coro):
+        """
+        Based on discord.py's cog command object
+        Just like with discord.py's subcommand object, the command
+        to run on an error must be a coroutine.
+        By having this def error, we allow much more easier
+        handling of exceptions through the use of decorators
+        Because of this, we can do as follows:
+            @subcommand_name.error
+            async def your_subcommand_error_handler(self, ctx, exc):
+                ...
+
+        Parameters
+            coro: :ref:`coroutine <coroutine>`
+                The coroutine to register as the local error handler.
+
+        Raises
+            TypeError - if the coroutine passed is not actually a coroutine.
+        """
+
+        if not asyncio.iscoroutinefunction(coro):
+            raise TypeError("The error handler must be a coroutine.")
+
+        self.on_error = coro
+        return coro
+
+
 class SlashCommandOptionType(IntEnum):
     """
     Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_  in the Discord API.
