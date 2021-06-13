@@ -179,22 +179,16 @@ def cog_component(
     if custom_id and custom_ids:
         raise error.IncorrectFormat("You cannot use both `custom_id` and `custom_ids`!")
 
-    if message_id:
+    if message_ids is None:
         message_ids = [message_id]
-
-    if custom_id:
-        custom_ids = [custom_id]
-
-    if component_type not in (2, 3, None):
-        raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
 
     def wrapper(callback):
         nonlocal custom_ids
 
-        if use_callback_name:
-            custom_ids = custom_ids or [callback.__name__]
+        if custom_ids is None:
+            custom_ids = [callback.__name__] if use_callback_name else [custom_id]
 
-        if not (message_ids or custom_ids):
+        if message_ids == [None] and custom_ids == [None]:
             raise error.IncorrectFormat(
                 "'message_ids' ('message_id') or 'custom_ids' ('custom_id') must be specified!"
             )

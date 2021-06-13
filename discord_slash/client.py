@@ -903,31 +903,22 @@ class SlashCommand:
         :type message_id: Optional[int]
         :raises: .error.DuplicateCustomID
         """
-        if message_id and message_ids:
+        if message_id and message_ids is not None:
             raise error.IncorrectFormat("You cannot use both `message_id` and `message_ids`!")
 
-        if custom_id and custom_ids:
+        if custom_id and custom_ids is not None:
             raise error.IncorrectFormat("You cannot use both `custom_id` and `custom_ids`!")
 
-        if message_id:
+        if message_ids is None:
             message_ids = [message_id]
 
-        if custom_id:
-            custom_ids = [custom_id]
+        if custom_ids is None:
+            custom_ids = [callback.__name__] if use_callback_name else [custom_id]
 
-        if use_callback_name:
-            custom_ids = custom_ids or [callback.__name__]
-
-        if not (message_ids or custom_ids):
+        if message_ids == [None] and custom_ids == [None]:
             raise error.IncorrectFormat(
                 "'message_ids' ('message_id') or 'custom_ids' ('custom_id') must be specified!"
             )
-
-        if custom_id:
-            custom_ids = [custom_id]
-
-        if use_callback_name:
-            custom_ids = custom_ids or [callback.__name__]
 
         callback_obj = model.ComponentCallbackObject(
             callback, message_ids, custom_ids, component_type
@@ -938,22 +929,31 @@ class SlashCommand:
     def _add_comp_callback_obj(self, callback_obj):
         component_type = callback_obj.component_type
 
-        for message_id in callback_obj.message_ids:
-            for custom_id in callback_obj.custom_ids:
-                message_id_dict = self.components
-                custom_id_dict = message_id_dict.setdefault(message_id, {})
-                component_type_dict = custom_id_dict.setdefault(custom_id, {})
+        for message_id, custom_id in callback_obj.keys:
+            self._register_comp_callback_obj(callback_obj, message_id, custom_id, component_type)
 
-                if component_type in component_type_dict:
-                    raise error.DuplicateCallback(message_id, custom_id, component_type)
+    def _register_comp_callback_obj(self, callback_obj, message_id, custom_id, component_type):
+        message_id_dict = self.components
+        custom_id_dict = message_id_dict.setdefault(message_id, {})
+        component_type_dict = custom_id_dict.setdefault(custom_id, {})
 
-                component_type_dict[component_type] = callback_obj
-                self.logger.debug(
-                    f"Added component callback for "
-                    f"message ID {message_id or '<any>'}, "
-                    f"custom_id `{custom_id or '<any>'}`, "
-                    f"component_type `{component_type or '<any>'}`"
-                )
+        if component_type in component_type_dict:
+            raise error.DuplicateCallback(message_id, custom_id, component_type)
+
+        component_type_dict[component_type] = callback_obj
+        self.logger.debug(
+            f"Added component callback for "
+            f"message ID {message_id or '<any>'}, "
+            f"custom_id `{custom_id or '<any>'}`, "
+            f"component_type `{component_type or '<any>'}`"
+        )
+
+    def extend_component_callback(self, callback: model.ComponentCallbackObject,
+                                  message_id: int = None, custom_id: str = None):
+
+        component_type = callback.component_type
+        self._register_comp_callback_obj(callback, message_id, custom_id, component_type)
+        callback.keys.add((message_id, custom_id))
 
     def get_component_callback(
         self,
@@ -976,7 +976,8 @@ class SlashCommand:
         self, message_id: int = None, custom_id: str = None, component_type: int = None
     ):
         """
-        Removes a component callback. If the `message_id` is specified, only removes the callback for the specific message ID.
+        Removes a component callback from specific combination of message_id, custom_id, component_type.
+        If the `message_id` is specified, only removes the callback for the specific message ID.
 
         :param custom_id: The `custom_id` of the component.
         :type custom_id: str
@@ -1000,21 +1001,22 @@ class SlashCommand:
                 f"component_type `{component_type or '<any>'}` is not registered!"
             )
         else:
-            callback.message_ids.remove(message_id)
-            callback.custom_ids.remove(custom_id)
+            callback.keys.remove((message_id, custom_id))
 
     def remove_component_callback_obj(self, callback_obj: model.ComponentCallbackObject):
         """
-        Removes a component callback.
+        Removes a component callback from all related message_id, custom_id listeners.
 
         :param callback_obj: callback object.
         :type callback_obj: model.ComponentCallbackObject
         :raises: .error.IncorrectFormat
         """
+        if not callback_obj.keys:
+            raise error.IncorrectFormat("Callback already removed from any listeners")
+
         component_type = callback_obj.component_type
-        for message_id in callback_obj.message_ids:
-            for custom_id in callback_obj.custom_ids:
-                self.remove_component_callback(message_id, custom_id, component_type)
+        for message_id, custom_id in callback_obj.keys.copy():
+            self.remove_component_callback(message_id, custom_id, component_type)
 
     def component_callback(
         self,

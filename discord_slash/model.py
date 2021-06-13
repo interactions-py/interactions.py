@@ -395,13 +395,18 @@ class ComponentCallbackObject(CallbackObject):
     def __init__(
         self,
         func,
-        message_ids=None,
-        custom_ids=None,
-        component_type=None,
+        message_ids,
+        custom_ids,
+        component_type,
     ):
+        if component_type not in (2, 3, None):
+            raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
+
         super().__init__(func)
-        self.message_ids = message_ids or [None]
-        self.custom_ids = custom_ids or [None]
+        message_ids = set(message_ids)
+        custom_ids = set(custom_ids)
+        self.keys = {(message_id, custom_id) for message_id in message_ids for custom_id in custom_ids}
+
         self.component_type = component_type
 
     async def invoke(self, ctx):
