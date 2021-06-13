@@ -1,5 +1,7 @@
 import typing
 import inspect
+
+from .error import IncorrectGuildIDType
 from .model import CogBaseCommandObject, CogSubcommandObject
 from .utils import manage_commands
 
@@ -52,7 +54,7 @@ def cog_slash(*,
 
         if guild_ids is not None:
             if not all(isinstance(item, int) for item in guild_ids):
-                raise Exception(f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed.")
+                raise IncorrectGuildIDType(f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed.")
 
         _cmd = {
             "func": cmd,
@@ -136,7 +138,7 @@ def cog_subcommand(*,
 
         if guild_ids is not None:
             if not all(isinstance(item, int) for item in guild_ids):
-                raise Exception(f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed.")
+                raise IncorrectGuildIDType(f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed.")
 
         _cmd = {
             "func": None,
