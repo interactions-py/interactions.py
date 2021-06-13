@@ -911,7 +911,7 @@ class SlashCommand:
         :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified.
         If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
         :type use_callback_name: bool
-        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.utils.manage_components.ComponentsType`.
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
         :raises: .error.DuplicateCustomID, .error.IncorrectFormat
         """
@@ -967,7 +967,7 @@ class SlashCommand:
         custom_id: str = None,
     ):
         """
-        Registers existing callback object (:class:`.utils.manage_components.ComponentsType`)
+        Registers existing callback object (:class:`.model.ComponentType`)
         for specific combination of message_id, custom_id, component_type.
 
         :param callback_obj: callback object.
@@ -996,7 +996,7 @@ class SlashCommand:
         :type message_id: Optional[.model]
         :param custom_id: The `custom_id` of the component.
         :type custom_id: Optional[str]
-        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :param component_type: The type of the component. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
 
         :return: Optional[model.ComponentCallbackObject]
@@ -1022,7 +1022,7 @@ class SlashCommand:
         :type message_id: Optional[int]
         :param custom_id: The `custom_id` of the component.
         :type custom_id: Optional[str]
-        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :param component_type: The type of the component. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
         :raises: .error.IncorrectFormat
         """
@@ -1087,7 +1087,7 @@ class SlashCommand:
         :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified.
         If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
         :type use_callback_name: bool
-        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.utils.manage_components.ComponentsType`.
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
         :raises: .error.DuplicateCustomID, .error.IncorrectFormat
         """
