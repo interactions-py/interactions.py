@@ -891,7 +891,9 @@ class SlashCommand:
         component_type: int = None,
     ):
         """
-        Adds a coroutine callback to a component. Optionally, this can be made to only accept component interactions from a specific message.
+        Adds a coroutine callback to a component.
+        Callback can be made to only accept component interactions from a specific messages
+        and/or custom_ids of components.
 
         .. note::
             ``message_id`` and ``message_ids`` cannot be used at the same time. The same applies to ``custom_id`` and ``custom_ids``.
@@ -900,17 +902,18 @@ class SlashCommand:
         :type callback: Coroutine
         :param message_id: If specified, only interactions from the message given will be accepted.
         :type message_id: Optional[int]
-        :param message_ids: Similar to ``message_id``, but accepts a list of message IDs instead.
+        :param message_ids: Similar to ``message_id``, but accepts a list of message IDs instead. Empty list will mean that no interactions are accepted.
         :type message_ids: Optional[List[int]]
         :param custom_id: The ``custom_id`` of the component. Defaults to the name of ``callback`` if ``use_callback_name=True``.
         :type custom_id: Optional[str]
-        :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead.
+        :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead. Empty list will mean that no interactions are accepted.
         :type custom_ids: Optional[List[str]]
         :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified.
+        If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
         :type use_callback_name: bool
-        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.utils.manage_components.ComponentsType`.
         :type component_type: Optional[int]
-        :raises: .error.DuplicateCustomID
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
         """
         if message_id and message_ids is not None:
             raise error.IncorrectFormat("You cannot use both `message_id` and `message_ids`!")
@@ -957,12 +960,25 @@ class SlashCommand:
             f"component_type `{component_type or '<any>'}`"
         )
 
-    def extend_component_callback(self, callback: model.ComponentCallbackObject,
-                                  message_id: int = None, custom_id: str = None):
+    def extend_component_callback(
+        self, callback_obj: model.ComponentCallbackObject, message_id: int = None, custom_id: str = None
+    ):
+        """
+        Registers existing callback object (:class:`.utils.manage_components.ComponentsType`)
+        for specific combination of message_id, custom_id, component_type.
 
-        component_type = callback.component_type
-        self._register_comp_callback_obj(callback, message_id, custom_id, component_type)
-        callback.keys.add((message_id, custom_id))
+        :param callback_obj: callback object.
+        :type callback_obj: model.ComponentCallbackObject
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[.model]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+        """
+
+        component_type = callback_obj.component_type
+        self._register_comp_callback_obj(callback_obj, message_id, custom_id, component_type)
+        callback_obj.keys.add((message_id, custom_id))
 
     def get_component_callback(
         self,
@@ -970,6 +986,18 @@ class SlashCommand:
         custom_id: str = None,
         component_type: int = None,
     ):
+        """
+        Returns component callback (or None if not found) for specific combination of message_id, custom_id, component_type.
+
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[.model]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :type component_type: Optional[int]
+
+        :return: Optional[model.ComponentCallbackObject]
+        """
         message_id_dict = self.components
         try:
             custom_id_dict = _get_val(message_id_dict, message_id)
@@ -986,14 +1014,13 @@ class SlashCommand:
     ):
         """
         Removes a component callback from specific combination of message_id, custom_id, component_type.
-        If the `message_id` is specified, only removes the callback for the specific message ID.
 
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[int]
         :param custom_id: The `custom_id` of the component.
         :type custom_id: Optional[str]
         :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
         :type component_type: Optional[int]
-        :param message_id: If specified, only removes the callback for the specific message ID.
-        :type message_id: Optional[int]
         :raises: .error.IncorrectFormat
         """
         try:
@@ -1039,29 +1066,27 @@ class SlashCommand:
     ):
         """
         Decorator that registers a coroutine as a component callback.\n
-        The second argument is the `custom_id` to listen for.
-        It will default to the coroutine name if unspecified.\n
-        The `message_id` keyword-only arg is optional,
-        but will make the callback only work with a specific message if given.\n
-        Alternatively, if it needs to accept interactions from multiple specific messages, the `message_ids` arg
-        accepts a list of message IDs.
+        Adds a coroutine callback to a component.
+        Callback can be made to only accept component interactions from a specific messages
+        and/or custom_ids of components.
 
         .. note::
-            `message_id` and `message_ids` cannot be used at the same time.
+            ``message_id`` and ``message_ids`` cannot be used at the same time. The same applies to ``custom_id`` and ``custom_ids``.
 
         :param message_id: If specified, only interactions from the message given will be accepted.
         :type message_id: Optional[int]
-        :param message_ids: Similar to ``message_id``, but accepts a list of message IDs instead.
+        :param message_ids: Similar to ``message_id``, but accepts a list of message IDs instead. Empty list will mean that no interactions are accepted.
         :type message_ids: Optional[List[int]]
         :param custom_id: The ``custom_id`` of the component. Defaults to the name of ``callback`` if ``use_callback_name=True``.
         :type custom_id: Optional[str]
-        :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead.
+        :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead. Empty list will mean that no interactions are accepted.
         :type custom_ids: Optional[List[str]]
         :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified.
+        If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
         :type use_callback_name: bool
-        :param component_type: The type of the component. See :class:`.utils.manage_components.ComponentsType`.
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.utils.manage_components.ComponentsType`.
         :type component_type: Optional[int]
-        :raises: .error.IncorrectFormat
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
         """
 
         def wrapper(callback):

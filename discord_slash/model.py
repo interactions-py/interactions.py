@@ -87,7 +87,7 @@ class CommandData:
         id=None,
         application_id=None,
         version=None,
-        **kwargs
+        **kwargs,
     ):
         self.name = name
         self.description = description
@@ -405,7 +405,9 @@ class ComponentCallbackObject(CallbackObject):
         super().__init__(func)
         message_ids = set(message_ids)
         custom_ids = set(custom_ids)
-        self.keys = {(message_id, custom_id) for message_id in message_ids for custom_id in custom_ids}
+        self.keys = {
+            (message_id, custom_id) for message_id in message_ids for custom_id in custom_ids
+        }
 
         self.component_type = component_type
 
