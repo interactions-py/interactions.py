@@ -961,7 +961,10 @@ class SlashCommand:
         )
 
     def extend_component_callback(
-        self, callback_obj: model.ComponentCallbackObject, message_id: int = None, custom_id: str = None
+        self,
+        callback_obj: model.ComponentCallbackObject,
+        message_id: int = None,
+        custom_id: str = None,
     ):
         """
         Registers existing callback object (:class:`.utils.manage_components.ComponentsType`)
