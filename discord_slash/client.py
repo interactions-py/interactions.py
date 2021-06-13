@@ -908,8 +908,7 @@ class SlashCommand:
         :type custom_id: Optional[str]
         :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead. Empty list will mean that no interactions are accepted.
         :type custom_ids: Optional[List[str]]
-        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified.
-        If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
         :type use_callback_name: bool
         :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
@@ -1084,8 +1083,7 @@ class SlashCommand:
         :type custom_id: Optional[str]
         :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead. Empty list will mean that no interactions are accepted.
         :type custom_ids: Optional[List[str]]
-        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified.
-        If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
         :type use_callback_name: bool
         :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
