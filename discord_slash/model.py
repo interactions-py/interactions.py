@@ -1,10 +1,14 @@
 import asyncio
-import discord
-from enum import IntEnum
+import datetime
 from contextlib import suppress
+from enum import IntEnum
 from inspect import iscoroutinefunction
-from . import http
-from . import error
+
+import discord
+from discord.ext.commands import CommandOnCooldown, CooldownMapping
+
+from . import error, http
+from .dpy_overrides import ComponentMessage
 
 
 class ChoiceData:
@@ -34,9 +38,7 @@ class OptionData:
     :ivar options: List of :class:`OptionData`, this will be present if it's a subcommand group
     """
 
-    def __init__(
-            self, name, description, required=False, choices=None, options=None, **kwargs
-    ):
+    def __init__(self, name, description, required=False, choices=None, options=None, **kwargs):
         self.name = name
         self.description = description
         self.type = kwargs.get("type")
@@ -77,7 +79,15 @@ class CommandData:
     """
 
     def __init__(
-            self, name, description, options=None, default_permission=True, id=None, application_id=None, version=None, **kwargs
+        self,
+        name,
+        description,
+        options=None,
+        default_permission=True,
+        id=None,
+        application_id=None,
+        version=None,
+        **kwargs
     ):
         self.name = name
         self.description = description
@@ -95,10 +105,10 @@ class CommandData:
     def __eq__(self, other):
         if isinstance(other, CommandData):
             return (
-                    self.name == other.name
-                    and self.description == other.description
-                    and self.options == other.options
-                    and self.default_permission == other.default_permission
+                self.name == other.name
+                and self.description == other.description
+                and self.options == other.options
+                and self.default_permission == other.default_permission
             )
         else:
             return False
@@ -131,41 +141,129 @@ class CommandObject:
         # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
         # add checks at this var.
         self.__commands_checks__ = []
-        if hasattr(self.func, '__commands_checks__'):
+        if hasattr(self.func, "__commands_checks__"):
             self.__commands_checks__ = self.func.__commands_checks__
 
-    async def invoke(self, *args):
+        cooldown = None
+        if hasattr(self.func, "__commands_cooldown__"):
+            cooldown = self.func.__commands_cooldown__
+        self._buckets = CooldownMapping(cooldown)
+
+        self._max_concurrency = None
+        if hasattr(self.func, "__commands_max_concurrency__"):
+            self._max_concurrency = self.func.__commands_max_concurrency__
+
+        self.on_error = None
+
+    def error(self, coro):
+        """
+        A decorator that registers a coroutine as a local error handler.
+
+        Works the same way as it does in d.py
+
+        :param: :ref:`coroutine <coroutine>` - The coroutine to register as the local error handler
+
+        :raises: TypeError - The coroutine passed is not a coroutine
+        """
+        if not asyncio.iscoroutinefunction(coro):
+            raise TypeError("The error handler must be a coroutine.")
+        self.on_error = coro
+        return coro
+
+    def _prepare_cooldowns(self, ctx):
+        """
+        Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L765
+        """
+        if self._buckets.valid:
+            dt = ctx.created_at
+            current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+            bucket = self._buckets.get_bucket(ctx, current)
+            retry_after = bucket.update_rate_limit(current)
+            if retry_after:
+                raise CommandOnCooldown(bucket, retry_after)
+
+    async def _concurrency_checks(self, ctx):
+        """The checks required for cooldown and max concurrency."""
+        # max concurrency checks
+        if self._max_concurrency is not None:
+            await self._max_concurrency.acquire(ctx)
+        try:
+            # cooldown checks
+            self._prepare_cooldowns(ctx)
+        except Exception:
+            if self._max_concurrency is not None:
+                await self._max_concurrency.release(ctx)
+            raise
+
+    async def invoke(self, *args, **kwargs):
         """
         Invokes the command.
 
         :param args: Args for the command.
         :raises: .error.CheckFailure
         """
-        args = list(args)
-        ctx = args.pop(0)
-        can_run = await self.can_run(ctx)
+        can_run = await self.can_run(args[0])
         if not can_run:
             raise error.CheckFailure
 
-        coro = None  # Get rid of annoying IDE complainings.
+        await self._concurrency_checks(args[0])
 
-        not_kwargs = False
-        if args and isinstance(args[0], dict):
-            kwargs = args[0]
-            ctx.kwargs = kwargs
-            ctx.args = list(kwargs.values())
-            try:
-                coro = self.func(ctx, **kwargs)
-            except TypeError:
-                args = list(kwargs.values())
-                not_kwargs = True
-        else:
-            ctx.args = args
-            not_kwargs = True
-        if not_kwargs:
-            coro = self.func(ctx, *args)
+        # to preventing needing different functions per object,
+        # this function simply handles cogs
+        if hasattr(self, "cog"):
+            return await self.func(self.cog, *args, **kwargs)
+        return await self.func(*args, **kwargs)
 
-        return await coro
+    def is_on_cooldown(self, ctx) -> bool:
+        """
+        Checks whether the command is currently on cooldown.
+
+        Works the same way as it does in d.py
+
+        :param ctx: SlashContext
+        :type ctx: .context.SlashContext
+
+        :return: bool - indicating if the command is on cooldown.
+        """
+        if not self._buckets.valid:
+            return False
+
+        bucket = self._buckets.get_bucket(ctx.message)
+        dt = ctx.message.edited_at or ctx.message.created_at
+        current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+        return bucket.get_tokens(current) == 0
+
+    def reset_cooldown(self, ctx):
+        """
+        Resets the cooldown on this command.
+
+        Works the same way as it does in d.py
+
+        :param ctx: SlashContext
+        :type ctx: .context.SlashContext
+        """
+        if self._buckets.valid:
+            bucket = self._buckets.get_bucket(ctx.message)
+            bucket.reset()
+
+    def get_cooldown_retry_after(self, ctx) -> float:
+        """
+        Retrieves the amount of seconds before this command can be tried again.
+
+        Works the same way as it does in d.py
+
+        :param ctx: SlashContext
+        :type ctx: .context.SlashContext
+
+        :return: float - The amount of time left on this command's cooldown in seconds. If this is ``0.0`` then the command isn't on cooldown.
+        """
+        if self._buckets.valid:
+            bucket = self._buckets.get_bucket(ctx.message)
+            dt = ctx.message.edited_at or ctx.message.created_at
+            current = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+            return bucket.get_retry_after(current)
+
+        return 0.0
 
     def add_check(self, func):
         """
@@ -195,7 +293,10 @@ class CommandObject:
         :type ctx: .context.SlashContext
         :return: bool
         """
-        res = [bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx)) for x in self.__commands_checks__]
+        res = [
+            bool(x(ctx)) if not iscoroutinefunction(x) else bool(await x(ctx))
+            for x in self.__commands_checks__
+        ]
         return False not in res
 
 
@@ -257,39 +358,6 @@ class CogBaseCommandObject(BaseCommandObject):
         super().__init__(*args)
         self.cog = None  # Manually set this later.
 
-    async def invoke(self, *args, **kwargs):
-        """
-        Invokes the command.
-
-        :param args: Args for the command.
-        :raises: .error.CheckFailure
-        """
-        args = list(args)
-        ctx = args.pop(0)
-        can_run = await self.can_run(ctx)
-        if not can_run:
-            raise error.CheckFailure
-
-        coro = None  # Get rid of annoying IDE complainings.
-
-        not_kwargs = False
-        if args and isinstance(args[0], dict):
-            kwargs = args[0]
-            ctx.kwargs = kwargs
-            ctx.args = list(kwargs.values())
-            try:
-                coro = self.func(self.cog, ctx, **kwargs)
-            except TypeError:
-                args = list(kwargs.values())
-                not_kwargs = True
-        else:
-            ctx.args = args
-            not_kwargs = True
-        if not_kwargs:
-            coro = self.func(self.cog, ctx, *args)
-
-        return await coro
-
 
 class CogSubcommandObject(SubcommandObject):
     """
@@ -304,44 +372,12 @@ class CogSubcommandObject(SubcommandObject):
         self.base_command_data = cmd
         self.cog = None  # Manually set this later.
 
-    async def invoke(self, *args, **kwargs):
-        """
-        Invokes the command.
-
-        :param args: Args for the command.
-        :raises: .error.CheckFailure
-        """
-        args = list(args)
-        ctx = args.pop(0)
-        can_run = await self.can_run(ctx)
-        if not can_run:
-            raise error.CheckFailure
-
-        coro = None  # Get rid of annoying IDE complainings.
-
-        not_kwargs = False
-        if args and isinstance(args[0], dict):
-            kwargs = args[0]
-            ctx.kwargs = kwargs
-            ctx.args = list(kwargs.values())
-            try:
-                coro = self.func(self.cog, ctx, **kwargs)
-            except TypeError:
-                args = list(kwargs.values())
-                not_kwargs = True
-        else:
-            ctx.args = args
-            not_kwargs = True
-        if not_kwargs:
-            coro = self.func(self.cog, ctx, *args)
-
-        return await coro
-
 
 class SlashCommandOptionType(IntEnum):
     """
     Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_  in the Discord API.
     """
+
     SUB_COMMAND = 1
     SUB_COMMAND_GROUP = 2
     STRING = 3
@@ -359,16 +395,22 @@ class SlashCommandOptionType(IntEnum):
         :param t: The type or object to get a SlashCommandOptionType for.
         :return: :class:`.model.SlashCommandOptionType` or ``None``
         """
-        if issubclass(t, str): return cls.STRING
-        if issubclass(t, bool): return cls.BOOLEAN
+        if issubclass(t, str):
+            return cls.STRING
+        if issubclass(t, bool):
+            return cls.BOOLEAN
         # The check for bool MUST be above the check for integers as booleans subclass integers
-        if issubclass(t, int): return cls.INTEGER
-        if issubclass(t, discord.abc.User): return cls.USER
-        if issubclass(t, discord.abc.GuildChannel): return cls.CHANNEL
-        if issubclass(t, discord.abc.Role): return cls.ROLE
+        if issubclass(t, int):
+            return cls.INTEGER
+        if issubclass(t, discord.abc.User):
+            return cls.USER
+        if issubclass(t, discord.abc.GuildChannel):
+            return cls.CHANNEL
+        if issubclass(t, discord.abc.Role):
+            return cls.ROLE
 
 
-class SlashMessage(discord.Message):
+class SlashMessage(ComponentMessage):
     """discord.py's :class:`discord.Message` but overridden ``edit`` and ``delete`` to work for slash command."""
 
     def __init__(self, *, state, channel, data, _http: http.SlashCommandRequest, interaction_token):
@@ -391,6 +433,10 @@ class SlashMessage(discord.Message):
         embeds = fields.get("embeds")
         file = fields.get("file")
         files = fields.get("files")
+        components = fields.get("components")
+
+        if components:
+            _resp["components"] = components
 
         if embed and embeds:
             raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
@@ -408,8 +454,13 @@ class SlashMessage(discord.Message):
             _resp["embeds"] = [x.to_dict() for x in embeds]
 
         allowed_mentions = fields.get("allowed_mentions")
-        _resp["allowed_mentions"] = allowed_mentions.to_dict() if allowed_mentions else \
-            self._state.allowed_mentions.to_dict() if self._state.allowed_mentions else {}
+        _resp["allowed_mentions"] = (
+            allowed_mentions.to_dict()
+            if allowed_mentions
+            else self._state.allowed_mentions.to_dict()
+            if self._state.allowed_mentions
+            else {}
+        )
 
         await self._http.edit(_resp, self.__interaction_token, self.id, files=files)
 
@@ -453,6 +504,7 @@ class PermissionData:
     :ivar type: The ``SlashCommandPermissionsType`` type of this permission.
     :ivar permission: State of permission. ``True`` to allow, ``False`` to disallow.
     """
+
     def __init__(self, id, type, permission, **kwargs):
         self.id = id
         self.type = type
@@ -474,9 +526,10 @@ class GuildPermissionsData:
     Slash permissions data for a command in a guild.
 
     :ivar id: Command id, provided by discord.
-    :ivar guild_id: Guild id that the permissions are in. 
+    :ivar guild_id: Guild id that the permissions are in.
     :ivar permissions: List of permissions dict.
     """
+
     def __init__(self, id, guild_id, permissions, **kwargs):
         self.id = id
         self.guild_id = guild_id
@@ -500,10 +553,34 @@ class SlashCommandPermissionType(IntEnum):
     """
     Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_  in the Discord API.
     """
+
     ROLE = 1
     USER = 2
 
     @classmethod
     def from_type(cls, t: type):
-        if issubclass(t, discord.abc.Role): return cls.ROLE
-        if issubclass(t, discord.abc.User): return cls.USER
+        if issubclass(t, discord.abc.Role):
+            return cls.ROLE
+        if issubclass(t, discord.abc.User):
+            return cls.USER
+
+
+class ComponentType(IntEnum):
+    actionrow = 1
+    button = 2
+    select = 3
+
+
+class ButtonStyle(IntEnum):
+    blue = 1
+    blurple = 1
+    gray = 2
+    grey = 2
+    green = 3
+    red = 4
+    URL = 5
+
+    primary = 1
+    secondary = 2
+    success = 3
+    danger = 4
