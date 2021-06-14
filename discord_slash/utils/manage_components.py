@@ -152,9 +152,10 @@ def create_select(
 
 def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Iterator[str]:
     """
-    Returns generator with 'custom_id' of component or components.
+    Returns generator with 'custom_id' of component or list of components.
 
     :param component: Custom ID or component dict (actionrow or button) or list of previous two.
+    :returns: typing.Iterator[str]
     """
 
     if isinstance(component, str):
@@ -174,13 +175,19 @@ def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Itera
         )
 
 
-def _get_messages_ids(message: typing.Union[discord.Message, int, list]) -> typing.Iterator[int]:
+def get_messages_ids(message: typing.Union[int, discord.Message, list]) -> typing.Iterator[int]:
+    """
+    Returns generator with id of message or list messages.
+
+    :param message: message ID or message object or list of previous two.
+    :returns: typing.Iterator[int]
+    """
     if isinstance(message, int):
         yield message
     elif isinstance(message, discord.Message):
         yield message.id
     elif isinstance(message, list):
-        yield from (msg_id for msg in message for msg_id in _get_messages_ids(msg))
+        yield from (msg_id for msg in message for msg_id in get_messages_ids(msg))
     else:
         raise IncorrectType(
             f"Unknown component type of {message} ({type(message)}). "
@@ -190,8 +197,8 @@ def _get_messages_ids(message: typing.Union[discord.Message, int, list]) -> typi
 
 async def wait_for_component(
     client: discord.Client,
-    component: typing.Union[str, dict, list] = None,
-    message: typing.Union[discord.Message, int, list] = None,
+    messages: typing.Union[discord.Message, int, list] = None,
+    components: typing.Union[str, dict, list] = None,
     check=None,
     timeout=None,
 ) -> ComponentContext:
@@ -201,26 +208,27 @@ async def wait_for_component(
 
     :param client: The client/bot object.
     :type client: :class:`discord.Client`
-    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
-    :param message: The message object to check for, or the message ID or list of previous two.
-    :type component: Union[dict, str]
+    :param messages: The message object to check for, or the message ID or list of previous two.
+    :type messages: Union[discord.Message, int, list]
+    :param components: Custom ID to check for, or component dict (actionrow or button) or list of previous two.
+    :type components: Union[str, dict, list]
     :param check: Optional check function. Must take a `ComponentContext` as the first parameter.
     :param timeout: The number of seconds to wait before timing out and raising :exc:`asyncio.TimeoutError`.
     :raises: :exc:`asyncio.TimeoutError`
     """
 
-    if not (component or message):
-        raise IncorrectFormat("You must specify component or message (or both)")
+    if not (messages or components):
+        raise IncorrectFormat("You must specify messages or components (or both)")
 
-    components_ids = list(get_components_ids(component)) if component else None
-    message_ids = list(_get_messages_ids(message)) if message else None
+    message_ids = list(get_messages_ids(messages)) if messages else None
+    custom_ids = list(get_components_ids(components)) if components else None
 
     def _check(ctx: ComponentContext):
         if check and not check(ctx):
             return False
-        # if components_ids is empty or there is a match
-        wanted_component = not components_ids or ctx.custom_id in components_ids
+        # if custom_ids is empty or there is a match
         wanted_message = not message_ids or ctx.origin_message_id in message_ids
-        return wanted_component and wanted_message
+        wanted_component = not custom_ids or ctx.custom_id in custom_ids
+        return wanted_message and wanted_component
 
     return await client.wait_for("component", check=_check, timeout=timeout)

@@ -1,9 +1,12 @@
 import inspect
 import typing
 
+import discord
+
 from . import error
 from .model import CogBaseCommandObject, CogComponentCallbackObject, CogSubcommandObject
 from .utils import manage_commands
+from .utils.manage_components import get_components_ids, get_messages_ids
 
 
 def cog_slash(
@@ -166,10 +169,8 @@ def cog_subcommand(
 
 def cog_component(
     *,
-    message_id: int = None,
-    message_ids: typing.List[int] = None,
-    custom_id: str = None,
-    custom_ids: typing.List[str] = None,
+    messages: typing.Union[int, discord.Message, list] = None,
+    components: typing.Union[str, dict, list] = None,
     use_callback_name=True,
     component_type: int = None,
 ):
@@ -177,42 +178,27 @@ def cog_component(
     Decorator for component callbacks in cogs.\n
     Almost same as :meth:`.client.SlashCommand.component_callback`.
 
-    .. note::
-        ``message_id`` and ``message_ids`` cannot be used at the same time. The same applies to ``custom_id`` and ``custom_ids``.
-
-    :param message_id: If specified, only interactions from the message given will be accepted.
-    :type message_id: Optional[int]
-    :param message_ids: Similar to ``message_id``, but accepts a list of message IDs instead. Empty list will mean that no interactions are accepted.
-    :type message_ids: Optional[List[int]]
-    :param custom_id: The ``custom_id`` of the component. Defaults to the name of ``callback`` if ``use_callback_name=True``.
-    :type custom_id: Optional[str]
-    :param custom_ids: Similar to ``custom_ids``, but accepts a list of custom IDs instead. Empty list will mean that no interactions are accepted.
-    :type custom_ids: Optional[List[str]]
-    :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `message_ids`` (``message_id``) or ``custom_ids`` (``custom_id``) must be specified.
+    :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
+    :type messages: Union[discord.Message, int, list]
+    :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+    :type components: Union[str, dict, list]
+    :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
     :type use_callback_name: bool
     :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
     :type component_type: Optional[int]
     :raises: .error.DuplicateCustomID, .error.IncorrectFormat
     """
-    if message_id and message_ids:
-        raise error.IncorrectFormat("You cannot use both `message_id` and `message_ids`!")
-
-    if custom_id and custom_ids:
-        raise error.IncorrectFormat("You cannot use both `custom_id` and `custom_ids`!")
-
-    if message_ids is None:
-        message_ids = [message_id]
+    message_ids = list(get_messages_ids(messages)) if messages is not None else [None]
+    custom_ids = list(get_components_ids(components)) if components is not None else [None]
 
     def wrapper(callback):
         nonlocal custom_ids
 
-        if custom_ids is None:
-            custom_ids = [callback.__name__] if use_callback_name else [custom_id]
+        if use_callback_name and custom_ids == [None]:
+            custom_ids = [callback.__name__]
 
         if message_ids == [None] and custom_ids == [None]:
-            raise error.IncorrectFormat(
-                "'message_ids' ('message_id') or 'custom_ids' ('custom_id') must be specified!"
-            )
+            raise error.IncorrectFormat("You must specify messages or components (or both)")
 
         return CogComponentCallbackObject(
             callback,
