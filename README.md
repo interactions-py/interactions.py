@@ -78,6 +78,7 @@ def setup(bot):
     bot.add_cog(Slash(bot))
 ```
 
+--------
 - This library is based on gateway event. If you are looking for webserver based, have a look at this:
     - [dispike](https://github.com/ms7m/dispike)
     - [discord-interactions-python](https://github.com/discord/discord-interactions-python)
