@@ -26,6 +26,51 @@ def create_actionrow(*components: dict) -> dict:
     return {"type": ComponentType.actionrow, "components": components}
 
 
+def spread_to_rows(*components, max_in_row=5) -> typing.List[dict]:
+    """
+    Generates list of actionsrows from given components.
+
+    :param components: Components dicts (buttons or selects or existing actionrows) to spread. Use `None` to explicitly start a new row.
+    :type components: dict
+    :param max_in_row: Maximum number of elements in each row.
+    :type max_in_row: int
+    :return: list
+    """
+    if not components or len(components) > 25:
+        raise IncorrectFormat("Number of components should be between 1 and 25.")
+
+    if max_in_row < 1 or max_in_row > 5:
+        raise IncorrectFormat("max_in_row should be between 1 and 5.")
+
+    rows = []
+    button_row = []
+    for component in list(components) + [None]:
+        if component is not None and component["type"] is ComponentType.button:
+            button_row.append(component)
+
+            if len(button_row) == max_in_row:
+                rows.append(create_actionrow(*button_row))
+                button_row = []
+
+            continue
+
+        if button_row:
+            rows.append(create_actionrow(*button_row))
+            button_row = []
+
+        if component is None:
+            pass
+        elif component["type"] is ComponentType.actionrow:
+            rows.append(component)
+        elif component["type"] is ComponentType.select:
+            rows.append(create_actionrow(component))
+
+    if len(rows) > 5:
+        raise IncorrectFormat("Number of rows exceeds 5.")
+
+    return rows
+
+
 def emoji_to_dict(emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str]) -> dict:
     """
     Converts a default or custom emoji into a partial emoji dict.
