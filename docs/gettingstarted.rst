@@ -232,9 +232,9 @@ a string or integer. Below is an implementation of this design in the Python cod
 Want to restrict access? Setup permissions!
 -------------------------------------------
 
-Slash commands also supports ability to set permissions to allow only certain roles and/or users 
+Slash commands also support the ability to set permissions to allow only certain roles and/or users 
 to run a slash command. Permissions can be applied to both global and guild based commands. They 
-are defined per guild ,per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here table that shows the JSON 
+are defined per guild, per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here is the table that shows the JSON 
 structure of how permissions are represented:
 
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
@@ -269,12 +269,12 @@ This is an example of how a single permission will look when represented as a js
     "permission": True 
   }
 
-Now, let take a look at an example. The slash command decorator have a permissions parameter where
+Now, let take a look at an example. The slash command decorator has a permissions parameter where
 it takes in a dictionary. The key being the guild id to apply permissions on, and value being the list
 of permissions to apply. For each permission, we can use the handy ``create_permission`` method to 
-build the permission json explain above.
+build the permission json explained above.
 
-In this case, we are setting 2 permissions for guild with id of ``12345678``. Firstly, we are allowing
+In this case, we are setting 2 permissions for a guild with an id of ``12345678``. Firstly, we are allowing
 role with id ``99999999`` and disallowing user with id ``88888888`` from running the slash command.
 
 .. code-block:: python
