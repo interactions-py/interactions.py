@@ -26,6 +26,7 @@ feel free to reach out to others on the `Discord`_!
    quickstart.rst
    gettingstarted.rst
    migration.rst
+   components.rst
    discord_slash.rst
    events.rst
    discord_slash.utils.rst
