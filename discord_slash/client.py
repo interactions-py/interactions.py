@@ -61,7 +61,6 @@ class SlashCommand:
         if self.sync_commands:
             self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
 
-
         if (
             not isinstance(client, commands.Bot)
             and not isinstance(client, commands.AutoShardedBot)
@@ -325,7 +324,7 @@ class SlashCommand:
         return cmds
 
     async def sync_all_commands(
-            self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
+        self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
     ):
         """
         Matches commands registered on Discord to commands registered here.
@@ -506,7 +505,8 @@ class SlashCommand:
         guild_ids = guild_ids if guild_ids else []
         if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
             raise error.IncorrectGuildIDType(
-                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed.")
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
         if name in self.commands:
             tgt = self.commands[name]
             if not tgt.has_subcommands:
@@ -587,7 +587,8 @@ class SlashCommand:
         guild_ids = guild_ids if guild_ids else []
         if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
             raise error.IncorrectGuildIDType(
-                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed.")
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
 
         if base in self.commands:
             for x in guild_ids:
@@ -735,7 +736,7 @@ class SlashCommand:
                 permissions,
                 connector,
             )
-            
+
             return obj
 
         return wrapper
@@ -834,7 +835,7 @@ class SlashCommand:
                 options,
                 connector,
             )
-            
+
             return obj
 
         return wrapper
@@ -1024,7 +1025,6 @@ class SlashCommand:
             temporary_auto_convert = {}
             for x in selected_cmd.options:
                 temporary_auto_convert[x["name"].lower()] = x["type"]
-
 
             args = (
                 await self.process_options(

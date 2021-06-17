@@ -14,7 +14,7 @@ def cog_slash(
     options: typing.List[dict] = None,
     default_permission: bool = True,
     permissions: typing.Dict[int, list] = None,
-    connector: dict = None
+    connector: dict = None,
 ):
     """
     Decorator for Cog to add slash command.\n
@@ -57,7 +57,9 @@ def cog_slash(
 
         if guild_ids is not None:
             if not all(isinstance(item, int) for item in guild_ids):
-                raise IncorrectGuildIDType(f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed.")
+                raise IncorrectGuildIDType(
+                    f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed."
+                )
 
         _cmd = {
             "func": cmd,
@@ -88,7 +90,7 @@ def cog_subcommand(
     sub_group_desc: str = None,
     guild_ids: typing.List[int] = None,
     options: typing.List[dict] = None,
-    connector: dict = None
+    connector: dict = None,
 ):
     """
     Decorator for Cog to add subcommand.\n
@@ -144,7 +146,9 @@ def cog_subcommand(
 
         if guild_ids is not None:
             if not all(isinstance(item, int) for item in guild_ids):
-                raise IncorrectGuildIDType(f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed.")
+                raise IncorrectGuildIDType(
+                    f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed."
+                )
 
         _cmd = {
             "func": None,

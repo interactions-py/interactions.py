@@ -57,6 +57,7 @@ class IncorrectType(SlashCommandError):
     Type passed was incorrect
     """
 
+
 class IncorrectGuildIDType(SlashCommandError):
     """
     Guild ID type passed was incorrect
