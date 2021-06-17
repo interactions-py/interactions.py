@@ -69,6 +69,7 @@ class SlashCommand:
             self.logger.warning(
                 "Detected discord.Client! It is highly recommended to use `commands.Bot`. Do not add any `on_socket_response` event."
             )
+
             self._discord.on_socket_response = self.on_socket_response
             self.has_listener = False
         else:
@@ -502,6 +503,10 @@ class SlashCommand:
         name = name or cmd.__name__
         name = name.lower()
         guild_ids = guild_ids if guild_ids else []
+        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+            raise error.IncorrectGuildIDType(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
         if name in self.commands:
             tgt = self.commands[name]
             if not tgt.has_subcommands:
@@ -580,6 +585,10 @@ class SlashCommand:
         name = name.lower()
         description = description or getdoc(cmd)
         guild_ids = guild_ids if guild_ids else []
+        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+            raise error.IncorrectGuildIDType(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
 
         if base in self.commands:
             for x in guild_ids:
@@ -727,6 +736,7 @@ class SlashCommand:
                 permissions,
                 connector,
             )
+
             return obj
 
         return wrapper
@@ -825,6 +835,7 @@ class SlashCommand:
                 options,
                 connector,
             )
+
             return obj
 
         return wrapper
