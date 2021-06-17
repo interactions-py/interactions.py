@@ -894,8 +894,7 @@ class SlashCommand:
         Callback can be made to only accept component interactions from a specific messages
         and/or custom_ids of components.
 
-        :param callback: The coroutine to be called when the component is interacted with. Must accept a single argument with the type :class:`.context.ComponentContext`.
-        :type callback: Coroutine
+        :param Coroutine callback: The coroutine to be called when the component is interacted with. Must accept a single argument with the type :class:`.context.ComponentContext`.
         :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
         :type messages: Union[discord.Message, int, list]
         :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
@@ -1050,7 +1049,7 @@ class SlashCommand:
         component_type: int = None,
     ):
         """
-        Decorator that registers a coroutine as a component callback.\n
+        Decorator that registers a coroutine as a component callback.
         Adds a coroutine callback to a component.
         Callback can be made to only accept component interactions from a specific messages
         and/or custom_ids of components.
