@@ -311,7 +311,12 @@ command as show in the following example:
   async def test(ctx):
     await ctx.send(content="Hello World!")
 
-.. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
+But what about buttons?
+-----------------------
+This library supports components (buttons, actionrows, selects, etc.). Take a look here: `components`_.
+
+.. _quickstart: quickstart.html
+.. _components: components.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
 .. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoption
