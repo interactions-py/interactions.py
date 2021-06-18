@@ -51,6 +51,7 @@ This method will return a :class:`ComponentContext <discord_slash.context.Compon
 .. code-block:: python
 
     await ctx.send("My Message", components=[action_row])
+    # note: this will only catch one button press, if you want more, put this in a loop
     button_ctx: ComponentContext = await manage_components.wait_for_component(bot, action_row)
     await button_ctx.edit_origin(content="You pressed a button!")
 
