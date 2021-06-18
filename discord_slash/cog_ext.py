@@ -1,9 +1,12 @@
 import inspect
 import typing
 
-from .error import IncorrectGuildIDType
-from .model import CogBaseCommandObject, CogSubcommandObject
+import discord
+
+from .error import IncorrectFormat, IncorrectGuildIDType
+from .model import CogBaseCommandObject, CogComponentCallbackObject, CogSubcommandObject
 from .utils import manage_commands
+from .utils.manage_components import get_components_ids, get_messages_ids
 
 
 def cog_slash(
@@ -18,7 +21,7 @@ def cog_slash(
 ):
     """
     Decorator for Cog to add slash command.\n
-    Almost same as :func:`.client.SlashCommand.slash`.
+    Almost same as :meth:`.client.SlashCommand.slash`.
 
     Example:
 
@@ -94,7 +97,7 @@ def cog_subcommand(
 ):
     """
     Decorator for Cog to add subcommand.\n
-    Almost same as :func:`.client.SlashCommand.subcommand`.
+    Almost same as :meth:`.client.SlashCommand.subcommand`.
 
     Example:
 
@@ -172,5 +175,48 @@ def cog_subcommand(
             "connector": connector,
         }
         return CogSubcommandObject(base, _cmd, subcommand_group, name or cmd.__name__, _sub)
+
+    return wrapper
+
+
+def cog_component(
+    *,
+    messages: typing.Union[int, discord.Message, list] = None,
+    components: typing.Union[str, dict, list] = None,
+    use_callback_name=True,
+    component_type: int = None,
+):
+    """
+    Decorator for component callbacks in cogs.\n
+    Almost same as :meth:`.client.SlashCommand.component_callback`.
+
+    :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
+    :type messages: Union[discord.Message, int, list]
+    :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+    :type components: Union[str, dict, list]
+    :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+    :type use_callback_name: bool
+    :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
+    :type component_type: Optional[int]
+    :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+    """
+    message_ids = list(get_messages_ids(messages)) if messages is not None else [None]
+    custom_ids = list(get_components_ids(components)) if components is not None else [None]
+
+    def wrapper(callback):
+        nonlocal custom_ids
+
+        if use_callback_name and custom_ids == [None]:
+            custom_ids = [callback.__name__]
+
+        if message_ids == [None] and custom_ids == [None]:
+            raise IncorrectFormat("You must specify messages or components (or both)")
+
+        return CogComponentCallbackObject(
+            callback,
+            message_ids=message_ids,
+            custom_ids=custom_ids,
+            component_type=component_type,
+        )
 
     return wrapper

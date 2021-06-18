@@ -40,6 +40,20 @@ class DuplicateCommand(SlashCommandError):
         super().__init__(f"Duplicate command name detected: {name}")
 
 
+class DuplicateCallback(SlashCommandError):
+    """
+    There is a duplicate component callback.
+    """
+
+    def __init__(self, message_id: int, custom_id: str, component_type: int):
+        super().__init__(
+            f"Duplicate component callback detected: "
+            f"message ID {message_id or '<any>'}, "
+            f"custom_id `{custom_id or '<any>'}`, "
+            f"component_type `{component_type or '<any>'}`"
+        )
+
+
 class DuplicateSlashClient(SlashCommandError):
     """
     There are duplicate :class:`.SlashCommand` instances.

@@ -87,7 +87,7 @@ class CommandData:
         id=None,
         application_id=None,
         version=None,
-        **kwargs
+        **kwargs,
     ):
         self.name = name
         self.description = description
@@ -114,29 +114,20 @@ class CommandData:
             return False
 
 
-class CommandObject:
+class CallbackObject:
     """
-    Slash command object of this extension.
+    Callback object of this extension.
 
     .. warning::
         Do not manually init this model.
 
-    :ivar name: Name of the command.
     :ivar func: The coroutine of the command.
-    :ivar description: Description of the command.
-    :ivar allowed_guild_ids: List of the allowed guild id.
-    :ivar options: List of the option of the command. Used for `auto_register`.
-    :ivar connector: Kwargs connector of the command.
     :ivar __commands_checks__: Check of the command.
     """
 
-    def __init__(self, name, cmd):  # Let's reuse old command formatting.
-        self.name = name.lower()
-        self.func = cmd["func"]
-        self.description = cmd["description"]
-        self.allowed_guild_ids = cmd["guild_ids"] or []
-        self.options = cmd["api_options"] or []
-        self.connector = cmd["connector"] or {}
+    def __init__(self, func):
+        self.func = func
+
         # Ref https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L1447
         # Since this isn't inherited from `discord.ext.commands.Command`, discord.py's check decorator will
         # add checks at this var.
@@ -300,6 +291,29 @@ class CommandObject:
         return False not in res
 
 
+class CommandObject(CallbackObject):
+    """
+    Slash command object of this extension.
+
+    .. warning::
+        Do not manually init this model.
+
+    :ivar name: Name of the command.
+    :ivar description: Description of the command.
+    :ivar allowed_guild_ids: List of the allowed guild id.
+    :ivar options: List of the option of the command. Used for `auto_register`.
+    :ivar connector: Kwargs connector of the command.
+    """
+
+    def __init__(self, name, cmd):  # Let's reuse old command formatting.
+        super().__init__(cmd["func"])
+        self.name = name.lower()
+        self.description = cmd["description"]
+        self.allowed_guild_ids = cmd["guild_ids"] or []
+        self.options = cmd["api_options"] or []
+        self.connector = cmd["connector"] or {}
+
+
 class BaseCommandObject(CommandObject):
     """
     BaseCommand object of this extension.
@@ -370,6 +384,59 @@ class CogSubcommandObject(SubcommandObject):
     def __init__(self, base, cmd, sub_group, name, sub):
         super().__init__(sub, base, name, sub_group)
         self.base_command_data = cmd
+        self.cog = None  # Manually set this later.
+
+
+class ComponentCallbackObject(CallbackObject):
+    """
+    Internal component object. Inherits :class:`CallbackObject`, so it has all variables from it.
+
+    .. warning::
+        Do not manually init this model.
+
+    :ivar message_ids: The message IDs registered to this callback.
+    :ivar custom_ids: The component custom IDs registered to this callback.
+    :ivar component_type: Type of the component. See `:class.utils.manage_components.ComponentsType`
+    """
+
+    def __init__(
+        self,
+        func,
+        message_ids,
+        custom_ids,
+        component_type,
+    ):
+        if component_type not in (2, 3, None):
+            raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
+
+        super().__init__(func)
+        message_ids = set(message_ids)
+        custom_ids = set(custom_ids)
+        self.keys = {
+            (message_id, custom_id) for message_id in message_ids for custom_id in custom_ids
+        }
+
+        self.component_type = component_type
+
+    async def invoke(self, ctx):
+        """
+        Invokes the component callback.
+
+        :param ctx: The :class:`.context.ComponentContext` for the interaction.
+        """
+        return await super().invoke(ctx)
+
+
+class CogComponentCallbackObject(ComponentCallbackObject):
+    """
+    Component callback object but for Cog. Has all variables from :class:`ComponentCallbackObject`.
+
+    .. warning::
+        Do not manually init this model.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cog = None  # Manually set this later.
 
 

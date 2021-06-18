@@ -9,6 +9,15 @@ from discord.ext import commands
 
 from . import context, error, http, model
 from .utils import manage_commands
+from .utils.manage_components import get_components_ids, get_messages_ids
+
+
+def _get_val(d: dict, key):  # util function to get value from dict with fallback to None key
+    try:
+        value = d[key]
+    except KeyError:  # if there is no specific key set, we fallback to "global/any"
+        value = d[None]
+    return value
 
 
 class SlashCommand:
@@ -53,6 +62,7 @@ class SlashCommand:
         self._discord = client
         self.commands = {}
         self.subcommands = {}
+        self.components = {}
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord, application_id)
         self.sync_commands = sync_commands
@@ -126,11 +136,17 @@ class SlashCommand:
             )
         cog._slash_registered = True  # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
+
+        self._get_cog_slash_commands(cog, func_list)
+        self._get_cog_component_callbacks(cog, func_list)
+
+    def _get_cog_slash_commands(self, cog, func_list):
         res = [
             x
             for x in func_list
             if isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))
         ]
+
         for x in res:
             x.cog = cog
             if isinstance(x, model.CogBaseCommandObject):
@@ -170,6 +186,13 @@ class SlashCommand:
                         raise error.DuplicateCommand(f"{x.base} {x.name}")
                     self.subcommands[x.base][x.name] = x
 
+    def _get_cog_component_callbacks(self, cog, func_list):
+        res = [x for x in func_list if isinstance(x, model.CogComponentCallbackObject)]
+
+        for x in res:
+            x.cog = cog
+            self._add_comp_callback_obj(x)
+
     def remove_cog_commands(self, cog):
         """
         Removes slash command from :class:`discord.ext.commands.Cog`.
@@ -183,6 +206,10 @@ class SlashCommand:
         if hasattr(cog, "_slash_registered"):
             del cog._slash_registered
         func_list = [getattr(cog, x) for x in dir(cog)]
+        self._remove_cog_slash_commands(func_list)
+        self._remove_cog_component_callbacks(func_list)
+
+    def _remove_cog_slash_commands(self, func_list):
         res = [
             x
             for x in func_list
@@ -212,6 +239,12 @@ class SlashCommand:
                             self.commands[x.base].has_subcommands = False
                         else:
                             del self.commands[x.base]
+
+    def _remove_cog_component_callbacks(self, func_list):
+        res = [x for x in func_list if isinstance(x, model.CogComponentCallbackObject)]
+
+        for x in res:
+            self.remove_component_callback_obj(x)
 
     async def to_dict(self):
         """
@@ -858,6 +891,202 @@ class SlashCommand:
 
         return wrapper
 
+    def add_component_callback(
+        self,
+        callback: typing.Coroutine,
+        *,
+        messages: typing.Union[int, discord.Message, list] = None,
+        components: typing.Union[str, dict, list] = None,
+        use_callback_name=True,
+        component_type: int = None,
+    ):
+        """
+        Adds a coroutine callback to a component.
+        Callback can be made to only accept component interactions from a specific messages
+        and/or custom_ids of components.
+
+        :param Coroutine callback: The coroutine to be called when the component is interacted with. Must accept a single argument with the type :class:`.context.ComponentContext`.
+        :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
+        :type messages: Union[discord.Message, int, list]
+        :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+        :type components: Union[str, dict, list]
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+        :type use_callback_name: bool
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+        """
+
+        message_ids = list(get_messages_ids(messages)) if messages is not None else [None]
+        custom_ids = list(get_components_ids(components)) if components is not None else [None]
+
+        if use_callback_name and custom_ids == [None]:
+            custom_ids = [callback.__name__]
+
+        if message_ids == [None] and custom_ids == [None]:
+            raise error.IncorrectFormat("You must specify messages or components (or both)")
+
+        callback_obj = model.ComponentCallbackObject(
+            callback, message_ids, custom_ids, component_type
+        )
+        self._add_comp_callback_obj(callback_obj)
+        return callback_obj
+
+    def _add_comp_callback_obj(self, callback_obj):
+        component_type = callback_obj.component_type
+
+        for message_id, custom_id in callback_obj.keys:
+            self._register_comp_callback_obj(callback_obj, message_id, custom_id, component_type)
+
+    def _register_comp_callback_obj(self, callback_obj, message_id, custom_id, component_type):
+        message_id_dict = self.components
+        custom_id_dict = message_id_dict.setdefault(message_id, {})
+        component_type_dict = custom_id_dict.setdefault(custom_id, {})
+
+        if component_type in component_type_dict:
+            raise error.DuplicateCallback(message_id, custom_id, component_type)
+
+        component_type_dict[component_type] = callback_obj
+        self.logger.debug(
+            f"Added component callback for "
+            f"message ID {message_id or '<any>'}, "
+            f"custom_id `{custom_id or '<any>'}`, "
+            f"component_type `{component_type or '<any>'}`"
+        )
+
+    def extend_component_callback(
+        self,
+        callback_obj: model.ComponentCallbackObject,
+        message_id: int = None,
+        custom_id: str = None,
+    ):
+        """
+        Registers existing callback object (:class:`.model.ComponentType`)
+        for specific combination of message_id, custom_id, component_type.
+
+        :param callback_obj: callback object.
+        :type callback_obj: model.ComponentCallbackObject
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[.model]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+        """
+
+        component_type = callback_obj.component_type
+        self._register_comp_callback_obj(callback_obj, message_id, custom_id, component_type)
+        callback_obj.keys.add((message_id, custom_id))
+
+    def get_component_callback(
+        self,
+        message_id: int = None,
+        custom_id: str = None,
+        component_type: int = None,
+    ):
+        """
+        Returns component callback (or None if not found) for specific combination of message_id, custom_id, component_type.
+
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[.model]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :param component_type: The type of the component. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+
+        :return: Optional[model.ComponentCallbackObject]
+        """
+        message_id_dict = self.components
+        try:
+            custom_id_dict = _get_val(message_id_dict, message_id)
+            component_type_dict = _get_val(custom_id_dict, custom_id)
+            callback = _get_val(component_type_dict, component_type)
+
+        except KeyError:  # there was no key in dict and no global fallback
+            pass
+        else:
+            return callback
+
+    def remove_component_callback(
+        self, message_id: int = None, custom_id: str = None, component_type: int = None
+    ):
+        """
+        Removes a component callback from specific combination of message_id, custom_id, component_type.
+
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[int]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :param component_type: The type of the component. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+        :raises: .error.IncorrectFormat
+        """
+        try:
+            callback = self.components[message_id][custom_id].pop(component_type)
+            if not self.components[message_id][custom_id]:  # delete dict nesting levels if empty
+                self.components[message_id].pop(custom_id)
+                if not self.components[message_id]:
+                    self.components.pop(message_id)
+        except KeyError:
+            raise error.IncorrectFormat(
+                f"Callback for "
+                f"message ID `{message_id or '<any>'}`, "
+                f"custom_id `{custom_id or '<any>'}`, "
+                f"component_type `{component_type or '<any>'}` is not registered!"
+            )
+        else:
+            callback.keys.remove((message_id, custom_id))
+
+    def remove_component_callback_obj(self, callback_obj: model.ComponentCallbackObject):
+        """
+        Removes a component callback from all related message_id, custom_id listeners.
+
+        :param callback_obj: callback object.
+        :type callback_obj: model.ComponentCallbackObject
+        :raises: .error.IncorrectFormat
+        """
+        if not callback_obj.keys:
+            raise error.IncorrectFormat("Callback already removed from any listeners")
+
+        component_type = callback_obj.component_type
+        for message_id, custom_id in callback_obj.keys.copy():
+            self.remove_component_callback(message_id, custom_id, component_type)
+
+    def component_callback(
+        self,
+        *,
+        messages: typing.Union[int, discord.Message, list] = None,
+        components: typing.Union[str, dict, list] = None,
+        use_callback_name=True,
+        component_type: int = None,
+    ):
+        """
+        Decorator that registers a coroutine as a component callback.
+        Adds a coroutine callback to a component.
+        Callback can be made to only accept component interactions from a specific messages
+        and/or custom_ids of components.
+
+        :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
+        :type messages: Union[discord.Message, int, list]
+        :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+        :type components: Union[str, dict, list]
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+        :type use_callback_name: bool
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+        """
+
+        def wrapper(callback):
+            return self.add_component_callback(
+                callback,
+                messages=messages,
+                components=components,
+                use_callback_name=use_callback_name,
+                component_type=component_type,
+            )
+
+        return wrapper
+
     async def process_options(
         self,
         guild: discord.Guild,
@@ -958,17 +1187,34 @@ class SlashCommand:
             else:
                 await func.invoke(ctx, *args)
         except Exception as ex:
-            if hasattr(func, "on_error"):
-                if func.on_error is not None:
-                    try:
-                        if hasattr(func, "cog"):
-                            await func.on_error(func.cog, ctx, ex)
-                        else:
-                            await func.on_error(ctx, ex)
-                        return
-                    except Exception as e:
-                        self.logger.error(f"{ctx.command}:: Error using error decorator: {e}")
-            await self.on_slash_command_error(ctx, ex)
+            if not await self._handle_invoke_error(func, ctx, ex):
+                await self.on_slash_command_error(ctx, ex)
+
+    async def invoke_component_callback(self, func, ctx):
+        """
+        Invokes component callback.
+
+        :param func: Component callback object.
+        :param ctx: Context.
+        """
+        try:
+            await func.invoke(ctx)
+        except Exception as ex:
+            if not await self._handle_invoke_error(func, ctx, ex):
+                await self.on_component_callback_error(ctx, ex)
+
+    async def _handle_invoke_error(self, func, ctx, ex):
+        if hasattr(func, "on_error"):
+            if func.on_error is not None:
+                try:
+                    if hasattr(func, "cog"):
+                        await func.on_error(func.cog, ctx, ex)
+                    else:
+                        await func.on_error(ctx, ex)
+                    return True
+                except Exception as e:
+                    self.logger.error(f"{ctx.command}:: Error using error decorator: {e}")
+        return False
 
     async def on_socket_response(self, msg):
         """
@@ -994,6 +1240,13 @@ class SlashCommand:
     async def _on_component(self, to_use):
         ctx = context.ComponentContext(self.req, to_use, self._discord, self.logger)
         self._discord.dispatch("component", ctx)
+
+        callback = self.get_component_callback(
+            ctx.origin_message_id, ctx.custom_id, ctx.component_type
+        )
+        if callback is not None:
+            self._discord.dispatch("component_callback", ctx, callback)
+            await self.invoke_component_callback(callback, ctx)
 
     async def _on_slash(self, to_use):
         if to_use["data"]["name"] in self.commands:
@@ -1102,6 +1355,17 @@ class SlashCommand:
         self._discord.dispatch("slash_command", ctx)
         await self.invoke_command(selected, ctx, args)
 
+    def _on_error(self, ctx, ex, event_name):
+        on_event = "on_" + event_name
+        if self.has_listener:
+            if self._discord.extra_events.get(on_event):
+                self._discord.dispatch(event_name, ctx, ex)
+                return True
+        if hasattr(self._discord, on_event):
+            self._discord.dispatch(event_name, ctx, ex)
+            return True
+        return False
+
     async def on_slash_command_error(self, ctx, ex):
         """
         Handles Exception occurred from invoking command.
@@ -1128,12 +1392,40 @@ class SlashCommand:
         :type ex: Exception
         :return:
         """
-        if self.has_listener:
-            if self._discord.extra_events.get("on_slash_command_error"):
-                self._discord.dispatch("slash_command_error", ctx, ex)
-                return
-        if hasattr(self._discord, "on_slash_command_error"):
-            self._discord.dispatch("slash_command_error", ctx, ex)
-            return
-        # Prints exception if not overridden or has no listener for error.
-        self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
+        if not self._on_error(ctx, ex, "slash_command_error"):
+            # Prints exception if not overridden or has no listener for error.
+            self.logger.exception(
+                f"An exception has occurred while executing command `{ctx.name}`:"
+            )
+
+    async def on_component_callback_error(self, ctx, ex):
+        """
+        Handles Exception occurred from invoking component callback.
+
+        Example of adding event:
+
+        .. code-block:: python
+
+            @client.event
+            async def on_component_callback_error(ctx, ex):
+                ...
+
+        Example of adding listener:
+
+        .. code-block:: python
+
+            @bot.listen()
+            async def on_component_callback_error(ctx, ex):
+                ...
+
+        :param ctx: Context of the callback.
+        :type ctx: :class:`.model.ComponentContext`
+        :param ex: Exception from the command invoke.
+        :type ex: Exception
+        :return:
+        """
+        if not self._on_error(ctx, ex, "component_callback_error"):
+            # Prints exception if not overridden or has no listener for error.
+            self.logger.exception(
+                f"An exception has occurred while executing component callback custom ID `{ctx.custom_id}`:"
+            )
