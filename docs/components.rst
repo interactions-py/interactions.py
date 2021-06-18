@@ -37,6 +37,8 @@ Fantastic, we now have an action row with a green button in it, now lets get it 
 
     await ctx.send("My Message", components=[action_row])
 
+.. note:: This will work in both slash commands, and discord.py commands
+
 Now if you've followed along, you have a green button in discord! But theres a problem, whenever you click it you see that the ``interaction failed``. Why is that?
 Well, in Discord, clicking buttons and using slash commands are called ``interactions``, and Discord doesn't know if we've received them or not unless we tell Discord. So how do we do that?
 
@@ -73,4 +75,4 @@ Well lucky for you, you don't have to. You can either respond silently, with a t
 How do i know which button was pressed?
 _______________________________________
 
-Each button gets a ``custom_id``, this is a unique identifier of which button is being pressed. You can specify what the ID is when you define your button. When handling the event, simply check the custom_id, and handle accordingly.
+Each button gets a ``custom_id``, this is a unique identifier of which button is being pressed. You can specify what the ID is when you define your button, if you don't; a random one will be generated. When handling the event, simply check the custom_id, and handle accordingly.
