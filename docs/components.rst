@@ -45,7 +45,7 @@ Well, in Discord, clicking buttons and using slash commands are called ``interac
 Responding to interactions
 __________________________
 
-When responding to interactions, we have 2 choices, either to do it in the command itself, or a global event handler (like :meth:`on_slash_command_error`)
+When responding, you have 2 choices in how you handle interactions. You can either wait for them in the command itself, or listen for them in a global event handler (similar to :meth:`on_slash_command_error`)
 
 Lets go through the most common method first, responding in the event itself. We simply need to :meth:`wait_for` the event, just like you do for reactions. For this we're going to use :func:`wait_for_component() <discord_slash.utils.manage_components>`, and we're going to only wait for events from the action row we just .
 This method will return a :class:`ComponentContext <discord_slash.context.ComponentContext>` object that we can use to respond. For this example, we'll just edit the original message (:meth:`edit_origin() <discord_slash.context.ComponentContext.edit_origin>`)
