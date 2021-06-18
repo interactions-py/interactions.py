@@ -3,7 +3,7 @@ import typing
 
 import discord
 
-from . import error
+from .error import IncorrectFormat, IncorrectGuildIDType
 from .model import CogBaseCommandObject, CogComponentCallbackObject, CogSubcommandObject
 from .utils import manage_commands
 from .utils.manage_components import get_components_ids, get_messages_ids
@@ -57,6 +57,12 @@ def cog_slash(
             opts = manage_commands.generate_options(cmd, desc, connector)
         else:
             opts = options
+
+        if guild_ids is not None:
+            if not all(isinstance(item, int) for item in guild_ids):
+                raise IncorrectGuildIDType(
+                    f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed."
+                )
 
         _cmd = {
             "func": cmd,
@@ -141,6 +147,12 @@ def cog_subcommand(
         else:
             opts = options
 
+        if guild_ids is not None:
+            if not all(isinstance(item, int) for item in guild_ids):
+                raise IncorrectGuildIDType(
+                    f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed."
+                )
+
         _cmd = {
             "func": None,
             "description": base_description,
@@ -198,7 +210,7 @@ def cog_component(
             custom_ids = [callback.__name__]
 
         if message_ids == [None] and custom_ids == [None]:
-            raise error.IncorrectFormat("You must specify messages or components (or both)")
+            raise IncorrectFormat("You must specify messages or components (or both)")
 
         return CogComponentCallbackObject(
             callback,
