@@ -65,7 +65,7 @@ Next we'll go over the alternative, a global event handler. This works just the 
 
     @bot.event
     async def on_component(ctx: ComponentContext):
-        await button_ctx.edit_origin(content="You pressed a button!")
+        await ctx.edit_origin(content="You pressed a button!")
 
 But [writer], I dont want to edit the message
 *********************************************
