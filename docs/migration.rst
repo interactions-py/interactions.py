@@ -2,6 +2,38 @@ Migration
 +++++++++
 This page contains instructions on how to migrate between versions with breaking changes.
 
+Migrate To V2.0.0
+=================
+This update introduced component support, and removed support for positional arguments.
+
+To resolve long standing issues with the library, we have removed positional argument support. From now on, only keyword arguments are supported. As such you may need to update your commands.
+
+Put simply, you will need to make sure your command parameters are named the same as your options, or use the connector argument.
+
+
+Example
+*******
+
+.. code-block:: python
+
+    # Example 1
+    @slash.slash(name="example_command", options=[
+        manage_commands.create_option(name="opt_one", [...]),
+        manage_commands.create_option(name="opt_two", [...])
+    ])
+    async def example_command(ctx, opt_one, opt_two):
+        await ctx.send(f"{opt_one=}, {opt_two=}")
+
+    # Example 2
+    @slash.slash(name="example_command", options=[
+        manage_commands.create_option(name="opt_one", [...]),
+        manage_commands.create_option(name="opt_two", [...])
+        ],
+        connector={"opt_one": "optone",
+                    "opt_two": "opttwo"})
+    async def example_command(ctx, optone, opttwo):
+        await ctx.send(f"{optone=}, {opttwo=}")
+
 Migrate To V1.1.0
 ==================
 Changes that you'll need to make in this version are mainly because of a new ui from discord, more info `here <https://github.com/discord/discord-api-docs/pull/2615>`_
@@ -24,7 +56,7 @@ We suggest deferring if you might take more than three seconds to respond, but i
     ``ctx.channel.send`` does **not** count as responding.
 
 Example
---------
+*******
 
 .. code-block:: python
 
