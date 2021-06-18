@@ -23,7 +23,7 @@ First we need to create some buttons, lets put them in a list for now. We'll use
                 )
               ]
 
-So we have a button, but where do we use it. Let's create an action row with :meth:`create_actionrow() <discord_slash.utils.manage_components>` and put our buttons in it
+So we have a button, but where do we use it. Let's create an action row with :func:`create_actionrow() <discord_slash.utils.manage_components>` and put our buttons in it
 
 .. code-block:: python
 
