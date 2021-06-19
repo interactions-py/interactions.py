@@ -75,4 +75,4 @@ Well lucky for you, you don't have to. You can either respond silently, with a t
 How do i know which button was pressed?
 _______________________________________
 
-Each button gets a ``custom_id``, this is a unique identifier of which button is being pressed. You can specify what the ID is when you define your button, if you don't; a random one will be generated. When handling the event, simply check the custom_id, and handle accordingly.
+Each button gets a ``custom_id`` (which is always a string), this is a unique identifier of which button is being pressed. You can specify what the ID is when you define your button, if you don't; a random one will be generated. When handling the event, simply check the custom_id, and handle accordingly.
