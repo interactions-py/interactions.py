@@ -28,13 +28,15 @@ def create_actionrow(*components: dict) -> dict:
 
 def spread_to_rows(*components, max_in_row=5) -> typing.List[dict]:
     """
-    Generates list of actionsrows from given components.
+    A helper function that spreads your components into ``actionrows`` of a set size
 
     :param components: Components dicts (buttons or selects or existing actionrows) to spread. Use `None` to explicitly start a new row.
     :type components: dict
     :param max_in_row: Maximum number of elements in each row.
     :type max_in_row: int
     :return: list
+
+    .. note:: An action_row can only have a maximum of 5 items in it
     """
     if not components or len(components) > 25:
         raise IncorrectFormat("Number of components should be between 1 and 25.")
@@ -94,7 +96,7 @@ def create_button(
     disabled: bool = False,
 ) -> dict:
     """
-    Creates a button component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
+    Creates a button component for use with the ``components`` field. Must be used within an ``actionRow`` to be used (see :meth:`create_actionrow`).
 
     .. note::
         At least a label or emoji is required for a button. You can have both, but not neither of them.
@@ -152,6 +154,9 @@ def create_select_option(
     """
     Creates an option for select components.
 
+    .. warning::
+        Currently, select components are not available for public use, nor do they have official documentation. The parameters will not be documented at this time.
+
     :param label: The label of the option.
     :param value: The value that the bot will recieve when this option is selected.
     :param emoji: The emoji of the option.
@@ -179,8 +184,9 @@ def create_select(
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
 
+
     .. warning::
-        Currently, select components are not available for public use, nor have official documentation. The parameters will not be documented at this time.
+        Currently, select components are not available for public use, nor do they have official documentation. The parameters will not be documented at this time.
     """
     if not len(options) or len(options) > 25:
         raise IncorrectFormat("Options length should be between 1 and 25.")
@@ -197,9 +203,9 @@ def create_select(
 
 def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Iterator[str]:
     """
-    Returns generator with 'custom_id' of component or list of components.
+    Returns generator with the ``custom_id`` of a component or list of components.
 
-    :param component: Custom ID or component dict (actionrow or button) or list of previous two.
+    :param component: Custom ID or component dict (actionrow or button) or list of the two.
     :returns: typing.Iterator[str]
     """
 
@@ -222,7 +228,7 @@ def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Itera
 
 def get_messages_ids(message: typing.Union[int, discord.Message, list]) -> typing.Iterator[int]:
     """
-    Returns generator with id of message or list messages.
+    Returns generator with the ``id`` of message or list messages.
 
     :param message: message ID or message object or list of previous two.
     :returns: typing.Iterator[int]
@@ -249,6 +255,7 @@ async def wait_for_component(
 ) -> ComponentContext:
     """
     Helper function - wrapper around 'client.wait_for("component", ...)'
+
     Waits for a component interaction. Only accepts interactions based on the custom ID of the component or/and message ID, and optionally a check function.
 
     :param client: The client/bot object.
