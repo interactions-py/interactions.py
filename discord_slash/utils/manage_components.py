@@ -82,6 +82,8 @@ def emoji_to_dict(emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str])
     """
     if isinstance(emoji, discord.Emoji):
         emoji = {"name": emoji.name, "id": emoji.id, "animated": emoji.animated}
+    elif isinstance(emoji, discord.PartialEmoji):
+        emoji = emoji.to_dict()
     elif isinstance(emoji, str):
         emoji = {"name": emoji, "id": None}
     return emoji if emoji else {}
