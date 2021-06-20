@@ -247,7 +247,17 @@ async def update_guild_commands_permissions(bot_id,
                 raise RequestFailure(resp.status, await resp.text())
             return await resp.json()
 
-
+class OptionType():
+    subcommand = 1
+    subcommandgroup = 2
+    string = 3
+    integer = 4
+    boolean = 5
+    user = 6
+    channel = 7
+    role = 8
+    mentionable = 9
+          
 def create_option(name: str,
                   description: str,
                   option_type: typing.Union[int, type],
