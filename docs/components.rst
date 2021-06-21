@@ -51,7 +51,7 @@ Wait_for
 ********
 
 Lets go through the most common method first, responding in the command itself. We simply need to :func:`wait_for` the event, just like you do for reactions. For this we're going to use :func:`wait_for_component() <discord_slash.utils.manage_components>`, and we're going to only wait for events from the action row we just sent.
-This method will return a :class:`ComponentContext <discord_slash.context.ComponentContext>` object that we can use to respond. For this example, we'll just edit the original message (:meth:`edit_origin() <discord_slash.context.ComponentContext.edit_origin>`)
+This method will return a :class:`ComponentContext <discord_slash.context.ComponentContext>` object that we can use to respond. For this example, we'll just edit the original message (:meth:`edit_origin() <discord_slash.context.ComponentContext.edit_origin>`, uses same logic as :func:`edit()`)
 
 .. code-block:: python
 
@@ -88,7 +88,7 @@ Let's register our callback function via decorator :meth:`component_callback() <
 
 In this example, :func:`hello` will be triggered when you receive interaction event from a component with a `custom_id` set to `"hello"`. Just like slash commands, The callback's `custom_id` defaults to the function name.
 You can also register such callbacks in cogs using :func:`cog_component() <discord_slash.cog_ext>`
-Additionally, component callbacks can be dynamically added (:meth:`add_component_callback() <discord_slash.client.SlashCommand.add_component_callback>`), removed (:meth:`remove_component_callback_obj() <discord_slash.client.SlashCommand.remove_component_callback_obj>`) or edited (:meth:`remove_component_callback() <discord_slash.client.SlashCommand.remove_component_callback>`, :meth:`extend_component_callback() <discord_slash.client.SlashCommand.extend_component_callback>`)
+Additionally, component callbacks can be dynamically added, removed or edited - see :class:`SlashCommand <discord_slash.client.SlashCommand>`
 
 But [writer], I dont want to edit the message
 *********************************************
