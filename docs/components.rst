@@ -47,6 +47,9 @@ __________________________
 
 When responding, you have 3 choices in how you handle interactions. You can either wait for them in the command itself, or listen for them in a global event handler (similar to :func:`on_slash_command_error`), or register async function as component callback.
 
+Wait_for
+********
+
 Lets go through the most common method first, responding in the command itself. We simply need to :func:`wait_for` the event, just like you do for reactions. For this we're going to use :func:`wait_for_component() <discord_slash.utils.manage_components>`, and we're going to only wait for events from the action row we just sent.
 This method will return a :class:`ComponentContext <discord_slash.context.ComponentContext>` object that we can use to respond. For this example, we'll just edit the original message (:meth:`edit_origin() <discord_slash.context.ComponentContext.edit_origin>`)
 
@@ -59,6 +62,9 @@ This method will return a :class:`ComponentContext <discord_slash.context.Compon
 
 .. note:: It's worth being aware that if you handle the event in the command itself, it will not persist reboots. As such when you restart the bot, the interaction will fail
 
+Global event handler
+********************
+
 Next we'll go over the alternative, a global event handler. This works just the same as :func:`on_slash_command_error` or `on_ready`. But note that this code will be triggered on any components interaction.
 
 .. code-block:: python
@@ -67,6 +73,9 @@ Next we'll go over the alternative, a global event handler. This works just the 
     async def on_component(ctx: ComponentContext):
         # you may want to filter or change behaviour based on custom_id or message
         await ctx.edit_origin(content="You pressed a button!")
+
+Component callbacks
+********************
 
 There is one more method - making a function that'll be component callback - triggered when components in specified messages or with specified custom_ids would be activated
 Let's register our callback function via decorator :meth:`component_callback() <discord_slash.client.SlashCommand.component_callback>`, in similar ways to slash commands.
