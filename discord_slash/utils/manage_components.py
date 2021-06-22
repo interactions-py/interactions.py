@@ -215,7 +215,9 @@ def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Itera
         yield component
     elif isinstance(component, dict):
         if component["type"] == ComponentType.actionrow:
-            yield from (comp["custom_id"] for comp in component["components"] if "custom_id" in comp)
+            yield from (
+                comp["custom_id"] for comp in component["components"] if "custom_id" in comp
+            )
         elif "custom_id" in component:
             yield component["custom_id"]
     elif isinstance(component, list):
