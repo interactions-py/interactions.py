@@ -1,20 +1,52 @@
-import setuptools
+import re
+from codecs import open
+from os import path
+
+from setuptools import find_packages, setup
+
+PACKAGE_NAME = "discord_slash"
+HERE = path.abspath(path.dirname(__file__))
 
 with open("README.md", "r", encoding="UTF-8") as f:
-    long_description = f.read()
+    README = f.read()
+with open(path.join(HERE, PACKAGE_NAME, "const.py"), encoding="utf-8") as fp:
+    VERSION = re.search('__version__ = "([^"]+)"', fp.read()).group(1)
 
-setuptools.setup(
+extras = {
+    "lint": ["black", "flake8", "isort"],
+    "readthedocs": ["sphinx", "sphinx-rtd-theme"],
+}
+extras["lint"] += extras["readthedocs"]
+extras["dev"] = extras["lint"] + extras["readthedocs"]
+
+setup(
     name="discord-py-slash-command",
-    version="1.2.2",
+    version=VERSION,
     author="eunwoo1104",
     author_email="sions04@naver.com",
     description="A simple discord slash command handler for discord.py.",
-    long_description=long_description,
+    extras_require=extras,
+    install_requires=["discord.py", "aiohttp"],
+    license="MIT License",
+    long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/eunwoo1104/discord-py-slash-command",
-    packages=setuptools.find_packages(),
-    python_requires='>=3.6',
+    packages=find_packages(),
+    python_requires=">=3.6",
     classifiers=[
-        "Programming Language :: Python :: 3"
-    ]
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Internet",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Utilities",
+    ],
 )

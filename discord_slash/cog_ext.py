@@ -1,20 +1,27 @@
-import typing
 import inspect
-from .model import CogBaseCommandObject, CogSubcommandObject
+import typing
+
+import discord
+
+from .error import IncorrectFormat, IncorrectGuildIDType
+from .model import CogBaseCommandObject, CogComponentCallbackObject, CogSubcommandObject
 from .utils import manage_commands
+from .utils.manage_components import get_components_ids, get_messages_ids
 
 
-def cog_slash(*,
-              name: str = None,
-              description: str = None,
-              guild_ids: typing.List[int] = None,
-              options: typing.List[dict] = None,
-              default_permission: bool = True,
-              permissions: typing.Dict[int, list] = None,
-              connector: dict = None):
+def cog_slash(
+    *,
+    name: str = None,
+    description: str = None,
+    guild_ids: typing.List[int] = None,
+    options: typing.List[dict] = None,
+    default_permission: bool = True,
+    permissions: typing.Dict[int, list] = None,
+    connector: dict = None,
+):
     """
     Decorator for Cog to add slash command.\n
-    Almost same as :func:`.client.SlashCommand.slash`.
+    Almost same as :meth:`.client.SlashCommand.slash`.
 
     Example:
 
@@ -43,12 +50,19 @@ def cog_slash(*,
     :param connector: Kwargs connector for the command. Default ``None``.
     :type connector: dict
     """
+
     def wrapper(cmd):
         desc = description or inspect.getdoc(cmd)
         if options is None:
             opts = manage_commands.generate_options(cmd, desc, connector)
         else:
             opts = options
+
+        if guild_ids is not None:
+            if not all(isinstance(item, int) for item in guild_ids):
+                raise IncorrectGuildIDType(
+                    f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed."
+                )
 
         _cmd = {
             "func": cmd,
@@ -58,29 +72,32 @@ def cog_slash(*,
             "default_permission": default_permission,
             "api_permissions": permissions,
             "connector": connector,
-            "has_subcommands": False
+            "has_subcommands": False,
         }
         return CogBaseCommandObject(name or cmd.__name__, _cmd)
+
     return wrapper
 
 
-def cog_subcommand(*,
-                   base,
-                   subcommand_group=None,
-                   name=None,
-                   description: str = None,
-                   base_description: str = None,
-                   base_desc: str = None,
-                   base_default_permission: bool = True,
-                   base_permissions: typing.Dict[int, list] = None,
-                   subcommand_group_description: str = None,
-                   sub_group_desc: str = None,
-                   guild_ids: typing.List[int] = None,
-                   options: typing.List[dict] = None,
-                   connector: dict = None):
+def cog_subcommand(
+    *,
+    base,
+    subcommand_group=None,
+    name=None,
+    description: str = None,
+    base_description: str = None,
+    base_desc: str = None,
+    base_default_permission: bool = True,
+    base_permissions: typing.Dict[int, list] = None,
+    subcommand_group_description: str = None,
+    sub_group_desc: str = None,
+    guild_ids: typing.List[int] = None,
+    options: typing.List[dict] = None,
+    connector: dict = None,
+):
     """
     Decorator for Cog to add subcommand.\n
-    Almost same as :func:`.client.SlashCommand.subcommand`.
+    Almost same as :meth:`.client.SlashCommand.subcommand`.
 
     Example:
 
@@ -130,6 +147,12 @@ def cog_subcommand(*,
         else:
             opts = options
 
+        if guild_ids is not None:
+            if not all(isinstance(item, int) for item in guild_ids):
+                raise IncorrectGuildIDType(
+                    f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name or cmd.__name__}' will be deactivated and broken until fixed."
+                )
+
         _cmd = {
             "func": None,
             "description": base_description,
@@ -138,7 +161,7 @@ def cog_subcommand(*,
             "default_permission": base_default_permission,
             "api_permissions": base_permissions,
             "connector": {},
-            "has_subcommands": True
+            "has_subcommands": True,
         }
 
         _sub = {
@@ -149,7 +172,51 @@ def cog_subcommand(*,
             "sub_group_desc": subcommand_group_description,
             "guild_ids": guild_ids,
             "api_options": opts,
-            "connector": connector
+            "connector": connector,
         }
         return CogSubcommandObject(base, _cmd, subcommand_group, name or cmd.__name__, _sub)
+
+    return wrapper
+
+
+def cog_component(
+    *,
+    messages: typing.Union[int, discord.Message, list] = None,
+    components: typing.Union[str, dict, list] = None,
+    use_callback_name=True,
+    component_type: int = None,
+):
+    """
+    Decorator for component callbacks in cogs.\n
+    Almost same as :meth:`.client.SlashCommand.component_callback`.
+
+    :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
+    :type messages: Union[discord.Message, int, list]
+    :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+    :type components: Union[str, dict, list]
+    :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+    :type use_callback_name: bool
+    :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
+    :type component_type: Optional[int]
+    :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+    """
+    message_ids = list(get_messages_ids(messages)) if messages is not None else [None]
+    custom_ids = list(get_components_ids(components)) if components is not None else [None]
+
+    def wrapper(callback):
+        nonlocal custom_ids
+
+        if use_callback_name and custom_ids == [None]:
+            custom_ids = [callback.__name__]
+
+        if message_ids == [None] and custom_ids == [None]:
+            raise IncorrectFormat("You must specify messages or components (or both)")
+
+        return CogComponentCallbackObject(
+            callback,
+            message_ids=message_ids,
+            custom_ids=custom_ids,
+            component_type=component_type,
+        )
+
     return wrapper

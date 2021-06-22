@@ -1,15 +1,23 @@
 import copy
 import logging
 import typing
-import discord
-from inspect import iscoroutinefunction, getdoc
 from contextlib import suppress
+from inspect import getdoc, iscoroutinefunction
+
+import discord
 from discord.ext import commands
-from . import http
-from . import model
-from . import error
-from . import context
+
+from . import context, error, http, model
 from .utils import manage_commands
+from .utils.manage_components import get_components_ids, get_messages_ids
+
+
+def _get_val(d: dict, key):  # util function to get value from dict with fallback to None key
+    try:
+        value = d[key]
+    except KeyError:  # if there is no specific key set, we fallback to "global/any"
+        value = d[None]
+    return value
 
 
 class SlashCommand:
@@ -42,16 +50,19 @@ class SlashCommand:
     :ivar has_listener: Whether discord client has listener add function.
     """
 
-    def __init__(self,
-                 client: typing.Union[discord.Client, commands.Bot],
-                 sync_commands: bool = False,
-                 delete_from_unused_guilds: bool = False,
-                 sync_on_cog_reload: bool = False,
-                 override_type: bool = False,
-                 application_id: typing.Optional[int] = None):
+    def __init__(
+        self,
+        client: typing.Union[discord.Client, commands.Bot],
+        sync_commands: bool = False,
+        delete_from_unused_guilds: bool = False,
+        sync_on_cog_reload: bool = False,
+        override_type: bool = False,
+        application_id: typing.Optional[int] = None,
+    ):
         self._discord = client
         self.commands = {}
         self.subcommands = {}
+        self.components = {}
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord, application_id)
         self.sync_commands = sync_commands
@@ -60,12 +71,19 @@ class SlashCommand:
         if self.sync_commands:
             self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
 
-        if not isinstance(client, commands.Bot) and not isinstance(client, commands.AutoShardedBot) and not override_type:
-            self.logger.warning("Detected discord.Client! It is highly recommended to use `commands.Bot`. Do not add any `on_socket_response` event.")
+        if (
+            not isinstance(client, commands.Bot)
+            and not isinstance(client, commands.AutoShardedBot)
+            and not override_type
+        ):
+            self.logger.warning(
+                "Detected discord.Client! It is highly recommended to use `commands.Bot`. Do not add any `on_socket_response` event."
+            )
+
             self._discord.on_socket_response = self.on_socket_response
             self.has_listener = False
         else:
-            if not hasattr(self._discord, 'slash'):
+            if not hasattr(self._discord, "slash"):
                 self._discord.slash = self
             else:
                 raise error.DuplicateSlashClient("You can't have duplicate SlashCommand instances!")
@@ -95,7 +113,9 @@ class SlashCommand:
 
                 def override_reload_extension(*args):
                     orig_reload(*args)
-                    self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
+                    self._discord.loop.create_task(
+                        self.sync_all_commands(delete_from_unused_guilds)
+                    )
 
                 self._discord.reload_extension = override_reload_extension
 
@@ -109,12 +129,24 @@ class SlashCommand:
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
-        if hasattr(cog, '_slash_registered'):  # Temporary warning
-            return self.logger.warning("Calling get_cog_commands is no longer required "
-                                       "to add cog slash commands. Make sure to remove all calls to this function.")
+        if hasattr(cog, "_slash_registered"):  # Temporary warning
+            return self.logger.warning(
+                "Calling get_cog_commands is no longer required "
+                "to add cog slash commands. Make sure to remove all calls to this function."
+            )
         cog._slash_registered = True  # Assuming all went well
         func_list = [getattr(cog, x) for x in dir(cog)]
-        res = [x for x in func_list if isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))]
+
+        self._get_cog_slash_commands(cog, func_list)
+        self._get_cog_component_callbacks(cog, func_list)
+
+    def _get_cog_slash_commands(self, cog, func_list):
+        res = [
+            x
+            for x in func_list
+            if isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))
+        ]
+
         for x in res:
             x.cog = cog
             if isinstance(x, model.CogBaseCommandObject):
@@ -133,7 +165,9 @@ class SlashCommand:
                         for applicable_guild in base_permissions:
                             if applicable_guild not in base_command.permissions:
                                 base_command.permissions[applicable_guild] = []
-                            base_command.permissions[applicable_guild].extend(base_permissions[applicable_guild])
+                            base_command.permissions[applicable_guild].extend(
+                                base_permissions[applicable_guild]
+                            )
 
                     self.commands[x.base].has_subcommands = True
 
@@ -152,6 +186,13 @@ class SlashCommand:
                         raise error.DuplicateCommand(f"{x.base} {x.name}")
                     self.subcommands[x.base][x.name] = x
 
+    def _get_cog_component_callbacks(self, cog, func_list):
+        res = [x for x in func_list if isinstance(x, model.CogComponentCallbackObject)]
+
+        for x in res:
+            x.cog = cog
+            self._add_comp_callback_obj(x)
+
     def remove_cog_commands(self, cog):
         """
         Removes slash command from :class:`discord.ext.commands.Cog`.
@@ -162,11 +203,18 @@ class SlashCommand:
         :param cog: Cog that has slash commands.
         :type cog: discord.ext.commands.Cog
         """
-        if hasattr(cog, '_slash_registered'):
+        if hasattr(cog, "_slash_registered"):
             del cog._slash_registered
         func_list = [getattr(cog, x) for x in dir(cog)]
-        res = [x for x in func_list if
-               isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))]
+        self._remove_cog_slash_commands(func_list)
+        self._remove_cog_component_callbacks(func_list)
+
+    def _remove_cog_slash_commands(self, func_list):
+        res = [
+            x
+            for x in func_list
+            if isinstance(x, (model.CogBaseCommandObject, model.CogSubcommandObject))
+        ]
         for x in res:
             if isinstance(x, model.CogBaseCommandObject):
                 if x.name not in self.commands:
@@ -192,6 +240,12 @@ class SlashCommand:
                         else:
                             del self.commands[x.base]
 
+    def _remove_cog_component_callbacks(self, func_list):
+        res = [x for x in func_list if isinstance(x, model.CogComponentCallbackObject)]
+
+        for x in res:
+            self.remove_component_callback_obj(x)
+
     async def to_dict(self):
         """
         Converts all commands currently registered to :class:`SlashCommand` to a dictionary.
@@ -214,10 +268,7 @@ class SlashCommand:
             for i in self.commands[x].allowed_guild_ids:
                 if i not in all_guild_ids:
                     all_guild_ids.append(i)
-        cmds = {
-            "global": [],
-            "guild": {x: [] for x in all_guild_ids}
-        }
+        cmds = {"global": [], "guild": {x: [] for x in all_guild_ids}}
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
         for x in self.commands:
             selected = self.commands[x]
@@ -230,7 +281,7 @@ class SlashCommand:
                         "description": selected.description or "No Description.",
                         "options": selected.options or [],
                         "default_permission": selected.default_permission,
-                        "permissions": {}
+                        "permissions": {},
                     }
                     if y in selected.permissions:
                         command_dict["permissions"][y] = selected.permissions[y]
@@ -243,7 +294,7 @@ class SlashCommand:
                     "description": selected.description or "No Description.",
                     "options": selected.options or [],
                     "default_permission": selected.default_permission,
-                    "permissions": selected.permissions or {}
+                    "permissions": selected.permissions or {},
                 }
                 wait["global"][x] = copy.deepcopy(command_dict)
 
@@ -262,7 +313,7 @@ class SlashCommand:
                         "name": sub.name,
                         "description": sub.description or "No Description.",
                         "type": model.SlashCommandOptionType.SUB_COMMAND,
-                        "options": sub.options or []
+                        "options": sub.options or [],
                     }
                     if sub.allowed_guild_ids:
                         for z in sub.allowed_guild_ids:
@@ -275,7 +326,7 @@ class SlashCommand:
                         "name": y,
                         "description": "No Description.",
                         "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
-                        "options": []
+                        "options": [],
                     }
                     for z in sub:
                         sub_sub = sub[z]
@@ -283,7 +334,7 @@ class SlashCommand:
                             "name": sub_sub.name,
                             "description": sub_sub.description or "No Description.",
                             "type": model.SlashCommandOptionType.SUB_COMMAND,
-                            "options": sub_sub.options or []
+                            "options": sub_sub.options or [],
                         }
                         if sub_sub.allowed_guild_ids:
                             for i in sub_sub.allowed_guild_ids:
@@ -321,21 +372,21 @@ class SlashCommand:
         permissions_map = {}
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
-        cmds_formatted = {None: cmds['global']}
-        for guild in cmds['guild']:
-            cmds_formatted[guild] = cmds['guild'][guild]
+        cmds_formatted = {None: cmds["global"]}
+        for guild in cmds["guild"]:
+            cmds_formatted[guild] = cmds["guild"][guild]
 
         for scope in cmds_formatted:
             permissions = {}
             new_cmds = cmds_formatted[scope]
-            existing_cmds = await self.req.get_all_commands(guild_id = scope)
+            existing_cmds = await self.req.get_all_commands(guild_id=scope)
             existing_by_name = {}
-            to_send=[]
+            to_send = []
             changed = False
             for cmd in existing_cmds:
                 existing_by_name[cmd["name"]] = model.CommandData(**cmd)
 
-            if len(new_cmds) != len(existing_cmds): 
+            if len(new_cmds) != len(existing_cmds):
                 changed = True
 
             for command in new_cmds:
@@ -345,22 +396,27 @@ class SlashCommand:
                     cmd_data = model.CommandData(**command)
                     existing_cmd = existing_by_name[cmd_name]
                     if cmd_data != existing_cmd:
-                        changed=True
+                        changed = True
                         to_send.append(command)
                     else:
                         command_with_id = command
                         command_with_id["id"] = existing_cmd.id
                         to_send.append(command_with_id)
                 else:
-                    changed=True
+                    changed = True
                     to_send.append(command)
 
-            
             if changed:
-                self.logger.debug(f"Detected changes on {scope if scope is not None else 'global'}, updating them")
-                existing_cmds = await self.req.put_slash_commands(slash_commands=to_send, guild_id=scope)
+                self.logger.debug(
+                    f"Detected changes on {scope if scope is not None else 'global'}, updating them"
+                )
+                existing_cmds = await self.req.put_slash_commands(
+                    slash_commands=to_send, guild_id=scope
+                )
             else:
-                self.logger.debug(f"Detected no changes on {scope if scope is not None else 'global'}, skipping")
+                self.logger.debug(
+                    f"Detected no changes on {scope if scope is not None else 'global'}, skipping"
+                )
 
             id_name_map = {}
             for cmd in existing_cmds:
@@ -375,10 +431,9 @@ class SlashCommand:
                     permission = {
                         "id": cmd_id,
                         "guild_id": applicable_guild,
-                        "permissions": cmd_permissions[applicable_guild]
+                        "permissions": cmd_permissions[applicable_guild],
                     }
                     permissions_map[applicable_guild].append(permission)
-
 
         self.logger.info("Syncing permissions...")
         self.logger.debug(f"Commands permission data are {permissions_map}")
@@ -392,39 +447,45 @@ class SlashCommand:
             else:
                 existing_perms_model = {}
                 for existing_perm in existing_perms:
-                    existing_perms_model[existing_perm["id"]] = model.GuildPermissionsData(**existing_perm)
+                    existing_perms_model[existing_perm["id"]] = model.GuildPermissionsData(
+                        **existing_perm
+                    )
                 for new_perm in new_perms:
                     if new_perm["id"] not in existing_perms_model:
                         changed = True
                         break
-                    if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(**new_perm):
+                    if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(
+                        **new_perm
+                    ):
                         changed = True
                         break
-            
+
             if changed:
                 self.logger.debug(f"Detected permissions changes on {scope}, updating them")
                 await self.req.update_guild_commands_permissions(scope, new_perms)
             else:
                 self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
 
-
         if delete_from_unused_guilds:
             self.logger.info("Deleting unused guild commands...")
-            other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]]
+            other_guilds = [
+                guild.id for guild in self._discord.guilds if guild.id not in cmds["guild"]
+            ]
             # This is an extremly bad way to do this, because slash cmds can be in guilds the bot isn't in
             # But it's the only way until discord makes an endpoint to request all the guild with cmds registered.
-            
+
             for guild in other_guilds:
                 with suppress(discord.Forbidden):
-                    existing = await self.req.get_all_commands(guild_id = guild)
+                    existing = await self.req.get_all_commands(guild_id=guild)
                     if len(existing) != 0:
                         self.logger.debug(f"Deleting commands from {guild}")
                         await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
 
-
         if delete_perms_from_unused_guilds:
             self.logger.info("Deleting unused guild permissions...")
-            other_guilds = [guild.id for guild in self._discord.guilds if guild.id not in permissions_map.keys()]
+            other_guilds = [
+                guild.id for guild in self._discord.guilds if guild.id not in permissions_map.keys()
+            ]
             for guild in other_guilds:
                 with suppress(discord.Forbidden):
                     self.logger.debug(f"Deleting permissions from {guild}")
@@ -434,16 +495,18 @@ class SlashCommand:
 
         self.logger.info("Completed syncing all commands!")
 
-    def add_slash_command(self,
-                          cmd,
-                          name: str = None,
-                          description: str = None,
-                          guild_ids: typing.List[int] = None,
-                          options: list = None,
-                          default_permission: bool = True,
-                          permissions: typing.Dict[int, list] = None,
-                          connector: dict = None,
-                          has_subcommands: bool = False):
+    def add_slash_command(
+        self,
+        cmd,
+        name: str = None,
+        description: str = None,
+        guild_ids: typing.List[int] = None,
+        options: list = None,
+        default_permission: bool = True,
+        permissions: typing.Dict[int, list] = None,
+        connector: dict = None,
+        has_subcommands: bool = False,
+    ):
         """
         Registers slash command to SlashCommand.
 
@@ -473,6 +536,10 @@ class SlashCommand:
         name = name or cmd.__name__
         name = name.lower()
         guild_ids = guild_ids if guild_ids else []
+        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+            raise error.IncorrectGuildIDType(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
         if name in self.commands:
             tgt = self.commands[name]
             if not tgt.has_subcommands:
@@ -495,26 +562,28 @@ class SlashCommand:
             "default_permission": default_permission,
             "api_permissions": permissions,
             "connector": connector or {},
-            "has_subcommands": has_subcommands
+            "has_subcommands": has_subcommands,
         }
         obj = model.BaseCommandObject(name, _cmd)
         self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
         return obj
 
-    def add_subcommand(self,
-                       cmd,
-                       base,
-                       subcommand_group=None,
-                       name=None,
-                       description: str = None,
-                       base_description: str = None,
-                       base_default_permission: bool = True,
-                       base_permissions: typing.Dict[int, list] = None,
-                       subcommand_group_description: str = None,
-                       guild_ids: typing.List[int] = None,
-                       options: list = None,
-                       connector: dict = None):
+    def add_subcommand(
+        self,
+        cmd,
+        base,
+        subcommand_group=None,
+        name=None,
+        description: str = None,
+        base_description: str = None,
+        base_default_permission: bool = True,
+        base_permissions: typing.Dict[int, list] = None,
+        subcommand_group_description: str = None,
+        guild_ids: typing.List[int] = None,
+        options: list = None,
+        connector: dict = None,
+    ):
         """
         Registers subcommand to SlashCommand.
 
@@ -549,6 +618,10 @@ class SlashCommand:
         name = name.lower()
         description = description or getdoc(cmd)
         guild_ids = guild_ids if guild_ids else []
+        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+            raise error.IncorrectGuildIDType(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
 
         if base in self.commands:
             for x in guild_ids:
@@ -566,7 +639,7 @@ class SlashCommand:
             "default_permission": base_default_permission,
             "api_permissions": base_permissions,
             "connector": {},
-            "has_subcommands": True
+            "has_subcommands": True,
         }
         _sub = {
             "func": cmd,
@@ -576,7 +649,7 @@ class SlashCommand:
             "sub_group_desc": subcommand_group_description,
             "guild_ids": guild_ids,
             "api_options": options,
-            "connector": connector or {}
+            "connector": connector or {},
         }
         if base not in self.commands:
             self.commands[base] = model.BaseCommandObject(base, _cmd)
@@ -587,7 +660,9 @@ class SlashCommand:
                 for applicable_guild in base_permissions:
                     if applicable_guild not in base_command.permissions:
                         base_command.permissions[applicable_guild] = []
-                    base_command.permissions[applicable_guild].extend(base_permissions[applicable_guild])
+                    base_command.permissions[applicable_guild].extend(
+                        base_permissions[applicable_guild]
+                    )
             if base_command.description:
                 _cmd["description"] = base_command.description
         if base not in self.subcommands:
@@ -604,18 +679,22 @@ class SlashCommand:
                 raise error.DuplicateCommand(f"{base} {name}")
             obj = model.SubcommandObject(_sub, base, name)
             self.subcommands[base][name] = obj
-        self.logger.debug(f"Added subcommand `{base} {subcommand_group or ''} {name or cmd.__name__}`")
+        self.logger.debug(
+            f"Added subcommand `{base} {subcommand_group or ''} {name or cmd.__name__}`"
+        )
         return obj
 
-    def slash(self,
-              *,
-              name: str = None,
-              description: str = None,
-              guild_ids: typing.List[int] = None,
-              options: typing.List[dict] = None,
-              default_permission: bool = True,
-              permissions: dict = None,
-              connector: dict = None):
+    def slash(
+        self,
+        *,
+        name: str = None,
+        description: str = None,
+        guild_ids: typing.List[int] = None,
+        options: typing.List[dict] = None,
+        default_permission: bool = True,
+        permissions: dict = None,
+        connector: dict = None,
+    ):
         """
         Decorator that registers coroutine as a slash command.\n
         All decorator args must be passed as keyword-only args.\n
@@ -680,26 +759,38 @@ class SlashCommand:
             if decorator_permissions:
                 permissions.update(decorator_permissions)
 
-            obj = self.add_slash_command(cmd, name, description, guild_ids, options, default_permission, permissions, connector)
+            obj = self.add_slash_command(
+                cmd,
+                name,
+                description,
+                guild_ids,
+                options,
+                default_permission,
+                permissions,
+                connector,
+            )
+
             return obj
 
         return wrapper
 
-    def subcommand(self,
-                   *,
-                   base,
-                   subcommand_group=None,
-                   name=None,
-                   description: str = None,
-                   base_description: str = None,
-                   base_desc: str = None,
-                   base_default_permission: bool = True,
-                   base_permissions: dict = None,
-                   subcommand_group_description: str = None,
-                   sub_group_desc: str = None,
-                   guild_ids: typing.List[int] = None,
-                   options: typing.List[dict] = None,
-                   connector: dict = None):
+    def subcommand(
+        self,
+        *,
+        base,
+        subcommand_group=None,
+        name=None,
+        description: str = None,
+        base_description: str = None,
+        base_desc: str = None,
+        base_default_permission: bool = True,
+        base_permissions: dict = None,
+        subcommand_group_description: str = None,
+        sub_group_desc: str = None,
+        guild_ids: typing.List[int] = None,
+        options: typing.List[dict] = None,
+        connector: dict = None,
+    ):
         """
         Decorator that registers subcommand.\n
         Unlike discord.py, you don't need base command.\n
@@ -763,7 +854,21 @@ class SlashCommand:
             if decorator_permissions:
                 base_permissions.update(decorator_permissions)
 
-            obj = self.add_subcommand(cmd, base, subcommand_group, name, description, base_description, base_default_permission, base_permissions, subcommand_group_description, guild_ids, options, connector)
+            obj = self.add_subcommand(
+                cmd,
+                base,
+                subcommand_group,
+                name,
+                description,
+                base_description,
+                base_default_permission,
+                base_permissions,
+                subcommand_group_description,
+                guild_ids,
+                options,
+                connector,
+            )
+
             return obj
 
         return wrapper
@@ -771,12 +876,13 @@ class SlashCommand:
     def permission(self, guild_id: int, permissions: list):
         """
         Decorator that add permissions. This will set the permissions for a single guild, you can use it more than once for each command.
-        :param guild_id: ID of the guild for the permissions. 
+        :param guild_id: ID of the guild for the permissions.
         :type guild_id: int
         :param permissions: Permission requirements of the slash command. Default ``None``.
         :type permissions: dict
-        
+
         """
+
         def wrapper(cmd):
             if not getattr(cmd, "__permissions__", None):
                 cmd.__permissions__ = {}
@@ -785,8 +891,209 @@ class SlashCommand:
 
         return wrapper
 
-    async def process_options(self, guild: discord.Guild, options: list, connector: dict,
-                              temporary_auto_convert: dict = None) -> dict:
+    def add_component_callback(
+        self,
+        callback: typing.Coroutine,
+        *,
+        messages: typing.Union[int, discord.Message, list] = None,
+        components: typing.Union[str, dict, list] = None,
+        use_callback_name=True,
+        component_type: int = None,
+    ):
+        """
+        Adds a coroutine callback to a component.
+        Callback can be made to only accept component interactions from a specific messages
+        and/or custom_ids of components.
+
+        :param Coroutine callback: The coroutine to be called when the component is interacted with. Must accept a single argument with the type :class:`.context.ComponentContext`.
+        :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
+        :type messages: Union[discord.Message, int, list]
+        :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+        :type components: Union[str, dict, list]
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+        :type use_callback_name: bool
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+        """
+
+        message_ids = list(get_messages_ids(messages)) if messages is not None else [None]
+        custom_ids = list(get_components_ids(components)) if components is not None else [None]
+
+        if use_callback_name and custom_ids == [None]:
+            custom_ids = [callback.__name__]
+
+        if message_ids == [None] and custom_ids == [None]:
+            raise error.IncorrectFormat("You must specify messages or components (or both)")
+
+        callback_obj = model.ComponentCallbackObject(
+            callback, message_ids, custom_ids, component_type
+        )
+        self._add_comp_callback_obj(callback_obj)
+        return callback_obj
+
+    def _add_comp_callback_obj(self, callback_obj):
+        component_type = callback_obj.component_type
+
+        for message_id, custom_id in callback_obj.keys:
+            self._register_comp_callback_obj(callback_obj, message_id, custom_id, component_type)
+
+    def _register_comp_callback_obj(self, callback_obj, message_id, custom_id, component_type):
+        message_id_dict = self.components
+        custom_id_dict = message_id_dict.setdefault(message_id, {})
+        component_type_dict = custom_id_dict.setdefault(custom_id, {})
+
+        if component_type in component_type_dict:
+            raise error.DuplicateCallback(message_id, custom_id, component_type)
+
+        component_type_dict[component_type] = callback_obj
+        self.logger.debug(
+            f"Added component callback for "
+            f"message ID {message_id or '<any>'}, "
+            f"custom_id `{custom_id or '<any>'}`, "
+            f"component_type `{component_type or '<any>'}`"
+        )
+
+    def extend_component_callback(
+        self,
+        callback_obj: model.ComponentCallbackObject,
+        message_id: int = None,
+        custom_id: str = None,
+    ):
+        """
+        Registers existing callback object (:class:`.model.ComponentType`)
+        for specific combination of message_id, custom_id, component_type.
+
+        :param callback_obj: callback object.
+        :type callback_obj: model.ComponentCallbackObject
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[.model]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+        """
+
+        component_type = callback_obj.component_type
+        self._register_comp_callback_obj(callback_obj, message_id, custom_id, component_type)
+        callback_obj.keys.add((message_id, custom_id))
+
+    def get_component_callback(
+        self,
+        message_id: int = None,
+        custom_id: str = None,
+        component_type: int = None,
+    ):
+        """
+        Returns component callback (or None if not found) for specific combination of message_id, custom_id, component_type.
+
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[.model]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :param component_type: The type of the component. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+
+        :return: Optional[model.ComponentCallbackObject]
+        """
+        message_id_dict = self.components
+        try:
+            custom_id_dict = _get_val(message_id_dict, message_id)
+            component_type_dict = _get_val(custom_id_dict, custom_id)
+            callback = _get_val(component_type_dict, component_type)
+
+        except KeyError:  # there was no key in dict and no global fallback
+            pass
+        else:
+            return callback
+
+    def remove_component_callback(
+        self, message_id: int = None, custom_id: str = None, component_type: int = None
+    ):
+        """
+        Removes a component callback from specific combination of message_id, custom_id, component_type.
+
+        :param message_id: If specified, only removes the callback for the specific message ID.
+        :type message_id: Optional[int]
+        :param custom_id: The `custom_id` of the component.
+        :type custom_id: Optional[str]
+        :param component_type: The type of the component. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+        :raises: .error.IncorrectFormat
+        """
+        try:
+            callback = self.components[message_id][custom_id].pop(component_type)
+            if not self.components[message_id][custom_id]:  # delete dict nesting levels if empty
+                self.components[message_id].pop(custom_id)
+                if not self.components[message_id]:
+                    self.components.pop(message_id)
+        except KeyError:
+            raise error.IncorrectFormat(
+                f"Callback for "
+                f"message ID `{message_id or '<any>'}`, "
+                f"custom_id `{custom_id or '<any>'}`, "
+                f"component_type `{component_type or '<any>'}` is not registered!"
+            )
+        else:
+            callback.keys.remove((message_id, custom_id))
+
+    def remove_component_callback_obj(self, callback_obj: model.ComponentCallbackObject):
+        """
+        Removes a component callback from all related message_id, custom_id listeners.
+
+        :param callback_obj: callback object.
+        :type callback_obj: model.ComponentCallbackObject
+        :raises: .error.IncorrectFormat
+        """
+        if not callback_obj.keys:
+            raise error.IncorrectFormat("Callback already removed from any listeners")
+
+        component_type = callback_obj.component_type
+        for message_id, custom_id in callback_obj.keys.copy():
+            self.remove_component_callback(message_id, custom_id, component_type)
+
+    def component_callback(
+        self,
+        *,
+        messages: typing.Union[int, discord.Message, list] = None,
+        components: typing.Union[str, dict, list] = None,
+        use_callback_name=True,
+        component_type: int = None,
+    ):
+        """
+        Decorator that registers a coroutine as a component callback.
+        Adds a coroutine callback to a component.
+        Callback can be made to only accept component interactions from a specific messages
+        and/or custom_ids of components.
+
+        :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
+        :type messages: Union[discord.Message, int, list]
+        :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+        :type components: Union[str, dict, list]
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+        :type use_callback_name: bool
+        :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
+        :type component_type: Optional[int]
+        :raises: .error.DuplicateCustomID, .error.IncorrectFormat
+        """
+
+        def wrapper(callback):
+            return self.add_component_callback(
+                callback,
+                messages=messages,
+                components=components,
+                use_callback_name=use_callback_name,
+                component_type=component_type,
+            )
+
+        return wrapper
+
+    async def process_options(
+        self,
+        guild: discord.Guild,
+        options: list,
+        connector: dict,
+        temporary_auto_convert: dict = None,
+    ) -> dict:
         """
         Processes Role, User, and Channel option types to discord.py's models.
 
@@ -808,7 +1115,7 @@ class SlashCommand:
             # and 2nd as a actual fetching method.
             [guild.get_member, guild.fetch_member],
             guild.get_channel,
-            guild.get_role
+            guild.get_role,
         ]
 
         types = {
@@ -826,7 +1133,7 @@ class SlashCommand:
             "ROLE": 2,
             model.SlashCommandOptionType.ROLE: 2,
             8: 2,
-            "8": 2
+            "8": 2,
         }
 
         to_return = {}
@@ -851,10 +1158,16 @@ class SlashCommand:
                         loaded_converter = loaded_converter[1]
                 if not processed:
                     try:
-                        processed = await loaded_converter(int(x["value"])) \
-                            if iscoroutinefunction(loaded_converter) else \
-                            loaded_converter(int(x["value"]))
-                    except (discord.Forbidden, discord.HTTPException, discord.NotFound):  # Just in case.
+                        processed = (
+                            await loaded_converter(int(x["value"]))
+                            if iscoroutinefunction(loaded_converter)
+                            else loaded_converter(int(x["value"]))
+                        )
+                    except (
+                        discord.Forbidden,
+                        discord.HTTPException,
+                        discord.NotFound,
+                    ):  # Just in case.
                         self.logger.warning("Failed fetching discord object! Passing ID instead.")
                         processed = int(x["value"])
             to_return[connector.get(x["name"]) or x["name"]] = processed
@@ -869,9 +1182,36 @@ class SlashCommand:
         :param args: Args. Can be list or dict.
         """
         try:
-            await func.invoke(ctx, args)
+            await func.invoke(ctx, **args)
         except Exception as ex:
-            await self.on_slash_command_error(ctx, ex)
+            if not await self._handle_invoke_error(func, ctx, ex):
+                await self.on_slash_command_error(ctx, ex)
+
+    async def invoke_component_callback(self, func, ctx):
+        """
+        Invokes component callback.
+
+        :param func: Component callback object.
+        :param ctx: Context.
+        """
+        try:
+            await func.invoke(ctx)
+        except Exception as ex:
+            if not await self._handle_invoke_error(func, ctx, ex):
+                await self.on_component_callback_error(ctx, ex)
+
+    async def _handle_invoke_error(self, func, ctx, ex):
+        if hasattr(func, "on_error"):
+            if func.on_error is not None:
+                try:
+                    if hasattr(func, "cog"):
+                        await func.on_error(func.cog, ctx, ex)
+                    else:
+                        await func.on_error(ctx, ex)
+                    return True
+                except Exception as e:
+                    self.logger.error(f"{ctx.command}:: Error using error decorator: {e}")
+        return False
 
     async def on_socket_response(self, msg):
         """
@@ -886,10 +1226,26 @@ class SlashCommand:
             return
 
         to_use = msg["d"]
+        interaction_type = to_use["type"]
+        if interaction_type in (1, 2):
+            return await self._on_slash(to_use)
+        if interaction_type == 3:
+            return await self._on_component(to_use)
 
-        if to_use["type"] not in (1, 2):
-            return  # to only process ack and slash-commands and exclude other interactions like buttons
+        raise NotImplementedError
 
+    async def _on_component(self, to_use):
+        ctx = context.ComponentContext(self.req, to_use, self._discord, self.logger)
+        self._discord.dispatch("component", ctx)
+
+        callback = self.get_component_callback(
+            ctx.origin_message_id, ctx.custom_id, ctx.component_type
+        )
+        if callback is not None:
+            self._discord.dispatch("component_callback", ctx, callback)
+            await self.invoke_component_callback(callback, ctx)
+
+    async def _on_slash(self, to_use):
         if to_use["data"]["name"] in self.commands:
 
             ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
@@ -900,7 +1256,10 @@ class SlashCommand:
 
             selected_cmd = self.commands[to_use["data"]["name"]]
 
-            if selected_cmd.allowed_guild_ids and ctx.guild_id not in selected_cmd.allowed_guild_ids:
+            if (
+                selected_cmd.allowed_guild_ids
+                and ctx.guild_id not in selected_cmd.allowed_guild_ids
+            ):
                 return
 
             if selected_cmd.has_subcommands and not selected_cmd.func:
@@ -917,8 +1276,16 @@ class SlashCommand:
             for x in selected_cmd.options:
                 temporary_auto_convert[x["name"].lower()] = x["type"]
 
-            args = await self.process_options(ctx.guild, to_use["data"]["options"], selected_cmd.connector, temporary_auto_convert) \
-                if "options" in to_use["data"] else {}
+            args = (
+                await self.process_options(
+                    ctx.guild,
+                    to_use["data"]["options"],
+                    selected_cmd.connector,
+                    temporary_auto_convert,
+                )
+                if "options" in to_use["data"]
+                else {}
+            )
 
             self._discord.dispatch("slash_command", ctx)
 
@@ -957,8 +1324,13 @@ class SlashCommand:
                 for n in selected.options:
                     temporary_auto_convert[n["name"].lower()] = n["type"]
 
-                args = await self.process_options(ctx.guild, x["options"], selected.connector, temporary_auto_convert) \
-                    if "options" in x else {}
+                args = (
+                    await self.process_options(
+                        ctx.guild, x["options"], selected.connector, temporary_auto_convert
+                    )
+                    if "options" in x
+                    else {}
+                )
                 self._discord.dispatch("slash_command", ctx)
                 await self.invoke_command(selected, ctx, args)
                 return
@@ -970,10 +1342,26 @@ class SlashCommand:
         for n in selected.options:
             temporary_auto_convert[n["name"].lower()] = n["type"]
 
-        args = await self.process_options(ctx.guild, sub_opts, selected.connector, temporary_auto_convert) \
-            if "options" in sub else {}
+        args = (
+            await self.process_options(
+                ctx.guild, sub_opts, selected.connector, temporary_auto_convert
+            )
+            if "options" in sub
+            else {}
+        )
         self._discord.dispatch("slash_command", ctx)
         await self.invoke_command(selected, ctx, args)
+
+    def _on_error(self, ctx, ex, event_name):
+        on_event = "on_" + event_name
+        if self.has_listener:
+            if self._discord.extra_events.get(on_event):
+                self._discord.dispatch(event_name, ctx, ex)
+                return True
+        if hasattr(self._discord, on_event):
+            self._discord.dispatch(event_name, ctx, ex)
+            return True
+        return False
 
     async def on_slash_command_error(self, ctx, ex):
         """
@@ -1001,12 +1389,40 @@ class SlashCommand:
         :type ex: Exception
         :return:
         """
-        if self.has_listener:
-            if self._discord.extra_events.get('on_slash_command_error'):
-                self._discord.dispatch("slash_command_error", ctx, ex)
-                return
-        if hasattr(self._discord, "on_slash_command_error"):
-            self._discord.dispatch("slash_command_error", ctx, ex)
-            return
-        # Prints exception if not overridden or has no listener for error.
-        self.logger.exception(f"An exception has occurred while executing command `{ctx.name}`:")
+        if not self._on_error(ctx, ex, "slash_command_error"):
+            # Prints exception if not overridden or has no listener for error.
+            self.logger.exception(
+                f"An exception has occurred while executing command `{ctx.name}`:"
+            )
+
+    async def on_component_callback_error(self, ctx, ex):
+        """
+        Handles Exception occurred from invoking component callback.
+
+        Example of adding event:
+
+        .. code-block:: python
+
+            @client.event
+            async def on_component_callback_error(ctx, ex):
+                ...
+
+        Example of adding listener:
+
+        .. code-block:: python
+
+            @bot.listen()
+            async def on_component_callback_error(ctx, ex):
+                ...
+
+        :param ctx: Context of the callback.
+        :type ctx: :class:`.model.ComponentContext`
+        :param ex: Exception from the command invoke.
+        :type ex: Exception
+        :return:
+        """
+        if not self._on_error(ctx, ex, "component_callback_error"):
+            # Prints exception if not overridden or has no listener for error.
+            self.logger.exception(
+                f"An exception has occurred while executing component callback custom ID `{ctx.custom_id}`:"
+            )
