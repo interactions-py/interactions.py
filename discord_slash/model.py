@@ -5,7 +5,7 @@ from enum import IntEnum
 from inspect import iscoroutinefunction
 
 import discord
-from discord.ext.commands import CommandOnCooldown, CooldownMapping
+from discord.ext.commands import CommandOnCooldown, CooldownMapping, BucketType
 
 from . import error, http
 from .dpy_overrides import ComponentMessage
@@ -138,7 +138,10 @@ class CallbackObject:
         cooldown = None
         if hasattr(self.func, "__commands_cooldown__"):
             cooldown = self.func.__commands_cooldown__
-        self._buckets = CooldownMapping(cooldown)
+        try:
+            self._buckets = CooldownMapping(cooldown)
+        except TypeError:
+            self._buckets = CooldownMapping(cooldown, BucketType.default)
 
         self._max_concurrency = None
         if hasattr(self.func, "__commands_max_concurrency__"):
