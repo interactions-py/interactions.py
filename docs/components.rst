@@ -86,7 +86,7 @@ Let's register our callback function via decorator :meth:`component_callback() <
     async def hello(button_context: ComponentContext):
         await ctx.edit_origin(content="You pressed a button!")
 
-In this example, :func:`hello` will be triggered when you receive interaction event from a component with a `custom_id` set to `"hello"`. Just like slash commands, The callback's `custom_id` defaults to the function name.
+In this example, :func:`hello` will be triggered when you receive interaction event from a component with a `custom_id` set to `"hello"`. Just like slash commands, the callback's `custom_id` defaults to the function name.
 You can also register such callbacks in cogs using :func:`cog_component() <discord_slash.cog_ext>`
 Additionally, component callbacks can be dynamically added, removed or edited - see :class:`SlashCommand <discord_slash.client.SlashCommand>`
 
@@ -95,7 +95,7 @@ But [writer], I dont want to edit the message
 
 Well lucky for you, you don't have to. You can either respond silently, with a thinking animation, or send a whole new message. Take a look here: :class:`ComponentContext <discord_slash.context.ComponentContext>`
 
-How do i know which button was pressed?
+How do I know which button was pressed?
 _______________________________________
 
 Each button gets a ``custom_id`` (which is always a string), this is a unique identifier of which button is being pressed. You can specify what the ID is when you define your button, if you don't; a random one will be generated. When handling the event, simply check the custom_id, and handle accordingly.
