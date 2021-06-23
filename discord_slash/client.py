@@ -535,8 +535,7 @@ class SlashCommand:
         """
         name = name or cmd.__name__
         name = name.lower()
-        guild_ids = guild_ids if guild_ids else []
-        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+        if not all(isinstance(item, int) for item in guild_ids):
             raise error.IncorrectGuildIDType(
                 f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
             )
@@ -617,8 +616,7 @@ class SlashCommand:
         name = name or cmd.__name__
         name = name.lower()
         description = description or getdoc(cmd)
-        guild_ids = guild_ids if guild_ids else []
-        if not all(isinstance(item, int) for item in guild_ids) and guild_ids is not []:
+        if guild_ids and not all(isinstance(item, int) for item in guild_ids):
             raise error.IncorrectGuildIDType(
                 f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
             )

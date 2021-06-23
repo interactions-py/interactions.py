@@ -47,7 +47,7 @@ def spread_to_rows(*components, max_in_row=5) -> typing.List[dict]:
     rows = []
     button_row = []
     for component in list(components) + [None]:
-        if component is not None and component["type"] is ComponentType.button:
+        if component is not None and component["type"] == ComponentType.button:
             button_row.append(component)
 
             if len(button_row) == max_in_row:
@@ -62,9 +62,9 @@ def spread_to_rows(*components, max_in_row=5) -> typing.List[dict]:
 
         if component is None:
             pass
-        elif component["type"] is ComponentType.actionrow:
+        elif component["type"] == ComponentType.actionrow:
             rows.append(component)
-        elif component["type"] is ComponentType.select:
+        elif component["type"] == ComponentType.select:
             rows.append(create_actionrow(component))
 
     if len(rows) > 5:

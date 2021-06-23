@@ -23,12 +23,12 @@ class ComponentMessage(discord.Message):
         """
         for row in self.components:
             for component in row["components"]:
-                if component["custom_id"] is custom_id:
+                if component["custom_id"] == custom_id:
                     return component
 
 
 def new_override(cls, *args, **kwargs):
-    if cls is discord.Message:
+    if isinstance(cls, discord.Message):
         return object.__new__(ComponentMessage)
     else:
         return object.__new__(cls)
