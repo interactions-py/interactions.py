@@ -28,7 +28,7 @@ class ComponentMessage(discord.Message):
 
 
 def new_override(cls, *args, **kwargs):
-    if cls is discord.Message:
+    if isinstance(cls, discord.Message):
         return object.__new__(ComponentMessage)
     else:
         return object.__new__(cls)
