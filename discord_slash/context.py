@@ -400,7 +400,7 @@ class ComponentContext(InteractionContext):
         else:
             if not isinstance(embeds, list):
                 raise error.IncorrectFormat("Provide a list of embeds.")
-            if embeds is None or len(embeds) > 10:
+            if len(embeds) > 10:
                 raise error.IncorrectFormat("Do not provide more than 10 embeds.")
             _resp["embeds"] = [e.to_dict() for e in embeds]
 
