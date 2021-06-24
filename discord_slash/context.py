@@ -373,45 +373,57 @@ class ComponentContext(InteractionContext):
         """
         _resp = {}
 
-        content = fields.get("content")
-        if content is not None:
-            _resp["content"] = str(content)
-
-        file = fields.get("file")
-        files = fields.get("files")
-        components = fields.get("components")
-
-        if components is not None:
-            _resp["components"] = components
-
-        if files is not None and file is not None:
-            raise error.IncorrectFormat("You can't use both `file` and `files`!")
-        if file:
-            files = [file]
-            
-         # Check if the embeds interface is being used
         try:
-            embeds = fields['embeds']
+            content = fields["content"]
+        except KeyError:
+            pass
+        else:
+            if content is not None:
+                content = str(content)
+            _resp["content"] = content
+
+        try:
+            components = fields["components"]
+        except KeyError:
+            pass
+        else:
+            if components is None:
+                _resp["components"] = []
+            else:
+                _resp["components"] = components
+
+        try:
+            embeds = fields["embeds"]
         except KeyError:
             # Nope
             pass
         else:
+            if not isinstance(embeds, list):
+                raise error.IncorrectFormat("Provide a list of embeds.")
             if embeds is None or len(embeds) > 10:
-                raise error.IncorrectFormat('embeds has a maximum of 10 elements')
+                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
             _resp["embeds"] = [e.to_dict() for e in embeds]
 
         try:
-            embed = fields['embed']
+            embed = fields["embed"]
         except KeyError:
             pass
         else:
-            if 'embeds' in _resp:
-                raise error.IncorrectFormat('Cannot mix embed and embeds keyword arguments')
+            if "embeds" in _resp:
+                raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
 
             if embed is None:
                 _resp["embeds"] = []
             else:
                 _resp["embeds"] = [embed.to_dict()]
+
+        file = fields.get("file")
+        files = fields.get("files")
+
+        if files is not None and file is not None:
+            raise error.IncorrectFormat("You can't use both `file` and `files`!")
+        if file:
+            files = [file]
 
         allowed_mentions = fields.get("allowed_mentions")
         _resp["allowed_mentions"] = (
