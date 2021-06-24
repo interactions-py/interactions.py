@@ -374,7 +374,7 @@ class ComponentContext(InteractionContext):
         _resp = {}
 
         content = fields.get("content")
-        if content:
+        if content is not None:
             _resp["content"] = str(content)
 
         file = fields.get("file")
@@ -388,9 +388,6 @@ class ComponentContext(InteractionContext):
             raise error.IncorrectFormat("You can't use both `file` and `files`!")
         if file:
             files = [file]
-        if embed:
-            embeds = [embed]
-            
             
          # Check if the embeds interface is being used
         try:
