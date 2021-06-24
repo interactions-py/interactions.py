@@ -377,29 +377,44 @@ class ComponentContext(InteractionContext):
         if content:
             _resp["content"] = str(content)
 
-        embed = fields.get("embed")
-        embeds = fields.get("embeds")
         file = fields.get("file")
         files = fields.get("files")
         components = fields.get("components")
 
-        if components:
+        if components is not None:
             _resp["components"] = components
 
-        if embed and embeds:
-            raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
-        if file and files:
+        if files is not None and file is not None:
             raise error.IncorrectFormat("You can't use both `file` and `files`!")
         if file:
             files = [file]
         if embed:
             embeds = [embed]
-        if embeds:
-            if not isinstance(embeds, list):
-                raise error.IncorrectFormat("Provide a list of embeds.")
-            elif len(embeds) > 10:
-                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
-            _resp["embeds"] = [x.to_dict() for x in embeds]
+            
+            
+         # Check if the embeds interface is being used
+        try:
+            embeds = fields['embeds']
+        except KeyError:
+            # Nope
+            pass
+        else:
+            if embeds is None or len(embeds) > 10:
+                raise error.IncorrectFormat('embeds has a maximum of 10 elements')
+            _resp["embeds"] = [e.to_dict() for e in embeds]
+
+        try:
+            embed = fields['embed']
+        except KeyError:
+            pass
+        else:
+            if 'embeds' in payload:
+                raise error.IncorrectFormat('Cannot mix embed and embeds keyword arguments')
+
+            if embed is None:
+                _resp["embeds"] = []
+            else:
+                _resp["embeds"] = [embed.to_dict()]
 
         allowed_mentions = fields.get("allowed_mentions")
         _resp["allowed_mentions"] = (
