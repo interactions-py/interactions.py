@@ -408,7 +408,7 @@ class ComponentContext(InteractionContext):
         except KeyError:
             pass
         else:
-            if 'embeds' in payload:
+            if 'embeds' in _resp:
                 raise error.IncorrectFormat('Cannot mix embed and embeds keyword arguments')
 
             if embed is None:
