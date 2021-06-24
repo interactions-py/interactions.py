@@ -411,7 +411,9 @@ class ComponentContext(InteractionContext):
         allowed_mentions = fields.get("allowed_mentions")
         if allowed_mentions is not None:
             if self.bot.allowed_mentions is not None:
-                _resp["allowed_mentions"] = self.bot.allowed_mentions.merge(allowed_mentions).to_dict()
+                _resp["allowed_mentions"] = self.bot.allowed_mentions.merge(
+                    allowed_mentions
+                ).to_dict()
             else:
                 _resp["allowed_mentions"] = allowed_mentions.to_dict()
         else:
