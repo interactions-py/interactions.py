@@ -23,7 +23,7 @@ class ComponentMessage(discord.Message):
         """
         for row in self.components:
             for component in row["components"]:
-                if component["custom_id"] == custom_id:
+                if "custom_id" in component and component["custom_id"] == custom_id:
                     return component
 
 
