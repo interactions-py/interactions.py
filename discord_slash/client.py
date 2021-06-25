@@ -908,9 +908,9 @@ class SlashCommand:
         :param Coroutine callback: The coroutine to be called when the component is interacted with. Must accept a single argument with the type :class:`.context.ComponentContext`.
         :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
         :type messages: Union[discord.Message, int, list]
-        :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+        :param components: If specified, only interactions with ``custom_id`` of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
         :type components: Union[str, dict, list]
-        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either ``messages`` or ``components`` must be specified.
         :type use_callback_name: bool
         :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
@@ -961,14 +961,14 @@ class SlashCommand:
         custom_id: str = None,
     ):
         """
-        Registers existing callback object (:class:`.model.ComponentType`)
+        Registers existing callback object (:class:`.model.ComponentCallbackObject`)
         for specific combination of message_id, custom_id, component_type.
 
         :param callback_obj: callback object.
         :type callback_obj: model.ComponentCallbackObject
         :param message_id: If specified, only removes the callback for the specific message ID.
         :type message_id: Optional[.model]
-        :param custom_id: The `custom_id` of the component.
+        :param custom_id: The ``custom_id`` of the component.
         :type custom_id: Optional[str]
         :raises: .error.DuplicateCustomID, .error.IncorrectFormat
         """
@@ -988,7 +988,7 @@ class SlashCommand:
 
         :param message_id: If specified, only removes the callback for the specific message ID.
         :type message_id: Optional[.model]
-        :param custom_id: The `custom_id` of the component.
+        :param custom_id: The ``custom_id`` of the component.
         :type custom_id: Optional[str]
         :param component_type: The type of the component. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
@@ -1014,7 +1014,7 @@ class SlashCommand:
 
         :param message_id: If specified, only removes the callback for the specific message ID.
         :type message_id: Optional[int]
-        :param custom_id: The `custom_id` of the component.
+        :param custom_id: The ``custom_id`` of the component.
         :type custom_id: Optional[str]
         :param component_type: The type of the component. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]
@@ -1067,9 +1067,9 @@ class SlashCommand:
 
         :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
         :type messages: Union[discord.Message, int, list]
-        :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+        :param components: If specified, only interactions with ``custom_id`` of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
         :type components: Union[str, dict, list]
-        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+        :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either ``messages`` or ``components`` must be specified.
         :type use_callback_name: bool
         :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
         :type component_type: Optional[int]

@@ -190,9 +190,9 @@ def cog_component(
 
     :param messages: If specified, only interactions from the message given will be accepted. Can be a message object to check for, or the message ID or list of previous two. Empty list will mean that no interactions are accepted.
     :type messages: Union[discord.Message, int, list]
-    :param components: If specified, only interactions with ``custom_id``s of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
+    :param components: If specified, only interactions with ``custom_id`` of given components will be accepted. Defaults to the name of ``callback`` if ``use_callback_name=True``. Can be a custom ID (str) or component dict (actionrow or button) or list of previous two.
     :type components: Union[str, dict, list]
-    :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either `messages`` or ``components`` must be specified.
+    :param use_callback_name: Whether the ``custom_id`` defaults to the name of ``callback`` if unspecified. If ``False``, either ``messages`` or ``components`` must be specified.
     :type use_callback_name: bool
     :param component_type: The type of the component to avoid collisions with other component types. See :class:`.model.ComponentType`.
     :type component_type: Optional[int]
