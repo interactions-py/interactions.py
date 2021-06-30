@@ -50,8 +50,14 @@ def cog_slash(
     :param connector: Kwargs connector for the command. Default ``None``.
     :type connector: dict
     """
+    if not permissions:
+        permissions = {}
 
     def wrapper(cmd):
+        decorator_permissions = getattr(cmd, "__permissions__", None)
+        if decorator_permissions:
+            permissions.update(decorator_permissions)
+
         desc = description or inspect.getdoc(cmd)
         if options is None:
             opts = manage_commands.generate_options(cmd, desc, connector)
@@ -138,8 +144,14 @@ def cog_subcommand(
     base_description = base_description or base_desc
     subcommand_group_description = subcommand_group_description or sub_group_desc
     guild_ids = guild_ids if guild_ids else []
+    if not base_permissions:
+        base_permissions = {}
 
     def wrapper(cmd):
+        decorator_permissions = getattr(cmd, "__permissions__", None)
+        if decorator_permissions:
+            base_permissions.update(decorator_permissions)
+
         desc = description or inspect.getdoc(cmd)
         if options is None:
             opts = manage_commands.generate_options(cmd, desc, connector)
@@ -173,6 +185,25 @@ def cog_subcommand(
             "connector": connector,
         }
         return CogSubcommandObject(base, _cmd, subcommand_group, name or cmd.__name__, _sub)
+
+    return wrapper
+
+
+def permission(guild_id: int, permissions: list):
+    """
+    Decorator that add permissions. This will set the permissions for a single guild, you can use it more than once for each command.
+
+    :param guild_id: ID of the guild for the permissions.
+    :type guild_id: int
+    :param permissions: List of permissions to be set for the specified guild.
+    :type permissions: list
+    """
+
+    def wrapper(cmd):
+        if not getattr(cmd, "__permissions__", None):
+            cmd.__permissions__ = {}
+        cmd.__permissions__[guild_id] = permissions
+        return cmd
 
     return wrapper
 
