@@ -134,7 +134,8 @@ def create_button(
     if custom_id is not None and not isinstance(custom_id, str):
         custom_id = str(custom_id)
         logger.warning(
-            "Custom_id has been automatically converted to a string. Please use strings in future"
+            "Custom_id has been automatically converted to a string. Please use strings in future\n"
+            "Note: Discord will always return custom_id as a string"
         )
 
     emoji = emoji_to_dict(emoji)
@@ -178,7 +179,8 @@ def create_select_option(
     if not isinstance(value, str):
         value = str(value)
         logger.warning(
-            "Value has been automatically converted to a string. Please use strings in future"
+            "Value has been automatically converted to a string. Please use strings in future\n"
+            "Note: Discord will always return value as a string"
         )
     if not len(value) or len(value) > 100:
         raise IncorrectFormat("Value length should be between 1 and 100.")
@@ -303,7 +305,8 @@ async def wait_for_component(
     if not all(isinstance(x, str) for x in custom_ids):
         custom_ids = [str(i) for i in custom_ids]
         logger.warning(
-            "Custom_ids have been automatically converted to a list of strings. Please use lists of strings in future"
+            "Custom_ids have been automatically converted to a list of strings. Please use lists of strings in future.\n"
+            "Note: Discord will always return custom_ids as strings"
         )
 
     def _check(ctx: ComponentContext):
