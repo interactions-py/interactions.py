@@ -283,6 +283,7 @@ class ComponentContext(InteractionContext):
     :ivar component: Component data retrieved from the message. Not available if the origin message was ephemeral.
     :ivar origin_message: The origin message of the component. Not available if the origin message was ephemeral.
     :ivar origin_message_id: The ID of the origin message.
+    :ivar values: The values given by the interaction. Currently only available for select components.
 
     """
 
@@ -298,6 +299,7 @@ class ComponentContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
         self.origin_message = None
         self.origin_message_id = int(_json["message"]["id"]) if "message" in _json.keys() else None
+        self.values = _json["data"]["values"] if "values" in _json["data"].keys() else None
 
         self.component = None
 
