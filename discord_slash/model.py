@@ -495,33 +495,57 @@ class SlashMessage(ComponentMessage):
         """
         _resp = {}
 
-        content = fields.get("content")
-        if content:
-            _resp["content"] = str(content)
+        try:
+            content = fields["content"]
+        except KeyError:
+            pass
+        else:
+            if content is not None:
+                content = str(content)
+            _resp["content"] = content
 
-        embed = fields.get("embed")
-        embeds = fields.get("embeds")
+        try:
+            components = fields["components"]
+        except KeyError:
+            pass
+        else:
+            if components is None:
+                _resp["components"] = []
+            else:
+                _resp["components"] = components
+
+        try:
+            embeds = fields["embeds"]
+        except KeyError:
+            # Nope
+            pass
+        else:
+            if not isinstance(embeds, list):
+                raise error.IncorrectFormat("Provide a list of embeds.")
+            if len(embeds) > 10:
+                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
+            _resp["embeds"] = [e.to_dict() for e in embeds]
+
+        try:
+            embed = fields["embed"]
+        except KeyError:
+            pass
+        else:
+            if "embeds" in _resp:
+                raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
+
+            if embed is None:
+                _resp["embeds"] = []
+            else:
+                _resp["embeds"] = [embed.to_dict()]
+
         file = fields.get("file")
         files = fields.get("files")
-        components = fields.get("components")
 
-        if components:
-            _resp["components"] = components
-
-        if embed and embeds:
-            raise error.IncorrectFormat("You can't use both `embed` and `embeds`!")
-        if file and files:
+        if files is not None and file is not None:
             raise error.IncorrectFormat("You can't use both `file` and `files`!")
         if file:
             files = [file]
-        if embed:
-            embeds = [embed]
-        if embeds:
-            if not isinstance(embeds, list):
-                raise error.IncorrectFormat("Provide a list of embeds.")
-            elif len(embeds) > 10:
-                raise error.IncorrectFormat("Do not provide more than 10 embeds.")
-            _resp["embeds"] = [x.to_dict() for x in embeds]
 
         allowed_mentions = fields.get("allowed_mentions")
         _resp["allowed_mentions"] = (
