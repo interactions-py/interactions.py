@@ -44,7 +44,7 @@ def run_static():
     success &= do_process(["black", "."])
     success &= do_process(["isort", "."])
     # Linters
-    success &= do_process(["flake8", "--exclude=.eggs,build,docs,.venv*"])
+    success &= do_process(["flake8", "--exclude=.eggs,build,docs,.venv*,env*"])
 
     tmp_dir = mkdtemp()
     try:
