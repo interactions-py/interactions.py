@@ -548,13 +548,18 @@ class SlashMessage(ComponentMessage):
             files = [file]
 
         allowed_mentions = fields.get("allowed_mentions")
-        _resp["allowed_mentions"] = (
-            allowed_mentions.to_dict()
-            if allowed_mentions
-            else self._state.allowed_mentions.to_dict()
-            if self._state.allowed_mentions
-            else {}
-        )
+        if allowed_mentions is not None:
+            if self.bot.allowed_mentions is not None:
+                _resp["allowed_mentions"] = self.bot.allowed_mentions.merge(
+                    allowed_mentions
+                ).to_dict()
+            else:
+                _resp["allowed_mentions"] = allowed_mentions.to_dict()
+        else:
+            if self.bot.allowed_mentions is not None:
+                _resp["allowed_mentions"] = self.bot.allowed_mentions.to_dict()
+            else:
+                _resp["allowed_mentions"] = {}
 
         await self._http.edit(_resp, self.__interaction_token, self.id, files=files)
 

@@ -193,15 +193,22 @@ class InteractionContext:
                 "The top level of the components list must be made of ActionRows!"
             )
 
+        if allowed_mentions is not None:
+            if self.bot.allowed_mentions is not None:
+                allowed_mentions = self.bot.allowed_mentions.merge(allowed_mentions).to_dict()
+            else:
+                allowed_mentions = allowed_mentions.to_dict()
+        else:
+            if self.bot.allowed_mentions is not None:
+                allowed_mentions = self.bot.allowed_mentions.to_dict()
+            else:
+                allowed_mentions = {}
+
         base = {
             "content": content,
             "tts": tts,
             "embeds": [x.to_dict() for x in embeds] if embeds else [],
-            "allowed_mentions": allowed_mentions.to_dict()
-            if allowed_mentions
-            else self.bot.allowed_mentions.to_dict()
-            if self.bot.allowed_mentions
-            else {},
+            "allowed_mentions": allowed_mentions,
             "components": components or [],
         }
         if hidden:
@@ -433,13 +440,18 @@ class ComponentContext(InteractionContext):
             files = [file]
 
         allowed_mentions = fields.get("allowed_mentions")
-        _resp["allowed_mentions"] = (
-            allowed_mentions.to_dict()
-            if allowed_mentions
-            else self.bot.allowed_mentions.to_dict()
-            if self.bot.allowed_mentions
-            else {}
-        )
+        if allowed_mentions is not None:
+            if self.bot.allowed_mentions is not None:
+                _resp["allowed_mentions"] = self.bot.allowed_mentions.merge(
+                    allowed_mentions
+                ).to_dict()
+            else:
+                _resp["allowed_mentions"] = allowed_mentions.to_dict()
+        else:
+            if self.bot.allowed_mentions is not None:
+                _resp["allowed_mentions"] = self.bot.allowed_mentions.to_dict()
+            else:
+                _resp["allowed_mentions"] = {}
 
         if not self.responded:
             if files and not self.deferred:
