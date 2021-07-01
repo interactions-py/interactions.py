@@ -156,16 +156,20 @@ def create_select_option(
     """
     Creates an option for select components.
 
-    .. warning::
-        Currently, select components are not available for public use, nor do they have official documentation. The parameters will not be documented at this time.
-
-    :param label: The label of the option.
-    :param value: The value that the bot will recieve when this option is selected.
+    :param label: The user-facing name of the option.
+    :param value: The value that the bot will receive when this option is selected.
     :param emoji: The emoji of the option.
-    :param description: A description of the option.
+    :param description: An additional description of the option.
     :param default: Whether or not this is the default option.
     """
     emoji = emoji_to_dict(emoji)
+
+    if not len(label) or len(label) > 25:
+        raise IncorrectFormat("Label length should be between 1 and 25.")
+    if not len(value) or len(value) > 100:
+        raise IncorrectFormat("Value length should be between 1 and 100.")
+    if description is not None and len(description) > 50:
+        raise IncorrectFormat("Description length must be 50 or lower.")
 
     return {
         "label": label,
@@ -186,9 +190,11 @@ def create_select(
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
 
-
-    .. warning::
-        Currently, select components are not available for public use, nor do they have official documentation. The parameters will not be documented at this time.
+    :param options: The choices the user can pick from
+    :param custom_id: A custom identifier, like buttons
+    :param placeholder: Custom placeholder text if nothing is selected
+    :param min_values: The minimum number of items that **must** be chosen
+    :param max_values: The maximum number of items that **can** be chosen
     """
     if not len(options) or len(options) > 25:
         raise IncorrectFormat("Options length should be between 1 and 25.")

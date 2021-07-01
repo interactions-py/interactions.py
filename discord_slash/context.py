@@ -23,6 +23,8 @@ class InteractionContext:
     :ivar bot: discord.py client.
     :ivar _http: :class:`.http.SlashCommandRequest` of the client.
     :ivar _logger: Logger instance.
+    :ivar data: The raw data of the interaction.
+    :ivar values: The values sent with the interaction. Currently for selects.
     :ivar deferred: Whether the command is current deferred (loading state)
     :ivar _deferred_hidden: Internal var to check that state stays the same
     :ivar responded: Whether you have responded with a message to the interaction.
@@ -30,6 +32,7 @@ class InteractionContext:
     :ivar author_id: User ID representing author of the command message.
     :ivar channel_id: Channel ID representing channel of the command message.
     :ivar author: User or Member instance of the command invoke.
+
     """
 
     def __init__(
@@ -47,6 +50,8 @@ class InteractionContext:
         self._logger = logger
         self.deferred = False
         self.responded = False
+        self.data = _json['data']
+        self.values = _json['data']['values'] if "values" in _json['data'] else None
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         self.author_id = int(
@@ -62,6 +67,7 @@ class InteractionContext:
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
         self.created_at: datetime.datetime = snowflake_time(int(self.interaction_id))
+
 
     @property
     def _deffered_hidden(self):
@@ -283,7 +289,7 @@ class ComponentContext(InteractionContext):
     :ivar component: Component data retrieved from the message. Not available if the origin message was ephemeral.
     :ivar origin_message: The origin message of the component. Not available if the origin message was ephemeral.
     :ivar origin_message_id: The ID of the origin message.
-
+    :ivar selected_options: The options selected (only for selects)
     """
 
     def __init__(
@@ -308,6 +314,9 @@ class ComponentContext(InteractionContext):
                 state=self.bot._connection, channel=self.channel, data=_json["message"]
             )
             self.component = self.origin_message.get_component(self.custom_id)
+
+        self.selected_options = _json["data"]["values"] if self.component_type == 3 else None
+
 
     async def defer(self, hidden: bool = False, edit_origin: bool = False):
         """
