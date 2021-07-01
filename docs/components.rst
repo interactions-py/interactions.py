@@ -133,6 +133,8 @@ Yep we support those too. You use them much the same as buttons:
         min_values=1,  # the minimum number of options a user must select
         max_values=2,  # the maximum number of options a user can select
     )
+    
+    await ctx.send(components=[create_actionrow(select)])  # like action_row with buttons but without * in front of the variable
 
     @bot.event
     async def on_component(ctx: ComponentContext):
