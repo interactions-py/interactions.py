@@ -189,7 +189,7 @@ def create_select_option(
 
     return {
         "label": label,
-        "value": str(value),
+        "value": value,
         "description": description,
         "default": default,
         "emoji": emoji,
