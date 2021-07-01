@@ -50,8 +50,8 @@ class InteractionContext:
         self._logger = logger
         self.deferred = False
         self.responded = False
-        self.data = _json['data']
-        self.values = _json['data']['values'] if "values" in _json['data'] else None
+        self.data = _json["data"]
+        self.values = _json["data"]["values"] if "values" in _json["data"] else None
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         self.author_id = int(
@@ -67,7 +67,6 @@ class InteractionContext:
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
         self.created_at: datetime.datetime = snowflake_time(int(self.interaction_id))
-
 
     @property
     def _deffered_hidden(self):
@@ -316,7 +315,6 @@ class ComponentContext(InteractionContext):
             self.component = self.origin_message.get_component(self.custom_id)
 
         self.selected_options = _json["data"]["values"] if self.component_type == 3 else None
-
 
     async def defer(self, hidden: bool = False, edit_origin: bool = False):
         """
