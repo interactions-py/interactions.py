@@ -173,7 +173,7 @@ def create_select_option(
 
     return {
         "label": label,
-        "value": value,
+        "value": str(value),
         "description": description,
         "default": default,
         "emoji": emoji,
@@ -182,10 +182,10 @@ def create_select_option(
 
 def create_select(
     options: typing.List[dict],
-    custom_id=None,
-    placeholder=None,
-    min_values=None,
-    max_values=None,
+    custom_id: str = None,
+    placeholder: typing.Optional[str] = None,
+    min_values: typing.Optional[int] = None,
+    max_values: typing.Optional[int] = None,
 ):
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
@@ -284,6 +284,11 @@ async def wait_for_component(
 
     message_ids = list(get_messages_ids(messages)) if messages else None
     custom_ids = list(get_components_ids(components)) if components else None
+
+    # automatically convert improper custom_ids
+    if not all(isinstance(x, str) for x in custom_ids):
+        client.slash.logger.warn("Component Custom IDs should always be strings")
+        custom_ids = [str(i) for i in custom_ids]
 
     def _check(ctx: ComponentContext):
         if check and not check(ctx):
