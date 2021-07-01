@@ -99,3 +99,28 @@ How do I know which button was pressed?
 _______________________________________
 
 Each button gets a ``custom_id`` (which is always a string), this is a unique identifier of which button is being pressed. You can specify what the ID is when you define your button, if you don't; a random one will be generated. When handling the event, simply check the custom_id, and handle accordingly.
+
+What about selects / Dropdowns?
+_______________________________
+
+Yep we support those too. You use them much the same as buttons:
+
+.. code-block:: python
+
+    from discord_slash.utils.manage_components import create_select, create_select_option
+
+    select = create_select(
+        options=[# the options in your dropdown
+            create_select_option("Lab Coat", value="coat", emoji="🥼"),
+            create_select_option("Test Tube", value="tube", emoji="🧪"),
+            create_select_option("Petri Dish", value="dish", emoji="🧫"),
+        ],
+        placeholder="Choose your option",  # the placeholder text to show when no options have been chosen
+        min_values=1,  # the minimum number of options a user must select
+        max_values=2,  # the maximum number of options a user can select
+    )
+
+    @bot.event
+    async def on_component(ctx: ComponentContext):
+        # ctx.selected_options is a list of all the values the user selected
+        await ctx.send(content=f"You selected {ctx.selected_options}")
