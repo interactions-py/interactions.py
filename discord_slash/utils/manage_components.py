@@ -1,3 +1,4 @@
+import logging
 import typing
 import uuid
 
@@ -6,6 +7,8 @@ import discord
 from ..context import ComponentContext
 from ..error import IncorrectFormat, IncorrectType
 from ..model import ButtonStyle, ComponentType
+
+logger = logging.getLogger("discord_slash")
 
 
 def create_actionrow(*components: dict) -> dict:
@@ -128,6 +131,13 @@ def create_button(
     if not label and not emoji:
         raise IncorrectFormat("You must have at least a label or emoji on a button.")
 
+    if custom_id is not None and not isinstance(custom_id, str):
+        custom_id = str(custom_id)
+        logger.warning(
+            "Custom_id has been automatically converted to a string. Please use strings in future\n"
+            "Note: Discord will always return custom_id as a string"
+        )
+
     emoji = emoji_to_dict(emoji)
 
     data = {
@@ -166,6 +176,12 @@ def create_select_option(
 
     if not len(label) or len(label) > 25:
         raise IncorrectFormat("Label length should be between 1 and 25.")
+    if not isinstance(value, str):
+        value = str(value)
+        logger.warning(
+            "Value has been automatically converted to a string. Please use strings in future\n"
+            "Note: Discord will always return value as a string"
+        )
     if not len(value) or len(value) > 100:
         raise IncorrectFormat("Value length should be between 1 and 100.")
     if description is not None and len(description) > 50:
@@ -182,10 +198,10 @@ def create_select_option(
 
 def create_select(
     options: typing.List[dict],
-    custom_id=None,
-    placeholder=None,
-    min_values=None,
-    max_values=None,
+    custom_id: str = None,
+    placeholder: typing.Optional[str] = None,
+    min_values: typing.Optional[int] = None,
+    max_values: typing.Optional[int] = None,
 ):
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
@@ -284,6 +300,14 @@ async def wait_for_component(
 
     message_ids = list(get_messages_ids(messages)) if messages else None
     custom_ids = list(get_components_ids(components)) if components else None
+
+    # automatically convert improper custom_ids
+    if not all(isinstance(x, str) for x in custom_ids):
+        custom_ids = [str(i) for i in custom_ids]
+        logger.warning(
+            "Custom_ids have been automatically converted to a list of strings. Please use lists of strings in future.\n"
+            "Note: Discord will always return custom_ids as strings"
+        )
 
     def _check(ctx: ComponentContext):
         if check and not check(ctx):
