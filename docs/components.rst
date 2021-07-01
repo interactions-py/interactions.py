@@ -117,11 +117,11 @@ Each button gets a ``custom_id`` (which is always a string), this is a unique id
 What about selects / Dropdowns?
 _______________________________
 
-Yep we support those too. You use them much the same as buttons:
+Yep we support those too. You use them much the same as buttons, with 25 options per select, 1 select in each action row, 5 action rows in a message, totalling 125 options:
 
 .. code-block:: python
 
-    from discord_slash.utils.manage_components import create_select, create_select_option
+    from discord_slash.utils.manage_components import create_select, create_select_option, create_actionrow
 
     select = create_select(
         options=[# the options in your dropdown
@@ -134,7 +134,7 @@ Yep we support those too. You use them much the same as buttons:
         max_values=2,  # the maximum number of options a user can select
     )
     
-    await ctx.send(components=[create_actionrow(select)])  # like action_row with buttons but without * in front of the variable
+    await ctx.send("test", components=[create_actionrow(select)])  # like action row with buttons but without * in front of the variable
 
     @bot.event
     async def on_component(ctx: ComponentContext):
