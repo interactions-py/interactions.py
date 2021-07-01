@@ -156,7 +156,7 @@ def create_select_option(
     """
     Creates an option for select components.
 
-    :param label: The user-facing name of the option.
+    :param label: The user-facing name of the option that will be displayed in discord client.
     :param value: The value that the bot will receive when this option is selected.
     :param emoji: The emoji of the option.
     :param description: An additional description of the option.
