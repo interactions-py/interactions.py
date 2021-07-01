@@ -97,7 +97,7 @@ Let's register our callback function via decorator :meth:`component_callback() <
 .. code-block:: python
 
     @slash.component_callback()
-    async def hello(button_context: ComponentContext):
+    async def hello(ctx: ComponentContext):
         await ctx.edit_origin(content="You pressed a button!")
 
 In this example, :func:`hello` will be triggered when you receive interaction event from a component with a `custom_id` set to `"hello"`. Just like slash commands, the callback's `custom_id` defaults to the function name.
