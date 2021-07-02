@@ -302,7 +302,7 @@ async def wait_for_component(
     custom_ids = list(get_components_ids(components)) if components else None
 
     # automatically convert improper custom_ids
-    if not all(isinstance(x, str) for x in custom_ids):
+    if custom_ids and not all(isinstance(x, str) for x in custom_ids):
         custom_ids = [str(i) for i in custom_ids]
         logger.warning(
             "Custom_ids have been automatically converted to a list of strings. Please use lists of strings in future.\n"
