@@ -117,7 +117,7 @@ Each button gets a ``custom_id`` (which is always a string), this is a unique id
 What about selects / Dropdowns?
 _______________________________
 
-Yep we support those too. You use them much the same as buttons, with 25 options per select, 1 select in each action row, 5 action rows in a message, totalling 125 options:
+Yep we support those too. You use them much the same as buttons. You can only have 1 select per action row, but each select can have up to 25 options in it!
 
 .. code-block:: python
 
