@@ -212,7 +212,7 @@ def create_select(
     :param placeholder: Custom placeholder text if nothing is selected
     :param min_values: The minimum number of items that **must** be chosen
     :param max_values: The maximum number of items that **can** be chosen
-    :param disabled: Disable this component, default False
+    :param disabled: Disables this component. Defaults to ``False``. 
     """
     if not len(options) or len(options) > 25:
         raise IncorrectFormat("Options length should be between 1 and 25.")
