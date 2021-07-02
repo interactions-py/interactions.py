@@ -202,6 +202,7 @@ def create_select(
     placeholder: typing.Optional[str] = None,
     min_values: typing.Optional[int] = None,
     max_values: typing.Optional[int] = None,
+    disabled: bool = False,
 ):
     """
     Creates a select (dropdown) component for use with the ``components`` field. Must be inside an ActionRow to be used (see :meth:`create_actionrow`).
@@ -211,6 +212,7 @@ def create_select(
     :param placeholder: Custom placeholder text if nothing is selected
     :param min_values: The minimum number of items that **must** be chosen
     :param max_values: The maximum number of items that **can** be chosen
+    :param disabled: Disables this component. Defaults to ``False``. 
     """
     if not len(options) or len(options) > 25:
         raise IncorrectFormat("Options length should be between 1 and 25.")
@@ -222,6 +224,7 @@ def create_select(
         "placeholder": placeholder or "",
         "min_values": min_values,
         "max_values": max_values,
+        "disabled": disabled,
     }
 
 
