@@ -431,10 +431,8 @@ class SlashCommand:
                             )
 
                         ex.args = (error_string,)
-                        raise ex
 
-                    else:
-                        raise ex
+                    raise ex
             else:
                 self.logger.debug(
                     f"Detected no changes on {scope if scope is not None else 'global'}, skipping"
