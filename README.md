@@ -17,7 +17,9 @@
 <p align="center">
     <a href="#about">About</a> |
     <a href="#installation">Installation</a> |
-    <a href="#examples">Examples</a>
+    <a href="#examples">Examples</a> |
+    <a href="https://discord.gg/KkgMBVuEkx">Discord</a> |
+    <a href="https://pypi.org/project/discord-py-slash-command/">PyPI</a>
 </p>
 
 # About
