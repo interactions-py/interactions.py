@@ -124,6 +124,15 @@ class CallbackObject:
     :ivar func: The coroutine of the command.
     :ivar __commands_checks__: Check of the command.
     """
+    
+    async def __call__(self, *args, **kwargs):
+        """
+        Ref: https://github.com/Rapptz/discord.py/blob/f14e584304d9d6676c90f8aa59d6e4be23d22a10/discord/ext/commands/core.py#L396
+        and https://github.com/discord-py-slash-commands/discord-py-interactions/blob/d68ea8ed00720d50845aac586366145cd4a70f0a/discord_slash/model.py#L207-L209
+        """
+        if hasattr(self, "cog"):
+            return await self.func(self.cog, *args, **kwargs)
+        return await self.func(*args, **kwargs)
 
     def __init__(self, func):
         self.func = func
