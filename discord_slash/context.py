@@ -114,6 +114,22 @@ class InteractionContext:
         """
         return self.bot.get_channel(self.channel_id)
 
+    @property
+    def voice_client(self):
+        """
+        VoiceClient instance of the command invoke. If the command was invoked in DM, then it is ``None``.
+        If the bot is not connected to any Voice/Stage channels, then it is ``None``.
+
+        """
+        return self.guild.voice_client if self.guild else None
+
+    @property
+    def me(self):
+        """
+        Similar to :attr:`.Guild.me` except that it may also return the bot user in DM context.
+        """
+        return self.guild.me if self.guild is not None else self.bot.user
+
     async def defer(self, hidden: bool = False):
         """
         'Defers' the response, showing a loading state to the user
@@ -282,8 +298,23 @@ class SlashContext(InteractionContext):
         self.subcommand_name = self.invoked_subcommand = self.subcommand_passed = None
         self.subcommand_group = self.invoked_subcommand_group = self.subcommand_group_passed = None
         self.command_id = _json["data"]["id"]
+        self._discord = _discord
 
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
+
+    @property
+    def cog(self) -> typing.Optional[commands.Cog]:
+        """
+        Returns the cog associated with the command invoked, if any.
+        """
+
+        # noinspection PyUnresolvedReferences
+        cmd_obj = self._discord.slash.commands[self.command]  # above line, thanks PyCharm
+
+        if isinstance(cmd_obj, (model.CogBaseCommandObject, model.CogSubcommandObject)):
+            return cmd_obj.cog
+        else:
+            return None
 
 
 class ComponentContext(InteractionContext):
