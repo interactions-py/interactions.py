@@ -184,7 +184,7 @@ async def update_single_command_permissions(bot_id, bot_token, guild_id, command
     url = f"https://discord.com/api/v8/applications/{bot_id}/guilds/{guild_id}/commands/{command_id}/permissions"
     async with aiohttp.ClientSession() as session:
         async with session.put(
-            url, headers={"Authorization": f"Bot {bot_token}"}, json=permissions
+            url, headers={"Authorization": f"Bot {bot_token}"}, json={"permissions": permissions}
         ) as resp:
             if resp.status == 429:
                 _json = await resp.json()

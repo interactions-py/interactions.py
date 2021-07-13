@@ -321,7 +321,10 @@ class ComponentContext(InteractionContext):
             )
             self.component = self.origin_message.get_component(self.custom_id)
 
-        self.selected_options = _json["data"]["values"] if self.component_type == 3 else None
+        self.selected_options = None
+
+        if self.component_type == 3:
+            self.selected_options = _json["data"].get("values", [])
 
     async def defer(self, hidden: bool = False, edit_origin: bool = False):
         """
