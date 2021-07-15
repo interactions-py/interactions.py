@@ -79,7 +79,7 @@ class SlashCommandRequest:
         Sends a slash command add request to Discord API.
 
         :param guild_id: ID of the guild to add command. Pass `None` to add global command.
-        :param cmd_name: Name of the command. Must be 3 or longer and 32 or shorter.
+        :param cmd_name: Name of the command. Must be **lower-case** and match the regular expression ``^[\w-]{1,32}$``.
         :param description: Description of the command.
         :param options: List of the function.
         :return: JSON Response of the request.
