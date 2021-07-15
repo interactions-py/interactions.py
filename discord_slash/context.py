@@ -272,6 +272,64 @@ class InteractionContext:
         else:
             return resp
 
+    async def reply(
+        self,
+        content: str = "",
+        *,
+        embed: discord.Embed = None,
+        embeds: typing.List[discord.Embed] = None,
+        tts: bool = False,
+        file: discord.File = None,
+        files: typing.List[discord.File] = None,
+        allowed_mentions: discord.AllowedMentions = None,
+        hidden: bool = False,
+        delete_after: float = None,
+        components: typing.List[dict] = None,
+    ) -> model.SlashMessage:
+        """
+        Sends response of the interaction. This is currently an alias of the ``.send()`` method.
+
+        .. warning::
+            - Since Release 1.0.9, this is completely changed. If you are migrating from older version, please make sure to fix the usage.
+            - You can't use both ``embed`` and ``embeds`` at the same time, also applies to ``file`` and ``files``.
+            - If you send files in the initial response, this will defer if it's not been deferred, and then PATCH with the message
+
+        :param content:  Content of the response.
+        :type content: str
+        :param embed: Embed of the response.
+        :type embed: discord.Embed
+        :param embeds: Embeds of the response. Maximum 10.
+        :type embeds: List[discord.Embed]
+        :param tts: Whether to speak message using tts. Default ``False``.
+        :type tts: bool
+        :param file: File to send.
+        :type file: discord.File
+        :param files: Files to send.
+        :type files: List[discord.File]
+        :param allowed_mentions: AllowedMentions of the message.
+        :type allowed_mentions: discord.AllowedMentions
+        :param hidden: Whether the message is hidden, which means message content will only be seen to the author.
+        :type hidden: bool
+        :param delete_after: If provided, the number of seconds to wait in the background before deleting the message we just sent. If the deletion fails, then it is silently ignored.
+        :type delete_after: float
+        :param components: Message components in the response. The top level must be made of ActionRows.
+        :type components: List[dict]
+        :return: Union[discord.Message, dict]
+        """
+
+        return await self.send(
+            content=content,
+            embed=embed,
+            embeds=embeds,
+            tts=tts,
+            file=file,
+            files=files,
+            allowed_mentions=allowed_mentions,
+            hidden=hidden,
+            delete_after=delete_after,
+            components=components,
+        )
+
 
 class SlashContext(InteractionContext):
     """
