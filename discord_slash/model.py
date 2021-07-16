@@ -124,7 +124,7 @@ class CallbackObject:
     :ivar func: The coroutine of the command.
     :ivar __commands_checks__: Check of the command.
     """
-    
+
     async def __call__(self, *args, **kwargs):
         """
         Ref: https://github.com/Rapptz/discord.py/blob/f14e584304d9d6676c90f8aa59d6e4be23d22a10/discord/ext/commands/core.py#L396
