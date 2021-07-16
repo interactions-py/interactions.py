@@ -1,5 +1,6 @@
 import copy
 import logging
+import re
 import typing
 from contextlib import suppress
 from inspect import getdoc, iscoroutinefunction
@@ -410,9 +411,28 @@ class SlashCommand:
                 self.logger.debug(
                     f"Detected changes on {scope if scope is not None else 'global'}, updating them"
                 )
-                existing_cmds = await self.req.put_slash_commands(
-                    slash_commands=to_send, guild_id=scope
-                )
+                try:
+                    existing_cmds = await self.req.put_slash_commands(
+                        slash_commands=to_send, guild_id=scope
+                    )
+                except discord.HTTPException as ex:
+                    if ex.status == 400:
+                        # catch bad requests
+                        cmd_nums = set(
+                            re.findall(r"In\s(\d).", ex.args[0])
+                        )  # find all discords references to commands
+                        error_string = ex.args[0]
+
+                        for num in cmd_nums:
+                            error_command = to_send[int(num)]
+                            error_string = error_string.replace(
+                                f"In {num}",
+                                f"'{error_command.get('name')}'",
+                            )
+
+                        ex.args = (error_string,)
+
+                    raise ex
             else:
                 self.logger.debug(
                     f"Detected no changes on {scope if scope is not None else 'global'}, skipping"
