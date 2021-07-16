@@ -29,7 +29,9 @@ If you want your commands automatically registered, set ``sync_commands`` to ``T
    
    slash = SlashCommand(client, sync_commands=True)
 
-Or, if you prefer to have more control, you can use :mod:`.utils.manage_commands`.
+Or, if you want to send requests manually, you can use :class:`.http.SlashCommandRequest`.
+
+Or, if you don't want to use `discord.Client`, you can use :mod:`.utils.manage_commands`.
 
 Or, you can make requests directly to Discord API, read the `docs <https://discord.com/developers/docs/interactions/slash-commands#registering-a-command>`_.
 
@@ -48,7 +50,7 @@ If ``sync_commands`` is set to ``True``, commands will automatically be removed 
 
 However, if you are not using ``sync_commands`` you can do it manually by this methods:
 
-* Deleting a single command with :meth:`utils.manage_commands.remove_slash_command`
+* Deleting a single command with :meth:`.http.SlashCommandRequest.remove_slash_command` or :meth:`utils.manage_commands.remove_slash_command`
 * Deleting all commands using :meth:`utils.manage_commands.remove_all_commands`
 * Deleting all commands in a specified guild, or all global commands by :meth:`utils.manage_commands.remove_all_commands_in`
 * Making a HTTP request to `discord <https://discord.com/developers/docs/interactions/slash-commands#delete-global-application-command>`_

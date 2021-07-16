@@ -39,7 +39,7 @@ class SlashCommandRequest:
         """
         Sends a slash command delete request to Discord API.
 
-        :param guild_id: ID of the guild to add command. Pass `None` to add global command.
+        :param guild_id: ID of the guild to remove command. Pass `None` to remove global command.
         :param cmd_id: ID of the command.
         :return: Response code of the request.
         """
@@ -49,7 +49,7 @@ class SlashCommandRequest:
         """
         Sends a slash command get request to Discord API for all commands.
 
-        :param guild_id: ID of the guild to add command. Pass `None` to add global command.
+        :param guild_id: ID of the guild to get commands. Pass `None` to get global commands.
         :return: JSON Response of the request.
         """
         return self.command_request(method="GET", guild_id=guild_id)
@@ -79,7 +79,7 @@ class SlashCommandRequest:
         Sends a slash command add request to Discord API.
 
         :param guild_id: ID of the guild to add command. Pass `None` to add global command.
-        :param cmd_name: Name of the command. Must be **lower-case** and match the regular expression ``^[\w-]{1,32}$``.
+        :param cmd_name: Name of the command. Must be match the regular expression ``^[a-z0-9_-]{1,32}$``.
         :param description: Description of the command.
         :param options: List of the function.
         :return: JSON Response of the request.
