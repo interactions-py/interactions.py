@@ -356,7 +356,6 @@ class SlashContext(InteractionContext):
         self.subcommand_name = self.invoked_subcommand = self.subcommand_passed = None
         self.subcommand_group = self.invoked_subcommand_group = self.subcommand_group_passed = None
         self.command_id = _json["data"]["id"]
-        self._discord = _discord
 
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
 
@@ -366,8 +365,7 @@ class SlashContext(InteractionContext):
         Returns the cog associated with the command invoked, if any.
         """
 
-        # noinspection PyUnresolvedReferences
-        cmd_obj = self._discord.slash.commands[self.command]  # above line, thanks PyCharm
+        cmd_obj = self.bot.slash.commands[self.command]  # noqa
 
         if isinstance(cmd_obj, (model.CogBaseCommandObject, model.CogSubcommandObject)):
             return cmd_obj.cog
