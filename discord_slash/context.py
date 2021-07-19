@@ -133,7 +133,7 @@ class InteractionContext:
     @property
     def me(self) -> typing.Union[discord.Member, discord.ClientUser]:
         """
-        Similar to :attr:`.Guild.me` except that it may also return the bot user in DM context.
+        Bot member instance of the command invoke. If the command was invoked in DM, then it is ``discord.ClientUser``.
 
         :return: Union[discord.Member, discord.ClientUser]
         """
