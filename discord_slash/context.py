@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import datetime
 import typing
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import discord
@@ -8,6 +11,9 @@ from discord.utils import snowflake_time
 
 from . import error, http, model
 from .dpy_overrides import ComponentMessage
+
+if TYPE_CHECKING:  # circular import sucks for typehinting
+    from . import client
 
 
 class InteractionContext:
@@ -115,18 +121,21 @@ class InteractionContext:
         return self.bot.get_channel(self.channel_id)
 
     @property
-    def voice_client(self):
+    def voice_client(self) -> typing.Optional[discord.VoiceProtocol]:
         """
         VoiceClient instance of the command invoke. If the command was invoked in DM, then it is ``None``.
         If the bot is not connected to any Voice/Stage channels, then it is ``None``.
 
+        :return: Optional[discord.VoiceProtocol]
         """
         return self.guild.voice_client if self.guild else None
 
     @property
-    def me(self):
+    def me(self) -> typing.Union[discord.Member, discord.ClientUser]:
         """
         Similar to :attr:`.Guild.me` except that it may also return the bot user in DM context.
+
+        :return: Union[discord.Member, discord.ClientUser]
         """
         return self.guild.me if self.guild is not None else self.bot.user
 
@@ -360,12 +369,23 @@ class SlashContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
 
     @property
+    def slash(self) -> client.SlashCommand:
+        """
+        Returns the associated SlashCommand object created during Runtime.
+
+        :return: client.SlashCommand
+        """
+        return self.bot.slash  # noqa
+
+    @property
     def cog(self) -> typing.Optional[commands.Cog]:
         """
         Returns the cog associated with the command invoked, if any.
+
+        :return: Optional[commands.Cog]
         """
 
-        cmd_obj = self.bot.slash.commands[self.command]  # noqa
+        cmd_obj = self.slash.commands[self.command]
 
         if isinstance(cmd_obj, (model.CogBaseCommandObject, model.CogSubcommandObject)):
             return cmd_obj.cog
