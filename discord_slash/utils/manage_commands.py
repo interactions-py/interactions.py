@@ -19,7 +19,7 @@ async def add_slash_command(
     :param bot_id: User ID of the bot.
     :param bot_token: Token of the bot.
     :param guild_id: ID of the guild to add command. Pass `None` to add global command.
-    :param cmd_name: Name of the command. Must be 3 or longer and 32 or shorter.
+    :param cmd_name: Name of the command. Must match the regular expression ``^[a-z0-9_-]{1,32}$``.
     :param description: Description of the command.
     :param options: List of the function.
     :return: JSON Response of the request.
