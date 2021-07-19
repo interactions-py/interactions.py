@@ -30,6 +30,7 @@ class SlashCommandRequest:
         Sends a slash command put request to the Discord API
 
         ``slash_commands`` must contain all the commands
+
         :param slash_commands: List of all the slash commands to make a put request to discord with.
         :param guild_id: ID of the guild to set the commands on. Pass `None` for the global scope.
         """
