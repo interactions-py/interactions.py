@@ -133,6 +133,7 @@ embed3==discord.Embed(title="yet another title")
 pages=[embed1,embed2,embed3]
 
 await Paginator(content="A message",pages=pages)
+```
 
 
 ### Advanced
