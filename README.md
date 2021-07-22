@@ -44,7 +44,6 @@ creating more interactions at this time) of all components integrated as interac
 * Selects (also known as *dropdowns* or *menus*)
 
 # Installation
-## (Recommended)
 We recommend using pip in order to install our library. You are able to do this by typing the following line below:
 
 `pip install -U discord-py-slash-command`
