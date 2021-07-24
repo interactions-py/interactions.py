@@ -2,7 +2,7 @@
     <a href="https://pypi.org/project/discord-py-slash-command/">
         <img src="https://raw.githubusercontent.com/discord-py-slash-commands/discord-py-interactions/goverfl0w-new-readme/.github/banner_transparent.png" alt="discord-py-interactions" height="128">
     </a>
-    <h2>Your ultimate discord interactions library for <a href="https://github.com/Rapptz/discord.py">discord.py</a>.</h2>
+    <h2>Your ultimate Discord interactions library for <a href="https://github.com/Rapptz/discord.py">discord.py</a>.</h2>
 </div>
 
 <div align="center">
@@ -36,7 +36,7 @@ and mutable. This library was created 2 days after the release of slash commands
 has been actively growing.
 
 ## What do we currently support?
-At this time, we are able to provide you an non-exhaustive list, however, incomplete (because Discord are actively
+At this time, we are able to provide you an non-exhaustive list (because Discord are actively
 creating more interactions at this time) of all components integrated as interactions:
 
 * Slash Commands
@@ -44,7 +44,6 @@ creating more interactions at this time) of all components integrated as interac
 * Selects (also known as *dropdowns* or *menus*)
 
 # Installation
-## (Recommended)
 We recommend using pip in order to install our library. You are able to do this by typing the following line below:
 
 `pip install -U discord-py-slash-command`
@@ -102,7 +101,6 @@ def setup(bot):
 ## Buttons
 This basic example shows how to easily integrate buttons into your commands. Buttons are not limited to
 slash commands and may be used in regular discord.py commands as well.
-(This example refers off of [slash commands.](#slash-commands))
 
 ```py
 from discord_slash.utils.manage_components import create_button, create_actionrow
@@ -123,7 +121,6 @@ For more advanced use, please refer to our official documentation on [buttons he
 ## Selects
 This basic example shows how to add selects into our bot. Selects offer the same accessibility as buttons do
 in premise of limitations.
-(This exmaple refers off of [slash commands.](#slash-commands))
 
 ```py
 from discord_slash.utils.manage_components import create_select, create_select_option, create_actionrow
