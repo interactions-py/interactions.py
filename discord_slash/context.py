@@ -326,17 +326,18 @@ class ComponentContext(InteractionContext):
         if self.component_type == 3:
             self.selected_options = _json["data"].get("values", [])
 
-    async def defer(self, hidden: bool = False, edit_origin: bool = False):
+    async def defer(self, hidden: bool = False, edit_origin: bool = False, ignore: bool = False):
         """
         'Defers' the response, showing a loading state to the user
 
-        :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
+        :param hidden: Whether the deferred response should be ephemeral. Default ``False``.
         :param edit_origin: Whether the type is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
+        :param ignore: Whether to just ignore and not edit or send response. Using this can avoid showing interaction loading state. Default ``False``.
         """
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
 
-        base = {"type": 6 if edit_origin else 5}
+        base = {"type": 6 if edit_origin or ignore else 5}
 
         if hidden:
             if edit_origin:
@@ -350,6 +351,9 @@ class ComponentContext(InteractionContext):
 
         await self._http.post_initial_response(base, self.interaction_id, self._token)
         self.deferred = True
+
+        if ignore:
+            self.responded = True
 
     async def send(
         self,
