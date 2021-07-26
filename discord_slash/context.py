@@ -339,18 +339,26 @@ class ComponentContext(InteractionContext):
 
         base = {"type": 6 if edit_origin or ignore else 5}
 
+        if edit_origin and ignore:
+            raise error.IncorrectFormat(
+                "'edit_origin' and 'ignore' are mutually exclusive"
+            )
+
         if hidden:
             if edit_origin:
                 raise error.IncorrectFormat(
                     "'hidden' and 'edit_origin' flags are mutually exclusive"
                 )
-            base["data"] = {"flags": 64}
-            self._deferred_hidden = True
+            elif ignore:
+                self._deferred_hidden = True
+            else:
+                base["data"] = {"flags": 64}
+                self._deferred_hidden = True
 
         self._deferred_edit_origin = edit_origin
 
         await self._http.post_initial_response(base, self.interaction_id, self._token)
-        self.deferred = True
+        self.deferred = not ignore
 
         if ignore:
             self.responded = True
