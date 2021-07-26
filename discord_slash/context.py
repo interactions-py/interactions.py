@@ -340,9 +340,7 @@ class ComponentContext(InteractionContext):
         base = {"type": 6 if edit_origin or ignore else 5}
 
         if edit_origin and ignore:
-            raise error.IncorrectFormat(
-                "'edit_origin' and 'ignore' are mutually exclusive"
-            )
+            raise error.IncorrectFormat("'edit_origin' and 'ignore' are mutually exclusive")
 
         if hidden:
             if edit_origin:
