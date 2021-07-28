@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import typing
 from contextlib import suppress
 from enum import IntEnum
 from inspect import iscoroutinefunction
@@ -456,6 +457,8 @@ class SlashCommandOptionType(IntEnum):
     USER = 6
     CHANNEL = 7
     ROLE = 8
+    MENTIONABLE = 9
+    FLOAT = 10
 
     @classmethod
     def from_type(cls, t: type):
@@ -465,6 +468,7 @@ class SlashCommandOptionType(IntEnum):
         :param t: The type or object to get a SlashCommandOptionType for.
         :return: :class:`.model.SlashCommandOptionType` or ``None``
         """
+
         if issubclass(t, str):
             return cls.STRING
         if issubclass(t, bool):
@@ -478,6 +482,16 @@ class SlashCommandOptionType(IntEnum):
             return cls.CHANNEL
         if issubclass(t, discord.abc.Role):
             return cls.ROLE
+        # Here's the issue. Typechecking for a **Union** somewhat differs per version (from 3.6.8+)
+        if (
+            hasattr(typing, "_GenericAlias")
+            and isinstance(t, typing._UnionGenericAlias)  # noqa
+            or not hasattr(typing, "_GenericAlias")
+            and isinstance(t, typing._Union)  # noqa
+        ):
+            return cls.MENTIONABLE
+        if issubclass(t, float):
+            return cls.FLOAT
 
 
 class SlashMessage(ComponentMessage):
