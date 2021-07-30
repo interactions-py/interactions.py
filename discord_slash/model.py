@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import typing
 from contextlib import suppress
 from enum import IntEnum
 from inspect import iscoroutinefunction
@@ -456,6 +457,8 @@ class SlashCommandOptionType(IntEnum):
     USER = 6
     CHANNEL = 7
     ROLE = 8
+    MENTIONABLE = 9
+    NUMBER = 10
 
     @classmethod
     def from_type(cls, t: type):
@@ -472,6 +475,13 @@ class SlashCommandOptionType(IntEnum):
         # The check for bool MUST be above the check for integers as booleans subclass integers
         if issubclass(t, int):
             return cls.INTEGER
+        if issubclass(t, float):
+            return cls.NUMBER
+        if issubclass(t, typing.Union[
+            discord.abc.Role,
+            discord.abc.User
+        ]):
+            return cls.MENTIONABLE
         if issubclass(t, discord.abc.User):
             return cls.USER
         if issubclass(t, discord.abc.GuildChannel):
