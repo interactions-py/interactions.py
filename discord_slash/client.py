@@ -1202,6 +1202,9 @@ class SlashCommand:
         :param args: Args. Can be list or dict.
         """
         try:
+            if isinstance(args, dict):
+                ctx.kwargs = args
+                ctx.args = list(args.values())
             await func.invoke(ctx, **args)
         except Exception as ex:
             if not await self._handle_invoke_error(func, ctx, ex):
