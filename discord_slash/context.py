@@ -137,7 +137,7 @@ class InteractionContext:
 
         :return: Union[discord.Member, discord.ClientUser]
         """
-        return self.guild.me if self.guild != None else self.bot.user
+        return self.guild.me if self.guild is not None else self.bot.user
 
     async def defer(self, hidden: bool = False):
         """
