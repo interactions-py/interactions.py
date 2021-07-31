@@ -392,6 +392,39 @@ class SlashContext(InteractionContext):
         else:
             return None
 
+    async def invoke(self, *args, **kwargs):
+        """
+        Invokes a command with the arguments given.\n
+        Similar to d.py's `ctx.invoke` function and documentation.\n
+
+        .. note::
+
+            This does not handle converters, checks, cooldowns, pre-invoke,
+            or after-invoke hooks in any matter. It calls the internal callback
+            directly as-if it was a regular function.
+
+            You must take care in passing the proper arguments when
+            using this function.
+
+        .. warning::
+            The first parameter passed **must** be the command being invoked.
+            While using `ctx.defer`, if the command invoked includes usage of that command, do not invoke
+            `ctx.defer` before calling this function. It can not defer twice.
+
+        :param args: Args for the command.
+        :param kwargs: Keyword args for the command.
+
+        :raises: :exc:`TypeError`
+        """
+
+        try:
+            command = args[0]
+        except IndexError:
+            raise TypeError("Missing command to invoke.") from None
+
+        ret = await self.slash.invoke_command(func=command, ctx=self, args=kwargs)
+        return ret
+
 
 class ComponentContext(InteractionContext):
     """
