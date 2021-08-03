@@ -466,30 +466,40 @@ class ComponentContext(InteractionContext):
         if self.component_type == 3:
             self.selected_options = _json["data"].get("values", [])
 
-    async def defer(self, hidden: bool = False, edit_origin: bool = False):
+    async def defer(self, hidden: bool = False, edit_origin: bool = False, ignore: bool = False):
         """
         'Defers' the response, showing a loading state to the user
 
-        :param hidden: Whether the deferred response should be ephemeral . Default ``False``.
+        :param hidden: Whether the deferred response should be ephemeral. Default ``False``.
         :param edit_origin: Whether the type is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
+        :param ignore: Whether to just ignore and not edit or send response. Using this can avoid showing interaction loading state. Default ``False``.
         """
         if self.deferred or self.responded:
             raise error.AlreadyResponded("You have already responded to this command!")
 
-        base = {"type": 6 if edit_origin else 5}
+        base = {"type": 6 if edit_origin or ignore else 5}
+
+        if edit_origin and ignore:
+            raise error.IncorrectFormat("'edit_origin' and 'ignore' are mutually exclusive")
 
         if hidden:
             if edit_origin:
                 raise error.IncorrectFormat(
                     "'hidden' and 'edit_origin' flags are mutually exclusive"
                 )
-            base["data"] = {"flags": 64}
-            self._deferred_hidden = True
+            elif ignore:
+                self._deferred_hidden = True
+            else:
+                base["data"] = {"flags": 64}
+                self._deferred_hidden = True
 
         self._deferred_edit_origin = edit_origin
 
         await self._http.post_initial_response(base, self.interaction_id, self._token)
-        self.deferred = True
+        self.deferred = not ignore
+
+        if ignore:
+            self.responded = True
 
     async def send(
         self,
