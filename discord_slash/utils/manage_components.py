@@ -174,8 +174,8 @@ def create_select_option(
     """
     emoji = emoji_to_dict(emoji)
 
-    if not len(label) or len(label) > 25:
-        raise IncorrectFormat("Label length should be between 1 and 25.")
+    if not len(label) or len(label) > 100:
+        raise IncorrectFormat("Label length should be between 1 and 100.")
     if not isinstance(value, str):
         value = str(value)
         logger.warning(
@@ -184,8 +184,8 @@ def create_select_option(
         )
     if not len(value) or len(value) > 100:
         raise IncorrectFormat("Value length should be between 1 and 100.")
-    if description is not None and len(description) > 50:
-        raise IncorrectFormat("Description length must be 50 or lower.")
+    if description is not None and len(description) > 100:
+        raise IncorrectFormat("Description length must be 100 or lower.")
 
     return {
         "label": label,
