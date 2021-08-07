@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 import typing
 from typing import TYPE_CHECKING
@@ -369,7 +367,7 @@ class SlashContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
 
     @property
-    def slash(self) -> client.SlashCommand:
+    def slash(self) -> "client.SlashCommand":
         """
         Returns the associated SlashCommand object created during Runtime.
 
