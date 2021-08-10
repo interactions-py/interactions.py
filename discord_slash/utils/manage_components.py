@@ -6,7 +6,7 @@ import discord
 
 from ..context import ComponentContext
 from ..error import IncorrectFormat, IncorrectType
-from ..model import ButtonStyle, ComponentType
+from ..model import ButtonStyle, ComponentType, ContextMenuType
 
 logger = logging.getLogger("discord_slash")
 
@@ -227,6 +227,21 @@ def create_select(
         "disabled": disabled,
     }
 
+def create_context_menu(
+    name: str,
+    _type: typing.Optional[ContextMenuType]=1
+):
+    """
+    Creates a context menu option. By default, ``_type`` will always be `CHAT_INPUT`.
+    
+    :param name: The name of the context menu. Must not share with `description`.
+    :type name: str
+    :param _type: The context menu type.
+    :type _type: typing.Optional[ContextMenuType]
+    """
+    if len(name) > 100:
+        raise IncorrectFormat("Context menu name length cannot be higher than 100 characters.")
+    return {"name": name, "type": _type}
 
 def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Iterator[str]:
     """
