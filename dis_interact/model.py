@@ -1,10 +1,24 @@
 # Normal libraries
-from typing import List, Optional, Union
-from enum import IntEnum
 import typing
+from typing import (
+    Optional,
+    Union,
+    List,
+    Any,
+    Coroutine
+)
+from contextlib import suppress
+from asyncio import sleep
+from enum import IntEnum
 
 # 3rd-party libraries
+from discord import DMChannel, GroupChannel, TextChannel
 from discord.abc import Role, User, GuildChannel
+from discord.errors import Forbidden
+from discord.state import ConnectionState
+# from .error import IncorrectFormat
+from .override import BaseMessage
+from .http import MessageRequest
 
 class Command:
     """
@@ -294,6 +308,117 @@ class GuildPermission:
         else:
             return False
 
+class Message(BaseMessage):
+    """
+    Object for representing data of a slash command message.
+
+    .. note::
+
+        This extends off of `discord.Message <https://github.com/Rapptz/discord.py/blob/master/discord/message.py#L487>`_ from discord.py.
+        The ``edit`` and ``delete`` methods have been overwritten in order to allow slash commands to function seamlessly.
+    """
+    _http: MessageRequest
+    __interaction_token: int
+
+    def __init__(
+        self,
+        *,
+        state: ConnectionState,
+        channel: Union[TextChannel, DMChannel, GroupChannel],
+        data: Any,
+        _http: MessageRequest,
+        interaction_token: int
+    ) -> None:
+        """
+        Instantiates the Message class.
+
+        :param state: The current asynchronous state of connection.
+        :type state: discord.state.ConnectionState
+        :param channel: The channel the message came from.
+        :type channel: typing.Union[discord.TextChannel, discord.DMChannel, discord.GroupChannel]
+        :param data: The data to pass through the message.
+        :type data: typing.Any
+        :param _http: The HTTP interaction request handler.
+        :type _http: .http.InteractionHTTP
+        :param interaction_token: The token of the interaction event.
+        :type interaction_token: int
+        :return: None
+        """
+        super().__init__(
+            state=state,
+            channel=channel,
+            data=data
+        )
+        self._http = _http
+        self.__interaction_token = interaction_token
+        
+    async def _slash_edit(
+        self,
+        **fields
+    ) -> Coroutine:
+        _response: dict = {}
+        try:
+            content = fields["content"]
+            components = fields["components"]
+            embed = fields["embed"]
+            embeds = fields["embeds"]
+            file = fields["file"]
+            files = fields["files"]
+            allowed_mentions = fields.get("allowed_mentions")
+            delete_after = fields.get("delete_after")
+        except KeyError:
+            pass
+        else:
+            content = str(content) if content != None else None
+            _response["components"] = [] if components == None else components
+            _response["embeds"] = [embed.to_dict() for embed in embeds]
+            _response["embeds"] = [] if embed == None else ([embed.to_dict()] if embeds == None else _response["embeds"])
+            files = [file] if file else files
+            if not isinstance(embeds, list):
+                # raise IncorrectFormat("Provide a list of embeds.")
+                pass
+            if len(embeds) > 10:
+                # raise IncorrectFormat("Do not provide more than 10 embeds.")
+                pass
+            if (
+                files != None and
+                file != None
+            ):
+                # raise IncorrectFormat("You can't use both `file` and `files`!")
+                pass
+            if allowed_mentions != None:
+                if self._state.allowed_mentions != None:
+                    _response["allowed_mentions"] = self._state.allowed_mentions.merge(
+                        allowed_mentions
+                    ).to_dict()
+                else:
+                    _response["allowed_mentions"] = allowed_mentions.to_dict()
+            else:
+                if self._state.allowed_mentions != None:
+                    _response["allowed_mentions"] = self._state.allowed_mentions.to_dict()
+                else:
+                    _response["allowed_mentions"] = {}
+            if delete_after:
+                await self.delete(delay=delete_after)
+            [[file.close() for file in files] if files else None]
+            
+    async def delete(
+        self,
+        *,
+        delay: Optional[int]=None
+    ) -> Coroutine:
+        """Refer to :meth:`discord.Message.delete` for more information."""
+        try:
+            await super().delete(delay=delay)
+        except Forbidden:
+            if not delay:
+                return await self._http.delete(self.__interaction_token, self.id)
+            async def wrap():
+                with suppress(Forbidden):
+                    await sleep(delay)
+                    await self._http.delete(self.__interaction_token, self.id)
+            self._state.loop.create_task(wrap())
+    
 class Options(IntEnum):
     """
     Enumerable object of literal integers holding equivocal values of a slash command's option(s).

@@ -400,3 +400,64 @@ class SlashRequest(InteractionHTTP):
             url_endswith="/permissions",
             json=permissions
         )
+
+class MessageRequest(SlashRequest):
+    """
+    Object representing HTTP requests for handling messages made to and from the Discord API.
+
+    :inherit: SlashRequest
+    """
+    def edit(
+        self,
+        response: dict,
+        token: str,
+        message_id: Optional[str]="@original",
+        files: Optional[List[File]]=None
+    ) -> Coroutine:
+        """
+        Sends a PATCH request for editing messages to the API.
+
+        :param response: Message body for the edited response.
+        :type response: dict
+        :param token: The token of the command message.
+        :type token: str
+        :param message_id: The ID of the message to edit. Defaults to `@original` for the initial message.
+        :type message_id: typing.Optional[str]
+        :param files: A list of files to pass for uploading as attachments. Defaults to `None`.
+        :type files: typing.Optional[typing.List[discord.File]]
+        :return: typing.Coroutine
+        """
+        url: str = f"/messages/{message_id}"
+        if files:
+            return super().request_files(
+                method="PATCH",
+                token=token,
+                response=response,
+                url_endswith=url
+            )
+        return super().command_response(
+            method="PATCH",
+            token=token,
+            url_endswith=url,
+            json=response
+        )
+
+    def delete(
+        self,
+        token: str,
+        message_id: Optional[str]="@original"
+    ) -> Coroutine:
+        """
+        Sends a POST request for deleting messages to the API.
+
+        :param token: The token of the command message.
+        :type token: str
+        :param message_id: The ID of the message to delete. Defaults to `@original` for the initial message.
+        :type message_id: typing.Optional[str]
+        :return: typing.Coroutine
+        """
+        return super().command_response(
+            method="DELETE",
+            token=token,
+            url_endswith=f"/messages/{message_id}"
+        )
