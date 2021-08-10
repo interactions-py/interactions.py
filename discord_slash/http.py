@@ -75,7 +75,7 @@ class SlashCommandRequest:
             method="PUT", guild_id=guild_id, json=perms_dict, url_ending="/permissions"
         )
 
-    def add_slash_command(self, guild_id, cmd_name: str, description: str, options: list = None):
+    def add_slash_command(self, guild_id, cmd_name: str, description: str, options: list = None, context: dict = None):
         """
         Sends a slash command add request to Discord API.
 
@@ -83,9 +83,13 @@ class SlashCommandRequest:
         :param cmd_name: Name of the command. Must be match the regular expression ``^[a-z0-9_-]{1,32}$``.
         :param description: Description of the command.
         :param options: List of the function.
+        :param context: Dictionary of context. Sends as separate.
         :return: JSON Response of the request.
         """
         base = {"name": cmd_name, "description": description, "options": options or []}
+        if context:
+            new_base = {"type": context["type"], "name": context["name"]}
+            return self.command_request(json=new_base, method="POST", guild_id=guild_id)
         return self.command_request(json=base, method="POST", guild_id=guild_id)
 
     def command_request(self, method, guild_id, url_ending="", **kwargs):
