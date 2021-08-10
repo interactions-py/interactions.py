@@ -1,10 +1,10 @@
+# Normal libraries
 import re
 from codecs import open
 from os import path
-
 from setuptools import find_packages, setup
 
-PACKAGE_NAME = "discord_slash"
+PACKAGE_NAME = "dis_interact"
 HERE = path.abspath(path.dirname(__file__))
 
 with open("README.md", "r", encoding="UTF-8") as f:
@@ -20,17 +20,17 @@ extras["lint"] += extras["readthedocs"]
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 
 setup(
-    name="discord-py-slash-command",
+    name="discord-interactions",
     version=VERSION,
-    author="LordOfPolls",
-    author_email="ddavidallen13@gmail.com",
+    author="goverfl0w",
+    author_email="jwalston2002@gmail.com",
     description="A simple interaction handler for discord.py.",
     extras_require=extras,
     install_requires=["discord.py", "aiohttp"],
     license="MIT License",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/discord-py-slash-commands/discord-py-interactions",
+    url="https://github.com/discord-py-interactions/discord-py-interactions",
     packages=find_packages(),
     python_requires=">=3.6",
     classifiers=[
