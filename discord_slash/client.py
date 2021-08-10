@@ -524,6 +524,7 @@ class SlashCommand:
         options: list = None,
         default_permission: bool = True,
         permissions: typing.Dict[int, list] = None,
+        context: typing.Dict[str, int] = None,
         connector: dict = None,
         has_subcommands: bool = False,
     ):
@@ -548,6 +549,7 @@ class SlashCommand:
         :type default_permission: bool
         :param permissions: Dictionary of permissions of the slash command. Key being target guild_id and value being a list of permissions to apply. Default ``None``.
         :type permissions: dict
+        :param context: Dictionary of context menus of the slash command. Key being menu command name and value as the menu type. Default ``None``.
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         :param has_subcommands: Whether it has subcommand. Default ``False``.
@@ -581,6 +583,7 @@ class SlashCommand:
             "api_options": options,
             "default_permission": default_permission,
             "api_permissions": permissions,
+            "api_context": context,
             "connector": connector or {},
             "has_subcommands": has_subcommands,
         }
@@ -713,6 +716,7 @@ class SlashCommand:
         options: typing.List[dict] = None,
         default_permission: bool = True,
         permissions: dict = None,
+        context: dict = None,
         connector: dict = None,
     ):
         """
@@ -768,16 +772,23 @@ class SlashCommand:
         :type default_permission: bool
         :param permissions: Permission requirements of the slash command. Default ``None``.
         :type permissions: dict
+        :param context: Context menus of the slash command. Default ``None``.
+        :type context: dict
         :param connector: Kwargs connector for the command. Default ``None``.
         :type connector: dict
         """
         if not permissions:
             permissions = {}
+        if not context:
+            context = {}
 
         def wrapper(cmd):
             decorator_permissions = getattr(cmd, "__permissions__", None)
+            decorator_context = getattr(cmd, "__context__", None)
             if decorator_permissions:
                 permissions.update(decorator_permissions)
+            if decorator_context:
+                context.update(decorator_context)
 
             obj = self.add_slash_command(
                 cmd,
@@ -787,6 +798,7 @@ class SlashCommand:
                 options,
                 default_permission,
                 permissions,
+                context,
                 connector,
             )
 
