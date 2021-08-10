@@ -697,3 +697,15 @@ class ButtonStyle(IntEnum):
     secondary = 2
     success = 3
     danger = 4
+    
+class ContextMenuType(IntEnum):
+    CHAT_INPUT = 1
+    USER = 2
+    MESSAGE = 3
+    
+    @classmethod
+    def from_type(cls, t: type):
+        if issubclass(t, discord.abc.User):
+            return cls.USER
+        if issubclass(t, discord.abc.Messageable):
+            return cls.MESSAGE
