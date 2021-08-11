@@ -75,7 +75,9 @@ class SlashCommandRequest:
             method="PUT", guild_id=guild_id, json=perms_dict, url_ending="/permissions"
         )
 
-    def add_slash_command(self, guild_id, cmd_name: str, description: str, options: list = None, context: dict = None):
+    def add_slash_command(
+        self, guild_id, cmd_name: str, description: str, options: list = None, context: dict = None
+    ):
         """
         Sends a slash command add request to Discord API.
 

@@ -80,15 +80,15 @@ class CommandData:
     """
 
     def __init__(
-            self,
-            name,
-            description=None,
-            options=None,
-            default_permission=True,
-            id=None,
-            application_id=None,
-            version=None,
-            **kwargs,
+        self,
+        name,
+        description=None,
+        options=None,
+        default_permission=True,
+        id=None,
+        application_id=None,
+        version=None,
+        **kwargs,
     ):
         self.name = name
         self.description = description
@@ -106,10 +106,10 @@ class CommandData:
     def __eq__(self, other):
         if isinstance(other, CommandData):
             return (
-                    self.name == other.name
-                    and self.description == other.description
-                    and self.options == other.options
-                    and self.default_permission == other.default_permission
+                self.name == other.name
+                and self.description == other.description
+                and self.options == other.options
+                and self.default_permission == other.default_permission
             )
         else:
             return False
@@ -405,11 +405,11 @@ class ComponentCallbackObject(CallbackObject):
     """
 
     def __init__(
-            self,
-            func,
-            message_ids,
-            custom_ids,
-            component_type,
+        self,
+        func,
+        message_ids,
+        custom_ids,
+        component_type,
     ):
         if component_type not in (2, 3, None):
             raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
@@ -485,10 +485,10 @@ class SlashCommandOptionType(IntEnum):
             return cls.ROLE
         # Here's the issue. Typechecking for a **Union** somewhat differs per version (from 3.6.8+)
         if (
-                hasattr(typing, "_GenericAlias")
-                and isinstance(t, typing._UnionGenericAlias)  # noqa
-                or not hasattr(typing, "_GenericAlias")
-                and isinstance(t, typing._Union)  # noqa
+            hasattr(typing, "_GenericAlias")
+            and isinstance(t, typing._UnionGenericAlias)  # noqa
+            or not hasattr(typing, "_GenericAlias")
+            and isinstance(t, typing._Union)  # noqa
         ):
             return cls.MENTIONABLE
         if issubclass(t, float):
@@ -627,9 +627,9 @@ class PermissionData:
     def __eq__(self, other):
         if isinstance(other, PermissionData):
             return (
-                    self.id == other.id
-                    and self.type == other.id
-                    and self.permission == other.permission
+                self.id == other.id
+                and self.type == other.id
+                and self.permission == other.permission
             )
         else:
             return False
@@ -655,9 +655,9 @@ class GuildPermissionsData:
     def __eq__(self, other):
         if isinstance(other, GuildPermissionsData):
             return (
-                    self.id == other.id
-                    and self.guild_id == other.guild_id
-                    and self.permissions == other.permissions
+                self.id == other.id
+                and self.guild_id == other.guild_id
+                and self.permissions == other.permissions
             )
         else:
             return False

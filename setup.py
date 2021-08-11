@@ -30,7 +30,7 @@ setup(
     license="MIT License",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/discord-py-slash-commands/discord-py-interactions",
+    url="https://github.com/discord-py-interactions/discord-py-interactions",
     packages=find_packages(),
     python_requires=">=3.6",
     classifiers=[

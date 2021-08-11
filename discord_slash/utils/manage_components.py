@@ -227,6 +227,7 @@ def create_select(
         "disabled": disabled,
     }
 
+
 def get_components_ids(component: typing.Union[str, dict, list]) -> typing.Iterator[str]:
     """
     Returns generator with the ``custom_id`` of a component or list of components.
