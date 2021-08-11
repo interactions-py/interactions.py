@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import datetime
 import typing
@@ -49,7 +48,10 @@ class InteractionContext:
         logger,
     ):
         self._token = _json["token"]
-        self.message = None  # Should be set later.
+        self._type = _json["type"]  # Factor to check if its a slash command vs menus
+        self.message = None
+        self._message_menu_id = None if self._type != 2 else _json["data"]["resolved"]["messages"]  # Should be set later.
+        self._author_menus_id = None if self._type != 1 else _json["data"]["resolved"]["members"]
         self.interaction_id = _json["id"]
         self._http = _http
         self.bot = _discord
@@ -60,10 +62,18 @@ class InteractionContext:
         self.values = _json["data"]["values"] if "values" in _json["data"] else None
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
+        if self.guild and self._author_menus_id:
+            self.author_menus = discord.Member(data=_json["data"]["resolved"]["members"], state=self.bot._connection, guild=self.guild)
+        elif self.guild_id:
+            self.author_menus = discord.User(data=_json["data"]["resolved"]["user"], state=self.bot._connection)
+        else:
+            self.author_menus = None
         self.author_id = int(
             _json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"]
         )
         self.channel_id = int(_json["channel_id"])
+        self.message_menus = _discord.get_channel(self.channel_id).fetch_message(self._message_menu_id)
+        self.message_menus = model.SlashMessage(state=self.bot._connection, channel=_discord.get_channel(self.channel_id), data=_json["data"]["resolved"]["messages"][self._message_menu_id], _http=_http, interaction_token=self._token)
         if self.guild:
             self.author = discord.Member(
                 data=_json["member"], state=self.bot._connection, guild=self.guild
@@ -73,6 +83,8 @@ class InteractionContext:
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
         self.created_at: datetime.datetime = snowflake_time(int(self.interaction_id))
+
+
 
     @property
     def _deffered_hidden(self):
@@ -369,7 +381,7 @@ class SlashContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
 
     @property
-    def slash(self) -> client.SlashCommand:
+    def slash(self) -> "client.SlashCommand":
         """
         Returns the associated SlashCommand object created during Runtime.
 
