@@ -1381,10 +1381,12 @@ class SlashCommand:
 
         to_use = msg["d"]
         interaction_type = to_use["type"]
-        if interaction_type in (1, 2):
+        if interaction_type == 1:
             return await self._on_slash(to_use)
-        if interaction_type == 3:
-            return await self._on_component(to_use)
+        if interaction_type in (2, 3):
+            return await self._on_context_menu(to_use)
+        # if interaction_type == 3:
+        #     return await self._on_component(to_use)
 
         raise NotImplementedError
 
@@ -1469,26 +1471,9 @@ class SlashCommand:
                     if "value" not in x:
                         return await self.handle_subcommand(ctx, to_use)
 
-            # This is to temporarily fix Issue #97, that on Android device
-            # does not give option type from API.
-            temporary_auto_convert = {}
-            for x in selected_cmd.options:
-                temporary_auto_convert[x["name"].lower()] = x["type"]
-
-            args = (
-                await self.process_options(
-                    ctx.guild,
-                    to_use["data"]["options"],
-                    selected_cmd.connector,
-                    temporary_auto_convert,
-                )
-                if "options" in to_use["data"]
-                else {}
-            )
-
             self._discord.dispatch("context_menu", ctx)
 
-            await self.invoke_command(selected_cmd, ctx, args)
+            await self.invoke_command(selected_cmd, ctx, args=[])
 
     async def handle_subcommand(self, ctx: context.SlashContext, data: dict):
         """

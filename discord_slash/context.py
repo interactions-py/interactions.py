@@ -62,13 +62,10 @@ class InteractionContext:
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         if self.guild and self._author_menus_id:
-            self.author_menus = []
-            for user in self._author_menus_id:
-                self.author.menus.append(
-                    discord.Member(
-                        data=self._author_menus_id[user], state=self.bot._connection
-                    )
-                )
+            self.author_menus = discord.Member(
+                data=self._author_menus_id[self._author_menus_id],
+                state=self.bot._connection
+            )
         else:
             self.author_menus = None
         self.author_id = int(
@@ -78,17 +75,13 @@ class InteractionContext:
         self.message_menus = None
         try:
             if self._message_menu_id:
-                self.message_menus = []
-                for message in self._message_menu_id:
-                    self.message_menus.append(
-                        model.SlashMessage(
-                            state=self.bot._connection,
-                            channel=_discord.get_channel(self.channel_id),
-                            data=self._message_menu_id[message],
-                            _http=_http,
-                            interaction_token=self._token,
-                        )
-                    )
+                self.message_menus = model.SlashMessage(
+                    state=self.bot._connection,
+                    channel=_discord.get_channel(self.channel_id),
+                    data=self._message_menu_id[self._message_menu_id],
+                    _http=_http,
+                    interaction_token=self._token,
+                )
             else:
                 raise KeyError
         except KeyError as err:
