@@ -80,15 +80,15 @@ class CommandData:
     """
 
     def __init__(
-        self,
-        name,
-        description,
-        options=None,
-        default_permission=True,
-        id=None,
-        application_id=None,
-        version=None,
-        **kwargs,
+            self,
+            name,
+            description,
+            options=None,
+            default_permission=True,
+            id=None,
+            application_id=None,
+            version=None,
+            **kwargs,
     ):
         self.name = name
         self.description = description
@@ -106,10 +106,10 @@ class CommandData:
     def __eq__(self, other):
         if isinstance(other, CommandData):
             return (
-                self.name == other.name
-                and self.description == other.description
-                and self.options == other.options
-                and self.default_permission == other.default_permission
+                    self.name == other.name
+                    and self.description == other.description
+                    and self.options == other.options
+                    and self.default_permission == other.default_permission
             )
         else:
             return False
@@ -309,13 +309,14 @@ class CommandObject(CallbackObject):
     :ivar connector: Kwargs connector of the command.
     """
 
-    def __init__(self, name, cmd):  # Let's reuse old command formatting.
+    def __init__(self, name, cmd, type):  # Let's reuse old command formatting.
         super().__init__(cmd["func"])
         self.name = name.lower()
         self.description = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.connector = cmd["connector"] or {}
+        self.type = type or 1
 
 
 class BaseCommandObject(CommandObject):
@@ -333,8 +334,8 @@ class BaseCommandObject(CommandObject):
     :ivar permissions: Permissions to restrict use of this command.
     """
 
-    def __init__(self, name, cmd):  # Let's reuse old command formatting.
-        super().__init__(name, cmd)
+    def __init__(self, name, cmd, type=1):  # Let's reuse old command formatting.
+        super().__init__(name, cmd, type)
         self.has_subcommands = cmd["has_subcommands"]
         self.default_permission = cmd["default_permission"]
         self.permissions = cmd["api_permissions"] or {}
@@ -404,11 +405,11 @@ class ComponentCallbackObject(CallbackObject):
     """
 
     def __init__(
-        self,
-        func,
-        message_ids,
-        custom_ids,
-        component_type,
+            self,
+            func,
+            message_ids,
+            custom_ids,
+            component_type,
     ):
         if component_type not in (2, 3, None):
             raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
@@ -484,10 +485,10 @@ class SlashCommandOptionType(IntEnum):
             return cls.ROLE
         # Here's the issue. Typechecking for a **Union** somewhat differs per version (from 3.6.8+)
         if (
-            hasattr(typing, "_GenericAlias")
-            and isinstance(t, typing._UnionGenericAlias)  # noqa
-            or not hasattr(typing, "_GenericAlias")
-            and isinstance(t, typing._Union)  # noqa
+                hasattr(typing, "_GenericAlias")
+                and isinstance(t, typing._UnionGenericAlias)  # noqa
+                or not hasattr(typing, "_GenericAlias")
+                and isinstance(t, typing._Union)  # noqa
         ):
             return cls.MENTIONABLE
         if issubclass(t, float):
@@ -626,9 +627,9 @@ class PermissionData:
     def __eq__(self, other):
         if isinstance(other, PermissionData):
             return (
-                self.id == other.id
-                and self.type == other.id
-                and self.permission == other.permission
+                    self.id == other.id
+                    and self.type == other.id
+                    and self.permission == other.permission
             )
         else:
             return False
@@ -654,9 +655,9 @@ class GuildPermissionsData:
     def __eq__(self, other):
         if isinstance(other, GuildPermissionsData):
             return (
-                self.id == other.id
-                and self.guild_id == other.guild_id
-                and self.permissions == other.permissions
+                    self.id == other.id
+                    and self.guild_id == other.guild_id
+                    and self.permissions == other.permissions
             )
         else:
             return False
@@ -697,12 +698,13 @@ class ButtonStyle(IntEnum):
     secondary = 2
     success = 3
     danger = 4
-    
+
+
 class ContextMenuType(IntEnum):
     CHAT_INPUT = 1
     USER = 2
     MESSAGE = 3
-    
+
     @classmethod
     def from_type(cls, t: type):
         if issubclass(t, discord.abc.User):
