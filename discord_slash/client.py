@@ -29,6 +29,8 @@ class SlashCommand:
     :type client: Union[discord.Client, discord.ext.commands.Bot]
     :param sync_commands: Whether to sync commands automatically. Default `False`.
     :type sync_commands: bool
+    :param debug_guild: Guild ID of guild to use for testing commands. Prevents setting global commands in favor of guild commands, which update instantly
+    :type debug_guild: int
     :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``. Default `False`.
     :type delete_from_unused_guilds: bool
     :param sync_on_cog_reload: Whether to sync commands on cog reload. Default `False`.
@@ -55,6 +57,7 @@ class SlashCommand:
         self,
         client: typing.Union[discord.Client, commands.Bot],
         sync_commands: bool = False,
+        debug_guild: typing.Optional[int] = None,
         delete_from_unused_guilds: bool = False,
         sync_on_cog_reload: bool = False,
         override_type: bool = False,
@@ -67,6 +70,7 @@ class SlashCommand:
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord, application_id)
         self.sync_commands = sync_commands
+        self.debug_guild = debug_guild
         self.sync_on_cog_reload = sync_on_cog_reload
 
         if self.sync_commands:
@@ -373,7 +377,8 @@ class SlashCommand:
         permissions_map = {}
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
-        cmds_formatted = {None: cmds["global"]}
+        # if debug_guild is set, global commands get re-routed to the guild to update quickly
+        cmds_formatted = {self.debug_guild: cmds["global"]}
         for guild in cmds["guild"]:
             cmds_formatted[guild] = cmds["guild"][guild]
 
