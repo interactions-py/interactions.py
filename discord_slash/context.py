@@ -52,7 +52,7 @@ class InteractionContext:
         self.data = _json["data"]
         self._message_menu_id = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # Should be set later.
         self._author_menus_id = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
-        self.interaction_id = self.data["id"] if "id" in self.data.keys() else _json["id"]
+        self.interaction_id = self.data["id"] if "resolved" in self.data.keys() else _json["id"]
         self._http = _http
         self.bot = _discord
         self._logger = logger
@@ -78,13 +78,17 @@ class InteractionContext:
         self.message_menus = None
         try:
             if self._message_menu_id:
-                self.message_menus = model.SlashMessage(
-                    state=self.bot._connection,
-                    channel=_discord.get_channel(self.channel_id),
-                    data=_json["data"]["resolved"]["messages"][self._message_menu_id],
-                    _http=_http,
-                    interaction_token=self._token,
-                )
+                self.message_menus = []
+                for message in self._message_menu_id:
+                    self.message_menus.append(
+                        model.SlashMessage(
+                            state=self.bot._connection,
+                            channel=_discord.get_channel(self.channel_id),
+                            data=self._message_menu_id[message],
+                            _http=_http,
+                            interaction_token=self._token,
+                        )
+                    )
             else:
                 raise KeyError
         except KeyError as err:

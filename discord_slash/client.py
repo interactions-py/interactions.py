@@ -659,6 +659,15 @@ class SlashCommand:
             raise error.IncorrectGuildIDType(
                 f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
             )
+        
+        if name in self.commands["context"]:
+            tgt = self.commands["context"][name]
+            if not tgt.has_subcommands:
+                raise error.DuplicateCommand(name)
+            has_subcommands = tgt.has_subcommands
+            for x in tgt.allowed_guild_ids:
+                if x not in guild_ids:
+                    guild_ids.append(x)
 
         _cmd = {
             "default_permission": None,
@@ -866,11 +875,8 @@ class SlashCommand:
 
         def wrapper(cmd):
             decorator_permissions = getattr(cmd, "__permissions__", None)
-            decorator_context = getattr(cmd, "__context_menu__", None)
             if decorator_permissions:
                 permissions.update(decorator_permissions)
-            if decorator_context:
-                context.update(decorator_context)
 
             obj = self.add_slash_command(
                 cmd,
@@ -1436,6 +1442,51 @@ class SlashCommand:
             )
 
             self._discord.dispatch("slash_command", ctx)
+
+            await self.invoke_command(selected_cmd, ctx, args)
+
+    async def _on_context_menu(self, to_use):
+        if to_use["data"]["name"] in self.commands["context"]:
+            ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
+            cmd_name = to_use["data"]["name"]
+            
+            if cmd_name not in self.commands["context"] and cmd_name in self.subcommands:
+                return await self.handle_subcommand(ctx, to_use)
+
+            selected_cmd = self.commands["context"][cmd_name]
+
+            if (
+                selected_cmd.allowed_guild_ids
+                and ctx.guild_id not in selected_cmd.allowed_guild_ids
+            ):
+                return
+
+            if selected_cmd.has_subcommands and not selected_cmd.func:
+                return await self.handle_subcommand(ctx, to_use)
+
+            if "options" in to_use["data"]:
+                for x in to_use["data"]["options"]:
+                    if "value" not in x:
+                        return await self.handle_subcommand(ctx, to_use)
+
+            # This is to temporarily fix Issue #97, that on Android device
+            # does not give option type from API.
+            temporary_auto_convert = {}
+            for x in selected_cmd.options:
+                temporary_auto_convert[x["name"].lower()] = x["type"]
+
+            args = (
+                await self.process_options(
+                    ctx.guild,
+                    to_use["data"]["options"],
+                    selected_cmd.connector,
+                    temporary_auto_convert,
+                )
+                if "options" in to_use["data"]
+                else {}
+            )
+
+            self._discord.dispatch("context_menu", ctx)
 
             await self.invoke_command(selected_cmd, ctx, args)
 
