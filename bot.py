@@ -24,8 +24,6 @@ async def testcmd(ctx: SlashContext):
 
 @slash.context_menu(ContextMenuType.MESSAGE, name="testname", guild_ids=[852402668294766612])
 async def testname(ctx: SlashContext):
-    print(1 + 1)
-    print(ctx)
     print(ctx.message_menus)
     await ctx.send("test!")
 

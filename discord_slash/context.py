@@ -69,7 +69,7 @@ class InteractionContext:
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         if self.guild and self._author_menus_id:
             self.author_menus = discord.Member(
-                data=self._author_menus_id[self._author_menus_id],
+                data=self._author_menus_id[[id for id in self._author_menus_id][0]],
                 state=self.bot._connection
             )
         else:
@@ -80,11 +80,12 @@ class InteractionContext:
         self.channel_id = int(_json["channel_id"])
         self.message_menus = None
         try:
-            if self._message_menu_id:
+            if self._message_menu_id != None:
+                _data = self._message_menu_id[[id for id in self._message_menu_id][0]]
                 self.message_menus = model.SlashMessage(
                     state=self.bot._connection,
                     channel=_discord.get_channel(self.channel_id),
-                    data=self._message_menu_id[self._message_menu_id],
+                    data=_data,
                     _http=_http,
                     interaction_token=self._token,
                 )
@@ -97,7 +98,7 @@ class InteractionContext:
                 data=_json["member"], state=self.bot._connection, guild=self.guild
             )
         elif self.guild_id:
-            self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
+            self.author = discord.Member(data=_json["member"]["user"], state=self.bot._connection)
         else:
             self.author = discord.User(data=_json["user"], state=self.bot._connection)
         self.created_at: datetime.datetime = snowflake_time(int(self.interaction_id))

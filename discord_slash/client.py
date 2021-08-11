@@ -1473,7 +1473,7 @@ class SlashCommand:
 
             self._discord.dispatch("context_menu", ctx)
 
-            await self.invoke_command(selected_cmd, ctx, args=[])
+            await self.invoke_command(selected_cmd, ctx, args={})
 
     async def handle_subcommand(self, ctx: context.SlashContext, data: dict):
         """
