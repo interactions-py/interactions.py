@@ -588,7 +588,47 @@ class SlashCommand:
         self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
         return obj
-
+    
+    def add_context_menu(
+        self,
+        name: str,
+        _type: int,
+        guild_ids: list = None
+    ):
+        """
+        Creates a new context menu command.
+        
+        :param name: The name of the command
+        :type name: str
+        :param _type: The context menu type.
+        :type _type: int
+        """
+        
+        name = [name or cmd.__name__][0].lower()
+        guild_ids = guild_ids or []
+        
+        if not all(isinstance(item, int) for item in guild_ids):
+            raise error.IncorrectGuildIDType(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
+        if name in self.commands:
+            tgt = self.commands[name]
+            if not tgt.has_subcommands:
+                raise error.DuplicateCommand(name)
+            has_subcommands = tgt.has_subcommands
+            for x in tgt.allowed_guild_ids:
+                if x not in guild_ids:
+                    guild_ids.append(x)
+                    
+        _cmd = {
+            "name": name,
+            "type": _type
+        }
+        obj = model.BaseCommandObject(name, _cmd)
+        self.commands["context"][name] = obj
+        self.logger.debug(f"Added context command `{name}`")
+        return obj
+    
     def add_subcommand(
         self,
         cmd,
