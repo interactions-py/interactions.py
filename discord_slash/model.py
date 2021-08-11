@@ -82,7 +82,7 @@ class CommandData:
     def __init__(
             self,
             name,
-            description,
+            description=None,
             options=None,
             default_permission=True,
             id=None,
@@ -309,14 +309,14 @@ class CommandObject(CallbackObject):
     :ivar connector: Kwargs connector of the command.
     """
 
-    def __init__(self, name, cmd, type):  # Let's reuse old command formatting.
+    def __init__(self, name, cmd, type=1):  # Let's reuse old command formatting.
         super().__init__(cmd["func"])
         self.name = name.lower()
         self.description = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.connector = cmd["connector"] or {}
-        self.type = type or 1
+        self.type = type
 
 
 class BaseCommandObject(CommandObject):
