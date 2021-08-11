@@ -62,15 +62,13 @@ class InteractionContext:
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
         if self.guild and self._author_menus_id:
-            self.author_menus = discord.Member(
-                data=_json["data"]["resolved"]["members"],
-                state=self.bot._connection,
-                guild=self.guild,
-            )
-        elif self.guild_id:
-            self.author_menus = discord.User(
-                data=_json["data"]["resolved"]["user"], state=self.bot._connection
-            )
+            self.author_menus = []
+            for user in self._author_menus_id:
+                self.author.menus.append(
+                    discord.Member(
+                        data=self._author_menus_id[user], state=self.bot._connection
+                    )
+                )
         else:
             self.author_menus = None
         self.author_id = int(
