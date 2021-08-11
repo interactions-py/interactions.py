@@ -44,6 +44,7 @@ class SlashCommand:
 
     :ivar _discord: Discord client of this client.
     :ivar commands: Dictionary of the registered commands via :func:`.slash` decorator.
+    :ivar menu_commands: Dictionary of the registered context menus via the :func:`.context_menu` decorator.
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
     :ivar logger: Logger of this client.
     :ivar sync_commands: Whether to sync commands automatically.
@@ -52,16 +53,16 @@ class SlashCommand:
     """
 
     def __init__(
-        self,
-        client: typing.Union[discord.Client, commands.Bot],
-        sync_commands: bool = False,
-        delete_from_unused_guilds: bool = False,
-        sync_on_cog_reload: bool = False,
-        override_type: bool = False,
-        application_id: typing.Optional[int] = None,
+            self,
+            client: typing.Union[discord.Client, commands.Bot],
+            sync_commands: bool = False,
+            delete_from_unused_guilds: bool = False,
+            sync_on_cog_reload: bool = False,
+            override_type: bool = False,
+            application_id: typing.Optional[int] = None,
     ):
         self._discord = client
-        self.commands = {}
+        self.commands = {"context": {}}
         self.subcommands = {}
         self.components = {}
         self.logger = logging.getLogger("discord_slash")
@@ -73,9 +74,9 @@ class SlashCommand:
             self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
 
         if (
-            not isinstance(client, commands.Bot)
-            and not isinstance(client, commands.AutoShardedBot)
-            and not override_type
+                not isinstance(client, commands.Bot)
+                and not isinstance(client, commands.AutoShardedBot)
+                and not override_type
         ):
             self.logger.warning(
                 "Detected discord.Client! It is highly recommended to use `commands.Bot`. Do not add any `on_socket_response` event."
@@ -266,12 +267,56 @@ class SlashCommand:
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
         all_guild_ids = []
         for x in self.commands:
+            if x == "context":
+                # handle context menu separately.
+                for _x in self.commands["context"]:
+                    _selected = self.commands["context"][_x]
+                    for i in _selected.allowed_guild_ids:
+                        if i not in all_guild_ids:
+                            all_guild_ids.append(i)
+                continue
             for i in self.commands[x].allowed_guild_ids:
                 if i not in all_guild_ids:
                     all_guild_ids.append(i)
         cmds = {"global": [], "guild": {x: [] for x in all_guild_ids}}
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
         for x in self.commands:
+
+            if x == "context":
+                # handle context menu separately.
+                for _x in self.commands["context"]:  # x is the new reference dict
+                    selected = self.commands["context"][_x]
+
+                    if selected.allowed_guild_ids:
+                        for y in selected.allowed_guild_ids:
+                            if y not in wait:
+                                wait[y] = {}
+                            command_dict = {
+                                "name": _x,
+                                "options": selected.options or [],
+                                "default_permission": selected.default_permission,
+                                "permissions": {},
+                                "type": selected.type
+                            }
+                            if y in selected.permissions:
+                                command_dict["permissions"][y] = selected.permissions[y]
+                            wait[y][x] = copy.deepcopy(command_dict)
+                    else:
+                        if "global" not in wait:
+                            wait["global"] = {}
+                        command_dict = {
+                            "name": _x,
+                            "options": selected.options or [],
+                            "default_permission": selected.default_permission,
+                            "permissions": selected.permissions or {},
+                            "type": selected.type
+                        }
+                        wait["global"][x] = copy.deepcopy(command_dict)
+
+                continue
+
+
+
             selected = self.commands[x]
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
@@ -304,6 +349,9 @@ class SlashCommand:
         # https://github.com/eunwoo1104/discord-py-slash-command/issues/88
 
         for x in self.commands:
+            if x == "context":
+                continue  # no menus have subcommands.
+
             if not self.commands[x].has_subcommands:
                 continue
             tgt = self.subcommands[x]
@@ -358,7 +406,7 @@ class SlashCommand:
         return cmds
 
     async def sync_all_commands(
-        self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
+            self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
     ):
         """
         Matches commands registered on Discord to commands registered here.
@@ -475,7 +523,7 @@ class SlashCommand:
                         changed = True
                         break
                     if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(
-                        **new_perm
+                            **new_perm
                     ):
                         changed = True
                         break
@@ -516,16 +564,16 @@ class SlashCommand:
         self.logger.info("Completed syncing all commands!")
 
     def add_slash_command(
-        self,
-        cmd,
-        name: str = None,
-        description: str = None,
-        guild_ids: typing.List[int] = None,
-        options: list = None,
-        default_permission: bool = True,
-        permissions: typing.Dict[int, list] = None,
-        connector: dict = None,
-        has_subcommands: bool = False,
+            self,
+            cmd,
+            name: str = None,
+            description: str = None,
+            guild_ids: typing.List[int] = None,
+            options: list = None,
+            default_permission: bool = True,
+            permissions: typing.Dict[int, list] = None,
+            connector: dict = None,
+            has_subcommands: bool = False,
     ):
         """
         Registers slash command to SlashCommand.
@@ -588,55 +636,65 @@ class SlashCommand:
         self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
         return obj
-    
+
     def add_context_menu(
-        self,
-        name: str,
-        _type: int,
-        guild_ids: list = None
+            self,
+            cmd,
+            name: str,
+            _type: int,
+            guild_ids: list = None
     ):
         """
         Creates a new context menu command.
         
+        :param cmd: Command Coroutine.
+        :type cmd: Coroutine
         :param name: The name of the command
         :type name: str
         :param _type: The context menu type.
         :type _type: int
         """
-        
+
         name = [name or cmd.__name__][0].lower()
         guild_ids = guild_ids or []
-        
+
         if not all(isinstance(item, int) for item in guild_ids):
             raise error.IncorrectGuildIDType(
                 f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
             )
-       
+
         _cmd = {
             "default_permission": None,
             "has_permissions": None,
             "name": name,
-            "type": _type
+            "type": _type,
+            "func": cmd,
+            "description": "",
+            "guild_ids": guild_ids,
+            "api_options": [],
+            "connector": {},
+            "has_subcommands": False,
+            "api_permissions": {}
         }
-        obj = model.BaseCommandObject(name, _cmd)
+        obj = model.BaseCommandObject(name, cmd=_cmd, type=_type)
         self.commands["context"][name] = obj
         self.logger.debug(f"Added context command `{name}`")
         return obj
-    
+
     def add_subcommand(
-        self,
-        cmd,
-        base,
-        subcommand_group=None,
-        name=None,
-        description: str = None,
-        base_description: str = None,
-        base_default_permission: bool = True,
-        base_permissions: typing.Dict[int, list] = None,
-        subcommand_group_description: str = None,
-        guild_ids: typing.List[int] = None,
-        options: list = None,
-        connector: dict = None,
+            self,
+            cmd,
+            base,
+            subcommand_group=None,
+            name=None,
+            description: str = None,
+            base_description: str = None,
+            base_default_permission: bool = True,
+            base_permissions: typing.Dict[int, list] = None,
+            subcommand_group_description: str = None,
+            guild_ids: typing.List[int] = None,
+            options: list = None,
+            connector: dict = None,
     ):
         """
         Registers subcommand to SlashCommand.
@@ -739,15 +797,15 @@ class SlashCommand:
         return obj
 
     def slash(
-        self,
-        *,
-        name: str = None,
-        description: str = None,
-        guild_ids: typing.List[int] = None,
-        options: typing.List[dict] = None,
-        default_permission: bool = True,
-        permissions: dict = None,
-        connector: dict = None,
+            self,
+            *,
+            name: str = None,
+            description: str = None,
+            guild_ids: typing.List[int] = None,
+            options: typing.List[dict] = None,
+            default_permission: bool = True,
+            permissions: dict = None,
+            connector: dict = None,
     ):
         """
         Decorator that registers coroutine as a slash command.\n
@@ -807,8 +865,7 @@ class SlashCommand:
         """
         if not permissions:
             permissions = {}
-        if not context:
-            context = {}
+        context = {}
 
         def wrapper(cmd):
             decorator_permissions = getattr(cmd, "__permissions__", None)
@@ -834,21 +891,21 @@ class SlashCommand:
         return wrapper
 
     def subcommand(
-        self,
-        *,
-        base,
-        subcommand_group=None,
-        name=None,
-        description: str = None,
-        base_description: str = None,
-        base_desc: str = None,
-        base_default_permission: bool = True,
-        base_permissions: dict = None,
-        subcommand_group_description: str = None,
-        sub_group_desc: str = None,
-        guild_ids: typing.List[int] = None,
-        options: typing.List[dict] = None,
-        connector: dict = None,
+            self,
+            *,
+            base,
+            subcommand_group=None,
+            name=None,
+            description: str = None,
+            base_description: str = None,
+            base_desc: str = None,
+            base_default_permission: bool = True,
+            base_permissions: dict = None,
+            subcommand_group_description: str = None,
+            sub_group_desc: str = None,
+            guild_ids: typing.List[int] = None,
+            options: typing.List[dict] = None,
+            connector: dict = None,
     ):
         """
         Decorator that registers subcommand.\n
@@ -949,16 +1006,16 @@ class SlashCommand:
             return cmd
 
         return wrapper
-    
+
     def context_menu(
-        self,
-        target: int,
-        name: str,
-        guild_ids: list = None
+            self,
+            target: int,
+            name: str,
+            guild_ids: list = None
     ):
         """
         Decorator that adds context menu commands.
-        
+
         :param target: The type of menu.
         :type target: int
         :param name: A name to register as the command in the menu.
@@ -966,32 +1023,35 @@ class SlashCommand:
         :param guild_ids: A list of guild IDs to register the command under. Defaults to ``None``.
         :type guild_ids: list
         """
-        
+
         def wrapper(cmd):
             decorator_name = getattr(cmd, "__name__", None)
             decorator_type = getattr(cmd, "__target__", None)
             decorator_guilds = guild_ids or []
-            
-            obj = self.add_slash_command(
-                cmd,
-                name,
-                "",
-                guild_ids
-            )
-            
+
+            #_obj = self.add_slash_command(
+            #    cmd,
+            #    name,
+            #    "",
+            #    guild_ids
+            #)
+
+            # This has to call both, as its a arg-less menu.
+
+            obj = self.add_context_menu(cmd, name, target, guild_ids)
+
             return obj
-        
+
         return wrapper
-            
-        
+
     def add_component_callback(
-        self,
-        callback: typing.Coroutine,
-        *,
-        messages: typing.Union[int, discord.Message, list] = None,
-        components: typing.Union[str, dict, list] = None,
-        use_callback_name=True,
-        component_type: int = None,
+            self,
+            callback: typing.Coroutine,
+            *,
+            messages: typing.Union[int, discord.Message, list] = None,
+            components: typing.Union[str, dict, list] = None,
+            use_callback_name=True,
+            component_type: int = None,
     ):
         """
         Adds a coroutine callback to a component.
@@ -1048,10 +1108,10 @@ class SlashCommand:
         )
 
     def extend_component_callback(
-        self,
-        callback_obj: model.ComponentCallbackObject,
-        message_id: int = None,
-        custom_id: str = None,
+            self,
+            callback_obj: model.ComponentCallbackObject,
+            message_id: int = None,
+            custom_id: str = None,
     ):
         """
         Registers existing callback object (:class:`.model.ComponentCallbackObject`)
@@ -1071,10 +1131,10 @@ class SlashCommand:
         callback_obj.keys.add((message_id, custom_id))
 
     def get_component_callback(
-        self,
-        message_id: int = None,
-        custom_id: str = None,
-        component_type: int = None,
+            self,
+            message_id: int = None,
+            custom_id: str = None,
+            component_type: int = None,
     ):
         """
         Returns component callback (or None if not found) for specific combination of message_id, custom_id, component_type.
@@ -1100,7 +1160,7 @@ class SlashCommand:
             return callback
 
     def remove_component_callback(
-        self, message_id: int = None, custom_id: str = None, component_type: int = None
+            self, message_id: int = None, custom_id: str = None, component_type: int = None
     ):
         """
         Removes a component callback from specific combination of message_id, custom_id, component_type.
@@ -1145,12 +1205,12 @@ class SlashCommand:
             self.remove_component_callback(message_id, custom_id, component_type)
 
     def component_callback(
-        self,
-        *,
-        messages: typing.Union[int, discord.Message, list] = None,
-        components: typing.Union[str, dict, list] = None,
-        use_callback_name=True,
-        component_type: int = None,
+            self,
+            *,
+            messages: typing.Union[int, discord.Message, list] = None,
+            components: typing.Union[str, dict, list] = None,
+            use_callback_name=True,
+            component_type: int = None,
     ):
         """
         Decorator that registers a coroutine as a component callback.
@@ -1181,11 +1241,11 @@ class SlashCommand:
         return wrapper
 
     async def process_options(
-        self,
-        guild: discord.Guild,
-        options: list,
-        connector: dict,
-        temporary_auto_convert: dict = None,
+            self,
+            guild: discord.Guild,
+            options: list,
+            connector: dict,
+            temporary_auto_convert: dict = None,
     ) -> dict:
         """
         Processes Role, User, and Channel option types to discord.py's models.
@@ -1257,9 +1317,9 @@ class SlashCommand:
                             else loaded_converter(int(x["value"]))
                         )
                     except (
-                        discord.Forbidden,
-                        discord.HTTPException,
-                        discord.NotFound,
+                            discord.Forbidden,
+                            discord.HTTPException,
+                            discord.NotFound,
                     ):  # Just in case.
                         self.logger.warning("Failed fetching discord object! Passing ID instead.")
                         processed = int(x["value"])
@@ -1353,8 +1413,8 @@ class SlashCommand:
             selected_cmd = self.commands[to_use["data"]["name"]]
 
             if (
-                selected_cmd.allowed_guild_ids
-                and ctx.guild_id not in selected_cmd.allowed_guild_ids
+                    selected_cmd.allowed_guild_ids
+                    and ctx.guild_id not in selected_cmd.allowed_guild_ids
             ):
                 return
 
