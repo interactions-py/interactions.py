@@ -611,16 +611,10 @@ class SlashCommand:
             raise error.IncorrectGuildIDType(
                 f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
             )
-        if name in self.commands:
-            tgt = self.commands[name]
-            if not tgt.has_subcommands:
-                raise error.DuplicateCommand(name)
-            has_subcommands = tgt.has_subcommands
-            for x in tgt.allowed_guild_ids:
-                if x not in guild_ids:
-                    guild_ids.append(x)
-                    
+       
         _cmd = {
+            "default_permission": None,
+            "has_permissions": None,
             "name": name,
             "type": _type
         }
