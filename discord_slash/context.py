@@ -52,7 +52,7 @@ class InteractionContext:
         self.data = _json["data"]
         self._message_menu_id = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # Should be set later.
         self._author_menus_id = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
-        self.interaction_id = _json["id"]
+        self.interaction_id = self.data["id"]
         self._http = _http
         self.bot = _discord
         self._logger = logger
