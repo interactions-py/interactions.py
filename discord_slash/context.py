@@ -50,8 +50,14 @@ class InteractionContext:
         self._type = _json["type"]  # Factor to check if its a slash command vs menus
         self.message = None
         self.data = _json["data"]
-        self._message_menu_id = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # Should be set later.
-        self._author_menus_id = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
+        try:
+            self._message_menu_id = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # Should be set later.
+        except:
+            self._message_menu_id = []
+        try:
+            self._author_menus_id = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
+        except:
+            self._author_menus_id = []
         self.interaction_id = self.data["id"] if "resolved" in self.data.keys() else _json["id"]
         self._http = _http
         self.bot = _discord
