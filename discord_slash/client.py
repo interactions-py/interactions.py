@@ -328,6 +328,7 @@ class SlashCommand:
                         "options": selected.options or [],
                         "default_permission": selected.default_permission,
                         "permissions": {},
+                        "type": 1
                     }
                     if y in selected.permissions:
                         command_dict["permissions"][y] = selected.permissions[y]
@@ -341,6 +342,7 @@ class SlashCommand:
                     "options": selected.options or [],
                     "default_permission": selected.default_permission,
                     "permissions": selected.permissions or {},
+                    "type": 1
                 }
                 wait["global"][x] = copy.deepcopy(command_dict)
 
@@ -363,6 +365,7 @@ class SlashCommand:
                         "description": sub.description or "No Description.",
                         "type": model.SlashCommandOptionType.SUB_COMMAND,
                         "options": sub.options or [],
+                        "type": 1
                     }
                     if sub.allowed_guild_ids:
                         for z in sub.allowed_guild_ids:
@@ -376,6 +379,7 @@ class SlashCommand:
                         "description": "No Description.",
                         "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
                         "options": [],
+                        "type": 1
                     }
                     for z in sub:
                         sub_sub = sub[z]
@@ -384,6 +388,7 @@ class SlashCommand:
                             "description": sub_sub.description or "No Description.",
                             "type": model.SlashCommandOptionType.SUB_COMMAND,
                             "options": sub_sub.options or [],
+                            "type": 1
                         }
                         if sub_sub.allowed_guild_ids:
                             for i in sub_sub.allowed_guild_ids:
