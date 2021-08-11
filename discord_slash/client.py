@@ -812,7 +812,7 @@ class SlashCommand:
 
         def wrapper(cmd):
             decorator_permissions = getattr(cmd, "__permissions__", None)
-            decorator_context = getattr(cmd, "__context__", None)
+            decorator_context = getattr(cmd, "__context_menu__", None)
             if decorator_permissions:
                 permissions.update(decorator_permissions)
             if decorator_context:
