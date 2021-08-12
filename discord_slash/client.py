@@ -649,7 +649,7 @@ class SlashCommand:
         :type _type: int
         """
 
-        name = [name or cmd.__name__][0].lower()
+        name = [name or cmd.__name__][0]
         guild_ids = guild_ids or []
 
         if not all(isinstance(item, int) for item in guild_ids):
