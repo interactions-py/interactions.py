@@ -678,14 +678,14 @@ class MenuContext(InteractionContext):
             )
 
         try:
-            if self._message_menu_id != None:
+            if self._message_menu_id is not None:
                 self.message_menus = model.SlashMessage(
                     state=self.bot._connection,
                     channel=_discord.get_channel(self.channel_id),
                     data=self.context_message,
                     _http=_http,
                     interaction_token=self._token,
-                ) # noqa
+                )
             else:
                 raise KeyError
         except:
