@@ -140,3 +140,5 @@ Yep we support those too. You use them much the same as buttons. You can only ha
     async def on_component(ctx: ComponentContext):
         # ctx.selected_options is a list of all the values the user selected
         await ctx.send(content=f"You selected {ctx.selected_options}")
+
+Additionally, you can pass `description` as a keyword-argument for `create_select_option()` if you so wish.
