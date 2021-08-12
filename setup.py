@@ -22,15 +22,15 @@ extras["dev"] = extras["lint"] + extras["readthedocs"]
 setup(
     name="discord-py-slash-command",
     version=VERSION,
-    author="LordOfPolls",
-    author_email="ddavidallen13@gmail.com",
+    author="goverfl0w",
+    author_email="jwalston2002@gmail.com",
     description="A simple interaction handler for discord.py.",
     extras_require=extras,
     install_requires=["discord.py", "aiohttp"],
     license="MIT License",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/discord-py-slash-commands/discord-py-interactions",
+    url="https://github.com/discord-py-interactions/discord-py-interactions",
     packages=find_packages(),
     python_requires=">=3.6",
     classifiers=[
