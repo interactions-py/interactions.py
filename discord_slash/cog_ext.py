@@ -188,7 +188,7 @@ def cog_subcommand(
 
     return wrapper
 
-def cog_context_menu(self, target: int, name: str, guild_ids: list = None):
+def cog_context_menu(target: int, name: str, guild_ids: list = None):
     """
     Decorator that adds context menu commands.
 
