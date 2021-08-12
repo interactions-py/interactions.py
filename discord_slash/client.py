@@ -326,8 +326,10 @@ class SlashCommand:
                         "options": selected.options or [],
                         "default_permission": selected.default_permission,
                         "permissions": {},
-                        "type": 1,
+                        "type": selected._type,
                     }
+                    if command_dict["type"] != 1:
+                        command_dict.pop("description")
                     if y in selected.permissions:
                         command_dict["permissions"][y] = selected.permissions[y]
                     wait[y][x] = copy.deepcopy(command_dict)
@@ -340,8 +342,10 @@ class SlashCommand:
                     "options": selected.options or [],
                     "default_permission": selected.default_permission,
                     "permissions": selected.permissions or {},
-                    "type": 1,
+                    "type": selected._type,
                 }
+                if command_dict["type"] != 1:
+                    command_dict.pop("description")
                 wait["global"][x] = copy.deepcopy(command_dict)
 
         # Separated normal command add and subcommand add not to
@@ -636,6 +640,18 @@ class SlashCommand:
         self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
         return obj
+
+    def _cog_ext_add_context_menu(self, target: int, name: str, guild_ids: list = None):
+        """
+        Creates a new cog_based context menu command.
+
+        :param cmd: Command Coroutine.
+        :type cmd: Coroutine
+        :param name: The name of the command
+        :type name: str
+        :param _type: The context menu type.
+        :type _type: int
+        """
 
     def add_context_menu(self, cmd, name: str, _type: int, guild_ids: list = None):
         """
