@@ -188,6 +188,7 @@ def cog_subcommand(
 
     return wrapper
 
+
 def cog_context_menu(target: int, name: str, guild_ids: list = None):
     """
     Decorator that adds context menu commands.
@@ -226,6 +227,7 @@ def cog_context_menu(target: int, name: str, guild_ids: list = None):
         return CogBaseCommandObject(name or cmd.__name__, _cmd, target)
 
     return wrapper
+
 
 def permission(guild_id: int, permissions: list):
     """
