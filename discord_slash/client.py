@@ -1377,8 +1377,6 @@ class SlashCommand:
             return await self._on_slash(to_use)
         if interaction_type in (2, 3):
             return await self._on_context_menu(to_use)
-        # if interaction_type == 3:
-        #     return await self._on_component(to_use)
 
         raise NotImplementedError
 

@@ -264,8 +264,20 @@ class InteractionContext:
             for file in files:
                 file.close()
         if not hidden:
-            if self.message_menus:
-                smsg = self.message_menus
+            try:
+                self.menu_messages = (
+                    self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None
+                )
+            except:  # noqa
+                self.menu_messages = None
+            if self.menu_messages:
+                smsg = model.SlashMessage(
+                    state=self.bot._connection,
+                    data=resp,
+                    channel=self.channel or discord.Object(id=self.channel_id),
+                    _http=self._http,
+                    interaction_token=self._token,
+                )
             else:
                 smsg = model.SlashMessage(
                     state=self.bot._connection,
@@ -659,13 +671,7 @@ class MenuContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
         self.target_id = super().data["target_id"]
         self.context_type = super()._json["type"]
-
-        try:
-            self.menu_messages = (
-                self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None
-            )
-        except:  # noqa
-            self.menu_messages = None
+        
         try:
             self.menu_authors = (
                 self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
@@ -684,8 +690,8 @@ class MenuContext(InteractionContext):
             self.context_author = discord.Member(data=self.author, state=self.bot._connection)
 
         try:
-            if self._message_menu_id is not None:
-                self.message_menus = model.SlashMessage(
+            if super().menu_messages is not None:
+                super().menu_messages = model.SlashMessage(
                     state=self.bot._connection,
                     channel=_discord.get_channel(self.channel_id),
                     data=self.context_message,
