@@ -672,6 +672,7 @@ class MenuContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
         self.target_id = self.data["target_id"]
         self.context_type = _json["type"]
+        self._resolved = self.data["resolved"] if "resolved" in self.data.keys() else None
 
         try:
             self.menu_authors = (
@@ -694,7 +695,7 @@ class MenuContext(InteractionContext):
             )
 
         try:
-            if self.menu_messages is not None:
+            if self.menu_messages is None:
                 self.menu_messages = model.SlashMessage(
                     state=self.bot._connection,
                     channel=_discord.get_channel(self.channel_id),
