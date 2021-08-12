@@ -6,7 +6,7 @@ import discord
 
 from ..context import ComponentContext
 from ..error import IncorrectFormat, IncorrectType
-from ..model import ButtonStyle, ComponentType, ContextMenuType
+from ..model import ButtonStyle, ComponentType
 
 logger = logging.getLogger("discord_slash")
 
