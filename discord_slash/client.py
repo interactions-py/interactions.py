@@ -661,7 +661,7 @@ class SlashCommand:
             tgt = self.commands["context"][name]
             if not tgt.has_subcommands:
                 raise error.DuplicateCommand(name)
-            has_subcommands = tgt.has_subcommands
+            has_subcommands = tgt.has_subcommands # noqa
             for x in tgt.allowed_guild_ids:
                 if x not in guild_ids:
                     guild_ids.append(x)
@@ -868,7 +868,6 @@ class SlashCommand:
         """
         if not permissions:
             permissions = {}
-        context = {}
 
         def wrapper(cmd):
             decorator_permissions = getattr(cmd, "__permissions__", None)
