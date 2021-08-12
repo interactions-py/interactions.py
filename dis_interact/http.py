@@ -23,7 +23,7 @@ class CustomRoute(Route):
     """discord.py's Route with ``BASE`` modified to use current interactions."""
     BASE = __api__
 
-class InteractionHTTP:
+class Http:
     """
     Object representing the base information to be kept for all interaction requests.
     
@@ -32,7 +32,7 @@ class InteractionHTTP:
     :ivar _application_id:
     """
     logger: Logger
-    _discord: Union[Client, AutoShardedClient]
+    discord: Union[Client, AutoShardedClient]
     _application_id: int
     
     def __init__(
@@ -42,7 +42,7 @@ class InteractionHTTP:
         application_id: Optional[Union[str, int]]=None
     ) -> None:
         """
-        Instantiates the InteractionHTTP class.
+        Instantiates the Http class.
 
         :param logger: Logger object for logging events.
         :type logger: logging.Logger
@@ -52,24 +52,24 @@ class InteractionHTTP:
         :type application_id: typing.Optional[typing.Union[str, int]]
         :return: None
         """
-        self.logger: Logger = logger
-        self._discord: Union[Client, AutoShardedClient] = _discord
-        self._application_id: int = int(application_id) if isinstance(application_id, str) else application_id
+        self.logger = logger
+        self.discord = _discord
+        self._application_id = int(application_id) if isinstance(application_id, str) else application_id
 
     @property
     def application_id(self) -> int:
         """Returns the application ID in literal integer form."""
         return self._application_id if self._application_id else self._discord.user.id
 
-class SlashRequest(InteractionHTTP):
+class Command(Http):
     """
-    Object representing slash command requests made to and from the Discord API.
+    Object representing application command requests made to and from the Discord API.
 
     .. note::
 
-        This extends off of :class:`.http.InteractionHTTP`.
+        This extends off of :class:`.http.Http`.
 
-    :inherit: InteractionHTTP
+    :inherit: Http
     """
     def __init__(
         self,
@@ -77,7 +77,9 @@ class SlashRequest(InteractionHTTP):
         _discord,
         application_id=None
     ) -> None:
-        """Instantiates the SlashRequest class."""
+        """
+        Instantiates the Http class.
+        """
         super().__init__(
             logger,
             _discord,
@@ -96,7 +98,7 @@ class SlashRequest(InteractionHTTP):
 
         :param method: The HTTP method.
         :type method: str
-        :param guild_id: The guild ID to make an HTTP request to. Pass `None` for the global scope.
+        :param guild_id: The guild ID to make an HTTP request to. Pass ``None`` for the global scope.
         :type guild_id: typing.Optional[typing.Union[str, int]]
         :param url_endswith: The ending path of the URL.
         :type url_endswith: typing.Optional[str]
@@ -124,7 +126,7 @@ class SlashRequest(InteractionHTTP):
 
         .. note::
             
-            This method extends off of `SlashCommandRequest.request()`.
+            This method extends off of :meth:`.http.Command.request()`.
 
         :param method: The HTTP method.
         :type method: str
@@ -176,7 +178,7 @@ class SlashRequest(InteractionHTTP):
         :type token: str
         :param response: The slash command response.
         :type response: dict
-        :param files: A list of files to request for. Defaults to `None`.
+        :param files: A list of files to request for. Defaults to ``None``.
         :type files: typing.Optional[typing.List[discord.File]]
         :param url_endswith: The ending path of the URL.
         :type url_endswith: typing.Optional[str]
@@ -213,13 +215,13 @@ class SlashRequest(InteractionHTTP):
 
         .. note::
 
-            This method extends off of `SlashCommandRequest.command_response()`.
+            This method extends off of :meth:`.http.Command.command_response()`.
 
         :param response: The slash command response.
         :type response: dict
         :param token: The slash command message token.
         :type token: str
-        :param files: A list of files to send. Defaults to `None`.
+        :param files: A list of files to send. Defaults to ``None``.
         :type files: typing.Optional[typing.List[discord.File]]
         :return: typing.Coroutine
         """
@@ -275,7 +277,7 @@ class SlashRequest(InteractionHTTP):
         """
         Sends a GET request for slash commands to the API.
         
-        :param guild_id: The guild ID to get the slash commands from. Pass `None` for the global scope.
+        :param guild_id: The guild ID to get the slash commands from. Pass ``None`` for the global scope.
         :type guild_id: typing.Optional[typing.Union[str, int]]
         :return: typing.Coroutine
         """
@@ -300,7 +302,7 @@ class SlashRequest(InteractionHTTP):
         :type description: str
         :options: The arguments/so-called "options" of the slash command.
         :type options: typing.Optional[list]
-        :param guild_id: The guild ID to register the slash commands under. Pass `None` for the global scope.
+        :param guild_id: The guild ID to register the slash commands under. Pass ``None`` for the global scope.
         :type guild_id: typing.Optional[typing.Union[str, int]]
         :return: typing.Coroutine
         """
@@ -329,7 +331,7 @@ class SlashRequest(InteractionHTTP):
 
         :param commands: List of slash commands.
         :type commands: list
-        :param guild_id: The guild ID to register the slash commands under. Pass `None` for the global scope.
+        :param guild_id: The guild ID to register the slash commands under. Pass ``None`` for the global scope.
         :type guild_id: typing.Optional[typing.Union[str, int]]
         :return: typing.Coroutine
         """
@@ -349,7 +351,7 @@ class SlashRequest(InteractionHTTP):
         
         :param command_id: The command ID to delete.
         :type command_id: typing.Union[str, int]
-        :param guild_id: The guild ID to delete the slash commands from. Pass `None` for the global scope.
+        :param guild_id: The guild ID to delete the slash commands from. Pass ``None`` for the global scope.
         :type guild_id: typing.Optional[typing.Union[str, int]]
         :return: typing.Coroutine
         """
@@ -368,9 +370,9 @@ class SlashRequest(InteractionHTTP):
 
         .. note::
 
-            This method extends off of ``SlashRequest.get_commands()`` for permissions.
+            This method extends off of :meth:`.http.Command.get_commands()` for permissions.
 
-        :param guild_id: The guild ID to get the slash command permissions from. Pass `None` for the global scope.
+        :param guild_id: The guild ID to get the slash command permissions from. Pass ``None`` for the global scope.
         :type guild_id: typing.Optional[typing.Union[str, int]]
         :return: typing.Coroutine
         """
@@ -394,7 +396,7 @@ class SlashRequest(InteractionHTTP):
 
         :param permissions: A set of permissions to update the slash command.
         :type permissions: dict
-        :param guild_id: The guild ID to delete the slash commands from. Pass `None` for the global scope.
+        :param guild_id: The guild ID to delete the slash commands from. Pass ``None`` for the global scope.
         :type guild_id: typing.Optional[typing.Union[str, int]]
         :return: typing.Coroutine
         """
@@ -405,15 +407,15 @@ class SlashRequest(InteractionHTTP):
             json=permissions
         )
 
-class MessageRequest(SlashRequest):
+class Message(Command):
     """
     Object representing HTTP requests for handling messages made to and from the Discord API.
 
     .. note::
 
-        This extends off of :class:`.http.SlashRequest`.
+        This extends off of :class:`.http.Command`.
 
-    :inherit: SlashRequest
+    :inherit: Command
     """
     def edit(
         self,
@@ -429,9 +431,9 @@ class MessageRequest(SlashRequest):
         :type response: dict
         :param token: The token of the command message.
         :type token: str
-        :param message_id: The ID of the message to edit. Defaults to `@original` for the initial message.
+        :param message_id: The ID of the message to edit. Defaults to ``@original`` for the initial message.
         :type message_id: typing.Optional[str]
-        :param files: A list of files to pass for uploading as attachments. Defaults to `None`.
+        :param files: A list of files to pass for uploading as attachments. Defaults to ``None``.
         :type files: typing.Optional[typing.List[discord.File]]
         :return: typing.Coroutine
         """
@@ -460,7 +462,7 @@ class MessageRequest(SlashRequest):
 
         :param token: The token of the command message.
         :type token: str
-        :param message_id: The ID of the message to delete. Defaults to `@original` for the initial message.
+        :param message_id: The ID of the message to delete. Defaults to ``@original`` for the initial message.
         :type message_id: typing.Optional[str]
         :return: typing.Coroutine
         """

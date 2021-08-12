@@ -2,12 +2,12 @@
 from typing import Union, Any, Optional
 
 # 3rd-party libraries
-from discord import Message
+from discord import Message as _Message
 from discord.channel import DMChannel, GroupChannel, TextChannel
 from discord.state import ConnectionState
 # from discord.types.message import Message as MessagePayload
 
-class BaseMessage(Message):
+class Message(_Message):
     """
     Object representing the base of Rapptz's message object.
 
@@ -15,7 +15,7 @@ class BaseMessage(Message):
 
         This extends off of `discord.Message <https://github.com/Rapptz/discord.py/blob/master/discord/message.py#L487>`_ from discord.py.
     """
-    __slots__ = tuple(list(Message.__slots__) + ["components"])
+    __slots__ = tuple(list(_Message.__slots__) + ["components"])
     components: Any
 
     def __init__(
@@ -67,6 +67,6 @@ def new_override(
     *args,
     **kwargs
 ):
-    return object.__new__(BaseMessage) if isinstance(cls, Message) else object.__new__(cls)
+    return object.__new__(Message) if isinstance(cls, _Message) else object.__new__(cls)
 
-Message.__new__ = new_override
+_Message.__new__ = new_override

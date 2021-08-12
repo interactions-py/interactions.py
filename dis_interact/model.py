@@ -22,8 +22,8 @@ from discord.abc import GuildChannel, Messageable, Role, User
 from discord.errors import Forbidden
 from discord.state import ConnectionState
 from .error import IncorrectCommandData, IncorrectFormat
-from .http import MessageRequest
-from .override import BaseMessage
+from .http import Message as _Message
+from .override import Message as __Message
 
 class Command:
     """
@@ -42,29 +42,52 @@ class Command:
     """
     __slots__ = (
         "_type",
+        "base",
+        "group",
         "name",
         "description",
-        "allowed_guild_ids",
+        "base_description",
+        "group_description",
+        "guild_ids",
         "options",
-        "connector"
+        "connector",
+        "permissions",
+        "default_permission",
+        "has_description",
+        "has_options",
+        "has_subcommands",
+        "has_permissions",
+        "has_group",
+        "cog"
     )
     _type: IntEnum
+    base: Optional[str]
+    sub: Optional[str]
+    group: Optional[str]
     name: str
     description: str
+    base_description: Optional[str]
+    group_description: Optional[str]
     guild_ids: Optional[List[int]]
     options: Optional[List[dict]]
     connector: Optional[dict]
     permissions: Optional[List[dict]]
     default_permission: Optional[bool]
+    has_description: bool
     has_options: bool
     has_subcommands: bool
     has_permissions: bool
+    has_group: bool
+    cog: Any
 
     def __init__(
         self,
         name,
         command: dict,
-        _type: Optional[IntEnum]=1
+        _type: Optional[IntEnum]=1,
+        sub: Optional[str]=None,
+        base: Optional[str]=None,
+        group: Optional[str]=None
     ) -> None:
         """
         Instantiates the Command class.
@@ -75,111 +98,37 @@ class Command:
         :type command: dict
         :param _type: The type of application command.
         :type _type: enum.IntEnum
+        :param sub: The name of the subcommand. Defaults to ``None``.
+        :type sub: typing.Optional[str]
+        :param base: The name of the subcommand base. Defaults to ``None``.
+        :type group: typing.Optional[str]
+        :param sub: The name of the subcommand group. Defaults to ``None``.
+        :type group: typing.Optional[str]
         :return: None
         """
         super().__init__(command["func"])
         self._type = _type
+        self.base = base.lower() if not isinstance(base, None) else None
+        self.sub = sub.lower() if not isinstance(sub, None) else None
+        self.group = group.lower() if not isinstance(group, None) else None
         self.name = name.lower()
         self.description = command["description"]
+        self.base_description = command["base_desc"]
+        self.group_description = command["sub_group_desc"]
         self.guild_ids = command["guild_ids"] or []
         self.options = command["api_options"] or []
         self.connector = command["connector"] or {}
         self.permissions = command["api_permissions"] or {}
         self.default_permission = command["default_permission"]
-        self.has_options = True if self.options else False
-        self.has_subcommands = True if command["has_subcommands"] else False
-        self.has_permissions = True if self.permissions else False
-        
-class Subcommand(Command):
-    """
-    Object for representing slash subcommands.
-
-    .. note::
-        
-        This extends off of :class:`.model.Command`.
-
-    .. warning::
-
-        Do not manually initialize this class.
-
-    :ivar base:
-    :ivar group:
-    :ivar base_description:
-    :ivar group_description:
-    :inherit: Command
-    """
-    __slots__ = (
-        "base",
-        "group",
-        "base_description",
-        "group_description",
-        "has_group"
-    )
-    base: str
-    group: str
-    base_description: str
-    group_description: str
-    has_group: bool
-
-    def __init__(
-        self,
-        command: Any,
-        base: str,
-        name: str,
-        group: Optional[str]=None
-    ) -> None:
-        """
-        Instantiates the Subcommand class.
-
-        :param command: The inherited command values.
-        :type command: typing.Any
-        :param base: The name of the "base" (overall) command.
-        :type base: str
-        :param name: The name of the subcommand.
-        :type name: str
-        :param group: A subset category "grouping" of the base. Defaults to `None`.
-        :type group: typing.Optional[str]
-        :return: None
-        """
-        # command is not Any but dict, but I cba. ¯\_(ツ)_/¯
-        super().__init__(
-            command,
-            base
+        self.has_description = (
+            bool(self.description) or
+            bool(self.base_description) or
+            bool(self.group_description)
         )
-        self.base = base.lower()
-        self.group = group.lower() if group else group
-        self.base_description = command["base_desc"]
-        self.group_description = command["sub_group_desc"]
-        self.has_group = True if self.group else False
-
-class CogCommand(Command):
-    """
-    Object for representing commands registered under a cog.
-
-    .. note::
-
-        This extends off of :class:`.model.Command`. 
-    
-    .. warning::
-
-        Do not manually initialize this class.
-
-    :ivar cog:
-    """
-    __slots__ = "cog"
-    cog: Any
-    
-    def __init__(
-        self,
-        *args
-    ) -> None:
-        """
-        Instantiates the CogCommand class.
-        
-        :param \*args: Multi-argument for command information.
-        :return: None
-        """
-        super().__init__(*args)
+        self.has_options = bool(self.options)
+        self.has_subcommands = bool(command["has_subcommands"])
+        self.has_permissions = bool(self.permissions)
+        self.has_group = bool(self.group)
         self.cog = None
 
 class BaseCommand:
@@ -236,7 +185,7 @@ class BaseCommand:
         :type id: typing.Optional[int]
         :param application_id: The application ID of the bot.
         :type application_id: typing.Optional[int]
-        :param version: The current version of the application command. Defaults to `None`.
+        :param version: The current version of the application command. Defaults to ``None``.
         :type version: typing.Optional[str]
         :param \**kwargs: Keyword-arguments to pass.
         :return: None
@@ -248,6 +197,7 @@ class BaseCommand:
         self.application_id = application_id
         self.version = version
         self.options = []
+
         if options is not []:
             [self.options.append(BaseOption(**option)) for option in options]
 
@@ -319,13 +269,16 @@ class BaseOption:
         self.required = required
         self.options, self.choices = []
         _type = kwargs.get("type")
+
         if _type == None:
             raise IncorrectCommandData("type is a required kwarg for options.")
+
         if _type in [1, 2]:
             if options is not []:
                 [self.options.append(BaseOption(**option)) for option in options]
             elif _type == 2:
                 raise IncorrectCommandData("Options are required for subcommands/subcommand groups.")
+
         if choices != []:
             [self.choices.append(BaseChoice(**choice)) for choice in choices]
 
@@ -396,7 +349,7 @@ class BasePermission:
         :type id: int
         :param _type: The permission data type respectively to ``id``.
         :type _type: enum.IntEnum
-        :param state: The state of the permission to whether allow or disallow access. Passed as `True`/`False` respectively.
+        :param state: The state of the permission to whether allow or disallow access. Passed as ``True``/``False`` respectively.
         :type state: bool
         :param \**kwargs: Keyword-arguments to pass.
         :return: None
@@ -451,6 +404,7 @@ class BaseGuildPermission:
         self.id = id
         self.guild_id = guild_id
         self.permissions = []
+
         if permissions != {}:
             [self.permissions.append(BaseGuildPermission(**permission)) for permission in permissions]
 
@@ -467,7 +421,7 @@ class BaseGuildPermission:
         else:
             return False
 
-class Message(BaseMessage):
+class Message(__Message):
     """
     Object for representing data of a slash command message.
 
@@ -476,7 +430,7 @@ class Message(BaseMessage):
         This extends off of `discord.Message <https://github.com/Rapptz/discord.py/blob/master/discord/message.py#L487>`_ from discord.py.
         The ``edit`` and ``delete`` methods have been overwritten in order to allow slash commands to function seamlessly.
     """
-    _http: MessageRequest
+    _http: _Message
     __interaction_token: int
 
     def __init__(
@@ -485,7 +439,7 @@ class Message(BaseMessage):
         state: ConnectionState,
         channel: Union[TextChannel, DMChannel, GroupChannel],
         data: Any,
-        _http: MessageRequest,
+        _http: _Message,
         interaction_token: int
     ) -> None:
         """
@@ -517,6 +471,7 @@ class Message(BaseMessage):
         **fields
     ) -> Coroutine:
         _response: dict = {}
+
         try:
             content = fields["content"]
             components = fields["components"]
@@ -534,15 +489,19 @@ class Message(BaseMessage):
             _response["embeds"] = [embed.to_dict() for embed in embeds]
             _response["embeds"] = [] if embed == None else ([embed.to_dict()] if embeds is None else _response["embeds"])
             files = [file] if file else files
+
             if not isinstance(embeds, list):
                 raise IncorrectFormat("Provide a list of embeds.")
+
             if len(embeds) > 10:
                 raise IncorrectFormat("Do not provide more than 10 embeds.")
+
             if (
                 files is not None and
                 file is not None
             ):
                 raise IncorrectFormat("You can't use both file and files kwargs at the same time.")
+
             if allowed_mentions is None:
                 if self._state.allowed_mentions is None:
                     _response["allowed_mentions"] = self._state.allowed_mentions.merge(
@@ -557,6 +516,7 @@ class Message(BaseMessage):
                     _response["allowed_mentions"] = {}
             if delete_after:
                 await self.delete(delay=delete_after)
+
             [[file.close() for file in files] if files else None]
             
     async def delete(
@@ -575,6 +535,7 @@ class Message(BaseMessage):
                     self.__interaction_token,
                     self.id
                 )
+
             async def wrap():
                 with suppress(Forbidden):
                     await sleep(delay)
@@ -582,6 +543,7 @@ class Message(BaseMessage):
                         self.__interaction_token,
                         self.id
                     )
+
             self._state.loop.create_task(wrap())
 
 class BaseMenu:
@@ -656,16 +618,22 @@ class Options(IntEnum):
         """
         if issubclass(_type, str):
             return cls.STRING
+
         if issubclass(_type, int):
             return cls.INTEGER
+
         if issubclass(_type, bool):
             return cls.BOOLEAN
+
         if issubclass(_type, User):
             return cls.USER
+
         if issubclass(_type, GuildChannel):
             return cls.CHANNEL
+
         if issubclass(_type, Role):
             return cls.ROLE
+
         if (
             hasattr(typing, "_GenericAlias")
             and isinstance(_type, typing._UnionGenericAlias) # noqa
@@ -673,6 +641,7 @@ class Options(IntEnum):
             and isinstance(_type, typing._Union) # noqa
         ):
             return cls.MENTIONABLE
+
         if issubclass(_type, float):
             return cls.FLOAT
 
@@ -701,6 +670,7 @@ class Permissions(IntEnum):
         """
         if issubclass(_type, Role):
             return cls.ROLE
+
         if issubclass(_type, User):
             return cls.USER
 
@@ -767,5 +737,6 @@ class Menus(IntEnum):
             issubclass(_type, User)
         ):
             return cls.USER
+
         if issubclass(_type, Messageable):
             return cls.MESSAGE

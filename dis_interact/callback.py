@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 
 # 3rd-party libraries
 from discord.ext.commands import BucketType, CooldownMapping, CommandOnCooldown
-from .context import InteractionContext, MenuContext, SlashContext
+from .context import Interaction, Menu, Command
 from .error import CheckFailure, IncorrectFormat
 
 class Callback:
@@ -107,7 +107,7 @@ class Callback:
 
     def _prepare_cooldowns(
         self,
-        ctx: InteractionContext
+        ctx: Interaction
     ) -> Optional[CommandOnCooldown]:
         """
         Prepares all of the callback cooldown events to be fired.
@@ -117,7 +117,7 @@ class Callback:
             This code extends off of `core.py <https://github.com/Rapptz/discord.py/blob/master/discord/ext/commands/core.py#L765>`_ from discord.py.
         
         :param ctx: The context to check.
-        :type ctx: .context.InteractionContext
+        :type ctx: .context.Interaction
         :return: typing.Optional[discord.ext.commands.CommandOnCooldown]
         """
         if self.buckets.valid:
@@ -135,13 +135,13 @@ class Callback:
 
     async def check_concurrencies(
         self,
-        ctx: InteractionContext
+        ctx: Interaction
     ) -> None:
         """
         Checks alongside the cooldown and maximum concurrent values.
 
         :param ctx: The context to check.
-        :type ctx: .context.InteractionContext
+        :type ctx: .context.Interaction
         :return: None
         """
         if self.max_concurrency is not None:
@@ -192,8 +192,8 @@ class Callback:
         """
         Returns whether the command is currently on a cooldown or not.
 
-        :param ctx: SlashContext
-        :type ctx: .context.SlashContext
+        :param ctx: Command
+        :type ctx: .context.Command
         :return: bool
         """
         if not self.bucket_is_valid:
@@ -209,13 +209,13 @@ class Callback:
 
     def reset_cooldown(
         self,
-        ctx: Union[SlashContext, MenuContext]
+        ctx: Union[Command, Menu]
     ) -> Coroutine:
         """
         Resets the cooldown on the command.
 
         :param ctx: The context of the command.
-        :type ctx: typing.Union[.context.SlashContext, .context.MenuContext]
+        :type ctx: typing.Union[.context.Command, .context.Menu]
         :return: typing.Coroutine
         """
         if self.bucket_is_valid:
@@ -224,13 +224,13 @@ class Callback:
 
     def get_cooldown_time(
         self,
-        ctx: Union[SlashContext, MenuContext]
+        ctx: Union[Command, Menu]
     ) -> float:
         """
         Returns the amount of time remaining on a command's cooldown before it can be tried again.
 
         :param ctx: The context of the command.
-        :type ctx: typing.Union[.context.SlashContext, .context.MenuContext]
+        :type ctx: typing.Union[.context.Command, .context.Menu]
         :return: float
         """
         if self._buckets.valid:
@@ -274,13 +274,13 @@ class Callback:
 
     async def can_run(
         self,
-        ctx: Union[SlashContext, MenuContext]
+        ctx: Union[Command, Menu]
     ) -> bool:
         """
         Returns whether the command is being to be ran or not.
 
         :param ctx: The context of the command.
-        :type ctx: typing.Union[.context.SlashContext, .context.MenuContext]
+        :type ctx: typing.Union[.context.Command, .context.Menu]
         :return: bool
         """
         res: bool = (
@@ -291,14 +291,19 @@ class Callback:
     
 class SlashCommand(Callback):
     """
-    Object representing callback logic for type `CHAT_INPUT` application commands.
+    Object representing callback logic for type ``CHAT_INPUT`` application commands.
 
     .. warning::
 
         Do not manually initialize this class.
 
+    :ivar base:
+    :ivar sub:
+    :ivar group:
     :ivar name:
     :ivar description:
+    :ivar base_description:
+    :ivar group_description:
     :ivar guild_ids:
     :ivar options:
     :ivar connector:
@@ -307,8 +312,13 @@ class SlashCommand(Callback):
     :ivar permissions:
     """
     __slots__ = (
+        "base",
+        "sub",
+        "group",
         "name",
         "description",
+        "base_description",
+        "group_description",
         "guild_ids",
         "options",
         "permissions",
@@ -345,11 +355,11 @@ class SlashCommand(Callback):
         :type name: str
         :param command: A dictionary set of keys with values assigned.
         :type command: dict
-        :param sub: The name of the subcommand. Defaults to `None`.
+        :param sub: The name of the subcommand. Defaults to ``None``.
         :type sub: typing.Optional[str]
-        :param base: The name of the subcommand base. Defaults to `None`.
+        :param base: The name of the subcommand base. Defaults to ``None``.
         :type group: typing.Optional[str]
-        :param sub: The name of the subcommand group. Defaults to `None`.
+        :param sub: The name of the subcommand group. Defaults to ``None``.
         :type group: typing.Optional[str]
         :return: None
         """
