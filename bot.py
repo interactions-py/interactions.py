@@ -1,4 +1,4 @@
-from discord_slash import SlashCommand, SlashContext
+from discord_slash import SlashCommand, SlashContext, MenuContext
 from discord_slash.model import ContextMenuType
 from discord import Intents
 from discord.ext.commands import Bot
@@ -23,8 +23,7 @@ async def testcmd(ctx: SlashContext):
     await ctx.send("test!")
 
 @slash.context_menu(ContextMenuType.MESSAGE, name="testname", guild_ids=[852402668294766612])
-async def testname(ctx: SlashContext):
-    print(ctx.message_menus)
-    await ctx.send("test!")
+async def testname(ctx: MenuContext):
+    await ctx.send("test!", hidden=True)
 
 bot.run(open(".TOKEN", "r").read(), reconnect=True, bot=True)

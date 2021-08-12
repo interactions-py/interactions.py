@@ -374,6 +374,10 @@ class CogBaseCommandObject(BaseCommandObject):
     """
 
     def __init__(self, *args):
+        # this is a really bad way to add context menu support
+        # but i cannot be bothered anymore to make it better until
+        # v4.0 is out for rewrite. sorry!
+        args[1] = 1 if not args[1] else args[1]
         super().__init__(*args)
         self.cog = None  # Manually set this later.
 
@@ -707,7 +711,10 @@ class ContextMenuType(IntEnum):
 
     @classmethod
     def from_type(cls, t: type):
-        if issubclass(t, discord.abc.User):
+        if (
+            isinstance(t, discord.Member) or
+            issubclass(t, discord.abc.User)
+        ):
             return cls.USER
         if issubclass(t, discord.abc.Messageable):
             return cls.MESSAGE

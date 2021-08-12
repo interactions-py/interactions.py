@@ -1023,10 +1023,6 @@ class SlashCommand:
         """
 
         def wrapper(cmd):
-            decorator_name = getattr(cmd, "__name__", None)
-            decorator_type = getattr(cmd, "__target__", None)
-            decorator_guilds = guild_ids or []
-
             # _obj = self.add_slash_command(
             #    cmd,
             #    name,

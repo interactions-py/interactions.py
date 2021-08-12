@@ -47,18 +47,9 @@ class InteractionContext:
         logger,
     ):
         self._token = _json["token"]
-        self._type = _json["type"]  # Factor to check if its a slash command vs menus
         self.message = None
         self.data = _json["data"]
-        try:
-            self._message_menu_id = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # Should be set later.
-        except:
-            self._message_menu_id = []
-        try:
-            self._author_menus_id = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
-        except:
-            self._author_menus_id = []
-        self.interaction_id = self.data["id"] if "resolved" in self.data.keys() else _json["id"]
+        self.interaction_id = _json["id"]
         self._http = _http
         self.bot = _discord
         self._logger = logger
@@ -67,32 +58,10 @@ class InteractionContext:
         self.values = _json["data"]["values"] if "values" in _json["data"] else None
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
-        if self.guild and self._author_menus_id:
-            self.author_menus = discord.Member(
-                data=self._author_menus_id[[id for id in self._author_menus_id][0]],
-                state=self.bot._connection
-            )
-        else:
-            self.author_menus = None
         self.author_id = int(
             _json["member"]["user"]["id"] if "member" in _json.keys() else _json["user"]["id"]
         )
         self.channel_id = int(_json["channel_id"])
-        self.message_menus = None
-        try:
-            if self._message_menu_id != None:
-                _data = self._message_menu_id[[id for id in self._message_menu_id][0]]
-                self.message_menus = model.SlashMessage(
-                    state=self.bot._connection,
-                    channel=_discord.get_channel(self.channel_id),
-                    data=_data,
-                    _http=_http,
-                    interaction_token=self._token,
-                )
-            else:
-                raise KeyError
-        except KeyError as err:
-            return err
         if self.guild:
             self.author = discord.Member(
                 data=_json["member"], state=self.bot._connection, guild=self.guild
@@ -665,3 +634,141 @@ class ComponentContext(InteractionContext):
         # Commented out for now as sometimes (or at least, when not deferred) _json is an empty string?
         # self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
         #                                        data=_json)
+
+class MenuContext(InteractionContext):
+    """
+    Context of a context menu interaction. Has all attributes from :class:`InteractionContext`, plus the context-specific ones below.
+
+    :ivar target_id: The target ID of the context menu command.
+    :ivar context_type: The type of context menu command.
+    :ivar menu_messages: Dictionary of messages collected from the context menu command. Defaults to ``None``.
+    :ivar menu_authors: Dictionary of users collected from the context menu command. Defaults to ``None``.
+    :ivar context_message: The message of the context menu command if present. Defaults to ``None``.
+    :ivar context_author: The author of the context menu command if present. Defaults to ``None``.
+    :ivar _resolved: The data set for the context menu.
+    """
+
+    def __init__(
+        self,
+        _http: http.SlashCommandRequest,
+        _json: dict,
+        _discord: typing.Union[discord.Client, commands.Bot],
+        logger,
+    ):
+        super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
+        self.target_id = super().data["target_id"]
+        self.context_type = super()._json["type"]
+
+        try:
+            self.menu_messages = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # Should be set later.
+        except:
+            self.menu_messages = None
+        try:
+            self.menu_authors = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
+        except:
+            self.menu_authors = None
+
+        self.context_message = [msg for msg in self.menu_messages][0] if self.menu_messages != None else []
+        self.context_author = [user for user in self.menu_authors][0] if self.menu_authors != None else []
+
+        if super().guild and self.author:
+            self.context_author = discord.Member(
+                data=self.author,
+                state=self.bot._connection
+            )
+
+        try:
+            if self._message_menu_id != None:
+                self.message_menus = model.SlashMessage(
+                    state=self.bot._connection,
+                    channel=_discord.get_channel(self.channel_id),
+                    data=self.context_message,
+                    _http=_http,
+                    interaction_token=self._token,
+                )
+            else:
+                raise KeyError
+        except:
+            return
+
+    @property
+    def cog(self) -> typing.Optional[commands.Cog]:
+        """
+        Returns the cog associated with the command invoked, if any.
+
+        :return: Optional[commands.Cog]
+        """
+
+        cmd_obj = self.slash.commands[self.command]
+
+        if isinstance(cmd_obj, (model.CogBaseCommandObject, model.CogSubcommandObject)):
+            return cmd_obj.cog
+        else:
+            return None
+            
+    async def defer(self, hidden: bool = False, edit_origin: bool = False, ignore: bool = False):
+        """
+        'Defers' the response, showing a loading state to the user
+
+        :param hidden: Whether the deferred response should be ephemeral. Default ``False``.
+        :param edit_origin: Whether the type is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
+        :param ignore: Whether to just ignore and not edit or send response. Using this can avoid showing interaction loading state. Default ``False``.
+        """
+        if self.deferred or self.responded:
+            raise error.AlreadyResponded("You have already responded to this command!")
+
+        base = {"type": 6 if edit_origin or ignore else 5}
+
+        if edit_origin and ignore:
+            raise error.IncorrectFormat("'edit_origin' and 'ignore' are mutually exclusive")
+
+        if hidden:
+            if edit_origin:
+                raise error.IncorrectFormat(
+                    "'hidden' and 'edit_origin' flags are mutually exclusive"
+                )
+            elif ignore:
+                self._deferred_hidden = True
+            else:
+                base["data"] = {"flags": 64}
+                self._deferred_hidden = True
+
+        self._deferred_edit_origin = edit_origin
+
+        await self._http.post_initial_response(base, self.interaction_id, self._token)
+        self.deferred = not ignore
+
+        if ignore:
+            self.responded = True
+
+    async def send(
+        self,
+        content: str = "",
+        *,
+        embed: discord.Embed = None,
+        embeds: typing.List[discord.Embed] = None,
+        tts: bool = False,
+        file: discord.File = None,
+        files: typing.List[discord.File] = None,
+        allowed_mentions: discord.AllowedMentions = None,
+        hidden: bool = False,
+        delete_after: float = None,
+        components: typing.List[dict] = None,
+    ) -> model.SlashMessage:
+        if self.deferred and self._deferred_edit_origin:
+            self._logger.warning(
+                "Deferred response might not be what you set it to! (edit origin / send response message) "
+                "This is because it was deferred with different response type."
+            )
+        return await super().send(
+            content,
+            embed=embed,
+            embeds=embeds,
+            tts=tts,
+            file=file,
+            files=files,
+            allowed_mentions=allowed_mentions,
+            hidden=hidden,
+            delete_after=delete_after,
+            components=components,
+        )

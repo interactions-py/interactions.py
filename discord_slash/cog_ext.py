@@ -188,6 +188,48 @@ def cog_subcommand(
 
     return wrapper
 
+def cog_context_menu(self, target: int, name: str, guild_ids: list = None):
+    """
+    Decorator that adds context menu commands.
+
+    :param target: The type of menu.
+    :type target: int
+    :param name: A name to register as the command in the menu.
+    :type name: str
+    :param guild_ids: A list of guild IDs to register the command under. Defaults to ``None``.
+    :type guild_ids: list
+    """
+
+    def wrapper(cmd):
+        decorator_name = getattr(cmd, "__name__", None)
+        decorator_type = getattr(cmd, "__target__", None)
+        decorator_guilds = guild_ids or []
+
+        # _obj = self.add_slash_command(
+        #    cmd,
+        #    name,
+        #    "",
+        #    guild_ids
+        # )
+
+        # This has to call both, as its a arg-less menu.
+
+        _cmd = {
+            "default_permission": None,
+            "has_permissions": None,
+            "name": name,
+            "type": target,
+            "func": cmd,
+            "description": "",
+            "guild_ids": guild_ids,
+            "api_options": [],
+            "connector": {},
+            "has_subcommands": False,
+            "api_permissions": {},
+        }
+        return CogBaseCommandObject(name or cmd.__name__, _cmd, type=target)
+
+    return wrapper
 
 def permission(guild_id: int, permissions: list):
     """
