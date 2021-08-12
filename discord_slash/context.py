@@ -660,16 +660,16 @@ class MenuContext(InteractionContext):
         self.context_type = super()._json["type"]
 
         try:
-            self.menu_messages = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # Should be set later.
+            self.menu_messages = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # noqa
         except:
             self.menu_messages = None
         try:
-            self.menu_authors = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
+            self.menu_authors = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None # noqa
         except:
             self.menu_authors = None
 
-        self.context_message = [msg for msg in self.menu_messages][0] if self.menu_messages != None else []
-        self.context_author = [user for user in self.menu_authors][0] if self.menu_authors != None else []
+        self.context_message = [msg for msg in self.menu_messages][0] if self.menu_messages is not None else []
+        self.context_author = [user for user in self.menu_authors][0] if self.menu_authors is not None else []
 
         if super().guild and self.author:
             self.context_author = discord.Member(
@@ -685,7 +685,7 @@ class MenuContext(InteractionContext):
                     data=self.context_message,
                     _http=_http,
                     interaction_token=self._token,
-                )
+                ) # noqa
             else:
                 raise KeyError
         except:
@@ -705,7 +705,7 @@ class MenuContext(InteractionContext):
             return cmd_obj.cog
         else:
             return None
-            
+
     async def defer(self, hidden: bool = False, edit_origin: bool = False, ignore: bool = False):
         """
         'Defers' the response, showing a loading state to the user

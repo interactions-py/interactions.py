@@ -201,10 +201,6 @@ def cog_context_menu(target: int, name: str, guild_ids: list = None):
     """
 
     def wrapper(cmd):
-        decorator_name = getattr(cmd, "__name__", None)
-        decorator_type = getattr(cmd, "__target__", None)
-        decorator_guilds = guild_ids or []
-
         # _obj = self.add_slash_command(
         #    cmd,
         #    name,

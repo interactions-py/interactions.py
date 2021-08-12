@@ -363,7 +363,6 @@ class SlashCommand:
                         "description": sub.description or "No Description.",
                         "type": model.SlashCommandOptionType.SUB_COMMAND,
                         "options": sub.options or [],
-                        "type": 1,
                     }
                     if sub.allowed_guild_ids:
                         for z in sub.allowed_guild_ids:
@@ -374,10 +373,9 @@ class SlashCommand:
                     queue = {}
                     base_dict = {
                         "name": y,
-                        "description": "No Description.",
+                        "description": "No Description.", 
                         "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
                         "options": [],
-                        "type": 1,
                     }
                     for z in sub:
                         sub_sub = sub[z]
@@ -386,7 +384,6 @@ class SlashCommand:
                             "description": sub_sub.description or "No Description.",
                             "type": model.SlashCommandOptionType.SUB_COMMAND,
                             "options": sub_sub.options or [],
-                            "type": 1,
                         }
                         if sub_sub.allowed_guild_ids:
                             for i in sub_sub.allowed_guild_ids:
