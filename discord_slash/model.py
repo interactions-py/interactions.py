@@ -711,10 +711,7 @@ class ContextMenuType(IntEnum):
 
     @classmethod
     def from_type(cls, t: type):
-        if (
-            isinstance(t, discord.Member) or
-            issubclass(t, discord.abc.User)
-        ):
+        if isinstance(t, discord.Member) or issubclass(t, discord.abc.User):
             return cls.USER
         if issubclass(t, discord.abc.Messageable):
             return cls.MESSAGE
