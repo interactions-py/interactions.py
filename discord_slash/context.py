@@ -48,6 +48,7 @@ class InteractionContext:
     ):
         self._token = _json["token"]
         self.message = None
+        self.menu_messages = None
         self.data = _json["data"]
         self.interaction_id = _json["id"]
         self._http = _http
@@ -64,12 +65,20 @@ class InteractionContext:
         self.channel_id = int(_json["channel_id"])
         if self.guild:
             self.author = discord.Member(
-                data=_json["member"], state=self.bot._connection, guild=self.guild
+                data=_json["member"],
+                state=self.bot._connection,
+                guild=self.guild
             )
         elif self.guild_id:
-            self.author = discord.Member(data=_json["member"]["user"], state=self.bot._connection)
+            self.author = discord.User(
+                data=_json["member"]["user"],
+                state=self.bot._connection
+            )
         else:
-            self.author = discord.User(data=_json["user"], state=self.bot._connection)
+            self.author = discord.User(
+                data=_json["user"],
+                state=self.bot._connection
+            )
         self.created_at: datetime.datetime = snowflake_time(int(self.interaction_id))
 
     @property
@@ -669,8 +678,8 @@ class MenuContext(InteractionContext):
         logger,
     ):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
-        self.target_id = super().data["target_id"]
-        self.context_type = super()._json["type"]
+        self.target_id = self.data["target_id"]
+        self.context_type = _json["type"]
         
         try:
             self.menu_authors = (
@@ -686,12 +695,17 @@ class MenuContext(InteractionContext):
             [user for user in self.menu_authors][0] if self.menu_authors is not None else []
         )
 
-        if super().guild and self.author:
-            self.context_author = discord.Member(data=self.author, state=self.bot._connection)
+        if self.guild and self.context_author:
+            print(self.context_author)
+            self.context_author = discord.Member(
+                data=self.context_author,
+                state=self.bot._connection,
+                guild=self.guild
+            )
 
         try:
-            if super().menu_messages is not None:
-                super().menu_messages = model.SlashMessage(
+            if self.menu_messages is not None:
+                self.menu_messages = model.SlashMessage(
                     state=self.bot._connection,
                     channel=_discord.get_channel(self.channel_id),
                     data=self.context_message,

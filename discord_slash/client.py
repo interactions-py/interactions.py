@@ -296,7 +296,7 @@ class SlashCommand:
                                 "options": selected.options or [],
                                 "default_permission": selected.default_permission,
                                 "permissions": {},
-                                "type": selected.type,
+                                "type": selected._type,
                             }
                             if y in selected.permissions:
                                 command_dict["permissions"][y] = selected.permissions[y]
@@ -679,7 +679,10 @@ class SlashCommand:
             "has_subcommands": False,
             "api_permissions": {},
         }
-        obj = model.BaseCommandObject(name, cmd=_cmd, type=_type)
+
+        print("add_context_menu".upper(), ": ", _cmd)
+
+        obj = model.BaseCommandObject(name, cmd=_cmd, _type=_type)
         self.commands["context"][name] = obj
         self.logger.debug(f"Added context command `{name}`")
         return obj
@@ -1371,14 +1374,17 @@ class SlashCommand:
         if msg["t"] != "INTERACTION_CREATE":
             return
 
+        print("on_socket_response".upper(), ": ", msg)
         to_use = msg["d"]
         interaction_type = to_use["type"]
-        if interaction_type == 1:
-            return await self._on_slash(to_use)
-        if interaction_type in (2, 3):
-            return await self._on_context_menu(to_use)
+        if interaction_type in (2, 3) or msg["s"] == 5:
+            await self._on_slash(to_use)
+            await self._on_context_menu(to_use)
+        if interaction_type >= 4: # what the fuck did Discord make components!?
+            return await self._on_component(to_use)
 
-        raise NotImplementedError
+        return
+        # raise NotImplementedError
 
     async def _on_component(self, to_use):
         ctx = context.ComponentContext(self.req, to_use, self._discord, self.logger)
@@ -1439,11 +1445,11 @@ class SlashCommand:
 
     async def _on_context_menu(self, to_use):
         if to_use["data"]["name"] in self.commands["context"]:
-            ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
+            ctx = context.MenuContext(self.req, to_use, self._discord, self.logger)
             cmd_name = to_use["data"]["name"]
 
             if cmd_name not in self.commands["context"] and cmd_name in self.subcommands:
-                return await self.handle_subcommand(ctx, to_use)
+                return # menus don't have subcommands you smooth brain
 
             selected_cmd = self.commands["context"][cmd_name]
 

@@ -309,14 +309,14 @@ class CommandObject(CallbackObject):
     :ivar connector: Kwargs connector of the command.
     """
 
-    def __init__(self, name, cmd, type=1):  # Let's reuse old command formatting.
+    def __init__(self, name, cmd, _type=1):  # Let's reuse old command formatting.
         super().__init__(cmd["func"])
         self.name = name.lower()
         self.description = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.connector = cmd["connector"] or {}
-        self.type = type
+        self._type = _type
 
 
 class BaseCommandObject(CommandObject):
@@ -334,8 +334,8 @@ class BaseCommandObject(CommandObject):
     :ivar permissions: Permissions to restrict use of this command.
     """
 
-    def __init__(self, name, cmd, type=1):  # Let's reuse old command formatting.
-        super().__init__(name, cmd, type)
+    def __init__(self, name, cmd, _type=1):  # Let's reuse old command formatting.
+        super().__init__(name, cmd, _type)
         self.has_subcommands = cmd["has_subcommands"]
         self.default_permission = cmd["default_permission"]
         self.permissions = cmd["api_permissions"] or {}
@@ -377,8 +377,10 @@ class CogBaseCommandObject(BaseCommandObject):
         # this is a really bad way to add context menu support
         # but i cannot be bothered anymore to make it better until
         # v4.0 is out for rewrite. sorry!
-        args[2] = 1 if not args[2] else args[2]
-        super().__init__(*args)
+        _arg = 1 if not args[0] else args[0]
+        values = [arg for arg in args]
+        values[0] = _arg
+        super().__init__(*values)
         self.cog = None  # Manually set this later.
 
 
@@ -709,9 +711,9 @@ class ContextMenuType(IntEnum):
     USER = 2
     MESSAGE = 3
 
-    @classmethod
-    def from_type(cls, t: type):
-        if isinstance(t, discord.Member) or issubclass(t, discord.abc.User):
-            return cls.USER
-        if issubclass(t, discord.abc.Messageable):
-            return cls.MESSAGE
+    # @classmethod
+    # def from_type(cls, t: type):
+    #     if isinstance(t, discord.Member) or issubclass(t, discord.abc.User):
+    #         return cls.USER
+    #     if issubclass(t, discord.abc.Messageable):
+    #         return cls.MESSAGE
