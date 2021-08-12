@@ -65,20 +65,12 @@ class InteractionContext:
         self.channel_id = int(_json["channel_id"])
         if self.guild:
             self.author = discord.Member(
-                data=_json["member"],
-                state=self.bot._connection,
-                guild=self.guild
+                data=_json["member"], state=self.bot._connection, guild=self.guild
             )
         elif self.guild_id:
-            self.author = discord.User(
-                data=_json["member"]["user"],
-                state=self.bot._connection
-            )
+            self.author = discord.User(data=_json["member"]["user"], state=self.bot._connection)
         else:
-            self.author = discord.User(
-                data=_json["user"],
-                state=self.bot._connection
-            )
+            self.author = discord.User(data=_json["user"], state=self.bot._connection)
         self.created_at: datetime.datetime = snowflake_time(int(self.interaction_id))
 
     @property
@@ -680,7 +672,7 @@ class MenuContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
         self.target_id = self.data["target_id"]
         self.context_type = _json["type"]
-        
+
         try:
             self.menu_authors = (
                 self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
@@ -698,9 +690,7 @@ class MenuContext(InteractionContext):
         if self.guild and self.context_author:
             print(self.context_author)
             self.context_author = discord.Member(
-                data=self.context_author,
-                state=self.bot._connection,
-                guild=self.guild
+                data=self.context_author, state=self.bot._connection, guild=self.guild
             )
 
         try:

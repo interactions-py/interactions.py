@@ -189,8 +189,12 @@ def cog_subcommand(
     return wrapper
 
 
-def cog_context_menu(target: int, name: str, guild_ids: list = None):
-    """
+# I don't feel comfortable with having these right now, they're too buggy even when they were working.
+
+"""
+def cog_context_menu(name: str, guild_ids: list = None, target: int = 1):
+"""
+"""
     Decorator that adds context menu commands.
 
     :param target: The type of menu.
@@ -199,7 +203,8 @@ def cog_context_menu(target: int, name: str, guild_ids: list = None):
     :type name: str
     :param guild_ids: A list of guild IDs to register the command under. Defaults to ``None``.
     :type guild_ids: list
-    """
+"""
+"""
 
     def wrapper(cmd):
         # _obj = self.add_slash_command(
@@ -227,6 +232,7 @@ def cog_context_menu(target: int, name: str, guild_ids: list = None):
         return CogBaseCommandObject(name or cmd.__name__, _cmd, target)
 
     return wrapper
+"""
 
 
 def permission(guild_id: int, permissions: list):

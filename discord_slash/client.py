@@ -467,7 +467,7 @@ class SlashCommand:
                     if ex.status == 400:
                         # catch bad requests
                         cmd_nums = set(
-                            re.findall(r"In\s(\d).", ex.args[0])
+                            re.findall(r"^[\w-]{1,32}$", ex.args[0])
                         )  # find all discords references to commands
                         error_string = ex.args[0]
 
@@ -679,8 +679,6 @@ class SlashCommand:
             "has_subcommands": False,
             "api_permissions": {},
         }
-
-        print("add_context_menu".upper(), ": ", _cmd)
 
         obj = model.BaseCommandObject(name, cmd=_cmd, _type=_type)
         self.commands["context"][name] = obj
@@ -1374,13 +1372,15 @@ class SlashCommand:
         if msg["t"] != "INTERACTION_CREATE":
             return
 
-        print("on_socket_response".upper(), ": ", msg)
         to_use = msg["d"]
         interaction_type = to_use["type"]
         if interaction_type in (1, 2, 3) or msg["s"] == 5:
             await self._on_slash(to_use)
             await self._on_context_menu(to_use)
-            await self._on_component(to_use)
+            try:
+                await self._on_component(to_use)  # noqa
+            except KeyError:
+                pass  # for some reason it complains about custom_id being an optional arg when it's fine?
         return
         # raise NotImplementedError
 
@@ -1447,7 +1447,7 @@ class SlashCommand:
             cmd_name = to_use["data"]["name"]
 
             if cmd_name not in self.commands["context"] and cmd_name in self.subcommands:
-                return # menus don't have subcommands you smooth brain
+                return  # menus don't have subcommands you smooth brain
 
             selected_cmd = self.commands["context"][cmd_name]
 

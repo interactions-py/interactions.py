@@ -374,13 +374,7 @@ class CogBaseCommandObject(BaseCommandObject):
     """
 
     def __init__(self, *args):
-        # this is a really bad way to add context menu support
-        # but i cannot be bothered anymore to make it better until
-        # v4.0 is out for rewrite. sorry!
-        _arg = 1 if not args[0] else args[0]
-        values = [arg for arg in args]
-        values[0] = _arg
-        super().__init__(*values)
+        super().__init__(*args)
         self.cog = None  # Manually set this later.
 
 
