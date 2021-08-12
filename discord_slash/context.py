@@ -635,6 +635,7 @@ class ComponentContext(InteractionContext):
         # self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
         #                                        data=_json)
 
+
 class MenuContext(InteractionContext):
     """
     Context of a context menu interaction. Has all attributes from :class:`InteractionContext`, plus the context-specific ones below.
@@ -660,22 +661,27 @@ class MenuContext(InteractionContext):
         self.context_type = super()._json["type"]
 
         try:
-            self.menu_messages = self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None # noqa
-        except:
+            self.menu_messages = (
+                self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None
+            )
+        except:  # noqa
             self.menu_messages = None
         try:
-            self.menu_authors = self.data["resolved"]["members"] if "resolved" in self.data.keys() else None # noqa
-        except:
+            self.menu_authors = (
+                self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
+            )
+        except:  # noqa
             self.menu_authors = None
 
-        self.context_message = [msg for msg in self.menu_messages][0] if self.menu_messages is not None else []
-        self.context_author = [user for user in self.menu_authors][0] if self.menu_authors is not None else []
+        self.context_message = (
+            [msg for msg in self.menu_messages][0] if self.menu_messages is not None else []
+        )
+        self.context_author = (
+            [user for user in self.menu_authors][0] if self.menu_authors is not None else []
+        )
 
         if super().guild and self.author:
-            self.context_author = discord.Member(
-                data=self.author,
-                state=self.bot._connection
-            )
+            self.context_author = discord.Member(data=self.author, state=self.bot._connection)
 
         try:
             if self._message_menu_id is not None:
@@ -688,7 +694,7 @@ class MenuContext(InteractionContext):
                 )
             else:
                 raise KeyError
-        except:
+        except:  # noqa
             return
 
     @property
