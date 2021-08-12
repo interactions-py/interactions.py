@@ -6,6 +6,3 @@
 _build/
 build/
 dist/
-
-# dev test
-.TOKEN
