@@ -265,28 +265,13 @@ class InteractionContext:
             for file in files:
                 file.close()
         if not hidden:
-            try:
-                self.menu_messages = (
-                    self.data["resolved"]["messages"] if "resolved" in self.data.keys() else None
-                )
-            except:  # noqa
-                self.menu_messages = None
-            if self.menu_messages:
-                smsg = model.SlashMessage(
-                    state=self.bot._connection,
-                    data=resp,
-                    channel=self.channel or discord.Object(id=self.channel_id),
-                    _http=self._http,
-                    interaction_token=self._token,
-                )
-            else:
-                smsg = model.SlashMessage(
-                    state=self.bot._connection,
-                    data=resp,
-                    channel=self.channel or discord.Object(id=self.channel_id),
-                    _http=self._http,
-                    interaction_token=self._token,
-                )
+            smsg = model.SlashMessage(
+                state=self.bot._connection,
+                data=resp,
+                channel=self.channel or discord.Object(id=self.channel_id),
+                _http=self._http,
+                interaction_token=self._token,
+            )
             if delete_after:
                 self.bot.loop.create_task(smsg.delete(delay=delete_after))
             if initial_message:
@@ -670,43 +655,38 @@ class MenuContext(InteractionContext):
         logger,
     ):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
-        self.target_id = self.data["target_id"]
         self.context_type = _json["type"]
         self._resolved = self.data["resolved"] if "resolved" in self.data.keys() else None
+        self.target = {"id": self.data["target_id"], "message": None}
 
-        try:
-            self.menu_authors = (
-                self.data["resolved"]["members"] if "resolved" in self.data.keys() else None
-            )
-        except:  # noqa
-            self.menu_authors = None
-
-        self.context_message = (
-            [msg for msg in self.menu_messages][0] if self.menu_messages is not None else []
-        )
-        self.context_author = (
-            [user for user in self.menu_authors][0] if self.menu_authors is not None else []
-        )
-
-        if self.guild and self.context_author:
-            print(self.context_author)
-            self.context_author = discord.Member(
-                data=self.context_author, state=self.bot._connection, guild=self.guild
-            )
-
-        try:
-            if self.menu_messages is None:
-                self.menu_messages = model.SlashMessage(
+        if self._resolved is not None:
+            if self.context_type in [3, "3"]:
+                self.target["message"] = model.SlashMessage(
                     state=self.bot._connection,
                     channel=_discord.get_channel(self.channel_id),
-                    data=self.context_message,
+                    data=[msg for msg in self._resolved["messages"]][0],
                     _http=_http,
                     interaction_token=self._token,
                 )
-            else:
-                raise KeyError
-        except:  # noqa
-            return
+
+            try:
+                if self.guild and self._resolved["members"]:
+                    _member = True
+                    self.target["author"] = discord.Member(
+                        data=[auth for auth in self._resolved["members"]][0],
+                        state=self.bot._connection,
+                        guild=self.guild
+                    )
+            except KeyError:  # noqa
+                pass
+            try:
+                if self._resolved["users"]:
+                    self.target["author"] = discord.User(
+                        data=[auth for auth in self._resolved["users"]][0],
+                        state=self.bot_connection
+                    )
+            except KeyError:  # noqa
+                pass
 
     @property
     def cog(self) -> typing.Optional[commands.Cog]:

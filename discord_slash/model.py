@@ -311,7 +311,7 @@ class CommandObject(CallbackObject):
 
     def __init__(self, name, cmd, _type=1):  # Let's reuse old command formatting.
         super().__init__(cmd["func"])
-        self.name = name.lower()
+        self.name = name.lower() if _type == 1 else name
         self.description = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []

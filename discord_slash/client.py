@@ -281,7 +281,6 @@ class SlashCommand:
         cmds = {"global": [], "guild": {x: [] for x in all_guild_ids}}
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
         for x in self.commands:
-
             if x == "context":
                 # handle context menu separately.
                 for _x in self.commands["context"]:  # x is the new reference dict
