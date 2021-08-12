@@ -65,6 +65,10 @@ class SlashRequest(InteractionHTTP):
     """
     Object representing slash command requests made to and from the Discord API.
 
+    .. note::
+
+        This extends off of :class:`.http.InteractionHTTP`.
+
     :inherit: InteractionHTTP
     """
     def __init__(
@@ -404,6 +408,10 @@ class SlashRequest(InteractionHTTP):
 class MessageRequest(SlashRequest):
     """
     Object representing HTTP requests for handling messages made to and from the Discord API.
+
+    .. note::
+
+        This extends off of :class:`.http.SlashRequest`.
 
     :inherit: SlashRequest
     """

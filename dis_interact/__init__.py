@@ -9,4 +9,4 @@ Your ultimate Discord interactions library for discord.py.
 """
 
 from .base import __version__ # noqa: F401
-from .model import Buttons, Components, Options # noqa: F401
+from .model import Buttons, Components, Menus, Options, Permissions # noqa: F401

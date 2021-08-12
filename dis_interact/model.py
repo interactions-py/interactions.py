@@ -1,26 +1,188 @@
 # Normal libraries
+from asyncio import create_task, sleep
+from contextlib import suppress
+from enum import IntEnum
 import typing
 from typing import (
-    Optional,
-    Union,
-    List,
     Any,
-    Coroutine
+    Coroutine,
+    List,
+    Optional,
+    Union
 )
-from contextlib import suppress
-from asyncio import sleep
-from enum import IntEnum
 
 # 3rd-party libraries
-from discord import DMChannel, GroupChannel, TextChannel
-from discord.abc import Role, User, GuildChannel
+from discord import (
+    DMChannel,
+    GroupChannel,
+    TextChannel,
+    Member
+)
+from discord.abc import GuildChannel, Messageable, Role, User
 from discord.errors import Forbidden
 from discord.state import ConnectionState
-# from .error import IncorrectFormat
-from .override import BaseMessage
+from .error import IncorrectCommandData, IncorrectFormat
 from .http import MessageRequest
+from .override import BaseMessage
 
 class Command:
+    """
+    Object representing application commands.
+
+    .. warning::
+
+        Do not manually initialize this class.
+
+    :ivar _type:
+    :ivar name:
+    :ivar description:
+    :ivar allowed_guild_ids:
+    :ivar options:
+    :ivar connector:
+    """
+    __slots__ = (
+        "_type",
+        "name",
+        "description",
+        "allowed_guild_ids",
+        "options",
+        "connector"
+    )
+    _type: IntEnum
+    name: str
+    description: str
+    guild_ids: Optional[List[int]]
+    options: Optional[List[dict]]
+    connector: Optional[dict]
+    permissions: Optional[List[dict]]
+    default_permission: Optional[bool]
+    has_options: bool
+    has_subcommands: bool
+    has_permissions: bool
+
+    def __init__(
+        self,
+        name,
+        command: dict,
+        _type: Optional[IntEnum]=1
+    ) -> None:
+        """
+        Instantiates the Command class.
+
+        :param name: The name of the slash command.
+        :type name: str
+        :param command: A dictionary set of keys with values assigned 
+        :type command: dict
+        :param _type: The type of application command.
+        :type _type: enum.IntEnum
+        :return: None
+        """
+        super().__init__(command["func"])
+        self._type = _type
+        self.name = name.lower()
+        self.description = command["description"]
+        self.guild_ids = command["guild_ids"] or []
+        self.options = command["api_options"] or []
+        self.connector = command["connector"] or {}
+        self.permissions = command["api_permissions"] or {}
+        self.default_permission = command["default_permission"]
+        self.has_options = True if self.options else False
+        self.has_subcommands = True if command["has_subcommands"] else False
+        self.has_permissions = True if self.permissions else False
+        
+class Subcommand(Command):
+    """
+    Object for representing slash subcommands.
+
+    .. note::
+        
+        This extends off of :class:`.model.Command`.
+
+    .. warning::
+
+        Do not manually initialize this class.
+
+    :ivar base:
+    :ivar group:
+    :ivar base_description:
+    :ivar group_description:
+    :inherit: Command
+    """
+    __slots__ = (
+        "base",
+        "group",
+        "base_description",
+        "group_description",
+        "has_group"
+    )
+    base: str
+    group: str
+    base_description: str
+    group_description: str
+    has_group: bool
+
+    def __init__(
+        self,
+        command: Any,
+        base: str,
+        name: str,
+        group: Optional[str]=None
+    ) -> None:
+        """
+        Instantiates the Subcommand class.
+
+        :param command: The inherited command values.
+        :type command: typing.Any
+        :param base: The name of the "base" (overall) command.
+        :type base: str
+        :param name: The name of the subcommand.
+        :type name: str
+        :param group: A subset category "grouping" of the base. Defaults to `None`.
+        :type group: typing.Optional[str]
+        :return: None
+        """
+        # command is not Any but dict, but I cba. ¯\_(ツ)_/¯
+        super().__init__(
+            command,
+            base
+        )
+        self.base = base.lower()
+        self.group = group.lower() if group else group
+        self.base_description = command["base_desc"]
+        self.group_description = command["sub_group_desc"]
+        self.has_group = True if self.group else False
+
+class CogCommand(Command):
+    """
+    Object for representing commands registered under a cog.
+
+    .. note::
+
+        This extends off of :class:`.model.Command`. 
+    
+    .. warning::
+
+        Do not manually initialize this class.
+
+    :ivar cog:
+    """
+    __slots__ = "cog"
+    cog: Any
+    
+    def __init__(
+        self,
+        *args
+    ) -> None:
+        """
+        Instantiates the CogCommand class.
+        
+        :param \*args: Multi-argument for command information.
+        :return: None
+        """
+        super().__init__(*args)
+        self.cog = None
+
+class BaseCommand:
     """
     Object that represents data for a slash command.
     
@@ -74,7 +236,7 @@ class Command:
         :type id: typing.Optional[int]
         :param application_id: The application ID of the bot.
         :type application_id: typing.Optional[int]
-        :param version: The current version of the API. Keep with it passed as `None`.
+        :param version: The current version of the application command. Defaults to `None`.
         :type version: typing.Optional[str]
         :param \**kwargs: Keyword-arguments to pass.
         :return: None
@@ -86,14 +248,14 @@ class Command:
         self.application_id = application_id
         self.version = version
         self.options = []
-        if options != []:
-            [self.options.append(Option(**option)) for option in options]
+        if options is not []:
+            [self.options.append(BaseOption(**option)) for option in options]
 
     def __eq__(
         self,
         other
     ):
-        if isinstance(other, Command):
+        if isinstance(other, BaseCommand):
             return (
                 self.name == other.name
                 and self.description == other.description
@@ -103,7 +265,7 @@ class Command:
         else:
             return False
 
-class Option:
+class BaseOption:
     """
     Object that represents data for a slash command's option.
 
@@ -149,6 +311,7 @@ class Option:
         :param choices: A list of pre-defined values/"choices" for the option.
         :type choices: typing.Optional[list]
         :param \**kwargs: Keyword-arguments to pass.
+        :raises: .error.IncorrectCommandData
         :return None:
         """
         self.name = name
@@ -157,26 +320,22 @@ class Option:
         self.options, self.choices = []
         _type = kwargs.get("type")
         if _type == None:
-            # raise error.IncorrectCommandData("type is required for options")
-            pass
+            raise IncorrectCommandData("type is a required kwarg for options.")
         if _type in [1, 2]:
-            if options != []:
-                [self.options.append(Option(**option)) for option in options]
+            if options is not []:
+                [self.options.append(BaseOption(**option)) for option in options]
             elif _type == 2:
-                # raise error.IncorrectCommandData(
-                #     "Options are required for subcommands / subcommand groups"
-                # )
-                pass
+                raise IncorrectCommandData("Options are required for subcommands/subcommand groups.")
         if choices != []:
-            [self.choices.append(Choice(**choice)) for choice in choices]
+            [self.choices.append(BaseChoice(**choice)) for choice in choices]
 
     def __eq__(
         self,
         other
     ):
-        return isinstance(other, Option) and self.__dict__ == other.__dict__
+        return isinstance(other, BaseOption) and self.__dict__ == other.__dict__
 
-class Choice:
+class BaseChoice:
     """
     Object representing data for a slash command option's choice(s).
     
@@ -208,9 +367,9 @@ class Choice:
         self,
         other
     ):
-        return isinstance(other, Choice) and self.__dict__ == other.__dict__
+        return isinstance(other, BaseChoice) and self.__dict__ == other.__dict__
 
-class Permission:
+class BasePermission:
     """
     Object representing the data for a slash command's permission(s).
 
@@ -250,7 +409,7 @@ class Permission:
         self,
         other
     ):
-        if isinstance(other, Permission):
+        if isinstance(other, BasePermission):
             return (
                 self.id == other.id
                 and self._type == other.id
@@ -259,7 +418,7 @@ class Permission:
         else:
             return False
 
-class GuildPermission:
+class BaseGuildPermission:
     """
     Object for representing data for permission(s) relating to a guild slash command.
 
@@ -293,13 +452,13 @@ class GuildPermission:
         self.guild_id = guild_id
         self.permissions = []
         if permissions != {}:
-            [self.permissions.append(GuildPermission(**permission)) for permission in permissions]
+            [self.permissions.append(BaseGuildPermission(**permission)) for permission in permissions]
 
     def __eq__(
         self,
         other
     ):
-        if isinstance(other, GuildPermission):
+        if isinstance(other, BaseGuildPermission):
             return (
                 self.id == other.id
                 and self.guild_id == other.guild_id
@@ -342,6 +501,7 @@ class Message(BaseMessage):
         :type _http: .http.InteractionHTTP
         :param interaction_token: The token of the interaction event.
         :type interaction_token: int
+        :raises: .error.IncorrectFormat
         :return: None
         """
         super().__init__(
@@ -369,32 +529,29 @@ class Message(BaseMessage):
         except KeyError:
             pass
         else:
-            content = str(content) if content != None else None
-            _response["components"] = [] if components == None else components
+            content = str(content) if content is None else None
+            _response["components"] = [] if components is None else components
             _response["embeds"] = [embed.to_dict() for embed in embeds]
-            _response["embeds"] = [] if embed == None else ([embed.to_dict()] if embeds == None else _response["embeds"])
+            _response["embeds"] = [] if embed == None else ([embed.to_dict()] if embeds is None else _response["embeds"])
             files = [file] if file else files
             if not isinstance(embeds, list):
-                # raise IncorrectFormat("Provide a list of embeds.")
-                pass
+                raise IncorrectFormat("Provide a list of embeds.")
             if len(embeds) > 10:
-                # raise IncorrectFormat("Do not provide more than 10 embeds.")
-                pass
+                raise IncorrectFormat("Do not provide more than 10 embeds.")
             if (
-                files != None and
-                file != None
+                files is not None and
+                file is not None
             ):
-                # raise IncorrectFormat("You can't use both `file` and `files`!")
-                pass
-            if allowed_mentions != None:
-                if self._state.allowed_mentions != None:
+                raise IncorrectFormat("You can't use both file and files kwargs at the same time.")
+            if allowed_mentions is None:
+                if self._state.allowed_mentions is None:
                     _response["allowed_mentions"] = self._state.allowed_mentions.merge(
                         allowed_mentions
                     ).to_dict()
                 else:
                     _response["allowed_mentions"] = allowed_mentions.to_dict()
             else:
-                if self._state.allowed_mentions != None:
+                if self._state.allowed_mentions is None:
                     _response["allowed_mentions"] = self._state.allowed_mentions.to_dict()
                 else:
                     _response["allowed_mentions"] = {}
@@ -407,17 +564,64 @@ class Message(BaseMessage):
         *,
         delay: Optional[int]=None
     ) -> Coroutine:
-        """Refer to :meth:`discord.Message.delete` for more information."""
+        """
+        Please refer to :meth:`discord.Message.delete` for documentation.
+        """
         try:
             await super().delete(delay=delay)
         except Forbidden:
             if not delay:
-                return await self._http.delete(self.__interaction_token, self.id)
+                return await self._http.delete(
+                    self.__interaction_token,
+                    self.id
+                )
             async def wrap():
                 with suppress(Forbidden):
                     await sleep(delay)
-                    await self._http.delete(self.__interaction_token, self.id)
+                    await self._http.delete(
+                        self.__interaction_token,
+                        self.id
+                    )
             self._state.loop.create_task(wrap())
+
+class BaseMenu:
+    """
+    Object for representing data for command(s) of a contextual menu.
+
+    :ivar _type:
+    :ivar name:
+    """
+    __slots__ = "_type", "name"
+    _type: IntEnum
+    name: str
+
+    def __init__(
+        self,
+        name: str,
+        _type: IntEnum
+    ) -> None:
+        """
+        Instantiates the BaseMenu class.
+
+        :param name: The name of the application command.
+        :type name: str
+        :param _type: The type of application command.
+        :type _type: enum.IntEnum
+        :return: None
+        """
+
+    def __eq__(
+        self,
+        other
+    ):
+        if isinstance(other, BaseMenu):
+            return (
+                self.id == other.id
+                and self._type == other.id
+                and self.state == other.state
+            )
+        else:
+            return False
     
 class Options(IntEnum):
     """
@@ -448,7 +652,7 @@ class Options(IntEnum):
 
         :param _type: The type or object to get an enumerable integer for.
         :type _type: type
-        :return: :class:`.model.CommandOptions` or ``None``.
+        :return: enum.IntEnum.
         """
         if issubclass(_type, str):
             return cls.STRING
@@ -493,7 +697,7 @@ class Permissions(IntEnum):
 
         :param _type: The type or object to get an enumerable integer for.
         :type _type: type
-        :return: :class:`.model.CommandPermissions` or ``None``.
+        :return: enum.IntEnum.
         """
         if issubclass(_type, Role):
             return cls.ROLE
@@ -532,3 +736,36 @@ class Buttons(IntEnum):
     SUCCESS = 3
     DANGER = 4
     URL = 5
+
+class Menus(IntEnum):
+    """
+    Enumerable object of literal integers holding equivocal values of a menu type for commands.
+
+    .. note::
+
+        Equivalent of `Application Command Types <https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types>`_ in the Discord API.
+    """
+    CHAT_INPUT = 1
+    COMMAND = 1 # alias of CHAT_INPUT
+    USER = 2
+    MESSAGE = 3
+
+    @classmethod
+    def from_type(
+        cls,
+        _type: type
+    ) -> type:
+        """
+        Get a specific enumerable from a type or object.
+
+        :param _type: The type or object to get an enumerable integer for.
+        :type _type: type
+        :return: enum.IntEnum.
+        """
+        if (
+            isinstance(_type, Member) or
+            issubclass(_type, User)
+        ):
+            return cls.USER
+        if issubclass(_type, Messageable):
+            return cls.MESSAGE
