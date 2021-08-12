@@ -1377,12 +1377,10 @@ class SlashCommand:
         print("on_socket_response".upper(), ": ", msg)
         to_use = msg["d"]
         interaction_type = to_use["type"]
-        if interaction_type in (2, 3) or msg["s"] == 5:
+        if interaction_type in (1, 2, 3) or msg["s"] == 5:
             await self._on_slash(to_use)
             await self._on_context_menu(to_use)
-        if interaction_type >= 4: # what the fuck did Discord make components!?
-            return await self._on_component(to_use)
-
+            await self._on_component(to_use)
         return
         # raise NotImplementedError
 

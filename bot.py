@@ -1,6 +1,8 @@
 import logging
-from discord_slash import SlashCommand, SlashContext, MenuContext
-from discord_slash.model import ContextMenuType
+from typing import Union
+from discord_slash import SlashCommand, SlashContext, ComponentContext, MenuContext
+from discord_slash.model import ContextMenuType, ButtonStyle
+from discord_slash.utils.manage_components import create_actionrow, create_button
 from discord import Intents
 from discord.ext.commands import Bot
 
@@ -11,7 +13,7 @@ bot = Bot(
 )
 slash = SlashCommand(
     bot,
-    sync_commands=True
+    sync_commands=False
 )
 log = logging.Logger(name="errors.log", level=logging.DEBUG)
 
@@ -35,10 +37,11 @@ async def testuser(ctx: MenuContext):
     await ctx.send("test!")
 
 @slash.context_menu(ContextMenuType.MESSAGE, name="Testing Name Space", guild_ids=[852402668294766612])
-async def testmsg(ctx: MenuContext):
-    await ctx.send("test!")
+async def testmsg(ctx: Union[ComponentContext, MenuContext]):
+    button = create_button(style=ButtonStyle.gray, label="test button", disabled=True)
+    await ctx.send("test!", components=[create_actionrow(button)])
 
 for cmd in slash.commands["context"]:
     print(slash.commands["context"][cmd]._type)
 
-bot.run("Mzc5MzQzMzIyNTQ1NzgyNzg0.WgiY_w.uVRHvtT5KmGFuZ3zOiH_Y3MoGfc", bot=True, reconnect=True)
+bot.run("", bot=True, reconnect=True)
