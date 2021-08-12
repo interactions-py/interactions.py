@@ -89,6 +89,7 @@ class AlreadyResponded(SlashCommandError):
     The interaction was already responded to
     """
 
+
 class ContextMenuError(SlashCommandError):
     """
     Special error given for context menu creation/callback issues.
