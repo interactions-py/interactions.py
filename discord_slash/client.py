@@ -373,7 +373,7 @@ class SlashCommand:
                     queue = {}
                     base_dict = {
                         "name": y,
-                        "description": "No Description.", 
+                        "description": "No Description.",
                         "type": model.SlashCommandOptionType.SUB_COMMAND_GROUP,
                         "options": [],
                     }
@@ -656,12 +656,12 @@ class SlashCommand:
             raise error.IncorrectGuildIDType(
                 f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
             )
-        
+
         if name in self.commands["context"]:
             tgt = self.commands["context"][name]
             if not tgt.has_subcommands:
                 raise error.DuplicateCommand(name)
-            has_subcommands = tgt.has_subcommands # noqa
+            has_subcommands = tgt.has_subcommands  # noqa
             for x in tgt.allowed_guild_ids:
                 if x not in guild_ids:
                     guild_ids.append(x)
@@ -1443,7 +1443,7 @@ class SlashCommand:
         if to_use["data"]["name"] in self.commands["context"]:
             ctx = context.SlashContext(self.req, to_use, self._discord, self.logger)
             cmd_name = to_use["data"]["name"]
-            
+
             if cmd_name not in self.commands["context"] and cmd_name in self.subcommands:
                 return await self.handle_subcommand(ctx, to_use)
 
