@@ -227,7 +227,7 @@ def cog_context_menu(target: int, name: str, guild_ids: list = None):
             "has_subcommands": False,
             "api_permissions": {},
         }
-        return CogBaseCommandObject(name or cmd.__name__, _cmd, type=target)
+        return CogBaseCommandObject(name or cmd.__name__, _cmd, target)
 
     return wrapper
 
