@@ -657,7 +657,7 @@ class MenuContext(InteractionContext):
         self._resolved = self.data["resolved"] if "resolved" in self.data.keys() else None
         self.target_message = None
         self.target_author = None
-        self.target_id = self.data["target_id"]
+        self.target_id = self.data["target_id"] if "target_id" in self.data.keys() else None
 
         if self._resolved is not None:
             try:
