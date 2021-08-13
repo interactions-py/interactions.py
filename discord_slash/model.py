@@ -82,7 +82,7 @@ class CommandData:
     def __init__(
         self,
         name,
-        description,
+        description=None,
         options=None,
         default_permission=True,
         id=None,
@@ -309,13 +309,14 @@ class CommandObject(CallbackObject):
     :ivar connector: Kwargs connector of the command.
     """
 
-    def __init__(self, name, cmd):  # Let's reuse old command formatting.
+    def __init__(self, name, cmd, _type=1):  # Let's reuse old command formatting.
         super().__init__(cmd["func"])
-        self.name = name.lower()
+        self.name = name.lower() if _type == 1 else name
         self.description = cmd["description"]
         self.allowed_guild_ids = cmd["guild_ids"] or []
         self.options = cmd["api_options"] or []
         self.connector = cmd["connector"] or {}
+        self._type = _type
 
 
 class BaseCommandObject(CommandObject):
@@ -333,8 +334,8 @@ class BaseCommandObject(CommandObject):
     :ivar permissions: Permissions to restrict use of this command.
     """
 
-    def __init__(self, name, cmd):  # Let's reuse old command formatting.
-        super().__init__(name, cmd)
+    def __init__(self, name, cmd, _type=1):  # Let's reuse old command formatting.
+        super().__init__(name, cmd, _type)
         self.has_subcommands = cmd["has_subcommands"]
         self.default_permission = cmd["default_permission"]
         self.permissions = cmd["api_permissions"] or {}
@@ -699,3 +700,16 @@ class ButtonStyle(IntEnum):
     secondary = 2
     success = 3
     danger = 4
+
+
+class ContextMenuType(IntEnum):
+    CHAT_INPUT = 1
+    USER = 2
+    MESSAGE = 3
+
+    # @classmethod
+    # def from_type(cls, t: type):
+    #     if isinstance(t, discord.Member) or issubclass(t, discord.abc.User):
+    #         return cls.USER
+    #     if issubclass(t, discord.abc.Messageable):
+    #         return cls.MESSAGE

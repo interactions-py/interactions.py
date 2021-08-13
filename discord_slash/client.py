@@ -29,6 +29,8 @@ class SlashCommand:
     :type client: Union[discord.Client, discord.ext.commands.Bot]
     :param sync_commands: Whether to sync commands automatically. Default `False`.
     :type sync_commands: bool
+    :param debug_guild: Guild ID of guild to use for testing commands. Prevents setting global commands in favor of guild commands, which update instantly
+    :type debug_guild: int
     :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``. Default `False`.
     :type delete_from_unused_guilds: bool
     :param sync_on_cog_reload: Whether to sync commands on cog reload. Default `False`.
@@ -44,6 +46,7 @@ class SlashCommand:
 
     :ivar _discord: Discord client of this client.
     :ivar commands: Dictionary of the registered commands via :func:`.slash` decorator.
+    :ivar menu_commands: Dictionary of the registered context menus via the :func:`.context_menu` decorator.
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
     :ivar logger: Logger of this client.
     :ivar sync_commands: Whether to sync commands automatically.
@@ -55,18 +58,20 @@ class SlashCommand:
         self,
         client: typing.Union[discord.Client, commands.Bot],
         sync_commands: bool = False,
+        debug_guild: typing.Optional[int] = None,
         delete_from_unused_guilds: bool = False,
         sync_on_cog_reload: bool = False,
         override_type: bool = False,
         application_id: typing.Optional[int] = None,
     ):
         self._discord = client
-        self.commands = {}
+        self.commands = {"context": {}}
         self.subcommands = {}
         self.components = {}
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord, application_id)
         self.sync_commands = sync_commands
+        self.debug_guild = debug_guild
         self.sync_on_cog_reload = sync_on_cog_reload
 
         if self.sync_commands:
@@ -266,12 +271,53 @@ class SlashCommand:
         await self._discord.wait_until_ready()  # In case commands are still not registered to SlashCommand.
         all_guild_ids = []
         for x in self.commands:
+            if x == "context":
+                # handle context menu separately.
+                for _x in self.commands["context"]:
+                    _selected = self.commands["context"][_x]
+                    for i in _selected.allowed_guild_ids:
+                        if i not in all_guild_ids:
+                            all_guild_ids.append(i)
+                continue
             for i in self.commands[x].allowed_guild_ids:
                 if i not in all_guild_ids:
                     all_guild_ids.append(i)
         cmds = {"global": [], "guild": {x: [] for x in all_guild_ids}}
         wait = {}  # Before merging to return dict, let's first put commands to temporary dict.
         for x in self.commands:
+            if x == "context":
+                # handle context menu separately.
+                for _x in self.commands["context"]:  # x is the new reference dict
+                    selected = self.commands["context"][_x]
+
+                    if selected.allowed_guild_ids:
+                        for y in selected.allowed_guild_ids:
+                            if y not in wait:
+                                wait[y] = {}
+                            command_dict = {
+                                "name": _x,
+                                "options": selected.options or [],
+                                "default_permission": selected.default_permission,
+                                "permissions": {},
+                                "type": selected._type,
+                            }
+                            if y in selected.permissions:
+                                command_dict["permissions"][y] = selected.permissions[y]
+                            wait[y][x] = copy.deepcopy(command_dict)
+                    else:
+                        if "global" not in wait:
+                            wait["global"] = {}
+                        command_dict = {
+                            "name": _x,
+                            "options": selected.options or [],
+                            "default_permission": selected.default_permission,
+                            "permissions": selected.permissions or {},
+                            "type": selected._type,
+                        }
+                        wait["global"][x] = copy.deepcopy(command_dict)
+
+                continue
+
             selected = self.commands[x]
             if selected.allowed_guild_ids:
                 for y in selected.allowed_guild_ids:
@@ -283,7 +329,10 @@ class SlashCommand:
                         "options": selected.options or [],
                         "default_permission": selected.default_permission,
                         "permissions": {},
+                        "type": selected._type,
                     }
+                    if command_dict["type"] != 1:
+                        command_dict.pop("description")
                     if y in selected.permissions:
                         command_dict["permissions"][y] = selected.permissions[y]
                     wait[y][x] = copy.deepcopy(command_dict)
@@ -296,7 +345,10 @@ class SlashCommand:
                     "options": selected.options or [],
                     "default_permission": selected.default_permission,
                     "permissions": selected.permissions or {},
+                    "type": selected._type,
                 }
+                if command_dict["type"] != 1:
+                    command_dict.pop("description")
                 wait["global"][x] = copy.deepcopy(command_dict)
 
         # Separated normal command add and subcommand add not to
@@ -304,6 +356,9 @@ class SlashCommand:
         # https://github.com/eunwoo1104/discord-py-slash-command/issues/88
 
         for x in self.commands:
+            if x == "context":
+                continue  # no menus have subcommands.
+
             if not self.commands[x].has_subcommands:
                 continue
             tgt = self.subcommands[x]
@@ -373,7 +428,8 @@ class SlashCommand:
         permissions_map = {}
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
-        cmds_formatted = {None: cmds["global"]}
+        # if debug_guild is set, global commands get re-routed to the guild to update quickly
+        cmds_formatted = {self.debug_guild: cmds["global"]}
         for guild in cmds["guild"]:
             cmds_formatted[guild] = cmds["guild"][guild]
 
@@ -419,7 +475,7 @@ class SlashCommand:
                     if ex.status == 400:
                         # catch bad requests
                         cmd_nums = set(
-                            re.findall(r"In\s(\d).", ex.args[0])
+                            re.findall(r"^[\w-]{1,32}$", ex.args[0])
                         )  # find all discords references to commands
                         error_string = ex.args[0]
 
@@ -587,6 +643,66 @@ class SlashCommand:
         obj = model.BaseCommandObject(name, _cmd)
         self.commands[name] = obj
         self.logger.debug(f"Added command `{name}`")
+        return obj
+
+    def _cog_ext_add_context_menu(self, target: int, name: str, guild_ids: list = None):
+        """
+        Creates a new cog_based context menu command.
+
+        :param cmd: Command Coroutine.
+        :type cmd: Coroutine
+        :param name: The name of the command
+        :type name: str
+        :param _type: The context menu type.
+        :type _type: int
+        """
+
+    def add_context_menu(self, cmd, name: str, _type: int, guild_ids: list = None):
+        """
+        Creates a new context menu command.
+
+        :param cmd: Command Coroutine.
+        :type cmd: Coroutine
+        :param name: The name of the command
+        :type name: str
+        :param _type: The context menu type.
+        :type _type: int
+        """
+
+        name = [name or cmd.__name__][0]
+        guild_ids = guild_ids or []
+
+        if not all(isinstance(item, int) for item in guild_ids):
+            raise error.IncorrectGuildIDType(
+                f"The snowflake IDs {guild_ids} given are not a list of integers. Because of discord.py convention, please use integer IDs instead. Furthermore, the command '{name}' will be deactivated and broken until fixed."
+            )
+
+        if name in self.commands["context"]:
+            tgt = self.commands["context"][name]
+            if not tgt.has_subcommands:
+                raise error.DuplicateCommand(name)
+            has_subcommands = tgt.has_subcommands  # noqa
+            for x in tgt.allowed_guild_ids:
+                if x not in guild_ids:
+                    guild_ids.append(x)
+
+        _cmd = {
+            "default_permission": None,
+            "has_permissions": None,
+            "name": name,
+            "type": _type,
+            "func": cmd,
+            "description": "",
+            "guild_ids": guild_ids,
+            "api_options": [],
+            "connector": {},
+            "has_subcommands": False,
+            "api_permissions": {},
+        }
+
+        obj = model.BaseCommandObject(name, cmd=_cmd, _type=_type)
+        self.commands["context"][name] = obj
+        self.logger.debug(f"Added context command `{name}`")
         return obj
 
     def add_subcommand(
@@ -908,6 +1024,34 @@ class SlashCommand:
                 cmd.__permissions__ = {}
             cmd.__permissions__[guild_id] = permissions
             return cmd
+
+        return wrapper
+
+    def context_menu(self, *, target: int, name: str, guild_ids: list = None):
+        """
+        Decorator that adds context menu commands.
+
+        :param target: The type of menu.
+        :type target: int
+        :param name: A name to register as the command in the menu.
+        :type name: str
+        :param guild_ids: A list of guild IDs to register the command under. Defaults to ``None``.
+        :type guild_ids: list
+        """
+
+        def wrapper(cmd):
+            # _obj = self.add_slash_command(
+            #    cmd,
+            #    name,
+            #    "",
+            #    guild_ids
+            # )
+
+            # This has to call both, as its a arg-less menu.
+
+            obj = self.add_context_menu(cmd, name, target, guild_ids)
+
+            return obj
 
         return wrapper
 
@@ -1250,12 +1394,15 @@ class SlashCommand:
 
         to_use = msg["d"]
         interaction_type = to_use["type"]
-        if interaction_type in (1, 2):
-            return await self._on_slash(to_use)
-        if interaction_type == 3:
-            return await self._on_component(to_use)
-
-        raise NotImplementedError
+        if interaction_type in (1, 2, 3) or msg["s"] == 5:
+            await self._on_slash(to_use)
+            await self._on_context_menu(to_use)
+            try:
+                await self._on_component(to_use)  # noqa
+            except KeyError:
+                pass  # for some reason it complains about custom_id being an optional arg when it's fine?
+        return
+        # raise NotImplementedError
 
     async def _on_component(self, to_use):
         ctx = context.ComponentContext(self.req, to_use, self._discord, self.logger)
@@ -1313,6 +1460,34 @@ class SlashCommand:
             self._discord.dispatch("slash_command", ctx)
 
             await self.invoke_command(selected_cmd, ctx, args)
+
+    async def _on_context_menu(self, to_use):
+        if to_use["data"]["name"] in self.commands["context"]:
+            ctx = context.MenuContext(self.req, to_use, self._discord, self.logger)
+            cmd_name = to_use["data"]["name"]
+
+            if cmd_name not in self.commands["context"] and cmd_name in self.subcommands:
+                return  # menus don't have subcommands you smooth brain
+
+            selected_cmd = self.commands["context"][cmd_name]
+
+            if (
+                selected_cmd.allowed_guild_ids
+                and ctx.guild_id not in selected_cmd.allowed_guild_ids
+            ):
+                return
+
+            if selected_cmd.has_subcommands and not selected_cmd.func:
+                return await self.handle_subcommand(ctx, to_use)
+
+            if "options" in to_use["data"]:
+                for x in to_use["data"]["options"]:
+                    if "value" not in x:
+                        return await self.handle_subcommand(ctx, to_use)
+
+            self._discord.dispatch("context_menu", ctx)
+
+            await self.invoke_command(selected_cmd, ctx, args={})
 
     async def handle_subcommand(self, ctx: context.SlashContext, data: dict):
         """

@@ -47,14 +47,15 @@ class InteractionContext:
         logger,
     ):
         self._token = _json["token"]
-        self.message = None  # Should be set later.
+        self.message = None
+        self.menu_messages = None
+        self.data = _json["data"]
         self.interaction_id = _json["id"]
         self._http = _http
         self.bot = _discord
         self._logger = logger
         self.deferred = False
         self.responded = False
-        self.data = _json["data"]
         self.values = _json["data"]["values"] if "values" in _json["data"] else None
         self._deferred_hidden = False  # To check if the patch to the deferred response matches
         self.guild_id = int(_json["guild_id"]) if "guild_id" in _json.keys() else None
@@ -631,3 +632,141 @@ class ComponentContext(InteractionContext):
         # Commented out for now as sometimes (or at least, when not deferred) _json is an empty string?
         # self.origin_message = ComponentMessage(state=self.bot._connection, channel=self.channel,
         #                                        data=_json)
+
+
+class MenuContext(InteractionContext):
+    """
+    Context of a context menu interaction. Has all attributes from :class:`InteractionContext`, plus the context-specific ones below.
+
+    :ivar context_type: The type of context menu command.
+    :ivar _resolved: The data set for the context menu.
+    :ivar target_message: The targeted message of the context menu command if present. Defaults to ``None``.
+    :ivar target_id: The target ID of the context menu command.
+    :ivar target_author: The author targeted from the context menu command.
+    """
+
+    def __init__(
+        self,
+        _http: http.SlashCommandRequest,
+        _json: dict,
+        _discord: typing.Union[discord.Client, commands.Bot],
+        logger,
+    ):
+        super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
+        self.context_type = _json["type"]
+        self._resolved = self.data["resolved"] if "resolved" in self.data.keys() else None
+        self.target_message = None
+        self.target_author = None
+        self.target_id = self.data["target_id"]
+
+        if self._resolved is not None:
+            try:
+                if self._resolved["messages"]:
+                    _msg = [msg for msg in self._resolved["messages"]][0]
+                    self.target_message = model.SlashMessage(
+                        state=self.bot._connection,
+                        channel=_discord.get_channel(self.channel_id),
+                        data=self._resolved["messages"][_msg],
+                        _http=_http,
+                        interaction_token=self._token,
+                    )
+            except KeyError:  # noqa
+                pass
+
+            try:
+                if self.guild and self._resolved["members"]:
+                    _auth = [auth for auth in self._resolved["members"]][0]
+                    self.target_author = discord.Member(
+                        data=self._resolved["members"][_auth],
+                        state=self.bot._connection,
+                        guild=self.guild,
+                    )
+                else:
+                    _auth = [auth for auth in self._resolved["users"]][0]
+                    self.target_author = discord.User(
+                        data=self._resolved["users"][_auth], state=self.bot._connection
+                    )
+            except KeyError:  # noqa
+                pass
+
+    @property
+    def cog(self) -> typing.Optional[commands.Cog]:
+        """
+        Returns the cog associated with the command invoked, if any.
+
+        :return: Optional[commands.Cog]
+        """
+
+        cmd_obj = self.slash.commands[self.command]
+
+        if isinstance(cmd_obj, (model.CogBaseCommandObject, model.CogSubcommandObject)):
+            return cmd_obj.cog
+        else:
+            return None
+
+    async def defer(self, hidden: bool = False, edit_origin: bool = False, ignore: bool = False):
+        """
+        'Defers' the response, showing a loading state to the user
+
+        :param hidden: Whether the deferred response should be ephemeral. Default ``False``.
+        :param edit_origin: Whether the type is editing the origin message. If ``False``, the deferred response will be for a follow up message. Defaults ``False``.
+        :param ignore: Whether to just ignore and not edit or send response. Using this can avoid showing interaction loading state. Default ``False``.
+        """
+        if self.deferred or self.responded:
+            raise error.AlreadyResponded("You have already responded to this command!")
+
+        base = {"type": 6 if edit_origin or ignore else 5}
+
+        if edit_origin and ignore:
+            raise error.IncorrectFormat("'edit_origin' and 'ignore' are mutually exclusive")
+
+        if hidden:
+            if edit_origin:
+                raise error.IncorrectFormat(
+                    "'hidden' and 'edit_origin' flags are mutually exclusive"
+                )
+            elif ignore:
+                self._deferred_hidden = True
+            else:
+                base["data"] = {"flags": 64}
+                self._deferred_hidden = True
+
+        self._deferred_edit_origin = edit_origin
+
+        await self._http.post_initial_response(base, self.interaction_id, self._token)
+        self.deferred = not ignore
+
+        if ignore:
+            self.responded = True
+
+    async def send(
+        self,
+        content: str = "",
+        *,
+        embed: discord.Embed = None,
+        embeds: typing.List[discord.Embed] = None,
+        tts: bool = False,
+        file: discord.File = None,
+        files: typing.List[discord.File] = None,
+        allowed_mentions: discord.AllowedMentions = None,
+        hidden: bool = False,
+        delete_after: float = None,
+        components: typing.List[dict] = None,
+    ) -> model.SlashMessage:
+        if self.deferred and self._deferred_edit_origin:
+            self._logger.warning(
+                "Deferred response might not be what you set it to! (edit origin / send response message) "
+                "This is because it was deferred with different response type."
+            )
+        return await super().send(
+            content,
+            embed=embed,
+            embeds=embeds,
+            tts=tts,
+            file=file,
+            files=files,
+            allowed_mentions=allowed_mentions,
+            hidden=hidden,
+            delete_after=delete_after,
+            components=components,
+        )
