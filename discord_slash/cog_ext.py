@@ -189,6 +189,49 @@ def cog_subcommand(
     return wrapper
 
 
+# I don't feel comfortable with having these right now, they're too buggy even when they were working.
+
+
+def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
+    """
+    Decorator that adds context menu commands.
+
+    :param target: The type of menu.
+    :type target: int
+    :param name: A name to register as the command in the menu.
+    :type name: str
+    :param guild_ids: A list of guild IDs to register the command under. Defaults to ``None``.
+    :type guild_ids: list
+    """
+
+    def wrapper(cmd):
+        # _obj = self.add_slash_command(
+        #    cmd,
+        #    name,
+        #    "",
+        #    guild_ids
+        # )
+
+        # This has to call both, as its a arg-less menu.
+
+        _cmd = {
+            "default_permission": None,
+            "has_permissions": None,
+            "name": name,
+            "type": target,
+            "func": cmd,
+            "description": "",
+            "guild_ids": guild_ids,
+            "api_options": [],
+            "connector": {},
+            "has_subcommands": False,
+            "api_permissions": {},
+        }
+        return CogBaseCommandObject(name or cmd.__name__, _cmd, target)
+
+    return wrapper
+
+
 def permission(guild_id: int, permissions: list):
     """
     Decorator that add permissions. This will set the permissions for a single guild, you can use it more than once for each command.

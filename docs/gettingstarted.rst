@@ -315,9 +315,94 @@ But what about buttons?
 -----------------------
 This library supports components (buttons, actionrows, selects, etc.). Take a look here: `components`_.
 
+Adding Context Menus.
+*********************
+Lucky for you, this library has recently added support for context menus! Let's take a look into how they're designed.
+
+A menu command (context menu) is an easy way for bot developers to program optionless and choiceless commands into their bot
+which can be easily accessible by right clicking on a user and/or message present. Below is a table of the supported keys and
+values:
+
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Field**   | **Type**                                   | **Description**                                                                                     |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| name        | string                                     | The name of the context menu command.                                                               |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| type        | int                                        | An `ApplicationCommandType`_.                                                                       |
++-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+
+The following table below represents how it would be shown as a JSON object:
+
+.. code-block:: python
+
+  {
+    "name": "Name of my command.",
+    "type": 3
+  }
+
+The following table explains more about the `type` parameter being passed, which there are three of: `CHAT_INPUT`, `USER` and `MESSAGE`. By default, the type will
+always be the first. This is because it is a registered type that is used to process slash commands, and should not be used for when you are declaring context menu
+commands in your bot's code at all:
+
++------------+-----------+
+| **Name**   | **Value** |
++------------+-----------+
+| CHAT_INPUT | 1         |
++------------+-----------+
+| USER       | 2         |
++------------+-----------+
+| MESSAGE    | 3         |
++------------+-----------+
+
+Unlike `manage_commands` and `manage_components`, you will have to use a decorator for now to register them:
+
+.. code-block :: python
+
+  from discord_slash.context import MenuContext
+  from discord_slash.model import ContextMenuType
+
+  @slash.context_menu(target=ContextMenuType.MESSAGE,
+                      name="commandname",
+                      guild_ids=[789032594456576001])
+  async def commandname(ctx: MenuContext):
+    await ctx.send(
+      content=f"Responded! The content of the message targeted: {ctx.target_message.content}",
+      hidden=True
+    )
+
+The `@slash.context_menu` decorator takes in the context type as given (to either appear when you right-click on a user or when you right-click on a message) as well
+as the name of the command, and any guild IDs if given if you would like to make it applicable to only a guild. **We only accept connected names** for the time being,
+although context menus will have the ability to have spaces in their name in the future when development further progresses.
+
+You are able to also use the `@cog_ext.cog_context_menu` path which will require an import from `cog_ext.py` respectively, however, it is worth nothing that
+the `target` kwarg for the decorator **must** be brought to the very end.
+
+Can I use components with context menus?
+----------------------------------------
+Of course! However, you will need to add in some additional code in order for both of the separate contexts to work seamlessly. Below is the given code of what will need
+to be changed:
+
+.. code-block :: python
+
+  from discord_slash.context import ComponentContext, MenuContext
+  from discord_slash.model import ContextMenuType
+  from typing import Union
+
+  ...
+
+  async def my_new_command(ctx: Union[ComponentContext, MenuContext]):
+    ...
+
+Hey, what about component/[X] listening?
+----------------------------------------
+The decision has been made that this will not be implemented because of two reasons: context menus currently have no ability to hold any options or choices, so listening
+for any responses would be currently pointless. Additionally, component listening is already a built-in feature that does not require further customized and new decorators
+for explicitly context menus, as they're more universal.
+
 .. _quickstart: quickstart.html
 .. _components: components.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
 .. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoption
 .. _ApplicationCommandPermissionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissions
+.. _ApplicationCommandType: https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types
