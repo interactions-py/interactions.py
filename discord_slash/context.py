@@ -657,7 +657,7 @@ class MenuContext(InteractionContext):
         self._resolved = self.data["resolved"] if "resolved" in self.data.keys() else None
         self.target_message = None
         self.target_author = None
-        self.target_id = self.data["target_id"]
+        self.target_id = self.data["target_id"] if "target_id" in self.data.keys() else None
 
         if self._resolved is not None:
             try:
@@ -676,8 +676,11 @@ class MenuContext(InteractionContext):
             try:
                 if self.guild and self._resolved["members"]:
                     _auth = [auth for auth in self._resolved["members"]][0]
+                    # member and user return the same ID
+                    _neudict = self._resolved["members"][_auth]
+                    _neudict["user"] = self._resolved["users"][_auth]
                     self.target_author = discord.Member(
-                        data=self._resolved["members"][_auth],
+                        data=_neudict,
                         state=self.bot._connection,
                         guild=self.guild,
                     )
