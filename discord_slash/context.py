@@ -679,13 +679,12 @@ class MenuContext(InteractionContext):
                     self.target_author = discord.Member(
                         data=self._resolved["members"][_auth],
                         state=self.bot._connection,
-                        guild=self.guild
+                        guild=self.guild,
                     )
                 else:
                     _auth = [auth for auth in self._resolved["users"]][0]
                     self.target_author = discord.User(
-                        data=self._resolved["users"][_auth],
-                        state=self.bot._connection
+                        data=self._resolved["users"][_auth], state=self.bot._connection
                     )
             except KeyError:  # noqa
                 pass
