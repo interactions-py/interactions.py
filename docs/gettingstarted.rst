@@ -358,20 +358,40 @@ Unlike `manage_commands` and `manage_components`, you will have to use a decorat
 
 .. code-block :: python
 
+  from discord_slash.context import MenuContext
   from discord_slash.model import ContextMenuType
 
-  @slash.context_menu(ContextMenuType.MESSAGE,
+  @slash.context_menu(target=ContextMenuType.MESSAGE,
                       name="commandname",
                       guild_ids=[789032594456576001])
   async def commandname(ctx: MenuContext):
     await ctx.send(
-      content="Responded!",
+      content=f"Responded! The content of the message targeted: {ctx.target_message.content}",
       hidden=True
     )
 
 The `@slash.context_menu` decorator takes in the context type as given (to either appear when you right-click on a user or when you right-click on a message) as well
 as the name of the command, and any guild IDs if given if you would like to make it applicable to only a guild. **We only accept connected names** for the time being,
 although context menus will have the ability to have spaces in their name in the future when development further progresses.
+
+You are able to also use the `@cog_ext.cog_context_menu` path which will require an import from `cog_ext.py` respectively, however, it is worth nothing that
+the `target` kwarg for the decorator **must** be brought to the very end.
+
+Can I use components with context menus?
+----------------------------------------
+Of course! However, you will need to add in some additional code in order for both of the separate contexts to work seamlessly. Below is the given code of what will need
+to be changed:
+
+.. code-block :: python
+
+  from discord_slash.context import ComponentContext, MenuContext
+  from discord_slash.model import ContextMenuType
+  from typing import Union
+
+  ...
+
+  async def my_new_command(ctx: Union[ComponentContext, MenuContext]):
+    ...
 
 Hey, what about component/[X] listening?
 ----------------------------------------

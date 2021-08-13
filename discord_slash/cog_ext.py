@@ -192,7 +192,7 @@ def cog_subcommand(
 # I don't feel comfortable with having these right now, they're too buggy even when they were working.
 
 
-def cog_context_menu(name: str, guild_ids: list = None, target: int = 1):
+def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
     """
     Decorator that adds context menu commands.
 

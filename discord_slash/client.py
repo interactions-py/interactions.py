@@ -308,7 +308,7 @@ class SlashCommand:
                             "options": selected.options or [],
                             "default_permission": selected.default_permission,
                             "permissions": selected.permissions or {},
-                            "type": selected.type,
+                            "type": selected._type,
                         }
                         wait["global"][x] = copy.deepcopy(command_dict)
 
@@ -1022,7 +1022,7 @@ class SlashCommand:
 
         return wrapper
 
-    def context_menu(self, target: int, name: str, guild_ids: list = None):
+    def context_menu(self, *, target: int, name: str, guild_ids: list = None):
         """
         Decorator that adds context menu commands.
 

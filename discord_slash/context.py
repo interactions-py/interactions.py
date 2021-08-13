@@ -638,13 +638,11 @@ class MenuContext(InteractionContext):
     """
     Context of a context menu interaction. Has all attributes from :class:`InteractionContext`, plus the context-specific ones below.
 
-    :ivar target_id: The target ID of the context menu command.
     :ivar context_type: The type of context menu command.
-    :ivar menu_messages: Dictionary of messages collected from the context menu command. Defaults to ``None``.
-    :ivar menu_authors: Dictionary of users collected from the context menu command. Defaults to ``None``.
-    :ivar context_message: The message of the context menu command if present. Defaults to ``None``.
-    :ivar context_author: The author of the context menu command if present. Defaults to ``None``.
     :ivar _resolved: The data set for the context menu.
+    :ivar target_message: The targeted message of the context menu command if present. Defaults to ``None``.
+    :ivar target_id: The target ID of the context menu command.
+    :ivar target_author: The author targeted from the context menu command.
     """
 
     def __init__(
@@ -657,33 +655,37 @@ class MenuContext(InteractionContext):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
         self.context_type = _json["type"]
         self._resolved = self.data["resolved"] if "resolved" in self.data.keys() else None
-        self.target = {"id": self.data["target_id"], "message": None}
+        self.target_message = None
+        self.target_author = None
+        self.target_id = self.data["target_id"]
 
         if self._resolved is not None:
-            if self.context_type in [3, "3"]:
-                self.target["message"] = model.SlashMessage(
-                    state=self.bot._connection,
-                    channel=_discord.get_channel(self.channel_id),
-                    data=[msg for msg in self._resolved["messages"]][0],
-                    _http=_http,
-                    interaction_token=self._token,
-                )
-
             try:
-                if self.guild and self._resolved["members"]:
-                    _member = True
-                    self.target["author"] = discord.Member(
-                        data=[auth for auth in self._resolved["members"]][0],
+                if self._resolved["messages"]:
+                    _msg = [msg for msg in self._resolved["messages"]][0]
+                    self.target_message = model.SlashMessage(
                         state=self.bot._connection,
-                        guild=self.guild
+                        channel=_discord.get_channel(self.channel_id),
+                        data=self._resolved["messages"][_msg],
+                        _http=_http,
+                        interaction_token=self._token,
                     )
             except KeyError:  # noqa
                 pass
+
             try:
-                if self._resolved["users"]:
-                    self.target["author"] = discord.User(
-                        data=[auth for auth in self._resolved["users"]][0],
-                        state=self.bot_connection
+                if self.guild and self._resolved["members"]:
+                    _auth = [auth for auth in self._resolved["members"]][0]
+                    self.target_author = discord.Member(
+                        data=self._resolved["members"][_auth],
+                        state=self.bot._connection,
+                        guild=self.guild
+                    )
+                else:
+                    _auth = [auth for auth in self._resolved["users"]][0]
+                    self.target_author = discord.User(
+                        data=self._resolved["users"][_auth],
+                        state=self.bot._connection
                     )
             except KeyError:  # noqa
                 pass
