@@ -319,6 +319,8 @@ Adding Context Menus.
 *********************
 Lucky for you, this library has recently added support for context menus! Let's take a look into how they're designed.
 
+Please note that the current limit for context menus with the Discord API is **5.**
+
 A menu command (context menu) is an easy way for bot developers to program optionless and choiceless commands into their bot
 which can be easily accessible by right clicking on a user and/or message present. Below is a table of the supported keys and
 values:
@@ -340,7 +342,7 @@ The following table below represents how it would be shown as a JSON object:
     "type": 3
   }
 
-The following table explains more about the `type` parameter being passed, which there are three of: `CHAT_INPUT`, `USER` and `MESSAGE`. By default, the type will
+The following table explains more about the ``type`` parameter being passed, which there are three of: ``CHAT_INPUT``, ``USER`` and ``MESSAGE``. By default, the type will
 always be the first. This is because it is a registered type that is used to process slash commands, and should not be used for when you are declaring context menu
 commands in your bot's code at all:
 
@@ -354,7 +356,7 @@ commands in your bot's code at all:
 | MESSAGE    | 3         |
 +------------+-----------+
 
-Unlike `manage_commands` and `manage_components`, you will have to use a decorator for now to register them:
+Unlike ``manage_commands`` and ``manage_components``, you will have to use a decorator for now to register them:
 
 .. code-block :: python
 
@@ -370,12 +372,12 @@ Unlike `manage_commands` and `manage_components`, you will have to use a decorat
       hidden=True
     )
 
-The `@slash.context_menu` decorator takes in the context type as given (to either appear when you right-click on a user or when you right-click on a message) as well
+The ``@slash.context_menu`` decorator takes in the context type as given (to either appear when you right-click on a user or when you right-click on a message) as well
 as the name of the command, and any guild IDs if given if you would like to make it applicable to only a guild. **We only accept connected names** for the time being,
 although context menus will have the ability to have spaces in their name in the future when development further progresses.
 
-You are able to also use the `@cog_ext.cog_context_menu` path which will require an import from `cog_ext.py` respectively, however, it is worth nothing that
-the `target` kwarg for the decorator **must** be brought to the very end.
+You are able to also use the ``@cog_ext.cog_context_menu`` path which will require an import from ``cog_ext.py`` respectively, however, it is worth nothing that
+the ``target`` kwarg for the decorator **must** be brought to the very end.
 
 Can I use components with context menus?
 ----------------------------------------
