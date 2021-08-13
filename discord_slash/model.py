@@ -490,14 +490,16 @@ class SlashCommandOptionType(IntEnum):
             return cls.CHANNEL
         if issubclass(t, discord.abc.Role):
             return cls.ROLE
-        # Here's the issue. Typechecking for a **Union** somewhat differs per version (from 3.6.8+)
-        if (
-            hasattr(typing, "_GenericAlias")
-            and isinstance(t, typing._UnionGenericAlias)  # noqa
-            or not hasattr(typing, "_GenericAlias")
-            and isinstance(t, typing._Union)  # noqa
-        ):
-            return cls.MENTIONABLE
+        if hasattr(typing, "_GenericAlias"):  # 3.7 onwards
+            # Easier than imports
+            if hasattr(t, "__origin__"):
+                if t.__origin__ is typing.Union:
+                    # proven in 3.7.8+, 3.8.6+, 3.9+ definitively
+                    return cls.MENTIONABLE
+        if not hasattr(typing, "_GenericAlias"):  # py 3.6
+            if isinstance(t, typing._Union):  # noqa
+                return cls.MENTIONABLE
+
         if issubclass(t, float):
             return cls.FLOAT
 
