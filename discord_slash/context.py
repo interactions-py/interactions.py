@@ -653,6 +653,7 @@ class MenuContext(InteractionContext):
         logger,
     ):
         super().__init__(_http=_http, _json=_json, _discord=_discord, logger=logger)
+        self.name = self.command = self.invoked_with = _json["data"]["name"]  # This exists.
         self.context_type = _json["type"]
         self._resolved = self.data["resolved"] if "resolved" in self.data.keys() else None
         self.target_message = None

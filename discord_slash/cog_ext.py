@@ -205,14 +205,11 @@ def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
     """
 
     def wrapper(cmd):
-        # _obj = self.add_slash_command(
-        #    cmd,
-        #    name,
-        #    "",
-        #    guild_ids
-        # )
-
-        # This has to call both, as its a arg-less menu.
+        if name == "context":
+            raise IncorrectFormat(
+                "The name 'context' can not be used to register as a cog context menu,"
+                "as this conflicts with this lib's checks. Please use a different name instead."
+            )
 
         _cmd = {
             "default_permission": None,
