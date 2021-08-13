@@ -1435,6 +1435,9 @@ class SlashCommand:
 
             selected_cmd = self.commands[to_use["data"]["name"]]
 
+            if type(selected_cmd) == dict:
+                return  # this is context dict storage.
+
             if selected_cmd._type != 1:
                 return  # If its a menu, ignore.
 
