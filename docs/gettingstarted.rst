@@ -367,10 +367,10 @@ Unlike ``manage_commands`` and ``manage_components``, you will have to use a dec
                       name="commandname",
                       guild_ids=[789032594456576001])
   async def commandname(ctx: MenuContext):
-    await ctx.send(
-      content=f"Responded! The content of the message targeted: {ctx.target_message.content}",
-      hidden=True
-    )
+      await ctx.send(
+          content=f"Responded! The content of the message targeted: {ctx.target_message.content}",
+          hidden=True
+      )
 
 The ``@slash.context_menu`` decorator takes in the context type as given (to either appear when you right-click on a user or when you right-click on a message) as well
 as the name of the command, and any guild IDs if given if you would like to make it applicable to only a guild. **We only accept connected names** for the time being,
