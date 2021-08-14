@@ -143,6 +143,26 @@ await ctx.send(components=[action_row])
 ### Advanced
 For more advanced use, please refer to our official documentation on [selects here.](https://discord-py-slash-command.readthedocs.io/en/latest/components.html#what-about-selects-dropdowns)
 
+## Context Menus
+This basic example shows how to add a message context menu.
+
+```py
+from discord_slash.context import MenuContext
+from discord_slash.model import ContextMenuType
+
+@slash.context_menu(target=ContextMenuType.MESSAGE,
+                    name="commandname",
+                    guild_ids=[789032594456576001])
+async def commandname(ctx: MenuContext):
+    await ctx.send(
+        content=f"Responded! The content of the message targeted: {ctx.target_message.content}",
+        hidden=True
+    )
+```
+
+### Advanced
+For more advanced use, please refer to our official documentation on [context menus here.](https://discord-py-slash-command.readthedocs.io/en/latest/gettingstarted.html#adding-context-menus)
+
 --------
 
 - The discord-interactions library is based off of API gateway events. If you are looking for a library webserver-based, please consider:
