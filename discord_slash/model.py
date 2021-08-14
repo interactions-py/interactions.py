@@ -206,13 +206,6 @@ class CallbackObject:
         # to preventing needing different functions per object,
         # this function simply handles cogs
         if hasattr(self, "cog"):
-            # print(self.func)
-            if (
-                str(self.func.__annotations__["ctx"])
-                == "<class 'discord_slash.context.MenuContext'>"
-            ):
-                # The idea is, since every command uses context, check the type of it.
-                return await self.func(*args, **kwargs)
             return await self.func(self.cog, *args, **kwargs)
         return await self.func(*args, **kwargs)
 
