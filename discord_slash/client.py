@@ -303,7 +303,7 @@ class SlashCommand:
                             }
                             if y in selected.permissions:
                                 command_dict["permissions"][y] = selected.permissions[y]
-                            wait[y][x] = copy.deepcopy(command_dict)
+                            wait[y][_x] = copy.deepcopy(command_dict)
                     else:
                         if "global" not in wait:
                             wait["global"] = {}
@@ -314,7 +314,7 @@ class SlashCommand:
                             "permissions": selected.permissions or {},
                             "type": selected._type,
                         }
-                        wait["global"][x] = copy.deepcopy(command_dict)
+                        wait["global"][_x] = copy.deepcopy(command_dict)
 
                 continue
 
