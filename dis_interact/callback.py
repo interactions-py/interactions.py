@@ -15,7 +15,9 @@ from datetime import datetime, timezone
 # 3rd-party libraries
 from discord.ext.commands import BucketType, CooldownMapping, CommandOnCooldown
 from .context import Interaction, Menu, Command
-from .error import CheckFailure, IncorrectFormat
+from .error import InteractionException
+from .types.enums import DefaultErrorEnum as errorcode, Menus
+
 
 class Callback:
     """
@@ -61,8 +63,8 @@ class Callback:
     """
 
     def __init__(
-        self,
-        function: Coroutine
+            self,
+            function: Coroutine
     ) -> None:
         """
         Instantiates the Callback class.
@@ -87,10 +89,10 @@ class Callback:
                 self.cooldown,
                 BucketType.default
             )
-        
+
     def error(
-        self,
-        coroutine: Coroutine
+            self,
+            coroutine: Coroutine
     ) -> Union[Coroutine, Optional[TypeError]]:
         """
         A decorator registering coroutines as localized errors.
@@ -106,8 +108,8 @@ class Callback:
         return coroutine
 
     def _prepare_cooldowns(
-        self,
-        ctx: Interaction
+            self,
+            ctx: Interaction
     ) -> Optional[CommandOnCooldown]:
         """
         Prepares all of the callback cooldown events to be fired.
@@ -129,13 +131,13 @@ class Callback:
             retry_after = bucket.update_rate_limit(current)
             if retry_after:
                 raise CommandOnCooldown(
-                    bucket, 
+                    bucket,
                     retry_after
                 )
 
     async def check_concurrencies(
-        self,
-        ctx: Interaction
+            self,
+            ctx: Interaction
     ) -> None:
         """
         Checks alongside the cooldown and maximum concurrent values.
@@ -154,22 +156,22 @@ class Callback:
             raise
 
     async def invoke(
-        self,
-        *args,
-        **kwargs
-    ) -> Union[Coroutine, Optional[CheckFailure]]:
+            self,
+            *args,
+            **kwargs
+    ) -> Union[Coroutine, Optional[InteractionException]]:
         """that 
         Invokes the command being called.
         
         :param \*args: Multi-argument of the command.
         :param \**kwargs: Keyword-arguments of the command.
-        :raises: .error.CheckFailure
-        :return: typing.Union[typing.Coroutine, typing.Optional[TypeError]]
+        :raises: .error.InteractionException
+        :return: typing.Union[typing.Coroutine, typing.Optional[InteractionException]]
         """
         can_run: bool = await self.can_run(args[0])
 
         if not can_run:
-            raise CheckFailure
+            raise InteractionException(errorcode.CHECK_FAILURE)
 
         await self.check_concurrencies(args[0])
 
@@ -186,8 +188,8 @@ class Callback:
         )
 
     def is_on_cooldown(
-        self,
-        ctx
+            self,
+            ctx
     ) -> bool:
         """
         Returns whether the command is currently on a cooldown or not.
@@ -208,8 +210,8 @@ class Callback:
         return bucket.get_tokens(current) == 0
 
     def reset_cooldown(
-        self,
-        ctx: Union[Command, Menu]
+            self,
+            ctx: Union[Command, Menu]
     ) -> Coroutine:
         """
         Resets the cooldown on the command.
@@ -223,8 +225,8 @@ class Callback:
             bucket.reset()
 
     def get_cooldown_time(
-        self,
-        ctx: Union[Command, Menu]
+            self,
+            ctx: Union[Command, Menu]
     ) -> float:
         """
         Returns the amount of time remaining on a command's cooldown before it can be tried again.
@@ -242,8 +244,8 @@ class Callback:
         return 0.0
 
     def add_check(
-        self,
-        function: Coroutine
+            self,
+            function: Coroutine
     ) -> List[Coroutine]:
         """
         Adds a new check for the command.
@@ -259,8 +261,8 @@ class Callback:
         return self.command_checks.append(function)
 
     def remove_check(
-        self,
-        function: Coroutine
+            self,
+            function: Coroutine
     ) -> List[Coroutine]:
         """
         Removes a check from the command.
@@ -273,8 +275,8 @@ class Callback:
             self.command_checks.remove(function)
 
     async def can_run(
-        self,
-        ctx: Union[Command, Menu]
+            self,
+            ctx: Union[Command, Menu]
     ) -> bool:
         """
         Returns whether the command is being to be ran or not.
@@ -288,7 +290,8 @@ class Callback:
             for x in self.command_checks
         )
         return res
-    
+
+
 class SlashCommand(Callback):
     """
     Object representing callback logic for type ``CHAT_INPUT`` application commands.
@@ -341,12 +344,12 @@ class SlashCommand(Callback):
     cog: Any
 
     def __init__(
-        self,
-        name: str,
-        command: dict,
-        sub: Optional[str]=None,
-        base: Optional[str]=None,
-        group: Optional[str]=None
+            self,
+            name: str,
+            command: dict,
+            sub: Optional[str] = None,
+            base: Optional[str] = None,
+            group: Optional[str] = None
     ) -> None:
         """
         Instantiates the SlashCommand class.
@@ -377,6 +380,7 @@ class SlashCommand(Callback):
         self.has_subcommands = command["has_subcommands"]
         self.cog = None
 
+
 class Component(Callback):
     """
     Object representing callback logic for components.
@@ -403,11 +407,11 @@ class Component(Callback):
     cog: Any
 
     def __init__(
-        self,
-        function: Coroutine,
-        _type: IntEnum,
-        message_ids: List[int],
-        custom_ids: Optional[List[int]]=[],
+            self,
+            function: Coroutine,
+            _type: IntEnum,
+            message_ids: List[int],
+            custom_ids: Optional[List[int]] = [],
     ) -> None:
         """
         Instantiates the Component class.
@@ -422,8 +426,8 @@ class Component(Callback):
         :type custom_ids: typing.Optional[typing.List[int]]
         """
         if _type not in (2, 3, None):
-            raise IncorrectFormat(f"Invalid component type {_type}.")
-        
+            raise InteractionException(errorcode.INCORRECT_FORMAT, message="Invalid component type {_type}.",
+                                       _type=_type)
         super().__init__(function)
         self._type = _type
         self.message_ids = set(message_ids)

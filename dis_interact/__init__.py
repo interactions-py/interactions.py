@@ -8,5 +8,6 @@ Your ultimate Discord interactions library for discord.py.
 :license: MIT
 """
 
-from .base import __version__ # noqa: F401
-from .model import Buttons, Components, Menus, Options, Permissions # noqa: F401
+from .base import __version__  # noqa: F401
+from .error import InteractionException  # noqa: F401
+from .types.enums import Buttons, Components, DefaultErrorEnum, Menus, Options, Permissions  # noqa: F401
