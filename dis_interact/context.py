@@ -21,8 +21,9 @@ from discord.abc import GuildChannel, PrivateChannel
 from discord.utils import snowflake_time
 from discord.voice_client import VoiceProtocol
 from .http import Command
-from .error import AlreadyResponded, IncorrectFormat
+from .error import InteractionException
 from .model import Message
+from .types.enums import DefaultErrorEnum as errorcode
 
 class Interaction:
     """
@@ -221,7 +222,7 @@ class Interaction:
         :return: None
         """
         if self.deferred or self.responded:
-            raise AlreadyResponded("You have already responded to this command!")
+            raise InteractionException(errorcode.ALREADY_RESPONDED, message="You have already responded to this command!")
 
         base = {"type": 5}
 

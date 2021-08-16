@@ -1,8 +1,8 @@
 # Normal libraries
 from asyncio import create_task, sleep
 from contextlib import suppress
-from enum import IntEnum
 import typing
+from enum import IntEnum
 from typing import (
     Any,
     Coroutine,
@@ -21,7 +21,8 @@ from discord import (
 from discord.abc import GuildChannel, Messageable, Role, User
 from discord.errors import Forbidden
 from discord.state import ConnectionState
-from .error import IncorrectCommandData, IncorrectFormat
+from .error import InteractionException
+from .types.enums import DefaultErrorEnum as errorcode
 from .http import Message as _Message
 from .override import Message as __Message
 
@@ -261,7 +262,7 @@ class BaseOption:
         :param choices: A list of pre-defined values/"choices" for the option.
         :type choices: typing.Optional[list]
         :param \**kwargs: Keyword-arguments to pass.
-        :raises: .error.IncorrectCommandData
+        :raises: .error.Interaction_Exception (error code 9)
         :return None:
         """
         self.name = name
@@ -271,13 +272,15 @@ class BaseOption:
         _type = kwargs.get("type")
 
         if _type == None:
-            raise IncorrectCommandData("type is a required kwarg for options.")
+            raise InteractionException(errorcode.INCORRECT_COMMAND_DATA, message="Type is a required kwarg for options.")
+
 
         if _type in [1, 2]:
             if options is not []:
                 [self.options.append(BaseOption(**option)) for option in options]
             elif _type == 2:
-                raise IncorrectCommandData("Options are required for subcommands/subcommand groups.")
+                raise InteractionException(errorcode.INCORRECT_COMMAND_DATA, message="Options are required for subcommands/subcommand groups.")
+
 
         if choices != []:
             [self.choices.append(BaseChoice(**choice)) for choice in choices]
@@ -455,7 +458,7 @@ class Message(__Message):
         :type _http: .http.InteractionHTTP
         :param interaction_token: The token of the interaction event.
         :type interaction_token: int
-        :raises: .error.IncorrectFormat
+        :raises: .error.InteractionException
         :return: None
         """
         super().__init__(
@@ -465,7 +468,7 @@ class Message(__Message):
         )
         self._http = _http
         self.__interaction_token = interaction_token
-        
+
     async def _slash_edit(
         self,
         **fields
@@ -491,16 +494,16 @@ class Message(__Message):
             files = [file] if file else files
 
             if not isinstance(embeds, list):
-                raise IncorrectFormat("Provide a list of embeds.")
+                raise InteractionException(errorcode.INCORRECT_FORMAT, message="Provide a list of embeds.")
 
             if len(embeds) > 10:
-                raise IncorrectFormat("Do not provide more than 10 embeds.")
+                raise InteractionException(errorcode.INCORRECT_FORMAT, message="Do not provide more than 10 embeds.")
 
             if (
                 files is not None and
                 file is not None
             ):
-                raise IncorrectFormat("You can't use both file and files kwargs at the same time.")
+                raise InteractionException(errorcode.INCORRECT_FORMAT, message="You can't use both file and files kwargs at the same time.")
 
             if allowed_mentions is None:
                 if self._state.allowed_mentions is None:
@@ -518,7 +521,7 @@ class Message(__Message):
                 await self.delete(delay=delete_after)
 
             [[file.close() for file in files] if files else None]
-            
+
     async def delete(
         self,
         *,
@@ -584,159 +587,3 @@ class BaseMenu:
             )
         else:
             return False
-    
-class Options(IntEnum):
-    """
-    Enumerable object of literal integers holding equivocal values of a slash command's option(s).
-
-    .. note::
-
-        Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_ in the Discord API.
-    """
-    SUB_COMMAND = 1
-    SUB_COMMAND_GROUP = 2
-    STRING = 3
-    INTEGER = 4
-    BOOLEAN = 5
-    USER = 6
-    CHANNEL = 7
-    ROLE = 8
-    MENTIONABLE = 9
-    FLOAT = 10
-
-    @classmethod
-    def from_type(
-        cls,
-        _type: type
-    ) -> IntEnum:
-        """
-        Get a specific enumerable from a type or object.
-
-        :param _type: The type or object to get an enumerable integer for.
-        :type _type: type
-        :return: enum.IntEnum.
-        """
-        if issubclass(_type, str):
-            return cls.STRING
-
-        if issubclass(_type, int):
-            return cls.INTEGER
-
-        if issubclass(_type, bool):
-            return cls.BOOLEAN
-
-        if issubclass(_type, User):
-            return cls.USER
-
-        if issubclass(_type, GuildChannel):
-            return cls.CHANNEL
-
-        if issubclass(_type, Role):
-            return cls.ROLE
-
-        if (
-            hasattr(typing, "_GenericAlias")
-            and isinstance(_type, typing._UnionGenericAlias) # noqa
-            or not hasattr(typing, "_GenericAlias")
-            and isinstance(_type, typing._Union) # noqa
-        ):
-            return cls.MENTIONABLE
-
-        if issubclass(_type, float):
-            return cls.FLOAT
-
-class Permissions(IntEnum):
-    """
-    Enumerable object of literal integers holding equivocal values of a slash command's permission(s).
-
-    .. note::
-
-        Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_ in the Discord API.
-    """
-    ROLE = 1
-    USER = 2
-
-    @classmethod
-    def from_type(
-        cls,
-        _type: type
-    ) -> IntEnum:
-        """
-        Get a specific enumerable from a type or object.
-
-        :param _type: The type or object to get an enumerable integer for.
-        :type _type: type
-        :return: enum.IntEnum.
-        """
-        if issubclass(_type, Role):
-            return cls.ROLE
-
-        if issubclass(_type, User):
-            return cls.USER
-
-class Components(IntEnum):
-    """
-    Enumerable object of literal integers holding equivocal values of a component(s) type.
-    
-    .. note::
-
-        Equivalent of `Component Types <https://discord.com/developers/docs/interactions/message-components#component-object-component-types>`_ in the Discord API.
-    """
-    ACTION_ROW = 1
-    BUTTON = 2
-    SELECT = 3
-
-class Buttons(IntEnum):
-    """
-    Enumerable object of literal integers holding equivocal values of a button(s) type.
-    
-    .. note::
-
-        Equivalent of `Button Styles <https://discord.com/developers/docs/interactions/message-components#button-object-button-styles>`_ in the Discord API.
-    """
-    BLUE = 1
-    BLURPLE = 2
-    GRAY = 2
-    GREY = 2
-    GREEN = 3
-    RED = 4
-
-    PRIMARY = 1
-    SECONDARY = 2
-    SUCCESS = 3
-    DANGER = 4
-    URL = 5
-
-class Menus(IntEnum):
-    """
-    Enumerable object of literal integers holding equivocal values of a menu type for commands.
-
-    .. note::
-
-        Equivalent of `Application Command Types <https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types>`_ in the Discord API.
-    """
-    CHAT_INPUT = 1
-    COMMAND = 1 # alias of CHAT_INPUT
-    USER = 2
-    MESSAGE = 3
-
-    @classmethod
-    def from_type(
-        cls,
-        _type: type
-    ) -> type:
-        """
-        Get a specific enumerable from a type or object.
-
-        :param _type: The type or object to get an enumerable integer for.
-        :type _type: type
-        :return: enum.IntEnum.
-        """
-        if (
-            isinstance(_type, Member) or
-            issubclass(_type, User)
-        ):
-            return cls.USER
-
-        if issubclass(_type, Messageable):
-            return cls.MESSAGE
