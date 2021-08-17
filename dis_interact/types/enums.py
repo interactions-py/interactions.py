@@ -44,6 +44,44 @@ class WebSocketOPCodes(IntEnum):
     GUILD_SYNC = 12
 
 
+class WebSocketCloseCodes(IntEnum):
+    UNKNOWN_ERROR = 4000
+    UNKNOWN_OPCODE = 4001
+    DECODE_ERROR = 4002
+    NOT_AUTHENTICATED = 4003
+    AUTHENTICATION_FAILED = 4004
+    ALREADY_AUTHENTICATED = 4005
+    INVALID_SEQ = 4007
+    RATE_LIMITED = 4008
+    SESSION_TIMED_OUT = 4009
+    INVALID_SHARD = 4010
+    SHARDING_REQUIRED = 4011
+    INVALID_API_VERSION = 4012
+    INVALID_INTENTS = 4013
+    DISALLOWED_INTENTS = 4014
+
+
+class HTTPResponse(IntEnum):
+    """
+    Lists all of the HTTP response codes Discord gives out.
+
+    ..note::
+        This enum does not list the documented "5xx", as it may vary.
+    """
+
+    OK = 200
+    CREATED = 201
+    NO_CONTENT = 204
+    NOT_MODIFIED = 304
+    BAD_REQUEST = 400
+    UNAUTHORIZED = 401
+    FORBIDDEN = 403
+    NOT_FOUND = 404
+    METHOD_NOT_ALLOWED = 405
+    TOO_MANY_REQUESTS = 429
+    GATEWAY_UNAVAILABLE = 502
+
+
 class Options(IntEnum):
     """
     Enumerable object of literal integers holding equivocal values of a slash command's option(s).
@@ -61,7 +99,7 @@ class Options(IntEnum):
     CHANNEL = 7
     ROLE = 8
     MENTIONABLE = 9
-    FLOAT = 10
+    NUMBER = 10
 
     @classmethod
     def from_type(
@@ -103,8 +141,8 @@ class Options(IntEnum):
             if isinstance(t, typing._Union):  # noqa
                 return cls.MENTIONABLE
 
-        if issubclass(_type, float):
-            return cls.FLOAT
+        if issubclass(_type, float):  # Python floats are essentially doubles, compared to languages when it's separate.
+            return cls.NUMBER
 
 
 class Permissions(IntEnum):
