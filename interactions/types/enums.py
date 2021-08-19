@@ -29,6 +29,14 @@ class DefaultErrorEnum(IntEnum):
 
 
 class WebSocketOPCodes(IntEnum):
+    """
+    Enumerable object of literal integers holding equivocal values for the Gateway's OPCODE result state.
+
+    .. note::
+
+        Equivalent of `WS Opcodes and Status Codes <https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-opcodes>`_ in the Discord API.
+    """
+
     DISPATCH = 0
     HEARTBEAT = 1
     IDENTIFY = 2
@@ -61,7 +69,7 @@ class Options(IntEnum):
     CHANNEL = 7
     ROLE = 8
     MENTIONABLE = 9
-    FLOAT = 10
+    NUMBER = 10
 
     @classmethod
     def from_type(
@@ -104,7 +112,7 @@ class Options(IntEnum):
                 return cls.MENTIONABLE
 
         if issubclass(_type, float):
-            return cls.FLOAT
+            return cls.NUMBER
 
 
 class Permissions(IntEnum):
