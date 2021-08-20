@@ -433,9 +433,8 @@ class SlashCommand:
         for guild in cmds["guild"]:
             cmds_formatted[guild] = cmds["guild"][guild]
 
-        for scope in cmds_formatted:
+        for scope, new_cmds in cmds_formatted.items():
             permissions = {}
-            new_cmds = cmds_formatted[scope]
             existing_cmds = await self.req.get_all_commands(guild_id=scope)
             existing_by_name = {}
             to_send = []

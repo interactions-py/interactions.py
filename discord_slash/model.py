@@ -51,7 +51,7 @@ class OptionData:
             for choice in choices:
                 self.choices.append(ChoiceData(**choice))
         else:
-            self.choices = None
+            self.choices = []
 
         if self.type in (1, 2):
             self.options = []
@@ -101,7 +101,7 @@ class CommandData:
             for option in options:
                 self.options.append(OptionData(**option))
         else:
-            self.options = None
+            self.options = []
 
     def __eq__(self, other):
         if isinstance(other, CommandData):
