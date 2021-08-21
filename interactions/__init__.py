@@ -9,7 +9,7 @@ Your ultimate Discord interactions library for discord.py.
 """
 
 from .base import Data, Route  # noqa: F401
-from .error import InteractionException  # noqa: F401
+from .error import InteractionException, GatewayException  # noqa: F401
 from .gateway import WebSocket
 from .types.enums import (
     Buttons,
