@@ -201,16 +201,21 @@ class WebSocket:
                             self.sequence = None
                             self.closed = True
                             if data or op == OPCodes.RECONNECT:
-                                log.error(
-                                    "The websocket connection was disconnected, we're closing instead of reconnecting.")
-                                await self.websock.close()
+                                try:
+                                    log.warning(
+                                        "The websocket connection has disconnected, attempting to reconnect.")
+                                    await self.resume()
+                                except:
+                                    log.error(
+                                        "The websocket connection was disconnected, we're closing instead of reconnecting.")
+                                    await self.websock.close()
                     else:
                         if event == "READY":
                             log.info("The client has successfully connected to the gateway.")
-                            continue
                         else:
                             _dispatch = await self.dispatch(event, data)  # which dispatches based off the "stream.get(t)"
-                            log.info(_dispatch)
+                        continue
+
 
     @staticmethod
     async def dispatch(
