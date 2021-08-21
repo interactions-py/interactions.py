@@ -67,8 +67,6 @@ class InteractionException(Exception):
 
     # The current layout is that it uses the type, and any arguments parsed to generate readable exceptions.
 
-    # TODO: Convert v3 errors to enums with a dedicated code, and generate associated messages by using a lookup table.
-
     @staticmethod
     def lookup() -> dict:
         """
@@ -142,4 +140,41 @@ class InteractionException(Exception):
         # Error code 1 represents Req. failure, i.e. "Request failed with resp: {self.status} | {self.msg}"
         #
 
-        super().__init__(f"{f'{lookup_str} ' if _err_val is not None else f'{_lookup_str if _err_rep > max(self._lookup.keys()) else lookup_str} '}{custom_err_str}")
+        super().__init__(
+            f"{f'{lookup_str} ' if _err_val is not None else f'{_lookup_str if _err_rep > max(self._lookup.keys()) else lookup_str} '}{custom_err_str}")
+
+
+class GatewayException(InteractionException):
+    """
+    This is a derivation of InteractionException in that this is used to represent Gateway closing OP codes.
+
+    :ivar _formatter: The built in formatter.
+    :ivar _lookup: A dictionary containing the values from the built-in Enum.
+    """
+
+    __slots__ = ["__type", "_formatter", "kwargs"]
+    __type: Optional[Union[int, IntEnum]]
+    _formatter: ErrorFormatter
+    kwargs: dict[str, Any]
+
+    def __init__(self, __type, **kwargs):
+        super().__init__(__type, **kwargs)
+
+    @staticmethod
+    def lookup() -> dict:
+        return {
+            4000: "Unknown error. Try reconnecting?",
+            4001: "Unknown opcode. Check your gateway opcode and/or payload.",
+            4002: "Invalid payload.",
+            4003: "Not authenticated",
+            4004: "Improper token has been passed.",
+            4005: "Already authenticated.",
+            4007: "Invalid seq. Please reconnect and start a new session.",
+            4008: "Rate limit exceeded. Slow down!",
+            4009: "Timed out. Reconnect and try again.",
+            4010: "Invalid shard.",
+            4011: "Sharding required.",
+            4012: "Invalid API version for the Gateway.",
+            4013: "Invalid intent(s).",
+            4014: "Some intent(s) requested are not allowed. Please double check."
+        }
