@@ -2,7 +2,7 @@
     <a href="https://pypi.org/project/discord-py-slash-command/">
         <img src="https://raw.githubusercontent.com/discord-py-slash-commands/discord-py-interactions/goverfl0w-new-readme/.github/banner_transparent.png" alt="discord-py-interactions" height="128">
     </a>
-    <h2>Your ultimate Discord interactions library for <a href="https://github.com/Rapptz/discord.py">discord.py</a>.</h2>
+    <h2>A simple API wrapper for Discord interactions.</h2>
 </div>
 
 <div align="center">
@@ -24,10 +24,8 @@
 
 # About
 ## What is discord-interactions?
-discord-interactions is, in the simplest terms, a library extension that builds off of the currently existing
-discord.py API wrapper. While we do use our own basic class code for our own library, a large majority of
-this library uses discord.py base events in order to make contextualization of interactions relatively easy
-for us.
+discord-interactions is, in the simplest terms, a 3rd party library that allows the integration of Discord
+interactions of all types to be implemented alongside your discord.py code or separate.
 
 ### When did this begin?
 In mid-December of 2020, Discord released the very first type of components, **slash commands.** These were
@@ -42,78 +40,54 @@ creating more interactions at this time) of all components integrated as interac
 * Slash Commands
 * Buttons
 * Selects (also known as *dropdowns* or *menus*)
+* Context Menus
 
 # Installation
 We recommend using pip in order to install our library. You are able to do this by typing the following line below:
 
-`pip install -U discord-py-slash-command`
+`pip install -U discord-py-interactions`
 
 # Examples
 ## Slash Commands
 This example shows a very quick and simplistic solution to implementing a slash command.
 
 ```py
-from discord import Client, Intents, Embed
-from discord_slash import SlashCommand, SlashContext
+from interactions import Client
 
-bot = Client(intents=Intents.default())
-slash = SlashCommand(bot)
+bot = Client(token="...")
 
-@slash.slash(name="test")
-async def test(ctx: SlashContext):
-    embed = Embed(title="Embed Test")
-    await ctx.send(embed=embed)
+# /test
+@bot.slash_command(
+    name="test",
+    description="Your slash command."
+)
+async def test(ctx):
+    await ctx.send("Hello world!")
 
-bot.run("discord_token")
+# /example ping
+# We handle subcommands as of v4.0 under the slash decorator.
+# All subcommand kwargs are optionals to avoid conflicts.
+@bot.slash_command(
+    base="example",
+    name="ping",
+    description="This gives back a ping."
+)
+async def example_ping(ctx):
+    await ctx.send(f"Pong! {bot.latency}")
+
+bot.start()
 ```
 
 ### Cogs
 This example serves as an alternative method for using slash commands in a cog instead.
 
-```py
-# bot.py
-from discord import Client, Intents, Embed
-from discord_slash import SlashCommand, SlashContext
-
-bot = Client(intents=Intents.default())
-slash = SlashCommand(bot)
-
-bot.load_extension("cog")
-bot.run("discord_token")
-
-# cog.py
-from discord import Embed
-from discord_slash import cog_ext, SlashContext
-
-class Slash(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
-    @cog_ext.cog_slash(name="test")
-    async def _test(self, ctx: SlashContext):
-        embed = Embed(title="Embed Test")
-        await ctx.send(embed=embed)
-    
-def setup(bot):
-    bot.add_cog(Slash(bot))
-```
+**TBA.**
 
 ## Buttons
 This basic example shows how to easily integrate buttons into your commands. Buttons are not limited to
 slash commands and may be used in regular discord.py commands as well.
 
-```py
-from discord_slash.utils.manage_components import create_button, create_actionrow
-from discord_slash.model import ButtonStyle
-
-buttons = [
-    create_button(style=ButtonStyle.green, label="A green button"),
-    create_button(style=ButtonStyle.blue, label="A blue button")
-]
-action_row = create_actionrow(*buttons)
-
-await ctx.send(components=[action_row])
-```
+**TBA.**
 
 ### Advanced
 For more advanced use, please refer to our official documentation on [buttons here.](https://discord-py-slash-command.readthedocs.io/en/latest/components.html#responding-to-interactions)
@@ -122,30 +96,14 @@ For more advanced use, please refer to our official documentation on [buttons he
 This basic example shows how to add selects into our bot. Selects offer the same accessibility as buttons do
 in premise of limitations.
 
-```py
-from discord_slash.utils.manage_components import create_select, create_select_option, create_actionrow
-
-select = create_select(
-    options=[
-        create_select_option("Lab Coat", value="coat", emoji="🥼"),
-        create_select_option("Test Tube", value="tube", emoji="🧪"),
-        create_select_option("Petri Dish", value="dish", emoji="🧫")
-    ],
-    placeholder="Choose your option",
-    min_values=1, # the minimum number of options a user must select
-    max_values=2 # the maximum number of options a user can select
-)
-action_row = create_actionrow(select)
-
-await ctx.send(components=[action_row])
-```
+**TBA.**
 
 ### Advanced
 For more advanced use, please refer to our official documentation on [selects here.](https://discord-py-slash-command.readthedocs.io/en/latest/components.html#what-about-selects-dropdowns)
 
 --------
 
-- The discord-interactions library is based off of API gateway events. If you are looking for a library webserver-based, please consider:
+- The discord-interactions library is based off of API gateway events. If you are looking for a library that is webserver-based, please consider:
     - [dispike](https://github.com/ms7m/dispike)
     - [discord-interactions-python](https://github.com/discord/discord-interactions-python)
 - If you are looking for a similar library for other languages, please refer to here:
