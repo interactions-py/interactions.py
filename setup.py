@@ -20,11 +20,11 @@ extras["lint"] += extras["readthedocs"]
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 
 setup(
-    name="discord-py-slash-command",
+    name="discord-py-interactions",
     version=VERSION,
     author="goverfl0w",
     author_email="jwalston2002@gmail.com",
-    description="A simple interaction handler for discord.py.",
+    description="A simple API wrapper for Discord interactions.",
     extras_require=extras,
     install_requires=["discord.py", "aiohttp"],
     license="MIT License",
