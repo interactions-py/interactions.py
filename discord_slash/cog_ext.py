@@ -14,6 +14,7 @@ def cog_slash(
     name: str = None,
     description: str = None,
     guild_ids: typing.List[int] = None,
+    aliases: typing.List[str] = None,
     options: typing.List[dict] = None,
     default_permission: bool = True,
     permissions: typing.Dict[int, list] = None,
@@ -41,6 +42,8 @@ def cog_slash(
     :type description: str
     :param guild_ids: List of Guild ID of where the command will be used. Default ``None``, which will be global command.
     :type guild_ids: List[int]
+    :param aliases: Slash Commands that will return the same result. As this is not officially supported by the Discord API, it will count up on the Slash Command number, getting you closer to the 100 global/guild Command limit. It isn't recommended to use this.
+    :type aliases: List[str]
     :param options: Options of the slash command. This will affect ``auto_convert`` and command data at Discord API. Default ``None``.
     :type options: List[dict]
     :param default_permission: Sets if users have permission to run slash command by default, when no permissions are set. Default ``True``.
@@ -79,6 +82,11 @@ def cog_slash(
             "connector": connector,
             "has_subcommands": False,
         }
+
+        if aliases is not None:
+            for alias in aliases:
+                CogBaseCommandObject(alias, _cmd)
+
         return CogBaseCommandObject(name or cmd.__name__, _cmd)
 
     return wrapper
