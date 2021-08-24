@@ -1,6 +1,6 @@
 <div align="center">
-    <a href="https://pypi.org/project/discord-py-slash-command/">
-        <img src="https://raw.githubusercontent.com/discord-py-slash-commands/discord-py-interactions/goverfl0w-new-readme/.github/banner_transparent.png" alt="discord-py-interactions" height="128">
+    <a href="https://pypi.org/project/discord-py-interactions/">
+        <img src="https://raw.githubusercontent.com/muqshots/discord-py-interactions/master/.github/banner_transparent.png" alt="discord-py-interactions" height="128">
     </a>
     <h2>Your ultimate Discord interactions library for <a href="https://github.com/Rapptz/discord.py">discord.py</a>.</h2>
 </div>
@@ -19,12 +19,12 @@
     <a href="#installation">Installation</a> |
     <a href="#examples">Examples</a> |
     <a href="https://discord.gg/KkgMBVuEkx">Discord</a> |
-    <a href="https://pypi.org/project/discord-py-slash-command/">PyPI</a>
+    <a href="https://pypi.org/project/discord-py-interactions/">PyPI</a>
 </p>
 
 # About
-## What is discord-interactions?
-discord-interactions is, in the simplest terms, a library extension that builds off of the currently existing
+## What is discord-py-interactions?
+`discord-py-interactions` is, in the simplest terms, a library extension that builds off of the currently existing
 discord.py API wrapper. While we do use our own basic class code for our own library, a large majority of
 this library uses discord.py base events in order to make contextualization of interactions relatively easy
 for us.
@@ -46,7 +46,7 @@ creating more interactions at this time) of all components integrated as interac
 # Installation
 We recommend using pip in order to install our library. You are able to do this by typing the following line below:
 
-`pip install -U discord-py-slash-command`
+`pip install -U discord-py-interactions`
 
 # Examples
 ## Slash Commands
@@ -116,7 +116,7 @@ await ctx.send(components=[action_row])
 ```
 
 ### Advanced
-For more advanced use, please refer to our official documentation on [buttons here.](https://discord-py-slash-command.readthedocs.io/en/latest/components.html#responding-to-interactions)
+For more advanced use, please refer to our official documentation on [buttons here.](https://discord-py-interactions.readthedocs.io/en/latest/components.html#responding-to-interactions)
 
 ## Selects
 This basic example shows how to add selects into our bot. Selects offer the same accessibility as buttons do
@@ -141,7 +141,7 @@ await ctx.send(components=[action_row])
 ```
 
 ### Advanced
-For more advanced use, please refer to our official documentation on [selects here.](https://discord-py-slash-command.readthedocs.io/en/latest/components.html#what-about-selects-dropdowns)
+For more advanced use, please refer to our official documentation on [selects here.](https://discord-py-interactions.readthedocs.io/en/latest/components.html#what-about-selects-dropdowns)
 
 ## Context Menus
 This basic example shows how to add a message context menu.
@@ -161,7 +161,7 @@ async def commandname(ctx: MenuContext):
 ```
 
 ### Advanced
-For more advanced use, please refer to our official documentation on [context menus here.](https://discord-py-slash-command.readthedocs.io/en/latest/gettingstarted.html#adding-context-menus)
+For more advanced use, please refer to our official documentation on [context menus here.](https://discord-py-interactions.readthedocs.io/en/latest/gettingstarted.html#adding-context-menus)
 
 --------
 
