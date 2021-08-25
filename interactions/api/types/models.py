@@ -20,10 +20,8 @@ class User(object):
     premium_type: int
     public_flags: int
 
-    def __init__(self, **kwargs) -> None:
-        for inst in self:
-            for kwarg in kwargs:
-                exec(f"self.{inst} = {kwarg}")
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 class Channel(object):
     """
@@ -59,10 +57,8 @@ class Channel(object):
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
 
-    def __init__(self, **kwargs) -> None:
-        for inst in self:
-            for kwarg in kwargs:
-                exec(f"self.{inst} = {kwarg}")
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
 class Message(object):
@@ -107,10 +103,8 @@ class Message(object):
     # s sticker items
     # stickers
 
-    def __init__(self, **kwargs) -> None:
-        for inst in self:
-            for kwarg in kwargs:
-                exec(f"self.{inst} = {kwarg}")
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
 class Emoji(object):
@@ -134,10 +128,8 @@ class RoleTags(object):
     integration_id: Optional[int]
     premium_subscriber: Optional[int]
 
-    def __init__(self, **kwargs) -> None:
-        for inst in self:
-            for kwarg in kwargs:
-                exec(f"self.{inst} = {kwarg}")
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
 class Role(object):
@@ -151,9 +143,7 @@ class Role(object):
     mentionable: bool
     tags: Optional[RoleTags]
 
-    def __init__(self, **kwargs) -> None:
-        for inst in self:
-            for kwarg in kwargs:
-                exec(f"self.{inst} = {kwarg}")
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 
