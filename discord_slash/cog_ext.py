@@ -192,7 +192,8 @@ def cog_subcommand(
 # I don't feel comfortable with having these right now, they're too buggy even when they were working.
 
 
-def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
+def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1, default_permission: bool = True,
+                     permissions: typing.Dict[int, list] = None):
     """
     Decorator that adds context menu commands.
 
@@ -202,9 +203,19 @@ def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
     :type name: str
     :param guild_ids: A list of guild IDs to register the command under. Defaults to ``None``.
     :type guild_ids: list
+    :param default_permission: Sets if users have permission to access the context menu by default, when no permissions are set. Default ``True``.
+    :type default_permission: bool
+    :param permissions: Dictionary of permissions of context menu. Key being target guild_id and value being a list of permissions to apply. Default ``None``.
+    :type permissions: dict
     """
+    if not permissions:
+        permissions = {}
 
     def wrapper(cmd):
+        decorator_permissions = getattr(cmd, "__permissions__", None)
+        if decorator_permissions:
+            permissions.update(decorator_permissions)
+
         if name == "context":
             raise IncorrectFormat(
                 "The name 'context' can not be used to register as a cog context menu,"
@@ -212,7 +223,7 @@ def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
             )
 
         _cmd = {
-            "default_permission": None,
+            "default_permission": default_permission,
             "has_permissions": None,
             "name": name,
             "type": target,
@@ -222,7 +233,7 @@ def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
             "api_options": [],
             "connector": {},
             "has_subcommands": False,
-            "api_permissions": {},
+            "api_permissions": permissions,
         }
         return CogBaseCommandObject(name or cmd.__name__, _cmd, target)
 
