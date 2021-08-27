@@ -34,11 +34,7 @@ class InteractionException(Exception):
     _formatter: ErrorFormatter
     kwargs: dict[str, Any]
 
-    def __init__(
-        self,
-        __type: Optional[Union[int, IntEnum]]=0,
-        **kwargs
-    ):
+    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs):
         """
         Instantiates the BaseInteractionException class. Upon instantiation, it will print out an error message.
         This is not meant to be used as an object-to-variable declaration,
@@ -146,7 +142,8 @@ class InteractionException(Exception):
         #
 
         super().__init__(
-            f"{f'{lookup_str} ' if _err_val is not None else f'{_lookup_str if _err_rep > max(self._lookup.keys()) else lookup_str} '}{custom_err_str}")
+            f"{f'{lookup_str} ' if _err_val is not None else f'{_lookup_str if _err_rep > max(self._lookup.keys()) else lookup_str} '}{custom_err_str}"
+        )
 
 
 class GatewayException(InteractionException):
@@ -181,5 +178,5 @@ class GatewayException(InteractionException):
             4011: "Sharding required.",
             4012: "Invalid API version for the Gateway.",
             4013: "Invalid intent(s).",
-            4014: "Some intent(s) requested are not allowed. Please double check."
+            4014: "Some intent(s) requested are not allowed. Please double check.",
         }

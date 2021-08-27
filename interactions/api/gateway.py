@@ -1,25 +1,20 @@
 # Normal libraries
-import traceback
-from asyncio.events import AbstractEventLoop, get_event_loop
-from aiohttp import ClientSession, ClientWebSocketResponse
-from asyncio import (
-    get_event_loop,
-    run_coroutine_threadsafe,
-    set_event_loop
-)
+import sys
+from asyncio import get_event_loop, run_coroutine_threadsafe, set_event_loop
+from asyncio.events import AbstractEventLoop
 from concurrent.futures import _base
-from orjson import dumps, loads
-from logging import DEBUG, basicConfig, Logger, getLogger
+from logging import DEBUG, Logger, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
 from typing import Any, Optional, Union
-import sys
 
+from aiohttp import ClientSession, ClientWebSocketResponse
+from api.enums import OpCodeType
+from orjson import dumps, loads
 
 # 3rd-party libraries
 from ..base import Data, Route
 from .error import GatewayException
-from api.enums import OpCodeType
 
 basicConfig(level=DEBUG)
 log: Logger = getLogger(Data.LOGGER)
@@ -34,16 +29,13 @@ class Heartbeat(Thread):
     :ivar interval: The heartbeat interval.
     :ivar event: The threading event.
     """
+
     __slots__ = ("websocket", "interval", "event")
     websocket: Any
     interval: Union[int, float]
     event: Event
 
-    def __init__(
-            self,
-            websocket: Any,
-            interval: Union[int, float]
-    ) -> None:
+    def __init__(self, websocket: Any, interval: Union[int, float]) -> None:
         """
         Object representing keeping a consistent connection to the gateway.
 
@@ -55,15 +47,14 @@ class Heartbeat(Thread):
         """
         super().__init__()
         self.websocket = websocket
-        self.interval = (interval / 1000)
+        self.interval = interval / 1000
         self.event = Event()
 
     def run(self) -> None:
         """Automatically begin sending heartbeats to the gateway."""
         while not self.event.wait(self.interval - random()):
             coro = run_coroutine_threadsafe(
-                coro=self.websocket.heartbeat(),
-                loop=self.websocket.loop
+                coro=self.websocket.heartbeat(), loop=self.websocket.loop
             )
             while True:
                 try:
@@ -91,6 +82,7 @@ class WebSocket:
     :ivar sequence: The current sequence.
     :ivar closed: The current connection state.
     """
+
     __slots__ = (
         "session",
         "websock",
@@ -100,7 +92,7 @@ class WebSocket:
         "session_id",
         "sequence",
         "keep_alive",
-        "closed"
+        "closed",
     )
     session: ClientSession
     websock: ClientWebSocketResponse
@@ -113,10 +105,10 @@ class WebSocket:
     closed: bool
 
     def __init__(
-            self,
-            token: str,
-            intents: Optional[int] = 513,
-            loop: Optional[AbstractEventLoop] = event_loop
+        self,
+        token: str,
+        intents: Optional[int] = 513,
+        loop: Optional[AbstractEventLoop] = event_loop,
     ) -> None:
         """
         Object representing how/the connection to the gateway.
@@ -137,17 +129,17 @@ class WebSocket:
 
         set_event_loop(self.loop)
 
-
     async def recv(self) -> None:
         """Receives packets sent from the gateway."""
         packet = await self.websock.receive()
-        return loads(packet.data) if packet and isinstance(packet.data, (bytearray, bytes, memoryview, str)) else None
-
+        return (
+            loads(packet.data)
+            if packet and isinstance(packet.data, (bytearray, bytes, memoryview, str))
+            else None
+        )
 
     async def connect(
-            self,
-            session_id: Optional[int] = None,
-            sequence: Optional[int] = None
+        self, session_id: Optional[int] = None, sequence: Optional[int] = None
     ) -> None:
         """
         Establishes a connection to the gateway.
@@ -195,35 +187,32 @@ class WebSocket:
                             if self.keep_alive:
                                 log.debug("The gateway has validated the client's heartbeat.")
                             continue
-                        if op in (
-                                OpCodeType.INVALIDATE_SESSION,
-                                OpCodeType.RECONNECT
-                        ):
+                        if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                             self.session_id = None
                             self.sequence = None
                             self.closed = True
                             if data or op == OpCodeType.RECONNECT:
                                 try:
                                     log.warning(
-                                        "The websocket connection has disconnected, attempting to reconnect.")
+                                        "The websocket connection has disconnected, attempting to reconnect."
+                                    )
                                     await self.resume()
-                                except:
+                                except Exception as exc:  # noqa
                                     log.error(
-                                        "The websocket connection was disconnected, we're closing instead of reconnecting.")
+                                        "The websocket connection was disconnected, we're closing instead of reconnecting."
+                                    )
                                     await self.websock.close()
                     else:
                         if event == "READY":
                             log.info("The client has successfully connected to the gateway.")
                         else:
-                            _dispatch = await self.dispatch(event, data)  # which dispatches based off the "stream.get(t)"
+                            _dispatch = await self.dispatch(  # noqa: F841
+                                event, data
+                            )  # which dispatches based off the "stream.get(t)"
                         continue
 
-
     @staticmethod
-    async def dispatch(
-            name: str,
-            data: dict
-    ) -> dict:
+    async def dispatch(name: str, data: dict) -> dict:
         """
         Returns the last dispatched event.
 
@@ -235,11 +224,7 @@ class WebSocket:
         """
         return {"name": name, "data": data}
 
-
-    async def send(
-            self,
-            data: Union[str, dict]
-    ) -> None:
+    async def send(self, data: Union[str, dict]) -> None:
         """
         Sends a data packet to the gateway.
 
@@ -249,7 +234,6 @@ class WebSocket:
         """
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
         await self.websock.send_str(packet)
-
 
     async def identify(self) -> None:
         """Sends an IDENTIFY packet to the gateway."""
@@ -261,33 +245,24 @@ class WebSocket:
                 "properties": {
                     "$os": sys.platform,
                     "$browser": "discord-interactions",
-                    "$device": "discord-interactions"
-                }
-            }
+                    "$device": "discord-interactions",
+                },
+            },
         }
         await self.send(payload)
         log.debug("The client has sent an IDENTIFY packet to the gateway.")
-
 
     async def resume(self) -> None:
         """Sends a RESUME packet to the gateway."""
         payload: dict = {
             "op": OpCodeType.RESUME,
-            "d": {
-                "token": self.token,
-                "seq": self.sequence,
-                "session_id": self.session_id
-            }
+            "d": {"token": self.token, "seq": self.sequence, "session_id": self.session_id},
         }
         await self.send(payload)
         log.debug("The client has sent a RESUME packet to the gateway.")
 
-
     async def heartbeat(self) -> None:
         """Sends a HEARTBEAT packet to the gateway."""
-        payload: dict = {
-            "op": OpCodeType.HEARTBEAT,
-            "d": self.session_id
-        }
+        payload: dict = {"op": OpCodeType.HEARTBEAT, "d": self.session_id}
         await self.send(payload)
         log.debug("The client has sent a HEARTBEAT packet to the gateway.")

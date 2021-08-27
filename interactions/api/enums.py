@@ -58,6 +58,7 @@ class WSCloseCodeType(IntEnum):
     .. note::
         Equivalent of `Gateway Close Event Codes <https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-close-event-codes>`_ in the Discord API.
     """
+
     UNKNOWN_ERROR = 4000
     UNKNOWN_OPCODE = 4001
     DECODE_ERROR = 4002

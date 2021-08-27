@@ -2,6 +2,7 @@
 import re
 from codecs import open
 from os import path
+
 from setuptools import find_packages, setup
 
 PACKAGE_NAME = "interactions"
