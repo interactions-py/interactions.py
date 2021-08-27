@@ -19,7 +19,7 @@ from discord_slash import __version__
 
 # -- Project information -----------------------------------------------------
 
-project = "discord-py-interactions"
+project = "discord-interactions"
 copyright = "2021, goverfl0w"
 author = "goverfl0w"
 release = __version__
