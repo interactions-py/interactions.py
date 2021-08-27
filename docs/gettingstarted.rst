@@ -316,7 +316,7 @@ But what about buttons?
 This library supports components (buttons, actionrows, selects, etc.). Take a look here: `components`_.
 
 Making a message/menu command.
-*********************
+******************************
 Lucky for you, this library has recently added support for context menus! Let's take a look into how they're designed.
 
 Please note that the current limit for context menus with the Discord API is **5.**
