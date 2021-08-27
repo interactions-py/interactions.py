@@ -4,7 +4,7 @@ Welcome
 Unstable branch of discord-interactions.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Pages:
 
    api.rst
