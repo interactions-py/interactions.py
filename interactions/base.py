@@ -1,7 +1,7 @@
 # Normal libraries
 from typing import ClassVar
 
-__version__: str = "4.0.0"
+__version__ = "4.0.0"
 
 
 class Data:
