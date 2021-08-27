@@ -14,7 +14,7 @@ with open(path.join(HERE, PACKAGE_NAME, "const.py"), encoding="utf-8") as fp:
 
 extras = {
     "lint": ["black", "flake8", "isort"],
-    "readthedocs": ["sphinx", "sphinx-rtd-theme"],
+    "readthedocs": ["sphinx", "karma-sphinx-theme"],
 }
 extras["lint"] += extras["readthedocs"]
 extras["dev"] = extras["lint"] + extras["readthedocs"]
