@@ -1,19 +1,9 @@
-.. currentmodule:: interactions.api
+.. currentmodule:: interactions
 
 API Reference
 =============
 
 This page outlines the API wrapper of discord-interactions.
-
-.. note::
-
-    This library uses completely different code that is separate
-    and detached from the currently existing codebase of discord.py
-    respectively. However, due to the given nature of most Discord
-    bot developers who use Python as their main programming language,
-    we've catered towards naming everything internally a combination
-    of the typical nomenclature of discord.py as well as the Discord-
-    documented API.
 
 .. warning::
 
@@ -27,15 +17,11 @@ Gateway
 Heartbeat
 ~~~~~~~~~
 
-.. attributetable:: gateway.Heartbeat
-
-.. autoclass:: gateway.Heartbeat
+.. autoclass:: interactions.api.gateway.Heartbeat
     :members:
 
 WebSocket
 ~~~~~~~~~
 
-.. attributetable:: gateway.WebSocket
-
-.. autoclass:: gateway.WebSocket
+.. autoclass:: interactions.api.gateway.WebSocket
     :members:

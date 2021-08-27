@@ -9,11 +9,11 @@ from threading import Event, Thread
 from typing import Any, Optional, Union
 
 from aiohttp import ClientSession, ClientWebSocketResponse
-from api.enums import OpCodeType
 from orjson import dumps, loads
 
 # 3rd-party libraries
 from ..base import Data, Route
+from .enums import OpCodeType
 from .error import GatewayException
 
 basicConfig(level=DEBUG)
