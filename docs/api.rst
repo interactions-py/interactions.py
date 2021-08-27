@@ -27,15 +27,15 @@ Gateway
 Heartbeat
 ~~~~~~~~~
 
-.. attributetable:: Heartbeat
+.. attributetable:: gateway.Heartbeat
 
-.. autoclass:: Heartbeat
+.. autoclass:: gateway.Heartbeat
     :members:
 
 WebSocket
 ~~~~~~~~~
 
-.. attributetable:: WebSocket
+.. attributetable:: gateway.WebSocket
 
-.. autoclass:: WebSocket
+.. autoclass:: gateway.WebSocket
     :members:
