@@ -14,6 +14,13 @@ This page outlines the API wrapper of discord-interactions.
 Gateway
 *******
 
+.. note::
+
+    The documentation given below is for showing how the internal processes
+    of the API wrapper function. This code **is not required** to be used 
+    for running our library. Please refer to our quickstart and interactions
+    pages instead.
+
 Heartbeat
 ---------
 
@@ -25,3 +32,18 @@ WebSocket
 
 .. autoclass:: interactions.api.gateway.WebSocket
     :members:
+
+HTTP Requests
+*************
+
+.. autoclass:: interactions.api.http.Request
+    :members:
+
+Exceptions
+**********
+
+.. autoexception:: interactions.api.error.ErrorFormatter
+
+.. autoexception:: interactions.api.error.InteractionException
+
+.. autoexception:: interactions.api.error.GatewayException

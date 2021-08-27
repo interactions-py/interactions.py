@@ -2,6 +2,7 @@
 from typing import ClassVar
 
 __version__ = "4.0.0"
+__repo_url__ = "https://github.com/discord-py-interactions/discord-py-interactions"
 
 
 class Data:
