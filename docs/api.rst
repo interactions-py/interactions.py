@@ -3,6 +3,10 @@ API Reference
 This page on our docs go into in-depth explanation of all of the internal
 API objects, data classes and events that occur 
 
+.. toctree::
+    :maxdepth: 0
+    :titlesonly:
+
 Gateway
 -------
 
