@@ -1,32 +1,41 @@
+.. currentmodule:: interactions.api
+
 API Reference
 =============
-This page on our docs go into in-depth explanation of all of the internal
-API objects, data classes and events that occur 
 
-.. toctree::
-    :maxdepth: 0
-    :titlesonly:
+This page outlines the API wrapper of discord-interactions.
+
+.. note::
+
+    This library uses completely different code that is separate
+    and detached from the currently existing codebase of discord.py
+    respectively. However, due to the given nature of most Discord
+    bot developers who use Python as their main programming language,
+    we've catered towards naming everything internally a combination
+    of the typical nomenclature of discord.py as well as the Discord-
+    documented API.
+
+.. warning::
+
+    As of the time of this writing, version 4.0 of discord-interactions
+    has not yet been released, which this documentation currently reflects.
+    The documentation written here is subject to change and is not finalized.
 
 Gateway
 -------
 
-.. automodule:: interactions.api.gateway
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Heartbeat
+~~~~~~~~~
 
-Data Types
-----------
+.. attributetable:: Heartbeat
 
-.. automodule:: interactions.api.enums
+.. autoclass:: Heartbeat
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-Exceptions
-----------
+WebSocket
+~~~~~~~~~
 
-.. automodule:: interactions.api.error
+.. attributetable:: WebSocket
+
+.. autoclass:: WebSocket
     :members:
-    :undoc-members:
-    :show-inheritance:
