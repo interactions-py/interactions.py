@@ -5,6 +5,7 @@ API objects, data classes and events that occur
 
 Gateway
 -------
+
 .. automodule:: interactions.api.gateway
    :members:
    :undoc-members:
@@ -12,6 +13,7 @@ Gateway
 
 Data Types
 ----------
+
 .. automodule:: interactions.api.enums
     :members:
     :undoc-members:
@@ -19,6 +21,7 @@ Data Types
 
 Exceptions
 ----------
+
 .. automodule:: interactions.api.error
     :members:
     :undoc-members:
