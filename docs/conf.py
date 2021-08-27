@@ -19,9 +19,9 @@ from discord_slash import __version__
 
 # -- Project information -----------------------------------------------------
 
-project = "discord-py-slash-command"
-copyright = "2020-2021, eunwoo1104"
-author = "eunwoo1104"
+project = "discord-py-interactions"
+copyright = "2021, goverfl0w"
+author = "goverfl0w"
 release = __version__
 version = ".".join(__version__.split(".", 2)[:2])
 
