@@ -12,16 +12,16 @@ This page outlines the API wrapper of discord-interactions.
     The documentation written here is subject to change and is not finalized.
 
 Gateway
--------
+*******
 
 Heartbeat
-~~~~~~~~~
+---------
 
 .. autoclass:: interactions.api.gateway.Heartbeat
     :members:
 
 WebSocket
-~~~~~~~~~
+---------
 
 .. autoclass:: interactions.api.gateway.WebSocket
     :members:
