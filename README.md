@@ -116,7 +116,7 @@ await ctx.send(components=[action_row])
 ```
 
 ### Advanced
-For more advanced use, please refer to our official documentation on [buttons here.](https://discord-py-interactions.readthedocs.io/en/latest/components.html#responding-to-interactions)
+For more advanced use, please refer to our official documentation on [buttons here.](https://discord-interactions.readthedocs.io/en/latest/components.html#responding-to-interactions)
 
 ## Selects
 This basic example shows how to add selects into our bot. Selects offer the same accessibility as buttons do
@@ -141,7 +141,7 @@ await ctx.send(components=[action_row])
 ```
 
 ### Advanced
-For more advanced use, please refer to our official documentation on [selects here.](https://discord-py-interactions.readthedocs.io/en/latest/components.html#what-about-selects-dropdowns)
+For more advanced use, please refer to our official documentation on [selects here.](https://discord-interactions.readthedocs.io/en/latest/components.html#what-about-selects-dropdowns)
 
 ## Context Menus
 This basic example shows how to add a message context menu.
@@ -161,7 +161,7 @@ async def commandname(ctx: MenuContext):
 ```
 
 ### Advanced
-For more advanced use, please refer to our official documentation on [context menus here.](https://discord-py-interactions.readthedocs.io/en/latest/gettingstarted.html#adding-context-menus)
+For more advanced use, please refer to our official documentation on [context menus here.](https://discord-interactions.readthedocs.io/en/latest/gettingstarted.html#adding-context-menus)
 
 --------
 
