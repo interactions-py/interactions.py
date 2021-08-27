@@ -4,27 +4,27 @@ from codecs import open
 from os import path
 from setuptools import find_packages, setup
 
-PACKAGE_NAME = "dis_interact"
+PACKAGE_NAME = "interactions"
 HERE = path.abspath(path.dirname(__file__))
 
 with open("README.md", "r", encoding="UTF-8") as f:
     README = f.read()
-with open(path.join(HERE, PACKAGE_NAME, "const.py"), encoding="utf-8") as fp:
+with open(path.join(HERE, PACKAGE_NAME, "base.py"), encoding="utf-8") as fp:
     VERSION = re.search('__version__ = "([^"]+)"', fp.read()).group(1)
 
 extras = {
     "lint": ["black", "flake8", "isort"],
-    "readthedocs": ["sphinx", "sphinx-rtd-theme"],
+    "readthedocs": ["sphinx", "karma-sphinx-theme"],
 }
 extras["lint"] += extras["readthedocs"]
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 
 setup(
-    name="discord-interactions",
+    name="discord-py-interactions",
     version=VERSION,
     author="goverfl0w",
     author_email="jwalston2002@gmail.com",
-    description="A simple interaction handler for discord.py.",
+    description="A simple API wrapper for Discord interactions.",
     extras_require=extras,
     install_requires=["discord.py", "aiohttp"],
     license="MIT License",

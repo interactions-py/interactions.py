@@ -28,12 +28,16 @@ class InteractionException(Exception):
 
     """
 
-    __slots__ = ["__type", "_formatter", "kwargs"]
+    __slots__ = ("__type", "_formatter", "kwargs")
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
     kwargs: dict[str, Any]
 
-    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs):
+    def __init__(
+        self,
+        __type: Optional[Union[int, IntEnum]]=0,
+        **kwargs
+    ):
         """
         Instantiates the BaseInteractionException class. Upon instantiation, it will print out an error message.
         This is not meant to be used as an object-to-variable declaration,
@@ -152,7 +156,7 @@ class GatewayException(InteractionException):
     :ivar _lookup: A dictionary containing the values from the built-in Enum.
     """
 
-    __slots__ = ["__type", "_formatter", "kwargs"]
+    __slots__ = ("__type", "_formatter", "kwargs")
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
     kwargs: dict[str, Any]

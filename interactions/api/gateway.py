@@ -15,13 +15,14 @@ from threading import Event, Thread
 from typing import Any, Optional, Union
 import sys
 
+
 # 3rd-party libraries
 from .base import Data, Route
 from .error import GatewayException
-from .types.enums import OPCodes
+from api.enums import OpCodeType
 
 basicConfig(level=DEBUG)
-log: Logger = getLogger(Data.LOGGER.value)
+log: Logger = getLogger(Data.LOGGER)
 event_loop: AbstractEventLoop = get_event_loop()
 
 
@@ -33,7 +34,7 @@ class Heartbeat(Thread):
     :ivar interval: The heartbeat interval.
     :ivar event: The threading event.
     """
-    __slots__ = "websocket", "interval", "event"
+    __slots__ = ("websocket", "interval", "event")
     websocket: Any
     interval: Union[int, float]
     event: Event
@@ -136,6 +137,7 @@ class WebSocket:
 
         set_event_loop(self.loop)
 
+
     async def recv(self) -> None:
         """Receives packets sent from the gateway."""
         packet = await self.websock.receive()
@@ -158,7 +160,7 @@ class WebSocket:
         """
 
         async with ClientSession() as self.session:
-            async with self.session.ws_connect(Route.GATEWAY.value + "&encoding=json") as self.websock:
+            async with self.session.ws_connect(Route.GATEWAY + "&encoding=json") as self.websock:
                 while not self.closed:
                     stream = await self.recv()
 
@@ -174,8 +176,8 @@ class WebSocket:
                     event: Optional[str] = stream.get("t")
                     self.sequence = stream.get("s")
 
-                    if op != OPCodes.DISPATCH:
-                        if op == OPCodes.HELLO:
+                    if op != OpCodeType.DISPATCH:
+                        if op == OpCodeType.HELLO:
                             if not self.session_id:
                                 await self.identify()
                             else:
@@ -185,22 +187,22 @@ class WebSocket:
                             await self.heartbeat()
                             self.keep_alive.start()
                             continue
-                        if op == OPCodes.HEARTBEAT:
+                        if op == OpCodeType.HEARTBEAT:
                             if self.keep_alive:
                                 await self.heartbeat()
                             continue
-                        if op == OPCodes.HEARTBEAT_ACK:
+                        if op == OpCodeType.HEARTBEAT_ACK:
                             if self.keep_alive:
                                 log.debug("The gateway has validated the client's heartbeat.")
                             continue
                         if op in (
-                                OPCodes.INVALIDATE_SESSION,
-                                OPCodes.RECONNECT
+                                OpCodeType.INVALIDATE_SESSION,
+                                OpCodeType.RECONNECT
                         ):
                             self.session_id = None
                             self.sequence = None
                             self.closed = True
-                            if data or op == OPCodes.RECONNECT:
+                            if data or op == OpCodeType.RECONNECT:
                                 try:
                                     log.warning(
                                         "The websocket connection has disconnected, attempting to reconnect.")
@@ -233,6 +235,7 @@ class WebSocket:
         """
         return {"name": name, "data": data}
 
+
     async def send(
             self,
             data: Union[str, dict]
@@ -247,10 +250,11 @@ class WebSocket:
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
         await self.websock.send_str(packet)
 
+
     async def identify(self) -> None:
         """Sends an IDENTIFY packet to the gateway."""
         payload: dict = {
-            "op": OPCodes.IDENTIFY,
+            "op": OpCodeType.IDENTIFY,
             "d": {
                 "token": self.token,
                 "intents": self.intents,
@@ -264,10 +268,11 @@ class WebSocket:
         await self.send(payload)
         log.debug("The client has sent an IDENTIFY packet to the gateway.")
 
+
     async def resume(self) -> None:
         """Sends a RESUME packet to the gateway."""
         payload: dict = {
-            "op": OPCodes.RESUME,
+            "op": OpCodeType.RESUME,
             "d": {
                 "token": self.token,
                 "seq": self.sequence,
@@ -277,10 +282,11 @@ class WebSocket:
         await self.send(payload)
         log.debug("The client has sent a RESUME packet to the gateway.")
 
+
     async def heartbeat(self) -> None:
         """Sends a HEARTBEAT packet to the gateway."""
         payload: dict = {
-            "op": OPCodes.HEARTBEAT,
+            "op": OpCodeType.HEARTBEAT,
             "d": self.session_id
         }
         await self.send(payload)
