@@ -32,7 +32,6 @@ class InteractionException(Exception):
     __slots__ = ("__type", "_formatter", "kwargs")
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
-    kwargs: dict[str, Any]
 
     def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs):
         """
@@ -157,7 +156,6 @@ class GatewayException(InteractionException):
     __slots__ = ("__type", "_formatter", "kwargs")
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
-    kwargs: dict[str, Any]
 
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)
