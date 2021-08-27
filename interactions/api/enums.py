@@ -1,5 +1,4 @@
 # Normal libraries
-import typing
 from enum import IntEnum
 
 

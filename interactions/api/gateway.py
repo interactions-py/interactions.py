@@ -17,7 +17,7 @@ import sys
 
 
 # 3rd-party libraries
-from .base import Data, Route
+from ..base import Data, Route
 from .error import GatewayException
 from api.enums import OpCodeType
 
