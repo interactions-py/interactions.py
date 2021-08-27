@@ -315,7 +315,7 @@ But what about buttons?
 -----------------------
 This library supports components (buttons, actionrows, selects, etc.). Take a look here: `components`_.
 
-Adding Context Menus.
+Making a message/menu command.
 *********************
 Lucky for you, this library has recently added support for context menus! Let's take a look into how they're designed.
 
@@ -401,8 +401,50 @@ The decision has been made that this will not be implemented because of two reas
 for any responses would be currently pointless. Additionally, component listening is already a built-in feature that does not require further customized and new decorators
 for explicitly context menus, as they're more universal.
 
+Nested commands as subcommands.
+*******************************
+Before you get into learning how to create a subcommand, please be sure to read up on the documentation above given for how slash commands are made.
+
+Subcommands are way to "nest" your slash commands under one (or more) given names, as either a "base" name or a "grouping" of an existing base. When this is said, it will initially appear very confusing. Let's use the table shown below as a way to introduce the new fields/properties that can be applied for a slash command to become a subcommand:
+
++------------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| **Field**                    | **Type**                                   | **Description**                                                                                     |
++------------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| base                         | string                                     | The name of the subcommand "base."                                                                  |
++------------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| subcommand_group             | string                                     | The name for the group of commands under the "base." Field is optional.                             |
++------------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| base_description             | string                                     | The description when the base is active in the UX chat bar. Defaults to ``None``.                   |
++------------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| subcommand_group_description | string                                     | The name for the group of commands under the "base." Defaults to ``None``.                          |
++------------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
+
+This table is importantly distinguishing the **library's** naming conventions and not the way that th eDiscord API handles it. The API does subcommand grouping and bases through the options of a slash command, so we decided to create a decorator instead to make this easy for bot developers alike to use. We will not be giving a JSON example of this because of this reason.
+
+.. code-block :: python
+  
+  # This will appear as "/bot latency" as latency is not an option,
+  # but apart of the command name itself.
+  @slash.subcommand(base="bot",
+                    name="latency",
+                    description="Returns the bot's latency.")
+  async def bot_latency(ctx):
+    await ctx.send(f"Hello! {round(bot.latency * 1000)} ms.")
+    
+If you would like to add a group instead, you may simply base the ``subcommand_group``` kwarg into the decorator. Please note that the slash command limit is 25 commands per subcommand group per subcommand base. (Laymen's term for 25 subcommands in a group, and 25 groups in a base. This is not a global exception and may also apply as a limitation for guild commands.)
+
+Handling my errors.
+*******************
+
+Thankfully, we try to make a majority of our error handling very simple. If you would like to learn more about how to handle your errors, please refer to our `errors`_ page.
+If you are looking for listener events, then check our `listeners`_ page instead.
+
+As a side-note, as of version 3.0, message/menu commands (context menus) are handled under the ``on_slash_command_error`` event.
+
 .. _quickstart: quickstart.html
 .. _components: components.html
+.. _errors: discord_slash.error.html
+.. _listeners: events.html
 .. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
 .. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
 .. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoption
