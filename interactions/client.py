@@ -21,6 +21,7 @@ class Client:
     :ivar websocket: A WebSocket instance as :class:`interactions.api.gateway.WebSocket`.
     :ivar connection: The current connection state of the client.
     :ivar closed: An activated/"switched" declaration of if the connection closes.
+    :ivar token: The application token.
     :ivar cache: The global cache combed from all HTTP requests.
     :ivar listeners: The application's events that are currently being listened to.
     :ivar me: A model of the user of the application as :class:`interactions.api.models.User`.
@@ -34,6 +35,7 @@ class Client:
         "websocket",
         "connection",
         "closed",
+        "token",
         "cache",
         "listeners",
         # "me",
@@ -45,6 +47,7 @@ class Client:
     websocket: Optional[WebSocket]
     connection: Optional[Any]
     closed: bool
+    token: str
     cache: dict
     listeners: dict
     # me: Optional[User]
@@ -79,6 +82,7 @@ class Client:
         self.websocket = None
         self.connection = None
         self.closed = None
+        self.token = token
         self.cache = {}
         self.listeners = {}
         # self.me = None
