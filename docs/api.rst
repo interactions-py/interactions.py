@@ -11,6 +11,12 @@ This page outlines the API wrapper of discord-interactions.
     has not yet been released, which this documentation currently reflects.
     The documentation written here is subject to change and is not finalized.
 
+Client
+******
+
+.. autoclass:: interactions.client
+    :members
+
 Gateway
 *******
 

@@ -19,7 +19,7 @@ class InteractionException(Exception):
     """
     Exception class for Interactions.
 
-    :: note
+    .. note::
         This is a WIP. This isn't meant to be used yet, this is a baseline,
         and for extensive testing/review before integration.
         Likewise, this will show the concepts before use, and will be refined when time goes on.
@@ -39,7 +39,7 @@ class InteractionException(Exception):
         This is not meant to be used as an object-to-variable declaration,
         this is used to cause an Exception to be thrown.
 
-        :: note
+        .. note::
             (given if 3 is "DUPLICATE_COMMAND" and with the right enum import, it will display 3 as the error code.)
             Example:
 
