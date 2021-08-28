@@ -3,12 +3,12 @@ from asyncio import AbstractEventLoop, get_event_loop
 from typing import Any, List, Optional, Union
 
 # 3rd-party libraries
-from api.gateway import WebSocket
-from api.http import Request
-from api.models import Intents
+from .api.gateway import WebSocket
+from .api.http import Request
+from .api.models import Intents
 
 
-class Interactions:
+class Client:
     """
     The client class for the API wrapper.
 
