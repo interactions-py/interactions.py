@@ -11,10 +11,12 @@ from typing import Any, Optional, Union
 from aiohttp import ClientSession, ClientWebSocketResponse
 from orjson import dumps, loads
 
-# 3rd-party libraries
 from ..base import Data, Route
 from .enums import OpCodeType
 from .error import GatewayException
+
+# 3rd-party libraries
+from .models import Intents
 
 basicConfig(level=DEBUG)
 log: Logger = getLogger(Data.LOGGER)
@@ -81,6 +83,7 @@ class WebSocket:
     :ivar session_id: The current session ID.
     :ivar sequence: The current sequence.
     :ivar closed: The current connection state.
+    :ivar last_dispatched: Optional[dict]
     """
 
     __slots__ = (
@@ -93,6 +96,7 @@ class WebSocket:
         "sequence",
         "keep_alive",
         "closed",
+        "last_dispatched",
     )
     session: ClientSession
     websock: ClientWebSocketResponse
@@ -103,29 +107,28 @@ class WebSocket:
     sequence: Optional[int]
     keep_alive: Optional[Heartbeat]
     closed: bool
+    last_dispatched: Optional[dict]
 
     def __init__(
         self,
-        token: str,
-        intents: Optional[int] = 513,
+        intents: Optional[Intents] = Intents.DEFAULT,
         loop: Optional[AbstractEventLoop] = event_loop,
     ) -> None:
         """
         Object representing how/the connection to the gateway.
 
-        :param token: The token to use for identifying.
-        :type token: str
-        :param intents: The intents you're accessing. Required as of v8
-        :type intents: typing.Optional[int]
+        :param intents: The intents you're accessing. This is required as of API v8.
+        :type intents: typing.Optional[interactions.api.models.Intents]
         :return: None
         """
         self.loop = loop
-        self.token = token
+        self.token = None
         self.intents = intents
         self.session_id = None
         self.sequence = None
         self.keep_alive = None
         self.closed = False
+        self.last_dispatched = None
 
         set_event_loop(self.loop)
 
@@ -139,11 +142,13 @@ class WebSocket:
         )
 
     async def connect(
-        self, session_id: Optional[int] = None, sequence: Optional[int] = None
+        self, token: str, session_id: Optional[int] = None, sequence: Optional[int] = None
     ) -> None:
         """
         Establishes a connection to the gateway.
 
+        :param token: The token to use for identifying.
+        :type token: str
         :param session_id: The session ID if you're trying to resume a connection. Defaults to ``None``.
         :type session_id: typing.Optional[int]
         :param sequence: The sequence if you're trying to resume a connection. Defaults to ``None``.
@@ -211,8 +216,7 @@ class WebSocket:
                             )  # which dispatches based off the "stream.get(t)"
                         continue
 
-    @staticmethod
-    async def dispatch(name: str, data: dict) -> dict:
+    async def dispatch(self, name: str, data: dict) -> dict:
         """
         Returns the last dispatched event.
 
@@ -222,7 +226,8 @@ class WebSocket:
         :type data: dict
         :return: dict
         """
-        return {"name": name, "data": data}
+        self.last_dispatched = {"name": name, "data": data}
+        return self.last_dispatched
 
     async def send(self, data: Union[str, dict]) -> None:
         """
@@ -236,7 +241,7 @@ class WebSocket:
         await self.websock.send_str(packet)
 
     async def identify(self) -> None:
-        """Sends an IDENTIFY packet to the gateway."""
+        """Sends an ``IDENTIFY`` packet to the gateway."""
         payload: dict = {
             "op": OpCodeType.IDENTIFY,
             "d": {
@@ -253,7 +258,7 @@ class WebSocket:
         log.debug("The client has sent an IDENTIFY packet to the gateway.")
 
     async def resume(self) -> None:
-        """Sends a RESUME packet to the gateway."""
+        """Sends a ``RESUME`` packet to the gateway."""
         payload: dict = {
             "op": OpCodeType.RESUME,
             "d": {"token": self.token, "seq": self.sequence, "session_id": self.session_id},
@@ -262,7 +267,7 @@ class WebSocket:
         log.debug("The client has sent a RESUME packet to the gateway.")
 
     async def heartbeat(self) -> None:
-        """Sends a HEARTBEAT packet to the gateway."""
+        """Sends a ``HEARTBEAT`` packet to the gateway."""
         payload: dict = {"op": OpCodeType.HEARTBEAT, "d": self.session_id}
         await self.send(payload)
         log.debug("The client has sent a HEARTBEAT packet to the gateway.")

@@ -178,3 +178,17 @@ class GatewayException(InteractionException):
             4013: "Invalid intent(s).",
             4014: "Some intent(s) requested are not allowed. Please double check.",
         }
+
+
+class ClientException(InteractionException):
+    """
+    This is a derivation of InteractionException in that this is used to represent specialized errors handed back from the client.
+
+    :ivar _formatter: The built in formatter.
+    """
+
+    __slots__ = ("__type", "_formatter", "kwargs")
+    _formatter: ErrorFormatter
+
+    def __init__(self, __type=0, **kwargs):
+        super().__init__(__type, **kwargs)
