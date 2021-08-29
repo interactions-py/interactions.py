@@ -155,7 +155,10 @@ class WebSocket:
         :type sequence: typing.Optional[int]
         :return: None
         """
-
+        
+        # thank you LordOfPolls for reminding me of why I should have never
+        # became a library developer smart enough to use "return" in a while loop
+        # instead of "continue" and still expect it to run.
         async with ClientSession() as self.session:
             async with self.session.ws_connect(Route.GATEWAY + "&encoding=json") as self.websock:
                 while not self.closed:
