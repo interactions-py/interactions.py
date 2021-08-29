@@ -1,6 +1,7 @@
 import logging
 import typing
 import uuid
+import re
 
 import discord
 
@@ -88,7 +89,12 @@ def emoji_to_dict(emoji: typing.Union[discord.Emoji, discord.PartialEmoji, str])
     elif isinstance(emoji, discord.PartialEmoji):
         emoji = emoji.to_dict()
     elif isinstance(emoji, str):
-        emoji = {"name": emoji, "id": None}
+        emoji = re.match("<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>", emoji)
+        
+        if not emoji:
+            return {}
+        
+        emoji = {"name": emoji[2], "id": int(emoji[3]), "animated": True if emoji[1] else False}
     return emoji if emoji else {}
 
 
