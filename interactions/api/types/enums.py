@@ -4,6 +4,8 @@ from enum import IntEnum, Enum
 from discord import Member
 from discord.abc import Messageable, User, Role, GuildChannel
 
+# TODO: Implement JSON Error codes.
+
 
 class DefaultErrorEnum(IntEnum):
     """
@@ -129,6 +131,7 @@ class Options(IntEnum):
 
         Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_ in the Discord API.
     """
+
     SUB_COMMAND = 1
     SUB_COMMAND_GROUP = 2
     STRING = 3
@@ -141,10 +144,7 @@ class Options(IntEnum):
     NUMBER = 10
 
     @classmethod
-    def from_type(
-            cls,
-            _type: type
-    ) -> IntEnum:
+    def from_type(cls, _type: type) -> IntEnum:
         """
         Get a specific enumerable from a type or object.
 
@@ -180,7 +180,9 @@ class Options(IntEnum):
             if isinstance(_type, typing._Union):  # noqa
                 return cls.MENTIONABLE
 
-        if issubclass(_type, float):  # Python floats are essentially doubles, compared to languages when it's separate.
+        if issubclass(
+            _type, float
+        ):  # Python floats are essentially doubles, compared to languages when it's separate.
             return cls.NUMBER
 
 
@@ -192,14 +194,12 @@ class Permissions(IntEnum):
 
         Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_ in the Discord API.
     """
+
     ROLE = 1
     USER = 2
 
     @classmethod
-    def from_type(
-            cls,
-            _type: type
-    ) -> IntEnum:
+    def from_type(cls, _type: type) -> IntEnum:
         """
         Get a specific enumerable from a type or object.
 
@@ -222,6 +222,7 @@ class Components(IntEnum):
 
         Equivalent of `Component Types <https://discord.com/developers/docs/interactions/message-components#component-object-component-types>`_ in the Discord API.
     """
+
     ACTION_ROW = 1
     BUTTON = 2
     SELECT = 3
@@ -235,6 +236,7 @@ class Buttons(IntEnum):
 
         Equivalent of `Button Styles <https://discord.com/developers/docs/interactions/message-components#button-object-button-styles>`_ in the Discord API.
     """
+
     BLUE = 1
     BLURPLE = 2
     GRAY = 2
@@ -257,16 +259,14 @@ class Menus(IntEnum):
 
         Equivalent of `Application Command Types <https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types>`_ in the Discord API.
     """
+
     CHAT_INPUT = 1
     COMMAND = 1  # alias of CHAT_INPUT
     USER = 2
     MESSAGE = 3
 
     @classmethod
-    def from_type(
-            cls,
-            _type: type
-    ) -> IntEnum:
+    def from_type(cls, _type: type) -> IntEnum:
         """
         Get a specific enumerable from a type or object.
 
@@ -274,10 +274,7 @@ class Menus(IntEnum):
         :type _type: type
         :return: enum.IntEnum.
         """
-        if (
-                isinstance(_type, Member) or
-                issubclass(_type, User)
-        ):
+        if isinstance(_type, Member) or issubclass(_type, User):
             return cls.USER
 
         if issubclass(_type, Messageable):

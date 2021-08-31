@@ -1,7 +1,6 @@
 import datetime
 from typing import Optional, Union, List
 
-
 # TODO: Reorganise these models based on which big obj uses little obj
 # TODO: Figure out ? placements.
 
@@ -10,11 +9,13 @@ from interactions.api.types.enums import GuildFeature
 
 
 class MessageActivity(object):
+    __slots__ = ("type", "party_id")
     type: int
     party_id: Optional[str]
 
 
 class MessageReference(object):
+    __slots__ = ("message_id", "channel_id", "guild_id", "fail_if_not_exists")
     message_id: Optional[int]
     channel_id: Optional[int]
     guild_id: Optional[int]
@@ -22,6 +23,7 @@ class MessageReference(object):
 
 
 class ThreadMetadata(object):
+    __slots__ = ("archived", "auto_archive_duration", "archive_timestamp", "locked", "invitable")
     archived: bool
     auto_archive_duration: int
     archive_timestamp: datetime.datetime.timestamp
@@ -30,6 +32,7 @@ class ThreadMetadata(object):
 
 
 class ThreadMember(object):
+    __slots__ = ("id", "user_id", "join_timestamp", "flags")
     id: Optional[int]  # intents
     user_id: Optional[int]
     join_timestamp: datetime.datetime.timestamp
@@ -37,6 +40,23 @@ class ThreadMember(object):
 
 
 class User(object):
+    __slots__ = (
+        "id",
+        "username",
+        "discriminator",
+        "avatar",
+        "bot",
+        "system",
+        "mfa_enabled",
+        "banner",
+        "accent_color",
+        "locale",
+        "verified",
+        "email",
+        "flags",
+        "premium_type",
+        "public_flags",
+    )
     id: int
     username: str
     discriminator: str
@@ -58,11 +78,29 @@ class User(object):
 
 
 class Member(object):
-    """Also, the guild member obj (Or partial.)"""
+    """
+    Also, the guild member obj (Or partial.)
+
+    The methodology, instead of regular d.py conventions
+    is to do member.user to get the pure User object, instead of
+    d.py's option of merging.
+    """
+
+    __slots__ = (
+        "user",
+        "nick",
+        "roles",
+        "joined_at",
+        "premium_since",
+        "deaf",
+        "mute",
+        "pending",
+        "permissions",
+    )
 
     user: Optional[User]
     nick: Optional[str]
-    roles: List[str]
+    roles: List[int]
     joined_at: datetime.datetime.timestamp
     premium_since: Optional[datetime.datetime]
     deaf: bool
@@ -74,6 +112,7 @@ class Member(object):
 class Overwrite(object):
     """This is used for the PermissionOverride obj"""
 
+    __slots__ = ("id", "type", "allow", "deny")
     id: int
     type: int
     allow: str
@@ -87,6 +126,35 @@ class Channel(object):
     The purpose of this model is to be used as a base class, and
     is never needed to be used directly.
     """
+
+    __slots__ = (
+        "id",
+        "type",
+        "guild_id",
+        "position",
+        "permission_overwrites",
+        "name",
+        "topic",
+        "nsfw",
+        "last_message_id",
+        "bitrate",
+        "user_limit",
+        "rate_limit_per_user",
+        "recipients",
+        "icon",
+        "owner_id",
+        "application_id",
+        "parent_id",
+        "last_pin_timestamp",
+        "rtc_region",
+        "video_quality_mode",
+        "message_count",
+        "member_count",
+        "thread_metadata",
+        "member",
+        "default_auto_archive_duration",
+        "permissions",
+    )
 
     id: int  # "Snowflake"
     type: int
@@ -119,7 +187,27 @@ class Channel(object):
         self.__dict__.update(kwargs)
 
 
+class TextChannel(Channel):
+    __slots__ = super().__slots__
+
+    ...
+
+
+class DMChannel(Channel):
+    __slots__ = super().__slots__
+
+    ...
+
+
+class ThreadChannel(Channel):
+    __slots__ = super().__slots__
+
+    ...
+
+
 class Attachment(object):
+    __slots__ = ("id", "filename", "content_type", "size", "url", "proxy_url", "height", "width")
+
     id: int
     filename: str
     content_type: Optional[str]
@@ -137,6 +225,7 @@ class Message(object):
     The purpose of this model is to be used as a base class, and
     is never needed to be used directly.
     """
+
     id: int
     channel_id: int
     guild_id: Optional[int]
@@ -225,6 +314,7 @@ class ChannelMention(object):
     type: int  # Replace with enum from Channel Type, another PR
     name: str
 
+
 class PresenceActivity(object):
     name: str
     type: int
@@ -236,16 +326,18 @@ class PresenceActivity(object):
     state: Optional[str]
     emoji: Optional[Emoji]
     # party
-    #assets
+    # assets
     # secrets
     instance: Optional[bool]
     flags: Optional[int]
     # buttons
 
+
 class ClientStatus(object):
     desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
+
 
 class PresenceUpdate(object):
     user: User
