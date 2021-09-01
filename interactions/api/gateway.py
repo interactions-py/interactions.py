@@ -12,7 +12,7 @@ from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
 from .http import Request, Route
-from .models import Intents
+from .models.intents import Intents
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("gateway")

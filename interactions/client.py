@@ -4,7 +4,7 @@ from typing import Any, Callable, Coroutine, List, Optional, Union
 from .api.dispatch import Listener
 from .api.gateway import WebSocket
 from .api.http import Request
-from .api.models import Intents
+from .api.models.intents import Intents
 
 
 class Client:
