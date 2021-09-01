@@ -67,4 +67,5 @@ class Client:
         self.loop.run_until_complete(self.login(self.token))
 
     def event(self, coro: Coroutine) -> Callable[..., Any]:
-        return self.listener.register(coro)
+        self.listener.register(coro)
+        return coro

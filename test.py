@@ -1,7 +1,7 @@
 # This is a written example used to test and debug the state of v4.0
 import interactions
 
-TOKEN = "no leak here :)"
+TOKEN = "YOUR TOKEN HERE"
 
 client = interactions.Client(token=TOKEN)
 
