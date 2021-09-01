@@ -10,5 +10,9 @@ client = interactions.Client(token=TOKEN)
 async def on_ready():
     print("hi")
 
+@client.event
+async def on_guild_create(guild):
+    print("helo")
+
 
 client.start()

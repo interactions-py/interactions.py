@@ -77,6 +77,7 @@ class WebSocket:
     :ivar intents: An instance of :class:`interactions.api.models.Intents`.
     :ivar loop: The coroutine event loop established on.
     :ivar req: An instance of :class:`interactions.api.http.Request`.
+    :ivar dispatch: An instance of :class:`interactions.api.dispatch.Listener`.
     :ivar session: The current client session.
     :ivar session_id: The current ID of the gateway session.
     :ivar sequence: The current sequence of the gateway connection.
@@ -88,6 +89,7 @@ class WebSocket:
         "intents",
         "loop",
         "req",
+        "dispatch",
         "session",
         "session_id",
         "sequence",
@@ -97,6 +99,7 @@ class WebSocket:
     intents: Intents
     loop: AbstractEventLoop
     req: Optional[Request]
+    dispatch: Listener
     session: Any
     session_id: Optional[int]
     sequence: Optional[int]
@@ -124,6 +127,7 @@ class WebSocket:
         self.intents = intents
         self.loop = get_event_loop() if loop is None else loop
         self.req = None
+        self.dispatch = Listener(loop=self.loop)
         self.session = None
         self.session_id = session_id
         self.sequence = sequence
@@ -218,15 +222,14 @@ class WebSocket:
                             self.closed = True
 
                 else:
-                    Listener(loop=self.loop).dispatch(f"on_{event.lower()}", data)
-
                     if event == "READY":
                         self.session_id = data["session_id"]
                         self.sequence = stream["s"]
                         log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
+                        self.dispatch.dispatch("on_ready")
                     else:
-                        # log.debug(f"{event}: {data}")
-                        log.debug("NON-READY FOUND")
+                        log.debug(f"{event}: {data}")
+                        self.dispatch.dispatch(f"on_{event.lower()}", data)
                     continue
 
     async def send(self, data: Union[str, dict]) -> None:

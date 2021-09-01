@@ -22,7 +22,7 @@ class Client:
     loop: Optional[AbstractEventLoop]
     intents: Optional[Union[Intents, List[Intents]]]
     http: Request
-    websocket: Optional[WebSocket]
+    websocket: WebSocket
     token: str
 
     def __init__(
@@ -52,13 +52,11 @@ class Client:
         self.loop = get_event_loop() if loop is None else loop
         self.listener = Listener(loop=self.loop)
         self.http = Request(token=token, loop=self.loop)
-        self.websocket = None
+        self.websocket = WebSocket(intents=self.intents, loop=self.loop)
         self.token = token
 
     async def login(self, token: str) -> None:
         """Makes a login with the Discord API."""
-        self.websocket = WebSocket(intents=self.intents, loop=self.loop)
-
         while not self.websocket.closed:
             await self.websocket.connect(token)
 
@@ -67,5 +65,5 @@ class Client:
         self.loop.run_until_complete(self.login(self.token))
 
     def event(self, coro: Coroutine) -> Callable[..., Any]:
-        self.listener.register(coro)
+        self.websocket.dispatch.register(coro)
         return coro
