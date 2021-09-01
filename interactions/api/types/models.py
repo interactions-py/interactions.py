@@ -3,6 +3,7 @@ from typing import Optional, Union, List
 
 # TODO: Reorganise these models based on which big obj uses little obj
 # TODO: Figure out ? placements.
+# TODO: Potentially rename some model references to enums, if applicable
 
 # 'Optional[datetime.datetime]` is the Timestamp, just a mini note
 from interactions.api.types.enums import GuildFeature
@@ -218,6 +219,49 @@ class Attachment(object):
     width: Optional[int]
 
 
+class MessageInteraction(object):
+    id: int
+    type: int  # replace with Enum
+    name: str
+    user: User
+
+
+class TeamMember(object):
+    membership_state: int
+    permissions: List[str]
+    team_id: int
+    user: User
+
+
+class Team(object):
+    icon: Optional[str]
+    id: int
+    members: List[TeamMember]
+    name: str
+    owner_user_id: int
+
+
+class Application(object):
+    id: int
+    name: str
+    icon: Optional[str]
+    description: str
+    rpc_origins: Optional[List[str]]
+    bot_public: bool
+    bot_require_code_grant: bool
+    terms_of_service_url: Optional[str]
+    privacy_policy_url: Optional[str]
+    owner: Optional[User]
+    summary: str
+    verify_key: str
+    team: Optional[Team]
+    guild_id: Optional[int]
+    primary_sku_id: Optional[int]
+    slug: Optional[str]
+    cover_image: Optional[str]
+    flags: Optional[int]
+
+
 class Message(object):
     """
     The big Message model.
@@ -237,28 +281,28 @@ class Message(object):
     tts: bool
     mention_everyone: bool
     # mentions: array of Users, and maybe partial members
-    mentions = Optional[List[Union[Member, User]]]
+    mentions: Optional[List[Union[Member, User]]]
     mention_roles: Optional[List[str]]
     mention_channels: Optional[List["ChannelMention"]]
     attachments: Optional[List[Attachment]]
-    # embeds
+    embeds: List['Embed']
     reactions: Optional[List["ReactionObject"]]
     nonce: Union[int, str]
     pinned: bool
     webhook_id: Optional[int]
     type: int
     activity: Optional[MessageActivity]
-    # application
+    application: Optional[Application]
     application_id: int
     message_reference: Optional[MessageReference]
     flags: int
     referenced_message: Optional["Message"]  # pycharm says it works, idk
-    # interaction
+    interaction: Optional[MessageInteraction]
     thread: Optional[Channel]
 
-    # components
-    # s sticker items
-    # stickers
+    # components (Flow's side)
+    sticker_items: Optional[List['PartialSticker']]
+    stickers: Optional[List['Sticker']]  # deprecated
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -315,6 +359,29 @@ class ChannelMention(object):
     name: str
 
 
+class _PresenceParty(object):
+    id: Optional[str]
+    size: Optional[List[int]]
+
+
+class _PresenceAssets(object):
+    large_image: Optional[str]
+    large_text: Optional[str]
+    small_image: Optional[str]
+    small_text: Optional[str]
+
+
+class _PresenceSecrets(object):
+    join: Optional[str]
+    spectate: Optional[str]
+    match: Optional[str]
+
+
+class _PresenceButtons(object):
+    label: str
+    url: str
+
+
 class PresenceActivity(object):
     name: str
     type: int
@@ -325,15 +392,17 @@ class PresenceActivity(object):
     details: Optional[str]
     state: Optional[str]
     emoji: Optional[Emoji]
-    # party
-    # assets
-    # secrets
+    party: Optional[_PresenceParty]
+    assets: Optional[_PresenceAssets]
+    secrets: Optional[_PresenceSecrets]
     instance: Optional[bool]
     flags: Optional[int]
-    # buttons
+    buttons: Optional[_PresenceButtons]
 
 
 class ClientStatus(object):
+    __slots__ = ("desktop", "mobile", "web")
+
     desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
@@ -345,6 +414,112 @@ class PresenceUpdate(object):
     status: str
     activities: List[PresenceActivity]
     client_status: ClientStatus
+
+
+class WelcomeChannels(object):
+    channel_id: int
+    description: str
+    emoji_id: Optional[int]
+    emoji_name: Optional[str]
+
+
+class WelcomeScreen(object):
+    description: Optional[str]
+    welcome_channels: List[WelcomeChannels]
+
+
+class StageInstance(object):
+    id: int
+    guild_id: int
+    channel_id: int
+    topic: str
+    privacy_level: int  # can be Enum'd
+    discoverable_disabled: bool
+
+
+class PartialSticker(object):
+    """Partial object for a Sticker."""
+    id: int
+    name: str
+    format_type: int
+
+
+class Sticker(PartialSticker):
+    """The full Sticker object."""
+
+    pack_id: Optional[int]
+    description: Optional[str]
+    tags: str
+    asset: str  # deprecated
+    type: int  # has its own dedicated enum
+    available: Optional[bool]
+    guild_id: Optional[int]
+    user: Optional[User]
+    sort_value: Optional[int]
+
+
+class VoiceState(object):
+    guild_id: Optional[int]
+    channel_id: Optional[int]
+    user_id: int
+    member: Member
+    session_id: str
+    deaf: bool
+    mute: bool
+    self_deaf: bool
+    self_mute: bool
+    self_stream: Optional[bool]
+    self_video: bool
+    suppress: bool
+    request_to_speak_timestamp: Optional[datetime.datetime]
+
+
+class EmbedImageStruct(object):
+    """This is the internal structure denoted for thumbnails, images or videos"""
+    url: Optional[str]
+    proxy_url: Optional[str]
+    height: Optional[str]
+    width: Optional[str]
+
+
+class EmbedProvider(object):
+    name: Optional[str]
+    url: Optional[str]
+
+
+class EmbedAuthor(object):
+    name: Optional[str]
+    url: Optional[str]
+    icon_url: Optional[str]
+    proxy_icon_url: Optional[str]
+
+
+class EmbedFooter(object):
+    text: Optional[str]
+    icon_url: Optional[str]
+    proxy_icon_url: Optional[str]
+
+
+class EmbedField(object):
+    name: str
+    inline: Optional[bool]
+    value: str
+
+
+class Embed(object):
+    title: Optional[str]
+    type: Optional[str]
+    description: Optional[str]
+    url: Optional[str]
+    timestamp: Optional[datetime.datetime]
+    color: Optional[int]
+    footer: Optional[EmbedFooter]
+    image: Optional[EmbedImageStruct]
+    thumbnail: Optional[EmbedImageStruct]
+    video: Optional[EmbedImageStruct]
+    provider: Optional[EmbedProvider]
+    author: Optional[EmbedAuthor]
+    fields: Optional[List[EmbedField]]
 
 
 class Guild(object):
@@ -379,11 +554,11 @@ class Guild(object):
     large: Optional[bool]
     unavailable: Optional[bool]
     member_count: Optional[int]
-    # Voice states. They're None due to v4.0 property
+    voice_states: Optional[List[VoiceState]]
     members: Optional[List[Member]]
     channels: Optional[List[Channel]]
     threads: Optional[List[Channel]]  # threads, because of their metadata
-    # presences: Optional[List[]]
+    presences: Optional[List[PresenceUpdate]]
     max_presences: Optional[int]
     max_members: Optional[int]
     vanity_url_code: Optional[str]
@@ -396,7 +571,7 @@ class Guild(object):
     max_video_channel_users: Optional[int]
     approximate_member_count: Optional[int]
     approximate_presence_count: Optional[int]
-    # welcome_Screen
+    welcome_screen: Optional[WelcomeScreen]
     nsfw_level: int
-    # stage_instances
-    # stickers
+    stage_instances: Optional[StageInstance]
+    stickers: Optional[List[Sticker]]

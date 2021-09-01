@@ -178,3 +178,32 @@ class GatewayException(InteractionException):
             4013: "Invalid intent(s).",
             4014: "Some intent(s) requested are not allowed. Please double check."
         }
+
+
+class HTTPException(InteractionException):
+    """
+    This is a derivation of InteractionException in that this is used to represent HTTP Exceptions.
+
+    :ivar _formatter: The built in formatter.
+    :ivar _lookup: A dictionary containing the values from the built-in Enum.
+    """
+
+    __slots__ = ["__type", "_formatter", "kwargs"]
+    __type: Optional[Union[int, IntEnum]]
+    _formatter: ErrorFormatter
+    kwargs: dict[str, Any]
+
+    def __init__(self, __type, **kwargs):
+        super().__init__(__type, **kwargs)
+
+    @staticmethod
+    def lookup() -> dict:
+        return {
+            400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
+            401: "Not authorized. Double check your token to see if it's valid.",
+            403: "You do not have enough permissions to execute this.",
+            404: "Resource does not exist.",
+            405: "HTTP method not valid.",  # ?
+            429: "You are being rate limited. Please slow down on your requests.",  # Definitely can be overclassed.
+            502: "Gateway unavailable. Try again later."
+        }
