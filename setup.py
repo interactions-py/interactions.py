@@ -1,4 +1,3 @@
-# Normal libraries
 import re
 from codecs import open
 from os import path

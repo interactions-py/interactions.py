@@ -15,7 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
-from interactions import __version__
+from interactions.base import __version__
 
 # -- Project information -----------------------------------------------------
 

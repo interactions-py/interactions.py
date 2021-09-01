@@ -6,7 +6,7 @@ class DefaultErrorType(IntEnum):
     """
     An enumerable object for the default errors that occur with interaction creation.
 
-    ..note::
+    .. note::
         This is a port from v3's errors, which basically delegate errors to a unique error code.
         This enum's purpose is to help remember error codes. Importing this class is not required.
         i.e.:
@@ -79,7 +79,7 @@ class HTTPResponseType(IntEnum):
     """
     An enumerable object for the HTTP response codes Discord gives out.
 
-    ..note::
+    .. note::
         This enumerable does not list the documented "5xx", as it may vary.
     """
 

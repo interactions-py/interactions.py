@@ -1,11 +1,9 @@
-# Normal libraries
 from enum import IntEnum
 from string import Formatter
 from typing import Any, Optional, Union
 
 
 class ErrorFormatter(Formatter):
-    # Need this formatter? Maybe as a starting point, but it's fine either or.
     def get_value(self, key, args, kwargs) -> Any:
         if not isinstance(key, str):
             return Formatter.get_value(self, key=key, args=args, kwargs=kwargs)
@@ -24,17 +22,16 @@ class InteractionException(Exception):
         and for extensive testing/review before integration.
         Likewise, this will show the concepts before use, and will be refined when time goes on.
 
-    :ivar _formatter: The built in formatter.
-    :ivar _lookup: A dictionary containing the values from the built-in Enum.
-
+    :ivar formatter: The built in formatter.
+    :ivar _lookup: A dictionary containing the values from the built-in enumerable.
     """
 
     __slots__ = ("__type", "_formatter", "kwargs")
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
+    _type: Optional[Union[int, IntEnum]]
+    formatter: ErrorFormatter
 
-    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs):
-        """
+    def __init__(self, _type: Optional[Union[int, IntEnum]] = 0, **kwargs):
+        r"""
         Instantiates the BaseInteractionException class. Upon instantiation, it will print out an error message.
         This is not meant to be used as an object-to-variable declaration,
         this is used to cause an Exception to be thrown.
@@ -49,29 +46,28 @@ class InteractionException(Exception):
             >>> raise InteractionException(Default_Error_Enum.DUPLICATE_COMMAND)  # noqa
             Exception raised: Duplicate command name. (error 3)
 
-        :param __type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of
-        typical error codes. Subclasses of this class works fine, and so does regular integers.
-        :type __type: Optional[Union[int, IntEnum]]
+        :param _type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of typical error codes. Subclasses of this class works fine, and so does regular integers.
+        :type _type: Optional[Union[int, IntEnum]]
 
-        :param kwargs: Any additional keyword arguments.
-        :type **kwargs: dict
+        :param \**kwargs: Any additional keyword arguments.
+        :type \**kwargs: dict
 
         """
 
-        self._type = __type
+        self._type = _type
         self.kwargs = kwargs
-        self._formatter = ErrorFormatter()
+        self.formatter = ErrorFormatter()
         self._lookup = self.lookup()
 
-        self.error()  # On invocation of the object, it should call the exception.
-
-    # The current layout is that it uses the type, and any arguments parsed to generate readable exceptions.
+        self.error()
 
     @staticmethod
     def lookup() -> dict:
         """
         From the default error enum integer declaration,
         generate a dictionary containing the phrases used for the errors.
+
+        :return: dict
         """
         return {
             0: "Unknown error",
@@ -79,7 +75,7 @@ class InteractionException(Exception):
             2: "Some formats are incorrect. See Discord API DOCS for proper format.",
             3: "There is a duplicate command name.",
             4: "There is a duplicate component callback.",
-            5: "There are duplicate `Interaction` instances.",  # rewrite to v4's interpretation
+            5: "There are duplicate `Interaction` instances.",
             6: "Command check has failed.",
             7: "Type passed was incorrect.",
             8: "Guild ID type passed was incorrect",
@@ -153,12 +149,12 @@ class GatewayException(InteractionException):
     :ivar _lookup: A dictionary containing the values from the built-in Enum.
     """
 
-    __slots__ = ("__type", "_formatter", "kwargs")
-    __type: Optional[Union[int, IntEnum]]
+    __slots__ = ("_type", "_formatter", "kwargs")
+    _type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
 
-    def __init__(self, __type, **kwargs):
-        super().__init__(__type, **kwargs)
+    def __init__(self, _type, **kwargs):
+        super().__init__(_type, **kwargs)
 
     @staticmethod
     def lookup() -> dict:
@@ -187,8 +183,8 @@ class ClientException(InteractionException):
     :ivar _formatter: The built in formatter.
     """
 
-    __slots__ = ("__type", "_formatter", "kwargs")
+    __slots__ = ("_type", "_formatter", "kwargs")
     _formatter: ErrorFormatter
 
-    def __init__(self, __type=0, **kwargs):
-        super().__init__(__type, **kwargs)
+    def __init__(self, _type=0, **kwargs):
+        super().__init__(_type, **kwargs)
