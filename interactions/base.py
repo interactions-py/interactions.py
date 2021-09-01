@@ -1,12 +1,11 @@
-# Normal libraries
-from enum import Enum
+import logging
+from typing import ClassVar
 
-class Data(Enum):
-    """Enumerable object representing constants for the library."""
-    VERSION = "4.0.0"
-    LOGGER = "interactions.log"
+__version__ = "4.0.0"
+__repo_url__ = "https://github.com/goverfl0w/discord-interactions"
 
-class Route(Enum):
-    """Enumerable object representing different route paths."""
-    API = "https://discord.com/api/v9"
-    GATEWAY = "wss://gateway.discord.gg/?v=9"
+
+class Data:
+    """An object representing constants for the library."""
+
+    LOGGER: ClassVar[int] = logging.DEBUG
