@@ -4,6 +4,7 @@ from typing import Any, Optional, Union
 
 
 class ErrorFormatter(Formatter):
+    # Need this formatter? Maybe as a starting point, but it's fine either or.
     def get_value(self, key, args, kwargs) -> Any:
         if not isinstance(key, str):
             return Formatter.get_value(self, key=key, args=args, kwargs=kwargs)
@@ -17,26 +18,28 @@ class InteractionException(Exception):
     """
     Exception class for Interactions.
 
-    .. note::
+    :: note
         This is a WIP. This isn't meant to be used yet, this is a baseline,
         and for extensive testing/review before integration.
         Likewise, this will show the concepts before use, and will be refined when time goes on.
 
-    :ivar formatter: The built in formatter.
-    :ivar _lookup: A dictionary containing the values from the built-in enumerable.
+    :ivar _formatter: The built in formatter.
+    :ivar _lookup: A dictionary containing the values from the built-in Enum.
+
     """
 
-    __slots__ = ("__type", "_formatter", "kwargs")
-    _type: Optional[Union[int, IntEnum]]
-    formatter: ErrorFormatter
+    __slots__ = ["__type", "_formatter", "kwargs"]
+    __type: Optional[Union[int, IntEnum]]
+    _formatter: ErrorFormatter
+    kwargs: dict[str, Any]
 
-    def __init__(self, _type: Optional[Union[int, IntEnum]] = 0, **kwargs):
-        r"""
+    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs):
+        """
         Instantiates the BaseInteractionException class. Upon instantiation, it will print out an error message.
         This is not meant to be used as an object-to-variable declaration,
         this is used to cause an Exception to be thrown.
 
-        .. note::
+        :: note
             (given if 3 is "DUPLICATE_COMMAND" and with the right enum import, it will display 3 as the error code.)
             Example:
 
@@ -46,28 +49,29 @@ class InteractionException(Exception):
             >>> raise InteractionException(Default_Error_Enum.DUPLICATE_COMMAND)  # noqa
             Exception raised: Duplicate command name. (error 3)
 
-        :param _type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of typical error codes. Subclasses of this class works fine, and so does regular integers.
-        :type _type: Optional[Union[int, IntEnum]]
+        :param __type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of
+        typical error codes. Subclasses of this class works fine, and so does regular integers.
+        :type __type: Optional[Union[int, IntEnum]]
 
-        :param \**kwargs: Any additional keyword arguments.
-        :type \**kwargs: dict
+        :param kwargs: Any additional keyword arguments.
+        :type **kwargs: dict
 
         """
 
-        self._type = _type
+        self._type = __type
         self.kwargs = kwargs
-        self.formatter = ErrorFormatter()
+        self._formatter = ErrorFormatter()
         self._lookup = self.lookup()
 
-        self.error()
+        self.error()  # On invocation of the object, it should call the exception.
+
+    # The current layout is that it uses the type, and any arguments parsed to generate readable exceptions.
 
     @staticmethod
     def lookup() -> dict:
         """
         From the default error enum integer declaration,
         generate a dictionary containing the phrases used for the errors.
-
-        :return: dict
         """
         return {
             0: "Unknown error",
@@ -75,7 +79,7 @@ class InteractionException(Exception):
             2: "Some formats are incorrect. See Discord API DOCS for proper format.",
             3: "There is a duplicate command name.",
             4: "There is a duplicate component callback.",
-            5: "There are duplicate `Interaction` instances.",
+            5: "There are duplicate `Interaction` instances.",  # rewrite to v4's interpretation
             6: "Command check has failed.",
             7: "Type passed was incorrect.",
             8: "Guild ID type passed was incorrect",
@@ -137,8 +141,7 @@ class InteractionException(Exception):
         #
 
         super().__init__(
-            f"{f'{lookup_str} ' if _err_val is not None else f'{_lookup_str if _err_rep > max(self._lookup.keys()) else lookup_str} '}{custom_err_str}"
-        )
+            f"{f'{lookup_str} ' if _err_val is not None else f'{_lookup_str if _err_rep > max(self._lookup.keys()) else lookup_str} '}{custom_err_str}")
 
 
 class GatewayException(InteractionException):
@@ -149,12 +152,13 @@ class GatewayException(InteractionException):
     :ivar _lookup: A dictionary containing the values from the built-in Enum.
     """
 
-    __slots__ = ("_type", "_formatter", "kwargs")
-    _type: Optional[Union[int, IntEnum]]
+    __slots__ = ["__type", "_formatter", "kwargs"]
+    __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
+    kwargs: dict[str, Any]
 
-    def __init__(self, _type, **kwargs):
-        super().__init__(_type, **kwargs)
+    def __init__(self, __type, **kwargs):
+        super().__init__(__type, **kwargs)
 
     @staticmethod
     def lookup() -> dict:
@@ -172,19 +176,34 @@ class GatewayException(InteractionException):
             4011: "Sharding required.",
             4012: "Invalid API version for the Gateway.",
             4013: "Invalid intent(s).",
-            4014: "Some intent(s) requested are not allowed. Please double check.",
+            4014: "Some intent(s) requested are not allowed. Please double check."
         }
 
 
-class ClientException(InteractionException):
+class HTTPException(InteractionException):
     """
-    This is a derivation of InteractionException in that this is used to represent specialized errors handed back from the client.
+    This is a derivation of InteractionException in that this is used to represent HTTP Exceptions.
 
     :ivar _formatter: The built in formatter.
+    :ivar _lookup: A dictionary containing the values from the built-in Enum.
     """
 
-    __slots__ = ("_type", "_formatter", "kwargs")
+    __slots__ = ["__type", "_formatter", "kwargs"]
+    __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
+    kwargs: dict[str, Any]
 
-    def __init__(self, _type=0, **kwargs):
-        super().__init__(_type, **kwargs)
+    def __init__(self, __type, **kwargs):
+        super().__init__(__type, **kwargs)
+
+    @staticmethod
+    def lookup() -> dict:
+        return {
+            400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
+            401: "Not authorized. Double check your token to see if it's valid.",
+            403: "You do not have enough permissions to execute this.",
+            404: "Resource does not exist.",
+            405: "HTTP method not valid.",  # ?
+            429: "You are being rate limited. Please slow down on your requests.",  # Definitely can be overclassed.
+            502: "Gateway unavailable. Try again later."
+        }
