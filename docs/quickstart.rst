@@ -8,7 +8,7 @@ Firstly, we will begin by installing the python library extension for discord.py
 
 .. code-block::
 
-    pip install -U discord-py-slash-command
+    pip install -U discord-py-interactions
 
 Then, let's invite the bot. See discord.py's bot account create tutorial.
 After reading that, there is one more step before inviting your bot.
