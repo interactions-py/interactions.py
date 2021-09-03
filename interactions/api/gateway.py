@@ -1,5 +1,5 @@
 import sys
-from asyncio import AbstractEventLoop, get_event_loop, run_coroutine_threadsafe
+from asyncio import AbstractEventLoop, get_running_loop, run_coroutine_threadsafe
 from logging import Logger, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
@@ -109,15 +109,12 @@ class WebSocket:
     def __init__(
         self,
         intents: Intents,
-        loop: Optional[AbstractEventLoop] = None,
         session_id: Optional[int] = None,
         sequence: Optional[int] = None,
     ) -> None:
         """
         :param intents: The intents used for identifying the connection.
         :type intents: interactions.api.models.Intents
-        :param loop: The event loop policy used to set the client session off of. Defaults to ``None`` and creates one for you.
-        :type loop: typing.Optional[asyncio.AbstractEventLoop]
         :param session_id: The session ID if you're trying to resume a connection. Defaults to ``None``.
         :type session_id: typing.Optional[int]
         :param sequence: The sequence if you're trying to resume a connection. Defaults to ``None``.
@@ -125,7 +122,7 @@ class WebSocket:
         :return: None
         """
         self.intents = intents
-        self.loop = get_event_loop() if loop is None else loop
+        self.loop = get_running_loop()
         self.req = None
         self.dispatch = Listener(loop=self.loop)
         self.session = None

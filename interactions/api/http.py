@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
+from asyncio import AbstractEventLoop, Event, Lock, get_running_loop, sleep
 from logging import Logger, basicConfig, getLogger
 from sys import version_info
 from typing import Any, ClassVar, Optional
@@ -104,22 +104,20 @@ class Request:
 
     __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock")
     token: str
-    loop: Optional[AbstractEventLoop]
+    loop: AbstractEventLoop
     ratelimts: dict
     headers: dict
     session: ClientSession
     lock: Event
 
-    def __init__(self, token: str, loop: Optional[AbstractEventLoop] = None) -> None:
+    def __init__(self, token: str) -> None:
         """
         :param token: The application token used for authorizing.
         :type token: str
-        :param loop: The event loop used to make requests on. Defaults to ``None`` and creates one for you.
-        :type loop: typing.Optional[asyncio.AbstractEventLoop]
         :return: None
         """
         self.token = token
-        self.loop = get_event_loop() if loop is None else loop
+        self.loop = get_running_loop()
         self.session = ClientSession()
         self.ratelimits = {}
         self.headers = {

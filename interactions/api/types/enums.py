@@ -1,8 +1,8 @@
 import typing
-from enum import IntEnum, Enum
+from enum import IntEnum
 
 from discord import Member
-from discord.abc import Messageable, User, Role, GuildChannel
+from discord.abc import GuildChannel, Messageable, Role, User
 
 # TODO: Implement JSON Error codes.
 
@@ -91,36 +91,6 @@ class HTTPResponse(IntEnum):
     METHOD_NOT_ALLOWED = 405
     TOO_MANY_REQUESTS = 429
     GATEWAY_UNAVAILABLE = 502
-
-
-class GuildFeature(str, Enum):
-    """Lists all of the features in any Guild in a string Enum.
-
-    ..note:
-        Equivalent of `Guild Features` <https://discord.com/developers/docs/resources/guild#guild-object-guild-features>
-    """
-
-    ANIMATED_ICON = "ANIMATED_ICON"
-    BANNER = "BANNER"
-    COMMERCE = "COMMERCE"
-    COMMUNITY = "COMMUNITY"
-    DISCOVERABLE = "DISCOVERABLE"
-    FEATURABLE = "FEATURABLE"
-    INVITE_SPLASH = "INVITE_SPLASH"
-    MEMBER_VERIFICATION_GATE_ENABLED = "MEMBER_VERIFICATION_GATE_ENABLED"
-    NEWS = "NEWS"
-    PARTNERED = "PARTNERED"
-    PREVIEW_ENABLED = "PREVIEW_ENABLED"
-    VANITY_URL = "VANITY_URL"
-    VERIFIED = "VERIFIED"
-    VIP_REGIONS = "VIP_REGIONS"
-    WELCOME_SCREEN_ENABLED = "WELCOME_SCREEN_ENABLED"
-    TICKETED_EVENTS_ENABLED = "TICKETED_EVENTS_ENABLED"
-    MONETIZATION_ENABLED = "MONETIZATION_ENABLED"
-    MORE_STICKERS = "MORE_STICKERS"
-    THREE_DAY_THREAD_ARCHIVE = "THREE_DAY_THREAD_ARCHIVE"
-    SEVEN_DAY_THREAD_ARCHIVE = "SEVEN_DAY_THREAD_ARCHIVE"
-    PRIVATE_THREADS = "PRIVATE_THREADS"
 
 
 class Options(IntEnum):

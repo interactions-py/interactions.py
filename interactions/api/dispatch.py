@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, get_event_loop
+from asyncio import AbstractEventLoop, get_running_loop
 from typing import Any, Callable, Coroutine, Optional
 
 
@@ -14,13 +14,8 @@ class Listener:
     loop: AbstractEventLoop
     events: dict
 
-    def __init__(self, loop: Optional[AbstractEventLoop] = None) -> None:
-        """
-        :param loop: The coroutine event loop for dispatching.
-        :type loop: typing.Optional[asyncio.AbstractEventLoop]
-        :return: None
-        """
-        self.loop = get_event_loop() if loop is None else loop
+    def __init__(self) -> None:
+        self.loop = get_running_loop()
         self.events = {}
 
     def dispatch(self, name: str, *args, **kwargs) -> None:

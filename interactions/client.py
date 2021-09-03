@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, get_event_loop
+from asyncio import AbstractEventLoop, get_running_loop
 from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.dispatch import Listener
@@ -19,7 +19,7 @@ class Client:
     :ivar token: The application token.
     """
 
-    loop: Optional[AbstractEventLoop]
+    loop: AbstractEventLoop
     intents: Optional[Union[Intents, List[Intents]]]
     http: Request
     websocket: WebSocket
@@ -28,8 +28,7 @@ class Client:
     def __init__(
         self,
         token: str,
-        intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
-        loop: Optional[AbstractEventLoop] = None,
+        intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
     ) -> None:
         """
         An object representing the client connection to Discord's Gateway
@@ -39,8 +38,6 @@ class Client:
         :type token: str
         :param intents: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.Intents.DEFAULT` or ``513``.
         :type intents: typing.Optional[typing.Union[interactions.api.models.Intents, typing.List[Intents]]]
-        :param loop: The asynchronous coroutine loop you wish to use. Defaults to ``None`` and creates a global loop instead.
-        :type loop: typing.Optional[asyncio.AbstractEventLoop]
         :return: None
         """
         if isinstance(intents, list):
@@ -49,10 +46,10 @@ class Client:
         else:
             self.intents = intents
 
-        self.loop = get_event_loop() if loop is None else loop
-        self.listener = Listener(loop=self.loop)
-        self.http = Request(token=token, loop=self.loop)
-        self.websocket = WebSocket(intents=self.intents, loop=self.loop)
+        self.loop = get_running_loop()
+        self.listener = Listener()
+        self.http = Request(token)
+        self.websocket = WebSocket(intents=self.intents)
         self.token = token
 
     async def login(self, token: str) -> None:
