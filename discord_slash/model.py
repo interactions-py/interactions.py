@@ -629,8 +629,8 @@ class PermissionData:
     def __eq__(self, other):
         if isinstance(other, PermissionData):
             return (
-                self.id == other.id
-                and self.type == other.id
+                str(self.id) == str(other.id)
+                and self.type == other.type
                 and self.permission == other.permission
             )
         else:
@@ -658,7 +658,7 @@ class GuildPermissionsData:
         if isinstance(other, GuildPermissionsData):
             return (
                 self.id == other.id
-                and self.guild_id == other.guild_id
+                and str(self.guild_id) == str(other.guild_id)
                 and self.permissions == other.permissions
             )
         else:
