@@ -108,7 +108,7 @@ class CommandData:
             return (
                 self.name == other.name
                 and self.description == other.description
-                and self.options == other.options
+                and (self.options == other.options or not self.options and not other.options)
                 and self.default_permission == other.default_permission
             )
         else:

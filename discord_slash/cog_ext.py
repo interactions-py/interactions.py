@@ -212,7 +212,7 @@ def cog_context_menu(*, name: str, guild_ids: list = None, target: int = 1):
             )
 
         _cmd = {
-            "default_permission": None,
+            "default_permission": True,
             "has_permissions": None,
             "name": name,
             "type": target,

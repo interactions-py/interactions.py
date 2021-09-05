@@ -332,7 +332,7 @@ class SlashCommand:
                         "type": selected._type,
                     }
                     if command_dict["type"] != 1:
-                        command_dict.pop("description")
+                        command_dict["description"] = ""
                     if y in selected.permissions:
                         command_dict["permissions"][y] = selected.permissions[y]
                     wait[y][x] = copy.deepcopy(command_dict)
@@ -348,7 +348,7 @@ class SlashCommand:
                     "type": selected._type,
                 }
                 if command_dict["type"] != 1:
-                    command_dict.pop("description")
+                    command_dict["description"] = ""
                 wait["global"][x] = copy.deepcopy(command_dict)
 
         # Separated normal command add and subcommand add not to
