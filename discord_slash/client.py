@@ -29,6 +29,8 @@ class SlashCommand:
     :type client: Union[discord.Client, discord.ext.commands.Bot]
     :param sync_commands: Whether to sync commands automatically. Default `False`.
     :type sync_commands: bool
+    :param sync_permissions: Whether to also sync permissions automatically when sync_commands set True. Default `True`.
+    :type sync_permissions: bool
     :param debug_guild: Guild ID of guild to use for testing commands. Prevents setting global commands in favor of guild commands, which update instantly
     :type debug_guild: int
     :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``. Default `False`.
@@ -50,6 +52,7 @@ class SlashCommand:
     :ivar req: :class:`.http.SlashCommandRequest` of this client.
     :ivar logger: Logger of this client.
     :ivar sync_commands: Whether to sync commands automatically.
+    :ivar sync_permissions: Whether to also sync permissions automatically.
     :ivar sync_on_cog_reload: Whether to sync commands on cog reload.
     :ivar has_listener: Whether discord client has listener add function.
     """
@@ -58,6 +61,7 @@ class SlashCommand:
         self,
         client: typing.Union[discord.Client, commands.Bot],
         sync_commands: bool = False,
+        sync_permissions: bool = True,
         debug_guild: typing.Optional[int] = None,
         delete_from_unused_guilds: bool = False,
         sync_on_cog_reload: bool = False,
@@ -71,11 +75,14 @@ class SlashCommand:
         self.logger = logging.getLogger("discord_slash")
         self.req = http.SlashCommandRequest(self.logger, self._discord, application_id)
         self.sync_commands = sync_commands
+        self.sync_permissions = sync_permissions
         self.debug_guild = debug_guild
         self.sync_on_cog_reload = sync_on_cog_reload
 
         if self.sync_commands:
-            self._discord.loop.create_task(self.sync_all_commands(delete_from_unused_guilds))
+            self._discord.loop.create_task(
+                self.sync_all_commands(delete_from_unused_guilds, sync_permissions=sync_permissions)
+            )
 
         if (
             not isinstance(client, commands.Bot)
@@ -413,7 +420,10 @@ class SlashCommand:
         return cmds
 
     async def sync_all_commands(
-        self, delete_from_unused_guilds=False, delete_perms_from_unused_guilds=False
+        self,
+        delete_from_unused_guilds=False,
+        delete_perms_from_unused_guilds=False,
+        sync_permissions=True,
     ):
         """
         Matches commands registered on Discord to commands registered here.
@@ -424,6 +434,7 @@ class SlashCommand:
 
         :param delete_from_unused_guilds: If the bot should make a request to set no commands for guilds that haven't got any commands registered in :class:``SlashCommand``
         :param delete_perms_from_unused_guilds: If the bot should make a request to clear permissions for guilds that haven't got any permissions registered in :class:``SlashCommand``
+        :param sync_permissions: If the bot should make a request to update permissions on discord's api, whether set or not in :class:``SlashCommand``, still syncs default_permission.
         """
         permissions_map = {}
         cmds = await self.to_dict()
@@ -511,36 +522,39 @@ class SlashCommand:
                     }
                     permissions_map[applicable_guild].append(permission)
 
-        self.logger.info("Syncing permissions...")
-        self.logger.debug(f"Commands permission data are {permissions_map}")
-        for scope in permissions_map:
-            existing_perms = await self.req.get_all_guild_commands_permissions(scope)
-            new_perms = permissions_map[scope]
+        if sync_permissions:
+            self.logger.info("Syncing permissions...")
+            self.logger.debug(f"Commands permission data are {permissions_map}")
+            for scope in permissions_map:
+                existing_perms = await self.req.get_all_guild_commands_permissions(scope)
+                new_perms = permissions_map[scope]
 
-            changed = False
-            if len(existing_perms) != len(new_perms):
-                changed = True
-            else:
-                existing_perms_model = {}
-                for existing_perm in existing_perms:
-                    existing_perms_model[existing_perm["id"]] = model.GuildPermissionsData(
-                        **existing_perm
-                    )
-                for new_perm in new_perms:
-                    if new_perm["id"] not in existing_perms_model:
-                        changed = True
-                        break
-                    if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(
-                        **new_perm
-                    ):
-                        changed = True
-                        break
+                changed = False
+                if len(existing_perms) != len(new_perms):
+                    changed = True
+                else:
+                    existing_perms_model = {}
+                    for existing_perm in existing_perms:
+                        existing_perms_model[existing_perm["id"]] = model.GuildPermissionsData(
+                            **existing_perm
+                        )
+                    for new_perm in new_perms:
+                        if new_perm["id"] not in existing_perms_model:
+                            changed = True
+                            break
+                        if existing_perms_model[new_perm["id"]] != model.GuildPermissionsData(
+                            **new_perm
+                        ):
+                            changed = True
+                            break
 
-            if changed:
-                self.logger.debug(f"Detected permissions changes on {scope}, updating them")
-                await self.req.update_guild_commands_permissions(scope, new_perms)
-            else:
-                self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
+                if changed:
+                    self.logger.debug(f"Detected permissions changes on {scope}, updating them")
+                    await self.req.update_guild_commands_permissions(scope, new_perms)
+                else:
+                    self.logger.debug(f"Detected no permissions changes on {scope}, skipping")
+        else:
+            self.logger.info("Skipping permissions syncing...")
 
         if delete_from_unused_guilds:
             self.logger.info("Deleting unused guild commands...")
@@ -557,7 +571,7 @@ class SlashCommand:
                         self.logger.debug(f"Deleting commands from {guild}")
                         await self.req.put_slash_commands(slash_commands=[], guild_id=guild)
 
-        if delete_perms_from_unused_guilds:
+        if delete_perms_from_unused_guilds and sync_permissions:
             self.logger.info("Deleting unused guild permissions...")
             other_guilds = [
                 guild.id for guild in self._discord.guilds if guild.id not in permissions_map.keys()
