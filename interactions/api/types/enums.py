@@ -1,10 +1,11 @@
 import typing
 from enum import IntEnum
 
-from discord import Member
-from discord.abc import GuildChannel, Messageable, Role, User
+# from discord import Member
+# from discord.abc import GuildChannel, Messageable, Role, User
 
 # TODO: Implement JSON Error codes.
+from interactions import User, Channel, Role, Member, Message
 
 
 class DefaultErrorEnum(IntEnum):
@@ -134,7 +135,7 @@ class Options(IntEnum):
         if issubclass(_type, User):
             return cls.USER
 
-        if issubclass(_type, GuildChannel):
+        if issubclass(_type, Channel):
             return cls.CHANNEL
 
         if issubclass(_type, Role):
@@ -247,5 +248,5 @@ class Menus(IntEnum):
         if isinstance(_type, Member) or issubclass(_type, User):
             return cls.USER
 
-        if issubclass(_type, Messageable):
+        if issubclass(_type, Message):
             return cls.MESSAGE
