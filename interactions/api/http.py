@@ -7,6 +7,7 @@ from urllib.parse import quote
 from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
 
+from ..api.error import HTTPException
 from ..base import Data, __version__
 
 basicConfig(level=Data.LOGGER)
@@ -181,7 +182,7 @@ class Request:
                     log.debug(data)
 
                     if response.status in (300, 401, 403, 404):
-                        raise Exception("api is being poopy with us.")
+                        raise HTTPException(response.status)
                     elif response.status == 429:
                         retry_after = data["retry_after"]
 

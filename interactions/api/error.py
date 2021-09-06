@@ -97,7 +97,11 @@ class InteractionException(Exception):
 
     def error(self) -> None:
         """This calls the exception."""
-        _err_val = None
+        _err_val = ""
+        _err_unidentifiable = False
+        _empty_space = " "
+
+        _overrided = "message" in self.kwargs.keys()  # do we need to override at all?
 
         if issubclass(type(self._type), IntEnum):
             _err_val = self.type.name
@@ -106,11 +110,12 @@ class InteractionException(Exception):
             _err_rep = self.type
         else:  # unidentifiable.
             _err_rep = 0
+            _err_unidentifiable = True
 
         _err_msg = _default_err_msg = "Error code: {_err_rep}"
 
-        if self.kwargs != {} and "message" in self.kwargs.keys():
-            _err_msg = self.kwargs["message"]  # If there's a `message=`, replace it.
+        if self.kwargs != {} and _overrided:
+            _err_msg = self.kwargs["message"]  # If there's a `message=`, replace it. (Does not override the default.)
 
         # We add, for formatting, the error code for kwargs.
         self.kwargs["_err_rep"] = _err_rep  #
@@ -120,14 +125,18 @@ class InteractionException(Exception):
 
         # message= should be given when it's needed, i.e. API request failures
 
-        lookup_str = self._lookup[_err_rep] if _err_rep in self._lookup.keys() else _err_val
-        _lookup_str = lookup_str if _err_rep <= max(self._lookup.keys()) else self._lookup[0]
-        # Defaults to Unknown error print if the error code is undefined.
+        if not _err_unidentifiable:  # looks up from the dictionary the default.
+            lookup_str = self._lookup[_err_rep] if _err_rep in self._lookup.keys() else _err_val
+            _lookup_str = lookup_str if max(self._lookup.keys()) >= _err_rep >= min(self._lookup.keys()) else ""
+        else:
+            # If it's unidentifiable somehow, we can't do anything about it so don't look it up.
+            _lookup_str = lookup_str = ""
+
         custom_err_str = (
             self._formatter.format(_err_msg, **self.kwargs)
             if "_err_rep" in _err_msg
-            else self._formatter.format(_err_msg + _default_err_msg + " ", **self.kwargs)
-        )
+            else self._formatter.format(_err_msg + _empty_space + _default_err_msg, **self.kwargs)
+        )  # Especially useful if it can't look it up, but you want a message anyway :)
 
         # This is just for writing notes meant to be for the developer(testers):
         #
@@ -141,7 +150,7 @@ class InteractionException(Exception):
         #
 
         super().__init__(
-            f"{f'{lookup_str} ' if _err_val is not None else f'{_lookup_str if _err_rep > max(self._lookup.keys()) else lookup_str} '}{custom_err_str}"
+            f"{f'{lookup_str} ' if _err_val != '' else f'{_lookup_str + _empty_space if max(self._lookup.keys()) >= _err_rep >= min(self._lookup.keys()) else lookup_str}'}{custom_err_str}"
         )
 
 
