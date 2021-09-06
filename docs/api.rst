@@ -32,6 +32,18 @@ HTTP
 .. autoclass:: interactions.api.http.Request
     :members:
 
+Cache
+*****
+
+.. autoclass:: interactions.api.cache.Item
+    :members:
+
+.. autoclass:: interactions.api.cache.Storage
+    :members:
+
+.. autoclass:: interactions.api.cache.Cache
+    :members:
+
 Exceptions
 **********
 

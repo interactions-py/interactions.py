@@ -9,7 +9,7 @@ from .api.models.intents import Intents
 
 class Client:
     """
-    A class representing a client connection to the Discord API.
+    A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
 
     :ivar loop: The main overall asynchronous coroutine loop in effect.
     :ivar listener: An instance of :class:`interactions.api.dispatch.Listener`.
@@ -26,14 +26,9 @@ class Client:
     token: str
 
     def __init__(
-        self,
-        token: str,
-        intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
+        self, token: str, intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
     ) -> None:
         """
-        An object representing the client connection to Discord's Gateway
-        and API via. WebSocket and HTTP.
-
         :param token: The token of the application for authentication and connection.
         :type token: str
         :param intents: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.Intents.DEFAULT` or ``513``.
