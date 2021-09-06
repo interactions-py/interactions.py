@@ -100,7 +100,7 @@ class Options(IntEnum):
 
     .. note::
 
-        Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_ in the Discord API.
+        Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type>`_ in the Discord API.
     """
 
     SUB_COMMAND = 1
@@ -163,7 +163,7 @@ class Permissions(IntEnum):
 
     .. note::
 
-        Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_ in the Discord API.
+        Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-application-command-permission-type>`_ in the Discord API.
     """
 
     ROLE = 1
