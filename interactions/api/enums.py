@@ -9,8 +9,8 @@ class DefaultErrorType(IntEnum):
     .. note::
         This is a port from v3's errors, which basically delegate errors to a unique error code.
         This enum's purpose is to help remember error codes. Importing this class is not required.
-        i.e.:
-            raise InteractionException(1) == raise InteractionException(REQUEST_FAILURE)
+
+        i.e. : raise InteractionException(1) == raise InteractionException(REQUEST_FAILURE)
     """
 
     BASE = 0
@@ -101,7 +101,7 @@ class JSONResponseType(IntEnum):
     An enumerable object for the JSON error response codes Discord gives out.
 
     .. note::
-        Equivalent of `JSON Error Codes <https://discord.com/developers/docs/topics/opcodes-and-status-codes#json-json-error-codes`_ in the Discord API.
+        Equivalent of `JSON Error Codes <https://discord.com/developers/docs/topics/opcodes-and-status-codes#json-json-error-codes>`_ in the Discord API.
     """
 
     GENERIC_ERROR = 0
