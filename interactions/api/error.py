@@ -1,6 +1,6 @@
 from enum import IntEnum
 from string import Formatter
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 
 class ErrorFormatter(Formatter):
@@ -31,7 +31,7 @@ class InteractionException(Exception):
     __slots__ = ["__type", "_formatter", "kwargs"]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
-    kwargs: dict[str, Any]
+    kwargs: Dict[str, Any]
 
     def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs):
         """
@@ -165,7 +165,7 @@ class GatewayException(InteractionException):
     __slots__ = ["__type", "_formatter", "kwargs"]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
-    kwargs: dict[str, Any]
+    kwargs: Dict[str, Any]
 
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)
@@ -201,7 +201,7 @@ class HTTPException(InteractionException):
     __slots__ = ["__type", "_formatter", "kwargs"]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
-    kwargs: dict[str, Any]
+    kwargs: Dict[str, Any]
 
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)
