@@ -178,6 +178,8 @@ class WebSocket:
                 self.sequence = stream.get("s")
 
                 if op != OpCodeType.DISPATCH:
+                    log.debug(data)
+
                     if op == OpCodeType.HELLO:
                         if not self.session_id:
                             await self.identify()
@@ -222,8 +224,8 @@ class WebSocket:
                     if event == "READY":
                         self.session_id = data["session_id"]
                         self.sequence = stream["s"]
-                        log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
                         self.dispatch.dispatch("on_ready")
+                        log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
                     else:
                         log.debug(f"{event}: {data}")
                         self.dispatch.dispatch(f"on_{event.lower()}", data)
@@ -232,6 +234,7 @@ class WebSocket:
     async def send(self, data: Union[str, dict]) -> None:
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
         await self.session.send_str(packet)
+        log.debug(packet)
 
     async def identify(self) -> None:
         """Sends an ``IDENTIFY`` packet to the gateway."""
