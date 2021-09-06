@@ -77,16 +77,6 @@ class Cache:
     :ivar users: The cached users upon interaction.
     """
 
-    __slots__ = (
-        "dms",
-        "self_guilds",
-        "guilds",
-        "channels",
-        "roles",
-        "members",
-        "messages",
-        "users",
-    )
     dms: Storage = Storage()
     self_guilds: Storage = Storage()
     guilds: Storage = Storage()

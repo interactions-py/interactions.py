@@ -115,7 +115,9 @@ class InteractionException(Exception):
         _err_msg = _default_err_msg = "Error code: {_err_rep}"
 
         if self.kwargs != {} and _overrided:
-            _err_msg = self.kwargs["message"]  # If there's a `message=`, replace it. (Does not override the default.)
+            _err_msg = self.kwargs[
+                "message"
+            ]  # If there's a `message=`, replace it. (Does not override the default.)
 
         # We add, for formatting, the error code for kwargs.
         self.kwargs["_err_rep"] = _err_rep  #
@@ -127,7 +129,11 @@ class InteractionException(Exception):
 
         if not _err_unidentifiable:  # looks up from the dictionary the default.
             lookup_str = self._lookup[_err_rep] if _err_rep in self._lookup.keys() else _err_val
-            _lookup_str = lookup_str if max(self._lookup.keys()) >= _err_rep >= min(self._lookup.keys()) else ""
+            _lookup_str = (
+                lookup_str
+                if max(self._lookup.keys()) >= _err_rep >= min(self._lookup.keys())
+                else ""
+            )
         else:
             # If it's unidentifiable somehow, we can't do anything about it so don't look it up.
             _lookup_str = lookup_str = ""
