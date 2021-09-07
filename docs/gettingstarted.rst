@@ -445,8 +445,8 @@ As a side-note, as of version 3.0, message/menu commands (context menus) are han
 .. _components: components.html
 .. _errors: discord_slash.error.html
 .. _listeners: events.html
-.. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype
-.. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice
-.. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoption
-.. _ApplicationCommandPermissionType: https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissions
+.. _ApplicationCommandOptionType: https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type
+.. _ApplicationCommandOptionChoice: https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-choice-structure
+.. _ApplicationCommandOption: https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
+.. _ApplicationCommandPermissionType: https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-application-command-permission-type
 .. _ApplicationCommandType: https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types
