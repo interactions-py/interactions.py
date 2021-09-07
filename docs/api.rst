@@ -11,44 +11,24 @@ This page outlines the API wrapper of discord-interactions.
     has not yet been released, which this documentation currently reflects.
     The documentation written here is subject to change and is not finalized.
 
-Gateway
-*******
+.. toctree::
+    :maxdepth: 2
+    :caption: Client Connections
 
-.. autoclass:: interactions.api.gateway.Heartbeat
-    :members:
+    api.gateway
+    api.http
 
-.. autoclass:: interactions.api.gateway.WebSocket
-    :members:
+.. toctree::
+    :maxdepth: 2
+    :caption: Model/Design
 
-HTTP
-****
+    api.cache
+    api.enums
+    api.models
 
-.. autoclass:: interactions.api.http.Route
-    :members:
+.. toctree::
+    :maxdepth: 2
+    :caption: Events
 
-.. autoclass:: interactions.api.http.Padlock
-    :members:
-
-.. autoclass:: interactions.api.http.Request
-    :members:
-
-Cache
-*****
-
-.. autoclass:: interactions.api.cache.Item
-    :members:
-
-.. autoclass:: interactions.api.cache.Storage
-    :members:
-
-.. autoclass:: interactions.api.cache.Cache
-    :members:
-
-Exceptions
-**********
-
-.. autoclass:: interactions.api.error.ErrorFormatter
-
-.. autoexception:: interactions.api.error.InteractionException
-
-.. autoexception:: interactions.api.error.GatewayException
+    api.dispatch
+    api.error
