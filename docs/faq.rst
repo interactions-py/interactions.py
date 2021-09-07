@@ -65,7 +65,7 @@ What does that mean? Well, we'll show you:
         name="test",
         description="this is just a testing command."
     )
-    asyc def test(ctx):
+    async def test(ctx):
         await ctx.send("Hello from discord-interactions!")
     
     interactions.start()
