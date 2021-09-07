@@ -42,7 +42,7 @@ class MessageType(IntEnum):
 class MessageActivity(object):
     """
     A class object representing the activity state of a message.
-    
+
     .. note::
         ``party_id`` is ambigious -- Discord poorly documented this. :)
 
@@ -52,6 +52,7 @@ class MessageActivity(object):
     :ivar int type: The message activity type.
     :ivar typing.Optional[str] party_id: The party ID of the activity.
     """
+
     __slots__ = ("type", "party_id")
     type: int
     party_id: Optional[str]
@@ -70,6 +71,7 @@ class MessageReference(object):
     :ivar typing.Optional[int] guild_id: The guild ID of the referenced message.
     :ivar typing.Optional[bool] fail_if_not_exists: Whether the message reference exists.
     """
+
     __slots__ = ("message_id", "channel_id", "guild_id", "fail_if_not_exists")
     message_id: Optional[int]
     channel_id: Optional[int]
@@ -95,6 +97,7 @@ class Attachment(object):
     :ivar typing.Optional[int] height: The height of the attachment file.
     :ivar typing.Optional[int] width: The width of the attachment file.
     """
+
     __slots__ = ("id", "filename", "content_type", "size", "url", "proxy_url", "height", "width")
     id: int
     filename: str

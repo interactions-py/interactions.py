@@ -91,7 +91,7 @@ class WelcomeScreen(object):
 
     .. note::
         ``description`` is ambiguous -- Discord poorly documented this. :)
-        
+
         We assume it's for the welcome screen topic.
 
     :ivar typing.Optional[str] description: The description of the welcome sceen.
@@ -127,7 +127,7 @@ class StageInstance(object):
 class Guild(object):
     """
     A class object representing all types of channels.
-    
+
     .. note::
         Most of these optionals are actually declared with their value
         upon instantiation but are kept like this since this class object
