@@ -61,6 +61,12 @@ class Client:
         self.loop.run_until_complete(self.login(self.token))
 
     def event(self, coro: Coroutine) -> Callable[..., Any]:
+        """
+        A decorator for listening to dispatched events from the
+        gateway.
+        
+        :return: typing.Callable[..., typing.Any]
+        """
         self.websocket.dispatch.register(coro)
         return coro
 
