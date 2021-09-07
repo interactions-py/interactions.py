@@ -51,21 +51,13 @@ This code block below shows a simple ``Client``_ being created:
 
 There's quite a lot of things that are going on here, so let's break it down step-by-step:
 
-- ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please
-look at our `Installing`_ section here.
-- ``bot = interactions.Client(token="...")`` -- This is the ``bot`` variable that defines our ``Client``.
-This basically instantiates the ``interactions.Client()`` class, which requires a ``token`` keyword-argument
-to be passed. In order to get a token, please look at the image given below.
+- ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please look at our `Installing`_ section here.
+- ``bot = interactions.Client(token="...")`` -- This is the ``bot`` variable that defines our ``Client``. This basically instantiates the ``interactions.Client()`` class, which requires a ``token`` keyword-argument to be passed. In order to get a token, please look at the image given below.
 
 .. image:: _static/client_token.png
 
-- ``@bot.application_command()`` -- This is something known as a *decorator* in Python. This decorator is
-in charge and responsible of making sure that the Discord API is told about the slash/sub command that you
-wish to create, and sends an HTTP request correspondingly. Any changes to the information contained in this
-decorator will be synchronously updated with the API automatically for you.
-- ``await ctx.send("Hello world!")`` -- This is what lets us send a "message", or otherwise known as an
-interaction response back to the Discord API for us. ``ctx`` is abbreviated as the "context" of the command,
-so numerous fields and attributes such as channels, guilds; and etc. are able to be inputted.
+- ``@bot.application_command()`` -- This is something known as a *decorator* in Python. This decorator is in charge and responsible of making sure that the Discord API is told about the slash/sub command that you wish to create, and sends an HTTP request correspondingly. Any changes to the information contained in this decorator will be synchronously updated with the API automatically for you.
+- ``await ctx.send("Hello world!")`` -- This is what lets us send a "message", or otherwise known as an interaction response back to the Discord API for us. ``ctx`` is abbreviated as the "context" of the command, so numerous fields and attributes such as channels, guilds; and etc. are able to be inputted.
 - ``bot.start()`` -- Finally, this is what tells our library to turn your bot from offline to online.
 
 And it's really as simple as that! If you would like to learn more about what our library offers, or see
