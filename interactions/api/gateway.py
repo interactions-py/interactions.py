@@ -11,7 +11,7 @@ from ..base import Data
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
-from .http import HTTPClient
+from .http import Request, Route
 from .models.intents import Intents
 
 basicConfig(level=Data.LOGGER)
@@ -24,9 +24,9 @@ class Heartbeat(Thread):
     """
     A class representing a consistent heartbeat connection with the gateway.
 
-    :ivar ws: The WebSocket class to infer on.
-    :ivar interval: The heartbeat interval determined by the gateway.
-    :ivar event: The multi-threading event.
+    :ivar interactions.api.gateway.WebSocket ws: The WebSocket class to infer on.
+    :ivar typing.Union[int, float] interval: The heartbeat interval determined by the gateway.
+    :ivar threading.Event event: The multi-threading event.
     """
 
     __slots__ = ("ws", "interval", "event")
@@ -74,37 +74,37 @@ class WebSocket:
     """
     A class representing a websocket connection with the gateway.
 
-    :ivar intents: An instance of :class:`interactions.api.models.Intents`.
-    :ivar loop: The coroutine event loop established on.
-    :ivar dispatch: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar session: The current client session.
-    :ivar session_id: The current ID of the gateway session.
-    :ivar sequence: The current sequence of the gateway connection.
-    :ivar keep_alive: An instance of :class:`interactions.api.gateway.Heartbeat`.
-    :ivar closed: The current connection state.
-    :ivar _http: An instance of :class:`interactions.api.http.HTTPClient`
+    :ivar interactions.api.models.intents.Intents intents: An instance of :class:`interactions.api.models.Intents`.
+    :ivar asyncio.AbstractEventLoop loop: The coroutine event loop established on.
+    :ivar interactions.api.http.Request req: An instance of :class:`interactions.api.http.Request`.
+    :ivar interactions.api.dispatch.Listener dispatch: An instance of :class:`interactions.api.dispatch.Listener`.
+    :ivar typing.Any session: The current client session.
+    :ivar int session_id: The current ID of the gateway session.
+    :ivar int sequence: The current sequence of the gateway connection.
+    :ivar interactions.api.gateway.Heartbeat keep_alive: An instance of :class:`interactions.api.gateway.Heartbeat`.
+    :ivar bool closed: The current connection state.
     """
 
     __slots__ = (
         "intents",
         "loop",
+        "req",
         "dispatch",
         "session",
         "session_id",
         "sequence",
         "keep_alive",
         "closed",
-        "_http"
     )
     intents: Intents
     loop: AbstractEventLoop
+    req: Optional[Request]
     dispatch: Listener
     session: Any
     session_id: Optional[int]
     sequence: Optional[int]
     keep_alive: Optional[Heartbeat]
     closed: bool
-    _http: Optional[HTTPClient]
 
     def __init__(
         self,
@@ -123,6 +123,7 @@ class WebSocket:
         """
         self.intents = intents
         self.loop = get_running_loop()
+        self.req = None
         self.dispatch = Listener(loop=self.loop)
         self.session = None
         self.session_id = session_id
@@ -130,7 +131,7 @@ class WebSocket:
         self.keep_alive = None
         self.closed = False
 
-    async def recv(self) -> Optional[Any]:
+    async def recv(self) -> None:
         """Receives packets sent from the gateway."""
         packet = await self.session.receive()
         return (
@@ -147,20 +148,19 @@ class WebSocket:
         :type token: str
         :return: None
         """
-
-        self._http = HTTPClient(token)
-        gateway_url = await self._http.get_gateway()
+        self.req = Request(token, loop=self.loop)
+        gateway_url = await self.req.request(Route("GET", "/gateway"))
 
         options: dict = {
             "max_msg_size": 1024 ** 2,
             "timeout": 60,
             "autoclose": False,
-            "headers": {"User-Agent": self._http.req.headers["User-Agent"]},
+            "headers": {"User-Agent": self.req.headers["User-Agent"]},
             "compress": 0,
         }
 
-        async with self._http._req.session.ws_connect(
-            gateway_url, **options
+        async with self.req.session.ws_connect(
+            gateway_url["url"] + "?v=9&encoding=json", **options
         ) as self.session:
             while not self.closed:
                 stream = await self.recv()
@@ -241,7 +241,7 @@ class WebSocket:
         payload: dict = {
             "op": OpCodeType.IDENTIFY,
             "d": {
-                "token": self._http.token,
+                "token": self.req.token,
                 "intents": self.intents,
                 "properties": {
                     "$os": sys.platform,
@@ -257,7 +257,7 @@ class WebSocket:
         """Sends a ``RESUME`` packet to the gateway."""
         payload: dict = {
             "op": OpCodeType.RESUME,
-            "d": {"token": self._http.token, "seq": self.sequence, "session_id": self.session_id},
+            "d": {"token": self.req.token, "seq": self.sequence, "session_id": self.session_id},
         }
         await self.send(payload)
         log.debug("RESUME")
