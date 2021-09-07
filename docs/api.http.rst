@@ -3,6 +3,6 @@
 HTTP Client
 ===========
 
-.. automodule:: interactions.api.gateway
+.. automodule:: interactions.api.http
     :members:
     :noindex:
