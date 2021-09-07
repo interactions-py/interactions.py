@@ -39,6 +39,7 @@ Please look at our pages below to find out where to go further.
    :maxdepth: 2
    :caption: Pages:
 
+   quickstart.rst
    api.rst
 
 Indices and tables
