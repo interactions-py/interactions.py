@@ -50,6 +50,7 @@ class WelcomeChannels(object):
     :ivar typing.Optional[int] emoji_id: The ID of the emoji of the welcome channel.
     :ivar typing.Optional[str] emoji_name: The name of the emoji of the welcome channel.
     """
+
     channel_id: int
     description: str
     emoji_id: Optional[int]
@@ -59,10 +60,11 @@ class WelcomeChannels(object):
 class WelcomeScreen(object):
     """
     A class object representing the welcome screen shown for community guilds.
-    
+
     :ivar typing.Optional[str] description: The description of the welcome sceen.
     :ivar typing.List[interactions.api.models.guild.WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
+
     description: Optional[str]
     welcome_channels: List[WelcomeChannels]
 
@@ -78,6 +80,7 @@ class StageInstance(object):
     :ivar int privacy_level: The "privacy"/inclusive accessibility level of the stage.
     :ivar bool discoverable_disabled: Whether the stage can be seen from the stage discovery.
     """
+
     id: int
     guild_id: int
     channel_id: int
