@@ -17,7 +17,7 @@ Interactions
 .. toctree::
     :maxdepth: 2
     :caption: Client
-    
+
     client.rst
 
 .. toctree::

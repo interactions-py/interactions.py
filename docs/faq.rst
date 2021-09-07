@@ -53,7 +53,7 @@ What does that mean? Well, we'll show you:
 
     import interactions
     from discord.ext import commands
-    
+
     interactions = interactions.Client(token="...")
     dpy = commands.Bot(prefix="/")
 
@@ -67,7 +67,7 @@ What does that mean? Well, we'll show you:
     )
     async def test(ctx):
         await ctx.send("Hello from discord-interactions!")
-    
+
     interactions.start()
     dpy.run(token="...", bot=True)
 
@@ -87,7 +87,7 @@ will both function properly as their respective libraries intend them to. What a
     async def second_borrowing(ctx, member: discord.Member):
         await ctx.send(f"Member ID: {member.id}")
 
-Both of these will be able to both run and give their proper value. It is *very* important to note here, though, that you 
+Both of these will be able to both run and give their proper value. It is *very* important to note here, though, that you
 **must** be returning back the exact same information that our objects depend on. A missing class instance can easily lead to
 it breaking, hence the "plastering" that is going on here.
 

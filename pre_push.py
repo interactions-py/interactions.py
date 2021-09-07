@@ -39,7 +39,6 @@ def run_static():
     Otherwise, it will return statuscode 1.
     """
     success = True
-
     tmp_dir = mkdtemp()
     try:
         success &= do_process(["sphinx-build", "-W", "--keep-going", "docs", tmp_dir])
