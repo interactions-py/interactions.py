@@ -41,9 +41,10 @@ Please look at our pages below to find out where to go further.
 
    quickstart.rst
    api.rst
+   faq.rst
 
-Indices and tables
-==================
+Advanced Search
+===============
 
 * :ref:`genindex`
 * :ref:`modindex`
