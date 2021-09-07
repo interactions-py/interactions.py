@@ -3,7 +3,7 @@ from enum import IntFlag
 
 class Intents(IntFlag):
     """
-    An object representing the bitshift flags respective for each intents type.
+    A class objct representing the bitshift flags respective for each intents type.
 
     .. note::
         Equivalent of `Gateway Intents <https://discord.com/developers/docs/topics/gateway#gateway-intents>`_ in the Discord API.

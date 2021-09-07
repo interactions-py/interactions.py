@@ -31,6 +31,10 @@ class ThreadMetadata(object):
     """
     A class object representing the metadata of a thread.
 
+    .. note::
+        ``invitable`` will only show if the thread can have an invited created with the
+        current cached permissions.
+
     :ivar bool archived: The current thread accessibility state.
     :ivar int auto_archive_duration: The auto-archive time.
     :ivar datetime.datetime.timestamp archive_timestamp: The timestamp that the thread will be/has been closed at.
@@ -49,6 +53,10 @@ class ThreadMetadata(object):
 class ThreadMember(object):
     """
     A class object representing a member in a thread.
+
+    .. note::
+        ``id`` only shows if there are active intents involved with the member
+        in the thread.
 
     :ivar typing.Optional[int] id: The "ID" or intents of the member.
     :ivar int user_id: The user ID of the member.
