@@ -64,7 +64,7 @@ class Client:
         """
         A decorator for listening to dispatched events from the
         gateway.
-        
+
         :return: typing.Callable[..., typing.Any]
         """
         self.websocket.dispatch.register(coro)
@@ -132,7 +132,7 @@ class Client:
             description=description,
             options=options,
             default_permission=default_permission,
-            permissions=permissions
+            permissions=permissions,
         )
         # we need to make a "me" class instance of the bot's information as some class.
         # route = f"/applications/{self.me.id}"
