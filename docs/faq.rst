@@ -112,3 +112,4 @@ of discord.py bot developers frown upon doing, so this is at your own risk to co
 can take a page out of discord.js' book if you want to do this, since they've never heard of an external command handler framework
 before in their entire life.
 
+.. _already admitted: https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1#whats-going-to-happen-to-my-bot
