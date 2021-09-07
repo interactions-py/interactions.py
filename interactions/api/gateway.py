@@ -95,7 +95,7 @@ class WebSocket:
         "sequence",
         "keep_alive",
         "closed",
-        "_http"
+        "_http",
     )
     intents: Intents
     loop: AbstractEventLoop

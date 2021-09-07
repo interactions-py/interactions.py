@@ -6,5 +6,6 @@
 _build/
 build/
 dist/
+/venv/
 
 test.py
