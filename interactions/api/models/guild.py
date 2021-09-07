@@ -126,7 +126,7 @@ class StageInstance(object):
 
 class Guild(object):
     """
-    A class object representing all types of channels.
+    A class object representing how a guild is registered.
 
     .. note::
         Most of these optionals are actually declared with their value

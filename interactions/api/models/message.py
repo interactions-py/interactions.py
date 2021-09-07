@@ -161,7 +161,7 @@ class Message(object):
     interaction: Optional[MessageInteraction]
     thread: Optional[ChannelMention]
 
-    # components (Flow's side)
+    components: Optional[Union["Component", List["Component"]]]  # noqa: F821
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
 

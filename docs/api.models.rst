@@ -6,14 +6,14 @@ Model Objects
 .. toctree::
     :maxdepth: 2
 
-    api.models.channel
-    api.models.guild
-    api.models.intents
-    api.models.member
-    api.models.message
-    api.models.misc
-    api.models.presence
-    api.models.role
-    api.models.team
-    api.models.user
-    api.models.voice
+    api.models.channel.rst
+    api.models.guild.rst
+    api.models.intents.rst
+    api.models.member.rst
+    api.models.message.rst
+    api.models.misc.rst
+    api.models.presence.rst
+    api.models.role.rst
+    api.models.team.rst
+    api.models.user.rst
+    api.models.voice.rst

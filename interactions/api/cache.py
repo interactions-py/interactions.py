@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from typing import Any, List, Type
 
+from ..models.command import ApplicationCommand
 from .models.channel import Channel
 from .models.guild import Guild
 from .models.member import Member
@@ -85,6 +86,7 @@ class Cache:
     members: Storage = Storage()
     messages: Storage = Storage()
     users: Storage = Storage()
+    commands: Storage = Storage()
 
     def add_dm(self, dm: Channel) -> Item:
         """
@@ -277,3 +279,25 @@ class Cache:
         """
         if id in self.users.keys():
             return self.users.get(id)
+
+    def get_command(self, id: str) -> Item:
+        """
+        Gets an application command from the cache.
+
+        :param id: The application ID of the command.
+        :type id: str
+        :return: interactions.api.cache.Item
+        """
+        if id in self.commands.keys():
+            return self.commands.get(id)
+
+    def add_command(self, id: str, command: ApplicationCommand) -> Item:
+        """
+        Adds an application command to the cache.
+
+        :param id: The application ID of the command.
+        :type id: str
+        :param command: The application command to add.
+        :type command: interactions.model.ApplicationCommand
+
+        """
