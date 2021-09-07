@@ -282,18 +282,22 @@ class HTTPClient:
     # ---- User endpoint
 
     async def get_self(self) -> dict:
-        """An alias to `get_user`, but only gets the current bot user."""
+        """
+        An alias to `get_user`, but only gets the current bot user.
+
+        :return A partial User object of the current bot user in the form of a dictionary.
+        """
         return await self.get_user()
 
-    async def get_user(self, user_id: Optional[int] = "@me") -> dict:
-        # absolutely no idea if python typing lets me do this ^
+    async def get_user(self, user_id: Optional[int] = None) -> dict:
         """
         Gets a user object for a given user ID.
-
-        :param user_id: A user ID, represented by an integer snowflake ID. If omitted, this defaults
-        to the current bot user.
+        :param user_id: A user snowflake ID. If omitted, this defaults to the current bot user.
         :return A partial User object in the form of a dictionary.
         """
+
+        if user_id is None:
+            user_id = "@me"
 
         return await self._req.request(Route("GET", f"/users/{user_id}"))
 
