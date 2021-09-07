@@ -160,12 +160,18 @@ class Channel(object):
 
 
 class TextChannel(Channel):
+    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for text channels."""
+
     ...
 
 
 class DMChannel(Channel):
+    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for DM channels."""
+
     ...
 
 
 class ThreadChannel(Channel):
+    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for thread channels."""
+
     ...
