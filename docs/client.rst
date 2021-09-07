@@ -1,8 +1,8 @@
 .. currentmodule:: interactions
 
-Gateway
-=======
+Bot Client
+==========
 
-.. automodule:: interactions.api.gateway
+.. automodule:: interactions.client
     :members:
     :noindex:

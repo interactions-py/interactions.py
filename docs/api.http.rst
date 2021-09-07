@@ -3,8 +3,6 @@
 HTTP Client
 ===========
 
-.. automodule:: interactions.api.http
-    :imported-members:
+.. automodule:: interactions.api.gateway
     :members:
-    :undoc-members:
-    :show-inheritance:
+    :noindex:
