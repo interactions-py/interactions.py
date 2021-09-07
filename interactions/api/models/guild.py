@@ -11,7 +11,8 @@ from .voice import VoiceState
 
 
 class GuildFeature(str, Enum):
-    """Lists all of the features in any Guild in a string Enum.
+    """
+    An enumerable string-formatted class representing all of the features a guild can have.
 
     .. note:
         Equivalent of `Guild Features <https://discord.com/developers/docs/resources/guild#guild-object-guild-features>`_ in the Discord API.
@@ -41,6 +42,14 @@ class GuildFeature(str, Enum):
 
 
 class WelcomeChannels(object):
+    """
+    A class object representing a welcome channel on the welcome screen.
+
+    :ivar int channel_id: The ID of the welcome channel.
+    :ivar str description: The description of the welcome channel.
+    :ivar typing.Optional[int] emoji_id: The ID of the emoji of the welcome channel.
+    :ivar typing.Optional[str] emoji_name: The name of the emoji of the welcome channel.
+    """
     channel_id: int
     description: str
     emoji_id: Optional[int]
@@ -48,11 +57,27 @@ class WelcomeChannels(object):
 
 
 class WelcomeScreen(object):
+    """
+    A class object representing the welcome screen shown for community guilds.
+    
+    :ivar typing.Optional[str] description: The description of the welcome sceen.
+    :ivar typing.List[interactions.api.models.guild.WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
+    """
     description: Optional[str]
     welcome_channels: List[WelcomeChannels]
 
 
 class StageInstance(object):
+    """
+    A class object representing an instace of a stage channel in a guild.
+
+    :ivar int id: The ID of the stage.
+    :ivar int guild_id: The guild ID the stage is in.
+    :ivar int channel_id: The channel ID the stage is instantiated from.
+    :ivar str topic: The topic of the stage.
+    :ivar int privacy_level: The "privacy"/inclusive accessibility level of the stage.
+    :ivar bool discoverable_disabled: Whether the stage can be seen from the stage discovery.
+    """
     id: int
     guild_id: int
     channel_id: int

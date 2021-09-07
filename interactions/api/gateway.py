@@ -24,9 +24,9 @@ class Heartbeat(Thread):
     """
     A class representing a consistent heartbeat connection with the gateway.
 
-    :ivar ws: The WebSocket class to infer on.
-    :ivar interval: The heartbeat interval determined by the gateway.
-    :ivar event: The multi-threading event.
+    :ivar interactions.api.gateway.WebSocket ws: The WebSocket class to infer on.
+    :ivar typing.Union[int, float] interval: The heartbeat interval determined by the gateway.
+    :ivar threading.Event event: The multi-threading event.
     """
 
     __slots__ = ("ws", "interval", "event")
@@ -74,15 +74,15 @@ class WebSocket:
     """
     A class representing a websocket connection with the gateway.
 
-    :ivar intents: An instance of :class:`interactions.api.models.Intents`.
-    :ivar loop: The coroutine event loop established on.
-    :ivar req: An instance of :class:`interactions.api.http.Request`.
-    :ivar dispatch: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar session: The current client session.
-    :ivar session_id: The current ID of the gateway session.
-    :ivar sequence: The current sequence of the gateway connection.
-    :ivar keep_alive: An instance of :class:`interactions.api.gateway.Heartbeat`.
-    :ivar closed: The current connection state.
+    :ivar interactions.api.models.intents.Intents intents: An instance of :class:`interactions.api.models.Intents`.
+    :ivar asyncio.AbstractEventLoop loop: The coroutine event loop established on.
+    :ivar interactions.api.http.Request req: An instance of :class:`interactions.api.http.Request`.
+    :ivar interactions.api.dispatch.Listener dispatch: An instance of :class:`interactions.api.dispatch.Listener`.
+    :ivar typing.Any session: The current client session.
+    :ivar int session_id: The current ID of the gateway session.
+    :ivar int sequence: The current sequence of the gateway connection.
+    :ivar interactions.api.gateway.Heartbeat keep_alive: An instance of :class:`interactions.api.gateway.Heartbeat`.
+    :ivar bool closed: The current connection state.
     """
 
     __slots__ = (

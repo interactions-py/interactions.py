@@ -20,10 +20,11 @@ class Route:
     """
     A class representing how an HTTP route is structured.
 
-    :ivar method: The HTTP method.
-    :ivar path: The URL path.
-    :ivar channel_id: The channel ID from the bucket if given.
-    :ivar guild_id: The guild ID from the bucket if given.
+    :ivar typing.ClassVar[str] __api__: The HTTP route path.
+    :ivar str method: The HTTP method.
+    :ivar str path: The URL path.
+    :ivar typing.Optional[str] channel_id: The channel ID from the bucket if given.
+    :ivar typing.Optional[str] guild_id: The guild ID from the bucket if given.
     """
 
     __slots__ = ("__api__", "method", "path", "channel_id", "guild_id")
@@ -63,8 +64,8 @@ class Padlock:
     """
     A class representing ratelimited sessions as a "locked" event.
 
-    :ivar lock: The lock coroutine event.
-    :ivar keep_open: Whether the lock should stay open or not.
+    :ivar asyncio.Lock lock: The lock coroutine event.
+    :ivar bool keep_open: Whether the lock should stay open or not.
     """
 
     __slots__ = ("lock", "keep_open")
@@ -96,11 +97,12 @@ class Request:
     """
     A class representing how HTTP requests are sent/read.
 
-    :ivar url: The current Discord API URL.
-    :ivar loop: The current coroutine event loop.
-    :ivar session: The current session for making requests.
-    :ivar ratelimits: The current ratelimits from the Discord API.
-    :ivar lock: The ratelimit lock event.
+    :ivar str token: The current application token.
+    :ivar asyncio.AbstractEventLoop loop: The current coroutine event loop.
+    :ivar dict ratelimits: The current ratelimits from the Discord API.
+    :ivar dict headers: The current headers for an HTTP request.
+    :ivar asyncio.ClientSession session: The current session for making requests.
+    :ivar asyncio.Event lock: The ratelimit lock event.
     """
 
     __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock")

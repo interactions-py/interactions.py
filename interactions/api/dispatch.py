@@ -6,8 +6,8 @@ class Listener:
     """
     A class representing how events become dispatched and listened to.
 
-    :ivar loop: The coroutine event loop established on.
-    :ivar events: A list of events being dispatched.
+    :ivar asyncio.AbstractEventLoop loop: The coroutine event loop established on.
+    :ivar dict events: A list of events being dispatched.
     """
 
     __slots__ = ("loop", "events")
@@ -39,8 +39,7 @@ class Listener:
         If the name of the event is not given, it will then be
         determined by the coroutine's name.
 
-        i.e.:
-            async def on_guild_create -> "ON_GUILD_CREATE" dispatch.
+        i.e. : async def on_guild_create -> "ON_GUILD_CREATE" dispatch.
 
         :param coro: The coroutine to register as an event.
         :type coro: typing.Coroutine

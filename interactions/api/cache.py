@@ -13,9 +13,9 @@ class Item(object):
     """
     A class representing the defined item in a stored dataset.
 
-    :ivar id: The ID of the item.
-    :ivar value: The item itself.
-    :ivar type: The ID type representation.
+    :ivar str id: The ID of the item.
+    :ivar typing.Any value: The item itself.
+    :ivar typing.Type type: The ID type representation.
     """
 
     __slots__ = ("id", "value", "type")
@@ -40,7 +40,7 @@ class Storage(OrderedDict):
     """
     A class representing a set of items stored as a cache state.
 
-    :ivar values: The list of items stored.
+    :ivar typing.List[interactions.api.cache.Item] values: The list of items stored.
     """
 
     __slots__ = "values"
@@ -67,14 +67,14 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
-    :ivar dms: The cached Direct Messages.
-    :ivar self_guilds: The cached guilds upon gateway connection.
-    :ivar guilds: The cached guilds after ready.
-    :ivar channels: The cached channels of guilds.
-    :ivar roles: The cached roles of guilds.
-    :ivar members: The cached members of guilds and threads.
-    :ivar messages: The cached messages of DMs and channels.
-    :ivar users: The cached users upon interaction.
+    :ivar interactions.api.cache.Cache dms: The cached Direct Messages.
+    :ivar interactions.api.cache.Cache self_guilds: The cached guilds upon gateway connection.
+    :ivar interactions.api.cache.Cache guilds: The cached guilds after ready.
+    :ivar interactions.api.cache.Cache channels: The cached channels of guilds.
+    :ivar interactions.api.cache.Cache roles: The cached roles of guilds.
+    :ivar interactions.api.cache.Cache members: The cached members of guilds and threads.
+    :ivar interactions.api.cache.Cache messages: The cached messages of DMs and channels.
+    :ivar interactions.api.cache.Cache users: The cached users upon interaction.
     """
 
     dms: Storage = Storage()
