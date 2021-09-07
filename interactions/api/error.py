@@ -4,6 +4,8 @@ from typing import Any, Dict, Optional, Union
 
 
 class ErrorFormatter(Formatter):
+    """A customized error formatting script to return specific errors."""
+
     # Need this formatter? Maybe as a starting point, but it's fine either or.
     def get_value(self, key, args, kwargs) -> Any:
         if not isinstance(key, str):
@@ -16,15 +18,15 @@ class ErrorFormatter(Formatter):
 
 class InteractionException(Exception):
     """
-    Exception class for Interactions.
+    An exception class for interactions.
 
-    :: note
+    .. note::
         This is a WIP. This isn't meant to be used yet, this is a baseline,
         and for extensive testing/review before integration.
         Likewise, this will show the concepts before use, and will be refined when time goes on.
 
-    :ivar _formatter: The built in formatter.
-    :ivar _lookup: A dictionary containing the values from the built-in Enum.
+    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
 
     """
 
@@ -33,13 +35,16 @@ class InteractionException(Exception):
     _formatter: ErrorFormatter
     kwargs: Dict[str, Any]
 
-    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs):
+    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs) -> None:
         """
-        Instantiates the BaseInteractionException class. Upon instantiation, it will print out an error message.
-        This is not meant to be used as an object-to-variable declaration,
-        this is used to cause an Exception to be thrown.
+        :param __type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of
+        typical error codes. Subclasses of this class works fine, and so does regular integers.
+        :type __type: Optional[Union[int, IntEnum]]
+        :param kwargs: Any additional keyword arguments.
+        :type **kwargs: dict
+        :return: None
 
-        :: note
+        :: note::
             (given if 3 is "DUPLICATE_COMMAND" and with the right enum import, it will display 3 as the error code.)
             Example:
 
@@ -48,14 +53,6 @@ class InteractionException(Exception):
 
             >>> raise InteractionException(Default_Error_Enum.DUPLICATE_COMMAND)  # noqa
             Exception raised: Duplicate command name. (error 3)
-
-        :param __type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of
-        typical error codes. Subclasses of this class works fine, and so does regular integers.
-        :type __type: Optional[Union[int, IntEnum]]
-
-        :param kwargs: Any additional keyword arguments.
-        :type **kwargs: dict
-
         """
 
         self._type = __type
@@ -164,8 +161,8 @@ class GatewayException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent Gateway closing OP codes.
 
-    :ivar _formatter: The built in formatter.
-    :ivar _lookup: A dictionary containing the values from the built-in Enum.
+    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
     __slots__ = ["__type", "_formatter", "kwargs"]
@@ -200,8 +197,8 @@ class HTTPException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent HTTP Exceptions.
 
-    :ivar _formatter: The built in formatter.
-    :ivar _lookup: A dictionary containing the values from the built-in Enum.
+    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
     __slots__ = ["__type", "_formatter", "kwargs"]

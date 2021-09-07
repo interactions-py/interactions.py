@@ -9,7 +9,7 @@ from .user import User
 
 class MessageType(IntEnum):
     """
-    Type of messages.
+    An enumerable object representing the types of messages.
 
     ..note::
         While all of them are listed, not all of them would be used at this lib's scope.
@@ -40,12 +40,38 @@ class MessageType(IntEnum):
 
 
 class MessageActivity(object):
+    """
+    A class object representing the activity state of a message.
+
+    .. note::
+        ``party_id`` is ambigious -- Discord poorly documented this. :)
+
+        We assume it's for game rich presence invites?
+        i.e. : Phasmophobia, Call of Duty
+
+    :ivar int type: The message activity type.
+    :ivar typing.Optional[str] party_id: The party ID of the activity.
+    """
+
     __slots__ = ("type", "party_id")
     type: int
     party_id: Optional[str]
 
 
 class MessageReference(object):
+    """
+    A class object representing the "referenced"/replied message.
+
+    .. note::
+        All of the class instances are optionals because a message
+        can entirely never be referenced.
+
+    :ivar typing.Optional[int] message_id: The ID of the referenced message.
+    :ivar typing.Optional[int] channel_id: The channel ID of the referenced message.
+    :ivar typing.Optional[int] guild_id: The guild ID of the referenced message.
+    :ivar typing.Optional[bool] fail_if_not_exists: Whether the message reference exists.
+    """
+
     __slots__ = ("message_id", "channel_id", "guild_id", "fail_if_not_exists")
     message_id: Optional[int]
     channel_id: Optional[int]
@@ -54,8 +80,25 @@ class MessageReference(object):
 
 
 class Attachment(object):
-    __slots__ = ("id", "filename", "content_type", "size", "url", "proxy_url", "height", "width")
+    """
+    A class object representing an attachment in a message.
 
+    .. note::
+        ``height`` and ``width`` have values based off of ``content_type``,
+        which requires it to be a media file with viewabiltiy as a photo,
+        animated photo, GIF and/or video.
+
+    :ivar int id: The ID of the attachment.
+    :ivar str filename: The name of the attachment file.
+    :ivar typing.Optional[str] content_type: The type of attachment file.
+    :ivar int size: The size of the attachment file.
+    :ivar str url: The CDN URL of the attachment file.
+    :ivar str proxy_url: The proxied/cached CDN URL of the attachment file.
+    :ivar typing.Optional[int] height: The height of the attachment file.
+    :ivar typing.Optional[int] width: The width of the attachment file.
+    """
+
+    __slots__ = ("id", "filename", "content_type", "size", "url", "proxy_url", "height", "width")
     id: int
     filename: str
     content_type: Optional[str]

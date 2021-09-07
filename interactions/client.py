@@ -11,12 +11,12 @@ class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
 
-    :ivar loop: The main overall asynchronous coroutine loop in effect.
-    :ivar listener: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar intents: The application's intents as :class:`interactions.api.models.Intents`.
-    :ivar http: An instance of :class:`interactions.api.http.Request`.
-    :ivar websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
-    :ivar token: The application token.
+    :ivar asyncio.AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
+    :ivar interactions.api.dispatch.Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
+    :ivar typing.Optional[typing.Union[interactions.api.models.intents.Intents, typing.List[interactions.api.models.intentsIntents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
+    :ivar interactions.api.http.Request http: An instance of :class:`interactions.api.http.Request`.
+    :ivar interactions.api.gateway.WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
+    :ivar str token: The application token.
     """
 
     loop: AbstractEventLoop
