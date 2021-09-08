@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, Event, Lock, get_running_loop, sleep
+from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
 from logging import Logger, basicConfig, getLogger
 from sys import version_info
 from typing import Any, ClassVar, Optional
@@ -9,11 +9,15 @@ from aiohttp import __version__ as http_version
 
 from ..api.error import HTTPException
 from ..base import Data, __version__
+from .cache import Cache
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("http")
 
 __all__ = ("Route", "Padlock", "Request")
+
+
+cache: Cache = Cache()
 
 
 class Route:
@@ -120,7 +124,7 @@ class Request:
         :return: None
         """
         self.token = token
-        self.loop = get_running_loop()
+        self.loop = get_event_loop()
         self.session = ClientSession()
         self.ratelimits = {}
         self.headers = {

@@ -1,5 +1,5 @@
 import sys
-from asyncio import AbstractEventLoop, get_running_loop, run_coroutine_threadsafe
+from asyncio import AbstractEventLoop, get_event_loop, run_coroutine_threadsafe
 from logging import Logger, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
@@ -122,9 +122,9 @@ class WebSocket:
         :return: None
         """
         self.intents = intents
-        self.loop = get_running_loop()
+        self.loop = get_event_loop()
         self.req = None
-        self.dispatch = Listener(loop=self.loop)
+        self.dispatch = Listener()
         self.session = None
         self.session_id = session_id
         self.sequence = sequence
@@ -148,7 +148,7 @@ class WebSocket:
         :type token: str
         :return: None
         """
-        self.req = Request(token, loop=self.loop)
+        self.req = Request(token)
         gateway_url = await self.req.request(Route("GET", "/gateway"))
 
         options: dict = {
@@ -228,7 +228,13 @@ class WebSocket:
                         log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
                     else:
                         log.debug(f"{event}: {data}")
-                        self.dispatch.dispatch(f"on_{event.lower()}", data)
+                        if event != "TYPING_START":
+                            name: str = event.lower()
+                            obj: object = getattr(
+                                __import__("interactions.api.models"),
+                                name.split("_")[0].capitalize(),
+                            )
+                            self.dispatch.dispatch(f"on_{name}", obj())
                     continue
 
     async def send(self, data: Union[str, dict]) -> None:

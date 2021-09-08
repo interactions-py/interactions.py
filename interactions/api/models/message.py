@@ -1,6 +1,9 @@
+from collections import OrderedDict
 from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
+
+from orjson import dumps
 
 from .member import Member
 from .team import Application
@@ -165,8 +168,14 @@ class Message(object):
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
 
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    def __new__(cls, **kwargs):
+        comb = OrderedDict()
+
+        for kwarg in kwargs:
+            if kwargs[kwarg] is not None:
+                comb.update({kwarg: kwargs[kwarg]})
+
+        return dumps(comb)
 
 
 class Emoji(object):
