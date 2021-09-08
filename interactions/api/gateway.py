@@ -228,14 +228,24 @@ class WebSocket:
                         log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
                     else:
                         log.debug(f"{event}: {data}")
-                        if event != "TYPING_START":
-                            name: str = event.lower()
-                            obj: object = getattr(
-                                __import__("interactions.api.models"),
-                                name.split("_")[0].capitalize(),
-                            )
-                            self.dispatch.dispatch(f"on_{name}", obj())
+                        self.handle(event)
                     continue
+
+    def handle(self, event: str) -> None:
+        """
+        Handles the dispatched event data from a gateway event.
+
+        :param event: The name of the event.
+        :type event: str
+        :return: None
+        """
+        if event != "TYPING_START":
+            name: str = event.lower()
+            obj: object = getattr(
+                __import__("interactions.api.models"),
+                name.split("_")[0].capitalize(),
+            )
+            self.dispatch.dispatch(f"on_{name}", obj())
 
     async def send(self, data: Union[str, dict]) -> None:
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
