@@ -1,10 +1,13 @@
 from datetime import datetime
 from typing import Optional
 
+from orjson import dumps
+
 from .member import Member
 
 
 class VoiceState(object):
+    _json: dict
     guild_id: Optional[int]
     channel_id: Optional[int]
     user_id: int
@@ -18,3 +21,7 @@ class VoiceState(object):
     self_video: bool
     suppress: bool
     request_to_speak_timestamp: Optional[datetime]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)

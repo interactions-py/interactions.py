@@ -1,5 +1,7 @@
 from typing import Optional
 
+from orjson import dumps
+
 # TODO: Reorganise these models based on which big obj uses little obj
 # TODO: Figure out ? placements.
 # TODO: Potentially rename some model references to enums, if applicable
@@ -8,16 +10,25 @@ from typing import Optional
 class Overwrite(object):
     """This is used for the PermissionOverride obj"""
 
-    __slots__ = ("id", "type", "allow", "deny")
+    __slots__ = ("_json", "id", "type", "allow", "deny")
+    _json: dict
     id: int
     type: int
     allow: str
     deny: str
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class ClientStatus(object):
-    __slots__ = ("desktop", "mobile", "web")
-
+    __slots__ = ("_json", "desktop", "mobile", "web")
+    _json: dict
     desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
