@@ -33,19 +33,12 @@ def do_process(args, shell=False):
 
 
 def run_static():
-    """Runs static tests.
+    """Runs a documentation static test.
 
-    Returns a statuscode of 0 if everything ran correctly. Otherwise, it will return
-    statuscode 1
-
+    Returns a statuscode of 0 if everything ran correctly.
+    Otherwise, it will return statuscode 1.
     """
     success = True
-    # Formatters
-    success &= do_process(["black", "."])
-    success &= do_process(["isort", "."])
-    # Linters
-    success &= do_process(["flake8", "--exclude=.eggs,build,docs,.venv*,env*"])
-
     tmp_dir = mkdtemp()
     try:
         success &= do_process(["sphinx-build", "-W", "--keep-going", "docs", tmp_dir])

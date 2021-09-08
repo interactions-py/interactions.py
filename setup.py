@@ -26,11 +26,11 @@ setup(
     author_email="jwalston2002@gmail.com",
     description="A simple API wrapper for Discord interactions.",
     extras_require=extras,
-    install_requires=["aiohttp", "orjson"],
+    install_requires=["pre-commit", "aiohttp", "orjson"],
     license="MIT License",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/discord-py-interactions/discord-py-interactions",
+    url="https://github.com/goverfl0w/discord-interactions",
     packages=find_packages(),
     python_requires=">=3.6",
     classifiers=[

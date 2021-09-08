@@ -4,7 +4,7 @@ Quickstart
 Looking into trying to get started with our library? Well, you've come to the right page then!
 
 .. note::
-    
+
     This quickstart guide is extremely rough and contains experimental code.
     Do not follow us strictly until v4.0 is released! Everything is subject
     to change in here due to the development of the API wrapper continuously
@@ -46,7 +46,7 @@ This code block below shows a simple bot being created:
     )
     async def test(ctx):
         await ctx.send("Hello world!")
-    
+
     bot.start()
 
 There's quite a lot of things that are going on here, so let's break it down step-by-step:

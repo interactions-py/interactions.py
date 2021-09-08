@@ -6,8 +6,8 @@ No more hassle with trying to get interactions to work with your Python Discord 
 -- **discord-interactions** is now here.
 
 **discord-interactions** is a simple API wrapper for Discord interactions.
-We're not here to replace discord.py or any other fork, but we are here to be the very best 
-Python Discord library there is that implements interactions very well. This is what our 
+We're not here to replace discord.py or any other fork, but we are here to be the very best
+Python Discord library there is that implements interactions very well. This is what our
 library is all about.
 
 What are we good for?
