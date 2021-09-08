@@ -20,7 +20,7 @@ from interactions.base import __version__
 # -- Project information -----------------------------------------------------
 
 project = "discord-interactions"
-copyright = "2020-2021, goverfl0w"
+copyright = "2021, goverfl0w"
 author = "goverfl0w"
 release = __version__
 version = ".".join(__version__.split(".", 2)[:2])
