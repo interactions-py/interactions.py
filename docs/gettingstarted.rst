@@ -419,20 +419,6 @@ Subcommands are way to "nest" your slash commands under one (or more) given name
 | subcommand_group_description | string                                     | The name for the group of commands under the "base." Defaults to ``None``.                          |
 +------------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
 
-This table is importantly distinguishing the **library's** naming conventions and not the way that th eDiscord API handles it. The API does subcommand grouping and bases through the options of a slash command, so we decided to create a decorator instead to make this easy for bot developers alike to use. We will not be giving a JSON example of this because of this reason.
-
-.. code-block :: python
-
-  # This will appear as "/bot latency" as latency is not an option,
-  # but apart of the command name itself.
-  @slash.subcommand(base="bot",
-                    name="latency",
-                    description="Returns the bot's latency.")
-  async def bot_latency(ctx):
-    await ctx.send(f"Hello! {round(bot.latency * 1000)} ms.")
-
-If you would like to add a group instead, you may simply base the ``subcommand_group``` kwarg into the decorator. Please note that the slash command limit is 25 commands per subcommand group per subcommand base. (Laymen's term for 25 subcommands in a group, and 25 groups in a base. This is not a global exception and may also apply as a limitation for guild commands.)
-
 Handling my errors.
 *******************
 

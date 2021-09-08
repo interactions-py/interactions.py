@@ -1,5 +1,12 @@
 # discord-interactions
 <strong>A simple API wrapper for Discord interactions.</strong>
+=======
+<div align="center">
+    <a href="https://pypi.org/project/discord-py-interactions/">
+        <img src="https://raw.githubusercontent.com/muqshots/discord-py-interactions/master/.github/banner_transparent.png" alt="discord-py-interactions" height="128">
+    </a>
+    <h2>Your ultimate Discord interactions library for <a href="https://github.com/Rapptz/discord.py">discord.py</a>.</h2>
+</div>
 
 [![PyPI download month](https://img.shields.io/pypi/dm/discord-py-slash-command.svg)](https://pypi.python.org/pypi/discord-py-interactions/)
 [![GitHub license](https://img.shields.io/github/license/goverfl0w/discord-interactions.svg)](https://github.com/goverfl0w/discord-interactions/blob/master/LICENSE)
