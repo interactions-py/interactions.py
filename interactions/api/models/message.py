@@ -169,11 +169,17 @@ class Message(object):
     stickers: Optional[List["Sticker"]]  # deprecated
 
     def __new__(cls, **kwargs):
+
         comb = OrderedDict()
+
+        # print(kwargs, f"type: {type(kwargs)}")
 
         for kwarg in kwargs:
             if kwargs[kwarg] is not None:
                 comb.update({kwarg: kwargs[kwarg]})
+
+        # print("comb return:", comb)
+        print("dumped:", dumps(comb), f"type: {type(dumps(comb))}")
 
         return dumps(comb)
 

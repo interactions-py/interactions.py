@@ -8,7 +8,7 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 from ..api.error import HTTPException
-from ..api.models import Member, Role, User
+from ..api.models import Emoji, Member, Role, User
 from ..base import Data, __version__
 from .cache import Cache
 
@@ -926,6 +926,8 @@ class HTTPClient:
 
     # Interaction endpoint (Application commands) **
 
+    # TODO: Merge single and batch variants ?
+
     async def get_application_command(
         self, application_id: int, guild_id: Optional[int] = None
     ) -> List[dict]:
@@ -941,7 +943,7 @@ class HTTPClient:
             Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands")
         )
 
-    async def post_application_command(
+    async def create_application_command(
         self, application_id: int, data: dict, guild_id: Optional[int] = None
     ) -> dict:
         """
@@ -951,6 +953,29 @@ class HTTPClient:
         :param data: The dictionary that contains the command (name, description, etc)
         :param guild_id: Guild ID snowflake to put them in, if applicable.
         :return: An application command object.
+        """
+
+        url = (
+            f"/applications/{application_id}/commands"
+            if not guild_id
+            else f"/applications/{application_id}/guilds/{guild_id}/commands"
+        )
+
+        return await self._req.request(Route("POST", url), data=data)
+
+    async def overwrite_application_command(
+        self, application_id: int, data: List[dict], guild_id: Optional[int] = None
+    ) -> List[dict]:
+        """
+        Overwrites application command(s) from a scope to the new, updated commands.
+
+        ..note:
+            This applies to all forms of application commands (slash and context menus)
+
+        :param application_id: Application ID snowflake
+        :param data: The dictionary that contains the command (name, description, etc)
+        :param guild_id: Guild ID snowflake to put them in, if applicable.
+        :return: An array of application command objects.
         """
         url = (
             f"/applications/{application_id}/commands"
@@ -1018,3 +1043,180 @@ class HTTPClient:
             )
         )
         return await self._req.request(r)
+
+    async def edit_application_command_permissions(
+        self, application_id: int, guild_id: int, command_id: int, data: List[dict]
+    ) -> dict:
+        """
+        Edits permissions for an application command
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :param command_id: Application command ID snowflake
+        :param data: Permission data.
+        :return: Returns an updated Application Guild permission object.
+        """
+
+        return await self._req.request(
+            Route(
+                "PUT",
+                f"/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+            ),
+            data=data,
+        )
+
+    async def batch_edit_application_command_permissions(
+        self, application_id: int, guild_id: int, data: List[dict]
+    ) -> List[dict]:
+        """
+        Edits permissions for all Application Commands in a guild.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :param data: An array of permission dictionaries.
+        :return: An updated array of application array permissions.
+        """
+        return await self._req.request(
+            Route("PUT", f"/applications/{application_id}/guilds/{guild_id}/commands/permissions"),
+            data=data,
+        )
+
+    async def get_application_command_permissions(
+        self, application_id: int, guild_id: int, command_id: int
+    ) -> dict:
+        """
+        Gets, from the Discord API, permissions from a specific Guild application command.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :param command_id: Application Command ID snowflake
+        :return: a Guild Application Command permissions object
+        """
+        return await self._req.request(
+            Route(
+                "GET",
+                f"/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+            )
+        )
+
+    async def get_all_application_command_permissions(
+        self, application_id: int, guild_id: int
+    ) -> List[dict]:
+        """
+        Gets, from the Discord API, permissions from all Application commands at that Guild.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :return: An array of Guild Application Command permissions
+        """
+        return await self._req.request(
+            Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands/permissions")
+        )
+
+    async def create_interaction_response(self, application_id: int, data: dict) -> None:
+        """
+        Posts initial response to an interaction.
+
+        ..note:
+            Internally handles token for you.
+
+        :param application_id: Application ID snowflake
+        :param data: The data to send.
+        """
+        return await self._req.request(
+            Route("POST", f"/interactions/{application_id}/{self.token}/callback"), data=data
+        )
+
+    # This is still Interactions, but this also applies to webhooks
+    # i.e. overlay
+    async def get_original_interaction_response(
+        self, application_id: str, message_id: int = "@original"
+    ) -> dict:
+        """
+        Gets an existing interaction message.
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        :return: Message data.
+        """
+        # ^ again, I don't know if python will let me
+        return await self._req.request(
+            Route("GET", f"/webhooks/{application_id}/{self.token}/messages/{message_id}")
+        )
+
+    async def edit_interaction_response(
+        self, data: dict, application_id: str, message_id: int = "@original"
+    ) -> dict:
+        """
+        Edits an existing interaction message.
+        :param data: A dictionary containing the new response.
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        :return: Updated message data.
+        """
+        # ^ again, I don't know if python will let me
+        return await self._req.request(
+            Route("PATCH", f"/webhooks/{application_id}/{self.token}/messages/{message_id}"),
+            data=data,
+        )
+
+    # Emoji endpoints, a subset of guild but it should get it's own thing...
+
+    async def get_all_emoji(self, guild_id: int) -> List[Emoji]:
+        """
+        Gets all emojis from a guild.
+
+        :param guild_id: Guild ID snowflake.
+        :return: A list of emojis.
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis"))
+
+    async def get_guild_emoji(self, guild_id: int, emoji_id: int) -> Emoji:
+        """
+        Gets an emote from a guild.
+        :param guild_id: Guild ID snowflake.
+        :param emoji_id: Emoji ID snowflake.
+        :return: Emoji object
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis/{emoji_id}"))
+
+    async def create_guild_emoji(
+        self, guild_id: int, data: dict, reason: Optional[str] = None
+    ) -> Emoji:
+        """
+        Creates an emoji.
+        :param guild_id: Guild ID snowflake.
+        :param data: Emoji parameters.
+        :param reason: Optionally, give a reason.
+        :return: An emoji object with the included parameters.
+        """
+        return await self._req.request(
+            Route("POST", f"/guilds/{guild_id}/emojis"), data=data, reason=reason
+        )
+
+    async def modify_guild_emoji(
+        self, guild_id: int, emoji_id: int, data: dict, reason: Optional[str] = None
+    ) -> Emoji:
+        """
+        Modifies an emoji.
+        :param guild_id: Guild ID snowflake.
+        :param emoji_id: Emoji ID snowflake
+        :param data: Emoji parameters with updated attributes
+        :param reason: Optionally, give a reason.
+        :return: An emoji object with updated attributes.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/emojis/{emoji_id}"), data=data, reason=reason
+        )
+
+    async def delete_guild_emoji(
+        self, guild_id: int, emoji_id: int, reason: Optional[str] = None
+    ) -> None:
+        """
+        Deletes an emoji.
+        :param guild_id: Guild ID snowflake.
+        :param emoji_id: Emoji ID snowflake
+        :param reason: Optionally, give a reason.
+        """
+        await self._req.request(
+            Route("DELETE", f"/guilds/{guild_id}/emojis/{emoji_id}"), reason=reason
+        )

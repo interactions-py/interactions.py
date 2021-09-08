@@ -1,6 +1,9 @@
+from collections import OrderedDict
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
+
+from orjson import dumps
 
 from .channel import Channel
 from .member import Member
@@ -230,3 +233,14 @@ class Guild(object):
     nsfw_level: int
     stage_instances: Optional[StageInstance]
     stickers: Optional[List[Sticker]]
+
+    def __new__(cls, **kwargs):
+        comb = OrderedDict()
+
+        print(kwargs, f"type: {type(kwargs)}")
+
+        for kwarg in kwargs:
+            if kwargs[kwarg] is not None:
+                comb.update({kwarg: kwargs[kwarg]})
+
+        return dumps(comb)
