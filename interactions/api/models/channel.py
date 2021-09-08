@@ -2,6 +2,8 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional
 
+from orjson import dumps
+
 from .misc import Overwrite
 from .user import User
 
@@ -42,12 +44,24 @@ class ThreadMetadata(object):
     :ivar typing.Optional[bool] invitable: The ability to invite users to the thread.
     """
 
-    __slots__ = ("archived", "auto_archive_duration", "archive_timestamp", "locked", "invitable")
+    __slots__ = (
+        "_json",
+        "archived",
+        "auto_archive_duration",
+        "archive_timestamp",
+        "locked",
+        "invitable",
+    )
+    _json: dict
     archived: bool
     auto_archive_duration: int
     archive_timestamp: datetime.timestamp
     locked: bool
     invitable: Optional[bool]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class ThreadMember(object):
@@ -64,11 +78,16 @@ class ThreadMember(object):
     :ivar int flags: The bitshift flags for the member in the thread.
     """
 
-    __slots__ = ("id", "user_id", "join_timestamp", "flags")
+    __slots__ = ("_json", "id", "user_id", "join_timestamp", "flags")
+    _json: dict
     id: Optional[int]  # intents
     user_id: Optional[int]
     join_timestamp: datetime.timestamp
     flags: int
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class Channel(object):
@@ -108,6 +127,7 @@ class Channel(object):
     """
 
     __slots__ = (
+        "_json",
         "id",
         "type",
         "guild_id",
@@ -136,6 +156,7 @@ class Channel(object):
         "permissions",
     )
 
+    _json: dict
     id: int  # "Snowflake"
     type: int
     guild_id: Optional[int]
@@ -165,6 +186,7 @@ class Channel(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class TextChannel(Channel):

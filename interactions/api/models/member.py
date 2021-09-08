@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import List, Optional
 
+from orjson import dumps
+
 from .user import User
 
 
@@ -31,6 +33,7 @@ class Member(object):
     """
 
     __slots__ = (
+        "_json",
         "user",
         "nick",
         "roles",
@@ -42,6 +45,7 @@ class Member(object):
         "permissions",
     )
 
+    _json: dict
     user: Optional[User]
     nick: Optional[str]
     roles: List[int]
@@ -51,3 +55,7 @@ class Member(object):
     mute: bool
     pending: Optional[bool]
     permissions: Optional[str]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)

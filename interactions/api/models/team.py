@@ -1,24 +1,37 @@
 from typing import List, Optional
 
+from orjson import dumps
+
 from .user import User
 
 
 class TeamMember(object):
+    _json: dict
     membership_state: int
     permissions: List[str]
     team_id: int
     user: User
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class Team(object):
+    _json: dict
     icon: Optional[str]
     id: int
     members: List[TeamMember]
     name: str
     owner_user_id: int
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class Application(object):
+    _json: dict
     id: int
     name: str
     icon: Optional[str]
@@ -37,3 +50,7 @@ class Application(object):
     slug: Optional[str]
     cover_image: Optional[str]
     flags: Optional[int]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)

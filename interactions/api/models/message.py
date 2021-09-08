@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
@@ -56,9 +55,14 @@ class MessageActivity(object):
     :ivar typing.Optional[str] party_id: The party ID of the activity.
     """
 
-    __slots__ = ("type", "party_id")
+    __slots__ = ("_json", "type", "party_id")
+    _json: dict
     type: int
     party_id: Optional[str]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class MessageReference(object):
@@ -75,11 +79,16 @@ class MessageReference(object):
     :ivar typing.Optional[bool] fail_if_not_exists: Whether the message reference exists.
     """
 
-    __slots__ = ("message_id", "channel_id", "guild_id", "fail_if_not_exists")
+    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
+    _json: dict
     message_id: Optional[int]
     channel_id: Optional[int]
     guild_id: Optional[int]
     fail_if_not_exists: Optional[bool]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class Attachment(object):
@@ -101,7 +110,18 @@ class Attachment(object):
     :ivar typing.Optional[int] width: The width of the attachment file.
     """
 
-    __slots__ = ("id", "filename", "content_type", "size", "url", "proxy_url", "height", "width")
+    __slots__ = (
+        "_json",
+        "id",
+        "filename",
+        "content_type",
+        "size",
+        "url",
+        "proxy_url",
+        "height",
+        "width",
+    )
+    _json: dict
     id: int
     filename: str
     content_type: Optional[str]
@@ -111,19 +131,33 @@ class Attachment(object):
     height: Optional[int]
     width: Optional[int]
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class MessageInteraction(object):
+    _json: dict
     id: int
     type: int  # replace with Enum
     name: str
     user: User
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class ChannelMention(object):
+    _json: dict
     id: int
     guild_id: int
     type: int  # Replace with enum from Channel Type, another PR
     name: str
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class Message(object):
@@ -134,6 +168,7 @@ class Message(object):
     is never needed to be used directly.
     """
 
+    _json: dict
     id: int
     channel_id: int
     guild_id: Optional[int]
@@ -168,23 +203,13 @@ class Message(object):
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
 
-    def __new__(cls, **kwargs):
-
-        comb = OrderedDict()
-
-        # print(kwargs, f"type: {type(kwargs)}")
-
-        for kwarg in kwargs:
-            if kwargs[kwarg] is not None:
-                comb.update({kwarg: kwargs[kwarg]})
-
-        # print("comb return:", comb)
-        print("dumped:", dumps(comb), f"type: {type(dumps(comb))}")
-
-        return dumps(comb)
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class Emoji(object):
+    _json: dict
     id: Optional[int]
     name: Optional[str]
     roles: Optional[List[str]]
@@ -196,25 +221,37 @@ class Emoji(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class ReactionObject(object):
+    _json: dict
     count: int
     me: bool
     emoji: Emoji
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class PartialSticker(object):
     """Partial object for a Sticker."""
 
+    _json: dict
     id: int
     name: str
     format_type: int
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class Sticker(PartialSticker):
     """The full Sticker object."""
 
+    _json: dict
     pack_id: Optional[int]
     description: Optional[str]
     tags: str
@@ -225,41 +262,71 @@ class Sticker(PartialSticker):
     user: Optional[User]
     sort_value: Optional[int]
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class EmbedImageStruct(object):
     """This is the internal structure denoted for thumbnails, images or videos"""
 
+    _json: dict
     url: Optional[str]
     proxy_url: Optional[str]
     height: Optional[str]
     width: Optional[str]
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class EmbedProvider(object):
+    _json: dict
     name: Optional[str]
     url: Optional[str]
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class EmbedAuthor(object):
+    _json: dict
     name: Optional[str]
     url: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class EmbedFooter(object):
+    _json: dict
     text: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class EmbedField(object):
+    _json: dict
     name: str
     inline: Optional[bool]
     value: str
 
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
 
 class Embed(object):
+    _json: dict
     title: Optional[str]
     type: Optional[str]
     description: Optional[str]
@@ -273,3 +340,7 @@ class Embed(object):
     provider: Optional[EmbedProvider]
     author: Optional[EmbedAuthor]
     fields: Optional[List[EmbedField]]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)

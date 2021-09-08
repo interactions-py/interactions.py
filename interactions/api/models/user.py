@@ -1,8 +1,11 @@
 from typing import Optional
 
+from orjson import dumps
+
 
 class User(object):
     __slots__ = (
+        "_json",
         "id",
         "username",
         "discriminator",
@@ -19,6 +22,7 @@ class User(object):
         "premium_type",
         "public_flags",
     )
+    _json: dict
     id: int
     username: str
     discriminator: str
@@ -37,3 +41,4 @@ class User(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)

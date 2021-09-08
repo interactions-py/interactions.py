@@ -1,16 +1,21 @@
 from typing import Optional
 
+from orjson import dumps
+
 
 class RoleTags(object):
+    _json: dict
     bot_id: Optional[int]
     integration_id: Optional[int]
     premium_subscriber: Optional[int]
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class Role(object):
+    _json: dict
     id: int
     name: str
     color: int
@@ -23,3 +28,4 @@ class Role(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)

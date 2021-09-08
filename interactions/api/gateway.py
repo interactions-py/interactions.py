@@ -237,14 +237,17 @@ class WebSocket:
 
         :param event: The name of the event.
         :type event: str
-        :param data: The data associated with the event.
+        :param data: The data of the event.
         :type data: dict
         :return: None
         """
         if event != "TYPING_START":
             name: str = event.lower()
+            path: str = "interactions"
+            path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
+
             obj: object = getattr(
-                __import__("interactions.api.models"),
+                __import__(path),
                 name.split("_")[0].capitalize(),
             )
             self.dispatch.dispatch(f"on_{name}", obj(**data))

@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from typing import List, Optional, Union
 
 from orjson import dumps
@@ -18,15 +17,14 @@ class Choice(object):
     :ivar typing.Union[str, int, float] value: The returned value of the choice.
     """
 
-    __slots__ = ("name", "value")
+    __slots__ = ("_json", "name", "value")
+    _json: dict
     name: str
     value: Union[str, int, float]
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
-    def __new__(cls):
-        return dumps(cls.__dict__)
+        self._json = dumps(self.__dict__)
 
 
 class Option(object):
@@ -45,7 +43,8 @@ class Option(object):
     :ivar typing.Optional[list] options: The list of subcommand options included.
     """
 
-    __slots__ = ("type", "name", "description", "required", "choices", "options")
+    __slots__ = ("_json", "type", "name", "description", "required", "choices", "options")
+    _json: dict
     type: OptionType
     name: str
     description: str
@@ -55,15 +54,7 @@ class Option(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
-    def __new__(cls):
-        comb = OrderedDict()
-
-        for key, value in cls.__dict__:
-            if value is not None:
-                comb.update({key: value})
-
-        return dumps(comb)
+        self._json = dumps(self.__dict__)
 
 
 class Permission(object):
@@ -75,16 +66,15 @@ class Permission(object):
     :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
     """
 
-    __slots__ = ("id", "type", "permission")
+    __slots__ = ("_json", "id", "type", "permission")
+    _json: dict
     id: int
     type: PermissionType
     permission: bool
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-
-    def __new__(cls):
-        return dumps(cls.__dict__)
+        self._json = dumps(self.__dict__)
 
 
 class ApplicationCommand(object):
@@ -102,6 +92,7 @@ class ApplicationCommand(object):
     """
 
     __slots__ = (
+        "_json",
         "id",
         "type",
         "application_id",
@@ -124,12 +115,8 @@ class ApplicationCommand(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
-    def __new__(cls):
-        comb = OrderedDict()
 
-        for key, value in cls.__dict__:
-            if value is not None:
-                comb.update({key: value})
-
-        return dumps(comb)
+class Interaction(ApplicationCommand):
+    ...

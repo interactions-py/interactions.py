@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
@@ -81,11 +80,16 @@ class WelcomeChannels(object):
     :ivar typing.Optional[str] emoji_name: The name of the emoji of the welcome channel.
     """
 
-    __slots__ = ("channel_id", "description", "emoji_id", "emoji_name")
+    __slots__ = ("_json", "channel_id", "description", "emoji_id", "emoji_name")
+    _json: dict
     channel_id: int
     description: str
     emoji_id: Optional[int]
     emoji_name: Optional[str]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class WelcomeScreen(object):
@@ -101,9 +105,14 @@ class WelcomeScreen(object):
     :ivar typing.List[interactions.api.models.guild.WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
 
-    __slots__ = ("description", "welcome_channels")
+    __slots__ = ("_json", "description", "welcome_channels")
+    _json: dict
     description: Optional[str]
     welcome_channels: List[WelcomeChannels]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class StageInstance(object):
@@ -118,13 +127,26 @@ class StageInstance(object):
     :ivar bool discoverable_disabled: Whether the stage can be seen from the stage discovery.
     """
 
-    __slots__ = ("id", "guild_id", "channel_id", "topic", "privacy_level", "discoverable_disabled")
+    __slots__ = (
+        "_json",
+        "id",
+        "guild_id",
+        "channel_id",
+        "topic",
+        "privacy_level",
+        "discoverable_disabled",
+    )
+    _json: dict
     id: int
     guild_id: int
     channel_id: int
     topic: str
     privacy_level: int  # can be Enum'd
     discoverable_disabled: bool
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
 
 
 class Guild(object):
@@ -183,6 +205,7 @@ class Guild(object):
     :ivar typing.Optional[typing.List[interactions.api.models.message.Sticker]] stickers: The list of stickers from the guild.
     """
 
+    _json: dict
     id: int
     name: str
     icon: Optional[str]
@@ -234,13 +257,6 @@ class Guild(object):
     stage_instances: Optional[StageInstance]
     stickers: Optional[List[Sticker]]
 
-    def __new__(cls, **kwargs):
-        comb = OrderedDict()
-
-        print(kwargs, f"type: {type(kwargs)}")
-
-        for kwarg in kwargs:
-            if kwargs[kwarg] is not None:
-                comb.update({kwarg: kwargs[kwarg]})
-
-        return dumps(comb)
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
