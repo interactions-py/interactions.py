@@ -1,7 +1,7 @@
 # This is a written example used to test and debug the state of v4.0
 import interactions
 
-TOKEN = "ODgzNzg4ODkzNTEyNjgzNTIw.YTPCjA.n2feSiJeyxO_TspHRYyjdwd5pew"
+TOKEN = "guess we'll never be committing this again."
 
 client = interactions.Client(token=TOKEN)
 

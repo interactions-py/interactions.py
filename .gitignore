@@ -7,4 +7,5 @@ _build/
 build/
 dist/
 
+# cool so this doesn't fucking work.
 test.py
