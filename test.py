@@ -1,19 +1,24 @@
 # This is a written example used to test and debug the state of v4.0
 import interactions
 
-TOKEN = "Mzc5MzQzMzIyNTQ1NzgyNzg0.WgiY_w.ApUS8sm9kdsnqgkiGyJJvOaiXbY"
+TOKEN = "guess we'll never be committing this again."
 
 client = interactions.Client(token=TOKEN)
 
 
 @client.event
 async def on_ready():
-    print("hi")
+    print("Bot is online!")
 
 
 @client.event
 async def on_guild_create(guild):
-    print("helo")
+    print(guild)
+
+
+@client.event
+async def on_message_create(message):
+    print(message)
 
 
 client.start()

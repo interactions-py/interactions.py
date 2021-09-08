@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, get_running_loop
+from asyncio import AbstractEventLoop, get_event_loop
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from interactions.enums import ApplicationCommandType
@@ -45,7 +45,7 @@ class Client:
         else:
             self.intents = intents
 
-        self.loop = get_running_loop()
+        self.loop = get_event_loop()
         self.listener = Listener()
         self.http = Request(token)
         self.websocket = WebSocket(intents=self.intents)

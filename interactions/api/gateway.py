@@ -1,5 +1,5 @@
 import sys
-from asyncio import AbstractEventLoop, get_running_loop, run_coroutine_threadsafe
+from asyncio import AbstractEventLoop, get_event_loop, run_coroutine_threadsafe
 from logging import Logger, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
@@ -123,13 +123,14 @@ class WebSocket:
         :return: None
         """
         self.intents = intents
-        self.loop = get_running_loop()
-        self.dispatch = Listener(loop=self.loop)
+        self.loop = get_event_loop()
+        self.dispatch = Listener()
         self.session = None
         self.session_id = session_id
         self.sequence = sequence
         self.keep_alive = None
         self.closed = False
+        self._http = None
 
     async def recv(self) -> Optional[Any]:
         """Receives packets sent from the gateway."""
@@ -227,8 +228,24 @@ class WebSocket:
                         log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
                     else:
                         log.debug(f"{event}: {data}")
-                        self.dispatch.dispatch(f"on_{event.lower()}", data)
+                        self.handle(event)
                     continue
+
+    def handle(self, event: str) -> None:
+        """
+        Handles the dispatched event data from a gateway event.
+
+        :param event: The name of the event.
+        :type event: str
+        :return: None
+        """
+        if event != "TYPING_START":
+            name: str = event.lower()
+            obj: object = getattr(
+                __import__("interactions.api.models"),
+                name.split("_")[0].capitalize(),
+            )
+            self.dispatch.dispatch(f"on_{name}", obj())
 
     async def send(self, data: Union[str, dict]) -> None:
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
