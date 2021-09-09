@@ -6,7 +6,7 @@ from interactions.models.command import ApplicationCommand, Option, Permission
 
 from .api.dispatch import Listener
 from .api.gateway import WebSocket
-from .api.http import Request
+from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.intents import Intents
 
@@ -25,7 +25,7 @@ class Client:
 
     loop: AbstractEventLoop
     intents: Optional[Union[Intents, List[Intents]]]
-    http: Request
+    http: HTTPClient
     websocket: WebSocket
     token: str
 
@@ -47,7 +47,7 @@ class Client:
 
         self.loop = get_event_loop()
         self.listener = Listener()
-        self.http = Request(token)
+        self.http = HTTPClient(token)
         self.websocket = WebSocket(intents=self.intents)
         self.token = token
 

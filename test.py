@@ -36,18 +36,19 @@ async def on_message_create(message):
 
 @client.event
 async def on_interaction_create(interaction):
+    # working slash command response.
     response = {
         "content": "pizza 🍕",
         "tts": False,
         "embeds": [],
-        "allowed_mentions": None,
-        "flags": None,
+        "allowed_mentions": {},
         "components": [],
     }
-    [print(f"{attr}\n") for attr in dir(interaction)]
-    print(interaction.application_id)
-    path = f"/interactions/{interaction.application_id}/{interaction.token}/callback"
-    await client.http.request(Route("POST", path), json={"type": 4, "data": response})
+    json_data = {"type": 4, "data": response}
+    _id = interaction._json["id"]  # id of interaction
+    _token = interaction._json["token"]
+    await client.http._create_interaction_response(_token, _id, json_data)
+    await client.http._edit_interaction_response({}, _token, "")
 
 
 client.start()

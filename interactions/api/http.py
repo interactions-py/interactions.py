@@ -1,14 +1,14 @@
 from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
 from logging import Logger, basicConfig, getLogger
 from sys import version_info
-from typing import Any, ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote
 
 from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 from ..api.error import HTTPException
-from ..api.models import Emoji, Member, Role, User
+from ..api.models import Embed, Emoji, Member, Message, Role, User
 from ..base import Data, __version__
 from .cache import Cache
 
@@ -339,6 +339,44 @@ class HTTPClient:
 
     # Message endpoint
 
+    async def send_message(
+        self,
+        channel_id: int,
+        content: str,
+        tts: bool = False,
+        embed: Optional[Embed] = None,
+        nonce: Union[int, str] = None,
+        allowed_mentions=None,  # don't know type
+        message_reference: Optional[Message] = None,
+    ):
+        """
+        A higher level implementation of :meth:`create_message()` that handles the payload dict internally.
+        Does not integrate components into the function, and is a port from v3.0.0
+        """
+        # r = Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id)
+        payload = {}
+
+        if content:
+            payload["content"] = content
+
+        if tts:
+            payload["tts"] = True
+
+        if embed:
+            payload["embed"] = embed
+
+        if nonce:
+            payload["nonce"] = nonce
+
+        if allowed_mentions:
+            payload["allowed_mentions"] = allowed_mentions
+
+        if message_reference:
+            payload["message_reference"] = message_reference
+
+        # return await self._req.request(r, json=payload)
+        return await self.create_message(payload, channel_id)
+
     async def create_message(self, payload: dict, channel_id: int) -> dict:
         """
         Send a message to the specified channel.
@@ -348,7 +386,7 @@ class HTTPClient:
         :return dict: Dictionary representing a message (?)
         """
         return await self._req.request(
-            Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), data=payload
+            Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
 
     async def get_message(self, channel_id: int, message_id: int) -> Optional[dict]:
@@ -927,6 +965,7 @@ class HTTPClient:
     # Interaction endpoint (Application commands) **
 
     # TODO: Merge single and batch variants ?
+    # TODO: Please clean this up.
 
     async def get_application_command(
         self, application_id: int, guild_id: Optional[int] = None
@@ -1123,8 +1162,24 @@ class HTTPClient:
         :param application_id: Application ID snowflake
         :param data: The data to send.
         """
+        print(f"Callback route: /interactions/{application_id}/{self.token}/callback")
         return await self._req.request(
             Route("POST", f"/interactions/{application_id}/{self.token}/callback"), data=data
+        )
+
+    async def _create_interaction_response(
+        self, token: str, application_id: int, data: dict
+    ) -> None:
+        """
+        Posts initial response to an interaction, but you need to add the token.
+
+        :param token: Token.
+        :param application_id: Application ID snowflake
+        :param data: The data to send.
+        """
+        print(f"{data}")
+        return await self._req.request(
+            Route("POST", f"/interactions/{application_id}/{token}/callback"), json=data
         )
 
     # This is still Interactions, but this also applies to webhooks
@@ -1156,7 +1211,36 @@ class HTTPClient:
         # ^ again, I don't know if python will let me
         return await self._req.request(
             Route("PATCH", f"/webhooks/{application_id}/{self.token}/messages/{message_id}"),
-            data=data,
+            json=data,
+        )
+
+    async def _edit_interaction_response(
+        self, data: dict, token: str, application_id: str, message_id: int = "@original"
+    ) -> dict:
+        """
+        Edits an existing interaction message, but token needs to be manually called.
+        :param data: A dictionary containing the new response.
+        :param token: token
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        :return: Updated message data.
+        """
+        # ^ again, I don't know if python will let me
+        return await self._req.request(
+            Route("PATCH", f"/webhooks/{application_id}/{token}/messages/{message_id}"),
+            json=data,
+        )
+
+    async def _post_followup(self, data: dict, token: str, application_id: str) -> None:
+        """
+        Send a followup to an interaction.
+        :param data: the payload to send
+        :param application_id: the id of the application
+        :param token: the token of the interaction
+        """
+
+        return await self._req.request(
+            Route("POST", f"/webhooks/{application_id}/{token}"), data=data
         )
 
     # Emoji endpoints, a subset of guild but it should get it's own thing...
