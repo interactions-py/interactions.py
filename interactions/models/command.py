@@ -59,7 +59,7 @@ class Option(object):
 
 class Permission(object):
     """
-    A class object representing the permission of an applicatioon command.
+    A class object representing the permission of an application command.
 
     :ivar int id: The ID of the permission.
     :ivar interactions.enums.PermissionType type: The type of permission.
