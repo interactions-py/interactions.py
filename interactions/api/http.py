@@ -8,7 +8,7 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 from ..api.error import HTTPException
-from ..api.models import Embed, Emoji, Member, Message, Role, User
+from ..api.models import Embed, Emoji, Member, Message, Role, User, VoiceRegion
 from ..base import Data, __version__
 from .cache import Cache
 
@@ -16,7 +16,6 @@ basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("http")
 
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
-
 
 cache: Cache = Cache()
 
@@ -283,6 +282,15 @@ class HTTPClient:
         """
         return await self._req.request(Route("GET", "/oauth2/@me"))
 
+    # ---- Misc.
+
+    async def get_voice_regions(self) -> List[VoiceRegion]:
+        """
+        Gets a list from the API a list of voice regions.
+        :return: An array of Voice Region objects.
+        """
+        return await self._req.request(Route("GET", "/voice/regions"))
+
     # ---- User endpoint
 
     async def get_self(self) -> dict:
@@ -453,6 +461,20 @@ class HTTPClient:
             data=payload,
         )
 
+    async def pin_message(self, channel_id: int, message_id: int) -> None:
+        """Pin a message to a channel.
+        :param channel_id: Channel ID snowflake.
+        :param message_id: Message ID snowflake.
+        """
+        return await self._req.request(Route("PUT", f"/channels/{channel_id}/pins/{message_id}"))
+
+    async def unpin_message(self, channel_id: int, message_id: int) -> None:
+        """Unpin a message to a channel
+        :param channel_id: Channel ID snowflake.
+        :param message_id: Message ID snowflake.
+        """
+        return await self._req.request(Route("DELETE", f"/channels/{channel_id}/pins/{message_id}"))
+
     async def publish_message(self, channel_id: int, message_id: int) -> dict:
         """Publishes (API calls it crossposts) a message in a News channel to any that is followed by.
 
@@ -492,6 +514,14 @@ class HTTPClient:
         return await self._req.request(
             Route("DELETE", "/users/@me/guilds/{guild_id}", guild_id=guild_id)
         )
+
+    async def delete_guild(self, guild_id: int) -> None:
+        """
+        Deletes a guild.
+
+        :param guild_id: Guild ID snowflake.
+        """
+        return await self._req.request(Route("DELETE", f"/guilds/{guild_id}"))
 
     async def get_vanity_code(self, guild_id: int) -> dict:
         return await self._req.request(
@@ -563,6 +593,23 @@ class HTTPClient:
         return await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/bans/{user_id}"),
             data={"delete_message_days": delete_message_days},
+            reason=reason,
+        )
+
+    async def remove_guild_ban(
+        self, guild_id: int, user_id: int, reason: Optional[str] = None
+    ) -> None:
+        """
+        Unbans someone using the API.
+        :param guild_id: Guild ID snowflake
+        :param user_id: User ID snowflake
+        :param reason: Optional reason to unban.
+        """
+
+        return await self._req.request(
+            Route(
+                "DELETE", "/guilds/{guild_id}/bans/{user_id}", guild_id=guild_id, user_id=user_id
+            ),
             reason=reason,
         )
 
@@ -643,6 +690,36 @@ class HTTPClient:
                 role_id=role_id,
             ),
             reason=reason,
+        )
+
+    async def modify_member(self, user_id: int, guild_id: int, payload: dict):
+        """
+        Edits a member.
+        This can nick them, change their roles, mute/deafen (and its contrary), and moving them across channels and/or disconnect them
+
+        :param user_id: Member ID snowflake.
+        :param guild_id: Guild ID snowflake.
+        :param payload: Payload representing parameters (nick, roles, mute, deaf, channel_id)
+        :return: ? (modified voice state? not sure)
+        """
+
+        return await self._req.request(
+            Route(
+                "PATCH", "/guilds/{guild_id}/members/{user_id}", guild_id=guild_id, user_id=user_id
+            ),
+            json=payload,
+        )
+
+    # Channel endpoint.
+
+    async def delete_channel(self, channel_id: int) -> None:
+        """
+        Deletes a channel.
+
+        :param channel_id: Channel ID snowflake
+        """
+        return await self._req.request(
+            Route("DELETE", "/channels/{channel_id}", channel_id=channel_id)
         )
 
     # Thread endpoint
@@ -1324,6 +1401,109 @@ class HTTPClient:
         endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
 
         return await self._req.request(Route("DELETE", endpoint))
+
+    async def execute_webhook(self, webhook_id: int, webhook_token: str, payload: dict) -> None:
+        """
+        Sends a message to a webhook.
+
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: The token for the webhook.
+        :param payload: Payload consisting of the message.
+        :return: ?
+        """
+
+        return await self._req.request(
+            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"), json=payload
+        )
+
+    async def execute_slack_webhook(
+        self, webhook_id: int, webhook_token: str, payload: dict
+    ) -> None:
+        """
+        Sends a message to a Slack-compatible webhook.
+
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: The token for the webhook.
+        :param payload: Payload consisting of the message.
+
+        :return: ?
+
+        .. note::
+            Payload structure is different than Discord's. See `here <https://api.slack.com/messaging/webhooks>_` for more details.
+        """
+
+        return await self._req.request(
+            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}/slack"), json=payload
+        )
+
+    async def execute_github_webhook(
+        self, webhook_id: int, webhook_token: str, payload: dict
+    ) -> None:
+        """
+        Sends a message to a Github-compatible webhook.
+
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: The token for the webhook.
+        :param payload: Payload consisting of the message.
+
+        :return: ?
+
+        .. note::
+            Payload structure is different than Discord's. See `here <https://discord.com/developers/docs/resources/webhook#execute-githubcompatible-webhook>_` for more details.
+        """
+
+        return await self._req.request(
+            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}/slack"), json=payload
+        )
+
+    async def get_webhook_message(
+        self, webhook_id: int, webhook_token: str, message_id: int
+    ) -> Message:
+        """
+        Retrieves a message sent from a Webhook.
+
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: Webhook token.
+        :param message_id: Message ID snowflake,
+        :return: A Message object.
+        """
+
+        return await self._req.request(
+            Route("GET", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}")
+        )
+
+    async def edit_webhook_message(
+        self, webhook_id: int, webhook_token: str, message_id: int, data: dict
+    ) -> Message:
+        """
+        Edits a message sent from a Webhook.
+
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: Webhook token.
+        :param message_id: Message ID snowflake.
+        :param data: A payload consisting of new message attributes.
+        :return: An updated message object.
+        """
+
+        return await self._req.request(
+            Route("PATCH", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"),
+            json=data,
+        )
+
+    async def delete_webhook_message(
+        self, webhook_id: int, webhook_token: str, message_id: int
+    ) -> None:
+        """
+        Deletes a message object.
+
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: Webhook token.
+        :param message_id: Message ID snowflake.
+        """
+
+        return await self._req.request(
+            Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}")
+        )
 
     # Emoji endpoints, a subset of guild but it should get it's own thing...
 
