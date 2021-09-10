@@ -1243,6 +1243,88 @@ class HTTPClient:
             Route("POST", f"/webhooks/{application_id}/{token}"), data=data
         )
 
+    # Webhook endpoints.
+    # TODO: Not sure why, but there's no webhook models? Will rectify later.
+    # Also, todo: figure out what avatar is
+
+    async def create_webhook(self, channel_id: int, name: str, avatar: Any = None) -> dict:
+        """
+        Create a new webhook.
+        :param channel_id: Channel ID snowflake.
+        :param name: Name of the webhook (1-80 characters)
+        :param avatar: The image for the default webhook avatar, if given.
+
+        :return Webhook object
+        """
+        return await self._req.request(
+            Route("POST", f"/channels/{channel_id}/webhooks"), data={"name": name, "avatar": avatar}
+        )
+
+    async def get_channel_webhooks(self, channel_id: int) -> List[dict]:
+        """
+        Return a list of channel webhook objects.
+        :param channel_id: Channel ID snowflake.
+        :return:List of webhook objects
+        """
+        return await self._req.request(Route("GET", f"/channels/{channel_id}/webhooks"))
+
+    async def get_guild_webhooks(self, guild_id: int) -> List[dict]:
+        """
+        Return a list of guild webhook objects.
+        :param guild_id: Guild ID snowflake
+
+        :return: List of webhook objects
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/webhooks"))
+
+    async def get_webhook(self, webhook_id: int, webhook_token: str = None) -> dict:
+        """
+        Return the new webhook object for the given id.
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: Webhook Token, if given.
+
+        :return:Webhook object
+        """
+        endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
+
+        return await self._req.request(Route("GET", endpoint))
+
+    async def modify_webhook(
+        self,
+        webhook_id: int,
+        name: str,
+        avatar: Any,
+        channel_id: int,
+        webhook_token: str = None,
+    ) -> dict:
+        """
+        Modify a webhook.
+        :param webhook_id: Webhook ID snowflake
+        :param name: the default name of the webhook
+        :param avatar: image for the default webhook avatar
+        :param channel_id: Channel ID snowflake of new destination
+        :param webhook_token: The token for the webhook, if given.
+
+        :return: Modified webhook object.
+        """
+        endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
+
+        return await self._req.request(
+            Route("PATCH", endpoint),
+            data={"name": name, "avatar": avatar, "channel_id": channel_id},
+        )
+
+    async def delete_webhook(self, webhook_id: int, webhook_token: str = None):
+        """
+        Delete a webhook
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: The token for the webhook, if given.
+        """
+
+        endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
+
+        return await self._req.request(Route("DELETE", endpoint))
+
     # Emoji endpoints, a subset of guild but it should get it's own thing...
 
     async def get_all_emoji(self, guild_id: int) -> List[Emoji]:

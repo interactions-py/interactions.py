@@ -220,3 +220,77 @@ class HTTPException(InteractionException):
             429: "You are being rate limited. Please slow down on your requests.",  # Definitely can be overclassed.
             502: "Gateway unavailable. Try again later.",
         }
+
+
+class JSONException(InteractionException):
+    """
+    This is a derivation of InteractionException in that this is used to represent JSON API Exceptions.
+
+    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
+    """
+
+    __slots__ = ["__type", "_formatter", "kwargs"]
+    __type: Optional[Union[int, IntEnum]]
+    _formatter: ErrorFormatter
+    kwargs: Dict[str, Any]
+
+    def __init__(self, __type, **kwargs):
+        super().__init__(__type, **kwargs)
+
+    @staticmethod
+    def lookup() -> dict:
+        return {
+            0: "Unknown Error.",
+            10001: "Unknown Account.",
+            10002: "Unknown Application.",
+            10003: "Unknown Channel.",
+            10004: "Unknown Guild.",
+            10005: "Unknown Integration.",
+            10006: "Unknown Invite.",
+            10007: "Unknown Member.",
+            10008: "Unknown Message.",
+            10009: "Unknown Overwrite.",
+            10010: "Unknown Provider.",
+            10011: "Unknown Role.",
+            10012: "Unknown Token.",
+            10013: "Unknown User.",
+            10014: "Unknown Emoji.",
+            10015: "Unknown Webhook.",
+            10016: "Unknown Webhook Service.",
+            10020: "Unknown Session.",
+            10026: "Unknown Ban.",
+            10027: "Unknown SKU.",
+            10028: "Unknown Store Listing.",
+            10029: "Unknown Entitlement.",
+            10030: "Unknown Team.",
+            10031: "Unknown Lobby.",
+            10032: "Unknown Branch.",
+            10033: "Unknown Store directory layout.",
+            10036: "Unknown Redistributable.",
+            10038: "Unknown Gift Code.",
+            10049: "Unknown Stream.",
+            10050: "Unknown Guild boost cooldown.",
+            10057: "Unknown Guild template.",
+            10059: "Unknown Discovery category.",
+            10060: "Unknown Sticker.",
+            10062: "Unknown Interaction.",
+            10063: "Unknown Application Command.",
+            10066: "Unknown Application Command permissions.",
+            10067: "Unknown Stage.",
+            10068: "Unknown Guild Member Verification Form.",
+            10069: "Unknown Guild Welcome Screen.",
+            10070: "Unknown Scheduled Event.",
+            10071: "Unknown Scheduled Event user.",
+            20001: "Bots cannot use this endpoint.",
+            20002: "Only bots can use this endpoint.",
+            20009: "Explicit content cannot be sent to the desired recipient(s).",
+            20012: "You are not authorized to perform this action on this application",
+            20016: "This action cannot be performed due to slowmode rate limit.",
+            20018: "Only the owner of this account can perform this action",
+            20022: "This message cannot be edited due to announcement rate limits.",
+            20028: "The channel you are writing has hit the write rate limit",
+            20031: "Your Stage topic, server name, server description, or channel names contain words that are not allowed",
+            20035: "Guild premium subscription level too low"
+            # finish dict.
+        }
