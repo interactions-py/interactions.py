@@ -1491,7 +1491,6 @@ class HTTPClient:
         :param application_id: Application ID snowflake
         :param data: The data to send.
         """
-        print(f"{data}")
         return await self._req.request(
             Route("POST", f"/interactions/{application_id}/{token}/callback"), json=data
         )

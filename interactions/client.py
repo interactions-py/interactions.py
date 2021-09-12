@@ -9,7 +9,7 @@ from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.user import User
 from .enums import ApplicationCommandType
-from .models.command import ApplicationCommand, Option, Permission
+from .models.command import Option, Permission
 
 
 class Client:
@@ -58,8 +58,11 @@ class Client:
 
     async def login(self, token: str) -> None:
         """Makes a login with the Discord API."""
-        data = await self.http.get_self()
-        self.me = User(**data)
+
+        if self.me is None:
+            data = await self.http.get_self()
+            self.me = User(**data)
+
         while not self.websocket.closed:
             await self.websocket.connect(token)
 
@@ -79,10 +82,8 @@ class Client:
 
     def command(
         self,
-        coro: Coroutine,
-        *,
-        type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
         name: str,
+        type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
         description: Optional[str] = None,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
@@ -94,48 +95,67 @@ class Client:
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
         """
-        guilds: List[NoReturn, int] = [None]
-        _description: str = (
-            "No description set." if (description is None and type == 1) else description
-        )
-        _options: list = [] if options is None else options
-        _default_permission: bool = True if default_permission is None else default_permission
-        _permissions: list = [] if permissions is None else permissions
 
-        if scope > 1:
-            # if isinstance(scope, List[Guild]):
+        def decorator(coro: Coroutine) -> Any:
 
-            # TODO: Relook guild logic.
-            if isinstance(scope, list) and len(scope) >= 1 and isinstance(scope[0], Guild):
-                guilds.append(guild.id for guild in scope)
-            else:
-                guilds.append(iter(scope))
-        else:
-            guilds[0] = scope
-
-        for interaction in self.cache.interactions:
-            if interaction.value.name == name:
-                raise Exception("We cannot overwrite this, but we should be syncing.")
-                # make a call to our internal sync method instead of an exception.
-
-        path: str = f"/applications/{self.me.id}"
-
-        for guild in guilds:
-            path += f"/guilds/{guild}" if guild else "/commands"
-            payload: ApplicationCommand = ApplicationCommand(
-                type=type,
-                name=name,
-                description=_description,
-                scope=guild,
-                options=_options,
-                default_permission=_default_permission,
-                permissions=_permissions,
+            guilds: List[NoReturn, int] = [None]
+            _description: str = (
+                "No description set." if (description is None and type == 1) else description
             )
-            # self.http.request(Route("POST", path), data=payload._json)
-            self.loop.create_task(
-                self.http.create_application_command(
-                    self.me._json["id"], data=payload._json, guild_id=guild
+            _options: list = [] if options is None else options
+            _default_permission: bool = True if default_permission is None else default_permission
+            _permissions: list = [] if permissions is None else permissions
+
+            if scope is not None:
+                print(f"Scope is {scope}")
+                if isinstance(scope, list):
+                    if len(scope) >= 1:
+                        # if isinstance(scope, List[Guild]):
+
+                        # TODO: Relook guild logic.
+                        if isinstance(scope[0], Guild):
+                            guilds.append(guild.id for guild in scope)
+                        else:
+                            if isinstance(scope, list):
+                                guilds.append(iter(scope))
+                else:
+                    guilds[0] = scope
+
+            for interaction in self.cache.interactions:
+                if interaction.value.name == name:
+                    raise Exception("We cannot overwrite this, but we should be syncing.")
+                    # make a call to our internal sync method instead of an exception.
+
+            # path: str = f"/applications/{self.me.id}"
+
+            for guild in guilds:
+                #  += f"/guilds/{guild}" if guild else "/commands"
+                _payload = {
+                    "type": type,
+                    "name": name,
+                    "description": _description,
+                    "guild_id": guild,
+                    "options": _options,
+                    "default_permission": _default_permission,
+                    "permissions": _permissions,
+                }
+
+                if guild is None:
+                    _payload.pop("guild_id")  # why need it?
+
+                # self.http.request(Route("POST", path), data=payload._json)
+
+                if self.me is None:
+                    data = self.loop.run_until_complete(self.http.get_self())
+                    # You think it doesn't work but it does on boot.
+                    self.me = User(**data)
+
+                self.loop.create_task(
+                    self.http.create_application_command(
+                        self.me._json["id"], data=_payload, guild_id=guild
+                    )
                 )
-            )
 
-        self.event(coro)
+            self.event(coro)
+
+        return decorator
