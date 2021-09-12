@@ -1,6 +1,6 @@
 from enum import IntEnum
 from string import Formatter
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 
 class ErrorFormatter(Formatter):
@@ -29,11 +29,6 @@ class InteractionException(Exception):
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
 
     """
-
-    __slots__ = ["__type", "_formatter", "kwargs"]
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
-    kwargs: Dict[str, Any]
 
     def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs) -> None:
         """
@@ -165,11 +160,6 @@ class GatewayException(InteractionException):
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
-    __slots__ = ["__type", "_formatter", "kwargs"]
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
-    kwargs: Dict[str, Any]
-
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)
 
@@ -200,11 +190,6 @@ class HTTPException(InteractionException):
     :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
-
-    __slots__ = ["__type", "_formatter", "kwargs"]
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
-    kwargs: Dict[str, Any]
 
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)

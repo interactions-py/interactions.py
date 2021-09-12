@@ -2,7 +2,7 @@
 import interactions
 from interactions.api.http import Route
 
-TOKEN = "guess we'll never be commiting this again."
+TOKEN = "stop drinking gfuel it sucks"
 
 client = interactions.Client(token=TOKEN)
 
@@ -10,28 +10,12 @@ client = interactions.Client(token=TOKEN)
 @client.event
 async def on_ready():
     print("Bot is online!")
+    print(client.me._json["id"])
 
-    await client.http.request(
-        Route("POST", "/applications/883788893512683520/guilds/852402668294766612/commands"),
-        json={"type": 1, "name": "digiorno", "description": "v4.0.0 baby!"},
-    )
-
-
-@client.event
-async def on_message_create(message):
-    response = {
-        "content": "yeah, message commands are still supported.",
-        "tts": False,
-        "embeds": [],
-        "allowed_mentions": None,
-        "components": [],
-    }
-
-    args = message.content.split(" ")
-    if args[0] == "!digiorno":
-        await client.http.request(
-            Route("POST", "/channels/852402668294766615/messages"), json=response
-        )
+    # await client.http.request(
+    #     Route("POST", "/applications/883788893512683520/guilds/852402668294766612/commands"),
+    #     json={"type": 1, "name": "digiorno", "description": "v4.0.0 baby!"},
+    # )
 
 
 @client.event
@@ -44,9 +28,7 @@ async def on_interaction_create(interaction):
         "flags": None,
         "components": [],
     }
-    [print(f"{attr}\n") for attr in dir(interaction)]
-    print(interaction.application_id)
-    path = f"/interactions/{interaction.application_id}/{interaction.token}/callback"
+    path = f"/interactions/{interaction._json['id']}/{interaction._json['token']}/callback"
     await client.http.request(Route("POST", path), json={"type": 4, "data": response})
 
 

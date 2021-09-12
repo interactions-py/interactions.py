@@ -184,7 +184,7 @@ class Request:
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
-                    data = await response.json()
+                    data = await response.json(content_type=None)
                     log.debug(data)
 
                     if response.status in (300, 401, 403, 404):
