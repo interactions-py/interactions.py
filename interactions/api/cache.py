@@ -1,7 +1,7 @@
 from collections import OrderedDict
-from typing import Any, List, Type
+from typing import Any, List, Union
 
-from ..models.command import ApplicationCommand
+from ..models.command import ApplicationCommand, Interaction
 from .models.channel import Channel
 from .models.guild import Guild
 from .models.member import Member
@@ -18,11 +18,6 @@ class Item(object):
     :ivar typing.Any value: The item itself.
     :ivar typing.Type type: The ID type representation.
     """
-
-    __slots__ = ("id", "value", "type")
-    id: str
-    value: Any
-    type: Type
 
     def __init__(self, id: str, value: Any) -> None:
         """
@@ -43,9 +38,6 @@ class Storage(OrderedDict):
 
     :ivar typing.List[interactions.api.cache.Item] values: The list of items stored.
     """
-
-    __slots__ = "values"
-    values: List[Item]
 
     def __init__(self) -> None:
         super().__init__()
@@ -75,18 +67,8 @@ class Cache:
     :ivar interactions.api.cache.Cache roles: The cached roles of guilds.
     :ivar interactions.api.cache.Cache members: The cached members of guilds and threads.
     :ivar interactions.api.cache.Cache messages: The cached messages of DMs and channels.
-    :ivar interactions.api.cache.Cache users: The cached users upon interaction.
+    :ivar interactions.api.cache.Cache interactions: The cached interactions upon interaction.
     """
-
-    dms: Storage = Storage()
-    self_guilds: Storage = Storage()
-    guilds: Storage = Storage()
-    channels: Storage = Storage()
-    roles: Storage = Storage()
-    members: Storage = Storage()
-    messages: Storage = Storage()
-    users: Storage = Storage()
-    commands: Storage = Storage()
 
     def add_dm(self, dm: Channel) -> Item:
         """
@@ -280,9 +262,9 @@ class Cache:
         if id in self.users.keys():
             return self.users.get(id)
 
-    def get_command(self, id: str) -> Item:
+    def get_interaction(self, id: str) -> Item:
         """
-        Gets an application command from the cache.
+        Gets an application command/interaction from the cache.
 
         :param id: The application ID of the command.
         :type id: str
@@ -291,13 +273,14 @@ class Cache:
         if id in self.commands.keys():
             return self.commands.get(id)
 
-    def add_command(self, id: str, command: ApplicationCommand) -> Item:
+    def add_interaction(self, id: str, interaction: Union[Interaction, ApplicationCommand]) -> Item:
         """
-        Adds an application command to the cache.
+        Adds an application command/interaction to the cache.
 
         :param id: The application ID of the command.
         :type id: str
         :param command: The application command to add.
         :type command: interactions.model.ApplicationCommand
-
+        :return: interactions.api.cache.Item
         """
+        return self.interactions.add(interaction)

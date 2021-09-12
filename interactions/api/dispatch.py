@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, get_event_loop
+from asyncio import get_event_loop
 from typing import Any, Callable, Coroutine, Optional
 
 
@@ -9,10 +9,6 @@ class Listener:
     :ivar asyncio.AbstractEventLoop loop: The coroutine event loop established on.
     :ivar dict events: A list of events being dispatched.
     """
-
-    __slots__ = ("loop", "events")
-    loop: AbstractEventLoop
-    events: dict
 
     def __init__(self) -> None:
         self.loop = get_event_loop()

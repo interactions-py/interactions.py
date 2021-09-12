@@ -1,14 +1,15 @@
 from asyncio import AbstractEventLoop, get_event_loop
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, List, NoReturn, Optional, Union
 
-from interactions.enums import ApplicationCommandType
-from interactions.models.command import ApplicationCommand, Option, Permission
-
+from .api.cache import Cache
 from .api.dispatch import Listener
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.intents import Intents
+from .api.models.user import User
+from .enums import ApplicationCommandType
+from .models.command import ApplicationCommand, Option, Permission
 
 
 class Client:
@@ -26,7 +27,9 @@ class Client:
     loop: AbstractEventLoop
     intents: Optional[Union[Intents, List[Intents]]]
     http: HTTPClient
+    cache: Cache
     websocket: WebSocket
+    me: Optional[User]
     token: str
 
     def __init__(
@@ -47,12 +50,16 @@ class Client:
 
         self.loop = get_event_loop()
         self.listener = Listener()
+        self.cache = Cache()
         self.http = HTTPClient(token)
         self.websocket = WebSocket(intents=self.intents)
+        self.me = None
         self.token = token
 
     async def login(self, token: str) -> None:
         """Makes a login with the Discord API."""
+        data = await self.http.get_self()
+        self.me = User(**data)
         while not self.websocket.closed:
             await self.websocket.connect(token)
 
@@ -72,78 +79,63 @@ class Client:
 
     def command(
         self,
+        coro: Coroutine,
         *,
         type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
         name: str,
         description: Optional[str] = None,
-        guild: Optional[Union[int, Guild]] = None,
-        guilds: Optional[List[Union[int, Guild]]] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
         default_permission: Optional[bool] = None,
         permissions: Optional[List[Permission]] = None,
-        connector: Optional[Dict[str, str]] = None
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
-
-        .. note::
-            If you don't pass in ``options`` in the decorator but add them to the
-            coroutine method underneath the decorator, the options will be
-            automatically generated for you. It will also attempt to read a docstring
-            if one is present in the coroutine method to register the description
-            of the option for you.
-
-        :param type: The type of application command to register.
-        :type type: typing.Optional[typing.Union[str, int, interactions.enums.ApplicationCommandType]]
-        :param name: The name of the application command.
-        :type name: str
-        :param description: The description of the application command. **This only applies for "slash"/chat-input commands.**
-        :type description: typing.Optional[str]
-        :param guild: The guild you wish to register the application command under. Leaving this empty defaults to a **global** command.
-        :type guild: typing.Optional[typing.Union[int, interactions.api.models.guild.Guild]]
-        :param guilds: An alias of the ``guild`` keyword-argument if you wish to enter in a list instead.
-        :type guilds: typing.Optional[typing.List[typing.Union[int, interactions.api.models.guild.Guild]]]
-        :param options: The "arguments"/options of the application command. **This only applies for "slash"/chat-input commands.**
-        :type options: typing.Optional[typing.List[interactions.models.command.Option]]
-        :param default_permission: The default permission of the application command. Leave this empty if you don't want to touch permissions.
-        :type default_permission: typing.Optional[bool]
-        :param permissions: Given criterion/permissions for the application command's user to meet in order to use.
-        :type permissions: typing.Optional[typing.List[interactions.models.command.Permission]]
-        :param connector: A connector to have non-English native option names but register currently in the coroutine method.
-        :type connector: typing.Optional[typing.Dict[str, str]]
-        :return: typing.Callable[..., typing.Any]
         """
-        _guilds = []
-
-        if guild is None and guilds is not None:
-            for _guild in guilds:
-                if isinstance(_guild, Guild):
-                    _guilds.append(_guild.id)
-                else:
-                    _guilds.append(_guild)
-        else:
-            _guilds[0] = guild.id if isinstance(guild, Guild) else guild
-
-        command = ApplicationCommand(
-            type=type,
-            name=str,
-            description=description,
-            options=options,
-            default_permission=default_permission,
-            permissions=permissions,
+        guilds: List[NoReturn, int] = [None]
+        _description: str = (
+            "No description set." if (description is None and type == 1) else description
         )
-        # we need to make a "me" class instance of the bot's information as some class.
-        # route = f"/applications/{self.me.id}"
+        _options: list = [] if options is None else options
+        _default_permission: bool = True if default_permission is None else default_permission
+        _permissions: list = [] if permissions is None else permissions
 
-        if len(_guilds) >= 2:
-            for _guild in _guilds:
-                command.guild_id = _guild
-                # route += "/guilds/{_guild}/commands"
-                # Add in the HTTP request call here for adding application commands based on a guild.
-                # something like: self.http.request(Route("POST", f"{route}"), json=command) ?
-                ...
+        if scope > 1:
+            # if isinstance(scope, List[Guild]):
+
+            # TODO: Relook guild logic.
+            if isinstance(scope, list) and len(scope) >= 1 and isinstance(scope[0], Guild):
+                guilds.append(guild.id for guild in scope)
+            else:
+                guilds.append(iter(scope))
         else:
-            # route += "/commands"
-            ...
+            guilds[0] = scope
+
+        for interaction in self.cache.interactions:
+            if interaction.value.name == name:
+                raise Exception("We cannot overwrite this, but we should be syncing.")
+                # make a call to our internal sync method instead of an exception.
+
+        path: str = f"/applications/{self.me.id}"
+
+        for guild in guilds:
+            path += f"/guilds/{guild}" if guild else "/commands"
+            payload: ApplicationCommand = ApplicationCommand(
+                type=type,
+                name=name,
+                description=_description,
+                scope=guild,
+                options=_options,
+                default_permission=_default_permission,
+                permissions=_permissions,
+            )
+            # self.http.request(Route("POST", path), data=payload._json)
+            self.loop.create_task(
+                self.http.create_application_command(
+                    self.me._json["id"], data=payload._json, guild_id=guild
+                )
+            )
+
+        self.event(coro)

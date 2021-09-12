@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Any, Optional
 
-from orjson import dumps
+from orjson import dumps, loads
 
 
 class User(object):
     __slots__ = (
+        "__dict__",
         "_json",
         "id",
         "username",
@@ -22,6 +23,7 @@ class User(object):
         "premium_type",
         "public_flags",
     )
+    __dict__: Any
     _json: dict
     id: int
     username: str
@@ -41,4 +43,4 @@ class User(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
