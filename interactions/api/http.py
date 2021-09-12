@@ -8,7 +8,18 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 from ..api.error import HTTPException
-from ..api.models import Embed, Emoji, Member, Message, Role, User, VoiceRegion
+from ..api.models import (
+    Embed,
+    Emoji,
+    GuildPreview,
+    Invite,
+    Member,
+    Message,
+    Role,
+    User,
+    VoiceRegion,
+    WelcomeScreen,
+)
 from ..base import Data, __version__
 from .cache import Cache
 
@@ -504,6 +515,30 @@ class HTTPClient:
         """
         return await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
 
+    async def get_guild_preview(self, guild_id: int) -> GuildPreview:
+        """
+        Get a guild's preview.
+        :param guild_id: Guild ID snowflake.
+        :return: Guild Preview object associated with the snowflake
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/preview"))
+
+    async def modify_guild(
+        self, guild_id: int, payload: dict, reason: Optional[str] = None
+    ) -> None:
+        """
+        Modifies a guild's attributes.
+
+        ..note::
+            This only sends the payload. You will have to check it when a higher-level function calls this.
+
+        :param guild_id: Guild ID snowflake.
+        :param payload: The parameters to change.
+        :param reason: Reason to send to the audit log, if given.
+        """
+
+        await self._req.request(Route("PATCH", f"/guilds/{guild_id}"), data=payload, reason=reason)
+
     async def leave_guild(self, guild_id: int) -> None:
         """
         Leaves a guild.
@@ -523,6 +558,30 @@ class HTTPClient:
         """
         return await self._req.request(Route("DELETE", f"/guilds/{guild_id}"))
 
+    async def get_guild_widget(self, guild_id: int) -> dict:
+        """
+        Returns the widget for the guild.
+        :param guild_id: Guild ID snowflake.
+        :return: Guild Widget contents as a dict: {"enabled":bool, "channel_id": str}
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/widget.json"))
+
+    async def get_guild_invites(self, guild_id: int) -> List[Invite]:
+        """
+        Retrieves a list of invite objects with their own metadata.
+        :param guild_id: Guild ID snowflake.
+        :return: A list of invite objects
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/invites"))
+
+    async def get_guild_welcome_screen(self, guild_id: int) -> WelcomeScreen:
+        """
+        Retrieves from the API a welcome screen associated with the guild
+        :param guild_id: Guild ID snowflake.
+        :return: Welcome Screen object
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/welcome-screen"))
+
     async def get_vanity_code(self, guild_id: int) -> dict:
         return await self._req.request(
             Route("GET", "/guilds/{guild_id}/vanity-url", guild_id=guild_id)
@@ -536,6 +595,24 @@ class HTTPClient:
             Route("PATCH", "/guilds/{guild_id}/vanity-url", guild_id=guild_id),
             json=payload,
             reason=reason,
+        )
+
+    async def get_guild_integrations(self, guild_id: int) -> List[dict]:
+        """
+        Gets a list of integration objects associated with the Guild from the API.
+        :param guild_id: Guild ID snowflake.
+        :return: An array of integration objects
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/integrations"))
+
+    async def delete_guild_integration(self, guild_id: int, integration_id: int) -> None:
+        """
+        Deletes an integration from the guild.
+        :param guild_id: Guild ID snowflake.
+        :param integration_id: Integration ID snowflake.
+        """
+        return await self._req.request(
+            Route("DELETE", f"/guilds/{guild_id}/integrations/{integration_id}")
         )
 
     async def get_all_channels(self, guild_id: int) -> List[dict]:
@@ -556,6 +633,63 @@ class HTTPClient:
         :return: An array of Role objects.
         """
         return await self._req.request(Route("GET", "/guilds/{guild_id}/roles", guild_id=guild_id))
+
+    async def create_guild_role(
+        self, guild_id: int, data: dict, reason: Optional[str] = None
+    ) -> Role:
+        """
+        Create a new role for the guild.
+        :param guild_id: Guild ID snowflake.
+        :param data: A dict containing metadata for the role.
+        :param reason: The reason for this action, if given.
+        :return: Role object
+        """
+        return await self._req.request(
+            Route("POST", f"/guilds/{guild_id}/roles"), data=data, reason=reason
+        )
+
+    async def modify_guild_role_position(
+        self, guild_id: int, role_id: int, position: int, reason: Optional[str] = None
+    ) -> List[Role]:
+        """
+        Modify the position of a role in the guild.
+        :param guild_id: Guild ID snowflake.
+        :param role_id: Role ID snowflake.
+        :param position: The new position of the associated role.
+        :param reason: The reason for this action, if given.
+        :return: List of guild roles with updated hierarchy.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/roles"),
+            data={"id": role_id, "position": position},
+            reason=reason,
+        )
+
+    async def modify_guild_role(
+        self, guild_id: int, role_id: int, data: dict, reason: Optional[str] = None
+    ) -> Role:
+        """
+        Modify a given role for the guild.
+        :param guild_id: Guild ID snowflake.
+        :param role_id: Role ID snowflake.
+        :param data: A dict containing updated metadata for the role.
+        :param reason: The reason for this action, if given.
+        :return: Updated role object.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/roles/{role_id}"), data=data, reason=reason
+        )
+
+    async def delete_guild_role(self, guild_id: int, role_id: int, reason: str = None) -> None:
+        """
+        Delete a guild role.
+        :param guild_id: Guild ID snowflake.
+        :param role_id: Role ID snowflake.
+        :param reason: The reason for this action, if any.
+        """
+        return await self._req.request(
+            Route("DELETE", f"/guilds/{guild_id}/roles/{role_id}"), reason=reason
+        )
 
     async def create_guild_kick(
         self, guild_id: int, user_id: int, reason: Optional[str] = None
@@ -612,6 +746,90 @@ class HTTPClient:
             ),
             reason=reason,
         )
+
+    async def get_guild_bans(self, guild_id: int) -> List[dict]:
+        """
+        Gets a list of banned users.
+        :param guild_id: Guild ID snowflake.
+        :return: A list of banned users.
+        """
+        # TODO: Create banned entry.
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/bans"))
+
+    async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]:
+        """
+        Gets an object pertaining to the user, if it exists. Returns a 404 if it doesn't.
+        :param guild_id: Guild ID snowflake
+        :param user_id: User ID snowflake.
+        :return: Ban object if it exists.
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/bans/{user_id}"))
+
+    async def add_guild_member(
+        self,
+        guild_id: int,
+        user_id: int,
+        access_token: str,
+        nick: Optional[str] = None,
+        roles: Optional[List[Role]] = None,
+        mute: bool = None,
+        deaf: bool = None,
+    ) -> Member:
+        """
+        A low level method of adding a user to a guild with pre-defined attributes.
+
+        :param guild_id: Guild ID snowflake.
+        :param user_id: User ID snowflake.
+        :param access_token: User access token.
+        :param nick: User's nickname on join.
+        :param roles: An array of roles that the user is assigned.
+        :param mute: Whether the user is mute in voice channels.
+        :param deaf: Whether the user is deafened in voice channels.
+        :return: Guild member object (?)
+        """
+        return await self._req.request(
+            Route("PUT", f"/guilds/{guild_id}/members/{user_id}"),
+            data={
+                k: v
+                for k, v in {
+                    "access_token": access_token,
+                    "nick": nick,
+                    "roles": roles,
+                    "mute": mute,
+                    "deaf": deaf,
+                }.items()
+                if v is not None
+            },
+        )
+
+    async def remove_guild_member(
+        self, guild_id: int, user_id: int, reason: Optional[str] = None
+    ) -> None:
+        """
+        A low level method of removing a member from a guild. This is different from banning them.
+        :param guild_id: Guild ID snowflake.
+        :param user_id: User ID snowflake.
+        :param reason: Reason to send to audit log, if any.
+        """
+        return await self._req.request(
+            Route("DELETE", f"/guilds/{guild_id}/members/{user_id}"), reason=reason
+        )
+
+    async def get_guild_prune_count(
+        self, guild_id: int, days: int = 7, include_roles: Optional[List[int]] = None
+    ) -> dict:
+        """
+        Retrieves a dict from an API that results in how many members would be pruned given the amount of days.
+        :param guild_id: Guild ID snowflake.
+        :param days:  Number of days to count. Defaults to ``7``.
+        :param include_roles: Role IDs to include, if given.
+        :return: A dict denoting `{"pruned": int}`
+        """
+        payload = {"days": days}
+        if include_roles:
+            payload["include_roles"] = ", ".join(include_roles)  # would still iterate
+
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/prune"), params=payload)
 
     # Guild (Member) endpoint
 
@@ -928,7 +1146,7 @@ class HTTPClient:
 
     async def remove_all_reactions(self, channel_id: int, message_id: int) -> None:
         """
-        Remove reactions from a message.
+        Remove all reactions from a message.
 
         :param channel_id: The channel this is taking place in.
         :param message_id: The message to clear reactions from.
@@ -942,14 +1160,33 @@ class HTTPClient:
             )
         )
 
+    async def remove_all_reactions_of_emoji(
+        self, channel_id: int, message_id: int, emoji: str
+    ) -> None:
+        """
+        Remove all reactions of a certain emoji from a message.
+        :param channel_id: Channel snowflake ID.
+        :param message_id: Message snowflake ID.
+        :param emoji: The emoji to remove (format: `name:id`)
+        """
+        return await self._req.request(
+            Route(
+                "DELETE",
+                "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
+                channel_id=channel_id,
+                message_id=message_id,
+                emoji=emoji,
+            )
+        )
+
     async def get_reactions_of_emoji(
         self, channel_id: int, message_id: int, emoji: str
     ) -> List[User]:
         """
-        Gets specific reaction from a message
-        :param channel_id: The channel this is taking place in.
-        :param message_id: The message to get the reaction.
-        :param emoji: The emoji to get. (format: `name:id`)
+        Gets the users who reacted to the emoji.
+        :param channel_id: Channel snowflake ID.
+        :param message_id: Message snowflake ID.
+        :param emoji: The emoji to get (format: `name:id`)
         :return A list of users who sent that emoji.
         """
         return await self._req.request(
