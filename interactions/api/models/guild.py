@@ -9,6 +9,7 @@ from .member import Member
 from .message import Emoji, Sticker
 from .presence import PresenceUpdate
 from .role import Role
+from .user import User
 from .voice import VoiceState
 
 
@@ -307,6 +308,26 @@ class Invite(object):
     max_age: int
     temporary: bool
     created_at: datetime
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = dumps(self.__dict__)
+
+
+class GuildTemplate(object):
+    """An object representing the snapshot of an existing guild."""
+
+    code: str
+    name: str
+    description: Optional[str]
+    usage_count: int
+    creator_id: int
+    creator: User
+    created_at: datetime
+    updated_at: datetime
+    source_guild_id: int
+    serialized_source_guild: Guild  # partial
+    is_dirty: Optional[bool]
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)

@@ -9,13 +9,17 @@ from aiohttp import __version__ as http_version
 
 from ..api.error import HTTPException
 from ..api.models import (
+    Channel,
     Embed,
     Emoji,
+    Guild,
     GuildPreview,
+    GuildTemplate,
     Invite,
     Member,
     Message,
     Role,
+    StageInstance,
     User,
     VoiceRegion,
     WelcomeScreen,
@@ -566,6 +570,38 @@ class HTTPClient:
         """
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/widget.json"))
 
+    async def get_guild_widget_settings(self, guild_id: int) -> dict:
+        """
+        Get guild widget settings.
+
+        :param guild_id: Guild ID snowflake.
+        :return: Guild Widget contents as a dict: {"enabled":bool, "channel_id": str}
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}"))
+
+    async def get_guild_widget_image(self, guild_id: int, style: Optional[str] = None) -> str:
+        """
+        Get a url representing a png image widget for the guild.
+        ..note::
+            See _<https://discord.com/developers/docs/resources/guild#get-guild-widget-image> for list of styles.
+
+        :param guild_id: Guild ID snowflake.
+        :param style: The style of widget required, if given.
+        :return: A url pointing to this image
+        """
+        route = Route("GET", f"/guilds/{guild_id}/widget.png{f'?style={style}' if style else ''}")
+        return route.path
+
+    async def modify_guild_widget(self, guild_id: int, payload: dict) -> dict:
+        """
+        Modify a guild widget.
+
+        :param guild_id: Guild ID snowflake.
+        :param payload: Payload containing new widget attributes.
+        :return: Updated widget attributes.
+        """
+        return await self._req.request(Route("PATCH", f"/guilds/{guild_id}/widget"), data=payload)
+
     async def get_guild_invites(self, guild_id: int) -> List[Invite]:
         """
         Retrieves a list of invite objects with their own metadata.
@@ -581,6 +617,27 @@ class HTTPClient:
         :return: Welcome Screen object
         """
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/welcome-screen"))
+
+    async def modify_guild_welcome_screen(
+        self, guild_id: int, enabled: bool, welcome_channels: List[int], description: str
+    ) -> WelcomeScreen:
+        """
+        Modify the guild's welcome screen.
+
+        :param guild_id: Guild ID snowflake.
+        :param enabled: Whether the welcome screen is enabled or not.
+        :param welcome_channels: The new channels (by their ID) linked in the welcome screen and their display options
+        :param description: The new server description to show in the welcome screen
+        :return: Updated Welcome screen object.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/welcome-screen"),
+            data={
+                "enabled": enabled,
+                "welcome_channels": welcome_channels,
+                "description": description,
+            },
+        )
 
     async def get_vanity_code(self, guild_id: int) -> dict:
         return await self._req.request(
@@ -613,6 +670,152 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("DELETE", f"/guilds/{guild_id}/integrations/{integration_id}")
+        )
+
+    async def modify_current_user_voice_state(
+        self,
+        guild_id: int,
+        channel_id: int,
+        suppress: Optional[bool] = None,
+        request_to_speak_timestamp: Optional[str] = None,
+    ) -> None:
+        """
+        Update the current user voice state.
+
+        :param guild_id: Guild ID snowflake.
+        :param channel_id: Voice channel ID snowflake.
+        :param suppress: Toggle the user's suppress state, if given.
+        :param request_to_speak_timestamp: Sets the user's request to speak, if given.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/voice-states/@me"),
+            data={
+                k: v
+                for k, v in {
+                    "channel_id": channel_id,
+                    "suppress": suppress,
+                    "request_to_speak_timestamp": request_to_speak_timestamp,
+                }.items()
+                if v is not None
+            },
+        )
+
+    async def modify_user_voice_state(
+        self, guild_id: int, user_id: int, channel_id: int, suppress: Optional[bool] = None
+    ) -> None:
+        """
+        Modify the voice state of a user.
+
+        :param guild_id: Guild ID snowflake.
+        :param user_id: User ID snowflake.
+        :param channel_id: Voice channel ID snowflake.
+        :param suppress: Toggles the user's suppress state, if given.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/voice-states/{user_id}"),
+            data={
+                k: v
+                for k, v in {"channel_id": channel_id, "suppress": suppress}.items()
+                if v is not None
+            },
+        )
+
+    async def create_guild_from_guild_template(
+        self, template_code: str, name: str, icon: Optional[str] = None
+    ) -> Guild:
+        """
+        Create a a new guild based on a template.
+
+        ..note::
+            This endpoint can only be used by bots in less than 10 guilds.
+
+        :param template_code: The code of the template to use.
+        :param name: The name of the guild (2-100 characters)
+        :param icon: Guild icon URI, if given.
+        :return: The newly created guild object.
+        """
+        payload = {
+            "name": name,
+        }
+        if icon:
+            payload["icon"] = icon
+        return await self._req.request(
+            Route("POST", f"/guilds/templates/{template_code}", data=payload)
+        )
+
+    async def get_guild_templates(self, guild_id: int) -> List[GuildTemplate]:
+        """
+        Returns an array of guild templates.
+
+        :param guild_id: Guild ID snowflake.
+        :return: An array of guild templates
+        """
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/templates"))
+
+    async def create_guild_template(
+        self, guild_id: int, name: str, description: Optional[str] = None
+    ) -> GuildTemplate:
+        """
+        Create a guild template for the guild.
+
+        :param guild_id: Guild ID snowflake.
+        :param name: The name of the template
+        :param description: The description of the template, if given.
+        :return: The created guild template
+        """
+        return await self._req.request(
+            Route("POST", f"/guilds/{guild_id}/templates"),
+            data={
+                k: v for k, v in {"name": name, "description": description}.items() if v is not None
+            },
+        )
+
+    async def sync_guild_template(self, guild_id: int, template_code: str) -> GuildTemplate:
+        """
+        Sync the template to the guild's current state.
+
+        :param guild_id: Guild ID snowflake.
+        :param template_code: The code for the template to sync
+        :return: The updated guild template.
+        """
+        return await self._req.request(
+            Route("PUT", f"/guilds/{guild_id}/templates/{template_code}")
+        )
+
+    async def modify_guild_template(
+        self,
+        guild_id: int,
+        template_code: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> GuildTemplate:
+        """
+        Modify a guild template.
+
+        :param guild_id: Guild ID snowflake.
+        :param template_code: Template ID.
+        :param name: The name of the template
+        :param description: The description of the template
+        :return: The updated guild template
+        """
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/templates/{template_code}"),
+            data={
+                k: v for k, v in {"name": name, "description": description}.items() if v is not None
+            },
+        )
+
+    async def delete_guild_template(self, guild_id: int, template_code: str) -> GuildTemplate:
+        """
+        Delete the guild template.
+
+        :param guild_id: Guild ID snowflake.
+        :param template_code: Template ID.
+        :return: The deleted template object
+        """
+        # According to Polls, this returns the object. Why, I don't know.
+        return await self._req.request(
+            Route("DELETE", f"/guilds/{guild_id}/templates/{template_code}")
         )
 
     async def get_all_channels(self, guild_id: int) -> List[dict]:
@@ -866,6 +1069,20 @@ class HTTPClient:
 
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/members"), params=payload)
 
+    async def search_guild_members(self, guild_id: int, query: str, limit: int = 1) -> List[Member]:
+        """
+        Search a guild for members who's username or nickname starts with provided string.
+
+        :param guild_id: Guild ID snowflake.
+        :param query: The string to search for
+        :param limit: The number of members to return. Defaults to 1.
+        """
+
+        return await self._req.request(
+            Route("GET", f"/guilds/{guild_id}/members/search"),
+            params=dict(query=query, limit=limit),
+        )
+
     async def add_member_role(
         self, guild_id: int, user_id: int, role_id: int, reason: Optional[str] = None
     ) -> None:
@@ -930,6 +1147,14 @@ class HTTPClient:
 
     # Channel endpoint.
 
+    async def get_channel(self, channel_id: int) -> Channel:
+        """
+        Gets a channel by ID. If the channel is a thread, it also includes thread members (and other thread attributes)
+        :param channel_id: Channel ID snowflake.
+        :return: Channel object.
+        """
+        return await self._req.request(Route("GET", f"/channels/{channel_id}"))
+
     async def delete_channel(self, channel_id: int) -> None:
         """
         Deletes a channel.
@@ -938,6 +1163,269 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("DELETE", "/channels/{channel_id}", channel_id=channel_id)
+        )
+
+    async def get_channel_messages(
+        self,
+        channel_id: int,
+        limit: int = 50,
+        around: Optional[int] = None,
+        before: Optional[int] = None,
+        after: Optional[int] = None,
+    ) -> List[Message]:
+        """
+        Get messages from a channel.
+
+        ..note::
+            around, before, and after arguments are mutually exclusive.
+
+        :param channel_id: Channel ID snowflake.
+        :param limit: How many messages to get. Defaults to 50, the max is 100.
+        :param around: Get messages around this snowflake ID.
+        :param before: Get messages before this snowflake ID.
+        :param after: Get messages after this snowflake ID.
+        :return: An array of Message objects.
+        """
+        params: Dict[str, Union[int, str]] = {"limit": limit}
+
+        params_used = 0
+
+        if before:
+            params_used += 1
+            params["before"] = before
+        if after:
+            params_used += 1
+            params["after"] = after
+        if around:
+            params_used += 1
+            params["around"] = around
+
+        if params_used > 1:
+            raise ValueError(
+                "`before`, `after` and `around` are mutually exclusive. Please pass only one of them."
+            )
+
+        return await self._req.request(
+            Route("GET", f"/channels/{channel_id}/messages"), params=params
+        )
+
+    async def create_channel(
+        self, guild_id: int, payload: dict, reason: Optional[str] = None
+    ) -> Channel:
+        """
+        Creates a channel within a guild.
+
+        ..note::
+            This does not handle payload in this method. Tread carefully.
+
+        :param guild_id: Guild ID snowflake.
+        :param payload: Payload data.
+        :param reason: Reason to show in audit log, if needed.
+        :return: Channel object.
+        """
+        return await self._req.request(
+            Route("POST", f"/guilds/{guild_id}/channels"), data=payload, reason=reason
+        )
+
+    async def move_channel(
+        self,
+        guild_id: int,
+        channel_id: int,
+        new_pos: int,
+        parent_id: Optional[int],
+        lock_perms: bool = False,
+        reason: Optional[str] = None,
+    ):
+        """
+        Moves a channel to a new position.
+
+        :param guild_id: Guild ID snowflake.
+        :param channel_id: Channel ID snowflake.
+        :param new_pos: The new channel position.
+        :param parent_id: The category parent ID, if needed.
+        :param lock_perms: Sync permissions with the parent associated with parent_id. Defaults to False.
+        :param reason: Reason to display to the audit log, if any.
+        :return: ?
+        """
+        payload = dict(id=channel_id, position=new_pos, lock_permissions=lock_perms)
+        if parent_id:
+            payload["parent_id"] = parent_id
+
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/channels"), data=payload, reason=reason
+        )
+
+    async def modify_channel(
+        self, channel_id: int, data: dict, reason: Optional[str] = None
+    ) -> Channel:
+        """
+        Update a channel's settings.
+        :param channel_id: Channel ID snowflake.
+        :param data: Data representing updated settings.
+        :param reason: Reason, if any.
+        :return: Channel with updated attributes, if successful.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/channels/{channel_id}"), data=data, reason=reason
+        )
+
+    async def get_channel_invites(self, channel_id: int) -> List[Invite]:
+        """
+        Get the invites for the channel.
+        :param channel_id: Channel ID snowflake.
+        :return: List of invite objects
+        """
+        return await self._req.request(Route("GET", f"/channels/{channel_id}/invites"))
+
+    async def create_channel_invite(
+        self, channel_id: int, data: dict, reason: Optional[str] = None
+    ) -> Invite:
+        """
+        Creates an invite for the given channel.
+
+        ..note::
+            This method does not handle payload. It just sends it.
+
+        :param channel_id: Channel ID snowflake.
+        :param data: Data representing the payload/invite attributes.
+        :param reason: Reason to show in the audit log, if any.
+        :return: An invite object.
+        """
+        return await self._req.request(
+            Route("POST", f"/channels/{channel_id}/invites"), data=data, reason=reason
+        )
+
+    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
+        """
+        Delete an invite.
+        :param invite_code: The code of the invite to delete
+        :param reason: Reason to show in the audit log, if any.
+        :return: The deleted invite object
+        """
+        return await self._req.request(Route("DELETE", f"/invites/{invite_code}"), reason=reason)
+
+    async def edit_channel_permission(
+        self,
+        channel_id: int,
+        overwrite_id: int,
+        allow: str,
+        deny: str,
+        perm_type: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Edits the channel's permission overwrites for a user or role in a given channel.
+
+        :param channel_id: Channel ID snowflake.
+        :param overwrite_id: The ID of the overridden object.
+        :param allow: the bitwise value of all allowed permissions
+        :param deny: the bitwise value of all disallowed permissions
+        :param perm_type: 0 for a role or 1 for a member
+        :param reason: Reason to display in the Audit Log, if given.
+        """
+        return await self._req.request(
+            Route("PUT", f"/channels/{channel_id}/permissions/{overwrite_id}"),
+            data={"allow": allow, "deny": deny, "type": perm_type},
+        )
+
+    async def delete_channel_permission(
+        self, channel_id: int, overwrite_id: int, reason: Optional[str] = None
+    ) -> None:
+        """
+        Deletes a channel permission overwrite for a user or role in a channel.
+
+        :param channel_id: Channel ID snowflake.
+        :param overwrite_id: The ID of the overridden object.
+        :param reason: Reason to display in the Audit Log, if given.
+        """
+        return await self._req.request(
+            Route("DELETE", f"/channels/{channel_id}/{overwrite_id}"), reason=reason
+        )
+
+    async def trigger_typing(self, channel_id: int) -> None:
+        """
+        Posts "... is typing" in a given channel.
+
+        ..note:
+            By default, this lib doesn't use this endpoint, however, this is listed for third-party implementation.
+        :param channel_id: Channel ID snowflake.
+        """
+        return await self._req.request(Route("POST", f"/channels/{channel_id}/typing"))
+
+    async def get_pinned_messages(self, channel_id: int) -> List[Message]:
+        """
+        Get all pinned messages from a channel.
+        :param channel_id: Channel ID snowflake.
+        :return: A list of pinned message objects.
+        """
+        return await self._req.request(Route("GET", f"/channels/{channel_id}/pins"))
+
+    async def create_stage_instance(
+        self, channel_id: int, topic: str, privacy_level: int = 1, reason: Optional[str] = None
+    ) -> StageInstance:
+        """
+        Create a new stage instance.
+
+        :param channel_id: Channel ID snowflake.
+        :param topic: The topic of the stage instance. Limited to 1-120 characters.
+        :param privacy_level: The privacy_level of the stage instance (defaults to guild-only "1").
+        :param reason: The reason for the creating the stage instance, if any.
+        :return: The new stage instance
+        """
+        return await self._req.request(
+            Route("POST", "/stage-instances"),
+            data={
+                "channel_id": channel_id,
+                "topic": topic,
+                "privacy_level": privacy_level,
+            },
+            reason=reason,
+        )
+
+    async def get_stage_instance(self, channel_id: int) -> StageInstance:
+        """
+        Get the stage instance associated with a given channel, if it exists.
+
+        :param channel_id: Channel ID snowflake.
+        :return: A stage instance.
+        """
+        return await self._req.request(Route("GET", f"/stage-instances/{channel_id}"))
+
+    async def modify_stage_instance(
+        self,
+        channel_id: int,
+        topic: Optional[str] = None,
+        privacy_level: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> StageInstance:
+        """
+        Update the fields of a given stage instance.
+
+        :param channel_id: Channel ID snowflake.
+        :param topic: The new topic of the stage instance, if given. Limited to 1-120 characters.
+        :param privacy_level: The new privacy_level of the stage instance.
+        :param reason: The reason for the creating the stage instance, if any.
+        :return: The updated stage instance.
+        """
+        return await self._req.request(
+            Route("PATCH", f"/stage-instances/{channel_id}"),
+            data={
+                k: v
+                for k, v in {"topic": topic, "privacy_level": privacy_level}.items()
+                if v is not None
+            },
+            reason=reason,
+        )
+
+    async def delete_stage_instance(self, channel_id: int, reason: Optional[str] = None) -> None:
+        """
+        Delete a stage instance.
+
+        :param channel_id: Channel ID snowflake.
+        :param reason: The reason for the creating the stage instance, if any.
+        """
+        return await self._req.request(
+            Route("DELETE", f"/stage-instances/{channel_id}"), reason=reason
         )
 
     # Thread endpoint
@@ -1638,18 +2126,29 @@ class HTTPClient:
 
         return await self._req.request(Route("DELETE", endpoint))
 
-    async def execute_webhook(self, webhook_id: int, webhook_token: str, payload: dict) -> None:
+    async def execute_webhook(
+        self,
+        webhook_id: int,
+        webhook_token: str,
+        payload: dict,
+        wait: bool = False,
+        thread_id: Optional[int] = None,
+    ) -> Optional[Message]:
         """
-        Sends a message to a webhook.
+        Sends a message as a webhook.
 
         :param webhook_id: Webhook ID snowflake.
         :param webhook_token: The token for the webhook.
         :param payload: Payload consisting of the message.
-        :return: ?
+        :param wait: A bool that signifies waiting for server confirmation of a send before responding.
+        :param thread_id: Optional, sends a message to the specified thread.
+        :return: The message sent, if wait=True, else None.
         """
 
         return await self._req.request(
-            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"), json=payload
+            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"),
+            params={"wait": wait, "thread_id": thread_id},
+            data=payload,
         )
 
     async def execute_slack_webhook(
