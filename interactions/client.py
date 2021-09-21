@@ -1,10 +1,11 @@
 from asyncio import AbstractEventLoop, get_event_loop
-from typing import Any, Callable, Coroutine, List, NoReturn, Optional, Union
+from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.cache import Cache
 from .api.dispatch import Listener
+from .api.error import JSONException
 from .api.gateway import WebSocket
-from .api.http import Request, Route
+from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.user import User
@@ -26,7 +27,7 @@ class Client:
 
     loop: AbstractEventLoop
     intents: Optional[Union[Intents, List[Intents]]]
-    http: Request
+    http: HTTPClient
     cache: Cache
     websocket: WebSocket
     me: Optional[User]
@@ -50,16 +51,19 @@ class Client:
 
         self.loop = get_event_loop()
         self.listener = Listener()
-        self.http = Request(token)
         self.cache = Cache()
+        self.http = HTTPClient(token)
         self.websocket = WebSocket(intents=self.intents)
         self.me = None
         self.token = token
 
     async def login(self, token: str) -> None:
         """Makes a login with the Discord API."""
-        data = await self.http.request(Route("GET", "/users/@me"))
-        self.me = User(**data)
+
+        if self.me is None:
+            data = await self.http.get_self()
+            self.me = User(**data)
+
         while not self.websocket.closed:
             await self.websocket.connect(token)
 
@@ -79,10 +83,9 @@ class Client:
 
     def command(
         self,
-        coro: Coroutine,
         *,
         type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
-        name: str,
+        name: Optional[str] = None,
         description: Optional[str] = None,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
@@ -94,40 +97,71 @@ class Client:
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
         """
-        guilds: List[NoReturn, int] = [None]
-        _description: str = (
-            "No description set." if (description is None and type == 1) else description
-        )
-        _options: list = [] if options is None else options
-        _deault_permission: bool = True if default_permission is None else default_permission
-        _permissions: list = [] if permissions is None else permissions
+        if not name:
+            raise Exception("Command must have a name!")
 
-        if scope > 1:
-            if isinstance(scope, List[Guild]):
-                guilds.append(guild.id for guild in scope)
+        def decorator(coro: Coroutine) -> Any:
+
+            _description: str = "" if description is None else description
+            _options: list = [] if options is None else options
+            _default_permission: bool = True if default_permission is None else default_permission
+            _permissions: list = [] if permissions is None else permissions
+            _scope: list = []
+
+            if isinstance(scope, list):
+                if all(isinstance(x, Guild) for x in scope):  # if isinstance(scope, List[Guild]):
+                    _scope.append(guild.id for guild in scope)
+                elif all(isinstance(x, int) for x in scope):  # if isinstance(scope, List[int]):
+                    _scope.append(guild for guild in scope)
             else:
-                guilds.append(guild for guild in scope)
-        else:
-            guilds[0] = scope
+                _scope.append(scope)
 
-        for interaction in self.cache.interactions:
-            if interaction.value.name == name:
-                raise Exception("We cannot overwrite this, but we should be syncing.")
-                # make a call to our internal sync method instead of an exception.
+            for interaction in self.cache.interactions:
+                if interaction.value.name == name:
+                    raise Exception("We cannot overwrite this, but we should be syncing.")
+                    # make a call to our internal sync method instead of an exception.
 
-        path: str = f"/applications/{self.me.id}"
+            # path: str = f"/applications/{self.me.id}
+            for guild in _scope:
+                # no need to pop guild_id because we want consistency
+                # with model data. That way if people try to do smth.
+                # like (ctx.slash.guild_id) it gives None for those
+                # trying to build systems/infrastructures integrally
+                # based on the application command design into their bots
+                # so that it gives back what is/isn't.
 
-        for guild in guilds:
-            path += f"/guilds/{guild}" if guild else "/commands"
-            payload: ApplicationCommand = ApplicationCommand(
-                type=type,
-                name=name,
-                description=_description,
-                scope=guild,
-                options=_options,
-                default_permission=_deault_permission,
-                permissions=_permissions,
-            )
-            self.http.request(Route("POST", path), data=payload._json)
+                _payload = {
+                    "type": type,
+                    "name": name,
+                    "description": _description,
+                    "guild_id": guild,
+                    "options": _options,
+                    "default_permission": _default_permission,
+                    "permissions": _permissions,
+                }
 
-        self.event(coro)
+                # no flow, there's no point instantiating it here if we only need it for the dictionary
+                # on send
+
+                if self.me is None:
+                    data = self.loop.run_until_complete(self.http.get_self())
+                    # You think it doesn't work but it does on boot.
+                    self.me = User(**data)
+
+                request = self.http.create_application_command(
+                    self.me._json["id"], data=_payload, guild_id=guild
+                )
+
+                _att = self.loop.run_until_complete(request)
+                print(f"request returns...: {_att}")
+
+                if _att["code"] == 50035:
+                    raise JSONException(50035)  # todo: work on this pls
+
+                self.cache.add_interaction(
+                    id=_att["application_command"], interaction=ApplicationCommand(**_payload)
+                )
+
+                return self.event(coro)  # have to actually return the event call
+
+        return decorator

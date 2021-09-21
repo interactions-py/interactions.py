@@ -6,6 +6,7 @@
 _build/
 build/
 dist/
+/venv/
 
 # cool so this doesn't fucking work.
 test.py
