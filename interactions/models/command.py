@@ -38,17 +38,31 @@ class Option(object):
     :ivar interactions.enums.OptionType type: The type of option.
     :ivar str name: The name of the option.
     :ivar str description: The description of the option.
+    :ivar bool focused: Whether the option is currently being autocompleted or not.
     :ivar bool required: Whether the option has to be filled out.
+    :ivar typing.Optional[str] value: The value that's currently typed out, if autocompleting.
     :ivar typing.Optional[typing.List[interactions.models.Choice]] choices: The list of choices to select from.
     :ivar typing.Optional[list] options: The list of subcommand options included.
     """
 
-    __slots__ = ("_json", "type", "name", "description", "required", "choices", "options")
+    __slots__ = (
+        "_json",
+        "type",
+        "name",
+        "description",
+        "focused",
+        "required",
+        "value",
+        "choices",
+        "options",
+    )
     _json: dict
     type: OptionType
     name: str
     description: str
+    focused: bool
     required: bool
+    value: Optional[str]
     choices: Optional[List[Choice]]
     options: Optional[list]
 
