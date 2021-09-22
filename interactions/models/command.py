@@ -117,6 +117,7 @@ class ApplicationCommand(object):
         "default_permission",
         "permissions",
     )
+    _json: dict
     id: Optional[int]
     type: Optional[ApplicationCommandType]
     application_id: Optional[int]
