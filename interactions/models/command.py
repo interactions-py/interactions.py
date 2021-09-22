@@ -2,6 +2,7 @@ from typing import List, Optional, Union
 
 from orjson import dumps, loads
 
+from .. import ChannelType
 from ..enums import ApplicationCommandType, OptionType, PermissionType
 
 
@@ -43,6 +44,7 @@ class Option(object):
     :ivar typing.Optional[str] value: The value that's currently typed out, if autocompleting.
     :ivar typing.Optional[typing.List[interactions.models.Choice]] choices: The list of choices to select from.
     :ivar typing.Optional[list] options: The list of subcommand options included.
+    :ivar typing.Optional[typing.List[interactions.api.models.channel.ChannelType] channel_type: Restrictive shown channel types, if given.
     """
 
     __slots__ = (
@@ -55,16 +57,18 @@ class Option(object):
         "value",
         "choices",
         "options",
+        "channel_type",
     )
     _json: dict
     type: OptionType
     name: str
     description: str
     focused: bool
-    required: bool
+    required: Optional[bool]
     value: Optional[str]
     choices: Optional[List[Choice]]
     options: Optional[list]
+    channel_type: Optional[List[ChannelType]]
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)

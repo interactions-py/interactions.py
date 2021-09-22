@@ -20,6 +20,8 @@ class Role(object):
     name: str
     color: int
     hoist: bool
+    icon: Optional[str]
+    unicode_emoji: Optional[str]
     position: int
     permissions: str
     managed: bool
