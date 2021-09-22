@@ -1,6 +1,6 @@
 from typing import Optional
 
-from orjson import dumps
+from orjson import dumps, loads
 
 
 class RoleTags(object):
@@ -11,7 +11,7 @@ class RoleTags(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Role(object):
@@ -30,4 +30,4 @@ class Role(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))

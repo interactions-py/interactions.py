@@ -1,6 +1,6 @@
 from typing import Optional
 
-from orjson import dumps
+from orjson import dumps, loads
 
 # TODO: Reorganise these models based on which big obj uses little obj
 # TODO: Figure out ? placements.
@@ -19,7 +19,7 @@ class Overwrite(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class ClientStatus(object):
@@ -31,4 +31,4 @@ class ClientStatus(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))

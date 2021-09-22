@@ -25,7 +25,7 @@ class Choice(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Option(object):
@@ -72,7 +72,7 @@ class Option(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Permission(object):
@@ -92,7 +92,7 @@ class Permission(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class ApplicationCommand(object):
