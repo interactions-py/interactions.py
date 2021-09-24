@@ -431,8 +431,8 @@ class ComponentContext(InteractionContext):
 
     :ivar custom_id: The custom ID of the component (has alias component_id).
     :ivar component_type: The type of the component.
-    :ivar component: Component data retrieved from the message. Not available if the origin message was ephemeral.
-    :ivar origin_message: The origin message of the component. Not available if the origin message was ephemeral.
+    :ivar component: Component data retrieved from the message.
+    :ivar origin_message: The origin message of the component.
     :ivar origin_message_id: The ID of the origin message.
     :ivar selected_options: The options selected (only for selects)
     """
@@ -454,7 +454,7 @@ class ComponentContext(InteractionContext):
 
         self._deferred_edit_origin = False
 
-        if self.origin_message_id and (_json["message"]["flags"] & 64) != 64:
+        if self.origin_message_id:
             self.origin_message = ComponentMessage(
                 state=self.bot._connection, channel=self.channel, data=_json["message"]
             )
