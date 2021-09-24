@@ -2,6 +2,7 @@ from typing import List, Optional, Union
 
 from orjson import dumps, loads
 
+from .. import ChannelType
 from ..enums import ApplicationCommandType, OptionType, PermissionType
 
 
@@ -24,7 +25,7 @@ class Choice(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Option(object):
@@ -38,23 +39,40 @@ class Option(object):
     :ivar interactions.enums.OptionType type: The type of option.
     :ivar str name: The name of the option.
     :ivar str description: The description of the option.
+    :ivar bool focused: Whether the option is currently being autocompleted or not.
     :ivar bool required: Whether the option has to be filled out.
+    :ivar typing.Optional[str] value: The value that's currently typed out, if autocompleting.
     :ivar typing.Optional[typing.List[interactions.models.Choice]] choices: The list of choices to select from.
     :ivar typing.Optional[list] options: The list of subcommand options included.
+    :ivar typing.Optional[typing.List[interactions.api.models.channel.ChannelType] channel_type: Restrictive shown channel types, if given.
     """
 
-    __slots__ = ("_json", "type", "name", "description", "required", "choices", "options")
+    __slots__ = (
+        "_json",
+        "type",
+        "name",
+        "description",
+        "focused",
+        "required",
+        "value",
+        "choices",
+        "options",
+        "channel_type",
+    )
     _json: dict
     type: OptionType
     name: str
     description: str
-    required: bool
+    focused: bool
+    required: Optional[bool]
+    value: Optional[str]
     choices: Optional[List[Choice]]
     options: Optional[list]
+    channel_type: Optional[List[ChannelType]]
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Permission(object):
@@ -74,7 +92,7 @@ class Permission(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class ApplicationCommand(object):
@@ -103,6 +121,7 @@ class ApplicationCommand(object):
         "default_permission",
         "permissions",
     )
+    _json: dict
     id: Optional[int]
     type: Optional[ApplicationCommandType]
     application_id: Optional[int]
