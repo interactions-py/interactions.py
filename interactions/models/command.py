@@ -2,7 +2,6 @@ from typing import List, Optional, Union
 
 from orjson import dumps, loads
 
-from .. import ChannelType
 from ..enums import ApplicationCommandType, OptionType, PermissionType
 
 
@@ -68,7 +67,7 @@ class Option(object):
     value: Optional[str]
     choices: Optional[List[Choice]]
     options: Optional[list]
-    channel_type: Optional[List[ChannelType]]
+    channel_type: Optional[List[int]]  # enum for ChannelType, thanks circular import
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
