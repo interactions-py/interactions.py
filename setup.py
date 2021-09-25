@@ -12,10 +12,7 @@ with open("README.md", "r", encoding="UTF-8") as f:
 with open(path.join(HERE, PACKAGE_NAME, "const.py"), encoding="utf-8") as fp:
     VERSION = re.search('__version__ = "([^"]+)"', fp.read()).group(1)
 
-extras = {
-    "lint": ["black", "flake8", "isort"],
-    "readthedocs": ["sphinx", "karma-sphinx-theme"],
-}
+extras = {"lint": ["black", "flake8", "isort"], "readthedocs": ["sphinx", "karma-sphinx-theme"]}
 extras["lint"] += extras["readthedocs"]
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 

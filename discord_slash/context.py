@@ -681,9 +681,7 @@ class MenuContext(InteractionContext):
                     _neudict = self._resolved["members"][_auth]
                     _neudict["user"] = self._resolved["users"][_auth]
                     self.target_author = discord.Member(
-                        data=_neudict,
-                        state=self.bot._connection,
-                        guild=self.guild,
+                        data=_neudict, state=self.bot._connection, guild=self.guild
                     )
                 else:
                     _auth = [auth for auth in self._resolved["users"]][0]

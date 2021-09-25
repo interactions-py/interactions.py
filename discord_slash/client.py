@@ -482,8 +482,7 @@ class SlashCommand:
                         for num in cmd_nums:
                             error_command = to_send[int(num)]
                             error_string = error_string.replace(
-                                f"In {num}",
-                                f"'{error_command.get('name')}'",
+                                f"In {num}", f"'{error_command.get('name')}'"
                             )
 
                         ex.args = (error_string,)
@@ -1142,10 +1141,7 @@ class SlashCommand:
         callback_obj.keys.add((message_id, custom_id))
 
     def get_component_callback(
-        self,
-        message_id: int = None,
-        custom_id: str = None,
-        component_type: int = None,
+        self, message_id: int = None, custom_id: str = None, component_type: int = None
     ):
         """
         Returns component callback (or None if not found) for specific combination of message_id, custom_id, component_type.

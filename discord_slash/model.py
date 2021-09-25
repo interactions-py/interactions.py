@@ -404,13 +404,7 @@ class ComponentCallbackObject(CallbackObject):
     :ivar component_type: Type of the component. See `:class.utils.manage_components.ComponentsType`
     """
 
-    def __init__(
-        self,
-        func,
-        message_ids,
-        custom_ids,
-        component_type,
-    ):
+    def __init__(self, func, message_ids, custom_ids, component_type):
         if component_type not in (2, 3, None):
             raise error.IncorrectFormat(f"Invalid component type `{component_type}`")
 

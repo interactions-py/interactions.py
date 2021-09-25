@@ -282,10 +282,7 @@ def cog_component(
             raise IncorrectFormat("You must specify messages or components (or both)")
 
         return CogComponentCallbackObject(
-            callback,
-            message_ids=message_ids,
-            custom_ids=custom_ids,
-            component_type=component_type,
+            callback, message_ids=message_ids, custom_ids=custom_ids, component_type=component_type
         )
 
     return wrapper

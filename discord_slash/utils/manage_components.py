@@ -140,10 +140,7 @@ def create_button(
 
     emoji = emoji_to_dict(emoji)
 
-    data = {
-        "type": ComponentType.button,
-        "style": style,
-    }
+    data = {"type": ComponentType.button, "style": style}
 
     if label:
         data["label"] = label
