@@ -1,0 +1,95 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, goverfl0w
+# This file is distributed under the same license as the
+# discord-interactions package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-interactions 4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.error.rst:4
+msgid "Error Exceptions"
+msgstr ""
+
+#: interactions.api.error.ErrorFormatter:1 of
+msgid "A customized error formatting script to return specific errors."
+msgstr ""
+
+#: interactions.api.error.InteractionException:1 of
+msgid "An exception class for interactions."
+msgstr ""
+
+#: interactions.api.error.InteractionException:4 of
+msgid ""
+"This is a WIP. This isn't meant to be used yet, this is a baseline, and "
+"for extensive testing/review before integration. Likewise, this will show"
+" the concepts before use, and will be refined when time goes on."
+msgstr ""
+
+#: interactions.api.error.GatewayException interactions.api.error.HTTPException
+#: interactions.api.error.InteractionException
+#: interactions.api.error.JSONException of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.error.GatewayException:3
+#: interactions.api.error.HTTPException:3
+#: interactions.api.error.InteractionException:8
+#: interactions.api.error.JSONException:3 of
+msgid "The built in formatter."
+msgstr ""
+
+#: interactions.api.error.GatewayException:4
+#: interactions.api.error.HTTPException:4
+#: interactions.api.error.InteractionException:9
+#: interactions.api.error.JSONException:4 of
+msgid "A dictionary containing the values from the built-in Enum."
+msgstr ""
+
+#: interactions.api.error.GatewayException.lookup:1
+#: interactions.api.error.HTTPException.lookup:1
+#: interactions.api.error.InteractionException.lookup:1
+#: interactions.api.error.JSONException.lookup:1 of
+msgid ""
+"From the default error enum integer declaration, generate a dictionary "
+"containing the phrases used for the errors."
+msgstr ""
+
+#: interactions.api.error.InteractionException.type:1 of
+msgid ""
+"Grabs the type attribute. Primarily useful to use it in conditions for "
+"integral v4 (potential) logic."
+msgstr ""
+
+#: interactions.api.error.InteractionException.error:1 of
+msgid "This calls the exception."
+msgstr ""
+
+#: interactions.api.error.GatewayException:1 of
+msgid ""
+"This is a derivation of InteractionException in that this is used to "
+"represent Gateway closing OP codes."
+msgstr ""
+
+#: interactions.api.error.HTTPException:1 of
+msgid ""
+"This is a derivation of InteractionException in that this is used to "
+"represent HTTP Exceptions."
+msgstr ""
+
+#: interactions.api.error.JSONException:1 of
+msgid ""
+"This is a derivation of InteractionException in that this is used to "
+"represent JSON API Exceptions."
+msgstr ""
