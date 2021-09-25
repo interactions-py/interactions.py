@@ -2,7 +2,7 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import List, Optional
 
-from orjson import dumps
+from orjson import dumps, loads
 
 from .message import Emoji
 from .misc import ClientStatus
@@ -16,7 +16,7 @@ class _PresenceParty(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class _PresenceAssets(object):
@@ -28,7 +28,7 @@ class _PresenceAssets(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class _PresenceSecrets(object):
@@ -39,7 +39,7 @@ class _PresenceSecrets(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class _PresenceButtons(object):
@@ -76,7 +76,7 @@ class PresenceActivity(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class PresenceUpdate(object):
@@ -89,4 +89,4 @@ class PresenceUpdate(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))

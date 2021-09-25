@@ -14,6 +14,7 @@ class ApplicationCommandType(IntEnum):
     CHAT_INPUT = 1
     USER = 2
     MESSAGE = 3
+    AUTOCOMPLETE = 4
 
 
 class OptionType(IntEnum):
@@ -21,7 +22,8 @@ class OptionType(IntEnum):
     Enumerable object of literal integers holding equivocal values of a slash command's option(s).
 
     .. note::
-        Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptiontype>`_ in the Discord API.
+
+        Equivalent of `ApplicationCommandOptionType <https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type>`_ in the Discord API.
     """
 
     SUB_COMMAND = 1
@@ -83,7 +85,7 @@ class PermissionType(IntEnum):
     Enumerable object of literal integers holding equivocal values of a slash command's permission(s).
 
     .. note::
-        Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandpermissiontype>`_ in the Discord API.
+        Equivalent of `ApplicationCommandPermissionType <https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-application-command-permission-type>`_ in the Discord API.
     """
 
     ROLE = 1

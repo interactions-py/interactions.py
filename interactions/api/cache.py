@@ -70,6 +70,16 @@ class Cache:
     :ivar interactions.api.cache.Cache interactions: The cached interactions upon interaction.
     """
 
+    dms: Storage = Storage()
+    self_guilds: Storage = Storage()
+    guilds: Storage = Storage()
+    channels: Storage = Storage()
+    roles: Storage = Storage()
+    members: Storage = Storage()
+    messages: Storage = Storage()
+    users: Storage = Storage()
+    interactions: Storage = Storage()
+
     def add_dm(self, dm: Channel) -> Item:
         """
         Adds a DM to the cache.
@@ -270,8 +280,8 @@ class Cache:
         :type id: str
         :return: interactions.api.cache.Item
         """
-        if id in self.commands.keys():
-            return self.commands.get(id)
+        if id in self.interactions.keys():
+            return self.interactions.get(id)
 
     def add_interaction(self, id: str, interaction: Union[Interaction, ApplicationCommand]) -> Item:
         """

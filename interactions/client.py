@@ -3,8 +3,9 @@ from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.cache import Cache
 from .api.dispatch import Listener
+from .api.error import JSONException
 from .api.gateway import WebSocket
-from .api.http import Request
+from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.user import User
@@ -26,7 +27,7 @@ class Client:
 
     loop: AbstractEventLoop
     intents: Optional[Union[Intents, List[Intents]]]
-    http: Request
+    http: HTTPClient
     cache: Cache
     websocket: WebSocket
     me: Optional[User]
@@ -50,16 +51,18 @@ class Client:
 
         self.loop = get_event_loop()
         self.listener = Listener()
-        self.http = Request(token)
         self.cache = Cache()
+        self.http = HTTPClient(token)
         self.websocket = WebSocket(intents=self.intents)
         self.me = None
         self.token = token
 
     async def login(self, token: str) -> None:
         """Makes a login with the Discord API."""
-        # data = self.loop.run_until_complete(self.http.get_self())
-        # self.me = User(**data)
+
+        if self.me is None:
+            data = await self.http.get_self()
+            self.me = User(**data)
 
         while not self.websocket.closed:
             await self.websocket.connect(token)
@@ -104,21 +107,20 @@ class Client:
             _permissions: list = [] if permissions is None else permissions
             _scope: list = []
 
-            # past method we used was pretty stupid to comb for instance-type
-            # checking on what scope we had applicable on guild application
-            # commands. this should be much better
-            if isinstance(scope, List[Guild]):
-                _scope.append(guild.id for guild in scope)
-            elif isinstance(scope, List[int]):
-                _scope.append(guild for guild in scope)
+            if isinstance(scope, list):
+                if all(isinstance(x, Guild) for x in scope):  # if isinstance(scope, List[Guild]):
+                    _scope.append(guild.id for guild in scope)
+                elif all(isinstance(x, int) for x in scope):  # if isinstance(scope, List[int]):
+                    _scope.append(guild for guild in scope)
             else:
                 _scope.append(scope)
 
             for interaction in self.cache.interactions:
-                if name == interaction.value.name:
-                    # self.synchronize()
-                    raise Exception("Cannot overwrite an existing command.")
+                if interaction.value.name == name:
+                    raise Exception("We cannot overwrite this, but we should be syncing.")
+                    # make a call to our internal sync method instead of an exception.
 
+            # path: str = f"/applications/{self.me.id}
             for guild in _scope:
                 # no need to pop guild_id because we want consistency
                 # with model data. That way if people try to do smth.
@@ -127,26 +129,38 @@ class Client:
                 # based on the application command design into their bots
                 # so that it gives back what is/isn't.
 
-                payload: ApplicationCommand = ApplicationCommand(
-                    type=type,
-                    name=name,
-                    description=_description,
-                    guild_id=guild,
-                    options=_options,
-                    default_permission=_default_permission,
-                    permissions=_permissions,
-                )
+                _payload = {
+                    "type": type,
+                    "name": name,
+                    "description": _description,
+                    "guild_id": guild,
+                    "options": _options,
+                    "default_permission": _default_permission,
+                    "permissions": _permissions,
+                }
+
+                # no flow, there's no point instantiating it here if we only need it for the dictionary
+                # on send
+
+                if self.me is None:
+                    data = self.loop.run_until_complete(self.http.get_self())
+                    # You think it doesn't work but it does on boot.
+                    self.me = User(**data)
+
                 request = self.http.create_application_command(
-                    self.me._json["id"], data=payload, guild_id=guild
+                    self.me._json["id"], data=_payload, guild_id=guild
                 )
 
-                # set the loop and cache, this is a WAY simpler workaround
-                # to our prior given issue with determining how we'll
-                # handle mass caching -- let's just do it when we have an
-                # explicit call made.
-                self.cache.add_interaction(id=request["application_command"], interaction=payload)
-                self.loop.create_task(request)
+                _att = self.loop.run_until_complete(request)
+                print(f"request returns...: {_att}")
 
-            return self.event(coro)  # have to actually return the event call
+                if _att["code"] == 50035:
+                    raise JSONException(50035)  # todo: work on this pls
 
-        return decorator  # now we can return the given decoratored information
+                self.cache.add_interaction(
+                    id=_att["application_command"], interaction=ApplicationCommand(**_payload)
+                )
+
+                return self.event(coro)  # have to actually return the event call
+
+        return decorator

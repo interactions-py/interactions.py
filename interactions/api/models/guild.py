@@ -2,13 +2,14 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from orjson import dumps
+from orjson import dumps, loads
 
 from .channel import Channel
 from .member import Member
 from .message import Emoji, Sticker
 from .presence import PresenceUpdate
 from .role import Role
+from .user import User
 from .voice import VoiceState
 
 
@@ -89,7 +90,7 @@ class WelcomeChannels(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class WelcomeScreen(object):
@@ -112,7 +113,7 @@ class WelcomeScreen(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class StageInstance(object):
@@ -146,7 +147,7 @@ class StageInstance(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Guild(object):
@@ -195,9 +196,9 @@ class Guild(object):
     :ivar int premium_tier: The server boost level of the guild.
     :ivar typing.Optional[int] premium_subscription_count: The amount of server boosters in the guild.
     :ivar str preferred_locale: The "preferred" local region of the guild.
-    :ivar typing.Optional[int] public_updates_channel_id: The channel ID for communtiy updates of the guild.
+    :ivar typing.Optional[int] public_updates_channel_id: The channel ID for community updates of the guild.
     :ivar typing.Optional[int] max_video_channel_users: The maximum amount of video streaming members in a channel allowed in a guild.
-    :ivar typing.Optional[int] approxiate_member_count: The approximate amount of members in the guild.
+    :ivar typing.Optional[int] approximate_member_count: The approximate amount of members in the guild.
     :ivar typing.Optional[int] approximate_presence_count: The approximate amount of presences in the guild.
     :ivar typing.Optional[interactions.api.models.guild.WelcomeScreen] welcome_screen: The welcome screen of the guild.
     :ivar int nsfw_level: The NSFW safety filter level of the guild.
@@ -259,4 +260,75 @@ class Guild(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
+
+
+class GuildPreview(object):
+    """
+    A model representing the preview of a guild.
+
+    ..note::
+        This refers to the documentation `here <https://discord.com/developers/docs/resources/guild>_`
+
+    :ivar int id: The ID of the guild.
+    :ivar str name: The name of the guild.
+    :ivar typing.Optional[str] icon: The icon of the guild.
+    :ivar typing.Optional[str] splash: The invite splash banner of the guild.
+    :ivar typing.Optional[str] discovery_splash: The discovery splash banner of the guild.
+    :ivar typing.List[interactions.api.models.message.Emoji] emojis: The list of emojis from the guild.
+    :ivar typing.List[interactions.api.models.guild.GuildFeature] features: The list of features of the guild.
+    :ivar int approximate_member_count: The approximate amount of members in the guild.
+    :ivar int approximate_presence_count: The approximate amount of presences in the guild.
+    :ivar typing.Optional[str] description: The description of the guild.
+
+    """
+
+    _json: dict
+    id: int
+    name: str
+    icon: Optional[str]
+    splash: Optional[str]
+    discovery_splash: Optional[str]
+    emoji: List[Emoji]
+    features: List[GuildFeature]
+    approximate_member_count: int
+    approximate_presence_count: int
+    description: Optional[str]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = loads(dumps(self.__dict__))
+
+
+class Invite(object):
+    """The invite object."""
+
+    uses: int
+    max_uses: int
+    max_age: int
+    temporary: bool
+    created_at: datetime
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = loads(dumps(self.__dict__))
+
+
+class GuildTemplate(object):
+    """An object representing the snapshot of an existing guild."""
+
+    code: str
+    name: str
+    description: Optional[str]
+    usage_count: int
+    creator_id: int
+    creator: User
+    created_at: datetime
+    updated_at: datetime
+    source_guild_id: int
+    serialized_source_guild: Guild  # partial
+    is_dirty: Optional[bool]
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = loads(dumps(self.__dict__))

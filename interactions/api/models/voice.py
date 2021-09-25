@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from orjson import dumps
+from orjson import dumps, loads
 
 from .member import Member
 
@@ -24,4 +24,18 @@ class VoiceState(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
+
+
+class VoiceRegion(object):
+    _json: dict
+    id: str
+    name: str
+    vip: bool
+    optimal: bool
+    deprecated: bool
+    custom: bool
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self._json = loads(dumps(self.__dict__))

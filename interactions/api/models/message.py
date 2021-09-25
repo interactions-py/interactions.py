@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from orjson import dumps
+from orjson import dumps, loads
 
 from .member import Member
 from .team import Application
@@ -62,7 +62,7 @@ class MessageActivity(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class MessageReference(object):
@@ -88,7 +88,7 @@ class MessageReference(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Attachment(object):
@@ -133,7 +133,7 @@ class Attachment(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class MessageInteraction(object):
@@ -145,7 +145,7 @@ class MessageInteraction(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class ChannelMention(object):
@@ -157,7 +157,7 @@ class ChannelMention(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Message(object):
@@ -205,7 +205,7 @@ class Message(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Emoji(object):
@@ -221,7 +221,7 @@ class Emoji(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class ReactionObject(object):
@@ -232,7 +232,7 @@ class ReactionObject(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class PartialSticker(object):
@@ -245,7 +245,7 @@ class PartialSticker(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Sticker(PartialSticker):
@@ -264,7 +264,7 @@ class Sticker(PartialSticker):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class EmbedImageStruct(object):
@@ -278,7 +278,7 @@ class EmbedImageStruct(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class EmbedProvider(object):
@@ -288,7 +288,7 @@ class EmbedProvider(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class EmbedAuthor(object):
@@ -300,7 +300,7 @@ class EmbedAuthor(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class EmbedFooter(object):
@@ -311,7 +311,7 @@ class EmbedFooter(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class EmbedField(object):
@@ -322,7 +322,7 @@ class EmbedField(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))
 
 
 class Embed(object):
@@ -343,4 +343,4 @@ class Embed(object):
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        self._json = dumps(self.__dict__)
+        self._json = loads(dumps(self.__dict__))

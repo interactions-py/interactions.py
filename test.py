@@ -1,6 +1,5 @@
 # This is a written example used to test and debug the state of v4.0
 import interactions
-from interactions.api.http import Route
 
 TOKEN = "stop drinking gfuel it sucks"
 
@@ -9,7 +8,7 @@ client = interactions.Client(token=TOKEN)
 
 @client.event
 async def on_ready():
-    print("Bot is online!")
+    print(f"{client.me._json['username']}#{client.me._json['discriminator']} logged in.")
 
     # await client.http.request(
     #     Route("POST", "/applications/883788893512683520/guilds/852402668294766612/commands"),
@@ -23,12 +22,14 @@ async def on_interaction_create(interaction):
         "content": "pizza 🍕",
         "tts": False,
         "embeds": [],
-        "allowed_mentions": None,
-        "flags": None,
+        "allowed_mentions": {},
         "components": [],
     }
-    path = f"/interactions/{interaction._json['id']}/{interaction._json['token']}/callback"
-    await client.http.request(Route("POST", path), json={"type": 4, "data": response})
+    json_data = {"type": 4, "data": response}
+    _id = interaction._json["id"]  # id of interaction
+    _token = interaction._json["token"]
+    await client.http._create_interaction_response(_token, _id, json_data)
+    await client.http._edit_interaction_response({}, _token, "")
 
 
 client.start()
