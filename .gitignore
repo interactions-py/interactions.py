@@ -6,6 +6,9 @@
 _build/
 build/
 dist/
+.env
+.venv
+.vscode
 
 # cool so this doesn't fucking work.
 test.py

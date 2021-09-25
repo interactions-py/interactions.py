@@ -1,10 +1,10 @@
 from asyncio import AbstractEventLoop, get_event_loop
-from typing import Any, Callable, Coroutine, List, NoReturn, Optional, Union
+from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.cache import Cache
 from .api.dispatch import Listener
 from .api.gateway import WebSocket
-from .api.http import Request, Route
+from .api.http import Request
 from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.user import User
@@ -58,8 +58,9 @@ class Client:
 
     async def login(self, token: str) -> None:
         """Makes a login with the Discord API."""
-        data = await self.http.request(Route("GET", "/users/@me"))
-        self.me = User(**data)
+        # data = self.loop.run_until_complete(self.http.get_self())
+        # self.me = User(**data)
+
         while not self.websocket.closed:
             await self.websocket.connect(token)
 
@@ -79,10 +80,9 @@ class Client:
 
     def command(
         self,
-        coro: Coroutine,
         *,
         type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
-        name: str,
+        name: Optional[str] = None,
         description: Optional[str] = None,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
@@ -94,40 +94,59 @@ class Client:
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
         """
-        guilds: List[NoReturn, int] = [None]
-        _description: str = (
-            "No description set." if (description is None and type == 1) else description
-        )
-        _options: list = [] if options is None else options
-        _deault_permission: bool = True if default_permission is None else default_permission
-        _permissions: list = [] if permissions is None else permissions
+        if not name:
+            raise Exception("Command must have a name!")
 
-        if scope > 1:
+        def decorator(coro: Coroutine) -> Any:
+            _description: str = "" if description is None else description
+            _options: list = [] if options is None else options
+            _default_permission: bool = True if default_permission is None else default_permission
+            _permissions: list = [] if permissions is None else permissions
+            _scope: list = []
+
+            # past method we used was pretty stupid to comb for instance-type
+            # checking on what scope we had applicable on guild application
+            # commands. this should be much better
             if isinstance(scope, List[Guild]):
-                guilds.append(guild.id for guild in scope)
+                _scope.append(guild.id for guild in scope)
+            elif isinstance(scope, List[int]):
+                _scope.append(guild for guild in scope)
             else:
-                guilds.append(guild for guild in scope)
-        else:
-            guilds[0] = scope
+                _scope.append(scope)
 
-        for interaction in self.cache.interactions:
-            if interaction.value.name == name:
-                raise Exception("We cannot overwrite this, but we should be syncing.")
-                # make a call to our internal sync method instead of an exception.
+            for interaction in self.cache.interactions:
+                if name == interaction.value.name:
+                    # self.synchronize()
+                    raise Exception("Cannot overwrite an existing command.")
 
-        path: str = f"/applications/{self.me.id}"
+            for guild in _scope:
+                # no need to pop guild_id because we want consistency
+                # with model data. That way if people try to do smth.
+                # like (ctx.slash.guild_id) it gives None for those
+                # trying to build systems/infrastructures integrally
+                # based on the application command design into their bots
+                # so that it gives back what is/isn't.
 
-        for guild in guilds:
-            path += f"/guilds/{guild}" if guild else "/commands"
-            payload: ApplicationCommand = ApplicationCommand(
-                type=type,
-                name=name,
-                description=_description,
-                scope=guild,
-                options=_options,
-                default_permission=_deault_permission,
-                permissions=_permissions,
-            )
-            self.http.request(Route("POST", path), data=payload._json)
+                payload: ApplicationCommand = ApplicationCommand(
+                    type=type,
+                    name=name,
+                    description=_description,
+                    guild_id=guild,
+                    options=_options,
+                    default_permission=_default_permission,
+                    permissions=_permissions,
+                )
+                request = self.http.create_application_command(
+                    self.me._json["id"], data=payload, guild_id=guild
+                )
 
-        self.event(coro)
+                # set the loop and cache, this is a WAY simpler workaround
+                # to our prior given issue with determining how we'll
+                # handle mass caching -- let's just do it when we have an
+                # explicit call made.
+                self.cache.add_interaction(id=request["application_command"], interaction=payload)
+                self.loop.create_task(request)
+
+            return self.event(coro)  # have to actually return the event call
+
+        return decorator  # now we can return the given decoratored information

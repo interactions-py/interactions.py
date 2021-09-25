@@ -10,7 +10,6 @@ client = interactions.Client(token=TOKEN)
 @client.event
 async def on_ready():
     print("Bot is online!")
-    print(client.me._json["id"])
 
     # await client.http.request(
     #     Route("POST", "/applications/883788893512683520/guilds/852402668294766612/commands"),

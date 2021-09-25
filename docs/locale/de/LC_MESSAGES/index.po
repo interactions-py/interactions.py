@@ -1,0 +1,14 @@
+#: ../../index.rst:5
+msgid ""
+"No more hassle with trying to get interactions to work with your Python Discord bot "
+"-- **discord-interactions** is now here."
+msgstr "Kein Ärger mehr mit dem Versuch, Interaktionen mit Ihrem Python-Discord-Bot zum Laufen zu bringen -- **discord-interactions** gibt es nicht mehr."
+
+#~ msgid ":ref:`search`"
+#~ msgstr ":ref:`search`"
+
+#~ msgid ":ref:`modindex`"
+#~ msgstr ":ref:`modindex`"
+
+#~ msgid ":ref:`genindex`"
+#~ msgstr ":ref:`genindex`"
