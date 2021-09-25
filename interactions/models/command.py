@@ -2,7 +2,7 @@ from typing import List, Optional, Union
 
 from orjson import dumps, loads
 
-from .. import ChannelType
+from ..api.models.channel import ChannelType
 from ..enums import ApplicationCommandType, OptionType, PermissionType
 
 
