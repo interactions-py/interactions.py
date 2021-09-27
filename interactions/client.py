@@ -134,7 +134,7 @@ class Client:
                 # so that it gives back what is/isn't.
 
                 _payload = {
-                    "type": _type if not isinstance(_type, ApplicationCommandType) else _type.value,
+                    "type": _type.value if isinstance(_type, ApplicationCommandType) else _type,
                     "name": name,
                     "description": _description,
                     "options": _options,
