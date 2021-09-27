@@ -358,7 +358,7 @@ class HTTPClient:
         # only named recipient_id because of api mirroring
 
         return await self._req.request(
-            Route("POST", "/users/@me/channels"), json=dict(recipient_id=recipient_id)
+            Route("POST", "/users/@me/channels"), json={"recipient_id": recipient_id}
         )
 
     # Message endpoint
@@ -1083,7 +1083,7 @@ class HTTPClient:
 
         return await self._req.request(
             Route("GET", f"/guilds/{guild_id}/members/search"),
-            params=dict(query=query, limit=limit),
+            params={"query": query, "limit": limit},
         )
 
     async def add_member_role(
@@ -1250,7 +1250,7 @@ class HTTPClient:
         :param reason: Reason to display to the audit log, if any.
         :return: ?
         """
-        payload = dict(id=channel_id, position=new_pos, lock_permissions=lock_perms)
+        payload = {"id": channel_id, "position": new_pos, "lock_permissions": lock_perms}
         if parent_id:
             payload["parent_id"] = parent_id
 
@@ -1564,7 +1564,7 @@ class HTTPClient:
         :param reason: An optional reason for the audit log
         :return: The created thread
         """
-        payload = dict(name=name, auto_archive_duration=auto_archive_duration)
+        payload = {"name": name, "auto_archive_duration": auto_archive_duration}
         if message_id:
             return await self._req.request(
                 Route("POST", f"/channels/{channel_id}/messages/{message_id}/threads"),
