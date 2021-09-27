@@ -1,11 +1,10 @@
 from typing import List, Optional
 
-from orjson import dumps, loads
-
+from .misc import DictSerializerMixin
 from .user import User
 
 
-class TeamMember(object):
+class TeamMember(DictSerializerMixin):
     _json: dict
     membership_state: int
     permissions: List[str]
@@ -13,11 +12,10 @@ class TeamMember(object):
     user: User
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Team(object):
+class Team(DictSerializerMixin):
     _json: dict
     icon: Optional[str]
     id: int
@@ -26,11 +24,10 @@ class Team(object):
     owner_user_id: int
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Application(object):
+class Application(DictSerializerMixin):
     _json: dict
     id: int
     name: str
@@ -52,5 +49,4 @@ class Application(object):
     flags: Optional[int]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)

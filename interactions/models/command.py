@@ -1,14 +1,13 @@
 from typing import List, Optional, Union
 
-from orjson import dumps, loads
-
 from ..api.models.channel import ChannelType
+from ..api.models.misc import DictSerializerMixin
 from ..enums import ApplicationCommandType, OptionType, PermissionType
 
 
-class Choice(object):
+class Choice(DictSerializerMixin):
     """
-    A class object repesenting the choice of an option.
+    A class object representing the choice of an option.
 
     .. note::
         ``value`` allows ``float`` as a passable value type,
@@ -24,11 +23,10 @@ class Choice(object):
     value: Union[str, int, float]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Option(object):
+class Option(DictSerializerMixin):
     """
     A class object representing the option of an application command.
 
@@ -71,11 +69,10 @@ class Option(object):
     channel_type: Optional[List[ChannelType]]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Permission(object):
+class Permission(DictSerializerMixin):
     """
     A class object representing the permission of an application command.
 
@@ -91,11 +88,10 @@ class Permission(object):
     permission: bool
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class ApplicationCommand(object):
+class ApplicationCommand(DictSerializerMixin):
     """
     A class object representing all types of commands.
 
@@ -133,8 +129,7 @@ class ApplicationCommand(object):
     permissions: Optional[List[Permission]]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
 class Interaction(ApplicationCommand):
