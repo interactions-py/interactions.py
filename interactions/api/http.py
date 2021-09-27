@@ -196,6 +196,7 @@ class Request:
                     if reason:
                         kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
 
+                kwargs["headers"]["Content-Type"] = "application/json"
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
@@ -333,7 +334,7 @@ class HTTPClient:
         Modify the bot user account settings.
         :param payload: The data to send.
         """
-        return await self._req.request(Route("PATCH", "/users/@me"), data=payload)
+        return await self._req.request(Route("PATCH", "/users/@me"), json=payload)
 
     async def modify_self_nick_in_guild(self, guild_id: int, nickname: Optional[str]):
         """
@@ -345,7 +346,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PATCH", "/guilds/{guild_id}/members/@me/nick", guild_id=guild_id),
-            data={"nick": nickname},
+            json={"nick": nickname},
         )
 
     async def create_dm(self, recipient_id: int) -> dict:
@@ -357,7 +358,7 @@ class HTTPClient:
         # only named recipient_id because of api mirroring
 
         return await self._req.request(
-            Route("POST", "/users/@me/channels"), data=dict(recipient_id=recipient_id)
+            Route("POST", "/users/@me/channels"), json=dict(recipient_id=recipient_id)
         )
 
     # Message endpoint
@@ -456,7 +457,7 @@ class HTTPClient:
 
         return await self._req.request(r, json=payload, reason=reason)
 
-    async def edit_message(self, channel_id: int, message_id: int, payload: Any) -> dict:
+    async def edit_message(self, channel_id: int, message_id: int, payload: dict) -> dict:
         """
         Edits a message that already exists.
 
@@ -473,7 +474,7 @@ class HTTPClient:
                 channel_id=channel_id,
                 message_id=message_id,
             ),
-            data=payload,
+            json=payload,
         )
 
     async def pin_message(self, channel_id: int, message_id: int) -> None:
@@ -541,7 +542,7 @@ class HTTPClient:
         :param reason: Reason to send to the audit log, if given.
         """
 
-        await self._req.request(Route("PATCH", f"/guilds/{guild_id}"), data=payload, reason=reason)
+        await self._req.request(Route("PATCH", f"/guilds/{guild_id}"), json=payload, reason=reason)
 
     async def leave_guild(self, guild_id: int) -> None:
         """
@@ -600,7 +601,7 @@ class HTTPClient:
         :param payload: Payload containing new widget attributes.
         :return: Updated widget attributes.
         """
-        return await self._req.request(Route("PATCH", f"/guilds/{guild_id}/widget"), data=payload)
+        return await self._req.request(Route("PATCH", f"/guilds/{guild_id}/widget"), json=payload)
 
     async def get_guild_invites(self, guild_id: int) -> List[Invite]:
         """
@@ -632,7 +633,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PATCH", f"/guilds/{guild_id}/welcome-screen"),
-            data={
+            json={
                 "enabled": enabled,
                 "welcome_channels": welcome_channels,
                 "description": description,
@@ -689,7 +690,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PATCH", f"/guilds/{guild_id}/voice-states/@me"),
-            data={
+            json={
                 k: v
                 for k, v in {
                     "channel_id": channel_id,
@@ -713,7 +714,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PATCH", f"/guilds/{guild_id}/voice-states/{user_id}"),
-            data={
+            json={
                 k: v
                 for k, v in {"channel_id": channel_id, "suppress": suppress}.items()
                 if v is not None
@@ -740,7 +741,7 @@ class HTTPClient:
         if icon:
             payload["icon"] = icon
         return await self._req.request(
-            Route("POST", f"/guilds/templates/{template_code}", data=payload)
+            Route("POST", f"/guilds/templates/{template_code}", json=payload)
         )
 
     async def get_guild_templates(self, guild_id: int) -> List[GuildTemplate]:
@@ -765,7 +766,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("POST", f"/guilds/{guild_id}/templates"),
-            data={
+            json={
                 k: v for k, v in {"name": name, "description": description}.items() if v is not None
             },
         )
@@ -800,7 +801,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PATCH", f"/guilds/{guild_id}/templates/{template_code}"),
-            data={
+            json={
                 k: v for k, v in {"name": name, "description": description}.items() if v is not None
             },
         )
@@ -848,7 +849,7 @@ class HTTPClient:
         :return: Role object
         """
         return await self._req.request(
-            Route("POST", f"/guilds/{guild_id}/roles"), data=data, reason=reason
+            Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
 
     async def modify_guild_role_position(
@@ -864,7 +865,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PATCH", f"/guilds/{guild_id}/roles"),
-            data={"id": role_id, "position": position},
+            json={"id": role_id, "position": position},
             reason=reason,
         )
 
@@ -880,7 +881,7 @@ class HTTPClient:
         :return: Updated role object.
         """
         return await self._req.request(
-            Route("PATCH", f"/guilds/{guild_id}/roles/{role_id}"), data=data, reason=reason
+            Route("PATCH", f"/guilds/{guild_id}/roles/{role_id}"), json=data, reason=reason
         )
 
     async def delete_guild_role(self, guild_id: int, role_id: int, reason: str = None) -> None:
@@ -929,7 +930,7 @@ class HTTPClient:
 
         return await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/bans/{user_id}"),
-            data={"delete_message_days": delete_message_days},
+            json={"delete_message_days": delete_message_days},
             reason=reason,
         )
 
@@ -992,7 +993,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/members/{user_id}"),
-            data={
+            json={
                 k: v
                 for k, v in {
                     "access_token": access_token,
@@ -1030,7 +1031,9 @@ class HTTPClient:
         """
         payload = {"days": days}
         if include_roles:
-            payload["include_roles"] = ", ".join(include_roles)  # would still iterate
+            payload["include_roles"] = ", ".join(
+                str(x) for x in include_roles
+            )  # would still iterate
 
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/prune"), params=payload)
 
@@ -1224,7 +1227,7 @@ class HTTPClient:
         :return: Channel object.
         """
         return await self._req.request(
-            Route("POST", f"/guilds/{guild_id}/channels"), data=payload, reason=reason
+            Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
 
     async def move_channel(
@@ -1252,7 +1255,7 @@ class HTTPClient:
             payload["parent_id"] = parent_id
 
         return await self._req.request(
-            Route("PATCH", f"/guilds/{guild_id}/channels"), data=payload, reason=reason
+            Route("PATCH", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
 
     async def modify_channel(
@@ -1266,7 +1269,7 @@ class HTTPClient:
         :return: Channel with updated attributes, if successful.
         """
         return await self._req.request(
-            Route("PATCH", f"/channels/{channel_id}"), data=data, reason=reason
+            Route("PATCH", f"/channels/{channel_id}"), json=data, reason=reason
         )
 
     async def get_channel_invites(self, channel_id: int) -> List[Invite]:
@@ -1292,7 +1295,7 @@ class HTTPClient:
         :return: An invite object.
         """
         return await self._req.request(
-            Route("POST", f"/channels/{channel_id}/invites"), data=data, reason=reason
+            Route("POST", f"/channels/{channel_id}/invites"), json=data, reason=reason
         )
 
     async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
@@ -1325,7 +1328,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PUT", f"/channels/{channel_id}/permissions/{overwrite_id}"),
-            data={"allow": allow, "deny": deny, "type": perm_type},
+            json={"allow": allow, "deny": deny, "type": perm_type},
         )
 
     async def delete_channel_permission(
@@ -1374,7 +1377,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("POST", "/stage-instances"),
-            data={
+            json={
                 "channel_id": channel_id,
                 "topic": topic,
                 "privacy_level": privacy_level,
@@ -1409,7 +1412,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PATCH", f"/stage-instances/{channel_id}"),
-            data={
+            json={
                 k: v
                 for k, v in {"topic": topic, "privacy_level": privacy_level}.items()
                 if v is not None
@@ -1489,7 +1492,7 @@ class HTTPClient:
         if before:
             payload["before"] = before
         return await self._req.request(
-            Route("GET", f"/channels/{channel_id}/threads/archived/public"), data=payload
+            Route("GET", f"/channels/{channel_id}/threads/archived/public"), json=payload
         )
 
     async def list_private_archived_threads(
@@ -1508,7 +1511,7 @@ class HTTPClient:
         if before:
             payload["before"] = before
         return await self._req.request(
-            Route("GET", f"/channels/{channel_id}/threads/archived/private"), data=payload
+            Route("GET", f"/channels/{channel_id}/threads/archived/private"), json=payload
         )
 
     async def list_joined_private_archived_threads(
@@ -1527,7 +1530,7 @@ class HTTPClient:
         if before:
             payload["before"] = before
         return await self._req.request(
-            Route("GET", f"/channels/{channel_id}/users/@me/threads/archived/private"), data=payload
+            Route("GET", f"/channels/{channel_id}/users/@me/threads/archived/private"), json=payload
         )
 
     async def list_active_threads(self, guild_id: int) -> List[dict]:
@@ -1565,13 +1568,13 @@ class HTTPClient:
         if message_id:
             return await self._req.request(
                 Route("POST", f"/channels/{channel_id}/messages/{message_id}/threads"),
-                data=payload,
+                json=payload,
                 reason=reason,
             )
         payload["type"] = thread_type
         payload["invitable"] = invitable
         return await self._req.request(
-            Route("POST", f"/channels/{channel_id}/threads"), data=payload, reason=reason
+            Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
 
     # Reaction endpoint
@@ -1732,7 +1735,7 @@ class HTTPClient:
         :return: The new sticker data on success.
         """
         return await self._req.request(
-            Route("POST", f"/guild/{guild_id}/stickers"), data=payload, reason=reason
+            Route("POST", f"/guild/{guild_id}/stickers"), json=payload, reason=reason
         )
 
     async def modify_guild_sticker(
@@ -1747,7 +1750,7 @@ class HTTPClient:
         :return: The updated sticker data on success.
         """
         return await self._req.request(
-            Route("PATCH", f"/guild/{guild_id}/stickers/{sticker_id}"), data=payload, reason=reason
+            Route("PATCH", f"/guild/{guild_id}/stickers/{sticker_id}"), json=payload, reason=reason
         )
 
     async def delete_guild_sticker(
@@ -1786,7 +1789,7 @@ class HTTPClient:
 
     async def create_application_command(
         self, application_id: int, data: dict, guild_id: Optional[int] = None
-    ) -> dict:
+    ):
         """
         Registers to the Discord API an application command.
 
@@ -1802,7 +1805,7 @@ class HTTPClient:
             else f"/applications/{application_id}/guilds/{guild_id}/commands"
         )
 
-        return await self._req.request(Route("POST", url), data=data)
+        return await self._req.request(Route("POST", url), json=data)
 
     async def overwrite_application_command(
         self, application_id: int, data: List[dict], guild_id: Optional[int] = None
@@ -1824,7 +1827,7 @@ class HTTPClient:
             else f"/applications/{application_id}/guilds/{guild_id}/commands"
         )
 
-        return await self._req.request(Route("PUT", url), data=data)
+        return await self._req.request(Route("PUT", url), json=data)
 
     async def edit_application_command(
         self, application_id: int, data: dict, command_id: int, guild_id: Optional[int] = None
@@ -1903,7 +1906,7 @@ class HTTPClient:
                 "PUT",
                 f"/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
             ),
-            data=data,
+            json=data,
         )
 
     async def batch_edit_application_command_permissions(
@@ -1919,7 +1922,7 @@ class HTTPClient:
         """
         return await self._req.request(
             Route("PUT", f"/applications/{application_id}/guilds/{guild_id}/commands/permissions"),
-            data=data,
+            json=data,
         )
 
     async def get_application_command_permissions(
@@ -1966,7 +1969,7 @@ class HTTPClient:
         """
         print(f"Callback route: /interactions/{application_id}/{self.token}/callback")
         return await self._req.request(
-            Route("POST", f"/interactions/{application_id}/{self.token}/callback"), data=data
+            Route("POST", f"/interactions/{application_id}/{self.token}/callback"), json=data
         )
 
     async def _create_interaction_response(
@@ -2041,7 +2044,7 @@ class HTTPClient:
         """
 
         return await self._req.request(
-            Route("POST", f"/webhooks/{application_id}/{token}"), data=data
+            Route("POST", f"/webhooks/{application_id}/{token}"), json=data
         )
 
     # Webhook endpoints.
@@ -2058,7 +2061,7 @@ class HTTPClient:
         :return Webhook object
         """
         return await self._req.request(
-            Route("POST", f"/channels/{channel_id}/webhooks"), data={"name": name, "avatar": avatar}
+            Route("POST", f"/channels/{channel_id}/webhooks"), json={"name": name, "avatar": avatar}
         )
 
     async def get_channel_webhooks(self, channel_id: int) -> List[dict]:
@@ -2112,7 +2115,7 @@ class HTTPClient:
 
         return await self._req.request(
             Route("PATCH", endpoint),
-            data={"name": name, "avatar": avatar, "channel_id": channel_id},
+            json={"name": name, "avatar": avatar, "channel_id": channel_id},
         )
 
     async def delete_webhook(self, webhook_id: int, webhook_token: str = None):
@@ -2148,7 +2151,7 @@ class HTTPClient:
         return await self._req.request(
             Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"),
             params={"wait": wait, "thread_id": thread_id},
-            data=payload,
+            json=payload,
         )
 
     async def execute_slack_webhook(
@@ -2271,7 +2274,7 @@ class HTTPClient:
         :return: An emoji object with the included parameters.
         """
         return await self._req.request(
-            Route("POST", f"/guilds/{guild_id}/emojis"), data=data, reason=reason
+            Route("POST", f"/guilds/{guild_id}/emojis"), json=data, reason=reason
         )
 
     async def modify_guild_emoji(
@@ -2286,7 +2289,7 @@ class HTTPClient:
         :return: An emoji object with updated attributes.
         """
         return await self._req.request(
-            Route("PATCH", f"/guilds/{guild_id}/emojis/{emoji_id}"), data=data, reason=reason
+            Route("PATCH", f"/guilds/{guild_id}/emojis/{emoji_id}"), json=data, reason=reason
         )
 
     async def delete_guild_emoji(
