@@ -153,10 +153,12 @@ class Client:
                     self.me.id, data=_payload, guild_id=guild
                 )
 
-                _att = self.loop.run_until_complete(request)
+                req_data = self.loop.run_until_complete(request)
+                # This returns the data from the request coro above as a JSON
+                # that can be parsed to get the failure code, if any.
 
-                if _att.get("code"):
-                    raise JSONException(_att["code"])  # todo: work on this pls
+                if req_data.get("code"):
+                    raise JSONException(req_data["code"])  # todo: work on this pls
 
                 # self.cache.add_interaction(
                 #    id=_att["application_id"], interaction=ApplicationCommand(**_payload)
