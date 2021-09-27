@@ -2,9 +2,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional
 
-from orjson import dumps, loads
-
-from .misc import Overwrite
+from .misc import DictSerializerMixin, Overwrite
 from .user import User
 
 
@@ -29,7 +27,7 @@ class ChannelType(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 
-class ThreadMetadata(object):
+class ThreadMetadata(DictSerializerMixin):
     """
     A class object representing the metadata of a thread.
 
@@ -60,11 +58,10 @@ class ThreadMetadata(object):
     invitable: Optional[bool]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class ThreadMember(object):
+class ThreadMember(DictSerializerMixin):
     """
     A class object representing a member in a thread.
 
@@ -86,11 +83,10 @@ class ThreadMember(object):
     flags: int
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Channel(object):
+class Channel(DictSerializerMixin):
     """
     A class object representing all types of channels.
 
@@ -185,8 +181,7 @@ class Channel(object):
     permissions: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
 class TextChannel(Channel):

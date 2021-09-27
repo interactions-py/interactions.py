@@ -2,9 +2,8 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from orjson import dumps, loads
-
 from .member import Member
+from .misc import DictSerializerMixin
 from .team import Application
 from .user import User
 
@@ -41,7 +40,7 @@ class MessageType(IntEnum):
     GUILD_INVITE_REMINDER = 22
 
 
-class MessageActivity(object):
+class MessageActivity(DictSerializerMixin):
     """
     A class object representing the activity state of a message.
 
@@ -61,11 +60,10 @@ class MessageActivity(object):
     party_id: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class MessageReference(object):
+class MessageReference(DictSerializerMixin):
     """
     A class object representing the "referenced"/replied message.
 
@@ -87,11 +85,10 @@ class MessageReference(object):
     fail_if_not_exists: Optional[bool]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Attachment(object):
+class Attachment(DictSerializerMixin):
     """
     A class object representing an attachment in a message.
 
@@ -132,11 +129,10 @@ class Attachment(object):
     width: Optional[int]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class MessageInteraction(object):
+class MessageInteraction(DictSerializerMixin):
     _json: dict
     id: int
     type: int  # replace with Enum
@@ -144,11 +140,10 @@ class MessageInteraction(object):
     user: User
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class ChannelMention(object):
+class ChannelMention(DictSerializerMixin):
     _json: dict
     id: int
     guild_id: int
@@ -156,11 +151,10 @@ class ChannelMention(object):
     name: str
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Message(object):
+class Message(DictSerializerMixin):
     """
     The big Message model.
 
@@ -204,11 +198,16 @@ class Message(object):
     stickers: Optional[List["Sticker"]]  # deprecated
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
+        self.timestamp = (
+            datetime.fromisoformat(self._json.get("timestamp"))
+            if self._json.get("timestamp")
+            else self.timestamp
+        )
+        self.author = User(**self._json.get("author"))
 
 
-class Emoji(object):
+class Emoji(DictSerializerMixin):
     _json: dict
     id: Optional[int]
     name: Optional[str]
@@ -220,22 +219,20 @@ class Emoji(object):
     available: Optional[bool]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class ReactionObject(object):
+class ReactionObject(DictSerializerMixin):
     _json: dict
     count: int
     me: bool
     emoji: Emoji
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class PartialSticker(object):
+class PartialSticker(DictSerializerMixin):
     """Partial object for a Sticker."""
 
     _json: dict
@@ -244,8 +241,7 @@ class PartialSticker(object):
     format_type: int
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
 class Sticker(PartialSticker):
@@ -263,11 +259,10 @@ class Sticker(PartialSticker):
     sort_value: Optional[int]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class EmbedImageStruct(object):
+class EmbedImageStruct(DictSerializerMixin):
     """This is the internal structure denoted for thumbnails, images or videos"""
 
     _json: dict
@@ -277,21 +272,19 @@ class EmbedImageStruct(object):
     width: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class EmbedProvider(object):
+class EmbedProvider(DictSerializerMixin):
     _json: dict
     name: Optional[str]
     url: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class EmbedAuthor(object):
+class EmbedAuthor(DictSerializerMixin):
     _json: dict
     name: Optional[str]
     url: Optional[str]
@@ -299,33 +292,30 @@ class EmbedAuthor(object):
     proxy_icon_url: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class EmbedFooter(object):
+class EmbedFooter(DictSerializerMixin):
     _json: dict
     text: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class EmbedField(object):
+class EmbedField(DictSerializerMixin):
     _json: dict
     name: str
     inline: Optional[bool]
     value: str
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Embed(object):
+class Embed(DictSerializerMixin):
     _json: dict
     title: Optional[str]
     type: Optional[str]
@@ -342,5 +332,4 @@ class Embed(object):
     fields: Optional[List[EmbedField]]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)

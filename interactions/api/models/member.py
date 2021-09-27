@@ -1,12 +1,11 @@
 from datetime import datetime
 from typing import List, Optional
 
-from orjson import dumps, loads
-
+from .misc import DictSerializerMixin
 from .user import User
 
 
-class Member(object):
+class Member(DictSerializerMixin):
     """
     A class object representing the member of a guild.
 
@@ -57,5 +56,4 @@ class Member(object):
     permissions: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)

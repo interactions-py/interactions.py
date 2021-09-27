@@ -1,9 +1,9 @@
 from typing import Any, Optional
 
-from orjson import dumps, loads
+from .misc import DictSerializerMixin
 
 
-class User(object):
+class User(DictSerializerMixin):
     __slots__ = (
         "__dict__",
         "_json",
@@ -42,5 +42,4 @@ class User(object):
     public_flags: int
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
