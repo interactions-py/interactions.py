@@ -137,7 +137,3 @@ class ApplicationCommand(DictSerializerMixin):
 
 class Interaction(ApplicationCommand):
     ...
-
-
-class ContextMenuCommand(ApplicationCommand):
-    ...
