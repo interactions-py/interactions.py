@@ -58,7 +58,13 @@ class Client:
         self.token = token
 
     async def login(self, token: str) -> None:
-        """Makes a login with the Discord API."""
+        """
+        Makes a login with the Discord API.
+
+        :param token: The application token needed for authorization.
+        :type token: str
+        :return: None
+        """
 
         if self.me is None:
             data = await self.http.get_self()
@@ -86,9 +92,7 @@ class Client:
     def command(
         self,
         *,
-        _type: Optional[
-            Union[str, int, ApplicationCommandType]
-        ] = ApplicationCommandType.CHAT_INPUT,
+        type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
         name: Optional[str] = None,
         description: Optional[str] = None,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
@@ -100,6 +104,20 @@ class Client:
         A decorator for registering an application command to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
+
+        :param type: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
+        :type type: typing.Optional[typing.Union[str, int, interactions.enums.ApplicationCommandType]]
+        :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
+        :type name: typing.Optional[str]
+        :param description: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
+        :type description: typing.Optional[str]
+        :param scope: The "scope"/applicable guilds the application command applies to.
+        :type scope: typing.Optional[typing.Union[int, interactions.api.models.guild.Guild, typing.List[int], typing.List[interactions.api.models.guild.Guild]]]
+        :param options: The "arguments"/options of an application command. This should bel eft blank if you are not using ``CHAT_INPUT``.
+        :type options: typing.Optional[typing.List[interactions.models.command.Option]]
+        :param default_permission: The default permission of accessibility for the application command. Defaults to ``True``.
+        :type default_permission: typing.Optional[bool]
+        :return: typing.Callable[..., typing.Any]
         """
         if not name:
             raise Exception("Command must have a name!")
@@ -112,9 +130,9 @@ class Client:
             _scope: list = []
 
             if isinstance(scope, list):
-                if all(isinstance(x, Guild) for x in scope):  # if isinstance(scope, List[Guild]):
+                if all(isinstance(x, Guild) for x in scope):
                     _scope.append(guild.id for guild in scope)
-                elif all(isinstance(x, int) for x in scope):  # if isinstance(scope, List[int]):
+                elif all(isinstance(x, int) for x in scope):
                     _scope.append(guild for guild in scope)
             else:
                 _scope.append(scope)
@@ -124,46 +142,30 @@ class Client:
                     raise Exception("We cannot overwrite this, but we should be syncing.")
                     # make a call to our internal sync method instead of an exception.
 
-            # path: str = f"/applications/{self.me.id}
             for guild in _scope:
-                # no need to pop guild_id because we want consistency
-                # with model data. That way if people try to do smth.
-                # like (ctx.slash.guild_id) it gives None for those
-                # trying to build systems/infrastructures integrally
-                # based on the application command design into their bots
-                # so that it gives back what is/isn't.
-
-                _payload = {
-                    "type": _type.value if isinstance(_type, ApplicationCommandType) else _type,
+                payload: dict = {
+                    "type": type.value if isinstance(type, ApplicationCommandType) else type,
                     "name": name,
                     "description": _description,
                     "options": _options,
                     "default_permission": _default_permission,
                 }
 
-                # no flow, there's no point instantiating it here if we only need it for the dictionary
-                # on send
-
                 if self.me is None:
                     data = self.loop.run_until_complete(self.http.get_self())
-                    # You think it doesn't work but it does on boot.
                     self.me = User(**data)
 
-                request = self.http.create_application_command(
-                    self.me.id, data=_payload, guild_id=guild
+                request = self.loop.run_until_complete(
+                    self.http.create_application_command(self.me.id, data=payload, guild_id=guild)
                 )
 
-                req_data = self.loop.run_until_complete(request)
-                # This returns the data from the request coro above as a JSON
-                # that can be parsed to get the failure code, if any.
-
-                if req_data.get("code"):
-                    raise JSONException(req_data["code"])  # todo: work on this pls
+                if request.get("code"):
+                    raise JSONException(request["code"])  # todo: work on this pls
 
                 # self.cache.add_interaction(
                 #    id=_att["application_id"], interaction=ApplicationCommand(**_payload)
                 # )
 
-                return self.event(coro)  # have to actually return the event call
+                return self.event(coro)
 
         return decorator
