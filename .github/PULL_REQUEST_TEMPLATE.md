@@ -12,4 +12,3 @@ This pull request does (insert here), which effectively solves issues (X) and (Y
     - [ ] This is not a code change.
     - [ ] (If required) Relevant documentation has been updated/added.
     - [ ] There is/are (a) breaking change(s).
-    
