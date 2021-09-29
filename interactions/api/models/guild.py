@@ -2,11 +2,10 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from orjson import dumps, loads
-
 from .channel import Channel
 from .member import Member
 from .message import Emoji, Sticker
+from .misc import DictSerializerMixin
 from .presence import PresenceUpdate
 from .role import Role
 from .user import User
@@ -67,7 +66,7 @@ class GuildFeature(str, Enum):
     PRIVATE_THREADS = "PRIVATE_THREADS"
 
 
-class WelcomeChannels(object):
+class WelcomeChannels(DictSerializerMixin):
     """
     A class object representing a welcome channel on the welcome screen.
 
@@ -89,11 +88,10 @@ class WelcomeChannels(object):
     emoji_name: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class WelcomeScreen(object):
+class WelcomeScreen(DictSerializerMixin):
     """
     A class object representing the welcome screen shown for community guilds.
 
@@ -112,11 +110,10 @@ class WelcomeScreen(object):
     welcome_channels: List[WelcomeChannels]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class StageInstance(object):
+class StageInstance(DictSerializerMixin):
     """
     A class object representing an instace of a stage channel in a guild.
 
@@ -146,11 +143,10 @@ class StageInstance(object):
     discoverable_disabled: bool
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Guild(object):
+class Guild(DictSerializerMixin):
     """
     A class object representing how a guild is registered.
 
@@ -259,11 +255,10 @@ class Guild(object):
     stickers: Optional[List[Sticker]]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class GuildPreview(object):
+class GuildPreview(DictSerializerMixin):
     """
     A model representing the preview of a guild.
 
@@ -296,11 +291,10 @@ class GuildPreview(object):
     description: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Invite(object):
+class Invite(DictSerializerMixin):
     """The invite object."""
 
     uses: int
@@ -310,11 +304,10 @@ class Invite(object):
     created_at: datetime
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class GuildTemplate(object):
+class GuildTemplate(DictSerializerMixin):
     """An object representing the snapshot of an existing guild."""
 
     code: str
@@ -330,5 +323,4 @@ class GuildTemplate(object):
     is_dirty: Optional[bool]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)

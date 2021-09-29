@@ -2,24 +2,23 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import List, Optional
 
-from orjson import dumps, loads
+from orjson import dumps
 
 from .message import Emoji
-from .misc import ClientStatus
+from .misc import ClientStatus, DictSerializerMixin
 from .user import User
 
 
-class _PresenceParty(object):
+class _PresenceParty(DictSerializerMixin):
     _json: dict
     id: Optional[str]
     size: Optional[List[int]]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class _PresenceAssets(object):
+class _PresenceAssets(DictSerializerMixin):
     _json: dict
     large_image: Optional[str]
     large_text: Optional[str]
@@ -27,22 +26,20 @@ class _PresenceAssets(object):
     small_text: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class _PresenceSecrets(object):
+class _PresenceSecrets(DictSerializerMixin):
     _json: dict
     join: Optional[str]
     spectate: Optional[str]
     match: Optional[str]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class _PresenceButtons(object):
+class _PresenceButtons(DictSerializerMixin):
     _json: dict
     label: str
     url: str
@@ -56,7 +53,7 @@ class _PresenceButtons(object):
         return dumps(comb)
 
 
-class PresenceActivity(object):
+class PresenceActivity(DictSerializerMixin):
     _json: dict
     name: str
     type: int
@@ -75,11 +72,10 @@ class PresenceActivity(object):
     buttons: Optional[_PresenceButtons]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class PresenceUpdate(object):
+class PresenceUpdate(DictSerializerMixin):
     _json: dict
     user: User
     guild_id: int
@@ -88,5 +84,4 @@ class PresenceUpdate(object):
     client_status: ClientStatus
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)

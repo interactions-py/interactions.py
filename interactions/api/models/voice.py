@@ -1,12 +1,11 @@
 from datetime import datetime
 from typing import Optional
 
-from orjson import dumps, loads
-
 from .member import Member
+from .misc import DictSerializerMixin
 
 
-class VoiceState(object):
+class VoiceState(DictSerializerMixin):
     _json: dict
     guild_id: Optional[int]
     channel_id: Optional[int]
@@ -23,11 +22,10 @@ class VoiceState(object):
     request_to_speak_timestamp: Optional[datetime]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class VoiceRegion(object):
+class VoiceRegion(DictSerializerMixin):
     _json: dict
     id: str
     name: str
@@ -37,5 +35,4 @@ class VoiceRegion(object):
     custom: bool
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)

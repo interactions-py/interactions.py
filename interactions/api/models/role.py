@@ -1,20 +1,19 @@
 from typing import Optional
 
-from orjson import dumps, loads
+from .misc import DictSerializerMixin
 
 
-class RoleTags(object):
+class RoleTags(DictSerializerMixin):
     _json: dict
     bot_id: Optional[int]
     integration_id: Optional[int]
     premium_subscriber: Optional[int]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)
 
 
-class Role(object):
+class Role(DictSerializerMixin):
     _json: dict
     id: int
     name: str
@@ -29,5 +28,4 @@ class Role(object):
     tags: Optional[RoleTags]
 
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self._json = loads(dumps(self.__dict__))
+        super().__init__(**kwargs)

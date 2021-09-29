@@ -10,7 +10,7 @@ from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.user import User
 from .enums import ApplicationCommandType
-from .models.command import ApplicationCommand, Option, Permission
+from .models.command import Option
 
 
 class Client:
@@ -78,19 +78,23 @@ class Client:
 
         :return: typing.Callable[..., typing.Any]
         """
-        self.websocket.dispatch.register(coro)
+        self.websocket.dispatch.register(
+            coro, name=coro.__name__ if coro.__name__.startswith("on") else "on_interaction_create"
+        )
         return coro
 
     def command(
         self,
         *,
-        type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
+        _type: Optional[
+            Union[str, int, ApplicationCommandType]
+        ] = ApplicationCommandType.CHAT_INPUT,
         name: Optional[str] = None,
         description: Optional[str] = None,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
-        default_permission: Optional[bool] = None,
-        permissions: Optional[List[Permission]] = None,
+        default_permission: Optional[bool] = None
+        # permissions: Optional[List[Permission]] = None,
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
@@ -104,7 +108,7 @@ class Client:
             _description: str = "" if description is None else description
             _options: list = [] if options is None else options
             _default_permission: bool = True if default_permission is None else default_permission
-            _permissions: list = [] if permissions is None else permissions
+            # _permissions: list = [] if permissions is None else permissions
             _scope: list = []
 
             if isinstance(scope, list):
@@ -130,13 +134,11 @@ class Client:
                 # so that it gives back what is/isn't.
 
                 _payload = {
-                    "type": type,
+                    "type": _type.value if isinstance(_type, ApplicationCommandType) else _type,
                     "name": name,
                     "description": _description,
-                    "guild_id": guild,
                     "options": _options,
                     "default_permission": _default_permission,
-                    "permissions": _permissions,
                 }
 
                 # no flow, there's no point instantiating it here if we only need it for the dictionary
@@ -148,18 +150,19 @@ class Client:
                     self.me = User(**data)
 
                 request = self.http.create_application_command(
-                    self.me._json["id"], data=_payload, guild_id=guild
+                    self.me.id, data=_payload, guild_id=guild
                 )
 
-                _att = self.loop.run_until_complete(request)
-                print(f"request returns...: {_att}")
+                req_data = self.loop.run_until_complete(request)
+                # This returns the data from the request coro above as a JSON
+                # that can be parsed to get the failure code, if any.
 
-                if _att["code"] == 50035:
-                    raise JSONException(50035)  # todo: work on this pls
+                if req_data.get("code"):
+                    raise JSONException(req_data["code"])  # todo: work on this pls
 
-                self.cache.add_interaction(
-                    id=_att["application_command"], interaction=ApplicationCommand(**_payload)
-                )
+                # self.cache.add_interaction(
+                #    id=_att["application_id"], interaction=ApplicationCommand(**_payload)
+                # )
 
                 return self.event(coro)  # have to actually return the event call
 
