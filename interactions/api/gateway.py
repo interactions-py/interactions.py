@@ -1,5 +1,5 @@
 import sys
-from asyncio import AbstractEventLoop, get_event_loop, run_coroutine_threadsafe
+from asyncio import get_event_loop, run_coroutine_threadsafe
 from logging import Logger, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
@@ -28,11 +28,6 @@ class Heartbeat(Thread):
     :ivar typing.Union[int, float] interval: The heartbeat interval determined by the gateway.
     :ivar threading.Event event: The multi-threading event.
     """
-
-    __slots__ = ("ws", "interval", "event")
-    ws: Any
-    interval: Union[int, float]
-    event: Event
 
     def __init__(self, ws: Any, interval: int) -> None:
         """
@@ -85,27 +80,6 @@ class WebSocket:
     :ivar bool closed: The current connection state.
     :ivar HTTPClient _http: The internal HTTP client used to connect to the gateway.
     """
-
-    __slots__ = (
-        "intents",
-        "loop",
-        "dispatch",
-        "session",
-        "session_id",
-        "sequence",
-        "keep_alive",
-        "closed",
-        "_http",
-    )
-    intents: Intents
-    loop: AbstractEventLoop
-    dispatch: Listener
-    session: Any
-    session_id: Optional[int]
-    sequence: Optional[int]
-    keep_alive: Optional[Heartbeat]
-    closed: bool
-    _http: Optional[HTTPClient]
 
     def __init__(
         self,

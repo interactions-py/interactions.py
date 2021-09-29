@@ -25,14 +25,11 @@ from ..api.models import (
     WelcomeScreen,
 )
 from ..base import Data, __version__
-from .cache import Cache
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("http")
 
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
-
-cache: Cache = Cache()
 
 
 class Route:

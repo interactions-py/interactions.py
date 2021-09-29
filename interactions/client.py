@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, get_event_loop
+from asyncio import get_event_loop
 from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.cache import Cache
@@ -24,14 +24,6 @@ class Client:
     :ivar interactions.api.gateway.WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
     :ivar str token: The application token.
     """
-
-    loop: AbstractEventLoop
-    intents: Optional[Union[Intents, List[Intents]]]
-    http: HTTPClient
-    cache: Cache
-    websocket: WebSocket
-    me: Optional[User]
-    token: str
 
     def __init__(
         self, token: str, intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
