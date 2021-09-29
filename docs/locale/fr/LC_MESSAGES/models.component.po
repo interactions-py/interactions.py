@@ -1,0 +1,171 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, goverfl0w
+# This file is distributed under the same license as the
+# discord-interactions package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-interactions 4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../models.component.rst:4
+msgid "Component Models"
+msgstr ""
+
+#: interactions.models.component.SelectOption:1 of
+msgid "A class object representing the select option of a select menu."
+msgstr ""
+
+#: interactions.models.component.Button interactions.models.component.Component
+#: interactions.models.component.SelectMenu
+#: interactions.models.component.SelectOption of
+msgid "Variables"
+msgstr ""
+
+#: interactions.models.component.SelectOption:3 of
+msgid "The label of the select option."
+msgstr ""
+
+#: interactions.models.component.SelectOption:4 of
+msgid "The returned value of the select option."
+msgstr ""
+
+#: interactions.models.component.SelectOption:5 of
+msgid "The description of the select option."
+msgstr ""
+
+#: interactions.models.component.SelectOption:6 of
+msgid "The emoji used alongside the label of the select option."
+msgstr ""
+
+#: interactions.models.component.SelectOption:7 of
+msgid "Whether the select option is the default for the select menu."
+msgstr ""
+
+#: interactions.models.component.SelectMenu:1 of
+msgid "A class object representing the select menu of a component."
+msgstr ""
+
+#: interactions.models.component.SelectMenu:3 of
+msgid "The type of select menu."
+msgstr ""
+
+#: interactions.models.component.SelectMenu:4 of
+msgid "The customized \"ID\" of the select menu."
+msgstr ""
+
+#: interactions.models.component.SelectMenu:5 of
+msgid "The list of select options in the select menu."
+msgstr ""
+
+#: interactions.models.component.SelectMenu:6 of
+msgid "The placeholder of the select menu."
+msgstr ""
+
+#: interactions.models.component.Component:16
+#: interactions.models.component.SelectMenu:7 of
+msgid "The minimum \"options\"/values to choose from the component."
+msgstr ""
+
+#: interactions.models.component.Component:17
+#: interactions.models.component.SelectMenu:8 of
+msgid "The maximum \"options\"/values to choose from the component."
+msgstr ""
+
+#: interactions.models.component.SelectMenu:9 of
+msgid "Whether the select menu is unable to be used."
+msgstr ""
+
+#: interactions.models.component.Button:1 of
+msgid "A class object representing the button of a component."
+msgstr ""
+
+#: interactions.models.component.Button:3 of
+msgid "The type of button."
+msgstr ""
+
+#: interactions.models.component.Button:4 of
+msgid "The style of the button."
+msgstr ""
+
+#: interactions.models.component.Button:5 of
+msgid "The label of the button."
+msgstr ""
+
+#: interactions.models.component.Button:6 of
+msgid "The emoji used alongside the laebl of the button."
+msgstr ""
+
+#: interactions.models.component.Button:7 of
+msgid "The customized \"ID\" of the button."
+msgstr ""
+
+#: interactions.models.component.Button:8 of
+msgid "The URL route/path of the button."
+msgstr ""
+
+#: interactions.models.component.Button:9 of
+msgid "Whether the button is unable to be used."
+msgstr ""
+
+#: interactions.models.component.Component:1 of
+msgid ""
+"A class object representing the componeent in an interaction "
+"response/followup."
+msgstr ""
+
+#: interactions.models.component.Component:4 of
+msgid ""
+"``components`` is only applicable if an ActionRow is supported, otherwise"
+" ActionRow-less will be opted. ``list`` is in reference to the class."
+msgstr ""
+
+#: interactions.models.component.Component:7 of
+msgid "The type of component."
+msgstr ""
+
+#: interactions.models.component.Component:8 of
+msgid "The customized \"ID\" of the component."
+msgstr ""
+
+#: interactions.models.component.Component:9 of
+msgid "Whether the component is unable to be used."
+msgstr ""
+
+#: interactions.models.component.Component:10 of
+msgid "The style of the component."
+msgstr ""
+
+#: interactions.models.component.Component:11 of
+msgid "The label of the component."
+msgstr ""
+
+#: interactions.models.component.Component:12 of
+msgid "The emoji used alongside the label of the component."
+msgstr ""
+
+#: interactions.models.component.Component:13 of
+msgid "The URl route/path of the component."
+msgstr ""
+
+#: interactions.models.component.Component:14 of
+msgid "The \"choices\"/options of the component."
+msgstr ""
+
+#: interactions.models.component.Component:15 of
+msgid "The placeholder text/value of the component."
+msgstr ""
+
+#: interactions.models.component.Component:18 of
+msgid "A list of components nested in the component."
+msgstr ""
