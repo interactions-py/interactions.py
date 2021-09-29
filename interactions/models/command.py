@@ -103,6 +103,7 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar typing.Optional[str] description: The description of the application command.
     :ivar typing.Optional[typing.List[interactions.models.Option]] options: The "options"/arguments of the application command.
     :ivar typing.Optional[bool] default_permission: The default permission accessibility state of the application command.
+    :ivar int version: The Application Command version autoincrement identifier.
     """
 
     __slots__ = (
@@ -116,6 +117,7 @@ class ApplicationCommand(DictSerializerMixin):
         "options",
         "default_permission",
         "permissions",
+        "version",
     )
     _json: dict
     id: Optional[int]
@@ -127,6 +129,7 @@ class ApplicationCommand(DictSerializerMixin):
     options: Optional[List[Option]]
     default_permission: Optional[bool]
     permissions: Optional[List[Permission]]
+    version: int  # Not sure if we need this.
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

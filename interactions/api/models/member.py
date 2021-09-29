@@ -22,6 +22,7 @@ class Member(DictSerializerMixin):
 
     :ivar interactions.api.models.user.User user: The user of the guild.
     :ivar str nick: The nickname of the member.
+    :ivar typing.Optional[str] avatar: The hash containing the user's guild avatar, if applicable.
     :ivar typing.List[int] roles: The list of roles of the member.
     :ivar datetime.datetime.timestamp joined_at: The timestamp the member joined the guild at.
     :ivar datetime.datetime premium_since: The timestamp the member has been a server booster since.
@@ -35,6 +36,7 @@ class Member(DictSerializerMixin):
         "_json",
         "user",
         "nick",
+        "avatar",
         "roles",
         "joined_at",
         "premium_since",
@@ -47,6 +49,7 @@ class Member(DictSerializerMixin):
     _json: dict
     user: Optional[User]
     nick: Optional[str]
+    avatar: Optional[str]
     roles: List[int]
     joined_at: datetime.timestamp
     premium_since: datetime
