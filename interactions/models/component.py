@@ -4,13 +4,15 @@ from typing import List, Optional, Union
 from orjson import dumps
 
 from ..api.models.message import Emoji
+from ..api.models.misc import DictSerializerMixin
 from ..enums import ButtonType, ComponentType
 
 
-class SelectOption(object):
+class SelectOption(DictSerializerMixin):
     """
     A class object representing the select option of a select menu.
 
+    :ivar dict _json: The dictionary representation of the object.
     :ivar str label: The label of the select option.
     :ivar str value: The returned value of the select option.
     :ivar typing.Optional[str] description: The description of the select option.
@@ -18,7 +20,7 @@ class SelectOption(object):
     :ivar typing.Optional[bool] default: Whether the select option is the default for the select menu.
     """
 
-    __slots__ = ("label", "value", "description", "emoji", "default")
+    __slots__ = ("_json", "label", "value", "description", "emoji", "default")
     label: str
     value: str
     description: Optional[str]
@@ -26,10 +28,12 @@ class SelectOption(object):
     default: Optional[bool]
 
 
-class SelectMenu(object):
+class SelectMenu(DictSerializerMixin):
     """
     A class object representing the select menu of a component.
 
+
+    :ivar dict _json: The dictionary representation of the object.
     :ivar interactions.enums.ComponentType type: The type of select menu.
     :ivar str custom_id: The customized "ID" of the select menu.
     :ivar typing.List[interactions.models.component.SelectOption] options: The list of select options in the select menu.
@@ -39,7 +43,15 @@ class SelectMenu(object):
     :ivar typing.Optional[bool] disabled: Whether the select menu is unable to be used.
     """
 
-    __slots__ = ("type", "custom_id", "placeholder", "min_values", "max_values", "disabled")
+    __slots__ = (
+        "_json",
+        "type",
+        "custom_id",
+        "placeholder",
+        "min_values",
+        "max_values",
+        "disabled",
+    )
     type: ComponentType
     custom_id: str
     options: List[SelectOption]
@@ -47,9 +59,6 @@ class SelectMenu(object):
     min_values: Optional[int]
     max_values: Optional[int]
     disabled: Optional[bool]
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
 
     def __new__(cls):
         comb = OrderedDict()
@@ -61,14 +70,16 @@ class SelectMenu(object):
         return dumps(comb)
 
 
-class ActionRow(object):
+class ActionRow(DictSerializerMixin):
     ...
 
 
-class Button(object):
+class Button(DictSerializerMixin):
     """
     A class object representing the button of a component.
 
+
+    :ivar dict _json: The dictionary representation of the object.
     :ivar interactions.enums.ButtonType type: The type of button.
     :ivar interactions.enums.ButtonType style: The style of the button.
     :ivar str label: The label of the button.
@@ -78,7 +89,7 @@ class Button(object):
     :ivar typing.Optional[bool] disabled: Whether the button is unable to be used.
     """
 
-    __slots__ = ("type", "style", "label", "emoji", "custom_id", "url", "disabled")
+    __slots__ = ("_json", "type", "style", "label", "emoji", "custom_id", "url", "disabled")
     type: ButtonType
     style: ButtonType
     label: str
@@ -86,9 +97,6 @@ class Button(object):
     custom_id: Optional[str]
     url: Optional[str]
     disabled: Optional[bool]
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
 
     def __new__(cls):
         comb = OrderedDict()
@@ -100,14 +108,15 @@ class Button(object):
         return dumps(comb)
 
 
-class Component(object):
+class Component(DictSerializerMixin):
     """
-    A class object representing the componeent in an interaction response/followup.
+    A class object representing the component in an interaction response/followup.
 
     .. note::
         ``components`` is only applicable if an ActionRow is supported, otherwise
         ActionRow-less will be opted. ``list`` is in reference to the class.
 
+    :ivar dict _json: The dictionary representation of the object.
     :ivar typing.Union[interactions.models.ActionRow, interactions.models.Button, interactions.models.Menu] type: The type of component.
     :ivar typing.Optional[str] custom_id: The customized "ID" of the component.
     :ivar typing.Optional[bool] disabled: Whether the component is unable to be used.
@@ -123,6 +132,7 @@ class Component(object):
     """
 
     __slots__ = (
+        "_json",
         "type",
         "custom_id",
         "disabled",
