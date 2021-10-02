@@ -130,6 +130,10 @@ terms on what this means with a table below showing all of these values:
 +-------------------+-----------+
 | ROLE              | 8         |
 +-------------------+-----------+
+| MENTIONABLE       | 9         |
++-------------------+-----------+
+| FLOAT             | 10        |
++-------------------+-----------+
 
 The purpose of having the ``ApplicationCommandOptionType`` value passed into our option JSON structure
 is so that we can help the Discord UI understand what kind of value we're inputting here. For instance,
