@@ -433,7 +433,8 @@ class SlashCommand:
         for guild in cmds["guild"]:
             # check whether there already are commands for that guild (coming from the debug_guild) instead of overriding them
             try:
-                cmds_formatted[guild].append(cmds["guild"][guild][0])
+                for cmd in cmds["guild"][guild]:
+                    cmds_formatted[guild].append(cmd)
             except KeyError:
                 cmds_formatted[guild] = cmds["guild"][guild]
 
