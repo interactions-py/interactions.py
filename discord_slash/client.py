@@ -431,7 +431,11 @@ class SlashCommand:
         # if debug_guild is set, global commands get re-routed to the guild to update quickly
         cmds_formatted = {self.debug_guild: cmds["global"]}
         for guild in cmds["guild"]:
-            cmds_formatted[guild] = cmds["guild"][guild]
+            # check whether there already are commands for that guild (coming from the debug_guild) instead of overriding them
+            try:
+                cmds_formatted[guild].append(cmds["guild"][guild][0])
+            except KeyError:
+                cmds_formatted[guild] = cmds["guild"][guild]
 
         for scope in cmds_formatted:
             permissions = {}
