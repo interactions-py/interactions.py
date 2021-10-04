@@ -39,13 +39,14 @@ This code block below shows a simple bot being created:
 
     bot = interactions.Client(token="...")
 
-    @bot.application_command(
+    @bot.command(
         name="test",
         description="this is just a test command.",
-        guild_id=1234567890
+        scope=1234567890
     )
     async def test(ctx):
-        await ctx.send("Hello world!")
+        print("we're here so far.")
+        # await ctx.send("Hello world!")
 
     bot.start()
 
@@ -53,8 +54,7 @@ There's quite a lot of things that are going on here, so let's break it down ste
 
 * ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please look at our `Installing`_ section here.
 * ``bot = interactions.Client(token="...")`` -- This is the ``bot`` variable that defines our bot. This basically instantiates the `Client`_ class, which requires a ``token`` keyword-argument to be passed. In order to get a token, please look at the image given below.
-* ``@bot.application_command()`` -- This is something known as a *decorator* in Python. This decorator is in charge and responsible of making sure that the Discord API is told about the slash/sub command that you wish to create, and sends an HTTP request correspondingly. Any changes to the information contained in this decorator will be synchronously updated with the API automatically for you.
-* ``await ctx.send("Hello world!")`` -- This is what lets us send a "message", or otherwise known as an interaction response back to the Discord API for us. ``ctx`` is abbreviated as the "context" of the command, so numerous fields and attributes such as channels, guilds; and etc. are able to be inputted.
+* ``@bot.command()`` -- This is something known as a *decorator* in Python. This decorator is in charge and responsible of making sure that the Discord API is told about the slash/sub command that you wish to create, and sends an HTTP request correspondingly. Any changes to the information contained in this decorator will be synchronously updated with the API automatically for you.
 * ``bot.start()`` -- Finally, this is what tells our library to turn your bot from offline to online.
 
 .. image:: _static/client_token.png
