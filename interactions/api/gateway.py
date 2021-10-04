@@ -110,6 +110,7 @@ class WebSocket:
         self.session = None
         self.session_id = session_id
         self.sequence = sequence
+
         self.keep_alive = None
         self.closed = False
         self.http = None
@@ -226,24 +227,27 @@ class WebSocket:
             path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
 
             if event != "INTERACTION_CREATE":
-                obj: object = getattr(
-                    __import__(path),
-                    name.split("_")[0].capitalize(),
-                )
-
-                self.dispatch.dispatch(f"on_{name}", obj(**data))
+                try:
+                    obj: object = getattr(
+                        __import__(path),
+                        name.split("_")[0].capitalize(),
+                    )
+                except AttributeError:
+                    pass  # TODO: Actually don't dynamic this because of payloads.
+                else:
+                    self.dispatch.dispatch(f"on_{name}", obj(**data))
             else:
                 context = self.contextualize(data)
                 self.dispatch.dispatch(f"on_{name}", context)
 
-    def contextualize(self, data: dict) -> None:
+    def contextualize(self, data: dict) -> object:
         """
         Takes raw data given back from the gateway
         and gives "context" based off of what it is.
 
         :param data: The data from the gateway.
         :type data: dict
-        :return: None
+        :return: The context object.
         """
         context: object = getattr(__import__("interactions.context"), "InteractionContext")
         context.message = Message(**data["message"]) if data.get("message") else None
