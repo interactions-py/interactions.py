@@ -1,13 +1,5 @@
 from collections import OrderedDict
-from typing import Any, List, Union
-
-from ..models.command import ApplicationCommand, Interaction
-from .models.channel import Channel
-from .models.guild import Guild
-from .models.member import Member
-from .models.message import Message
-from .models.role import Role
-from .models.user import User
+from typing import Any, List, Optional
 
 
 class Item(object):
@@ -32,7 +24,7 @@ class Item(object):
         self.type = type(value)
 
 
-class Storage(OrderedDict):
+class Storage:
     """
     A class representing a set of items stored as a cache state.
 
@@ -40,7 +32,7 @@ class Storage(OrderedDict):
     """
 
     def __init__(self) -> None:
-        super().__init__()
+        self.values = OrderedDict()
 
     def add(self, item: Item) -> List[Item]:
         """
@@ -52,6 +44,17 @@ class Storage(OrderedDict):
         """
         self.values.update({item.id: item.value})
         return self.values
+
+    def get(self, id: str) -> Optional[Item]:
+        """
+        Gets an item from the storage.
+
+        :param id: The ID of the item.
+        :type id: str
+        :return: typing.Optional[interactions.api.cache.Item]
+        """
+        if id in self.values.keys():
+            return self.values[id]
 
 
 class Cache:
@@ -70,227 +73,12 @@ class Cache:
     :ivar interactions.api.cache.Cache interactions: The cached interactions upon interaction.
     """
 
-    dms: Storage = Storage()
-    self_guilds: Storage = Storage()
-    guilds: Storage = Storage()
-    channels: Storage = Storage()
-    roles: Storage = Storage()
-    members: Storage = Storage()
-    messages: Storage = Storage()
-    users: Storage = Storage()
-    interactions: Storage = Storage()
-
-    def add_dm(self, dm: Channel) -> Item:
-        """
-        Adds a DM to the cache.
-
-        :param dm: The Direct Message to add.
-        :type dm: interactions.api.models.channel.Channel
-        :return: interactions.api.cache.Item
-        """
-        return self.dms.add(dm)
-
-    def get_dm(self, id: str) -> Item:
-        """
-        Gets a DM from the cache.
-
-        :param id: The ID of the Direct Message.
-        :type id: str
-        :return: interactions.api.cache.Item
-        """
-        if id in self.dms.keys():
-            return self.dms.get(id)
-
-    def add_self_guild(self, guild: Guild) -> Item:
-        """
-        Adds a combed guild from the gateway to the cache.
-
-        :param dm: The guild to add.
-        :type dm: interactions.api.models.guild.guild
-        :return: interactions.api.cache.Item
-        """
-        return self.self_guilds.add(guild)
-
-    def get_self_guild(self, id: str) -> Item:
-        """
-        Gets a combed guild from the cache.
-
-        :param id: The ID of the guild.
-        :type id: str
-        :return: interactions.api.cache.Item
-        """
-        if id in self.self_guilds.keys():
-            return self.self_guilds.get(id)
-
-    def add_guild(self, guild: Guild) -> Item:
-        """
-        Adds a guild after the ready event to the cache.
-
-        :param dm: The guild to add.
-        :type dm: interactions.api.models.guild.Guild
-        :return: interactions.api.cache.Item
-        """
-        return self.guilds.add(guild)
-
-    def get_guild(self, id: str) -> Item:
-        """
-        Gets a new guild from the cache.
-
-        :param id: The ID of the guild.
-        :type id: str
-        :return: interactions.api.cache.Item
-        """
-        if id in self.guilds.keys():
-            return self.guilds.get(id)
-
-    def add_channel(self, channel: Channel) -> Item:
-        """
-        Adds a channel to the cache.
-
-        :param dm: The channel to add.
-        :type dm: interactions.api.models.channel.Channel
-        :return: interactions.api.cache.Item
-        """
-        return self.channels.add(channel)
-
-    def get_channel(self, guild_id: str, channel_id: str) -> Item:
-        """
-        Gets a channel from the cache.
-
-        :param guild_id: The ID of the guild.
-        :type guild_id: str
-        :param channel_id: The ID of the channel.
-        :type channel_id: str
-        :return: interactions.api.cache.Item
-        """
-        if guild_id in self.guilds.keys():
-            guild = self.guilds.get(guild_id)
-            if channel_id in guild.get("channels"):
-                return self.channels.get(channel_id)
-
-    def add_role(self, role: Role) -> Item:
-        """
-        Adds a role to the cache.
-
-        :param dm: The role to add.
-        :type dm: interactions.api.models.role.Role
-        :return: interactions.api.cache.Item
-        """
-        return self.roles.add(role)
-
-    def get_role(self, guild_id: str, member_id: str, role_id: str) -> Item:
-        """
-        Gets a role from the cache.
-
-        :param guild_id: The ID of the guild.
-        :type guild_id: str
-        :param member_id: The ID of the member.
-        :type member_id: str
-        :param role_id: The ID of the role.
-        :type role_id: str
-        :return: interactions.api.cache.Item
-        """
-        if guild_id in self.guilds.keys():
-            guild = self.guilds.get(guild_id)
-            if member_id in guild.get("members"):
-                member = self.members.get(member_id)
-                if role_id in member.get("roles"):
-                    return self.roles.get(role_id)
-
-    def add_member(self, member: Member) -> Item:
-        """
-        Adds a member to the cache.
-
-        :param dm: The member to add.
-        :type dm: interactions.api.models.member.Member
-        :return: interactions.api.cache.Item
-        """
-        return self.members.add(member)
-
-    def get_member(self, guild_id: str, member_id: str) -> Item:
-        """
-        Gets a member from the cache.
-
-        :param guild_id: The ID of the guild.
-        :type guild_id: str
-        :param member_id: The ID of the member.
-        :type member_id: str
-        :return: interactions.api.cache.Item
-        """
-        if guild_id in self.guilds.keys():
-            guild = self.guilds.get(guild_id)
-            if member_id in guild.get("members"):
-                return self.members.get(member_id)
-
-    def add_message(self, message: Message) -> Item:
-        """
-        Adds a message to the cache.
-
-        :param dm: The message to add.
-        :type dm: interactions.api.models.message.Message
-        :return: interactions.api.cache.Item
-        """
-        return self.messages.add(message)
-
-    def get_message(self, guild_id: str, channel_id: str, message_id: str) -> Item:
-        """
-        Gets a message from the cache.
-
-        :param guild_id: The ID of the guild.
-        :type guild_id: str
-        :param channel_id: The ID of the channel.
-        :type channel_id: str
-        :param message_id: The ID of the message.
-        :type message_id: str
-        :return: interactions.api.cache.Item
-        """
-        if guild_id in self.guilds.keys():
-            guild = self.guilds.get(guild_id)
-            if channel_id in guild.get("channels"):
-                channel = self.channels.get(channel_id)
-                if message_id in channel.get("messages"):
-                    return self.messages.get(message_id)
-
-    def add_user(self, user: User) -> Item:
-        """
-        Adds a user to the cache.
-
-        :param dm: The user to add.
-        :type dm: interactions.api.models.user.User
-        :return: interactions.api.cache.Item
-        """
-        return self.users.add(user)
-
-    def get_user(self, id: str) -> Item:
-        """
-        Gets a user from the cache.
-
-        :param id: The ID of the user.
-        :type id: str
-        :return: interactions.api.cache.Item
-        """
-        if id in self.users.keys():
-            return self.users.get(id)
-
-    def get_interaction(self, id: str) -> Item:
-        """
-        Gets an application command/interaction from the cache.
-
-        :param id: The application ID of the command.
-        :type id: str
-        :return: interactions.api.cache.Item
-        """
-        if id in self.interactions.keys():
-            return self.interactions.get(id)
-
-    def add_interaction(self, id: str, interaction: Union[Interaction, ApplicationCommand]) -> Item:
-        """
-        Adds an application command/interaction to the cache.
-
-        :param id: The application ID of the command.
-        :type id: str
-        :param command: The application command to add.
-        :type command: interactions.model.ApplicationCommand
-        :return: interactions.api.cache.Item
-        """
-        return self.interactions.add(interaction)
+    def __init__(self) -> None:
+        self.dms = Storage()
+        self.self_guilds = Storage()
+        self.guilds = Storage()
+        self.channels = Storage()
+        self.roles = Storage()
+        self.members = Storage()
+        self.messages = Storage()
+        self.interactions = Storage()

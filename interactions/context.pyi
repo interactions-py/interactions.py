@@ -1,22 +1,24 @@
-from typing import Union
+from typing import Any, Dict, List, Union
 
-from .api.models.channel import CategoryChannel, DMChannel, TextChannel, VoiceChannel
+from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
 from .api.models.message import Message
+from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .client import Client
 from .enums import ComponentType
 
-class Context:
-    __slots__ = ("client", "message", "author", "channel", "guild", "args", "kwargs")
-    client: Client
+class Context(DictSerializerMixin):
+    __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
     message: Message
-    author: Union[Member, User]
-    channel: Union[CategoryChannel, TextChannel, VoiceChannel, DMChannel]
+    author: Member
+    user: User
+    channel: Channel
     guild: Guild
-    args: list
-    kwargs: dict
+    args: List[Any]
+    kwargs: Dict[Any, Any]
+    def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):
     __slots__ = ("token", "id", "target", "deferred", "responded", "ephemeral", "resolved", "data")
@@ -28,6 +30,7 @@ class InteractionContext(Context):
     ephemeral: bool
     resolved: dict
     data: dict
+    def __init__(self, **kwargs) -> None: ...
 
 class ComponentContext(InteractionContext):
     __slots__ = ("custom_id", "type", "values", "origin")
@@ -35,3 +38,4 @@ class ComponentContext(InteractionContext):
     type: Union[str, int, ComponentType]
     values: list
     origin: bool
+    def __init__(self, **kwargs) -> None: ...

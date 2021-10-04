@@ -1,7 +1,7 @@
 from asyncio import get_event_loop
 from typing import Any, Callable, Coroutine, List, Optional, Union
 
-from .api.cache import Cache
+from .api.cache import Cache, Item
 from .api.dispatch import Listener
 from .api.error import JSONException
 from .api.gateway import WebSocket
@@ -10,7 +10,7 @@ from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.user import User
 from .enums import ApplicationCommandType
-from .models.command import Option
+from .models.command import ApplicationCommand, Option
 
 
 class Client:
@@ -49,6 +49,10 @@ class Client:
         self.me = None
         self.token = token
 
+        if not self.me:
+            data = self.loop.run_until_complete(self.http.get_self())
+            self.me = User(**data)
+
     async def login(self, token: str) -> None:
         """
         Makes a login with the Discord API.
@@ -57,11 +61,6 @@ class Client:
         :type token: str
         :return: None
         """
-
-        if self.me is None:
-            data = await self.http.get_self()
-            self.me = User(**data)
-
         while not self.websocket.closed:
             await self.websocket.connect(token)
 
@@ -79,6 +78,7 @@ class Client:
         self.websocket.dispatch.register(
             coro, name=coro.__name__ if coro.__name__.startswith("on") else "on_interaction_create"
         )
+        print(coro.__code__.co_varnames)
         return coro
 
     def command(
@@ -115,6 +115,9 @@ class Client:
             raise Exception("Command must have a name!")
 
         def decorator(coro: Coroutine) -> Any:
+            if "ctx" not in coro.__code__.co_varnames:
+                raise Exception('You must declare "ctx" in the command\'s arguments.')
+
             _description: str = "" if description is None else description
             _options: list = [] if options is None else options
             _default_permission: bool = True if default_permission is None else default_permission
@@ -129,34 +132,30 @@ class Client:
             else:
                 _scope.append(scope)
 
-            for interaction in self.cache.interactions:
+            for interaction in self.cache.interactions.values:
                 if interaction.value.name == name:
                     raise Exception("We cannot overwrite this, but we should be syncing.")
-                    # make a call to our internal sync method instead of an exception.
+                    # TODO: make a call to our internal sync method instead of an exception.
 
             for guild in _scope:
-                payload: dict = {
-                    "type": type.value if isinstance(type, ApplicationCommandType) else type,
-                    "name": name,
-                    "description": _description,
-                    "options": _options,
-                    "default_permission": _default_permission,
-                }
-
-                if self.me is None:
-                    data = self.loop.run_until_complete(self.http.get_self())
-                    self.me = User(**data)
+                payload: ApplicationCommand = ApplicationCommand(
+                    type=type.value if isinstance(type, ApplicationCommandType) else type,
+                    name=name,
+                    description=_description,
+                    options=_options,
+                    default_permission=_default_permission,
+                )
 
                 request = self.loop.run_until_complete(
-                    self.http.create_application_command(self.me.id, data=payload, guild_id=guild)
+                    self.http.create_application_command(
+                        self.me.id, data=payload._json, guild_id=guild
+                    )
                 )
 
                 if request.get("code"):
-                    raise JSONException(request["code"])  # todo: work on this pls
+                    raise JSONException(request["code"])  # TODO: work on this pls
 
-                # self.cache.add_interaction(
-                #    id=_att["application_id"], interaction=ApplicationCommand(**_payload)
-                # )
+                self.cache.interactions.add(Item(id=request["application_id"], value=payload))
 
                 return self.event(coro)
 

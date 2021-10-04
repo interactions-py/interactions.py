@@ -12,7 +12,11 @@ from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
 from .http import HTTPClient
+from .models.channel import Channel
 from .models.intents import Intents
+from .models.member import Member
+from .models.message import Message
+from .models.user import User
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("gateway")
@@ -201,7 +205,7 @@ class WebSocket:
                         self.dispatch.dispatch("on_ready")
                         log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
                     else:
-                        log.debug(f"{event}: {data}")
+                        # log.debug(f"{event}: {data}")
                         self.handle(event, data)
                     continue
 
@@ -220,11 +224,23 @@ class WebSocket:
             path: str = "interactions"
             path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
 
-            obj: object = getattr(
-                __import__(path),
-                name.split("_")[0].capitalize(),
-            )
-            self.dispatch.dispatch(f"on_{name}", obj(**data))
+            if event != "INTERACTION_CREATE":
+                obj: object = getattr(
+                    __import__(path),
+                    name.split("_")[0].capitalize(),
+                )
+
+                self.dispatch.dispatch(f"on_{name}", obj(**data))
+            else:
+                context: object = getattr(__import__("interactions.context"), "Context")
+                context.message = Message(**data["message"]) if data.get("message") else None
+                context.author = Member(**data["member"]) if data.get("member") else None
+                context.channel = Channel(**data["channel"]) if data.get("channel") else None
+                # context.guild = Guild(data["guild"] if data.get("guild_id"))
+                # TODO: code a stupid fucking snowflake converter
+                context.user = User(**data["user"]) if data.get("user") else None
+
+                self.dispatch.dispatch(f"on_{name}", context)
 
     async def send(self, data: Union[str, dict]) -> None:
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data

@@ -28,7 +28,7 @@ class Member(DictSerializerMixin):
     :ivar datetime.datetime premium_since: The timestamp the member has been a server booster since.
     :ivar bool deaf: Whether the member is deafened.
     :ivar bool mute: Whether the member is muted.
-    :ivar typing.Optional[bool] pending: Whether the member is pending to pass membership screening.
+    :ivar typing.Optional[bool] pending / is_pending: Whether the member is pending to pass membership screening.
     :ivar typing.Optional[str] permissions: Whether the member has permissions.
     """
 
@@ -43,6 +43,7 @@ class Member(DictSerializerMixin):
         "deaf",
         "mute",
         "pending",
+        "is_pending",
         "permissions",
     )
 
@@ -55,7 +56,9 @@ class Member(DictSerializerMixin):
     premium_since: datetime
     deaf: bool
     mute: bool
+    # TODO: Figure out why "pending" and "is_pending" are required for context class instantiation.
     pending: Optional[bool]
+    is_pending: Optional[bool]
     permissions: Optional[str]
 
     def __init__(self, **kwargs):
