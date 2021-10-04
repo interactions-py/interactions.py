@@ -3,7 +3,7 @@ from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.cache import Cache, Item
 from .api.dispatch import Listener
-from .api.error import JSONException
+from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
@@ -48,10 +48,13 @@ class Client:
         self.websocket = WebSocket(intents=self.intents)
         self.me = None
         self.token = token
+        # TODO: Code an internal ready state check for caching reasons.
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_self())
             self.me = User(**data)
+
+        self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
 
     async def login(self, token: str) -> None:
         """
@@ -78,7 +81,6 @@ class Client:
         self.websocket.dispatch.register(
             coro, name=coro.__name__ if coro.__name__.startswith("on") else "on_interaction_create"
         )
-        print(coro.__code__.co_varnames)
         return coro
 
     def command(
@@ -116,7 +118,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Any:
             if "ctx" not in coro.__code__.co_varnames:
-                raise Exception('You must declare "ctx" in the command\'s arguments.')
+                raise InteractionException(11)
 
             _description: str = "" if description is None else description
             _options: list = [] if options is None else options
@@ -134,7 +136,7 @@ class Client:
 
             for interaction in self.cache.interactions.values:
                 if interaction.value.name == name:
-                    raise Exception("We cannot overwrite this, but we should be syncing.")
+                    raise InteractionException(3)
                     # TODO: make a call to our internal sync method instead of an exception.
 
             for guild in _scope:
@@ -160,3 +162,6 @@ class Client:
                 return self.event(coro)
 
         return decorator
+
+    async def raw_guild_create(self, guild):
+        self.cache.guilds.add(Item(id=guild.id, value=guild))

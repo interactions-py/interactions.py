@@ -82,7 +82,8 @@ class WebSocket:
     :ivar int sequence: The current sequence of the gateway connection.
     :ivar interactions.api.gateway.Heartbeat keep_alive: An instance of :class:`interactions.api.gateway.Heartbeat`.
     :ivar bool closed: The current connection state.
-    :ivar HTTPClient _http: The internal HTTP client used to connect to the gateway.
+    :ivar interactions.api.http.HTTPClient http: The internal HTTP client used to connect to the gateway.
+    :ivar dict options: The websocket connection options.
     """
 
     def __init__(
@@ -108,7 +109,13 @@ class WebSocket:
         self.sequence = sequence
         self.keep_alive = None
         self.closed = False
-        self._http = None
+        self.http = None
+        self.options: dict = {
+            "max_msg_size": 1024 ** 2,
+            "timeout": 60,
+            "autoclose": False,
+            "compress": 0,
+        }
 
     async def recv(self) -> Optional[Any]:
         """Receives packets sent from the gateway."""
@@ -127,19 +134,11 @@ class WebSocket:
         :type token: str
         :return: None
         """
+        self.http = HTTPClient(token)
+        self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
+        url = await self.http.get_gateway()
 
-        self._http = HTTPClient(token)
-        gateway_url = await self._http.get_gateway()
-
-        options: dict = {
-            "max_msg_size": 1024 ** 2,
-            "timeout": 60,
-            "autoclose": False,
-            "headers": {"User-Agent": self._http.req.headers["User-Agent"]},
-            "compress": 0,
-        }
-
-        async with self._http._req.session.ws_connect(gateway_url, **options) as self.session:
+        async with self.http._req.session.ws_connect(url, **self.options) as self.session:
             while not self.closed:
                 stream = await self.recv()
 
@@ -183,9 +182,6 @@ class WebSocket:
                         continue
 
                     if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
-                        self.session_id = None
-                        self.sequence = None
-
                         log.debug("INVALID_SESSION/RECONNECT")
 
                         if not data or op == OpCodeType.RECONNECT:
@@ -196,6 +192,8 @@ class WebSocket:
                                 log.error(exc)
                                 await self.session.close()
                         else:
+                            self.session_id = None
+                            self.sequence = None
                             self.closed = True
 
                 else:
@@ -252,7 +250,7 @@ class WebSocket:
         payload: dict = {
             "op": OpCodeType.IDENTIFY,
             "d": {
-                "token": self._http.token,
+                "token": self.http.token,
                 "intents": self.intents,
                 "properties": {
                     "$os": sys.platform,
@@ -268,7 +266,7 @@ class WebSocket:
         """Sends a ``RESUME`` packet to the gateway."""
         payload: dict = {
             "op": OpCodeType.RESUME,
-            "d": {"token": self._http.token, "seq": self.sequence, "session_id": self.session_id},
+            "d": {"token": self.http.token, "seq": self.sequence, "session_id": self.session_id},
         }
         await self.send(payload)
         log.debug("RESUME")

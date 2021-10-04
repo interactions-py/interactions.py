@@ -25,7 +25,7 @@ class WebSocket:
         "sequence",
         "keep_alive",
         "closed",
-        "_http",
+        "http",
     )
     intents: Intents
     loop: AbstractEventLoop
@@ -35,7 +35,7 @@ class WebSocket:
     sequence: Optional[int]
     keep_alive: Optional[Heartbeat]
     closed: bool
-    _http: Optional[HTTPClient]
+    http: Optional[HTTPClient]
     def __init__(
         self,
         intents: Intents,

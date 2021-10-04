@@ -42,8 +42,8 @@ class Member(DictSerializerMixin):
         "premium_since",
         "deaf",
         "mute",
-        "pending",
         "is_pending",
+        "pending",
         "permissions",
     )
 
@@ -56,9 +56,8 @@ class Member(DictSerializerMixin):
     premium_since: datetime
     deaf: bool
     mute: bool
-    # TODO: Figure out why "pending" and "is_pending" are required for context class instantiation.
-    pending: Optional[bool]
     is_pending: Optional[bool]
+    pending: Optional[bool]
     permissions: Optional[str]
 
     def __init__(self, **kwargs):
