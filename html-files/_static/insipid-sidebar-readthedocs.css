@@ -1,0 +1,53 @@
+
+
+:root {
+    --readthedocs-badge-height: 0px;
+}
+
+div.sphinxsidebar {
+    bottom: var(--readthedocs-badge-height);
+}
+
+.injected .rst-versions.rst-badge {
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    max-width: unset;
+}
+
+body.js:not(.sidebar-visible) .injected .rst-versions.rst-badge {
+    left: calc(0px - var(--sidebar-width));
+}
+
+.injected .rst-versions.shift-up {
+    max-height: calc(100vh - var(--topbar-height));
+}
+
+.injected .rst-versions.rst-badge .rst-current-version {
+    text-align: right;
+}
+
+.injected .rst-versions.rst-badge .rst-current-version .fa-book {
+    float: left;
+}
+
+#flyout-search-form input {
+    width: 100%;
+}
+
+body:not(.sidebar-visible) .ethical-fixedfooter {
+    left: 0;
+    right: 0;
+    width: unset;
+}
+
+body.sidebar-visible .ethical-fixedfooter {
+    left: var(--sidebar-width);
+    right: 0;
+    width: unset;
+}
+
+body.js:not(.sidebar-resizing) .rst-versions.rst-badge,
+body.js:not(.sidebar-resizing) .ethical-fixedfooter {
+    transition: left 0.3s ease-out;
+}

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>How to use components &#8212; discord-interactions 4.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/insipid.css" />
+    <link rel="stylesheet" type="text/css" href="_static/colors.css" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script defer src="_static/insipid.js"></script>
+    <script defer src="_static/insipid-sidebar.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+  </head>
+  <body class="sidebar-visible">
+    <script type="text/javascript">
+        (function() {
+            var $body = $(document.body);
+            $body.addClass('js');
+            $body.addClass('sidebar-resizing');  // avoid transitions on load
+            $body.removeClass('sidebar-visible');
+            try {
+                var sidebar = localStorage.getItem('sphinx-sidebar');
+                if (sidebar === 'visible') {
+                    $body.addClass('sidebar-visible');
+                }
+                var sidebar_width = localStorage.getItem('sphinx-sidebar-width');
+                if (sidebar_width) {
+                    $(':root').css('--sidebar-width', sidebar_width);
+                }
+            } catch(e) {
+            }
+        })();
+    </script>
+    <header id="topbar-placeholder">
+      <div id="topbar">
+        <div id="titlebar">
+          <div class="buttons">
+            <button id="sidebar-button" type="button" aria-controls="sphinxsidebar" accesskey="M">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"/></svg>
+            </button>
+            <button id="search-button" type="button" title="Search" aria-label="Search" aria-expanded="false" aria-controls="search-form" accesskey="S">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+            </button>
+          </div>
+          <div class="title">
+            <a class="parent" href="index.html" accesskey="U">discord-interactions 4.0.0 documentation</a>
+            <a class="top" href="#">How to use components</a>
+          </div>
+          <div class="buttons">
+            <button id="fullscreen-button" type="button" aria-hidden="true">
+              <span class="enable">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M212.686 315.314L120 408l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C10.697 480 0 469.255 0 456V344c0-21.382 25.803-32.09 40.922-16.971L72 360l92.686-92.686c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.249 6.248 6.249 16.378 0 22.627zm22.628-118.628L328 104l-32.922-31.029C279.958 57.851 290.666 32 312.048 32h112C437.303 32 448 42.745 448 56v112c0 21.382-25.803 32.09-40.922 16.971L376 152l-92.686 92.686c-6.248 6.248-16.379 6.248-22.627 0l-25.373-25.373c-6.249-6.248-6.249-16.378 0-22.627z"/></svg>
+              </span>
+              <span class="disable">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div id="searchbox" role="search">
+          <form id="search-form" class="search" style="display: none" action="search.html" method="get">
+            <input type="search" name="q" placeholder="Search ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button>Go</button>
+          </form>
+        </div>
+      </div>
+    </header>
+    <nav>
+    </nav>
+
+    <nav class="relbar">
+    </nav>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+
+<section id="how-to-use-components">
+<h1>How to use components<a class="headerlink" href="#how-to-use-components" title="Permalink to this headline">¶</a></h1>
+<p>So you’ve seen the new fancy buttons and want to give them a try, but dont know where to start. No problem!</p>
+<p>First lets cover the basics. Discord messages can have <em>components</em>, such as buttons, dropdowns etc. These components sit in whats called an “action row”. An action row can hold 5 components at a time. Your message can have 5 action rows, so thats a total of 25 components!</p>
+<section id="sending-some-components">
+<h2>Sending some components<a class="headerlink" href="#sending-some-components" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will work in both slash commands, and discord.py commands</p>
+</div>
+<p>First we need to create some buttons, lets put them in a list for now. We’ll use <code class="xref py py-meth docutils literal notranslate"><span class="pre">create_button()</span></code> to create a green button</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_components</span> <span class="kn">import</span> <span class="n">create_button</span><span class="p">,</span> <span class="n">create_actionrow</span>
+<span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">ButtonStyle</span>
+
+<span class="n">buttons</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">create_button</span><span class="p">(</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">ButtonStyle</span><span class="o">.</span><span class="n">green</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;A Green Button&quot;</span>
+            <span class="p">),</span>
+          <span class="p">]</span>
+</pre></div>
+</div>
+<p>So we have a button, but where do we use it. Let’s create an action row with <code class="xref py py-func docutils literal notranslate"><span class="pre">create_actionrow()</span></code> and put our buttons in it</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">action_row</span> <span class="o">=</span> <span class="n">create_actionrow</span><span class="p">(</span><span class="o">*</span><span class="n">buttons</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Fantastic, we now have an action row with a green button in it, now lets get it sent in discord</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;My Message&quot;</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="n">action_row</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>And to bring it all together, you could use this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_components</span> <span class="kn">import</span> <span class="n">create_button</span><span class="p">,</span> <span class="n">create_actionrow</span>
+<span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">ButtonStyle</span>
+
+<span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;My Message&quot;</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">[</span>
+                                    <span class="n">create_actionrow</span><span class="p">(</span>
+                                        <span class="n">create_button</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="n">ButtonStyle</span><span class="o">.</span><span class="n">green</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;A Green Button&quot;</span><span class="p">))</span>
+                                    <span class="p">])</span>
+</pre></div>
+</div>
+<p>Now if you’ve followed along, you have a green button in discord! But theres a problem, whenever you click it you see that the <code class="docutils literal notranslate"><span class="pre">interaction</span> <span class="pre">failed</span></code>. Why is that?
+Well, in Discord, clicking buttons and using slash commands are called <code class="docutils literal notranslate"><span class="pre">interactions</span></code>, and Discord doesn’t know if we’ve received them or not unless we tell Discord. So how do we do that?</p>
+</section>
+<section id="responding-to-interactions">
+<h2>Responding to interactions<a class="headerlink" href="#responding-to-interactions" title="Permalink to this headline">¶</a></h2>
+<p>When responding, you have 3 choices in how you handle interactions. You can either wait for them in the command itself, or listen for them in a global event handler (similar to <code class="xref py py-func docutils literal notranslate"><span class="pre">on_slash_command_error()</span></code>), or register async function as component callback.</p>
+<section id="wait-for">
+<h3>Wait_for<a class="headerlink" href="#wait-for" title="Permalink to this headline">¶</a></h3>
+<p>Lets go through the most common method first, responding in the command itself. We simply need to <code class="xref py py-func docutils literal notranslate"><span class="pre">wait_for()</span></code> the event, just like you do for reactions. For this we’re going to use <code class="xref py py-func docutils literal notranslate"><span class="pre">wait_for_component()</span></code>, and we’re going to only wait for events from the action row we just sent.
+This method will return a <code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentContext</span></code> object that we can use to respond. For this example, we’ll just edit the original message (<code class="xref py py-meth docutils literal notranslate"><span class="pre">edit_origin()</span></code>, uses same logic as <code class="xref py py-func docutils literal notranslate"><span class="pre">edit()</span></code>)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_components</span> <span class="kn">import</span> <span class="n">wait_for_component</span>
+
+<span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;My Message&quot;</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="n">action_row</span><span class="p">])</span>
+<span class="c1"># note: this will only catch one button press, if you want more, put this in a loop</span>
+<span class="n">button_ctx</span><span class="p">:</span> <span class="n">ComponentContext</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wait_for_component</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="n">action_row</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">button_ctx</span><span class="o">.</span><span class="n">edit_origin</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;You pressed a button!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It’s worth being aware that if you handle the event in the command itself, it will not persist reboots. As such when you restart the bot, the interaction will fail</p>
+</div>
+</section>
+<section id="global-event-handler">
+<h3>Global event handler<a class="headerlink" href="#global-event-handler" title="Permalink to this headline">¶</a></h3>
+<p>Next we’ll go over the alternative, a global event handler. This works just the same as <code class="xref py py-func docutils literal notranslate"><span class="pre">on_slash_command_error()</span></code> or <cite>on_ready</cite>. But note that this code will be triggered on any components interaction.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@bot</span><span class="o">.</span><span class="n">event</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_component</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">ComponentContext</span><span class="p">):</span>
+    <span class="c1"># you may want to filter or change behaviour based on custom_id or message</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">edit_origin</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;You pressed a button!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="component-callbacks">
+<h3>Component callbacks<a class="headerlink" href="#component-callbacks" title="Permalink to this headline">¶</a></h3>
+<p>There is one more method - making a function that’ll be component callback - triggered when components in a specified message or specific <code class="docutils literal notranslate"><span class="pre">custom_id</span></code> are used.
+Let’s register our callback function via decorator <code class="xref py py-meth docutils literal notranslate"><span class="pre">component_callback()</span></code>, in similar ways to slash commands.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@slash</span><span class="o">.</span><span class="n">component_callback</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">ComponentContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">edit_origin</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;You pressed a button!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, <code class="xref py py-func docutils literal notranslate"><span class="pre">hello()</span></code> will be triggered when you receive interaction event from a component with a <cite>custom_id</cite> set to <cite>“hello”</cite>. Just like slash commands, the callback’s <cite>custom_id</cite> defaults to the function name.
+You can also register such callbacks in cogs using <code class="xref py py-func docutils literal notranslate"><span class="pre">cog_component()</span></code>
+Additionally, component callbacks can be dynamically added, removed or edited - see <code class="xref py py-class docutils literal notranslate"><span class="pre">SlashCommand</span></code></p>
+</section>
+<section id="but-writer-i-dont-want-to-edit-the-message">
+<h3>But [writer], I dont want to edit the message<a class="headerlink" href="#but-writer-i-dont-want-to-edit-the-message" title="Permalink to this headline">¶</a></h3>
+<p>Well lucky for you, you don’t have to. You can either respond silently, with a thinking animation, or send a whole new message. Take a look here: <code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentContext</span></code></p>
+</section>
+</section>
+<section id="how-do-i-know-which-button-was-pressed">
+<h2>How do I know which button was pressed?<a class="headerlink" href="#how-do-i-know-which-button-was-pressed" title="Permalink to this headline">¶</a></h2>
+<p>Each button gets a <code class="docutils literal notranslate"><span class="pre">custom_id</span></code> (which is always a string), this is a unique identifier of which button is being pressed. You can specify what the ID is when you define your button, if you don’t; a random one will be generated. When handling the event, simply check the custom_id, and handle accordingly.</p>
+</section>
+<section id="what-about-selects-dropdowns">
+<h2>What about selects / Dropdowns?<a class="headerlink" href="#what-about-selects-dropdowns" title="Permalink to this headline">¶</a></h2>
+<p>Yep we support those too. You use them much the same as buttons. You can only have 1 select per action row, but each select can have up to 25 options in it!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_components</span> <span class="kn">import</span> <span class="n">create_select</span><span class="p">,</span> <span class="n">create_select_option</span><span class="p">,</span> <span class="n">create_actionrow</span>
+
+<span class="n">select</span> <span class="o">=</span> <span class="n">create_select</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="c1"># the options in your dropdown</span>
+        <span class="n">create_select_option</span><span class="p">(</span><span class="s2">&quot;Lab Coat&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;coat&quot;</span><span class="p">,</span> <span class="n">emoji</span><span class="o">=</span><span class="s2">&quot;🥼&quot;</span><span class="p">),</span>
+        <span class="n">create_select_option</span><span class="p">(</span><span class="s2">&quot;Test Tube&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;tube&quot;</span><span class="p">,</span> <span class="n">emoji</span><span class="o">=</span><span class="s2">&quot;🧪&quot;</span><span class="p">),</span>
+        <span class="n">create_select_option</span><span class="p">(</span><span class="s2">&quot;Petri Dish&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;dish&quot;</span><span class="p">,</span> <span class="n">emoji</span><span class="o">=</span><span class="s2">&quot;🧫&quot;</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Choose your option&quot;</span><span class="p">,</span>  <span class="c1"># the placeholder text to show when no options have been chosen</span>
+    <span class="n">min_values</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># the minimum number of options a user must select</span>
+    <span class="n">max_values</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># the maximum number of options a user can select</span>
+<span class="p">)</span>
+
+<span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="n">create_actionrow</span><span class="p">(</span><span class="n">select</span><span class="p">)])</span>  <span class="c1"># like action row with buttons but without * in front of the variable</span>
+
+<span class="nd">@bot</span><span class="o">.</span><span class="n">event</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_component</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">ComponentContext</span><span class="p">):</span>
+    <span class="c1"># ctx.selected_options is a list of all the values the user selected</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;You selected </span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">selected_options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Additionally, you can pass <code class="docutils literal notranslate"><span class="pre">description</span></code> as a keyword-argument for <code class="docutils literal notranslate"><span class="pre">create_select_option()</span></code> if you so wish.</p>
+</section>
+</section>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <nav class="relbar">
+    </nav>
+
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+          <div class="sidebar-resize-handle"></div>
+
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption" role="heading"><span class="caption-text">Pages:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+<hr class="docutils" />
+<ul>
+  <li class="toctree-l1"><a class="reference internal" href="genindex.html" accesskey="I">General Index</a></li>
+</ul>
+<div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+    <footer role="contentinfo">
+      &#169; Copyright 2021, goverfl0w.
+      Created using <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+      <a class="reference external" href="https://insipid-sphinx-theme.readthedocs.io/">Insipid Theme</a>.
+<a class="reference internal" href="_sources/components.rst.txt" rel="nofollow">Show Source</a>.
+    </footer>
+    <div class="sidebar-resize-handle"></div>
+    <div id="overlay"></div>
+  </body>
+</html>

@@ -1,0 +1,1118 @@
+/* -- variables ------------------------------------------------------------- */
+
+:root {
+    --sidebar-width: 19rem;
+    --topbar-height: 3rem;
+}
+
+/* -- page layout ----------------------------------------------------------- */
+
+body {
+    position: relative;  /* reference for sidebar-resize-handle */
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    min-width: unset;
+    color: #000;
+    background-color: #fff;
+}
+
+/* keep the footer at the bottom (on very short pages) */
+html { height: 100%; }
+body { min-height: 100%; display: flex; flex-direction: column; }
+div.document { flex-grow: 1; }
+
+div.body {
+    padding: 20px;
+    min-width: unset;  /* body_min_width is applied to <body> */
+    overflow-x: auto;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    line-height: 1.618;
+}
+
+body.js * {
+    scroll-margin-top: var(--topbar-height);
+    scroll-snap-margin-top: var(--topbar-height);  /* Safari */
+}
+
+/* -- scrollbars ------------------------------------------------------------ */
+
+html::-webkit-scrollbar, div.sphinxsidebar::-webkit-scrollbar {
+    width: 14px;
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb, div.sphinxsidebar::-webkit-scrollbar-thumb {
+    background: #ccc;
+}
+
+html, div.sphinxsidebar {
+    scrollbar-color: #ccc transparent;
+}
+
+body {
+    scrollbar-color: initial;
+}
+
+div.sphinxsidebar::-webkit-scrollbar {
+    width: 7px;
+    background: transparent;
+}
+
+div.sphinxsidebar::-webkit-scrollbar-thumb {
+    background: #ccc;
+}
+
+div.sphinxsidebar {
+    scrollbar-width: thin;
+}
+
+/* -- body styles ----------------------------------------------------------- */
+
+strong {
+    font-weight: 600;
+}
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6,
+.toctree-wrapper .caption,
+p.rubric {
+    margin-top: 1.3em;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+}
+
+div.body h5,
+div.body h6 {
+    font-weight: bold;
+}
+
+div.body h1 strong,
+div.body h2 strong,
+div.body h3 strong,
+div.body h4 strong,
+div.body h5 strong,
+div.body h6 strong {
+    font-weight: 800;
+}
+
+div.body h1 { font-size: 2em; }
+div.body h2 { font-size: 1.7em; }
+div.body h3 { font-size: 1.4em; }
+div.body h4 { font-size: 1.2em; }
+div.body h5 { font-size: 1em; }
+div.body h6 { font-size: 0.9em }
+
+.toctree-wrapper .caption,
+p.rubric {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+a.headerlink {
+    padding: 0 4px;
+    font-size: 1rem;
+    font-weight: normal;
+}
+
+blockquote {
+    clear: left;
+    margin: 10px 0;
+    border: 1px solid #0002;
+    border-left-width: 6px;
+    padding: 0 20px;
+}
+
+blockquote.pull-quote p:not(.attribution),
+blockquote.epigraph p:not(.attribution) {
+    font-size: 130%;
+    font-style: italic;
+    color: #666;
+}
+
+blockquote:not(.pull-quote):not(.epigraph) p.attribution {
+    font-style: italic;
+}
+
+blockquote p.attribution {
+    text-align: end;
+}
+
+div.figure {
+    overflow-x: auto;
+}
+
+div.body a:target,
+strong:target {
+    padding: 3px;
+    margin: -3px;
+}
+
+div.body dl > dt:target,
+div.body div.admonition dl > dt:target,
+div.body div.topic dl > dt:target,
+div.body .sidebar dl > dt:target,
+div.body .sidebar .sidebar-title a:target,
+div.body a:target,
+strong:target {
+    background-color: #fbe54e;
+}
+
+hr.docutils {
+    border: 0;
+    border-top: solid 1px #ccc;
+}
+
+img {
+    max-width: unset;
+}
+
+div.compound {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+div.compound > .compound-first {
+    margin-top: 0;
+    margin-bottom: 0.2em;
+}
+
+div.compound > .compound-middle {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+div.compound > .compound-last {
+    margin-top: 0.2em;
+    margin-bottom: 0;
+}
+
+/* -- hyperlink styles ------------------------------------------------------ */
+
+a {
+    color: #1863b5;
+    text-decoration: none;
+    overflow-wrap: break-word;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #004188;
+}
+
+a.external {
+    text-decoration: none;
+    border-bottom: 1px dotted #1863b5;
+}
+
+a.external:hover {
+    text-decoration: none;
+    border-bottom: 1px dotted transparent;
+}
+
+a.external:visited {
+    text-decoration: none;
+    border-bottom: 1px dotted #004188;
+}
+
+/* -- code formatting ------------------------------------------------------- */
+
+code, pre, kbd, samp {
+    font-family: 'DejaVu Sans Mono', Menlo, monospace;
+}
+
+pre {
+    padding: 7px;
+    line-height: normal;
+    font-size: 0.875em;
+}
+
+code,
+code.xref,
+a code,
+div.body div.admonition dl > dt code,
+div.body div.topic dl > dt code,
+div.body .sidebar dl > dt code,
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code,
+div.code-block-caption code {
+    background-color: rgba(27,31,35,.05);
+    padding: 0.1em 0.2em;
+    font-weight: normal;
+}
+
+div.body dl > dt code {
+    background-color: unset;
+    padding: unset;
+}
+
+code.xref,
+a code {
+    font-weight: unset;
+}
+
+code.descname {
+    font-size: unset;
+}
+
+.sig-paren,
+.optional {
+    line-height: 0;
+}
+
+div.code-block-caption {
+    text-align: center;
+    font-size: unset;
+}
+
+td.linenos .linenodiv pre {
+    color: #666;
+    background-color: transparent;
+    padding: 7px 0px;
+}
+
+table.highlighttable td.linenos {
+    padding-right: 0.5em;
+}
+
+span.linenos {
+    margin-right: 0.7em;
+}
+
+/* highlighted line (:emphasize-lines:) */
+.highlight .hll {
+    padding: 0 0.5em;
+    margin: 0 -0.5em;
+}
+
+kbd.docutils:not(.compound) {
+    padding: 0.15em;
+    border-radius: 3px;
+    border: 1px solid #333;
+}
+
+/* -- admonitions ----------------------------------------------------------- */
+
+div.topic, div.sidebar, aside.sidebar {
+    border: none;
+}
+
+div.admonition > p.admonition-title,
+div.topic > p.topic-title,
+.sidebar > p.sidebar-title {
+    margin: -7px -7px 7px -7px;
+    padding: 4px 7px;
+    font-weight: normal;
+    font-size: unset;
+    color: #333;
+}
+
+.first.admonition-title,
+.first.topic-title,
+.first.sidebar-title {
+    /* override basic.css, which uses !important */
+    margin-top: -7px !important;
+}
+
+div.admonition > p.admonition-title + *,
+div.topic > p.topic-title + *,
+.sidebar > p.sidebar-title + * {
+    margin-top: 0;
+}
+
+div.admonition > :first-child:not(.admonition-title) {
+    margin-top: 0;
+}
+
+div.admonition {
+    background-color: #e4ebf2;
+}
+
+div.admonition > p.admonition-title {
+    background-color: #cadcea;
+}
+
+div.admonition.attention,
+div.admonition.caution,
+div.admonition.danger,
+div.admonition.error,
+div.admonition.warning {
+    background-color: #fbe7d4;
+}
+
+div.admonition.attention > p.admonition-title,
+div.admonition.caution > p.admonition-title,
+div.admonition.danger > p.admonition-title,
+div.admonition.error > p.admonition-title,
+div.admonition.warning > p.admonition-title {
+    background-color: #f0d5b8;
+}
+
+div.topic {
+    background-color: #fff0eb;
+}
+
+div.topic > p.topic-title {
+    background-color: #f0dbd4;
+}
+
+div.sidebar,
+aside.sidebar,
+div.admonition.seealso {
+    background-color: #f4f4f4;
+}
+
+.sidebar > p.sidebar-title,
+div.admonition.seealso > p.admonition-title {
+    background-color: #e4e4e4;
+}
+
+div.admonition.seealso {
+    clear: both;
+}
+
+p.sidebar-subtitle {
+    font-style: italic;
+}
+
+/* More specific selectors to override previous defintions */
+div.body div.admonition dl > dt,
+div.body div.topic dl > dt,
+div.body .sidebar dl > dt {
+    padding: unset;
+    background-color: unset;
+}
+
+div.body div.admonition dl:not(.glossary) > dt,
+div.body div.topic dl:not(.glossary) > dt,
+div.body .sidebar dl:not(.glossary) > dt {
+    font-weight: unset;
+}
+
+/* -- tables and lists ------------------------------------------------------ */
+
+table.docutils {
+    border-collapse: separate;
+    border-spacing: 5px 0px;
+}
+
+table.docutils th {
+    font-weight: normal;
+    background-color: rgba(27,31,35,.05);
+    border-bottom: 2px solid #333;
+}
+
+
+
+ol, ul {
+    padding-left: 1.2em;
+}
+
+.toctree-wrapper ul,
+.contents ul {
+    list-style: none;
+}
+
+.toctree-wrapper > ul,
+.contents > ul {
+    padding-left: unset;
+}
+
+.toctree-wrapper li,
+.contents li {
+    margin-top: 0.5em;
+    line-height: normal;
+}
+
+dl.citation > dt {
+    font-weight: 600;
+}
+
+div.body dl {
+    margin: 1em 0;
+}
+
+div.body dl > dt,
+dl.field-list > dt {
+    display: table;
+}
+
+div.body dt:not(.label),
+dl.field-list > dt {
+    margin-top: 1em;
+    padding: 1px 6px;
+    background-color: #f5f5f5;
+}
+
+div.body dl > dt:first-child {
+    margin-top: 0;
+}
+
+div.body dl > dt.label:target,
+div.body div.admonition dl > dt:target,
+div.body div.topic dl > dt:target,
+div.body .sidebar dl > dt:target {
+    padding: 3px 7px;
+    margin-top: -3px;
+    margin-bottom: -3px;
+    margin-left: -7px;
+}
+
+dl.glossary > dt {
+    font-size: unset;
+    font-weight: 600;
+}
+
+dl.glossary > dt strong {
+    font-weight: bold;
+}
+
+dl.field-list {
+    display: unset;
+}
+
+dl.field-list > dt {
+    font-weight: unset;
+}
+
+dl.field-list > dt::after {
+    content: unset;
+}
+
+dd,
+dl.field-list > dd {
+    padding-left: 0;
+    margin-top: 3px;
+    margin-left: 20px;
+}
+
+dd:not(:last-child),
+dl.field-list > dd:not(:last-child) {
+    margin-bottom: 1em;
+}
+
+div.body dl.class > dt:not(:target),
+div.body dl.type > dt:not(:target),
+div.body dl.concept > dt:not(:target),
+div.body dl.enum > dt:not(:target),
+div.body dl.enum-class > dt:not(:target),
+div.body dl.union > dt:not(:target) {
+    background-color: #e4ebf2;
+}
+
+div.body dl.exception > dt:not(:target) {
+    background-color: #fbe7d4;
+}
+
+/* -- relbar ---------------------------------------------------------------- */
+
+.relbar {
+    padding: 10px;
+}
+
+.relbar > a {
+    box-sizing: border-box;
+    width: 50%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    user-select: none;
+}
+
+.relbar > a.previous {
+    float: left;
+}
+
+.relbar > a.next {
+    float: right;
+    text-align: right;
+}
+
+.relbar .icon {
+    color: #888;
+}
+
+.relbar .previous .icon {
+    margin-right: 1em;
+}
+
+.relbar .next .icon {
+    margin-left: 1em;
+}
+
+.relbar .title {
+    position: relative;
+    flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 1.4em;
+    font-weight: 200;
+}
+
+.relbar .title .text {
+    line-height: 2.1em;
+}
+
+.relbar .title .text .direction {
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 0;
+    font-size: 60%;
+    line-height: 0.5em;
+}
+
+/* -- breadcrumbs ----------------------------------------------------------- */
+
+nav.crumbs {
+    color: #888;
+    font-size: 90%;
+}
+
+nav.crumbs ul {
+    padding: 0;
+    list-style: none;
+}
+
+nav.crumbs ul li {
+    display: inline;
+}
+
+nav.crumbs a:visited {
+    color: #1565c0;
+}
+
+/* -- footer ---------------------------------------------------------------- */
+
+footer {
+    padding: 9px 0 9px 0;
+    text-align: center;
+    font-size: 75%;
+    color: #333;
+}
+
+footer, div.articleComments {
+    border-top: #ccc solid 1px;
+}
+
+/* -- sidebar --------------------------------------------------------------- */
+
+div.sphinxsidebar {
+    position: fixed;
+    width: var(--sidebar-width);
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    float: unset;
+    margin-left: unset;  /* override basic.css */
+    z-index: 390;
+    color: #333;
+    background-color: #f5f5f5;
+    overscroll-behavior: contain;
+}
+
+body.sidebar-visible {
+    margin-left: var(--sidebar-width);
+}
+
+body.js:not(.sidebar-resizing) {
+    transition: margin-left 0.3s ease-out;
+}
+
+body.js:not(.sidebar-resizing) .sphinxsidebar {
+    transition: left 0.3s ease-out;
+}
+
+div.sphinxsidebarwrapper {
+    position: relative;  /* reference for sidebar-resize-handle */
+    margin-top: var(--topbar-height);
+    padding: 10px;
+}
+
+div.sphinxsidebarwrapper > :first-child {
+    margin-top: 0;
+}
+
+div.sphinxsidebarwrapper > :last-child {
+    margin-bottom: 0;
+}
+
+.sidebar-resize-handle {
+    display: none;
+    position: absolute;
+    width: 0;
+    top: 0;
+    bottom: 0;
+}
+
+body.js.sidebar-visible .sidebar-resize-handle {
+    display: block;
+    cursor: col-resize;
+    width: 10px;
+}
+
+.sphinxsidebar .sidebar-resize-handle {
+    right: 0;
+}
+
+body.js.sidebar-visible > .sidebar-resize-handle {
+    left: 0;
+}
+
+body.js:not(.sidebar-visible) .sphinxsidebar {
+    left: calc(0px - var(--sidebar-width));
+}
+
+div.sphinxsidebar img {
+    max-width: 100%;
+}
+
+div.sphinxsidebar h3 {
+    font-size: 1.4em;
+    font-weight: normal;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+div.sphinxsidebar h4 {
+    font-size: 1.3em;
+    font-weight: normal;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+div.sphinxsidebar p.caption {
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+div.sphinxsidebar p.caption + ul {
+    margin-top: 0;
+}
+
+div.sphinxsidebar p.topless {
+    margin: 10px;
+}
+
+div.sphinxsidebar p.topless {
+    margin-top: 0;
+}
+
+div.sphinxsidebar ul {
+    padding-left: 0;
+    margin-left: 10px;
+}
+
+div.sphinxsidebar h3 + ul,
+div.sphinxsidebar h4 + ul {
+    margin-top: -5px;
+}
+
+div.sphinxsidebar li {
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
+}
+
+div.sphinxsidebar li li:first-child {
+    margin-top: 0.4em;
+}
+
+div.sphinxsidebar li li:last-child {
+    margin-bottom: -0.4em;
+}
+
+div.sphinxsidebar ul ul {
+    list-style: unset;
+}
+
+div.sphinxsidebar a {
+    color: #004188;
+}
+
+div.sphinxsidebar code {
+    background-color: unset;
+    padding: 0;
+}
+
+div.sphinxsidebar h3,
+div.sphinxsidebar h4,
+div.sphinxsidebar p,
+div.sphinxsidebar li {
+    margin-right: -10px;
+    padding-right: 10px;
+}
+
+div.sphinxsidebar h3,
+div.sphinxsidebar h4,
+div.sphinxsidebar p,
+div.sphinxsidebar li {
+    margin-left: -20px;
+    padding-left: 20px;
+}
+
+div.sphinxsidebar li.toctree-l2 {
+    margin-left: -40px;
+    padding-left: 40px;
+}
+
+div.sphinxsidebar li.toctree-l3 {
+    margin-left: -60px;
+    padding-left: 60px;
+}
+
+div.sphinxsidebar li.toctree-l4 {
+    margin-left: -80px;
+    padding-left: 80px;
+}
+
+div.sphinxsidebar li.toctree-l5 {
+    margin-left: -100px;
+    padding-left: 100px;
+}
+
+div.sphinxsidebar li.toctree-l6 {
+    margin-left: -120px;
+    padding-left: 120px;
+}
+
+div.sphinxsidebar li.toctree-l7 {
+    margin-left: -140px;
+    padding-left: 140px;
+}
+
+div.sphinxsidebar li.toctree-l8 {
+    margin-left: -160px;
+    padding-left: 160px;
+}
+
+div.sphinxsidebar li.toctree-l9 {
+    margin-left: -180px;
+    padding-left: 180px;
+}
+
+div.sphinxsidebar li.toctree-l10 {
+    margin-left: -200px;
+    padding-left: 200px;
+}
+
+body:not(.js) div.sphinxsidebar li.current,
+div.sphinxsidebar .current-page:not(.logo) {
+    background-color: #fff;
+}
+
+div.sphinxsidebar .current-page li:not(.current-page) {
+    background-color: #f5f5f5;
+}
+
+div.sphinxsidebar .current-page {
+    transition: background-color 0.3s ease-out;
+}
+
+div.sphinxsidebar input {
+    border-color: #ccc;
+    font-family: unset;
+}
+
+/* -- topbar ---------------------------------------------------------------- */
+
+#topbar-placeholder {
+    z-index: 500;
+}
+
+body.js #topbar-placeholder {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+
+body.sidebar-visible #topbar-placeholder {
+    margin-left: calc(0px - var(--sidebar-width));
+}
+
+body.js:not(.sidebar-resizing) #topbar-placeholder {
+    transition: margin-left 0.3s ease-out;
+}
+
+#topbar {
+    border-bottom: #ccc solid 1px;
+    background-color: #fff;
+}
+
+#topbar,
+#titlebar a,
+#titlebar a:visited {
+    color: #888;
+}
+
+.relbar,
+.relbar > a:hover .direction {
+    color: #ccc;
+}
+
+#topbar button:hover,
+#titlebar a:hover,
+.relbar a:hover,
+.relbar a:hover .icon {
+    color: #333;
+}
+
+#titlebar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 3rem;
+}
+
+#titlebar .buttons {
+    display: flex;
+    align-items: baseline;
+    margin: 0 5px;
+}
+
+#titlebar .buttons > *,
+#topbar button {
+    margin: 0;
+    border: none;
+    padding: 8px;
+    color: inherit;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+}
+
+#titlebar .title button {
+    padding: 0;
+}
+
+#titlebar svg,
+.insipid-icon svg,
+.relbar svg,
+.related svg,
+.crumbs svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: currentColor;
+}
+
+#topbar a {
+    text-decoration: none;
+}
+
+body.js.topbar-folded #topbar-placeholder:not(.fake-hover) #topbar {
+    transform: translateY(-100%);
+}
+
+body.js #topbar {
+    transition: transform 0.3s ease-out;
+}
+
+body:not(.js) #sidebar-button,
+body:not(.js) #search-button {
+    display: none;
+}
+
+#titlebar .title {
+    font-weight: 200;
+    font-size: 1.7rem;
+    text-align: center;
+    margin: 0;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#titlebar .top,
+body.scrolled #titlebar .parent {
+    display: none;
+}
+
+body.scrolled #titlebar .top {
+    display: inline-block;
+}
+
+/* -- search field in topbar ------------------------------------------------ */
+
+#topbar #searchbox form {
+    display: flex;
+    align-items: stretch;
+    margin: 5px;
+}
+
+#topbar #searchbox input {
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    padding: 7px;
+    color: #333;
+}
+
+#topbar #searchbox p.highlight-link {
+    text-align: center;
+    margin: 8px;
+}
+
+#searchbox p.highlight-link a {
+    padding: 0 4px;
+    background-color: #fbe54e;
+}
+
+
+
+/* -- navigation icons ------------------------------------------------------ */
+
+/* cover nav-icon */
+div.body, .relbar, footer, div.articleComments {
+    position: relative;
+    background-color: #fff;
+}
+
+.nav-icon svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -1.25em;
+    width: 2.5em;
+    height: 2.5em;
+    fill: currentColor;
+}
+
+.nav-icon {
+    position: fixed;
+    right: 0;
+    margin: -2em 1em;
+    width: 4em;
+    height: 4em;
+    color: #f5f5f5;
+}
+
+.nav-icon:visited {
+    color: #f5f5f5;
+}
+
+.nav-icon:hover {
+    color: #fff;
+    background-color: #f5f5f5;
+}
+
+.nav-icon.previous {
+    bottom: 50vh;
+    left: 0;
+    right: unset;
+}
+
+.nav-icon.next {
+    top: 50vh;
+}
+body.sidebar-visible .nav-icon.previous {
+    left: var(--sidebar-width);
+}
+
+body.js:not(.sidebar-resizing) .nav-icon.previous {
+    transition: left 0.3s ease-out;
+}
+
+/* -- sphinx.ext.viewcode --------------------------------------------------- */
+
+.viewcode-link {
+    font-size: 90%;
+    margin-left: 1em;
+}
+
+div.viewcode-block:target {
+    margin: -0.5em;
+    padding: 0.5em;
+    background-color: #ffffcc;
+}
+
+/* -- media queries --------------------------------------------------------- */
+
+@media only screen and (max-width: 39rem) {
+    body.sidebar-visible {
+        margin-left: 0;
+    }
+
+    body.sidebar-visible #topbar-placeholder {
+        margin-left: 0;
+    }
+
+    body.js.sidebar-visible {
+        overflow: hidden;
+    }
+
+    body.js #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        visibility: hidden;
+        opacity: 0;
+        background-color: rgba(100%, 100%, 100%, 80%);
+        transition: opacity 0.3s ease-out, visibility 0s 0.3s ease-out;
+        z-index: 380;
+    }
+
+    body.js.sidebar-visible #overlay {
+        visibility: visible;
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
+    }
+
+    body:not(.js) .sphinxsidebar {
+        position: relative;
+        top: unset;
+        width: unset;
+    }
+
+    body.js.sidebar-visible #titlebar .parent {
+        display: unset;
+    }
+
+    body.js.sidebar-visible #titlebar .top {
+        display: none;
+    }
+}
+
+body:not(.js) #fullscreen-button {
+    display: none;
+}
+
+body.js #fullscreen-button .disable {
+    display: none;
+}
+
+@media all and (display-mode: fullscreen) {
+    body.js #fullscreen-button .enable {
+        display: none;
+    }
+
+    body.js #fullscreen-button .disable {
+        display: unset;
+    }
+}
+
+/* -- fix Firefox buttons --------------------------------------------------- */
+
+button::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+button:-moz-focusring {
+  outline: 1px dotted;
+}

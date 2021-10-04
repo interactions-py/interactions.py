@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Frequently Asked Questions &#8212; discord-interactions 4.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/insipid.css" />
+    <link rel="stylesheet" type="text/css" href="_static/colors.css" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script defer src="_static/insipid.js"></script>
+    <script defer src="_static/insipid-sidebar.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Error Exceptions" href="api.error.html" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+  </head>
+  <body class="sidebar-visible">
+    <script type="text/javascript">
+        (function() {
+            var $body = $(document.body);
+            $body.addClass('js');
+            $body.addClass('sidebar-resizing');  // avoid transitions on load
+            $body.removeClass('sidebar-visible');
+            try {
+                var sidebar = localStorage.getItem('sphinx-sidebar');
+                if (sidebar === 'visible') {
+                    $body.addClass('sidebar-visible');
+                }
+                var sidebar_width = localStorage.getItem('sphinx-sidebar-width');
+                if (sidebar_width) {
+                    $(':root').css('--sidebar-width', sidebar_width);
+                }
+            } catch(e) {
+            }
+        })();
+    </script>
+    <header id="topbar-placeholder">
+      <div id="topbar">
+        <div id="titlebar">
+          <div class="buttons">
+            <button id="sidebar-button" type="button" aria-controls="sphinxsidebar" accesskey="M">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"/></svg>
+            </button>
+            <button id="search-button" type="button" title="Search" aria-label="Search" aria-expanded="false" aria-controls="search-form" accesskey="S">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+            </button>
+          </div>
+          <div class="title">
+            <a class="parent" href="index.html" accesskey="U">discord-interactions 4.0.0 documentation</a>
+            <a class="top" href="#">Frequently Asked Questions</a>
+          </div>
+          <div class="buttons">
+            <button id="fullscreen-button" type="button" aria-hidden="true">
+              <span class="enable">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M212.686 315.314L120 408l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C10.697 480 0 469.255 0 456V344c0-21.382 25.803-32.09 40.922-16.971L72 360l92.686-92.686c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.249 6.248 6.249 16.378 0 22.627zm22.628-118.628L328 104l-32.922-31.029C279.958 57.851 290.666 32 312.048 32h112C437.303 32 448 42.745 448 56v112c0 21.382-25.803 32.09-40.922 16.971L376 152l-92.686 92.686c-6.248 6.248-16.379 6.248-22.627 0l-25.373-25.373c-6.249-6.248-6.249-16.378 0-22.627z"/></svg>
+              </span>
+              <span class="disable">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div id="searchbox" role="search">
+          <form id="search-form" class="search" style="display: none" action="search.html" method="get">
+            <input type="search" name="q" placeholder="Search ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button>Go</button>
+          </form>
+        </div>
+      </div>
+    </header>
+    <nav>
+      <a href="api.error.html" class="nav-icon previous" title="previous:&#13;Error Exceptions" aria-label="Previous topic" accesskey="P" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"/></svg>
+      </a>
+    </nav>
+
+    <nav class="relbar">
+      <a class="previous" href="api.error.html" aria-label="Previous topic" >
+        <div class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M257.5 445.1l-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z"/></svg>
+        </div>
+        <div class="title">
+          <span class="text">
+            <span class="direction">previous</span>
+            Error Exceptions
+          </span>
+        </div>
+      </a>
+    </nav>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+
+<section id="frequently-asked-questions">
+<h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this headline">¶</a></h1>
+<p>Got a question about our library? Well, your answer is probably laying somewhere around here.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This page is maintained by the Helpers of the Discord server,
+and updated by the library developer at their discretion. For any
+comments, feedback or concerns please consider joining our server
+and bringing it up in our support channels.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This FAQ list currently reflects v4.0 as of the time of this writing,
+all other versions are considered deprecated. Because of this, there
+will not be any answers for questions regarding v3.0 and below.</p>
+</div>
+<section id="discord-py-is-dead-will-this-library-die-too">
+<h2>discord.py is dead! Will this library die too?<a class="headerlink" href="#discord-py-is-dead-will-this-library-die-too" title="Permalink to this headline">¶</a></h2>
+<p>The short answer is: <strong>no</strong>.</p>
+<p>The decision to become a standalone library that is now an API wrapper for the Discord API
+was made before Danny posted his gist on GitHub about ceasing development of discord.py.
+This is the official statement from the library developer regarding this:</p>
+<img alt="_images/not_dead.png" src="_images/not_dead.png" />
+</section>
+<section id="are-you-going-to-will-consider-fork-ing-discord-py">
+<h2>Are you going to/will/consider fork(ing) discord.py?<a class="headerlink" href="#are-you-going-to-will-consider-fork-ing-discord-py" title="Permalink to this headline">¶</a></h2>
+<p>The short answer is: <strong>no</strong>.</p>
+<p>The long answer is a list of numerous reasons as to why this decision was made:</p>
+<ul class="simple">
+<li><p>There are/will be numerous forks out there for discord.py, and because of that, we cannot safely guarantee our ability to help users out who may be using their own form of modified code.</p></li>
+<li><p>The original purpose of this library was to act as an extension of discord.py, but due to the issue of constantly having to monkeypatch solutions into their codebase to keep our library working introduced extreme technical debt. Forking discord.py and building off of it does not change anything from our issue of avoiding this.</p></li>
+<li><p>The goal of this library is to solely implement support and integrate the use of interactions from the Discord API. Making this library unique in a sense that we only do this seemed reasonable and within our margin of standards at the time.</p></li>
+<li><p>The message intent will inevitably be forced as a privileged intent in April 2022. The practicality of trying to support message commands will be infeasible since Discord Developers have <a class="reference external" href="https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1#whats-going-to-happen-to-my-bot">already admitted</a> that “not wanting to implement application commands” will not be a valid reason for applying for this privileged intent.</p></li>
+<li><p>Forking discord.py would be a massive change to our current codebase, throwing away all of the effort we’ve put into it so far, and basically just be rewriting how v2.0a was created. That would make it nothing more than discord.py-interactions at that point – plus, we’re already a library that keeps very similar naming conventions as discord.py does, so this is pointless.</p></li>
+</ul>
+</section>
+<section id="will-discord-py-be-able-to-work-with-this-library">
+<h2>Will discord.py be able to work with this library?<a class="headerlink" href="#will-discord-py-be-able-to-work-with-this-library" title="Permalink to this headline">¶</a></h2>
+<p>The short answer is: <strong>yes.</strong></p>
+<p>However, the term “work” is loosely structured here. Imagine it like taping a hole in the wall instead of repairing the wall.
+We’re essentially “plastering” support for discord.py instead of doing the surgery on its internal organs to make it work well
+with our library. As it currently stands, <strong>discord-interactions and discord.py</strong> are API wrappers. You will be able to run code
+<em>alongside</em> one another, and you will be able to plug in some classes, but the data conversion <strong>must be exact.</strong></p>
+<p>What does that mean? Well, we’ll show you:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">interactions</span>
+<span class="kn">from</span> <span class="nn">discord.ext</span> <span class="kn">import</span> <span class="n">commands</span>
+
+<span class="n">interactions</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
+<span class="n">dpy</span> <span class="o">=</span> <span class="n">commands</span><span class="o">.</span><span class="n">Bot</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+
+<span class="nd">@dpy</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello from discord.py!&quot;</span><span class="p">)</span>
+
+<span class="nd">@interactions</span><span class="o">.</span><span class="n">application_command</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;this is just a testing command.&quot;</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello from discord-interactions!&quot;</span><span class="p">)</span>
+
+<span class="n">interactions</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">dpy</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">bot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both of these variables <code class="docutils literal notranslate"><span class="pre">interactions</span></code> and <code class="docutils literal notranslate"><span class="pre">dpy</span></code> will be able to run in the same established environment, and additionally
+will both function properly as their respective libraries intend them to. What about the models, though? That’s a simple answer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">discord</span>
+<span class="kn">from</span> <span class="nn">interactions.api.models.member</span> <span class="kn">import</span> <span class="n">Member</span>
+
+<span class="nd">@dpy</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">borrowing</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">member</span><span class="p">:</span> <span class="n">Member</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Member ID: </span><span class="si">{</span><span class="n">member</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nd">@interactions</span><span class="o">.</span><span class="n">application_command</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">second_borrowing</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">member</span><span class="p">:</span> <span class="n">discord</span><span class="o">.</span><span class="n">Member</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Member ID: </span><span class="si">{</span><span class="n">member</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both of these will be able to both run and give their proper value. It is <em>very</em> important to note here, though, that you
+<strong>must</strong> be returning back the exact same information that our objects depend on. A missing class instance can easily lead to
+it breaking, hence the “plastering” that is going on here.</p>
+</section>
+<section id="why-are-you-not-supporting-cooldowns">
+<h2>Why are you not supporting cooldowns?<a class="headerlink" href="#why-are-you-not-supporting-cooldowns" title="Permalink to this headline">¶</a></h2>
+<p>Cooldowns aren’t really an actual feature of the Discord API itself, but rather more of a convienent feature implemented in
+discord.py in order to avoid spamming of commands.</p>
+<p><strong>What if people spam slash/sub commands?</strong></p>
+<p>That’s the neat part: it’s really hard to do that, and most of the time, they won’t. Unless they copy the exact string that was
+used when you open up the UI element to do it numerous times, most users do and will not be able to know how to do this. However,
+if you as a bot developer feel at unease about this, you are more than welcome to implement your own cooldown methods yourself.
+Cooldowns were an ultimatum that came as the result of message commands being able to be spammable, and since we won’t be supporting
+them, there’s no feasibility to having them in our library.</p>
+</section>
+<section id="will-we-not-be-able-to-create-message-commands">
+<h2>Will we not be able to create message commands?<a class="headerlink" href="#will-we-not-be-able-to-create-message-commands" title="Permalink to this headline">¶</a></h2>
+<p>This is a tricky question to really answer. If you want the <em>technical</em> answer: you can definitely create them with our library,
+however, you’ll have to program them in the <code class="docutils literal notranslate"><span class="pre">on_message_create</span></code> listener event that we use. This is already something a majority
+of discord.py bot developers frown upon doing, so this is at your own risk to code your own command handlers into it. Luckily, you
+can take a page out of discord.js’ book if you want to do this, since they’ve never heard of an external command handler framework
+before in their entire life.</p>
+</section>
+<section id="my-question-is-not-answered-on-here">
+<h2>My question is not answered on here!<a class="headerlink" href="#my-question-is-not-answered-on-here" title="Permalink to this headline">¶</a></h2>
+<p>Please join our Discord server for any further support regarding our library and/or any integration code depending on it.</p>
+<ul class="simple">
+<li><p>Invite Link: <a class="reference external" href="https://discord.gg/KkgMBVuEkx">https://discord.gg/KkgMBVuEkx</a></p></li>
+</ul>
+</section>
+</section>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <nav class="relbar">
+      <a class="previous" href="api.error.html" aria-label="Previous topic" >
+        <div class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M257.5 445.1l-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z"/></svg>
+        </div>
+        <div class="title">
+          <span class="text">
+            <span class="direction">previous</span>
+            Error Exceptions
+          </span>
+        </div>
+      </a>
+    </nav>
+
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+          <div class="sidebar-resize-handle"></div>
+
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption" role="heading"><span class="caption-text">Pages:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Frequently Asked Questions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#discord-py-is-dead-will-this-library-die-too">discord.py is dead! Will this library die too?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#are-you-going-to-will-consider-fork-ing-discord-py">Are you going to/will/consider fork(ing) discord.py?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#will-discord-py-be-able-to-work-with-this-library">Will discord.py be able to work with this library?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-are-you-not-supporting-cooldowns">Why are you not supporting cooldowns?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#will-we-not-be-able-to-create-message-commands">Will we not be able to create message commands?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#my-question-is-not-answered-on-here">My question is not answered on here!</a></li>
+</ul>
+</li>
+</ul>
+
+<hr class="docutils" />
+<ul>
+  <li class="toctree-l1"><a class="reference internal" href="genindex.html" accesskey="I">General Index</a></li>
+</ul>
+<div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+    <footer role="contentinfo">
+      &#169; Copyright 2021, goverfl0w.
+      Created using <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+      <a class="reference external" href="https://insipid-sphinx-theme.readthedocs.io/">Insipid Theme</a>.
+<a class="reference internal" href="_sources/faq.rst.txt" rel="nofollow">Show Source</a>.
+    </footer>
+    <div class="sidebar-resize-handle"></div>
+    <div id="overlay"></div>
+  </body>
+</html>

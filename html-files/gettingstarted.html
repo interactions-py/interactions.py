@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Getting Started &#8212; discord-interactions 4.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/insipid.css" />
+    <link rel="stylesheet" type="text/css" href="_static/colors.css" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script defer src="_static/insipid.js"></script>
+    <script defer src="_static/insipid-sidebar.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+  </head>
+  <body class="sidebar-visible">
+    <script type="text/javascript">
+        (function() {
+            var $body = $(document.body);
+            $body.addClass('js');
+            $body.addClass('sidebar-resizing');  // avoid transitions on load
+            $body.removeClass('sidebar-visible');
+            try {
+                var sidebar = localStorage.getItem('sphinx-sidebar');
+                if (sidebar === 'visible') {
+                    $body.addClass('sidebar-visible');
+                }
+                var sidebar_width = localStorage.getItem('sphinx-sidebar-width');
+                if (sidebar_width) {
+                    $(':root').css('--sidebar-width', sidebar_width);
+                }
+            } catch(e) {
+            }
+        })();
+    </script>
+    <header id="topbar-placeholder">
+      <div id="topbar">
+        <div id="titlebar">
+          <div class="buttons">
+            <button id="sidebar-button" type="button" aria-controls="sphinxsidebar" accesskey="M">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"/></svg>
+            </button>
+            <button id="search-button" type="button" title="Search" aria-label="Search" aria-expanded="false" aria-controls="search-form" accesskey="S">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"/></svg>
+            </button>
+          </div>
+          <div class="title">
+            <a class="parent" href="index.html" accesskey="U">discord-interactions 4.0.0 documentation</a>
+            <a class="top" href="#">Getting Started</a>
+          </div>
+          <div class="buttons">
+            <button id="fullscreen-button" type="button" aria-hidden="true">
+              <span class="enable">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M212.686 315.314L120 408l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C10.697 480 0 469.255 0 456V344c0-21.382 25.803-32.09 40.922-16.971L72 360l92.686-92.686c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.249 6.248 6.249 16.378 0 22.627zm22.628-118.628L328 104l-32.922-31.029C279.958 57.851 290.666 32 312.048 32h112C437.303 32 448 42.745 448 56v112c0 21.382-25.803 32.09-40.922 16.971L376 152l-92.686 92.686c-6.248 6.248-16.379 6.248-22.627 0l-25.373-25.373c-6.249-6.248-6.249-16.378 0-22.627z"/></svg>
+              </span>
+              <span class="disable">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!-- Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M4.686 427.314L104 328l-32.922-31.029C55.958 281.851 66.666 256 88.048 256h112C213.303 256 224 266.745 224 280v112c0 21.382-25.803 32.09-40.922 16.971L152 376l-99.314 99.314c-6.248 6.248-16.379 6.248-22.627 0L4.686 449.941c-6.248-6.248-6.248-16.379 0-22.627zM443.314 84.686L344 184l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C234.697 256 224 245.255 224 232V120c0-21.382 25.803-32.09 40.922-16.971L296 136l99.314-99.314c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.248 6.248 6.248 16.379 0 22.627z"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div id="searchbox" role="search">
+          <form id="search-form" class="search" style="display: none" action="search.html" method="get">
+            <input type="search" name="q" placeholder="Search ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+            <button>Go</button>
+          </form>
+        </div>
+      </div>
+    </header>
+    <nav>
+    </nav>
+
+    <nav class="relbar">
+    </nav>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+
+<section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<section id="where-do-we-start">
+<h2>Where do we start?<a class="headerlink" href="#where-do-we-start" title="Permalink to this headline">¶</a></h2>
+<p>Before we begin getting started on everything else, it is recommended to
+check out the <a class="reference external" href="quickstart.html">quickstart</a> page first to get a basic grip on making
+slash commands for your bot.</p>
+</section>
+<section id="making-a-slash-command">
+<h2>Making a slash command.<a class="headerlink" href="#making-a-slash-command" title="Permalink to this headline">¶</a></h2>
+<section id="the-basics">
+<h3>The basics.<a class="headerlink" href="#the-basics" title="Permalink to this headline">¶</a></h3>
+<p>First, let’s explain by how commands are parsed through the Discord Bot API.</p>
+<p>As you may know, Discord relies a lot on the interaction of HTTP Requests and
+JSON tables. As is with the case here, commands are the exact same way with
+having JSON tables to structure the design of it for Discord to understand. We
+can apply this information likewise with how slash commands are to be designed
+in the Python code. Below attached is from the <em>Discord Developer Portal</em> on Slash
+Commands for showing how they are designed.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 28%" />
+<col style="width: 64%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Field</strong></p></td>
+<td><p><strong>Type</strong></p></td>
+<td><p><strong>Description</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>1-32 character name matching <code class="docutils literal notranslate"><span class="pre">^[\w-]{1,32}$</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>description</p></td>
+<td><p>string</p></td>
+<td><p>1-100 character description.</p></td>
+</tr>
+<tr class="row-even"><td><p>options?</p></td>
+<td><p>array of <a class="reference external" href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure">ApplicationCommandOption</a></p></td>
+<td><p>if the option is a subcommand or subcommand group type, this nested options will be the parameters.</p></td>
+</tr>
+</tbody>
+</table>
+<p>This table shows us the way that Discord handles the structure of commands for
+slash commands through their Bot API. For visualization purposes, we’ll quickly
+make a JSON example (although we won’t be using it) in order to explain how this
+works:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This is just a test command, nothing more.&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now that we have a basic understanding of how the JSON table works, we can
+take this knowledge and convert it into a decorator method for the Python
+code as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@slash</span><span class="o">.</span><span class="n">slash</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is just a test command, nothing more.&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+  <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now that we’ve gone over how Discord handles the declaration of slash commands
+through their Bot API, let’s go over what some of the other things mean within
+the <em>logical</em> part of our code, the command function:</p>
+</section>
+<section id="giving-some-options-for-variety">
+<h3>Giving some options for variety.<a class="headerlink" href="#giving-some-options-for-variety" title="Permalink to this headline">¶</a></h3>
+<p>The next thing that we will begin to talk about is the implementation of options,
+otherwise well-known as “arguments” in discord.py commands.</p>
+<p>The JSON structure of options are designed up to be similar to the same premise
+of how a slash command is declared. Below is the given table of how an option
+JSON would appear as:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 28%" />
+<col style="width: 64%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Field</strong></p></td>
+<td><p><strong>Type</strong></p></td>
+<td><p><strong>Description</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p>int</p></td>
+<td><p>value of <a class="reference external" href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type">ApplicationCommandOptionType</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>1-32 character name matching <code class="docutils literal notranslate"><span class="pre">^[\w-]{1,32}$</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>description</p></td>
+<td><p>string</p></td>
+<td><p>1-100 character description.</p></td>
+</tr>
+<tr class="row-odd"><td><p>default?</p></td>
+<td><p>bool</p></td>
+<td><p>the first required option for the user to complete–only one option can be default.</p></td>
+</tr>
+<tr class="row-even"><td><p>required?</p></td>
+<td><p>bool</p></td>
+<td><p>if the parameter is required or optional–default <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>choices?</p></td>
+<td><p>array of <a class="reference external" href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-choice-structure">ApplicationCommandOptionChoice</a></p></td>
+<td><p>choices for <code class="docutils literal notranslate"><span class="pre">string</span></code> and <code class="docutils literal notranslate"><span class="pre">int</span></code> types for the user to pick from.</p></td>
+</tr>
+<tr class="row-even"><td><p>options?</p></td>
+<td><p>array of <a class="reference external" href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure">ApplicationCommandOption</a></p></td>
+<td><p>if the option is a subcommand or subcommand group type, this nested options will be the parameters.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Now we have an idea of how options are declared. With this in mind, let’s quickly make a JSON
+example in order to visualize this concept even further:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This is just a test command, nothing more.&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;optone&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This is the first option we have.&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>While the table in the basics mentions an array in particular called <code class="docutils literal notranslate"><span class="pre">ApplicationCommandOptionType</span></code>,
+there isn’t that much of an explanation on how this works. Let’s put this into better laymen
+terms on what this means with a table below showing all of these values:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Name</strong></p></td>
+<td><p><strong>Value</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>SUB_COMMAND</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>SUB_COMMAND_GROUP</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>STRING</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-odd"><td><p>INTEGER</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>BOOLEAN</p></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-odd"><td><p>USER</p></td>
+<td><p>6</p></td>
+</tr>
+<tr class="row-even"><td><p>CHANNEL</p></td>
+<td><p>7</p></td>
+</tr>
+<tr class="row-odd"><td><p>ROLE</p></td>
+<td><p>8</p></td>
+</tr>
+</tbody>
+</table>
+<p>The purpose of having the <code class="docutils literal notranslate"><span class="pre">ApplicationCommandOptionType</span></code> value passed into our option JSON structure
+is so that we can help the Discord UI understand what kind of value we’re inputting here. For instance,
+if we’re wanting to put in a string response, we’ll pass the ID 3 so that the UI of Discord chat bar
+knows to format it visually this way. If we’re looking for a user, then we’ll pass ID 6 so that it presents
+us with a list of users in our server instead, making it easier on our lives.</p>
+<p>This is not to be confused, however, with formatting the response type itself. This is merely a method so
+that the API wrapper can help us with passing the correct type or instance variable with the arguments of the
+command function’s code.</p>
+<p>Now, we can finally visualize this by coding an example of this being used in the Python code shown below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_commands</span> <span class="kn">import</span> <span class="n">create_option</span>
+
+<span class="nd">@slash</span><span class="o">.</span><span class="n">slash</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is just a test command, nothing more.&quot;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+               <span class="n">create_option</span><span class="p">(</span>
+                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;optone&quot;</span><span class="p">,</span>
+                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is the first option we have.&quot;</span><span class="p">,</span>
+                 <span class="n">option_type</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">required</span><span class="o">=</span><span class="kc">False</span>
+               <span class="p">)</span>
+             <span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">optone</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+  <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;I got you, you said </span><span class="si">{</span><span class="n">optone</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Additionally, we could also declare the type of our command’s option through this method shown here:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">SlashCommandOptionType</span>
+
+<span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+                <span class="n">option_type</span><span class="o">=</span><span class="n">SlashCommandOptionType</span><span class="o">.</span><span class="n">STRING</span>
+</pre></div>
+</div>
+</section>
+<section id="more-in-the-option-give-them-a-choice">
+<h3>More in the option? Give them a choice.<a class="headerlink" href="#more-in-the-option-give-them-a-choice" title="Permalink to this headline">¶</a></h3>
+<p>Alas, there is also a way to give even more information to options with Discord’s Slash Commands:
+a choice. Not like something that you’re given at birth of when you become of legal age as an adult,
+we’re not here to give you <em>that</em> kind of life advice, but the choice of what value you want your
+option to rather pass. Below is a table that shows the JSON structure of how choices are represented
+for an option:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 28%" />
+<col style="width: 64%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Field</strong></p></td>
+<td><p><strong>Type</strong></p></td>
+<td><p><strong>Description</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>1-32 character choice name.</p></td>
+</tr>
+<tr class="row-odd"><td><p>value</p></td>
+<td><p>string or int</p></td>
+<td><p>value of the choice, up to 100 characters if string.</p></td>
+</tr>
+</tbody>
+</table>
+<p>This time, only 2 fields are able to be passed for this. Below is a JSON example of how this would
+be designed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ChoiceOne&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello command, this is my value!&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To make it really simple, the <code class="docutils literal notranslate"><span class="pre">name</span></code> field is only to be used for how you want the choice to be presented
+through Discord’s UI. It’s the “appearance” of how you want your choice shown, not the actual returned value
+of it. Hence, this is why <code class="docutils literal notranslate"><span class="pre">value</span></code> is the second field passed for that, which can be either in the form of
+a string or integer. Below is an implementation of this design in the Python code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_commands</span> <span class="kn">import</span> <span class="n">create_option</span><span class="p">,</span> <span class="n">create_choice</span>
+
+<span class="nd">@slash</span><span class="o">.</span><span class="n">slash</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is just a test command, nothing more.&quot;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+               <span class="n">create_option</span><span class="p">(</span>
+                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;optone&quot;</span><span class="p">,</span>
+                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is the first option we have.&quot;</span><span class="p">,</span>
+                 <span class="n">option_type</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+                  <span class="n">create_choice</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ChoiceOne&quot;</span><span class="p">,</span>
+                    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;DOGE!&quot;</span>
+                  <span class="p">),</span>
+                  <span class="n">create_choice</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ChoiceTwo&quot;</span><span class="p">,</span>
+                    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;NO DOGE&quot;</span>
+                  <span class="p">)</span>
+                <span class="p">]</span>
+               <span class="p">)</span>
+             <span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">optone</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+  <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Wow, you actually chose </span><span class="si">{</span><span class="n">optone</span><span class="si">}</span><span class="s2">? :(&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="want-to-restrict-access-setup-permissions">
+<h3>Want to restrict access? Setup permissions!<a class="headerlink" href="#want-to-restrict-access-setup-permissions" title="Permalink to this headline">¶</a></h3>
+<p>Slash commands also support the ability to set permissions to allow only certain roles and/or users
+to run a slash command. Permissions can be applied to both global and guild based commands. They
+are defined per guild, per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here is the table that shows the JSON
+structure of how permissions are represented:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 28%" />
+<col style="width: 64%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Field</strong></p></td>
+<td><p><strong>Type</strong></p></td>
+<td><p><strong>Description</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>Snowflake value of type specified. Represents the target to apply permissions on.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p>int</p></td>
+<td><p>An <a class="reference external" href="https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-application-command-permission-type">ApplicationCommandPermissionType</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>permission</p></td>
+<td><p>boolean</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> to allow, <code class="docutils literal notranslate"><span class="pre">False</span></code> to disallow.</p></td>
+</tr>
+</tbody>
+</table>
+<p>How the type parameter works is very simple. Discord has many ids to represent different things. As you can
+set permissions to apply for User or Role, <a class="reference external" href="https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-application-command-permission-type">ApplicationCommandPermissionType</a> is used. It’s a number and
+following table shows the supported id types for permissions:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Name</strong></p></td>
+<td><p><strong>Value</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>Role</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>User</p></td>
+<td><p>2</p></td>
+</tr>
+</tbody>
+</table>
+<p>This is an example of how a single permission will look when represented as a json object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">12345678</span><span class="p">,</span>
+  <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s2">&quot;permission&quot;</span><span class="p">:</span> <span class="kc">True</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now, let take a look at an example. The slash command decorator has a permissions parameter where
+it takes in a dictionary. The key being the guild id to apply permissions on, and value being the list
+of permissions to apply. For each permission, we can use the handy <code class="docutils literal notranslate"><span class="pre">create_permission</span></code> method to
+build the permission json explained above.</p>
+<p>In this case, we are setting 2 permissions for a guild with an id of <code class="docutils literal notranslate"><span class="pre">12345678</span></code>. Firstly, we are allowing
+role with id <code class="docutils literal notranslate"><span class="pre">99999999</span></code> and disallowing user with id <code class="docutils literal notranslate"><span class="pre">88888888</span></code> from running the slash command.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_commands</span> <span class="kn">import</span> <span class="n">create_permission</span>
+<span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">SlashCommandPermissionType</span>
+
+<span class="nd">@slash</span><span class="o">.</span><span class="n">slash</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is just a test command, nothing more.&quot;</span><span class="p">,</span>
+            <span class="n">permissions</span><span class="o">=</span><span class="p">{</span>
+              <span class="mi">12345678</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">create_permission</span><span class="p">(</span><span class="mi">99999999</span><span class="p">,</span> <span class="n">SlashCommandPermissionType</span><span class="o">.</span><span class="n">ROLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+                <span class="n">create_permission</span><span class="p">(</span><span class="mi">88888888</span><span class="p">,</span> <span class="n">SlashCommandPermissionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+              <span class="p">]</span>
+           <span class="p">})</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+  <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, you can use the <code class="docutils literal notranslate"><span class="pre">&#64;slash.permission</span></code> decorator to define your guild permissions for the
+command as show in the following example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.utils.manage_commands</span> <span class="kn">import</span> <span class="n">create_permission</span>
+<span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">SlashCommandPermissionType</span>
+
+<span class="nd">@slash</span><span class="o">.</span><span class="n">slash</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This is just a test command, nothing more.&quot;</span><span class="p">)</span>
+<span class="nd">@slash</span><span class="o">.</span><span class="n">permission</span><span class="p">(</span><span class="n">guild_id</span><span class="o">=</span><span class="mi">12345678</span><span class="p">,</span>
+                  <span class="n">permissions</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">create_permission</span><span class="p">(</span><span class="mi">99999999</span><span class="p">,</span> <span class="n">SlashCommandPermissionType</span><span class="o">.</span><span class="n">ROLE</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+                    <span class="n">create_permission</span><span class="p">(</span><span class="mi">88888888</span><span class="p">,</span> <span class="n">SlashCommandPermissionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                  <span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+  <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="but-what-about-buttons">
+<h3>But what about buttons?<a class="headerlink" href="#but-what-about-buttons" title="Permalink to this headline">¶</a></h3>
+<p>This library supports components (buttons, actionrows, selects, etc.). Take a look here: <a class="reference external" href="components.html">components</a>.</p>
+</section>
+</section>
+<section id="making-a-message-menu-command">
+<h2>Making a message/menu command.<a class="headerlink" href="#making-a-message-menu-command" title="Permalink to this headline">¶</a></h2>
+<p>Lucky for you, this library has recently added support for context menus! Let’s take a look into how they’re designed.</p>
+<p>Please note that the current limit for context menus with the Discord API is <strong>5.</strong></p>
+<p>A menu command (context menu) is an easy way for bot developers to program optionless and choiceless commands into their bot
+which can be easily accessible by right clicking on a user and/or message present. Below is a table of the supported keys and
+values:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 28%" />
+<col style="width: 64%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Field</strong></p></td>
+<td><p><strong>Type</strong></p></td>
+<td><p><strong>Description</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>The name of the context menu command.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p>int</p></td>
+<td><p>An <a class="reference external" href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types">ApplicationCommandType</a>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following table below represents how it would be shown as a JSON object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Name of my command.&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="mi">3</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The following table explains more about the <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter being passed, which there are three of: <code class="docutils literal notranslate"><span class="pre">CHAT_INPUT</span></code>, <code class="docutils literal notranslate"><span class="pre">USER</span></code> and <code class="docutils literal notranslate"><span class="pre">MESSAGE</span></code>. By default, the type will
+always be the first. This is because it is a registered type that is used to process slash commands, and should not be used for when you are declaring context menu
+commands in your bot’s code at all:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 52%" />
+<col style="width: 48%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Name</strong></p></td>
+<td><p><strong>Value</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>CHAT_INPUT</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>USER</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>MESSAGE</p></td>
+<td><p>3</p></td>
+</tr>
+</tbody>
+</table>
+<p>Unlike <code class="docutils literal notranslate"><span class="pre">manage_commands</span></code> and <code class="docutils literal notranslate"><span class="pre">manage_components</span></code>, you will have to use a decorator for now to register them:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.context</span> <span class="kn">import</span> <span class="n">MenuContext</span>
+<span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">ContextMenuType</span>
+
+<span class="nd">@slash</span><span class="o">.</span><span class="n">context_menu</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">ContextMenuType</span><span class="o">.</span><span class="n">MESSAGE</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;commandname&quot;</span><span class="p">,</span>
+                    <span class="n">guild_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">789032594456576001</span><span class="p">])</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">commandname</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">MenuContext</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+        <span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Responded! The content of the message targeted: </span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">target_message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;slash.context_menu</span></code> decorator takes in the context type as given (to either appear when you right-click on a user or when you right-click on a message) as well
+as the name of the command, and any guild IDs if given if you would like to make it applicable to only a guild. <strong>We only accept connected names</strong> for the time being,
+although context menus will have the ability to have spaces in their name in the future when development further progresses.</p>
+<p>You are able to also use the <code class="docutils literal notranslate"><span class="pre">&#64;cog_ext.cog_context_menu</span></code> path which will require an import from <code class="docutils literal notranslate"><span class="pre">cog_ext.py</span></code> respectively, however, it is worth nothing that
+the <code class="docutils literal notranslate"><span class="pre">target</span></code> kwarg for the decorator <strong>must</strong> be brought to the very end.</p>
+<section id="can-i-use-components-with-context-menus">
+<h3>Can I use components with context menus?<a class="headerlink" href="#can-i-use-components-with-context-menus" title="Permalink to this headline">¶</a></h3>
+<p>Of course! However, you will need to add in some additional code in order for both of the separate contexts to work seamlessly. Below is the given code of what will need
+to be changed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">discord_slash.context</span> <span class="kn">import</span> <span class="n">ComponentContext</span><span class="p">,</span> <span class="n">MenuContext</span>
+<span class="kn">from</span> <span class="nn">discord_slash.model</span> <span class="kn">import</span> <span class="n">ContextMenuType</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="o">...</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_new_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ComponentContext</span><span class="p">,</span> <span class="n">MenuContext</span><span class="p">]):</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="hey-what-about-component-x-listening">
+<h3>Hey, what about component/[X] listening?<a class="headerlink" href="#hey-what-about-component-x-listening" title="Permalink to this headline">¶</a></h3>
+<p>The decision has been made that this will not be implemented because of two reasons: context menus currently have no ability to hold any options or choices, so listening
+for any responses would be currently pointless. Additionally, component listening is already a built-in feature that does not require further customized and new decorators
+for explicitly context menus, as they’re more universal.</p>
+</section>
+</section>
+<section id="nested-commands-as-subcommands">
+<h2>Nested commands as subcommands.<a class="headerlink" href="#nested-commands-as-subcommands" title="Permalink to this headline">¶</a></h2>
+<p>Before you get into learning how to create a subcommand, please be sure to read up on the documentation above given for how slash commands are made.</p>
+<p>Subcommands are way to “nest” your slash commands under one (or more) given names, as either a “base” name or a “grouping” of an existing base. When this is said, it will initially appear very confusing. Let’s use the table shown below as a way to introduce the new fields/properties that can be applied for a slash command to become a subcommand:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 25%" />
+<col style="width: 58%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Field</strong></p></td>
+<td><p><strong>Type</strong></p></td>
+<td><p><strong>Description</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>base</p></td>
+<td><p>string</p></td>
+<td><p>The name of the subcommand “base.”</p></td>
+</tr>
+<tr class="row-odd"><td><p>subcommand_group</p></td>
+<td><p>string</p></td>
+<td><p>The name for the group of commands under the “base.” Field is optional.</p></td>
+</tr>
+<tr class="row-even"><td><p>base_description</p></td>
+<td><p>string</p></td>
+<td><p>The description when the base is active in the UX chat bar. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>subcommand_group_description</p></td>
+<td><p>string</p></td>
+<td><p>The name for the group of commands under the “base.” Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="handling-my-errors">
+<h2>Handling my errors.<a class="headerlink" href="#handling-my-errors" title="Permalink to this headline">¶</a></h2>
+<p>Thankfully, we try to make a majority of our error handling very simple. If you would like to learn more about how to handle your errors, please refer to our <a class="reference external" href="discord_slash.error.html">errors</a> page.
+If you are looking for listener events, then check our <a class="reference external" href="events.html">listeners</a> page instead.</p>
+<p>As a side-note, as of version 3.0, message/menu commands (context menus) are handled under the <code class="docutils literal notranslate"><span class="pre">on_slash_command_error</span></code> event.</p>
+</section>
+</section>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <nav class="relbar">
+    </nav>
+
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+          <div class="sidebar-resize-handle"></div>
+
+<h3><a href="index.html">Table of Contents</a></h3>
+<p class="caption" role="heading"><span class="caption-text">Pages:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+<hr class="docutils" />
+<ul>
+  <li class="toctree-l1"><a class="reference internal" href="genindex.html" accesskey="I">General Index</a></li>
+</ul>
+<div id="ethical-ad-placement"></div>
+        </div>
+      </div>
+    <footer role="contentinfo">
+      &#169; Copyright 2021, goverfl0w.
+      Created using <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+      <a class="reference external" href="https://insipid-sphinx-theme.readthedocs.io/">Insipid Theme</a>.
+<a class="reference internal" href="_sources/gettingstarted.rst.txt" rel="nofollow">Show Source</a>.
+    </footer>
+    <div class="sidebar-resize-handle"></div>
+    <div id="overlay"></div>
+  </body>
+</html>
