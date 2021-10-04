@@ -1,7 +1,7 @@
 # This is a written example used to test and debug the state of v4.0
 import interactions
 
-TOKEN = "ODgzNzg4ODkzNTEyNjgzNTIw.YTPCjA.9DmFU-22dtkMwDlN2QeFjGg3DC4"
+TOKEN = "stop drinking gfuel it sucks."
 
 client = interactions.Client(token=TOKEN)
 
