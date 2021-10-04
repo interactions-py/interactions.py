@@ -74,6 +74,8 @@ class Cache:
     """
 
     def __init__(self) -> None:
+        # TODO: Look into a better solution that handles duplication of data
+        # in a storage.
         self.dms = Storage()
         self.self_guilds = Storage()
         self.guilds = Storage()

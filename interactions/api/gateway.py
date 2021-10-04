@@ -187,6 +187,9 @@ class WebSocket:
                     if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                         log.debug("INVALID_SESSION/RECONNECT")
 
+                        # TODO: Correct sound reconnection logic. When a connection is lost,
+                        # an indefinite "closing connection" loop occurs. (Maybe it's based
+                        # with the Heartbeat threading event?)
                         if not data or op == OpCodeType.RECONNECT:
                             try:
                                 await self.resume()
@@ -245,6 +248,13 @@ class WebSocket:
         :type data: dict
         :return: None
         """
+        # TODO: Find a better way to do this.
+        # This is incredibly stupid and dumb.
+        # I should not have to manually define these,
+        # maybe I should use a "connector"-like dict
+        # instead or subclass some more things to alias
+        # define these objects properly instead of manually
+        # defnining for each?
         context: object = getattr(__import__("interactions.context"), "InteractionContext")
         context.message = Message(**data["message"]) if data.get("message") else None
         context.author = Member(**data["member"]) if data.get("member") else None
