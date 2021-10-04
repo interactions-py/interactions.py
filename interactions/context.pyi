@@ -7,7 +7,8 @@ from .api.models.message import Message
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .client import Client
-from .enums import ComponentType
+from .enums import ApplicationCommandType, ComponentType
+from .models.command import ApplicationCommand
 
 class Context(DictSerializerMixin):
     __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
@@ -21,15 +22,24 @@ class Context(DictSerializerMixin):
     def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):
-    __slots__ = ("token", "id", "target", "deferred", "responded", "ephemeral", "resolved", "data")
-    token: str
+    __slots__ = (
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "version",
+    )
     id: str
-    target: str
-    deferred: bool
-    responded: bool
-    ephemeral: bool
-    resolved: dict
+    application_id: str
+    type: ApplicationCommandType
     data: dict
+    guild_id: str
+    channel_id: str
+    token: str
+    version: int = 1
     def __init__(self, **kwargs) -> None: ...
 
 class ComponentContext(InteractionContext):

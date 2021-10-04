@@ -7,6 +7,9 @@ from typing import Any, Optional, Union
 
 from orjson import dumps, loads
 
+from interactions.enums import ApplicationCommandType
+from interactions.models.command import ApplicationCommand
+
 from ..base import Data
 from .dispatch import Listener
 from .enums import OpCodeType
@@ -230,15 +233,34 @@ class WebSocket:
 
                 self.dispatch.dispatch(f"on_{name}", obj(**data))
             else:
-                context: object = getattr(__import__("interactions.context"), "Context")
-                context.message = Message(**data["message"]) if data.get("message") else None
-                context.author = Member(**data["member"]) if data.get("member") else None
-                context.channel = Channel(**data["channel"]) if data.get("channel") else None
-                # context.guild = Guild(data["guild"] if data.get("guild_id"))
-                # TODO: code a stupid fucking snowflake converter
-                context.user = User(**data["user"]) if data.get("user") else None
-
+                context = self.contextualize(data)
                 self.dispatch.dispatch(f"on_{name}", context)
+
+    def contextualize(self, data: dict) -> None:
+        """
+        Takes raw data given back from the gateway
+        and gives "context" based off of what it is.
+
+        :param data: The data from the gateway.
+        :type data: dict
+        :return: None
+        """
+        context: object = getattr(__import__("interactions.context"), "InteractionContext")
+        context.message = Message(**data["message"]) if data.get("message") else None
+        context.author = Member(**data["member"]) if data.get("member") else None
+        context.user = User(**data["user"]) if data.get("user") else None
+        context.channel = Channel(**data["channel"]) if data.get("channel") else None
+        context.id = data.get("id")
+        context.application_id = data.get("application_command")
+        context.type = ApplicationCommandType(int(data["type"])) if data.get("type") else None
+        context.data = ApplicationCommand(**data["data"])
+        context.guild_id = data.get("guild_id")
+        context.channel_id = data.get("channel_id")
+        context.token = data.get("token")
+        # context.guild = Guild(data["guild"] if data.get("guild_id"))
+        # TODO: code a stupid fucking snowflake converter
+
+        return context
 
     async def send(self, data: Union[str, dict]) -> None:
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
