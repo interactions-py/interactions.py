@@ -72,4 +72,4 @@ intersphinx_mapping = {
 
 
 def setup(app):
-    app.add_html_theme("insipid_sphinx_theme", os.path.abspath(os.path.dirname(__file__)))
+    app.add_html_theme("insipid", os.path.abspath(os.path.dirname(__file__)))
