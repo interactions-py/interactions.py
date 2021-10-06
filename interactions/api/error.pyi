@@ -7,7 +7,7 @@ class ErrorFormatter(Formatter):
 
 class InteractionException(Exception):
     __slots__ = ["_type", "_lookup", "__type", "_formatter", "kwargs"]
-    _type: [Union[int, IntEnum]]
+    _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
     kwargs: Dict[str, Any]
