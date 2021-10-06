@@ -32,7 +32,7 @@ class GatewayException(InteractionException):
 
 class HTTPException(InteractionException):
     __slots__ = ["_type", "_lookup", "__type", "_formatter", "kwargs"]
-    _type: [Union[int, IntEnum]]
+    _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
     kwargs: Dict[str, Any]
