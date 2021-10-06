@@ -42,7 +42,7 @@ class HTTPException(InteractionException):
     def lookup() -> dict: ...
 
 class JSONException(InteractionException):
-    __slots__ = ["_type", "_lookup", "__type", "_formatter", "kwargs"]
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
     _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
