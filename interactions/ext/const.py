@@ -1,9 +1,7 @@
 from numbers import Number
 from string import ascii_letters
 
-from ...interactions.base import __version__ as __lib_version__
-
-__version__ = f"{__lib_version__}:"
+__version__ = None
 
 
 class Version:

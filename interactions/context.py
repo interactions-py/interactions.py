@@ -37,6 +37,15 @@ class InteractionContext(Context):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
+    def send(self, content: str) -> None:
+        """
+        A **very** primitive form of the send model to get the uttermost
+        basic implementation of command responses up and running.
+
+        btw it doesn't work
+        """
+        return content
+
 
 class ComponentContext(InteractionContext):
     """
