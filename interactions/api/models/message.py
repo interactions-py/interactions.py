@@ -98,7 +98,7 @@ class Message(DictSerializerMixin):
         self.timestamp = (
             datetime.fromisoformat(self._json.get("timestamp"))
             if self._json.get("timestamp")
-            else self.timestamp
+            else datetime.utcnow()
         )
         self.author = User(**self._json.get("author"))
 

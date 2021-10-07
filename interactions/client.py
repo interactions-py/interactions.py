@@ -163,5 +163,10 @@ class Client:
 
         return decorator
 
-    async def raw_guild_create(self, guild):
+    async def raw_guild_create(self, guild) -> None:
+        """
+        This is an internal function that caches the guild creates on ready.
+        :param guild: Guild object.
+        :return: None.
+        """
         self.cache.guilds.add(Item(id=guild.id, value=guild))

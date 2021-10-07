@@ -110,6 +110,7 @@ class WebSocket:
         self.session = None
         self.session_id = session_id
         self.sequence = sequence
+
         self.keep_alive = None
         self.closed = False
         self.http = None
@@ -233,20 +234,21 @@ class WebSocket:
                     __import__(path),
                     name.split("_")[0].capitalize(),
                 )
-
-                self.dispatch.dispatch(f"on_{name}", obj(**data))
+                self.dispatch.dispatch(
+                    f"on_{name}", obj(**data)  # noqa , object callable pycharm error.
+                )
             else:
                 context = self.contextualize(data)
                 self.dispatch.dispatch(f"on_{name}", context)
 
-    def contextualize(self, data: dict) -> None:
+    def contextualize(self, data: dict) -> object:
         """
         Takes raw data given back from the gateway
         and gives "context" based off of what it is.
 
         :param data: The data from the gateway.
         :type data: dict
-        :return: None
+        :return: The context object.
         """
         # TODO: Find a better way to do this.
         # This is incredibly stupid and dumb.

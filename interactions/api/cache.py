@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 
 class Item(object):
@@ -34,7 +34,7 @@ class Storage:
     def __init__(self) -> None:
         self.values = OrderedDict()
 
-    def add(self, item: Item) -> List[Item]:
+    def add(self, item: Item) -> OrderedDict:
         """
         Adds a new item to the storage.
 
