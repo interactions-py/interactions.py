@@ -61,7 +61,7 @@ What does that mean? Well, we'll show you:
     async def hello(ctx):
         await ctx.send("Hello from discord.py!")
 
-    @interactions.application_command(
+    @interactions.command(
         name="test",
         description="this is just a testing command."
     )
@@ -83,13 +83,34 @@ will both function properly as their respective libraries intend them to. What a
     async def borrowing(ctx, member: Member):
         await ctx.send(f"Member ID: {member.id}")
 
-    @interactions.application_command(...)
+    @interactions.command(...)
     async def second_borrowing(ctx, member: discord.Member):
         await ctx.send(f"Member ID: {member.id}")
 
 Both of these will be able to both run and give their proper value. It is *very* important to note here, though, that you
 **must** be returning back the exact same information that our objects depend on. A missing class instance can easily lead to
 it breaking, hence the "plastering" that is going on here.
+
+Where should we go with discord.py being gone?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The most *biased* answer would be to, of course, *use discord-interactions.* We already offer a lot of the integral API wrapper
+aspects as discord.py does, however, we only specialize in interactions. Which means things such as these won't be supported
+officially by us (but might be available as 3rd parties):
+
+- Cooldowns
+- Message commands
+- Voice clients
+
+There are other libraries of course though. As a general rule of thumb, if you're looking to do mainly slash commands and that
+tidbit then we highly recommend using our library, especially as **discord-components** merges as of version 4.0. But if you
+want something way more open and versatile, then we recommend these sources:
+
+- `Pycord`_ (the most actively maintained).
+- `dis-snek`_ (high level, "hackable" API wrapper with ease of modification).
+- `nextcord`_ (more abstract and fast approach to the Discord API).
+
+It's personally recommended from the library developer to seek these paths instead of sticking to an older version of a library,
+e.g. discord.py 1.7.3 or 2.0.0a as they can eventually become deprecated with more pending changes to the API by Discord engineers.
 
 Why are you not supporting cooldowns?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,10 +133,13 @@ of discord.py bot developers frown upon doing, so this is at your own risk to co
 can take a page out of discord.js' book if you want to do this, since they've never heard of an external command handler framework
 before in their entire life.
 
-.. _already admitted: https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1#whats-going-to-happen-to-my-bot
-
 My question is not answered on here!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Please join our Discord server for any further support regarding our library and/or any integration code depending on it.
 
 * Invite Link: https://discord.gg/KkgMBVuEkx
+
+.. _already admitted: https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1#whats-going-to-happen-to-my-bot
+.. _Pycord: https://github.com/Pycord-Development/pycord
+.. _dis-snek: https://github.com/Discord-Snake-Pit/Dis-Snek
+.. _nextcord: https://github.com/nextcord/nextcord
