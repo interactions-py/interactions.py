@@ -22,6 +22,12 @@ Interactions
 
 .. toctree::
     :maxdepth: 2
+    :caption: Frameworks/Commands
+
+    context.rst
+
+.. toctree::
+    :maxdepth: 2
     :caption: Model/Design
 
     models.rst

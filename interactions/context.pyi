@@ -34,8 +34,8 @@ class InteractionContext(Context):
     )
     id: str
     application_id: str
-    type: ApplicationCommandType
-    data: dict
+    type: Union[str, int, ApplicationCommandType]
+    data: ApplicationCommand
     guild_id: str
     channel_id: str
     token: str
