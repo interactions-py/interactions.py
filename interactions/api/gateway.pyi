@@ -26,6 +26,7 @@ class WebSocket:
         "keep_alive",
         "closed",
         "http",
+        "options",
     )
     intents: Intents
     loop: AbstractEventLoop
@@ -36,6 +37,7 @@ class WebSocket:
     keep_alive: Optional[Heartbeat]
     closed: bool
     http: Optional[HTTPClient]
+    options: dict
     def __init__(
         self,
         intents: Intents,
@@ -49,3 +51,4 @@ class WebSocket:
     async def identify(self) -> None: ...
     async def resume(self) -> None: ...
     async def heartbeat(self) -> None: ...
+    def contextualize(self, data: dict) -> object: ...

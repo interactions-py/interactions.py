@@ -1,5 +1,5 @@
 from asyncio import get_event_loop
-from typing import Any, Callable, Coroutine, Optional
+from typing import Coroutine, Optional
 
 
 class Listener:
@@ -29,7 +29,7 @@ class Listener:
         for event in self.events.get(name, []):
             self.loop.create_task(event(*args, **kwargs))
 
-    def register(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
+    def register(self, coro: Coroutine, name: Optional[str] = None) -> None:
         """
         Registers a given coroutine as an event to be listened to.
         If the name of the event is not given, it will then be
@@ -39,6 +39,8 @@ class Listener:
 
         :param coro: The coroutine to register as an event.
         :type coro: typing.Coroutine
+        :param name: The name to associate the coroutine with. Defaults to None.
+        :type name: typing.Optional[str]
         :return: None
         """
         _name: str = coro.__name__ if name is None else name

@@ -6,9 +6,7 @@ from .api.models.member import Member
 from .api.models.message import Message
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
-from .client import Client
 from .enums import ApplicationCommandType, ComponentType
-from .models.command import ApplicationCommand
 
 class Context(DictSerializerMixin):
     __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
