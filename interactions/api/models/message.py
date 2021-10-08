@@ -103,7 +103,7 @@ class Message(DictSerializerMixin):
         self.author = (
             User(**self._json.get("author"))
             if self._json.get("author")
-            else User(**self._json.get("user"))
+            else None
         )  # interaction models are different for some reason
 
 
