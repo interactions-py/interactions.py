@@ -58,7 +58,7 @@ class InteractionContext(Context):
             },
         }
 
-        req = await HTTPClient(interactions.client.cache.token)._create_interaction_response(
+        req = await HTTPClient(interactions.client.cache.token).create_interaction_response(
             token=self.token, application_id=int(self.id), data=payload
         )
         return req
