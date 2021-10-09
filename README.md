@@ -1,6 +1,6 @@
 <div align="center">
     <a href="https://pypi.org/project/discord-py-interactions/">
-        <img src="https://raw.githubusercontent.com/muqshots/discord-py-interactions/master/.github/banner_transparent.png" alt="discord-py-interactions" height="128">
+        <img src=".github/banner_transparent.png" alt="discord-py-interactions" height="128">
     </a>
     <h2>Your ultimate Discord interactions library for <a href="https://github.com/Rapptz/discord.py">discord.py</a>.</h2>
 </div>
