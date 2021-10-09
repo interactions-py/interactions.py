@@ -10,5 +10,4 @@ dist/
 .venv
 .vscode
 
-# cool so this doesn't fucking work.
-test.py
+.token
