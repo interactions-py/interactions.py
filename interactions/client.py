@@ -2,7 +2,6 @@ from asyncio import get_event_loop
 from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.cache import Cache, Item
-from .api.dispatch import Listener
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
@@ -11,6 +10,11 @@ from .api.models.intents import Intents
 from .api.models.user import User
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
+
+# TODO: Find a better way to call on the cache for
+# storing the token. Yes, this is a piss poor approach,
+# but i'm on a time crunch to make the caching work.
+cache = Cache()
 
 
 class Client:
@@ -42,18 +46,18 @@ class Client:
             self.intents = intents
 
         self.loop = get_event_loop()
-        self.listener = Listener()
-        self.cache = Cache()
         self.http = HTTPClient(token)
         self.websocket = WebSocket(intents=self.intents)
         self.me = None
         self.token = token
+        cache.token = token
         # TODO: Code an internal ready state check for caching reasons.
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_self())
             self.me = User(**data)
 
+        self.websocket.dispatch.register(self.raw_socket_create)
         self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
 
     async def login(self, token: str) -> None:
@@ -134,7 +138,7 @@ class Client:
             else:
                 _scope.append(scope)
 
-            for interaction in self.cache.interactions.values:
+            for interaction in cache.interactions.values:
                 if interaction.value.name == name:
                     raise InteractionException(3)
                     # TODO: make a call to our internal sync method instead of an exception.
@@ -157,11 +161,15 @@ class Client:
                 if request.get("code"):
                     raise JSONException(request["code"])  # TODO: work on this pls
 
-                self.cache.interactions.add(Item(id=request["application_id"], value=payload))
+                cache.interactions.add(Item(id=request["application_id"], value=payload))
 
                 return self.event(coro)
 
         return decorator
+
+    async def raw_socket_create(self, data: dict) -> None:
+        # TODO: doctype what this does
+        return data
 
     async def raw_guild_create(self, guild) -> None:
         """
@@ -169,4 +177,4 @@ class Client:
         :param guild: Guild object.
         :return: None.
         """
-        self.cache.guilds.add(Item(id=guild.id, value=guild))
+        cache.guilds.add(Item(id=guild.id, value=guild))

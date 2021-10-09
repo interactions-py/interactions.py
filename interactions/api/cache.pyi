@@ -16,6 +16,7 @@ class Storage:
     def get(self, id: str) -> Optional[Item]: ...
 
 class Cache:
+    token: str
     dms: Storage
     self_guilds: Storage
     guilds: Storage

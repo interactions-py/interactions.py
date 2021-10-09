@@ -186,7 +186,7 @@ class Request:
                 kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
 
                 try:
-                    reason = kwargs.pop("reason")
+                    reason = kwargs.get("reason")
                 except:  # noqa
                     pass
                 else:

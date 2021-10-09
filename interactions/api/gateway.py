@@ -7,8 +7,8 @@ from typing import Any, Optional, Union
 
 from orjson import dumps, loads
 
-from interactions.enums import ApplicationCommandType
-from interactions.models.command import ApplicationCommand
+from interactions.enums import InteractionType
+from interactions.models.misc import InteractionData
 
 from ..base import Data
 from .dispatch import Listener
@@ -210,7 +210,7 @@ class WebSocket:
                         self.dispatch.dispatch("on_ready")
                         log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
                     else:
-                        # log.debug(f"{event}: {data}")
+                        log.debug(f"{event}: {data}")
                         self.handle(event, data)
                     continue
 
@@ -241,6 +241,8 @@ class WebSocket:
                 context = self.contextualize(data)
                 self.dispatch.dispatch(f"on_{name}", context)
 
+            self.dispatch.dispatch("raw_socket_create", data)
+
     def contextualize(self, data: dict) -> object:
         """
         Takes raw data given back from the gateway
@@ -264,8 +266,8 @@ class WebSocket:
         context.channel = Channel(**data["channel"]) if data.get("channel") else None
         context.id = data.get("id")
         context.application_id = data.get("application_id")
-        context.type = ApplicationCommandType(int(data["type"])) if data.get("type") else None
-        context.data = ApplicationCommand(**data["data"])
+        context.type = InteractionType(int(data["type"])) if data.get("type") else None
+        context.data = InteractionData(**data["data"])
         context.guild_id = data.get("guild_id")
         context.channel_id = data.get("channel_id")
         context.token = data.get("token")

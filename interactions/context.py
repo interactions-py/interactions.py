@@ -1,3 +1,5 @@
+import interactions.client
+
 from .api.http import HTTPClient
 from .api.models.misc import DictSerializerMixin
 
@@ -56,10 +58,8 @@ class InteractionContext(Context):
             },
         }
 
-        req = await HTTPClient(
-            "ODgzNzg4ODkzNTEyNjgzNTIw.YTPCjA.hCfVqVbcFfp6AhqhrWKJkQUWg7E"
-        )._create_interaction_response(
-            token=self.token, application_id=int(self.application_id), data=payload
+        req = await HTTPClient(interactions.client.cache.token)._create_interaction_response(
+            token=self.token, application_id=int(self.id), data=payload
         )
         return req
 

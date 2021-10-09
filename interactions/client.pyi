@@ -14,7 +14,6 @@ class Client:
     loop: AbstractEventLoop
     intents: Optional[Union[Intents, List[Intents]]]
     http: HTTPClient
-    cache: Cache
     websocket: WebSocket
     me: Optional[User]
     token: str
