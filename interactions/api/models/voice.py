@@ -9,3 +9,7 @@ class VoiceState(DictSerializerMixin):
 class VoiceRegion(DictSerializerMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+
+class Voice(VoiceState):
+    ...

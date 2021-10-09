@@ -1,3 +1,4 @@
+from .api.http import HTTPClient
 from .api.models.misc import DictSerializerMixin
 
 
@@ -26,8 +27,8 @@ class InteractionContext(Context):
 
     :ivar str id: The ID of the interaction.
     :ivar str application_id: The application ID of the interaction.
-    :ivar typing.Union[str, int, interactions.enums.ApplicationCommandType] type: The type of interaction.
-    :ivar api.models.command.ApplicationCommand data: The application command data.
+    :ivar typing.Union[str, int, interactions.enums.InteractionType] type: The type of interaction.
+    :ivar interactions.models.misc.InteractionData data: The application command data.
     :ivar str guild_id: The guild ID the interaction falls under.
     :ivar str channel_id: The channel ID the interaction was instantiated from.
     :ivar str token: The token of the interaction response.
@@ -37,14 +38,30 @@ class InteractionContext(Context):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    def send(self, content: str) -> None:
+    async def send(self, content: str) -> None:
         """
         A **very** primitive form of the send model to get the uttermost
         basic implementation of command responses up and running.
 
-        btw it doesn't work
+        ok he kinda work now
         """
-        return content
+        payload: dict = {
+            "type": 4,
+            "data": {
+                "content": content,
+                "tts": False,
+                "embeds": [],
+                "allowed_mentions": {},
+                "components": [],
+            },
+        }
+
+        req = await HTTPClient(
+            "ODgzNzg4ODkzNTEyNjgzNTIw.YTPCjA.hCfVqVbcFfp6AhqhrWKJkQUWg7E"
+        )._create_interaction_response(
+            token=self.token, application_id=int(self.application_id), data=payload
+        )
+        return req
 
 
 class ComponentContext(InteractionContext):
