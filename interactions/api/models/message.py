@@ -100,9 +100,7 @@ class Message(DictSerializerMixin):
             if self._json.get("timestamp")
             else datetime.utcnow()
         )
-        self.author = (
-            User(**self._json.get("author")) if self._json.get("author") else None
-        )  # interaction models are different for some reason
+        self.author = User(**self._json.get("author")) if self._json.get("author") else None
 
 
 class Emoji(DictSerializerMixin):

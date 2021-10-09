@@ -257,13 +257,13 @@ class WebSocket:
         # instead or subclass some more things to alias
         # define these objects properly instead of manually
         # defnining for each?
-        context: object = getattr(__import__("interactions.context"), "InteractionContext")
+        context: object = getattr(__import__("interactions.context"), "InteractionContext")()
         context.message = Message(**data["message"]) if data.get("message") else None
         context.author = Member(**data["member"]) if data.get("member") else None
         context.user = User(**data["user"]) if data.get("user") else None
         context.channel = Channel(**data["channel"]) if data.get("channel") else None
         context.id = data.get("id")
-        context.application_id = data.get("application_command")
+        context.application_id = data.get("application_id")
         context.type = ApplicationCommandType(int(data["type"])) if data.get("type") else None
         context.data = ApplicationCommand(**data["data"])
         context.guild_id = data.get("guild_id")

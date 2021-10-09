@@ -22,7 +22,7 @@ class Choice(DictSerializerMixin):
     name: str
     value: Union[str, int, float]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 
@@ -68,7 +68,7 @@ class Option(DictSerializerMixin):
     options: Optional[list]
     channel_type: Optional[List[ChannelType]]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 
@@ -87,7 +87,7 @@ class Permission(DictSerializerMixin):
     type: PermissionType
     permission: bool
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 
@@ -131,9 +131,5 @@ class ApplicationCommand(DictSerializerMixin):
     permissions: Optional[List[Permission]]
     version: int  # Not sure if we need this.
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-
-
-class Interaction(ApplicationCommand):
-    ...

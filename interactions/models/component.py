@@ -1,7 +1,4 @@
-from collections import OrderedDict
 from typing import List, Optional, Union
-
-from orjson import dumps
 
 from ..api.models.message import Emoji
 from ..api.models.misc import DictSerializerMixin
@@ -60,14 +57,8 @@ class SelectMenu(DictSerializerMixin):
     max_values: Optional[int]
     disabled: Optional[bool]
 
-    def __new__(cls):
-        comb = OrderedDict()
-
-        for key, value in cls.__dict__:
-            if value is not None:
-                comb.update({key: value})
-
-        return dumps(comb)
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
 
 
 class ActionRow(DictSerializerMixin):
@@ -98,14 +89,8 @@ class Button(DictSerializerMixin):
     url: Optional[str]
     disabled: Optional[bool]
 
-    def __new__(cls):
-        comb = OrderedDict()
-
-        for key, value in cls.__dict__:
-            if value is not None:
-                comb.update({key: value})
-
-        return dumps(comb)
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
 
 
 class Component(DictSerializerMixin):
@@ -158,3 +143,6 @@ class Component(DictSerializerMixin):
     min_values: Optional[int]
     max_values: Optional[int]
     components: Optional[Union[list, ActionRow, List[ActionRow]]]
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)

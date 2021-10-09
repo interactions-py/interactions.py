@@ -17,6 +17,16 @@ class ApplicationCommandType(IntEnum):
     AUTOCOMPLETE = 4
 
 
+class InteractionType(IntEnum):
+    """
+    An enumerable object representing the types of interactions.
+    """
+
+    PING = 1
+    APPLICATION_COMMAND = 2
+    MESSAGE_COMPONENT = 3
+
+
 class OptionType(IntEnum):
     """
     Enumerable object of literal integers holding equivocal values of a slash command's option(s).

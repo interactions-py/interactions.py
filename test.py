@@ -1,7 +1,7 @@
 # This is a written example used to test and debug the state of v4.0
 import interactions
 
-TOKEN = "stop drinking gfuel it sucks."
+TOKEN = "WHY THE FUCK IS .GITIGNORE NOT WORKING"
 
 client = interactions.Client(token=TOKEN)
 
@@ -18,9 +18,9 @@ async def on_ready():
 
 @client.command(name="test", description="my balls", scope=789032594456576001)
 async def command_name(ctx):
-    print(f"making sure: {ctx}")
-    print(dir(ctx))
-    print(ctx.author._json)
+    print(ctx.token)
+    print(ctx.application_id)
+    await ctx.send("testing")
 
 
 client.start()

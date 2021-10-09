@@ -6,7 +6,8 @@ from .api.models.member import Member
 from .api.models.message import Message
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
-from .enums import ApplicationCommandType, ComponentType
+from .enums import ComponentType, InteractionType
+from .models.command import InteractionData
 
 class Context(DictSerializerMixin):
     __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
@@ -32,8 +33,8 @@ class InteractionContext(Context):
     )
     id: str
     application_id: str
-    type: Union[str, int, ApplicationCommandType]
-    data: ApplicationCommand
+    type: Union[str, int, InteractionType]
+    data: InteractionData
     guild_id: str
     channel_id: str
     token: str
