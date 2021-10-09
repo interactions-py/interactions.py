@@ -1954,22 +1954,7 @@ class HTTPClient:
             Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands/permissions")
         )
 
-    async def create_interaction_response(self, application_id: int, data: dict) -> None:
-        """
-        Posts initial response to an interaction.
-
-        ..note:
-            Internally handles token for you.
-
-        :param application_id: Application ID snowflake
-        :param data: The data to send.
-        """
-        print(f"Callback route: /interactions/{application_id}/{self.token}/callback")
-        return await self._req.request(
-            Route("POST", f"/interactions/{application_id}/{self.token}/callback"), json=data
-        )
-
-    async def _create_interaction_response(
+    async def create_interaction_response(
         self, token: str, application_id: int, data: dict
     ) -> None:
         """
@@ -1986,36 +1971,21 @@ class HTTPClient:
     # This is still Interactions, but this also applies to webhooks
     # i.e. overlay
     async def get_original_interaction_response(
-        self, application_id: str, message_id: int = "@original"
+        self, token: str, application_id: str, message_id: int = "@original"
     ) -> dict:
         """
         Gets an existing interaction message.
+        :param token: token
         :param application_id: Application ID snowflake.
         :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
         :return: Message data.
         """
         # ^ again, I don't know if python will let me
         return await self._req.request(
-            Route("GET", f"/webhooks/{application_id}/{self.token}/messages/{message_id}")
+            Route("GET", f"/webhooks/{application_id}/{token}/messages/{message_id}")
         )
 
     async def edit_interaction_response(
-        self, data: dict, application_id: str, message_id: int = "@original"
-    ) -> dict:
-        """
-        Edits an existing interaction message.
-        :param data: A dictionary containing the new response.
-        :param application_id: Application ID snowflake.
-        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
-        :return: Updated message data.
-        """
-        # ^ again, I don't know if python will let me
-        return await self._req.request(
-            Route("PATCH", f"/webhooks/{application_id}/{self.token}/messages/{message_id}"),
-            json=data,
-        )
-
-    async def _edit_interaction_response(
         self, data: dict, token: str, application_id: str, message_id: int = "@original"
     ) -> dict:
         """
