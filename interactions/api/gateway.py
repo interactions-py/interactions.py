@@ -7,10 +7,9 @@ from typing import Any, Optional, Union
 
 from orjson import dumps, loads
 
-from interactions.enums import InteractionType
-from interactions.models.misc import InteractionData
-
 from ..base import Data
+from ..enums import InteractionType
+from ..models.misc import InteractionData
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
@@ -252,6 +251,7 @@ class WebSocket:
         :type data: dict
         :return: The context object.
         """
+
         # TODO: Find a better way to do this.
         # This is incredibly stupid and dumb.
         # I should not have to manually define these,
@@ -259,6 +259,33 @@ class WebSocket:
         # instead or subclass some more things to alias
         # define these objects properly instead of manually
         # defnining for each?
+
+        # context = None
+
+        # if int(data["type"]) == 2:  # APPLICATION_COMMAND
+        #     context: object = getattr(__import__("interactions.context"), "InteractionContext")()
+        #     context.message = Message(**data["message"]) if data.get("message") else None
+        #     context.author = Member(**data["member"]) if data.get("member") else None
+        #     context.user = User(**data["user"]) if data.get("user") else None
+        #     context.channel = Channel(**data["channel"]) if data.get("channel") else None
+        #     context.id = data.get("id")
+        #     context.application_id = data.get("application_id")
+        #     context.type = InteractionType(int(data["type"])) if data.get("type") else None
+        #     context.data = InteractionData(**data["data"])
+        #     context.guild_id = data.get("guild_id")
+        #     context.channel_id = data.get("channel_id")
+        #     context.token = data.get("token")
+        #     # context.guild = Guild(data["guild"] if data.get("guild_id"))
+        #     # TODO: code a stupid fucking snowflake converter
+        #     return context
+        # if int(data["type"]) == 3:  # MESSAGE_COMPONENT
+        #     context: object = getattr(__import__("interactions.context"), "ComponentContext")()
+        #     context.custom_id = data.get("custom_id")
+        #     context.type = ComponentType(int(data["type"])) if data.get("type") else None
+        #     context.values = data.get("values")
+        #     context.origin = data.get("origin")
+        #     return context
+
         context: object = getattr(__import__("interactions.context"), "InteractionContext")()
         context.message = Message(**data["message"]) if data.get("message") else None
         context.author = Member(**data["member"]) if data.get("member") else None
@@ -273,7 +300,6 @@ class WebSocket:
         context.token = data.get("token")
         # context.guild = Guild(data["guild"] if data.get("guild_id"))
         # TODO: code a stupid fucking snowflake converter
-
         return context
 
     async def send(self, data: Union[str, dict]) -> None:

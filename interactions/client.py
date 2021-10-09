@@ -150,6 +150,9 @@ class Client:
         if not name:
             raise Exception("Command must have a name!")
 
+        if name and not description:
+            raise Exception("Chat-input commands must have a description!")
+
         def decorator(coro: Coroutine) -> Any:
             if "ctx" not in coro.__code__.co_varnames:
                 raise InteractionException(11)
@@ -187,12 +190,13 @@ class Client:
                     raise JSONException(request["code"])  # TODO: work on this pls
 
                 for interaction in cache.interactions.values:
-                    if interaction.value.name == name:
+                    if interaction.values[interaction].value.name == name:
                         self.synchronize_commands(name)
                         # TODO: make a call to our internal sync method instead of an exception.
                     else:
                         cache.interactions.add(Item(id=request["application_id"], value=payload))
-                        return self.event(coro)
+
+            return self.event(coro)
 
         return decorator
 
