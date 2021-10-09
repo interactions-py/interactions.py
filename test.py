@@ -16,9 +16,8 @@ async def on_ready():
     # )
 
 
-@client.command(name="test", description="my balls", scope=789032594456576001)
+@client.command(name="test", description="new descc", scope=789032594456576001)
 async def command_name(ctx):
-    print(ctx)
     await ctx.send("testing")
 
 

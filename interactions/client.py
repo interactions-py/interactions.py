@@ -1,4 +1,5 @@
 from asyncio import get_event_loop
+from logging import Logger, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, List, Optional, Union
 
 from .api.cache import Cache, Item
@@ -7,7 +8,8 @@ from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.intents import Intents
-from .api.models.user import User
+from .api.models.team import Application
+from .base import Data
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 
@@ -15,6 +17,9 @@ from .models.command import ApplicationCommand, Option
 # storing the token. Yes, this is a piss poor approach,
 # but i'm on a time crunch to make the caching work.
 cache = Cache()
+
+basicConfig(level=Data.LOGGER)
+log: Logger = getLogger("client")
 
 
 class Client:
@@ -55,7 +60,7 @@ class Client:
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_self())
-            self.me = User(**data)
+            self.me = Application(**data)
 
         self.websocket.dispatch.register(self.raw_socket_create)
         self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
@@ -73,7 +78,32 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
+        self.synchronize_commands()
         self.loop.run_until_complete(self.login(self.token))
+
+    def synchronize_commands(self, name: Optional[str] = None) -> None:
+        # TODO: Doctype what this does.
+        commands = self.loop.run_until_complete(self.http.get_application_command(self.me.id))
+        change: list = []
+
+        for command in commands:
+            _command: Optional[Item] = cache.interactions.get(command["id"])
+            if _command:
+                if ApplicationCommand(**command) == _command:
+                    log.warning(f"Detected change to command ID {command.id}.")
+                    change.append(command)
+            else:
+                cache.interactions.add(Item(command["id"], ApplicationCommand(**command)))
+
+        for command in change:
+            log.debug(f"Updated command {command.id}.")
+            self.http.edit_application_command(
+                application_id=self.me.id,
+                data=command["data"],
+                command_id=command["id"],
+                guild_id=command.get("guild_id"),
+            )
+            cache.interactions.add(Item(command["id"], ApplicationCommand(**command)))
 
     def event(self, coro: Coroutine) -> Callable[..., Any]:
         """
@@ -138,11 +168,6 @@ class Client:
             else:
                 _scope.append(scope)
 
-            for interaction in cache.interactions.values:
-                if interaction.value.name == name:
-                    raise InteractionException(3)
-                    # TODO: make a call to our internal sync method instead of an exception.
-
             for guild in _scope:
                 payload: ApplicationCommand = ApplicationCommand(
                     type=type.value if isinstance(type, ApplicationCommandType) else type,
@@ -161,9 +186,13 @@ class Client:
                 if request.get("code"):
                     raise JSONException(request["code"])  # TODO: work on this pls
 
-                cache.interactions.add(Item(id=request["application_id"], value=payload))
-
-                return self.event(coro)
+                for interaction in cache.interactions.values:
+                    if interaction.value.name == name:
+                        self.synchronize_commands(name)
+                        # TODO: make a call to our internal sync method instead of an exception.
+                    else:
+                        cache.interactions.add(Item(id=request["application_id"], value=payload))
+                        return self.event(coro)
 
         return decorator
 

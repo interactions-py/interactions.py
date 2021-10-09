@@ -1,5 +1,11 @@
 from asyncio import get_event_loop
+from logging import Logger, basicConfig, getLogger
 from typing import Coroutine, Optional
+
+from ..base import Data
+
+basicConfig(level=Data.LOGGER)
+log: Logger = getLogger("dispatch")
 
 
 class Listener:
@@ -28,6 +34,7 @@ class Listener:
         """
         for event in self.events.get(name, []):
             self.loop.create_task(event(*args, **kwargs))
+            log.debug(f"DISPATCH: {event}")
 
     def register(self, coro: Coroutine, name: Optional[str] = None) -> None:
         """
@@ -48,4 +55,4 @@ class Listener:
         event.append(coro)
 
         self.events[_name] = event
-        print(self.events)
+        log.debug(f"REGISTER: {self.events[_name]}")
