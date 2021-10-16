@@ -8,7 +8,10 @@ client = interactions.Client(token=TOKEN)
 
 @client.event
 async def on_ready():
-    print(f"{client.me.username}#{client.me.discriminator} logged in.")
+    # print(f"{client.me.username}#{client.me.discriminator} logged in.")
+    print(
+        f"{client.me.name} logged in."
+    )  # client.me is an Application, not a User, upon fl0w's req.
 
     # await client.http.request(
     #     Route("POST", "/applications/883788893512683520/guilds/852402668294766612/commands"),
