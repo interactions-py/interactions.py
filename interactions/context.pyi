@@ -1,9 +1,10 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
+from . import Component
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
-from .api.models.message import Message
+from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .enums import ComponentType, InteractionType
@@ -40,6 +41,17 @@ class InteractionContext(Context):
     token: str
     version: int = 1
     def __init__(self, **kwargs) -> None: ...
+    async def send(
+        self,
+        content: Optional[str],
+        tts: Optional[bool],
+        embeds: Optional[Union[Embed, List[Embed]]],
+        allowed_mentions: Optional[MessageInteraction],
+        message_reference: Optional[MessageReference],
+        components: Optional[Union[Component, List[Component]]],
+        sticker_ids: Optional[Union[str, List[str]]],
+        type: Optional[int],
+    ) -> Message: ...
 
 class ComponentContext(InteractionContext):
     __slots__ = ("custom_id", "type", "values", "origin")

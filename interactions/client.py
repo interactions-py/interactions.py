@@ -59,8 +59,8 @@ class Client:
         # TODO: Code an internal ready state check for caching reasons.
 
         if not self.me:
-            data = self.loop.run_until_complete(self.http.get_self())
-            self.me = Application(**data)
+            data = self.loop.run_until_complete(self.http.get_current_bot_information())
+            self.me = Application(**data)  #
 
         self.websocket.dispatch.register(self.raw_socket_create)
         self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
@@ -200,7 +200,7 @@ class Client:
 
         return decorator
 
-    async def raw_socket_create(self, data: dict) -> None:
+    async def raw_socket_create(self, data: dict) -> dict:
         # TODO: doctype what this does
         return data
 

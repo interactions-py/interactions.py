@@ -14,6 +14,7 @@ class DictSerializerMixin(object):
             -- From kwargs (received from the Discord API response), add it to the `_json` attribute
             such that it can be reused by other libraries/extensions
             -- Aids in attributing the kwargs to actual model attributes, i.e. `User.id`
+            -- Dynamically sets attributes not given to kwargs but slotted to None, signifying that it doesn't exist.
 
     ..warning::
 
@@ -25,6 +26,13 @@ class DictSerializerMixin(object):
         for key in kwargs:
             setattr(self, key, kwargs[key])
         self._json = kwargs
+
+        if hasattr(
+            self, "__slots__"
+        ):  # TODO: Somehow reference pyi typehinting slots. Without the ref., it can be N/A.
+            for _attr in self.__slots__:
+                if not hasattr(self, _attr):
+                    setattr(self, _attr, None)
 
 
 class Overwrite(DictSerializerMixin):

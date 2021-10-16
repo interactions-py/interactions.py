@@ -6,22 +6,26 @@ from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.intents import Intents
+from .api.models.team import Application
 from .api.models.user import User
 from .enums import ApplicationCommandType
 from .models.command import Option
+
+cache: Cache
 
 class Client:
     loop: AbstractEventLoop
     intents: Optional[Union[Intents, List[Intents]]]
     http: HTTPClient
     websocket: WebSocket
-    me: Optional[User]
+    me: Optional[Application]
     token: str
     def __init__(
         self, token: str, intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
     ) -> None: ...
     async def login(self, token: str) -> None: ...
     def start(self) -> None: ...
+    def synchronize_commands(self, name: Optional[str] = None) -> None: ...
     def event(self, coro: Coroutine) -> Callable[..., Any]: ...
     def command(
         self,
@@ -35,3 +39,4 @@ class Client:
         # permissions: Optional[List[Permission]] = None,
     ) -> Callable[..., Any]: ...
     async def raw_guild_create(self, guild) -> None: ...
+    async def raw_socket_create(self, data: dict) -> dict: ...
