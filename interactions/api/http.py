@@ -1542,8 +1542,8 @@ class HTTPClient:
         self,
         channel_id: int,
         name: str,
-        auto_archive_duration: int,
         thread_type: int = None,
+        auto_archive_duration: Optional[int] = None,
         invitable: Optional[bool] = None,
         message_id: Optional[int] = None,
         reason: Optional[str] = None,
@@ -1561,7 +1561,9 @@ class HTTPClient:
         :param reason: An optional reason for the audit log
         :return: The created thread
         """
-        payload = {"name": name, "auto_archive_duration": auto_archive_duration}
+        payload = {"name": name}
+        if auto_archive_duration:
+            payload["auto_archive_duration"] = auto_archive_duration
         if message_id:
             return await self._req.request(
                 Route("POST", f"/channels/{channel_id}/messages/{message_id}/threads"),

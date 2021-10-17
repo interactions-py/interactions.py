@@ -25,7 +25,6 @@ class VoiceRegion(DictSerializerMixin):
     _json: dict
     id: str
     name: str
-    vip: bool
     optimal: bool
     deprecated: bool
     custom: bool
