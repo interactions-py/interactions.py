@@ -28,5 +28,20 @@ class Member(DictSerializerMixin):
     :ivar typing.Optional[str] permissions: Whether the member has permissions.
     """
 
+    __slots__ = (
+        "_json",
+        "user",
+        "nick",
+        "avatar",
+        "roles",
+        "joined_at",
+        "premium_since",
+        "deaf",
+        "mute",
+        "is_pending",
+        "pending",
+        "permissions",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

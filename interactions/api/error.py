@@ -30,6 +30,8 @@ class InteractionException(Exception):
 
     """
 
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
+
     def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs) -> None:
         """
         :param __type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of
@@ -161,6 +163,8 @@ class GatewayException(InteractionException):
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
+
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)
 
@@ -192,6 +196,8 @@ class HTTPException(InteractionException):
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
+
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)
 
@@ -215,6 +221,8 @@ class JSONException(InteractionException):
     :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
+
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
 
     def __init__(self, __type, **kwargs):
         super().__init__(__type, **kwargs)

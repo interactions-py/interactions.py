@@ -23,6 +23,8 @@ class Context(DictSerializerMixin):
     :ivar \**kwargs: Keyword-only arguments of the context.
     """
 
+    __slots__ = ("message", "author", "channel", "user", "guild", "args", "kwargs")
+
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
@@ -41,6 +43,24 @@ class InteractionContext(Context):
     :ivar str token: The token of the interaction response.
     :ivar int=1 version: The version of interaction creation. Always defaults to ``1``.
     """
+
+    __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "version",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -112,6 +132,28 @@ class ComponentContext(InteractionContext):
     :ivar list values: The curated list of values under the component. This will be ``None`` if the type is not ``SELECT_MENU``.
     :ivar bool origin: Whether this is the origin of the component.
     """
+
+    __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "version",
+        "custom_id",
+        "type",
+        "values",
+        "origin",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

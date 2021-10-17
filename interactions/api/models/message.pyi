@@ -33,14 +33,12 @@ class MessageType(IntEnum):
     CONTEXT_MENU_COMMAND = 23
 
 class MessageActivity(DictSerializerMixin):
-    __slots__ = ("_json", "type", "party_id")
     _json: dict
     type: int
     party_id: Optional[str]
     def __init__(self, **kwargs): ...
 
 class MessageReference(DictSerializerMixin):
-    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
     _json: dict
     message_id: Optional[int]
     channel_id: Optional[int]
@@ -49,17 +47,6 @@ class MessageReference(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Attachment(DictSerializerMixin):
-    __slots__ = (
-        "_json",
-        "id",
-        "filename",
-        "content_type",
-        "size",
-        "url",
-        "proxy_url",
-        "height",
-        "width",
-    )
     _json: dict
     id: int
     filename: str

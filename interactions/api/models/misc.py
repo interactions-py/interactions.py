@@ -22,26 +22,30 @@ class DictSerializerMixin(object):
         the object that's using the mixin.
     """
 
+    __slots__ = "_json"
+
     def __init__(self, **kwargs):
         for key in kwargs:
             setattr(self, key, kwargs[key])
         self._json = kwargs
 
-        if hasattr(
-            self, "__slots__"
-        ):  # TODO: Somehow reference pyi typehinting slots. Without the ref., it can be N/A.
-            for _attr in self.__slots__:
-                if not hasattr(self, _attr):
-                    setattr(self, _attr, None)
+        for _attr in self.__slots__:
+            if not hasattr(self, _attr):
+                setattr(self, _attr, None)
 
 
 class Overwrite(DictSerializerMixin):
     """This is used for the PermissionOverride obj"""
+
+    __slots__ = ("_json", "id", "type", "allow", "deny")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
 class ClientStatus(DictSerializerMixin):
+
+    __slots__ = ("_json", "desktop", "mobile", "web")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

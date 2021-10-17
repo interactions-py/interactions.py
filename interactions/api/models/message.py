@@ -30,6 +30,8 @@ class MessageActivity(DictSerializerMixin):
     :ivar typing.Optional[str] party_id: The party ID of the activity.
     """
 
+    __slots__ = ("_json", "type", "party_id")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -48,6 +50,8 @@ class MessageReference(DictSerializerMixin):
     :ivar typing.Optional[bool] fail_if_not_exists: Whether the message reference exists.
     """
 
+    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -58,7 +62,7 @@ class Attachment(DictSerializerMixin):
 
     .. note::
         ``height`` and ``width`` have values based off of ``content_type``,
-        which requires it to be a media file with viewabiltiy as a photo,
+        which requires it to be a media file with viewabiltity as a photo,
         animated photo, GIF and/or video.
 
     :ivar int id: The ID of the attachment.
@@ -70,6 +74,18 @@ class Attachment(DictSerializerMixin):
     :ivar typing.Optional[int] height: The height of the attachment file.
     :ivar typing.Optional[int] width: The width of the attachment file.
     """
+
+    __slots__ = (
+        "_json",
+        "id",
+        "filename",
+        "content_type",
+        "size",
+        "url",
+        "proxy_url",
+        "height",
+        "width",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
