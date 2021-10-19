@@ -428,10 +428,15 @@ class SlashCommand:
         permissions_map = {}
         cmds = await self.to_dict()
         self.logger.info("Syncing commands...")
-        # if debug_guild is set, global commands get re-routed to the guild to update quickly
-        cmds_formatted = {self.debug_guild: cmds["global"]}
+        cmds_formatted = {}
         for guild in cmds["guild"]:
             cmds_formatted[guild] = cmds["guild"][guild]
+
+        # if debug_guild is set, global commands get re-routed to the guild to update quickly
+        if self.debug_guild is not None and self.debug_guild in cmds_formatted:
+            cmds_formatted[self.debug_guild].extend(cmds["global"])
+        else:
+            cmds_formatted[self.debug_guild] = cmds["global"]
 
         for scope in cmds_formatted:
             permissions = {}
