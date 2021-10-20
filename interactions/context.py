@@ -56,6 +56,7 @@ class InteractionContext(Context):
         components: Optional[Union[Component, List[Component]]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[int] = None,
+        ephemeral: Optional[bool] = False,
     ) -> Message:
         """
         A **very** primitive form of the send model to get the uttermost
@@ -87,6 +88,7 @@ class InteractionContext(Context):
             message_reference=_message_reference,
             components=_components,
             sticker_ids=_sticker_ids,
+            flags=64 if ephemeral else 0,
         )
         self.message = payload
 
