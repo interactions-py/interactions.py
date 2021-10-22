@@ -34,6 +34,9 @@ class Option(DictSerializerMixin):
         ``options`` is only present for when a subcommand
         has been established.
 
+        ``min_values`` and ``max_values`` are useful primarily for
+        integer based options.
+
     :ivar interactions.enums.OptionType type: The type of option.
     :ivar str name: The name of the option.
     :ivar str description: The description of the option.
@@ -43,6 +46,8 @@ class Option(DictSerializerMixin):
     :ivar typing.Optional[typing.List[interactions.models.Choice]] choices: The list of choices to select from.
     :ivar typing.Optional[list] options: The list of subcommand options included.
     :ivar typing.Optional[typing.List[interactions.api.models.channel.ChannelType] channel_type: Restrictive shown channel types, if given.
+    :ivar typing.Optional[int] min_values: The minimum value supported by the option.
+    :ivar typing.Optional[int] max_values: The maximum value supported by the option.
     """
 
     __slots__ = (
@@ -56,6 +61,8 @@ class Option(DictSerializerMixin):
         "choices",
         "options",
         "channel_type",
+        "min_values",
+        "max_values",
     )
     _json: dict
     type: OptionType
@@ -67,6 +74,8 @@ class Option(DictSerializerMixin):
     choices: Optional[List[Choice]]
     options: Optional[list]
     channel_type: Optional[List[ChannelType]]
+    min_values: Optional[int]
+    max_values: Optional[int]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
