@@ -86,7 +86,6 @@ class Message(DictSerializerMixin):
     edited_timestamp: Optional[datetime]
     tts: bool
     mention_everyone: bool
-    # mentions: array of Users, and maybe partial members
     mentions: Optional[List[Union[Member, User]]]
     mention_roles: Optional[List[str]]
     mention_channels: Optional[List["ChannelMention"]]

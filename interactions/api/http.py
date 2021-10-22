@@ -365,7 +365,7 @@ class HTTPClient:
         channel_id: int,
         content: str,
         tts: bool = False,
-        embed: Optional[Embed] = None,
+        embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
         allowed_mentions=None,  # don't know type
         message_reference: Optional[Message] = None,
@@ -374,7 +374,6 @@ class HTTPClient:
         A higher level implementation of :meth:`create_message()` that handles the payload dict internally.
         Does not integrate components into the function, and is a port from v3.0.0
         """
-        # r = Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id)
         payload = {}
 
         if content:
@@ -383,8 +382,8 @@ class HTTPClient:
         if tts:
             payload["tts"] = True
 
-        if embed:
-            payload["embed"] = embed
+        if embeds:
+            payload["embeds"] = embeds
 
         if nonce:
             payload["nonce"] = nonce
@@ -395,7 +394,8 @@ class HTTPClient:
         if message_reference:
             payload["message_reference"] = message_reference
 
-        # return await self._req.request(r, json=payload)
+        # TODO: add attachments to payload.
+
         return await self.create_message(payload, channel_id)
 
     async def create_message(self, payload: dict, channel_id: int) -> dict:

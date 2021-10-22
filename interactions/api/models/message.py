@@ -67,6 +67,7 @@ class Attachment(DictSerializerMixin):
 
     :ivar int id: The ID of the attachment.
     :ivar str filename: The name of the attachment file.
+    :ivar typing.Optional[str] description: The description of the file.
     :ivar typing.Optional[str] content_type: The type of attachment file.
     :ivar int size: The size of the attachment file.
     :ivar str url: The CDN URL of the attachment file.
@@ -79,6 +80,7 @@ class Attachment(DictSerializerMixin):
         "_json",
         "id",
         "filename",
+        "description",
         "content_type",
         "size",
         "url",
@@ -92,11 +94,15 @@ class Attachment(DictSerializerMixin):
 
 
 class MessageInteraction(DictSerializerMixin):
+    __slots__ = ("_json", "id", "type", "name", "user")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
 class ChannelMention(DictSerializerMixin):
+    __slots__ = ("_json", "id", "type", "name", "guild_id")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -120,17 +126,33 @@ class Message(DictSerializerMixin):
 
 
 class Emoji(DictSerializerMixin):
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "roles",
+        "user",
+        "require_colons",
+        "managed",
+        "animated",
+        "available",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
 class ReactionObject(DictSerializerMixin):
+    __slots__ = ("_json", "count", "me", "bool")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
 class PartialSticker(DictSerializerMixin):
     """Partial object for a Sticker."""
+
+    __slots__ = ("_json", "id", "name", "format_type")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

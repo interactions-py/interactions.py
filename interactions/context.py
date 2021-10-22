@@ -1,5 +1,5 @@
 # from io import FileIO
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import interactions.client
 
@@ -69,7 +69,7 @@ class InteractionContext(Context):
         self,
         content: Optional[str] = None,
         tts: Optional[bool] = None,
-        # file: Optional[FileIO] = None,
+        attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
@@ -86,6 +86,7 @@ class InteractionContext(Context):
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
+        _attachments = [] if attachments else None
         _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
@@ -102,12 +103,15 @@ class InteractionContext(Context):
             content=_content,
             tts=_tts,
             # file=file,
+            attachments=_attachments,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
             components=_components,
             sticker_ids=_sticker_ids,
         )
+
+        # TODO: Add attachments into Message obj.
         self.message = payload
 
         async def func():
