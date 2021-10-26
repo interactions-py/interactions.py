@@ -1451,7 +1451,7 @@ class HTTPClient:
         :param user_id: The ID of the user to add
         """
         return await self._req.request(
-            Route("PUT", f"/channels/{thread_id}/thread-members/@{user_id}")
+            Route("PUT", f"/channels/{thread_id}/thread-members/{user_id}")
         )
 
     async def remove_member_from_thread(self, thread_id: int, user_id: int) -> None:
@@ -1461,14 +1461,27 @@ class HTTPClient:
         :param user_id: The ID of the user to remove
         """
         return await self._req.request(
-            Route("DELETE", f"/channels/{thread_id}/thread-members/@{user_id}")
+            Route("DELETE", f"/channels/{thread_id}/thread-members/{user_id}")
+        )
+
+    async def get_member_from_thread(self, thread_id: int, user_id: int) -> dict:
+        """
+        Get a member from a thread.
+
+        :param thread_id: The ID of the thread
+        :param user_id: The ID of the user to find
+        :return: A thread member object, if they're in the thread.
+        """
+        # Returns 404 if they don't
+        return await self._req.request(
+            Route("GET", f"/channels/{thread_id}/thread-members/{user_id}")
         )
 
     async def list_thread_members(self, thread_id: int) -> List[dict]:
         """
         Get a list of members in the thread.
         :param thread_id: the id of the thread
-        :return: a list of member objects
+        :return: a list of thread member objects
         """
         return await self._req.request(Route("GET", f"/channels/{thread_id}/thread-members"))
 

@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from ..api.models.channel import ChannelType
 from ..api.models.misc import DictSerializerMixin
@@ -127,6 +127,8 @@ class ApplicationCommand(DictSerializerMixin):
         "default_permission",
         "permissions",
         "version",
+        "default_member_permissions",
+        "dm_permission",
     )
     _json: dict
     id: Optional[int]
@@ -139,6 +141,11 @@ class ApplicationCommand(DictSerializerMixin):
     default_permission: Optional[bool]
     permissions: Optional[List[Permission]]
     version: int  # Not sure if we need this.
+
+    # TODO: Investigate these. These are apparently a thing.
+    # TODO: And document them.
+    default_member_permissions: Optional[Any]
+    dm_permission: Optional[bool]  # Could be any idk
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
