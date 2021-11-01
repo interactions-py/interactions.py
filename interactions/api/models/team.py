@@ -40,7 +40,10 @@ class Team(DictSerializerMixin):
 
 class Application(DictSerializerMixin):
     """
-    The application object
+    The application object.
+
+    ..note::
+        Type and Hook are currently undocumented in the API.
 
     :ivar int id: Application ID
     :ivar str name: Application Name
@@ -60,6 +63,9 @@ class Application(DictSerializerMixin):
     :ivar typing.Optional[str] slug: URL slug that links to the store page, if this app is a game sold on Discord
     :ivar typing.Optional[str] cover_image: The app's default rich presence invite cover image
     :ivar typing.Optional[int] flags: The application's public flags
+
+    :ivar typing.Optional[typing.Any] type: Type of application(?)
+    :ivar typing.Optional[typing.Any] hook: ?
     """
 
     __slots__ = (
@@ -82,6 +88,8 @@ class Application(DictSerializerMixin):
         "slug",
         "cover_image",
         "flags",
+        "type",
+        "hook",
     )
 
     def __init__(self, **kwargs):

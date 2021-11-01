@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .misc import DictSerializerMixin
 from .user import User
@@ -40,4 +40,6 @@ class Application(DictSerializerMixin):
     slug: Optional[str]
     cover_image: Optional[str]
     flags: Optional[int]
+    type: Optional[Any]
+    hook: Optional[Any]
     def __init__(self, **kwargs): ...
