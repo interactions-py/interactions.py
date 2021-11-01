@@ -113,6 +113,8 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar typing.Optional[typing.List[interactions.models.Option]] options: The "options"/arguments of the application command.
     :ivar typing.Optional[bool] default_permission: The default permission accessibility state of the application command.
     :ivar int version: The Application Command version autoincrement identifier.
+    :ivar typing.Any default_member_permissions: The default member permission state of the application command.
+    :ivar typing.Any dm_permission: The application permissions if executed in a Direct Message.
     """
 
     __slots__ = (
@@ -145,7 +147,7 @@ class ApplicationCommand(DictSerializerMixin):
     # TODO: Investigate these. These are apparently a thing.
     # TODO: And document them.
     default_member_permissions: Optional[Any]
-    dm_permission: Optional[bool]  # Could be any idk
+    dm_permission: Optional[Any]  # Could be any idk
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

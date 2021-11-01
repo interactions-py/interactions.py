@@ -58,13 +58,6 @@ class Client:
         cache.token = token
         # TODO: Code an internal ready state check for caching reasons.
 
-        if not self.me:
-            data = self.loop.run_until_complete(self.http.get_current_bot_information())
-            self.me = Application(**data)  #
-
-        self.websocket.dispatch.register(self.raw_socket_create)
-        self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
-
     async def login(self, token: str) -> None:
         """
         Makes a login with the Discord API.
@@ -78,6 +71,13 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
+        if not self.me:
+            data = self.loop.run_until_complete(self.http.get_current_bot_information())
+            self.me = Application(**data)  #
+
+        self.websocket.dispatch.register(self.raw_socket_create)
+        self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
+
         self.synchronize_commands()
         self.loop.run_until_complete(self.login(self.token))
 

@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, List, Optional, Type
 
 class Item(object):
     id: str
@@ -14,7 +14,6 @@ class Storage:
     def get(self, id: str) -> Optional[Item]: ...
 
 class Cache:
-    token: str
     dms: Storage
     self_guilds: Storage
     guilds: Storage

@@ -186,14 +186,36 @@ class GuildPreview(DictSerializerMixin):
 
 
 class Invite(DictSerializerMixin):
-    """The invite object."""
+    """
+    The invite object.
+
+    :ivar int uses: The amount of uses on the invite.
+    :ivar int max_uses: The amount of maximum uses on the invite.
+    :ivar int max_age: The maximum age of this invite.
+    :ivar bool temporary: A detection of whether this invite is temporary or not.
+    :ivar datetime created_at: The time when this invite was created.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
 class GuildTemplate(DictSerializerMixin):
-    """An object representing the snapshot of an existing guild."""
+    """
+    An object representing the snapshot of an existing guild.
+
+    :ivar str code: The code of the guild template.
+    :ivar str name: The name of the guild template.
+    :ivar typing.Optional[str] description: The description of the guild template, if given.
+    :ivar int usage_count: The amount of uses on the template.
+    :ivar int creator_id: User ID of the creator of this template.
+    :ivar User creator: The User object of the creator of this template.
+    :ivar datetime created_at: The time when this template was created.
+    :ivar datetime created_at: The time when this template was updated.
+    :ivar int source_guild_id: The Guild ID that the template sourced from.
+    :ivar Guild serialized_source_guild: A partial Guild object from the sourced template.
+    :ivar typing.Optional[bool] is_dirty: A status that denotes if the changes are unsynced.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

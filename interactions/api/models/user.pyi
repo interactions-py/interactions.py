@@ -3,7 +3,6 @@ from typing import Any, Optional
 from .misc import DictSerializerMixin
 
 class User(DictSerializerMixin):
-    __dict__: Any
     _json: dict
     id: int
     username: str
@@ -17,7 +16,7 @@ class User(DictSerializerMixin):
     locale: Optional[str]
     verified: Optional[bool]
     email: Optional[str]
-    flags: int
-    premium_type: int
-    public_flags: int
+    flags: Optional[int]
+    premium_type: Optional[int]
+    public_flags: Optional[int]
     def __init__(self, **kwargs): ...

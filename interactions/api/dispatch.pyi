@@ -1,5 +1,8 @@
 from asyncio import AbstractEventLoop
-from typing import Any, Callable, Coroutine, Optional
+from logging import Logger
+from typing import Coroutine, Optional
+
+log: Logger
 
 class Listener:
     loop: AbstractEventLoop

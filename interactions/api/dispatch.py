@@ -1,11 +1,11 @@
 from asyncio import get_event_loop
-from logging import Logger, basicConfig, getLogger
+from logging import basicConfig, getLogger
 from typing import Coroutine, Optional
 
 from ..base import Data
 
 basicConfig(level=Data.LOGGER)
-log: Logger = getLogger("dispatch")
+log = getLogger("dispatch")
 
 
 class Listener:
