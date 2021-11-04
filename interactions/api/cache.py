@@ -67,6 +67,7 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
+    :ivar interactions.api.cache.Cache token: The token associated with the Cache object.
     :ivar interactions.api.cache.Cache dms: The cached Direct Messages.
     :ivar interactions.api.cache.Cache self_guilds: The cached guilds upon gateway connection.
     :ivar interactions.api.cache.Cache guilds: The cached guilds after ready.
@@ -77,9 +78,10 @@ class Cache:
     :ivar interactions.api.cache.Cache interactions: The cached interactions upon interaction.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, token: str) -> None:
         # TODO: Look into a better solution that handles duplication of data
         # in a storage.
+        self.token: token
         self.dms = Storage()
         self.self_guilds = Storage()
         self.guilds = Storage()
