@@ -30,6 +30,7 @@ class InteractionContext(Context):
         "channel_id",
         "token",
         "version",
+        "responded",
     )
     id: str
     application_id: str
@@ -39,6 +40,7 @@ class InteractionContext(Context):
     channel_id: str
     token: str
     version: int = 1
+    responded: bool = False
     def __init__(self, **kwargs) -> None: ...
 
 class ComponentContext(InteractionContext):

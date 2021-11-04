@@ -1,6 +1,6 @@
 from asyncio import get_event_loop
 from logging import Logger, basicConfig, getLogger
-from typing import Any, Callable, Coroutine, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache, Item
 from .api.error import InteractionException, JSONException
@@ -40,7 +40,7 @@ class Client:
         """
         :param token: The token of the application for authentication and connection.
         :type token: str
-        :param intents: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.Intents.DEFAULT` or ``513``.
+        :param intents: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.intents.Intents.DEFAULT` or ``513``.
         :type intents: typing.Optional[typing.Union[interactions.api.models.Intents, typing.List[Intents]]]
         :return: None
         """
@@ -150,7 +150,7 @@ class Client:
         if not name:
             raise Exception("Command must have a name!")
 
-        if name and not description:
+        if type == ApplicationCommandType.CHAT_INPUT and not description:
             raise Exception("Chat-input commands must have a description!")
 
         def decorator(coro: Coroutine) -> Any:
@@ -189,25 +189,35 @@ class Client:
                 if request.get("code"):
                     raise JSONException(request["code"])  # TODO: work on this pls
 
-                for interaction in cache.interactions.values:
-                    if interaction.values[interaction].value.name == name:
-                        self.synchronize_commands(name)
-                        # TODO: make a call to our internal sync method instead of an exception.
-                    else:
-                        cache.interactions.add(Item(id=request["application_id"], value=payload))
+            for interaction in cache.interactions.values:
+                if interaction.values[interaction].value.name == name:
+                    self.synchronize_commands(name)
+                    # TODO: make a call to our internal sync method instead of an exception.
+                else:
+                    cache.interactions.add(Item(id=request["application_id"], value=payload))
 
             return self.event(coro)
 
         return decorator
 
-    async def raw_socket_create(self, data: dict) -> None:
-        # TODO: doctype what this does
+    async def raw_socket_create(self, data: Dict[Any, Any]) -> None:
+        """
+        This is an internal function that takes any gateway socket event
+        and then returns the data purely basedd off of what it does in
+        the client instantiation class.
+
+        :param data: The data that is returned
+        :type data: typing.Dict[typing.Any, typing.Any]
+        :return: None
+        """
         return data
 
     async def raw_guild_create(self, guild) -> None:
         """
         This is an internal function that caches the guild creates on ready.
-        :param guild: Guild object.
+
+        :param guild: The guild object data in question.
+        :type guild: interactions.api.model.guild.Guild
         :return: None.
         """
         cache.guilds.add(Item(id=guild.id, value=guild))

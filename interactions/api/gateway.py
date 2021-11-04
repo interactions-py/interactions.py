@@ -8,17 +8,11 @@ from typing import Any, Optional, Union
 from orjson import dumps, loads
 
 from ..base import Data
-from ..enums import InteractionType
-from ..models.misc import InteractionData
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
 from .http import HTTPClient
-from .models.channel import Channel
 from .models.intents import Intents
-from .models.member import Member
-from .models.message import Message
-from .models.user import User
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("gateway")
@@ -64,7 +58,7 @@ class Heartbeat(Thread):
                         )
                         self.stop()
             except:  # noqa
-                pass
+                self.stop()  # end the stupid heartbeat looping on death.
 
     def stop(self) -> None:
         """Stops the heartbeat connection."""
@@ -262,45 +256,10 @@ class WebSocket:
 
         # context = None
 
-        # if int(data["type"]) == 2:  # APPLICATION_COMMAND
-        #     context: object = getattr(__import__("interactions.context"), "InteractionContext")()
-        #     context.message = Message(**data["message"]) if data.get("message") else None
-        #     context.author = Member(**data["member"]) if data.get("member") else None
-        #     context.user = User(**data["user"]) if data.get("user") else None
-        #     context.channel = Channel(**data["channel"]) if data.get("channel") else None
-        #     context.id = data.get("id")
-        #     context.application_id = data.get("application_id")
-        #     context.type = InteractionType(int(data["type"])) if data.get("type") else None
-        #     context.data = InteractionData(**data["data"])
-        #     context.guild_id = data.get("guild_id")
-        #     context.channel_id = data.get("channel_id")
-        #     context.token = data.get("token")
-        #     # context.guild = Guild(data["guild"] if data.get("guild_id"))
-        #     # TODO: code a stupid fucking snowflake converter
-        #     return context
-        # if int(data["type"]) == 3:  # MESSAGE_COMPONENT
-        #     context: object = getattr(__import__("interactions.context"), "ComponentContext")()
-        #     context.custom_id = data.get("custom_id")
-        #     context.type = ComponentType(int(data["type"])) if data.get("type") else None
-        #     context.values = data.get("values")
-        #     context.origin = data.get("origin")
-        #     return context
-
-        context: object = getattr(__import__("interactions.context"), "InteractionContext")()
-        context.message = Message(**data["message"]) if data.get("message") else None
-        context.author = Member(**data["member"]) if data.get("member") else None
-        context.user = User(**data["user"]) if data.get("user") else None
-        context.channel = Channel(**data["channel"]) if data.get("channel") else None
-        context.id = data.get("id")
-        context.application_id = data.get("application_id")
-        context.type = InteractionType(int(data["type"])) if data.get("type") else None
-        context.data = InteractionData(**data["data"])
-        context.guild_id = data.get("guild_id")
-        context.channel_id = data.get("channel_id")
-        context.token = data.get("token")
-        # context.guild = Guild(data["guild"] if data.get("guild_id"))
-        # TODO: code a stupid fucking snowflake converter
-        return context
+        if data["type"] != 1:
+            _context: str = "InteractionContext" if data["type"] == 2 else "ComponentContext"
+            context: object = getattr(__import__("interactions.context"), _context)
+            return context(**data)
 
     async def send(self, data: Union[str, dict]) -> None:
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data

@@ -4,9 +4,14 @@ from typing import List, Optional, Union
 import interactions.client
 
 from .api.http import HTTPClient
+from .api.models.channel import Channel
+from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin
+from .api.models.user import User
+from .enums import InteractionType
 from .models.component import Component
+from .models.misc import InteractionData
 
 
 class Context(DictSerializerMixin):
@@ -44,6 +49,18 @@ class InteractionContext(Context):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.message = Message(**kwargs["message"]) if kwargs.get("message") else None
+        self.author = Member(**kwargs["member"]) if kwargs.get("member") else None
+        self.user = User(**kwargs["user"]) if kwargs.get("user") else None
+        self.channel = Channel(**kwargs["channel"]) if kwargs.get("channel") else None
+        self.id = kwargs.get("id")
+        self.application_id = kwargs.get("application_id")
+        self.type = InteractionType(int(kwargs["type"])) if kwargs.get("type") else None
+        self.data = InteractionData(**kwargs["data"])
+        self.guild_id = kwargs.get("guild_id")
+        self.channel_id = kwargs.get("channel_id")
+        self.token = kwargs.get("token")
+        self.responded = False
 
     async def send(
         self,
@@ -60,8 +77,6 @@ class InteractionContext(Context):
         """
         A **very** primitive form of the send model to get the uttermost
         basic implementation of command responses up and running.
-
-        ok he kinda work now
         """
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
@@ -91,12 +106,19 @@ class InteractionContext(Context):
         self.message = payload
 
         async def func():
-            req = await HTTPClient(interactions.client.cache.token).create_interaction_response(
-                token=self.token,
-                application_id=int(self.id),
-                data={"type": _type, "data": payload._json},
-            )
-            return req
+            if self.responded:
+                req = await HTTPClient(interactions.client.cache.token)._post_followup(
+                    data=payload._json, token=self.token, application_id=self.application_id
+                )
+                return req
+            else:
+                req = await HTTPClient(interactions.client.cache.token).create_interaction_response(
+                    token=self.token,
+                    application_id=int(self.id),
+                    data={"type": _type, "data": payload._json},
+                )
+                self.responded = True
+                return req
 
         await func()
         return payload
