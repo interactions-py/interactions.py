@@ -4,9 +4,14 @@ from typing import Any, List, Optional, Union
 import interactions.client
 
 from .api.http import HTTPClient
+from .api.models.channel import Channel
+from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin
+from .api.models.user import User
+from .enums import InteractionType
 from .models.component import Component
+from .models.misc import InteractionData
 
 
 class Context(DictSerializerMixin):
@@ -64,6 +69,18 @@ class InteractionContext(Context):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.message = Message(**kwargs["message"]) if kwargs.get("message") else None
+        self.author = Member(**kwargs["member"]) if kwargs.get("member") else None
+        self.user = User(**kwargs["user"]) if kwargs.get("user") else None
+        self.channel = Channel(**kwargs["channel"]) if kwargs.get("channel") else None
+        self.id = kwargs.get("id")
+        self.application_id = kwargs.get("application_id")
+        self.type = InteractionType(int(kwargs["type"])) if kwargs.get("type") else None
+        self.data = InteractionData(**kwargs["data"])
+        self.guild_id = kwargs.get("guild_id")
+        self.channel_id = kwargs.get("channel_id")
+        self.token = kwargs.get("token")
+        self.responded = False
 
     async def send(
         self,
@@ -76,12 +93,31 @@ class InteractionContext(Context):
         components: Optional[Union[Component, List[Component]]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[int] = None,
+        flags: Optional[int] = None,
     ) -> Message:
         """
         A **very** primitive form of the send model to get the uttermost
         basic implementation of command responses up and running.
 
-        ok he kinda work now
+        :param content: The contents of the message as a string or string-converted value.
+        :type content: typing.Optional[str]
+        :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :type tts: typing.Optional[bool]
+        :param embeds: An embed, or list of embeds for the message.
+        :type embeds: typing.Optional[typing.Union[interactions.api.models.message.Embed, typing.List[interactions.api.models.message.Embed]]]
+        :param allowed_mentions: The message interactions/mention limits that the message can refer to.
+        :type allowed_mentions: typing.Optional[interactions.api.models.message.MessageInteraction]
+        :param message_reference: The message to "refer" if attempting to reply to a message.
+        :type message_reference: typing.Optional[interactions.api.models.message.MessageReference]
+        :param components: A component, or list of components for the message.
+        :type components: typing.Optional[typing.Union[interactions.models.component.Component, typing.List[interactions.models.component.Component]]]
+        :param sticker_ids: A singular or list of IDs to stickers that the application has access to for the message.
+        :type sticker_ids: typing.Optional[typing.Union[str, typing.List[str]]]
+        :param type: The type of message response if used for interactions.
+        :type type: typing.Optional[int]
+        :param flags: The flags of the message if used for interactions.
+        :type flags: typing.Optional[int]
+        :return: interactions.api.models.message.Message
         """
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
@@ -95,6 +131,7 @@ class InteractionContext(Context):
         )
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
         _type: int = 4 if type is None else type
+        _flags: int = 0 if flags is None else flags
 
         if sticker_ids and len(sticker_ids) > 3:
             raise Exception("Message can only have up to 3 stickers.")
@@ -109,18 +146,26 @@ class InteractionContext(Context):
             message_reference=_message_reference,
             components=_components,
             sticker_ids=_sticker_ids,
+            flags=_flags,
         )
 
         # TODO: Add attachments into Message obj.
         self.message = payload
 
         async def func():
-            req = await HTTPClient(interactions.client.cache.token).create_interaction_response(
-                token=self.token,
-                application_id=int(self.id),
-                data={"type": _type, "data": payload._json},
-            )
-            return req
+            if self.responded:
+                req = await HTTPClient(interactions.client.cache.token)._post_followup(
+                    data=payload._json, token=self.token, application_id=self.application_id
+                )
+                return req
+            else:
+                req = await HTTPClient(interactions.client.cache.token).create_interaction_response(
+                    token=self.token,
+                    application_id=int(self.id),
+                    data={"type": _type, "data": payload._json},
+                )
+                self.responded = True
+                return req
 
         await func()
         return payload

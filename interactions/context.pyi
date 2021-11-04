@@ -9,6 +9,7 @@ from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .enums import ComponentType, InteractionType
 from .models.command import InteractionData
+from .models.component import Component
 
 class Context(DictSerializerMixin):
     message: Message
@@ -29,17 +30,20 @@ class InteractionContext(Context):
     channel_id: str
     token: str
     version: int = 1
+    responded: bool = False
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,
-        content: Optional[str],
-        tts: Optional[bool],
-        embeds: Optional[Union[Embed, List[Embed]]],
-        allowed_mentions: Optional[MessageInteraction],
-        message_reference: Optional[MessageReference],
-        components: Optional[Union[Component, List[Component]]],
-        sticker_ids: Optional[Union[str, List[str]]],
-        type: Optional[int],
+        content: Optional[str] = None,
+        tts: Optional[bool] = None,
+        # file: Optional[FileIO] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = None,
+        allowed_mentions: Optional[MessageInteraction] = None,
+        message_reference: Optional[MessageReference] = None,
+        components: Optional[Union[Component, List[Component]]] = None,
+        sticker_ids: Optional[Union[str, List[str]]] = None,
+        type: Optional[int] = None,
+        flags: Optional[int] = None,
     ) -> Message: ...
 
 class ComponentContext(InteractionContext):
