@@ -112,6 +112,8 @@ class Client:
         A decorator for listening to dispatched events from the
         gateway.
 
+        :param coro: The coroutine of the event.
+        :type coro: typing.Coroutine
         :return: typing.Callable[..., typing.Any]
         """
         self.websocket.dispatch.register(
@@ -191,17 +193,17 @@ class Client:
                 if request.get("code"):
                     raise JSONException(request["code"])  # TODO: work on this pls
 
-            for interaction in cache.interactions.values:
-                if interaction.values[interaction].value.name == name:
-                    self.synchronize_commands(name)
-                    # TODO: make a call to our internal sync method instead of an exception.
-                else:
-                    cache.interactions.add(Item(id=request["application_id"], value=payload))
+                # indent because of variable definitions
+                for interaction in cache.interactions.values:
+                    if interaction.values[interaction].value.name == name:
+                        self.synchronize_commands(name)
+                        # TODO: make a call to our internal sync method instead of an exception.
+                    else:
+                        cache.interactions.add(Item(id=request["application_id"], value=payload))
 
             return self.event(coro)
 
         return decorator
-
 
     async def raw_socket_create(self, data: Dict[Any, Any]) -> None:
         """
@@ -213,7 +215,7 @@ class Client:
         :type data: typing.Dict[typing.Any, typing.Any]
         :return: None
         """
-        
+
         return data
 
     async def raw_guild_create(self, guild) -> None:

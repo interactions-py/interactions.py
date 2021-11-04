@@ -1,6 +1,5 @@
 from typing import Any, Dict, List, Optional, Union
 
-from . import Component
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -29,12 +28,12 @@ class InteractionContext(Context):
     guild_id: str
     channel_id: str
     token: str
-    version: int = 1
     responded: bool = False
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,
         content: Optional[str] = None,
+        *,
         tts: Optional[bool] = None,
         # file: Optional[FileIO] = None,
         embeds: Optional[Union[Embed, List[Embed]]] = None,

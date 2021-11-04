@@ -1,5 +1,5 @@
 # from io import FileIO
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 import interactions.client
 
@@ -64,7 +64,7 @@ class InteractionContext(Context):
         "guild_id",
         "channel_id",
         "token",
-        "version",
+        "responded",
     )
 
     def __init__(self, **kwargs) -> None:
@@ -85,8 +85,9 @@ class InteractionContext(Context):
     async def send(
         self,
         content: Optional[str] = None,
+        *,
         tts: Optional[bool] = None,
-        attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
+        # attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
@@ -122,7 +123,7 @@ class InteractionContext(Context):
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
-        _attachments = [] if attachments else None
+        # _attachments = [] if attachments else None
         _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
@@ -140,7 +141,7 @@ class InteractionContext(Context):
             content=_content,
             tts=_tts,
             # file=file,
-            attachments=_attachments,
+            # attachments=_attachments,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
@@ -152,6 +153,7 @@ class InteractionContext(Context):
         # TODO: Add attachments into Message obj.
         self.message = payload
 
+        # TODO: cache.token doesn't exist yet.
         async def func():
             if self.responded:
                 req = await HTTPClient(interactions.client.cache.token)._post_followup(
@@ -197,7 +199,7 @@ class ComponentContext(InteractionContext):
         "guild_id",
         "channel_id",
         "token",
-        "version",
+        "responded",
         "custom_id",
         "type",
         "values",
