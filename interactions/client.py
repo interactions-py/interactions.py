@@ -202,7 +202,6 @@ class Client:
 
         return decorator
 
-
     async def raw_socket_create(self, data: Dict[Any, Any]) -> None:
         """
         This is an internal function that takes any gateway socket event
@@ -213,7 +212,7 @@ class Client:
         :type data: typing.Dict[typing.Any, typing.Any]
         :return: None
         """
-        
+
         return data
 
     async def raw_guild_create(self, guild) -> None:
