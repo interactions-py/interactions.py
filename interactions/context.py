@@ -73,6 +73,7 @@ class InteractionContext(Context):
         components: Optional[Union[Component, List[Component]]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[int] = None,
+        flags: Optional[int] = None,
     ) -> Message:
         """
         A **very** primitive form of the send model to get the uttermost
@@ -89,6 +90,7 @@ class InteractionContext(Context):
         )
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
         _type: int = 4 if type is None else type
+        _flags: int = 0 if flags is None else flags
 
         if sticker_ids and len(sticker_ids) > 3:
             raise Exception("Message can only have up to 3 stickers.")
@@ -102,6 +104,7 @@ class InteractionContext(Context):
             message_reference=_message_reference,
             components=_components,
             sticker_ids=_sticker_ids,
+            flags=_flags,
         )
         self.message = payload
 
