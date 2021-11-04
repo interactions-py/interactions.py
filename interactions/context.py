@@ -65,6 +65,7 @@ class InteractionContext(Context):
     async def send(
         self,
         content: Optional[str] = None,
+        *,
         tts: Optional[bool] = None,
         # file: Optional[FileIO] = None,
         embeds: Optional[Union[Embed, List[Embed]]] = None,
