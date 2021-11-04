@@ -110,6 +110,8 @@ class Client:
         A decorator for listening to dispatched events from the
         gateway.
 
+        :param coro: The coroutine of the event.
+        :type coro: typing.Coroutine
         :return: typing.Callable[..., typing.Any]
         """
         self.websocket.dispatch.register(
