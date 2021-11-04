@@ -78,7 +78,7 @@ class Cache:
     :ivar interactions.api.cache.Cache interactions: The cached interactions upon interaction.
     """
 
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: Optional[str] = None) -> None:
         # TODO: Look into a better solution that handles duplication of data
         # in a storage.
         self.token: token

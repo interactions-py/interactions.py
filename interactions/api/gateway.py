@@ -166,8 +166,11 @@ class WebSocket:
                 data: Optional[dict] = stream.get("d")
                 self.sequence = stream.get("s")
 
+                log.debug(f"STREAM: {stream}")
+
                 if op != OpCodeType.DISPATCH:
-                    log.debug(data)
+                    if data is not None:
+                        log.debug(data)
 
                     if op == OpCodeType.HELLO:
                         if not self.session_id:

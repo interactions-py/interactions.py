@@ -18,6 +18,8 @@ from .models.command import ApplicationCommand, Option
 # but i'm on a time crunch to make the caching work.
 cache = Cache()
 
+# TODO: Somehow declare cache to where its embedded
+
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
 
