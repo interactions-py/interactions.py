@@ -78,6 +78,26 @@ class InteractionContext(Context):
         """
         A **very** primitive form of the send model to get the uttermost
         basic implementation of command responses up and running.
+
+        :param content: The contents of the message as a string or string-converted value.
+        :type content: typing.Optional[str]
+        :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :type tts: typing.Optional[bool]
+        :param embeds: An embed, or list of embeds for the message.
+        :type embeds: typing.Optional[typing.Union[interactions.api.models.message.Embed, typing.List[interactions.api.models.message.Embed]]]
+        :param allowed_mentions: The message interactions/mention limits that the message can refer to.
+        :type allowed_mentions: typing.Optional[interactions.api.models.message.MessageInteraction]
+        :param message_reference: The message to "refer" if attempting to reply to a message.
+        :type message_reference: typing.Optional[interactions.api.models.message.MessageReference]
+        :param components: A component, or list of components for the message.
+        :type components: typing.Optional[typing.Union[interactions.models.component.Component, typing.List[interactions.models.component.Component]]]
+        :param sticker_ids: A singular or list of IDs to stickers that the application has access to for the message.
+        :type sticker_ids: typing.Optional[typing.Union[str, typing.List[str]]]
+        :param type: The type of message response if used for interactions.
+        :type type: typing.Optional[int]
+        :param flags: The flags of the message if used for interactions.
+        :type flags: typing.Optional[int]
+        :return: interactions.api.models.message.Message
         """
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
