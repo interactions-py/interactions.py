@@ -27,3 +27,35 @@ class ClientStatus(DictSerializerMixin):
     mobile: Optional[str]
     web: Optional[str]
     def __init__(self, **kwargs): ...
+
+class Format(DictSerializerMixin):
+    __slots__ = (
+        "USER",
+        "USER_NICK",
+        "CHANNEL",
+        "ROLE",
+        "EMOJI_STANDARD",
+        "TIMESTAMP",
+        "TIMESTAMP_SHORT_T",
+        "TIMESTAMP_LONG_T",
+        "TIMESTAMP_SHORT_D",
+        "TIMESTAMP_LONG_D",
+        "TIMESTAMP_SHORT_DT",
+        "TIMESTAMP_LONG_DT",
+        "TIMESTAMP_RELATIVE",
+    )
+    USER: str = "<@{id}>"
+    USER_NICK: str = "<@!{id}>"
+    CHANNEL: str = "<#{id}>"
+    ROLE: str = "<@&{id}>"
+    EMOJI: str = "<:{name}:{id}>"
+    EMOJI_ANIMATED: str = "<a:{name}:{id}>"
+    TIMESTAMP: str = "<t:{timestamp}>"
+    TIMESTAMP_SHORT_T: str = "<t:{timestamp}:t>"
+    TIMESTAMP_LONG_T: str = "<t:{timestamp}:T>"
+    TIMESTAMP_SHORT_D: str = "<t:{timestamp}:d>"
+    TIMESTAMP_LONG_D: str = "<t:{timestamp}:D>"
+    TIMESTAMP_SHORT_DT: str = TIMESTAMP
+    TIMESTAMP_LONG_DT: str = "<t:{timestamp}:F>"
+    TIMESTAMP_RELATIVE: str = "<t:{timestamp}:R>"
+    def stylize(self, format: str, **kwargs) -> str: ...
