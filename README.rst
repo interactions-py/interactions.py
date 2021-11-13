@@ -1,3 +1,4 @@
+====================
 discord-interactions
 ====================
 
@@ -51,6 +52,7 @@ And we're not good for:
 - Trying to use/connect as a voice client.
 - Cooldowns/bucket types.
 
+============
 Installation
 ============
 

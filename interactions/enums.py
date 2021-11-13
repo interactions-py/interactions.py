@@ -27,6 +27,19 @@ class InteractionType(IntEnum):
     MESSAGE_COMPONENT = 3
 
 
+class InteractionCallbackTye(IntEnum):
+    """
+    An enumerable object representing the callback types of interaction responses.
+    """
+
+    PONG = 1
+    CHANNEL_MESSAGE_WITH_SOURCE = 4
+    DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5
+    DEFERRED_UPDATE_MESSAGE = 6
+    UPDATE_MESSAGE = 7
+    APPLICATION_COMMAND_AUTOCOMPLETE_RESULT = 8
+
+
 class OptionType(IntEnum):
     """
     Enumerable object of literal integers holding equivocal values of a slash command's option(s).
