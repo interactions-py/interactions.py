@@ -105,17 +105,20 @@ class Client:
             )
             cache.interactions.add(Item(command["id"], ApplicationCommand(**command)))
 
-    def event(self, coro: Coroutine) -> Callable[..., Any]:
+    def event(self, coro: Coroutine, command: Optional[bool] = None) -> Callable[..., Any]:
         """
         A decorator for listening to dispatched events from the
         gateway.
 
         :param coro: The coroutine of the event.
         :type coro: typing.Coroutine
+        :param command: Whether the event is a command or not.
+        :type command: typing.Optional[bool]
         :return: typing.Callable[..., typing.Any]
         """
+        _command: bool = False if command is None else command
         self.websocket.dispatch.register(
-            coro, name=coro.__name__ if coro.__name__.startswith("on") else "on_interaction_create"
+            coro, name=coro.__name__ if _command else "on_interaction_create"
         )
         return coro
 
@@ -198,7 +201,7 @@ class Client:
                 else:
                     cache.interactions.add(Item(id=request["application_id"], value=payload))
 
-            return self.event(coro)
+            return self.event(coro, True)
 
         return decorator
 
