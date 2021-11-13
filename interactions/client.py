@@ -13,10 +13,7 @@ from .base import Data
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 
-# TODO: Find a better way to call on the cache for
-# storing the token. Yes, this is a piss poor approach,
-# but i'm on a time crunch to make the caching work.
-cache = Cache()
+cache: Cache = Cache()
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
@@ -56,7 +53,6 @@ class Client:
         self.me = None
         self.token = token
         cache.token = token
-        # TODO: Code an internal ready state check for caching reasons.
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_self())
@@ -81,8 +77,18 @@ class Client:
         self.synchronize_commands()
         self.loop.run_until_complete(self.login(self.token))
 
-    def synchronize_commands(self, name: Optional[str] = None) -> None:
-        # TODO: Doctype what this does.
+    def synchronize_commands(self) -> None:
+        """
+        Synchronizes all of the commands that are currently existing,
+        and updates those that are currently not being used.
+
+        .. warning::
+            This internal call does not need to be manually triggered,
+            as it will automatically be done for you. Additionally,
+            this will not delete unused commands for you.
+
+        :return: None
+        """
         commands = self.loop.run_until_complete(self.http.get_application_command(self.me.id))
         change: list = []
 
@@ -105,21 +111,16 @@ class Client:
             )
             cache.interactions.add(Item(command["id"], ApplicationCommand(**command)))
 
-    def event(self, coro: Coroutine, command: Optional[bool] = None) -> Callable[..., Any]:
+    def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
         A decorator for listening to dispatched events from the
         gateway.
 
         :param coro: The coroutine of the event.
         :type coro: typing.Coroutine
-        :param command: Whether the event is a command or not.
-        :type command: typing.Optional[bool]
         :return: typing.Callable[..., typing.Any]
         """
-        _command: bool = False if command is None else command
-        self.websocket.dispatch.register(
-            coro, name=coro.__name__ if _command else "on_interaction_create"
-        )
+        self.websocket.dispatch.register(coro, name=name)
         return coro
 
     def command(
@@ -161,6 +162,12 @@ class Client:
         def decorator(coro: Coroutine) -> Any:
             if "ctx" not in coro.__code__.co_varnames:
                 raise InteractionException(11)
+            if isinstance(type, ApplicationCommandType):
+                _type: int = type.value
+            if isinstance(type, str):
+                _type: int = ApplicationCommandType.type.value
+            else:
+                _type = type
 
             _description: str = "" if description is None else description
             _options: list = [] if options is None else options
@@ -178,7 +185,7 @@ class Client:
 
             for guild in _scope:
                 payload: ApplicationCommand = ApplicationCommand(
-                    type=type.value if isinstance(type, ApplicationCommandType) else type,
+                    type=_type,
                     name=name,
                     description=_description,
                     options=_options,
@@ -201,7 +208,7 @@ class Client:
                 else:
                     cache.interactions.add(Item(id=request["application_id"], value=payload))
 
-            return self.event(coro, True)
+            return self.event(coro, name=name)
 
         return decorator
 
