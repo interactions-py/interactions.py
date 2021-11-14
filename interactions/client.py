@@ -239,15 +239,15 @@ class Client:
 
         return decorator
 
-    async def raw_socket_create(self, data: Dict[Any, Any]) -> None:
+    async def raw_socket_create(self, data: Dict[Any, Any]) -> dict:
         """
         This is an internal function that takes any gateway socket event
-        and then returns the data purely basedd off of what it does in
+        and then returns the data purely based off of what it does in
         the client instantiation class.
 
         :param data: The data that is returned
         :type data: typing.Dict[typing.Any, typing.Any]
-        :return: None
+        :return: The returned data
         """
 
         return data

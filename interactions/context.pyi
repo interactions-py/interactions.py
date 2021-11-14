@@ -7,7 +7,7 @@ from .api.models.message import Embed, Message, MessageInteraction, MessageRefer
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .enums import ComponentType, InteractionType
-from .models.command import InteractionData
+from .models import InteractionData
 from .models.component import Component
 
 class Context(DictSerializerMixin):

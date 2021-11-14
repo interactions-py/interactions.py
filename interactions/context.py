@@ -246,7 +246,7 @@ class InteractionContext(Context):
         async def func():
             req = await HTTPClient(interactions.client.cache.token).edit_interaction_response(
                 token=self.token,
-                application_id=int(self.id),
+                application_id=self.id,
                 data={"type": _type, "data": payload._json},
                 message_id=self.message.id,
             )
