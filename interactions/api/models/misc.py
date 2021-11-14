@@ -6,6 +6,7 @@ import datetime
 from typing import Union
 
 
+
 class DictSerializerMixin(object):
     """
     The purpose of this mixin is to be subclassed.
@@ -149,3 +150,66 @@ class Snowflake(object):
     # Do we need not equals, equals, gt/lt/ge/le?
     # If so, list them under. By Discord API this may not be needed
     # but end users might.
+
+class Format(object):
+    """
+    This object is used to respectively format markdown strings
+    provided by the WYSIWYG text editor for ease-of-accessibility
+    and simple implementations into bots.
+
+    .. note::
+        All base strings are given brackets before being f-string
+        parsable to make conversion simplified.
+
+    .. warning::
+        the ``stylize()`` method must be used if you're actually
+        looking to give a **str** specific result.
+    """
+    
+    __slots__ = (
+        "USER",
+        "USER_NICK",
+        "CHANNEL",
+        "ROLE",
+        "EMOJI_STANDARD",
+        "TIMESTAMP",
+        "TIMESTAMP_SHORT_T",
+        "TIMESTAMP_LONG_T",
+        "TIMESTAMP_SHORT_D",
+        "TIMESTAMP_LONG_D",
+        "TIMESTAMP_SHORT_DT",
+        "TIMESTAMP_LONG_DT",
+        "TIMESTAMP_RELATIVE",
+    )
+    
+    USER = "<@{id}>"
+    USER_NICK = "<@!{id}>"
+    CHANNEL = "<#{id}>"
+    ROLE = "<@&{id}>"
+    EMOJI = "<:{name}:{id}>"
+    EMOJI_ANIMATED = "<a:{name}:{id}>"
+    TIMESTAMP = "<t:{timestamp}>"
+    TIMESTAMP_SHORT_T = "<t:{timestamp}:t>"
+    TIMESTAMP_LONG_T = "<t:{timestamp}:T>"
+    TIMESTAMP_SHORT_D = "<t:{timestamp}:d>"
+    TIMESTAMP_LONG_D = "<t:{timestamp}:D>"
+    TIMESTAMP_SHORT_DT = TIMESTAMP
+    TIMESTAMP_LONG_DT = "<t:{timestamp}:F>"
+    TIMESTAMP_RELATIVE = "<t:{timestamp}:R>"
+
+    def stylize(self, format: str, **kwargs) -> str:
+        r"""
+        This takes a format style from the object and
+        converts it into a useable string for ease.
+
+        :param format: The format string to use.
+        :type format: str
+        :param \**kwargs: Multiple key-word arguments to use, where key=value is format=value.
+        :type \**kwargs: dict
+        :return: str
+        """
+        new: str = f""  # noqa: F541
+        for kwarg in kwargs:
+            if format == kwarg:
+                new = new + format
+        return new

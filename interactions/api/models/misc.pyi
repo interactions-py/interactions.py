@@ -26,6 +26,7 @@ class ClientStatus(DictSerializerMixin):
     web: Optional[str]
     def __init__(self, **kwargs): ...
 
+
 class Snowflake(object):
     _snowflake: str
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...
@@ -43,3 +44,20 @@ class Snowflake(object):
     # Just because we can :)
     def __hash__(self) -> int: ...
     def __str__(self) -> str: ...
+
+class Format(DictSerializerMixin):
+    USER: str
+    USER_NICK: str
+    CHANNEL: str
+    ROLE: str
+    EMOJI: str
+    EMOJI_ANIMATED: str
+    TIMESTAMP: str
+    TIMESTAMP_SHORT_T: str
+    TIMESTAMP_LONG_T: str
+    TIMESTAMP_SHORT_D: str
+    TIMESTAMP_LONG_D: str
+    TIMESTAMP_SHORT_DT: str
+    TIMESTAMP_LONG_DT: str
+    TIMESTAMP_RELATIVE: str
+    def stylize(self, format: str, **kwargs) -> str: ...

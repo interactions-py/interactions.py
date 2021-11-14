@@ -27,6 +27,19 @@ class InteractionType(IntEnum):
     MESSAGE_COMPONENT = 3
 
 
+class InteractionCallbackTye(IntEnum):
+    """
+    An enumerable object representing the callback types of interaction responses.
+    """
+
+    PONG = 1
+    CHANNEL_MESSAGE_WITH_SOURCE = 4
+    DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5
+    DEFERRED_UPDATE_MESSAGE = 6
+    UPDATE_MESSAGE = 7
+    APPLICATION_COMMAND_AUTOCOMPLETE_RESULT = 8
+
+
 class OptionType(IntEnum):
     """
     Enumerable object of literal integers holding equivocal values of a slash command's option(s).
@@ -129,23 +142,11 @@ class ComponentType(IntEnum):
     SELECT = 3
 
 
-class ButtonType(IntEnum):
-    """
-    Enumerable object of literal integers holding equivocal values of a button(s) type.
-
-    .. note::
-        Equivalent of `Button Styles <https://discord.com/developers/docs/interactions/message-components#button-object-button-styles>`_ in the Discord API.
-    """
-
-    BLUE = 1
-    BLURPLE = 2
-    GRAY = 2
-    GREY = 2
-    GREEN = 3
-    RED = 4
+class ButtonStyle(IntEnum):
+    """An enumerable object representing the styles of button components."""
 
     PRIMARY = 1
     SECONDARY = 2
     SUCCESS = 3
     DANGER = 4
-    URL = 5
+    LINK = 5

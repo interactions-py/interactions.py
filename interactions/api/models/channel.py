@@ -130,33 +130,3 @@ class Channel(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-
-class CategoryChannel(Channel):
-    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for category channels."""
-
-    ...
-
-
-class TextChannel(Channel):
-    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for text channels."""
-
-    ...
-
-
-class VoiceChannel(Channel):
-    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for voice channels."""
-
-    ...
-
-
-class DMChannel(Channel):
-    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for DM channels."""
-
-    ...
-
-
-class ThreadChannel(Channel):
-    """This is a derivation of :class:`interactions.api.models.channel.Channel` but for thread channels."""
-
-    ...

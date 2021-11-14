@@ -13,15 +13,30 @@ async def on_ready():
         f"{client.me.name} logged in."
     )  # client.me is an Application, not a User, upon fl0w's req.
 
-    # await client.http.request(
-    #     Route("POST", "/applications/883788893512683520/guilds/852402668294766612/commands"),
-    #     json={"type": 1, "name": "digiorno", "description": "v4.0.0 baby!"},
-    # )
+
+cool_component = interactions.Button(
+    style=interactions.ButtonStyle.PRIMARY, label="hello world!", custom_id="test"
+)
 
 
-@client.command(name="test", description="new description", scope=789032594456576001)
+@client.command(name="test", description="poggers desc", scope=852402668294766612)
 async def command_name(ctx):
-    await ctx.send("testing")
+    # row = interactions.ActionRow(
+    #     components=[
+
+    #     ]
+    # )
+    await ctx.send("testing", components=cool_component)
+
+
+@client.component(component=cool_component)
+async def test(ctx):
+    await ctx.edit("hola")
+
+
+@client.command(type=2, name="test context menu", scope=852402668294766612)
+async def context_command(ctx):
+    await ctx.send("hi?")
 
 
 client.start()

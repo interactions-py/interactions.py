@@ -3,14 +3,14 @@ from typing import List, Optional, Union
 
 import interactions.client
 
-from .api.http import HTTPClient
+from .api.http import HTTPClient, Route
 from .api.models.channel import Channel
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .enums import InteractionType
-from .models.component import Component
+from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
 
@@ -82,6 +82,17 @@ class InteractionContext(Context):
         self.token = kwargs.get("token")
         self.responded = False
 
+    async def defer(self) -> None:
+        """
+        This \"defers\" an interaction response, allowing up
+        to a 15-minute delay between invokation and responding.
+
+        :return: None
+        """
+        await HTTPClient(interactions.client.cache.token).create_interaction_response(
+            token=self.token, application_id=int(self.id), data={"type": 5}
+        )
+
     async def send(
         self,
         content: Optional[str] = None,
@@ -91,14 +102,14 @@ class InteractionContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
-        components: Optional[Union[Component, List[Component]]] = None,
+        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[int] = None,
-        flags: Optional[int] = None,
+        ephemeral: Optional[bool] = None,
     ) -> Message:
         """
-        A **very** primitive form of the send model to get the uttermost
-        basic implementation of command responses up and running.
+        This allows the invokation state described in the "context"
+        to send an interaction response.
 
         :param content: The contents of the message as a string or string-converted value.
         :type content: typing.Optional[str]
@@ -114,10 +125,10 @@ class InteractionContext(Context):
         :type components: typing.Optional[typing.Union[interactions.models.component.Component, typing.List[interactions.models.component.Component]]]
         :param sticker_ids: A singular or list of IDs to stickers that the application has access to for the message.
         :type sticker_ids: typing.Optional[typing.Union[str, typing.List[str]]]
-        :param type: The type of message response if used for interactions.
+        :param type: The type of message response if used for interactions or components.
         :type type: typing.Optional[int]
-        :param flags: The flags of the message if used for interactions.
-        :type flags: typing.Optional[int]
+        :param ephemeral: Whether the response is hidden or not.
+        :type ephemeral: typing.Optional[bool]
         :return: interactions.api.models.message.Message
         """
         _content: str = "" if content is None else content
@@ -127,12 +138,18 @@ class InteractionContext(Context):
         _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
-        _components: list = (
-            [] if components is None else [component._json for component in components]
-        )
+        _components: list = [{"type": 1}]
+
+        if isinstance(components, ActionRow):
+            _components[0]["components"] = [component._json for component in components.components]
+        else:
+            _components[0]["components"] = [components._json]
+
+        print(_components)
+
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
         _type: int = 4 if type is None else type
-        _flags: int = 0 if flags is None else flags
+        _ephemeral: int = 0 if ephemeral is None else (1 << 6)
 
         if sticker_ids and len(sticker_ids) > 3:
             raise Exception("Message can only have up to 3 stickers.")
@@ -147,7 +164,7 @@ class InteractionContext(Context):
             message_reference=_message_reference,
             components=_components,
             sticker_ids=_sticker_ids,
-            flags=_flags,
+            flags=_ephemeral,
         )
 
         # TODO: Add attachments into Message obj.
@@ -171,6 +188,97 @@ class InteractionContext(Context):
 
         await func()
         return payload
+
+    async def edit(
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = None,
+        # file: Optional[FileIO] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = None,
+        allowed_mentions: Optional[MessageInteraction] = None,
+        message_reference: Optional[MessageReference] = None,
+        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+        sticker_ids: Optional[Union[str, List[str]]] = None,
+        type: Optional[int] = None,
+        ephemeral: Optional[bool] = None,
+    ) -> Message:
+        """
+        This allows the invokation state described in the "context"
+        to send an interaction response. This inherits the arguments
+        of the ``.send()`` method.
+
+        :inherit:`interactions.context.InteractionContext.send()`
+        :return: interactions.api.models.message.Message
+        """
+        _content: str = "" if content is None else content
+        _tts: bool = False if tts is None else tts
+        # _file = None if file is None else file
+        _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
+        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _message_reference: dict = {} if message_reference is None else message_reference._json
+        _components: list = [{"type": 1, "components": []}]
+
+        if isinstance(components, ActionRow):
+            _components[0]["components"] = [component._json for component in components.components]
+        else:
+            _components[0]["components"] = [components._json]
+
+        _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
+        _type: int = 4 if type is None else type
+        _ephemeral: int = 0 if ephemeral is None else (1 << 6)
+
+        if sticker_ids and len(sticker_ids) > 3:
+            raise Exception("Message can only have up to 3 stickers.")
+
+        payload: Message = Message(
+            content=_content,
+            tts=_tts,
+            # file=file,
+            embeds=_embeds,
+            allowed_mentions=_allowed_mentions,
+            message_reference=_message_reference,
+            components=_components,
+            sticker_ids=_sticker_ids,
+            flags=_ephemeral,
+        )
+
+        async def func():
+            req = await HTTPClient(interactions.client.cache.token).edit_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data={"type": _type, "data": payload._json},
+                message_id=self.message.id,
+            )
+            self.message = payload
+            self.responded = True
+            return req
+
+        await func()
+        return payload
+
+    async def delete(self) -> None:
+        """
+        This deletes the interaction response of a message sent by
+        the contextually derived information from this class.
+
+        .. note::
+            Doing this will proceed in the context message no longer
+            being present.
+
+        :return: None
+        """
+        if self.responded:
+            await HTTPClient(interactions.client.cache.token).delete_webhook_message(
+                webhook_id=int(self.id), webhook_token=self.token, message_id=self.message.id
+            )
+        else:
+            # TODO: Wait for Delta to implement an equivocate request method
+            # in the HTTPClient for consistency reasons.
+            await HTTPClient(interactions.client.cache.token)._req.request(
+                Route("DELETE", f"/webhooks/{self.id}/{self.token}/messages/@original")
+            )
+        self.message = None
 
 
 class ComponentContext(InteractionContext):

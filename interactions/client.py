@@ -12,11 +12,9 @@ from .api.models.team import Application
 from .base import Data
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
+from .models.component import Button, Component, SelectMenu
 
-# TODO: Find a better way to call on the cache for
-# storing the token. Yes, this is a piss poor approach,
-# but i'm on a time crunch to make the caching work.
-cache = Cache()
+cache: Cache = Cache()
 
 # TODO: Somehow declare cache to where its embedded
 
@@ -58,7 +56,6 @@ class Client:
         self.me = None
         self.token = token
         cache.token = token
-        # TODO: Code an internal ready state check for caching reasons.
 
         # Remove the if not condition for import timings
         if not self.me:
@@ -85,8 +82,18 @@ class Client:
         self.synchronize_commands()
         self.loop.run_until_complete(self.login(self.token))
 
-    def synchronize_commands(self, name: Optional[str] = None) -> None:
-        # TODO: Doctype what this does.
+    def synchronize_commands(self) -> None:
+        """
+        Synchronizes all of the commands that are currently existing,
+        and updates those that are currently not being used.
+
+        .. warning::
+            This internal call does not need to be manually triggered,
+            as it will automatically be done for you. Additionally,
+            this will not delete unused commands for you.
+
+        :return: None
+        """
         commands = self.loop.run_until_complete(self.http.get_application_command(self.me.id))
         change: list = []
 
@@ -109,7 +116,7 @@ class Client:
             )
             cache.interactions.add(Item(command["id"], ApplicationCommand(**command)))
 
-    def event(self, coro: Coroutine) -> Callable[..., Any]:
+    def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
         A decorator for listening to dispatched events from the
         gateway.
@@ -118,9 +125,7 @@ class Client:
         :type coro: typing.Coroutine
         :return: typing.Callable[..., typing.Any]
         """
-        self.websocket.dispatch.register(
-            coro, name=coro.__name__ if coro.__name__.startswith("on") else "on_interaction_create"
-        )
+        self.websocket.dispatch.register(coro, name=name)
         return coro
 
     def command(
@@ -132,7 +137,7 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
         default_permission: Optional[bool] = None
-        # permissions: Optional[List[Permission]] = None,
+        # permissions: Optional[List[Permission]] = None
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
@@ -162,6 +167,12 @@ class Client:
         def decorator(coro: Coroutine) -> Any:
             if "ctx" not in coro.__code__.co_varnames:
                 raise InteractionException(11)
+            if isinstance(type, ApplicationCommandType):
+                _type: int = type.value
+            if isinstance(type, str):
+                _type: int = ApplicationCommandType.type.value
+            else:
+                _type = type
 
             _description: str = "" if description is None else description
             _options: list = [] if options is None else options
@@ -179,7 +190,7 @@ class Client:
 
             for guild in _scope:
                 payload: ApplicationCommand = ApplicationCommand(
-                    type=type.value if isinstance(type, ApplicationCommandType) else type,
+                    type=_type,
                     name=name,
                     description=_description,
                     options=_options,
@@ -203,7 +214,28 @@ class Client:
                     else:
                         cache.interactions.add(Item(id=request["application_id"], value=payload))
 
-            return self.event(coro)
+            return self.event(coro, name=name)
+
+        return decorator
+
+    def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
+        def decorator(coro: Coroutine) -> Any:
+            payload: Component = Component(
+                type=component.type,
+                custom_id=component._json.get("custom_id"),
+                disabled=component._json.get("disabled"),
+                style=component._json.get("style"),
+                label=component._json.get("label"),
+                emoji=component._json.get("emoji"),
+                url=component._json.get("url"),
+                options=component._json.get("options"),
+                placeholder=component._json.get("placeholder"),
+                min_values=component._json.get("min_values"),
+                max_values=component._json.get("max_values"),
+                components=component._json.get("components"),
+            )
+
+            return self.event(coro, name=payload.custom_id if payload.custom_id else coro.__name__)
 
         return decorator
 

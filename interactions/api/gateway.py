@@ -250,7 +250,8 @@ class WebSocket:
                 )
             else:
                 context = self.contextualize(data)
-                self.dispatch.dispatch(f"on_{name}", context)
+                _name: str = context.data.name if context.type == 2 else context.data.custom_id
+                self.dispatch.dispatch(_name, context)
 
             self.dispatch.dispatch("raw_socket_create", data)
 
@@ -263,17 +264,6 @@ class WebSocket:
         :type data: dict
         :return: The context object.
         """
-
-        # TODO: Find a better way to do this.
-        # This is incredibly stupid and dumb.
-        # I should not have to manually define these,
-        # maybe I should use a "connector"-like dict
-        # instead or subclass some more things to alias
-        # define these objects properly instead of manually
-        # defnining for each?
-
-        # context = None
-
         if data["type"] != 1:
             _context: str = "InteractionContext" if data["type"] == 2 else "ComponentContext"
             context: object = getattr(__import__("interactions.context"), _context)
