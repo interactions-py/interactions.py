@@ -26,6 +26,23 @@ async def command_name(ctx):
     await ctx.send("testing", components=cool_component)
 
 
+@client.command(
+    name="sub",
+    description="let's make sure it works.",
+    scope=852402668294766612,
+    options=[
+        interactions.Option(
+            type=interactions.OptionType.SUB_COMMAND,
+            name="command",
+            description="cool name",
+            required=False,
+        )
+    ],
+)
+async def sub_command(ctx):
+    await ctx.send("just some proof, subcommands *do* in fact work.")
+
+
 @client.component(component=cool_component)
 async def test(ctx):
     await ctx.edit("hola")
