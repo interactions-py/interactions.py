@@ -90,7 +90,7 @@ class Snowflake(object):
     # Slotting properties are pointless, they are not in-memory
     # and are instead computed in-model.
 
-    def __init__(self, snowflake: Union[int, str]) -> None:
+    def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None:
         self._snowflake = str(snowflake)
 
     def __str__(self):

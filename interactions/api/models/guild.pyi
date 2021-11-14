@@ -5,7 +5,7 @@ from typing import List, Optional
 from .channel import Channel
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceUpdate
 from .role import Role
 from .user import User
@@ -60,7 +60,7 @@ class StageInstance(DictSerializerMixin):
 
 class Guild(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     name: str
     icon: Optional[str]
     icon_hash: Optional[str]

@@ -2006,7 +2006,7 @@ class HTTPClient:
         """
         Edits an existing interaction message, but token needs to be manually called.
         :param data: A dictionary containing the new response.
-        :param token: token
+        :param token: the token of the interaction
         :param application_id: Application ID snowflake.
         :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
         :return: Updated message data.
@@ -2015,6 +2015,23 @@ class HTTPClient:
         return await self._req.request(
             Route("PATCH", f"/webhooks/{application_id}/{token}/messages/{message_id}"),
             json=data,
+        )
+
+    async def delete_interaction_response(
+        self, token: str, application_id: str, message_id: int = "original"
+    ) -> None:
+        """
+        Deletes an existing interaction message.
+        :param token: the token of the interaction
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        """
+
+        # This is, basically, a helper method for the thing,
+        # because interactions are webhooks
+
+        await self.delete_webhook_message(
+            webhook_id=int(application_id), webhook_token=token, message_id=message_id
         )
 
     async def _post_followup(self, data: dict, token: str, application_id: str) -> None:

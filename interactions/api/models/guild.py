@@ -1,6 +1,6 @@
 from enum import Enum
 
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class GuildFeature(str, Enum):
@@ -111,17 +111,17 @@ class Guild(DictSerializerMixin):
         upon instantiation but are kept like this since this class object
         is meant to be more broad and generalized.
 
-    :ivar int id: The ID of the guild.
+    :ivar Snowflake id: The ID of the guild.
     :ivar str name: The name of the guild.
     :ivar typing.Optional[str] icon: The icon of the guild.
     :ivar typing.Optional[str] icon_hash: The hashed version of the icon of the guild.
     :ivar typing.Optional[str] splash: The invite splash banner of the guild.
     :ivar typing.Optional[str] discovery_splash: The discovery splash banner of the guild.
     :ivar typing.Optional[bool] owner: Whether the guild is owned.
-    :ivar int owner_id: The ID of the owner of the guild.
+    :ivar Snowflake owner_id: The ID of the owner of the guild.
     :ivar typing.Optional[str] permissions: The permissions of the guild.
     :ivar typing.Optional[str] region: The geographical region of the guild.
-    :ivar typing.Optional[int] afk_channel_id: The AFK voice channel of the guild.
+    :ivar typing.Optional[Snowflake] afk_channel_id: The AFK voice channel of the guild.
     :ivar int afk_timeout: The timeout of the AFK voice channel of the guild.
     :ivar typing.Optional[bool] widget_enabled: Whether widgets are enabled in the guild.
     :ivar typing.Optional[int] widget_channel_id: The channel ID of the widget in the guild.
@@ -160,6 +160,12 @@ class Guild(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(
+            self.id
+        )  # This converts it from data json "string" to Snowflake "string"
+        self.owner_id = Snowflake(self.owner_id)
+        if self.afk_channel_id:
+            self.afk_channel_id = Snowflake(self.afk_channel_id)
 
 
 class GuildPreview(DictSerializerMixin):
