@@ -26,7 +26,6 @@ class ClientStatus(DictSerializerMixin):
     web: Optional[str]
     def __init__(self, **kwargs): ...
 
-
 class Snowflake(object):
     _snowflake: str
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...

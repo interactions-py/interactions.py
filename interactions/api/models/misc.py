@@ -6,7 +6,6 @@ import datetime
 from typing import Union
 
 
-
 class DictSerializerMixin(object):
     """
     The purpose of this mixin is to be subclassed.
@@ -151,6 +150,7 @@ class Snowflake(object):
     # If so, list them under. By Discord API this may not be needed
     # but end users might.
 
+
 class Format(object):
     """
     This object is used to respectively format markdown strings
@@ -165,7 +165,7 @@ class Format(object):
         the ``stylize()`` method must be used if you're actually
         looking to give a **str** specific result.
     """
-    
+
     __slots__ = (
         "USER",
         "USER_NICK",
@@ -181,7 +181,7 @@ class Format(object):
         "TIMESTAMP_LONG_DT",
         "TIMESTAMP_RELATIVE",
     )
-    
+
     USER = "<@{id}>"
     USER_NICK = "<@!{id}>"
     CHANNEL = "<#{id}>"
