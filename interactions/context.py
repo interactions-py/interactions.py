@@ -1,5 +1,5 @@
 # from io import FileIO
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import interactions.client
 
@@ -82,7 +82,7 @@ class InteractionContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+        components: Optional[Union[Dict[str, Any], ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[int] = None,
         ephemeral: Optional[bool] = None,
@@ -124,7 +124,7 @@ class InteractionContext(Context):
         elif isinstance(components, (Button, SelectMenu)):
             _components[0]["components"] = [] if components is None else [components._json]
         else:
-            _components = []
+            _components = [] if components is None else [components]
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
         _type: int = 4 if type is None else type
