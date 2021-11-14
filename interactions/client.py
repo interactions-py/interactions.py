@@ -12,6 +12,7 @@ from .api.models.team import Application
 from .base import Data
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
+from .models.component import Button, Component, SelectMenu
 
 cache: Cache = Cache()
 
@@ -132,7 +133,7 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
         default_permission: Optional[bool] = None
-        # permissions: Optional[List[Permission]] = None,
+        # permissions: Optional[List[Permission]] = None
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
@@ -209,6 +210,27 @@ class Client:
                     cache.interactions.add(Item(id=request["application_id"], value=payload))
 
             return self.event(coro, name=name)
+
+        return decorator
+
+    def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
+        def decorator(coro: Coroutine) -> Any:
+            payload: Component = Component(
+                type=component.type,
+                custom_id=component._json.get("custom_id"),
+                disabled=component._json.get("disabled"),
+                style=component._json.get("style"),
+                label=component._json.get("label"),
+                emoji=component._json.get("emoji"),
+                url=component._json.get("url"),
+                options=component._json.get("options"),
+                placeholder=component._json.get("placeholder"),
+                min_values=component._json.get("min_values"),
+                max_values=component._json.get("max_values"),
+                components=component._json.get("components"),
+            )
+
+            return self.event(coro, name=payload.custom_id if payload.custom_id else coro.__name__)
 
         return decorator
 

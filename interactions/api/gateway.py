@@ -232,7 +232,8 @@ class WebSocket:
                 )
             else:
                 context = self.contextualize(data)
-                self.dispatch.dispatch(context.data.name, context)
+                _name: str = context.data.name if context.type == 2 else context.data.custom_id
+                self.dispatch.dispatch(_name, context)
 
             self.dispatch.dispatch("raw_socket_create", data)
 

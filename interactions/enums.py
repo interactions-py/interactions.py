@@ -142,23 +142,11 @@ class ComponentType(IntEnum):
     SELECT = 3
 
 
-class ButtonType(IntEnum):
-    """
-    Enumerable object of literal integers holding equivocal values of a button(s) type.
-
-    .. note::
-        Equivalent of `Button Styles <https://discord.com/developers/docs/interactions/message-components#button-object-button-styles>`_ in the Discord API.
-    """
-
-    BLUE = 1
-    BLURPLE = 2
-    GRAY = 2
-    GREY = 2
-    GREEN = 3
-    RED = 4
+class ButtonStyle(IntEnum):
+    """An enumerable object representing the styles of button components."""
 
     PRIMARY = 1
     SECONDARY = 2
     SUCCESS = 3
     DANGER = 4
-    URL = 5
+    LINK = 5

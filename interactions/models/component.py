@@ -2,7 +2,7 @@ from typing import List, Optional, Union
 
 from ..api.models.message import Emoji
 from ..api.models.misc import DictSerializerMixin
-from ..enums import ButtonType, ComponentType
+from ..enums import ButtonStyle, ComponentType
 
 
 class SelectOption(DictSerializerMixin):
@@ -59,10 +59,8 @@ class SelectMenu(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-
-
-class ActionRow(DictSerializerMixin):
-    ...
+        self.type = ComponentType.SELECT
+        self._json.update({"type": self.type.value})
 
 
 class Button(DictSerializerMixin):
@@ -81,8 +79,8 @@ class Button(DictSerializerMixin):
     """
 
     __slots__ = ("_json", "type", "style", "label", "emoji", "custom_id", "url", "disabled")
-    type: ButtonType
-    style: ButtonType
+    type: ComponentType
+    style: ButtonStyle
     label: str
     emoji: Optional[Emoji]
     custom_id: Optional[str]
@@ -91,6 +89,8 @@ class Button(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.type = ComponentType.BUTTON
+        self._json.update({"type": self.type.value, "style": self.style.value})
 
 
 class Component(DictSerializerMixin):
@@ -131,10 +131,10 @@ class Component(DictSerializerMixin):
         "max_values",
         "components",
     )
-    type: Union[ActionRow, ButtonType, SelectMenu]
+    type: ComponentType
     custom_id: Optional[str]
     disabled: Optional[bool]
-    style: Optional[ButtonType]
+    style: Optional[ButtonStyle]
     label: Optional[str]
     emoji: Optional[Emoji]
     url: Optional[str]
@@ -142,7 +142,17 @@ class Component(DictSerializerMixin):
     placeholder: Optional[str]
     min_values: Optional[int]
     max_values: Optional[int]
-    components: Optional[Union[list, ActionRow, List[ActionRow]]]
+    components: Optional[Union[list, "ActionRow", List["ActionRow"]]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+
+
+class ActionRow(DictSerializerMixin):
+    __slots__ = ("_json", "type", "components")
+    type: int
+    components: Optional[List[Component]]
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.type = 1
