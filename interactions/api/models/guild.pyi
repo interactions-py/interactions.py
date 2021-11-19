@@ -12,27 +12,29 @@ from .user import User
 from .voice import VoiceState
 
 class GuildFeature(str, Enum):
-    ANIMATED_ICON = "ANIMATED_ICON"
-    BANNER = "BANNER"
-    COMMERCE = "COMMERCE"
-    COMMUNITY = "COMMUNITY"
-    DISCOVERABLE = "DISCOVERABLE"
-    FEATURABLE = "FEATURABLE"
-    INVITE_SPLASH = "INVITE_SPLASH"
-    MEMBER_VERIFICATION_GATE_ENABLED = "MEMBER_VERIFICATION_GATE_ENABLED"
-    NEWS = "NEWS"
-    PARTNERED = "PARTNERED"
-    PREVIEW_ENABLED = "PREVIEW_ENABLED"
-    VANITY_URL = "VANITY_URL"
-    VERIFIED = "VERIFIED"
-    VIP_REGIONS = "VIP_REGIONS"
-    WELCOME_SCREEN_ENABLED = "WELCOME_SCREEN_ENABLED"
-    TICKETED_EVENTS_ENABLED = "TICKETED_EVENTS_ENABLED"
-    MONETIZATION_ENABLED = "MONETIZATION_ENABLED"
-    MORE_STICKERS = "MORE_STICKERS"
-    THREE_DAY_THREAD_ARCHIVE = "THREE_DAY_THREAD_ARCHIVE"
-    SEVEN_DAY_THREAD_ARCHIVE = "SEVEN_DAY_THREAD_ARCHIVE"
-    PRIVATE_THREADS = "PRIVATE_THREADS"
+    __slots__ = (
+        "ANIMATED_ICON",
+        "BANNER",
+        "COMMERCE",
+        "COMMUNITY",
+        "DISCOVERABLE",
+        "FEATURABLE",
+        "INVITE_SPLASH",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "NEWS",
+        "PARTNERED",
+        "PREVIEW_ENABLED",
+        "VANITY_URL",
+        "VERIFIED",
+        "VIP_REGIONS",
+        "WELCOME_SCREEN_ENABLED",
+        "TICKETED_EVENTS_ENABLED",
+        "MONETIZATION_ENABLED",
+        "MORE_STICKERS",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "SEVEN_DAY_THREAD_ARCHIVE",
+        "PRIVATE_THREADS",
+    )
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -40,12 +42,16 @@ class WelcomeChannels(DictSerializerMixin):
     description: str
     emoji_id: Optional[int]
     emoji_name: Optional[str]
+
+    __slots__ = ("_json", "channel_id", "description", "emoji_id", "emoji_name")
     def __init__(self, **kwargs): ...
 
 class WelcomeScreen(DictSerializerMixin):
     _json: dict
     description: Optional[str]
     welcome_channels: List[WelcomeChannels]
+
+    __slots__ = ("_json", "description", "welcome_channels")
     def __init__(self, **kwargs): ...
 
 class StageInstance(DictSerializerMixin):
@@ -56,6 +62,16 @@ class StageInstance(DictSerializerMixin):
     topic: str
     privacy_level: int  # can be Enum'd
     discoverable_disabled: bool
+
+    __slots__ = (
+        "_json",
+        "id",
+        "guild_id",
+        "channel_id",
+        "topic",
+        "privacy_level",
+        "discoverable_disabled",
+    )
     def __init__(self, **kwargs): ...
 
 class Guild(DictSerializerMixin):
@@ -110,6 +126,8 @@ class Guild(DictSerializerMixin):
     nsfw_level: int
     stage_instances: Optional[StageInstance]
     stickers: Optional[List[Sticker]]
+
+    # TODO: slot guild here and the other models below
     def __init__(self, **kwargs): ...
 
 class GuildPreview(DictSerializerMixin):

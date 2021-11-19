@@ -15,8 +15,6 @@ class TeamMember(DictSerializerMixin):
     :ivar User user: The user object.
     """
 
-    __slots__ = ("_json", "membership_state", "permissions", "team_id", "user")
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -31,8 +29,6 @@ class Team(DictSerializerMixin):
     :ivar str name: The team name
     :ivar int owner_user_id: The User ID of the current team owner
     """
-
-    __slots__ = ("_json", "icon", "id", "members", "name", "owner_user_id")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -67,30 +63,6 @@ class Application(DictSerializerMixin):
     :ivar typing.Optional[typing.Any] type: Type of application(?)
     :ivar typing.Optional[typing.Any] hook: ?
     """
-
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "icon",
-        "description",
-        "rpc_origins",
-        "bot_public",
-        "bot_require_code_grant",
-        "terms_of_service_url",
-        "privacy_policy_url",
-        "owner",
-        "summary",
-        "verify_key",
-        "team",
-        "guild_id",
-        "primary_sku_id",
-        "slug",
-        "cover_image",
-        "flags",
-        "type",
-        "hook",
-    )
 
     def __init__(self, **kwargs):
 

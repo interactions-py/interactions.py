@@ -19,6 +19,23 @@ class VoiceState(DictSerializerMixin):
     self_video: bool
     suppress: bool
     request_to_speak_timestamp: Optional[datetime]
+
+    __slots__ = (
+        "_json",
+        "guild_id",
+        "channel_id",
+        "user_id",
+        "member",
+        "session_id",
+        "deaf",
+        "mute",
+        "self_deaf",
+        "self_mute",
+        "self_stream",
+        "self_video",
+        "suppress",
+        "request_to_speak_timestamp",
+    )
     def __init__(self, **kwargs): ...
 
 class VoiceRegion(DictSerializerMixin):
@@ -28,8 +45,27 @@ class VoiceRegion(DictSerializerMixin):
     optimal: bool
     deprecated: bool
     custom: bool
+
+    __slots__ = ("_json", "id", "name", "optimal", "deprecated", "custom")
     def __init__(self, **kwargs): ...
 
 class Voice(VoiceState):
     # All typehints are already pointed to VoiceState
+
+    __slots__ = (
+        "_json",
+        "guild_id",
+        "channel_id",
+        "user_id",
+        "member",
+        "session_id",
+        "deaf",
+        "mute",
+        "self_deaf",
+        "self_mute",
+        "self_stream",
+        "self_video",
+        "suppress",
+        "request_to_speak_timestamp",
+    )
     def __init__(self, **kwargs): ...

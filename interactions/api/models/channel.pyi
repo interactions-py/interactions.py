@@ -25,6 +25,15 @@ class ThreadMetadata(DictSerializerMixin):
     archive_timestamp: datetime.timestamp
     locked: bool
     invitable: Optional[bool]
+
+    __slots__ = (
+        "_json",
+        "archived",
+        "auto_archive_duration",
+        "archive_timestamp",
+        "locked",
+        "invitable",
+    )
     def __init__(self, **kwargs): ...
 
 class ThreadMember(DictSerializerMixin):
@@ -33,6 +42,8 @@ class ThreadMember(DictSerializerMixin):
     user_id: Optional[int]
     join_timestamp: datetime.timestamp
     flags: int
+    __slots__ = ("_json", "id", "user_id", "join_timestamp", "flags")
+    def __init__(self, **kwargs): ...
 
 class Channel(DictSerializerMixin):
 
@@ -63,4 +74,34 @@ class Channel(DictSerializerMixin):
     member: Optional[ThreadMember]
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "type",
+        "guild_id",
+        "position",
+        "permission_overwrites",
+        "name",
+        "topic",
+        "nsfw",
+        "last_message_id",
+        "bitrate",
+        "user_limit",
+        "rate_limit_per_user",
+        "recipients",
+        "icon",
+        "owner_id",
+        "application_id",
+        "parent_id",
+        "last_pin_timestamp",
+        "rtc_region",
+        "video_quality_mode",
+        "message_count",
+        "member_count",
+        "thread_metadata",
+        "member",
+        "default_auto_archive_duration",
+        "permissions",
+    )
     def __init__(self, **kwargs): ...

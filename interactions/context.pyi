@@ -18,6 +18,7 @@ class Context(DictSerializerMixin):
     guild: Guild
     args: List[Any]
     kwargs: Dict[Any, Any]
+    __slots__ = ("message", "author", "channel", "user", "guild", "args", "kwargs")
     def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):
@@ -28,7 +29,24 @@ class InteractionContext(Context):
     guild_id: str
     channel_id: str
     token: str
-    responded: bool = False
+    responded: bool
+    __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "responded",
+    )
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,
@@ -50,4 +68,25 @@ class ComponentContext(InteractionContext):
     type: Union[str, int, ComponentType]
     values: list
     origin: bool
+    __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "responded",
+        "custom_id",
+        "type",
+        "values",
+        "origin",
+    )
     def __init__(self, **kwargs) -> None: ...

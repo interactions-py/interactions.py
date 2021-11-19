@@ -9,6 +9,8 @@ class TeamMember(DictSerializerMixin):
     permissions: List[str]
     team_id: int
     user: User
+
+    __slots__ = ("_json", "membership_state", "permissions", "team_id", "user")
     def __init__(self, **kwargs): ...
 
 class Team(DictSerializerMixin):
@@ -18,6 +20,8 @@ class Team(DictSerializerMixin):
     members: List[TeamMember]
     name: str
     owner_user_id: int
+
+    __slots__ = ("_json", "icon", "id", "members", "name", "owner_user_id")
     def __init__(self, **kwargs): ...
 
 class Application(DictSerializerMixin):
@@ -42,4 +46,28 @@ class Application(DictSerializerMixin):
     flags: Optional[int]
     type: Optional[Any]
     hook: Optional[Any]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "icon",
+        "description",
+        "rpc_origins",
+        "bot_public",
+        "bot_require_code_grant",
+        "terms_of_service_url",
+        "privacy_policy_url",
+        "owner",
+        "summary",
+        "verify_key",
+        "team",
+        "guild_id",
+        "primary_sku_id",
+        "slug",
+        "cover_image",
+        "flags",
+        "type",
+        "hook",
+    )
     def __init__(self, **kwargs): ...

@@ -24,14 +24,12 @@ class DictSerializerMixin(object):
         the object that's using the mixin.
     """
 
-    __slots__ = "_json"
-
     def __init__(self, **kwargs):
         self._json = kwargs
         for key in kwargs:
             setattr(self, key, kwargs[key])
 
-        if self.__slots__ is not None:  # safeguard
+        if self.__slots__ is not None:  # safeguard, runtime check
             for _attr in self.__slots__:
                 if not hasattr(self, _attr):
                     setattr(self, _attr, None)
@@ -47,8 +45,6 @@ class Overwrite(DictSerializerMixin):
     :ivar str deny: Permission bit set.
     """
 
-    __slots__ = ("_json", "id", "type", "allow", "deny")
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -61,8 +57,6 @@ class ClientStatus(DictSerializerMixin):
     :ivar typing.Optional[str] mobile: User's status set for an active mobile application session
     :ivar typing.Optional[str] web: User's status set for an active web application session
     """
-
-    __slots__ = ("_json", "desktop", "mobile", "web")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -86,7 +80,6 @@ class Snowflake(object):
 
     # TODO: Should this inherit from the mixin?
 
-    __slots__ = "_snowflake"
     # Slotting properties are pointless, they are not in-memory
     # and are instead computed in-model.
 
@@ -165,23 +158,6 @@ class Format(object):
         the ``stylize()`` method must be used if you're actually
         looking to give a **str** specific result.
     """
-
-    __slots__ = (
-        "USER",
-        "USER_NICK",
-        "CHANNEL",
-        "ROLE",
-        "EMOJI",
-        "EMOJI_ANIMATED",
-        "TIMESTAMP",
-        "TIMESTAMP_SHORT_T",
-        "TIMESTAMP_LONG_T",
-        "TIMESTAMP_SHORT_D",
-        "TIMESTAMP_LONG_D",
-        "TIMESTAMP_SHORT_DT",
-        "TIMESTAMP_LONG_DT",
-        "TIMESTAMP_RELATIVE",
-    )
 
     USER = "<@{id}>"
     USER_NICK = "<@!{id}>"

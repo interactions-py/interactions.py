@@ -9,6 +9,8 @@ from typing import Optional, Union
 class DictSerializerMixin(object):
 
     _json: dict
+
+    __slots__ = "_json"
     def __init__(self, **kwargs): ...
 
 class Overwrite(DictSerializerMixin):
@@ -17,6 +19,8 @@ class Overwrite(DictSerializerMixin):
     type: int
     allow: str
     deny: str
+
+    __slots__ = ("_json", "id", "type", "allow", "deny")
     def __init__(self, **kwargs): ...
 
 class ClientStatus(DictSerializerMixin):
@@ -24,10 +28,14 @@ class ClientStatus(DictSerializerMixin):
     desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
+
+    __slots__ = ("_json", "desktop", "mobile", "web")
     def __init__(self, **kwargs): ...
 
 class Snowflake(object):
     _snowflake: str
+
+    __slots__ = "_snowflake"
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...
     @property
     def increment(self) -> int: ...
@@ -44,7 +52,7 @@ class Snowflake(object):
     def __hash__(self) -> int: ...
     def __str__(self) -> str: ...
 
-class Format(DictSerializerMixin):
+class Format(object):
     USER: str
     USER_NICK: str
     CHANNEL: str
@@ -59,4 +67,21 @@ class Format(DictSerializerMixin):
     TIMESTAMP_SHORT_DT: str
     TIMESTAMP_LONG_DT: str
     TIMESTAMP_RELATIVE: str
+
+    __slots__ = (
+        "USER",
+        "USER_NICK",
+        "CHANNEL",
+        "ROLE",
+        "EMOJI",
+        "EMOJI_ANIMATED",
+        "TIMESTAMP",
+        "TIMESTAMP_SHORT_T",
+        "TIMESTAMP_LONG_T",
+        "TIMESTAMP_SHORT_D",
+        "TIMESTAMP_LONG_D",
+        "TIMESTAMP_SHORT_DT",
+        "TIMESTAMP_LONG_DT",
+        "TIMESTAMP_RELATIVE",
+    )
     def stylize(self, format: str, **kwargs) -> str: ...

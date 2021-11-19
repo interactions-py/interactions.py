@@ -30,8 +30,6 @@ class MessageActivity(DictSerializerMixin):
     :ivar typing.Optional[str] party_id: The party ID of the activity.
     """
 
-    __slots__ = ("_json", "type", "party_id")
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -49,8 +47,6 @@ class MessageReference(DictSerializerMixin):
     :ivar typing.Optional[int] guild_id: The guild ID of the referenced message.
     :ivar typing.Optional[bool] fail_if_not_exists: Whether the message reference exists.
     """
-
-    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -76,19 +72,6 @@ class Attachment(DictSerializerMixin):
     :ivar typing.Optional[int] width: The width of the attachment file.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "filename",
-        "description",
-        "content_type",
-        "size",
-        "url",
-        "proxy_url",
-        "height",
-        "width",
-    )
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -104,8 +87,6 @@ class MessageInteraction(DictSerializerMixin):
     :ivar User user: The user who invoked the interaction.
     """
 
-    __slots__ = ("_json", "id", "type", "name", "user")
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -120,8 +101,6 @@ class ChannelMention(DictSerializerMixin):
     :ivar int type: The channel type.
     :ivar str name: The name of the channel.
     """
-
-    __slots__ = ("_json", "id", "type", "name", "guild_id")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -165,41 +144,6 @@ class Message(DictSerializerMixin):
     :ivar Optional[List["Sticker"]] stickers: Array of sticker objects sent with the message if any. Deprecated.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "channel_id",
-        "guild_id",
-        "author",
-        "member",
-        "content",
-        "timestamp",
-        "edited_timestamp",
-        "tts",
-        "mention_everyone",
-        "mentions",
-        "mention_roles",
-        "mention_channels",
-        "attachments",
-        "embeds",
-        "reactions",
-        "nonce",
-        "pinned",
-        "webhook_id",
-        "type",
-        "activity",
-        "application",
-        "application_id",
-        "message_reference",
-        "flags",
-        "referenced_message",
-        "interaction",
-        "thread",
-        "components",
-        "sticker_items",
-        "stickers",
-    )
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.timestamp = (
@@ -223,18 +167,6 @@ class Emoji(DictSerializerMixin):
     :ivar Optional[bool] available: Status denoting if this emoji can be used. (Can be false via server boosting)
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "roles",
-        "user",
-        "require_colons",
-        "managed",
-        "animated",
-        "available",
-    )
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -246,8 +178,6 @@ class ReactionObject(DictSerializerMixin):
     :ivar bool me: A status denoting if the current user reacted using this emoji
     :ivar Emoji emoji: Emoji information
     """
-
-    __slots__ = ("_json", "count", "me", "bool")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -261,8 +191,6 @@ class PartialSticker(DictSerializerMixin):
     :ivar str name: Name of the sticker
     :ivar int format_type: Type of sticker format
     """
-
-    __slots__ = ("_json", "id", "name", "format_type")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -286,22 +214,6 @@ class Sticker(PartialSticker):
     :ivar Optional[int] sort_value: The standard sticker's sort order within its pack
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "pack_id",
-        "name",
-        "description",
-        "tags",
-        "asset",
-        "type",
-        "format_type",
-        "available",
-        "guild_id",
-        "user",
-        "sort_value",
-    )
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -316,8 +228,6 @@ class EmbedImageStruct(DictSerializerMixin):
     :ivar typing.Optional[int] width: Width of the object.
     """
 
-    __slots__ = ("_json", "url", "proxy_url", "height", "width")
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -327,8 +237,6 @@ class EmbedProvider(DictSerializerMixin):
     :ivar typing.Optional[str] name: Name of provider
     :ivar typing.Optional[str] name: URL of provider
     """
-
-    __slots__ = ("_json", "url", "name")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -342,8 +250,6 @@ class EmbedAuthor(DictSerializerMixin):
     :ivar typing.Optional[str] proxy_icon_url: Proxied URL of author icon
     """
 
-    __slots__ = ("_json", "url", "proxy_icon_url", "icon_url", "name")
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -355,8 +261,6 @@ class EmbedFooter(DictSerializerMixin):
     :ivar typing.Optional[str] proxy_icon_url: Proxied URL of footer icon
     """
 
-    __slots__ = ("_json", "text", "proxy_icon_url", "icon_url")
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -367,8 +271,6 @@ class EmbedField(DictSerializerMixin):
     :ivar str value: Value of the field
     :ivar typing.Optional[bool] inline: A status denoting if the field should be displayed inline.
     """
-
-    __slots__ = ("_json", "name", "inline", "value")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -392,23 +294,6 @@ class Embed(DictSerializerMixin):
     :ivar typing.Optional[EmbedAuthor] author: Author information
     :ivar typing.Optional[EmbedField] fields: A list of fields denoting field information
     """
-
-    __slots__ = (
-        "_json",
-        "title",
-        "type",
-        "description",
-        "url",
-        "timestamp",
-        "color",
-        "footer",
-        "image",
-        "thumbnail",
-        "video",
-        "provider",
-        "author",
-        "fields",
-    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -14,7 +14,7 @@ from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu
 
-cache: Cache = Cache()
+cache = Cache()
 
 # TODO: Somehow declare cache to where its embedded
 

@@ -29,8 +29,6 @@ class Heartbeat(Thread):
     :ivar threading.Event event: The multi-threading event.
     """
 
-    __slots__ = ("ws", "interval", "event")
-
     def __init__(self, ws: Any, interval: int) -> None:
         """
         :param ws: The WebSocket inference to run the coroutine off of.
@@ -83,19 +81,6 @@ class WebSocket:
     :ivar interactions.api.http.HTTPClient http: The internal HTTP client used to connect to the gateway.
     :ivar dict options: The websocket connection options.
     """
-
-    __slots__ = (
-        "intents",
-        "loop",
-        "dispatch",
-        "session",
-        "session_id",
-        "sequence",
-        "keep_alive",
-        "closed",
-        "http",
-        "options",
-    )
 
     def __init__(
         self,

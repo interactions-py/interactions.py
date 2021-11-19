@@ -10,6 +10,8 @@ class Heartbeat(Thread):
     ws: Any
     interval: Union[int, float]
     event: Event
+
+    __slots__ = ("ws", "interval", "event")
     def __init__(self, ws: Any, interval: int) -> None: ...
     def run(self) -> None: ...
     def stop(self) -> None: ...
@@ -25,6 +27,19 @@ class WebSocket:
     closed: bool
     http: Optional[HTTPClient]
     options: dict
+
+    __slots__ = (
+        "intents",
+        "loop",
+        "dispatch",
+        "session",
+        "session_id",
+        "sequence",
+        "keep_alive",
+        "closed",
+        "http",
+        "options",
+    )
     def __init__(
         self,
         intents: Intents,

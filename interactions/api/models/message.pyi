@@ -37,6 +37,8 @@ class MessageActivity(DictSerializerMixin):
     _json: dict
     type: int
     party_id: Optional[str]
+
+    __slots__ = ("_json", "type", "party_id")
     def __init__(self, **kwargs): ...
 
 class MessageReference(DictSerializerMixin):
@@ -45,6 +47,8 @@ class MessageReference(DictSerializerMixin):
     channel_id: Optional[int]
     guild_id: Optional[int]
     fail_if_not_exists: Optional[bool]
+
+    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
     def __init__(self, **kwargs): ...
 
 class Attachment(DictSerializerMixin):
@@ -57,6 +61,19 @@ class Attachment(DictSerializerMixin):
     proxy_url: str
     height: Optional[int]
     width: Optional[int]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "filename",
+        "description",
+        "content_type",
+        "size",
+        "url",
+        "proxy_url",
+        "height",
+        "width",
+    )
     def __init__(self, **kwargs): ...
 
 class MessageInteraction(DictSerializerMixin):
@@ -65,6 +82,8 @@ class MessageInteraction(DictSerializerMixin):
     type: int  # replace with Enum
     name: str
     user: User
+
+    __slots__ = ("_json", "id", "type", "name", "user")
     def __init__(self, **kwargs): ...
 
 class ChannelMention(DictSerializerMixin):
@@ -73,6 +92,8 @@ class ChannelMention(DictSerializerMixin):
     guild_id: int
     type: int  # Replace with enum from Channel Type, another PR
     name: str
+
+    __slots__ = ("_json", "id", "type", "name", "guild_id")
     def __init__(self, **kwargs): ...
 
 class Message(DictSerializerMixin):
@@ -109,6 +130,41 @@ class Message(DictSerializerMixin):
     components: Optional[Union["Component", List["Component"]]]  # noqa: F821
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
+
+    __slots__ = (
+        "_json",
+        "id",
+        "channel_id",
+        "guild_id",
+        "author",
+        "member",
+        "content",
+        "timestamp",
+        "edited_timestamp",
+        "tts",
+        "mention_everyone",
+        "mentions",
+        "mention_roles",
+        "mention_channels",
+        "attachments",
+        "embeds",
+        "reactions",
+        "nonce",
+        "pinned",
+        "webhook_id",
+        "type",
+        "activity",
+        "application",
+        "application_id",
+        "message_reference",
+        "flags",
+        "referenced_message",
+        "interaction",
+        "thread",
+        "components",
+        "sticker_items",
+        "stickers",
+    )
     def __init__(self, **kwargs): ...
 
 class Emoji(DictSerializerMixin):
@@ -121,6 +177,18 @@ class Emoji(DictSerializerMixin):
     managed: Optional[bool]
     animated: Optional[bool]
     available: Optional[bool]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "roles",
+        "user",
+        "require_colons",
+        "managed",
+        "animated",
+        "available",
+    )
     def __init__(self, **kwargs): ...
 
 class ReactionObject(DictSerializerMixin):
@@ -128,6 +196,8 @@ class ReactionObject(DictSerializerMixin):
     count: int
     me: bool
     emoji: Emoji
+
+    __slots__ = ("_json", "count", "me", "bool")
     def __init__(self, **kwargs): ...
 
 class PartialSticker(DictSerializerMixin):
@@ -135,6 +205,8 @@ class PartialSticker(DictSerializerMixin):
     id: int
     name: str
     format_type: int
+
+    __slots__ = ("_json", "id", "name", "format_type")
     def __init__(self, **kwargs): ...
 
 class Sticker(PartialSticker):
@@ -148,6 +220,22 @@ class Sticker(PartialSticker):
     guild_id: Optional[int]
     user: Optional[User]
     sort_value: Optional[int]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "pack_id",
+        "name",
+        "description",
+        "tags",
+        "asset",
+        "type",
+        "format_type",
+        "available",
+        "guild_id",
+        "user",
+        "sort_value",
+    )
     def __init__(self, **kwargs): ...
 
 class EmbedImageStruct(DictSerializerMixin):
@@ -156,12 +244,16 @@ class EmbedImageStruct(DictSerializerMixin):
     proxy_url: Optional[str]
     height: Optional[str]
     width: Optional[str]
+
+    __slots__ = ("_json", "url", "proxy_url", "height", "width")
     def __init__(self, **kwargs): ...
 
 class EmbedProvider(DictSerializerMixin):
     _json: dict
     name: Optional[str]
     url: Optional[str]
+
+    __slots__ = ("_json", "url", "name")
     def __init__(self, **kwargs): ...
 
 class EmbedAuthor(DictSerializerMixin):
@@ -170,6 +262,8 @@ class EmbedAuthor(DictSerializerMixin):
     url: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
+
+    __slots__ = ("_json", "url", "proxy_icon_url", "icon_url", "name")
     def __init__(self, **kwargs): ...
 
 class EmbedFooter(DictSerializerMixin):
@@ -177,6 +271,8 @@ class EmbedFooter(DictSerializerMixin):
     text: str
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
+
+    __slots__ = ("_json", "text", "proxy_icon_url", "icon_url")
     def __init__(self, **kwargs): ...
 
 class EmbedField(DictSerializerMixin):
@@ -184,6 +280,8 @@ class EmbedField(DictSerializerMixin):
     name: str
     inline: Optional[bool]
     value: str
+
+    __slots__ = ("_json", "name", "inline", "value")
     def __init__(self, **kwargs): ...
 
 class Embed(DictSerializerMixin):
@@ -201,4 +299,21 @@ class Embed(DictSerializerMixin):
     provider: Optional[EmbedProvider]
     author: Optional[EmbedAuthor]
     fields: Optional[List[EmbedField]]
+
+    __slots__ = (
+        "_json",
+        "title",
+        "type",
+        "description",
+        "url",
+        "timestamp",
+        "color",
+        "footer",
+        "image",
+        "thumbnail",
+        "video",
+        "provider",
+        "author",
+        "fields",
+    )
     def __init__(self, **kwargs): ...

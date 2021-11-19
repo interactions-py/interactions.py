@@ -7,6 +7,8 @@ class RoleTags(DictSerializerMixin):
     bot_id: Optional[int]
     integration_id: Optional[int]
     premium_subscriber: Optional[Any]
+
+    __slots__ = ("_json", "bot_id", "integration_id", "premium_subscriber")
     def __init__(self, **kwargs): ...
 
 class Role(DictSerializerMixin):
@@ -22,4 +24,18 @@ class Role(DictSerializerMixin):
     managed: bool
     mentionable: bool
     tags: Optional[RoleTags]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "color",
+        "hoist",
+        "icon",
+        "unicode_emoji",
+        "position",
+        "managed",
+        "mentionable",
+        "tags",
+    )
     def __init__(self, **kwargs): ...

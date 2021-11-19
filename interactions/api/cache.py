@@ -78,6 +78,17 @@ class Cache:
     :ivar interactions.api.cache.Cache interactions: The cached interactions upon interaction.
     """
 
+    __slots__ = (
+        "token",
+        "dms",
+        "self_guilds",
+        "channels",
+        "roles",
+        "members",
+        "messages",
+        "interactions",
+    )
+
     def __init__(self, token: Optional[str] = None) -> None:
         # TODO: Look into a better solution that handles duplication of data
         # in a storage.
