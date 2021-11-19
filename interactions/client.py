@@ -175,7 +175,7 @@ class Client:
                 _type = type
 
             _description: str = "" if description is None else description
-            _options: list = [] if options is None else options
+            _options: list = [] if options is None else [option._json for option in options]
             _default_permission: bool = True if default_permission is None else default_permission
             # _permissions: list = [] if permissions is None else permissions
             _scope: list = []

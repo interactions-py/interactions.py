@@ -1,5 +1,5 @@
 # from io import FileIO
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import interactions.client
 
@@ -102,7 +102,7 @@ class InteractionContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+        components: Optional[Union[Dict[str, Any], ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[int] = None,
         ephemeral: Optional[bool] = None,
@@ -138,14 +138,14 @@ class InteractionContext(Context):
         _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
-        _components: list = [{"type": 1}]
+        _components: list = [{"type": 1, "components": []}]
 
         if isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
+        elif isinstance(components, (Button, SelectMenu)):
+            _components[0]["components"] = [] if components is None else [components._json]
         else:
-            _components[0]["components"] = [components._json]
-
-        print(_components)
+            _components = [] if components is None else [components]
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
         _type: int = 4 if type is None else type
@@ -221,8 +221,10 @@ class InteractionContext(Context):
 
         if isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
+        elif isinstance(components, (Button, SelectMenu)):
+            _components[0]["components"] = [] if components is None else [components._json]
         else:
-            _components[0]["components"] = [components._json]
+            _components = []
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
         _type: int = 4 if type is None else type
