@@ -145,12 +145,20 @@ class Guild(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.id = Snowflake(
-            self.id
-        )  # This converts it from data json "string" to Snowflake "string"
-        self.owner_id = Snowflake(self.owner_id)
-        if self.afk_channel_id:
-            self.afk_channel_id = Snowflake(self.afk_channel_id)
+        # the hasattrs are only here because for some reason
+        # when it boots up, discord apparently has it fire
+        # a guild member update to the bot, which then fires this construct.
+
+        # flow you fix it
+
+        if hasattr(self, "id"):
+            self.id = Snowflake(
+                self.id
+            )  # This converts it from data json "string" to Snowflake "string"
+        if hasattr(self, "owner_id"):
+            self.owner_id = Snowflake(self.owner_id)
+            if self.afk_channel_id:
+                self.afk_channel_id = Snowflake(self.afk_channel_id)
 
 
 class GuildPreview(DictSerializerMixin):

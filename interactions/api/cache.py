@@ -82,6 +82,7 @@ class Cache:
         "token",
         "dms",
         "self_guilds",
+        "guilds",
         "channels",
         "roles",
         "members",

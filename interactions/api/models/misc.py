@@ -29,7 +29,8 @@ class DictSerializerMixin(object):
         for key in kwargs:
             setattr(self, key, kwargs[key])
 
-        if self.__slots__ is not None:  # safeguard, runtime check
+        # if self.__slots__ is not None:  # safeguard, runtime check
+        if hasattr(self, "__slots__"):
             for _attr in self.__slots__:
                 if not hasattr(self, _attr):
                     setattr(self, _attr, None)
