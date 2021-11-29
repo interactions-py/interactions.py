@@ -30,7 +30,7 @@ basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("http")
 
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
-
+_session: ClientSession = ClientSession()
 
 class Route:
     """
@@ -137,7 +137,7 @@ class Request:
         """
         self.token = token
         self.loop = get_event_loop()
-        self.session = ClientSession()
+        self.session = _session  # we shouldn't be reiterating this per new request, so we'll have it outside.
         self.ratelimits = {}
         self.headers = {
             "X-Ratelimit-Precision": "millisecond",
