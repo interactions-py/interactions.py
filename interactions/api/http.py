@@ -128,6 +128,7 @@ class Request:
     headers: dict
     session: ClientSession
     lock: Event
+    limit: int
 
     def __init__(self, token: str) -> None:
         """
@@ -147,6 +148,7 @@ class Request:
             f"aiohttp/{http_version}",
         }
         self.lock = Event(loop=self.loop)
+        self.limit = 50  # representing all requests under 1 second.
 
         self.lock.set()
 
@@ -169,7 +171,7 @@ class Request:
 
         bucket: Optional[str] = route.bucket
 
-        for _ in range(3):  # we're not using this variable, flow why
+        for _ in range(3):
             ratelimit: Lock = self.ratelimits.get(bucket)
 
             if not self.lock.is_set():
@@ -197,9 +199,20 @@ class Request:
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
-                    data = await response.json(content_type=None)
-                    log.debug(data)
+                    if not (response.headers["X-Ratelimit-Remaining"] - self.limit):
+                        log.info(
+                            "The application has reached the last remaining request. Cooling down to avoid rate limiting."
+                        )
+                        self.lock.set()
+                        await sleep(1)
+                        self.lock.clear()
+                    else:
+                        self.limit = response.headers["X-Ratelimit-Remaining"]
+                        data = await response.json(content_type=None)
+                        log.debug(data)
 
+                    if not response.headers["X-Ratelimit-Remaining"]:
+                        log.warning("The HTTP request could not be processed because of 
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
                     elif response.status == 429:
