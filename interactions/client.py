@@ -154,14 +154,16 @@ class Client:
         :rtype: Callable[..., Any]
         """
         if not name:
-            raise Exception("Command must have a name!")
+            raise InteractionException(11, message="Your command must have a name.")
 
         if type == ApplicationCommandType.CHAT_INPUT and not description:
-            raise Exception("Chat-input commands must have a description!")
+            raise InteractionException(11, message="Chat-input commands must have a description.")
 
         def decorator(coro: Coroutine) -> Any:
             if not len(coro.__code__.co_varnames):
-                raise InteractionException(11)
+                raise InteractionException(
+                    11, message="Your command needs at least one argument to return context."
+                )
             if isinstance(type, ApplicationCommandType):
                 _type: int = type.value
             if isinstance(type, str):

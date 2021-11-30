@@ -76,7 +76,7 @@ class InteractionException(Exception):
             8: "Guild ID type passed was incorrect",
             9: "Incorrect data was passed to a slash command data object.",
             10: "The interaction was already responded to.",
-            11: "Your command must have at least one argument for returning context.",
+            11: "Error creating your command.",
         }
 
     @property
