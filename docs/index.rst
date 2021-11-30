@@ -12,23 +12,26 @@ library is all about.
 
 What are we good for?
 *********************
-We offer a **lot** of benefits with using our library:
+These are the biggest advantages that you will receive out of using our library:
 
-* Modern pythonic design that is scalable and modular.
-* Asynchronous coroutines and multi-threading capabilities.
-* Optimal class object reference with little overhead.
-* Easily accessible codebase source.
-* Stable/unstable branches for managing module stability when importing.
+* Modern library architecture design for easy modularity and scalability.
+* Sane HTTP 429 ratelimiting.
+* Dynamic object data generation via. dispatch.
+* On-demand caching.
+* `await`/async coroutine functionality.
 
 What does that mean?
-********************
-Basically, we're good and bad for these things:
+^^^^^^^^^^^^^^^^^^^^
+We're basically the library you'll want to use for these specific things:
 
-* ✔️ Working with application commands.
-* ✔️ Handling contextual data cached from all channels.
-* ✔️ General/basic assignment of guild properties to members.
-* ✔️ Responsive callbacks for buttons and select menus.
-* ✔️ Voice client capabilities.
+* ✔️ Working with application commands and components. (Interactions)
+* ✔️ Handling data from any text channel, cached and dispatched.
+* ✔️ General permissions handling on guild members.
+* ✔️ Responsive callbacks for components.
+
+We won't be doing these things as a core aspect of our library, however:
+
+* ❌ Voice client capabilities.
 * ❌ Cooldowns/bucket types.
 
 Where do I start?
