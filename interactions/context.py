@@ -93,7 +93,7 @@ class InteractionContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
-        components: Optional[Union[Dict[str, Any], ActionRow, Button, SelectMenu]] = None,
+        components: Optional[Union[List[Dict[str, Any]], ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[Union[int, InteractionCallbackType]] = None,
         ephemeral: Optional[bool] = None,
