@@ -218,3 +218,42 @@ class GuildTemplate(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+
+class EventMetadata(DictSerializerMixin):
+    """
+    The metadata of an event entity, if any.
+
+    :ivar typing.Optional[str] location: The location of the event, if any.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class ScheduledEvents(DictSerializerMixin):
+    """
+    The scheduled events object in a guild.
+
+    ..note::
+        Some attributes are optional via creator_id/creator implementation by the API:
+        "`creator_id` will be null and `creator` will not be included for events created before October 25th, 2021, when the concept of `creator_id` was introduced and tracked."
+
+    :ivar Snowflake id: The ID of the scheduled event.
+    :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
+    :ivar typing.Optional[Snowflake] channel_id: The channel ID in wich the scheduled event belongs to, if any.
+    :ivar typing.Optional[Snowflake] creator_id: The ID of the user that created the scheduled event.
+    :ivar str name: The name of the scheduled event.
+    :ivar str description: The description of the scheduled event.
+    :ivar datetime scheduled_start_time: The scheduled event start time.
+    :ivar typing.Optional[datetime] scheduled_end_time: The scheduled event end time, if any.
+    :ivar int privacy_level: The privacy level of the scheduled event.
+    :ivar int entity_type: The type of the scheduled event.
+    :ivar typing.Optional[Snowflake] entity_id: The ID of the entity associated with the scheduled event.
+    :ivar typing.Optional[EventMetadata] entity_metadata: Additional metadata associated with the scheduled event.
+    :ivar typing.Optional[User] creator: The user that created the scheduled event.
+    :ivar typing.Optional[int] user_count: The number of users subscribed to the scheduled event.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)

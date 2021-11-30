@@ -145,6 +145,7 @@ class GuildPreview(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Invite(DictSerializerMixin):
+    _json: dict
     uses: int
     max_uses: int
     max_age: int
@@ -153,6 +154,7 @@ class Invite(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class GuildTemplate(DictSerializerMixin):
+    _json: dict
     code: str
     name: str
     description: Optional[str]
@@ -164,4 +166,27 @@ class GuildTemplate(DictSerializerMixin):
     source_guild_id: int
     serialized_source_guild: Guild  # partial
     is_dirty: Optional[bool]
+    def __init__(self, **kwargs): ...
+
+class EventMetadata(DictSerializerMixin):
+    _json: dict
+    location: Optional[str]
+    def __init__(self, **kwargs): ...
+
+class ScheduledEvents(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    guild_id: Snowflake
+    channel_id: Optional[Snowflake]
+    creator_id: Optional[Snowflake]
+    name: str
+    description: str
+    scheduled_start_time: datetime
+    scheduled_end_time: Optional[datetime]
+    privacy_level: int
+    entity_type: int
+    entity_id: Optional[Snowflake]
+    entity_metadata: Optional[EventMetadata]
+    creator: Optional[User]
+    user_count: Optional[int]
     def __init__(self, **kwargs): ...

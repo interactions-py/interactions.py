@@ -1,3 +1,4 @@
+import inspect
 from asyncio import get_event_loop
 from logging import Logger, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
@@ -128,6 +129,18 @@ class Client:
         self.websocket.dispatch.register(coro, name=name)
         return coro
 
+    def __process_options(self, coro: Callable) -> List:
+        """
+        An option parser function.
+
+        :param coro: The coroutine of the event.
+        :type coro: typing.Coroutine
+        :return typing.List[]
+        """
+        params = iter(inspect.signature(coro).parameters.values())
+        log.info(f"params: {list(params)}")
+        return []
+
     def command(
         self,
         *,
@@ -175,7 +188,11 @@ class Client:
                 _type = type
 
             _description: str = "" if description is None else description
-            _options: list = [] if options is None else [option._json for option in options]
+            _options: list = (
+                self.__process_options(coro)
+                if options is None
+                else [option._json for option in options]
+            )
             _default_permission: bool = True if default_permission is None else default_permission
             # _permissions: list = [] if permissions is None else permissions
             _scope: list = []
@@ -214,6 +231,7 @@ class Client:
                     else:
                         cache.interactions.add(Item(id=request["application_id"], value=payload))
 
+            log.info(f"coro args: {coro.__code__.co_varnames}")
             return self.event(coro, name=name)
 
         return decorator
