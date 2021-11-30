@@ -32,6 +32,7 @@ class InteractionContext(Context):
         "token",
         "version",
         "responded",
+        "deferred",
     )
     id: str
     application_id: str
@@ -42,6 +43,7 @@ class InteractionContext(Context):
     token: str
     version: int = 1
     responded: bool = False
+    deferred: bool = False
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,

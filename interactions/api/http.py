@@ -121,7 +121,7 @@ class Request:
     :ivar Event lock: The ratelimit lock event.
     """
 
-    __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock")
+    __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock", "limit")
     token: str
     loop: AbstractEventLoop
     ratelimits: dict
