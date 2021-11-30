@@ -80,7 +80,7 @@ class HTTPResponseType(IntEnum):
     An enumerable object for the HTTP response codes Discord gives out.
 
     .. note::
-        This enumerable does not list the documented "5xx", as it may vary.
+        This enumerable does not list the documented `5XX`, as it may vary.
     """
 
     OK = 200

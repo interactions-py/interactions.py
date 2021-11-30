@@ -19,11 +19,11 @@ class Context(DictSerializerMixin):
     The base class of \"context\" for dispatched event data
     from the gateway.
 
-    :ivar interactions.api.models.message.Message message: The message data model.
-    :ivar interactions.api.models.member.Member author: The member data model.
-    :ivar interactions.api.models.user.User user: The user data model.
-    :ivar interactions.api.models.channel.Channel channel: The channel data model.
-    :ivar interactions.api.models.guild.Guild guild: The guild data model.
+    :ivar Message message: The message data model.
+    :ivar Member author: The member data model.
+    :ivar User user: The user data model.
+    :ivar Channel channel: The channel data model.
+    :ivar Guild guild: The guild data model.
     :ivar \*args: Multiple arguments of the context.
     :ivar \**kwargs: Keyword-only arguments of the context.
     """
@@ -39,8 +39,8 @@ class InteractionContext(Context):
 
     :ivar str id: The ID of the interaction.
     :ivar str application_id: The application ID of the interaction.
-    :ivar typing.Union[str, int, interactions.enums.InteractionType] type: The type of interaction.
-    :ivar interactions.models.misc.InteractionData data: The application command data.
+    :ivar Union[str, int, InteractionType] type: The type of interaction.
+    :ivar InteractionData data: The application command data.
     :ivar str guild_id: The guild ID the interaction falls under.
     :ivar str channel_id: The channel ID the interaction was instantiated from.
     :ivar str token: The token of the interaction response.
@@ -62,12 +62,13 @@ class InteractionContext(Context):
         self.token = kwargs.get("token")
         self.responded = False
 
-    async def defer(self) -> None:
+    async def defer(self, ephemeral: Optional[bool] = None) -> None:
         """
         This \"defers\" an interaction response, allowing up
         to a 15-minute delay between invokation and responding.
 
-        :return: None
+        :param ephemeral: Whether the deferred state is hidden or not.
+        :type ephemeral: Optional[bool]
         """
         await HTTPClient(interactions.client.cache.token).create_interaction_response(
             token=self.token, application_id=int(self.id), data={"type": 5}
@@ -92,24 +93,25 @@ class InteractionContext(Context):
         to send an interaction response.
 
         :param content: The contents of the message as a string or string-converted value.
-        :type content: typing.Optional[str]
+        :type content: Optional[str]
         :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: typing.Optional[bool]
+        :type tts: Optional[bool]
         :param embeds: An embed, or list of embeds for the message.
-        :type embeds: typing.Optional[typing.Union[interactions.api.models.message.Embed, typing.List[interactions.api.models.message.Embed]]]
+        :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: typing.Optional[interactions.api.models.message.MessageInteraction]
+        :type allowed_mentions: Optional[MessageInteraction]
         :param message_reference: The message to "refer" if attempting to reply to a message.
-        :type message_reference: typing.Optional[interactions.api.models.message.MessageReference]
+        :type message_reference: Optional[MessageReference]
         :param components: A component, or list of components for the message.
-        :type components: typing.Optional[typing.Union[interactions.models.component.Component, typing.List[interactions.models.component.Component]]]
+        :type components: Optional[Union[Component, List[Component]]]
         :param sticker_ids: A singular or list of IDs to stickers that the application has access to for the message.
-        :type sticker_ids: typing.Optional[typing.Union[str, typing.List[str]]]
+        :type sticker_ids: Optional[Union[str, List[str]]]
         :param type: The type of message response if used for interactions or components.
-        :type type: typing.Optional[int]
+        :type type: Optional[int]
         :param ephemeral: Whether the response is hidden or not.
-        :type ephemeral: typing.Optional[bool]
-        :return: interactions.api.models.message.Message
+        :type ephemeral: Optional[bool]
+        :return: The sent message as an object.
+        :rtype: Message
         """
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
@@ -179,12 +181,13 @@ class InteractionContext(Context):
         ephemeral: Optional[bool] = None,
     ) -> Message:
         """
-        This allows the invokation state described in the "context"
+        This allows the invocation state described in the "context"
         to send an interaction response. This inherits the arguments
         of the ``.send()`` method.
 
         :inherit:`interactions.context.InteractionContext.send()`
-        :return: interactions.api.models.message.Message
+        :return: The edited message as an object.
+        :rtype: Message
         """
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
@@ -242,8 +245,6 @@ class InteractionContext(Context):
         .. note::
             Doing this will proceed in the context message no longer
             being present.
-
-        :return: None
         """
         if self.responded:
             await HTTPClient(interactions.client.cache.token).delete_webhook_message(
@@ -271,3 +272,4 @@ class ComponentContext(InteractionContext):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.responded = False  # remind components that it was not responded to.

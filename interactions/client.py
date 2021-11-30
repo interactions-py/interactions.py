@@ -160,7 +160,7 @@ class Client:
             raise Exception("Chat-input commands must have a description!")
 
         def decorator(coro: Coroutine) -> Any:
-            if "ctx" not in coro.__code__.co_varnames:
+            if not len(coro.__code__.co_varnames):
                 raise InteractionException(11)
             if isinstance(type, ApplicationCommandType):
                 _type: int = type.value

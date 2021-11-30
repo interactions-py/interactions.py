@@ -37,7 +37,6 @@ class InteractionException(Exception):
         :type __type: Optional[Union[int, IntEnum]]
         :param kwargs: Any additional keyword arguments.
         :type **kwargs: dict
-        :return: None
 
         :: note::
             (given if 3 is "DUPLICATE_COMMAND" and with the right enum import, it will display 3 as the error code.)
@@ -77,7 +76,7 @@ class InteractionException(Exception):
             8: "Guild ID type passed was incorrect",
             9: "Incorrect data was passed to a slash command data object.",
             10: "The interaction was already responded to.",
-            11: "There was no context passed through the command.",
+            11: "Your command must have at least one argument for returning context.",
         }
 
     @property
@@ -157,7 +156,7 @@ class GatewayException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent Gateway closing OP codes.
 
-    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar ErrorFormatter _formatter: The built in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
@@ -188,7 +187,7 @@ class HTTPException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent HTTP Exceptions.
 
-    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar ErrorFormatter _formatter: The built in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
@@ -212,7 +211,7 @@ class JSONException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent JSON API Exceptions.
 
-    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar ErrorFormatter _formatter: The built in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 

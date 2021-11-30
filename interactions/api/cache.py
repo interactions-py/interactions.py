@@ -7,8 +7,8 @@ class Item(object):
     A class representing the defined item in a stored dataset.
 
     :ivar str id: The ID of the item.
-    :ivar typing.Any value: The item itself.
-    :ivar typing.Type type: The ID type representation.
+    :ivar Any value: The item itself.
+    :ivar Type type: The ID type representation.
     """
 
     def __init__(self, id: str, value: Any) -> None:
@@ -16,8 +16,7 @@ class Item(object):
         :param id: The item's ID.
         :type id: str
         :param value: The item itself.
-        :type value: typing.Any
-        :return: None
+        :type value: Any
         """
         self.id = id
         self.value = value
@@ -28,7 +27,7 @@ class Storage:
     """
     A class representing a set of items stored as a cache state.
 
-    :ivar typing.List[interactions.api.cache.Item] values: The list of items stored.
+    :ivar List[Item] values: The list of items stored.
     """
 
     def __init__(self) -> None:
@@ -39,8 +38,9 @@ class Storage:
         Adds a new item to the storage.
 
         :param item: The item to add.
-        :type item: interactions.api.cache.Item
-        :return: typing.List[interactions.api.cache.Item]
+        :type item: Item
+        :return: The item added.
+        :rtype: List[Item]
         """
         self.values.update({item.id: item.value})
         return self.values
@@ -51,7 +51,8 @@ class Storage:
 
         :param id: The ID of the item.
         :type id: str
-        :return: typing.Optional[interactions.api.cache.Item]
+        :return: The item from the storage if any.
+        :rtype: Optional[Item]
         """
         if id in self.values.keys():
             return self.values[id]
@@ -63,14 +64,14 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
-    :ivar interactions.api.cache.Cache dms: The cached Direct Messages.
-    :ivar interactions.api.cache.Cache self_guilds: The cached guilds upon gateway connection.
-    :ivar interactions.api.cache.Cache guilds: The cached guilds after ready.
-    :ivar interactions.api.cache.Cache channels: The cached channels of guilds.
-    :ivar interactions.api.cache.Cache roles: The cached roles of guilds.
-    :ivar interactions.api.cache.Cache members: The cached members of guilds and threads.
-    :ivar interactions.api.cache.Cache messages: The cached messages of DMs and channels.
-    :ivar interactions.api.cache.Cache interactions: The cached interactions upon interaction.
+    :ivar Cache dms: The cached Direct Messages.
+    :ivar Cache self_guilds: The cached guilds upon gateway connection.
+    :ivar Cache guilds: The cached guilds after ready.
+    :ivar Cache channels: The cached channels of guilds.
+    :ivar Cache roles: The cached roles of guilds.
+    :ivar Cache members: The cached members of guilds and threads.
+    :ivar Cache messages: The cached messages of DMs and channels.
+    :ivar Cache interactions: The cached interactions upon interaction.
     """
 
     def __init__(self) -> None:

@@ -12,7 +12,7 @@ class Listener:
     """
     A class representing how events become dispatched and listened to.
 
-    :ivar asyncio.AbstractEventLoop loop: The coroutine event loop established on.
+    :ivar AbstractEventLoop loop: The coroutine event loop established on.
     :ivar dict events: A list of events being dispatched.
     """
 
@@ -27,10 +27,9 @@ class Listener:
         :param name: The name of the event to dispatch.
         :type name: str
         :param \*args: Multiple arguments of the coroutine.
-        :type \*args: typing.list[typing.Any]
+        :type \*args: list[Any]
         :param \**kwargs: Keyword-only arguments of the coroutine.
         :type \**kwargs: dict
-        :return: None
         """
         for event in self.events.get(name, []):
             self.loop.create_task(event(*args, **kwargs))
@@ -45,10 +44,9 @@ class Listener:
         i.e. : async def on_guild_create -> "ON_GUILD_CREATE" dispatch.
 
         :param coro: The coroutine to register as an event.
-        :type coro: typing.Coroutine
+        :type coro: Coroutine
         :param name: The name to associate the coroutine with. Defaults to None.
-        :type name: typing.Optional[str]
-        :return: None
+        :type name: Optional[str]
         """
         _name: str = coro.__name__ if name is None else name
         event = self.events.get(_name, [])
