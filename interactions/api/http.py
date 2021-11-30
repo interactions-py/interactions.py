@@ -211,8 +211,6 @@ class Request:
                         data = await response.json(content_type=None)
                         log.debug(data)
 
-                    if not response.headers["X-Ratelimit-Remaining"]:
-                        log.warning("The HTTP request could not be processed because of 
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
                     elif response.status == 429:
