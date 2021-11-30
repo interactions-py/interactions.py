@@ -197,8 +197,6 @@ class InteractionContext(Context):
         message_reference: Optional[MessageReference] = None,
         components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
-        type: Optional[int] = None,
-        ephemeral: Optional[bool] = None,
     ) -> Message:
         """
         This allows the invocation state described in the "context"
@@ -225,8 +223,16 @@ class InteractionContext(Context):
             _components = []
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
-        _type: int = 4 if type is None else type
-        _ephemeral: int = 0 if ephemeral is None else (1 << 6)
+
+        _type: int
+        if isinstance(type, InteractionCallbackType):
+            _type = (
+                InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
+                if self.deferred
+                else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
+            )
+        else:
+            _type = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE if type is None else type
 
         if sticker_ids and len(sticker_ids) > 3:
             raise Exception("Message can only have up to 3 stickers.")
@@ -240,7 +246,7 @@ class InteractionContext(Context):
             message_reference=_message_reference,
             components=_components,
             sticker_ids=_sticker_ids,
-            flags=_ephemeral,
+            flags=self.message.ephemeral,
         )
 
         async def func():
@@ -251,7 +257,7 @@ class InteractionContext(Context):
                 message_id=self.message.id,
             )
             self.message = payload
-            self.responded = True
+
             return req
 
         await func()
