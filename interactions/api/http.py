@@ -32,6 +32,7 @@ log: Logger = getLogger("http")
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
 _session: ClientSession = ClientSession()
 
+
 class Route:
     """
     A class representing how an HTTP route is structured.
@@ -138,7 +139,9 @@ class Request:
         """
         self.token = token
         self.loop = get_event_loop()
-        self.session = _session  # we shouldn't be reiterating this per new request, so we'll have it outside.
+        self.session = (
+            _session  # we shouldn't be reiterating this per new request, so we'll have it outside.
+        )
         self.ratelimits = {}
         self.headers = {
             "X-Ratelimit-Precision": "millisecond",

@@ -24,11 +24,11 @@ class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
 
-    :ivar asyncio.AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
-    :ivar interactions.api.dispatch.Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar typing.Optional[typing.Union[interactions.api.models.intents.Intents, typing.List[interactions.api.models.intentsIntents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
-    :ivar interactions.api.http.Request http: An instance of :class:`interactions.api.http.Request`.
-    :ivar interactions.api.gateway.WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
+    :ivar AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
+    :ivar Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
+    :ivar Optional[Union[Intents, List[Intents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
+    :ivar Request http: An instance of :class:`interactions.api.http.Request`.
+    :ivar WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
     :ivar str token: The application token.
     """
 
@@ -39,7 +39,7 @@ class Client:
         :param token: The token of the application for authentication and connection.
         :type token: str
         :param intents: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.intents.Intents.DEFAULT` or ``513``.
-        :type intents: typing.Optional[typing.Union[interactions.api.models.Intents, typing.List[Intents]]]
+        :type intents: Optional[Union[Intents, List[Intents]]]
         :return: None
         """
         if isinstance(intents, list):
@@ -68,7 +68,6 @@ class Client:
 
         :param token: The application token needed for authorization.
         :type token: str
-        :return: None
         """
         while not self.websocket.closed:
             await self.websocket.connect(token)
@@ -87,8 +86,6 @@ class Client:
             This internal call does not need to be manually triggered,
             as it will automatically be done for you. Additionally,
             this will not delete unused commands for you.
-
-        :return: None
         """
         commands = self.loop.run_until_complete(self.http.get_application_command(self.me.id))
         change: list = []
@@ -118,8 +115,9 @@ class Client:
         gateway.
 
         :param coro: The coroutine of the event.
-        :type coro: typing.Coroutine
-        :return: typing.Callable[..., typing.Any]
+        :type coro: Coroutine
+        :return: A callable response.
+        :rtype: Callable[..., Any]
         """
         self.websocket.dispatch.register(coro, name=name)
         return coro
@@ -141,18 +139,19 @@ class Client:
         gateway events.
 
         :param type: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
-        :type type: typing.Optional[typing.Union[str, int, interactions.enums.ApplicationCommandType]]
+        :type type: Optional[Union[str, int, ApplicationCommandType]]
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
-        :type name: typing.Optional[str]
+        :type name: Optional[str]
         :param description: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type description: typing.Optional[str]
+        :type description: Optional[str]
         :param scope: The "scope"/applicable guilds the application command applies to.
-        :type scope: typing.Optional[typing.Union[int, interactions.api.models.guild.Guild, typing.List[int], typing.List[interactions.api.models.guild.Guild]]]
+        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param options: The "arguments"/options of an application command. This should bel eft blank if you are not using ``CHAT_INPUT``.
-        :type options: typing.Optional[typing.List[interactions.models.command.Option]]
+        :type options: Optional[List[Option]]
         :param default_permission: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: typing.Optional[bool]
-        :return: typing.Callable[..., typing.Any]
+        :type default_permission: Optional[bool]
+        :return: A callable response.
+        :rtype: Callable[..., Any]
         """
         if not name:
             raise Exception("Command must have a name!")
@@ -214,6 +213,15 @@ class Client:
         return decorator
 
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
+        """
+        A decorator for handling interaction responses to components.
+
+        :param component: The component you wish to callback for.
+        :type component: Union[Button, SelectMenu]
+        :return: A callable response.
+        :rtype: Callable[..., Any]
+        """
+
         def decorator(coro: Coroutine) -> Any:
             payload: Component = Component(
                 type=component.type,
@@ -234,15 +242,16 @@ class Client:
 
         return decorator
 
-    async def raw_socket_create(self, data: Dict[Any, Any]) -> None:
+    async def raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
         and then returns the data purely basedd off of what it does in
         the client instantiation class.
 
         :param data: The data that is returned
-        :type data: typing.Dict[typing.Any, typing.Any]
-        :return: None
+        :type data: Dict[Any, Any]
+        :return: A dictionary of raw data.
+        :rtype: Dict[Any, Any]
         """
         return data
 
@@ -251,7 +260,6 @@ class Client:
         This is an internal function that caches the guild creates on ready.
 
         :param guild: The guild object data in question.
-        :type guild: interactions.api.model.guild.Guild
-        :return: None.
+        :type guild: Guild
         """
         cache.guilds.add(Item(id=guild.id, value=guild))
