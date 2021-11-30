@@ -224,15 +224,11 @@ class InteractionContext(Context):
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
 
-        _type: int
-        if isinstance(type, InteractionCallbackType):
-            _type = (
-                InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
-                if self.deferred
-                else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
-            )
-        else:
-            _type = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE if type is None else type
+        _type = (
+            InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
+            if self.deferred
+            else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
+        )
 
         if sticker_ids and len(sticker_ids) > 3:
             raise Exception("Message can only have up to 3 stickers.")
