@@ -27,7 +27,7 @@ class InteractionType(IntEnum):
     MESSAGE_COMPONENT = 3
 
 
-class InteractionCallbackTye(IntEnum):
+class InteractionCallbackType(IntEnum):
     """
     An enumerable object representing the callback types of interaction responses.
     """

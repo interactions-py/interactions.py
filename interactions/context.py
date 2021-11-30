@@ -9,7 +9,7 @@ from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
-from .enums import InteractionType
+from .enums import InteractionCallbackType, InteractionType
 from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
@@ -44,7 +44,8 @@ class InteractionContext(Context):
     :ivar str guild_id: The guild ID the interaction falls under.
     :ivar str channel_id: The channel ID the interaction was instantiated from.
     :ivar str token: The token of the interaction response.
-    :ivar int=1 version: The version of interaction creation. Always defaults to ``1``.
+    :ivar bool responded: Whether an original response was made or not.
+    :ivar bool deferred: Whether the response was deferred or not.
     """
 
     def __init__(self, **kwargs) -> None:
@@ -61,6 +62,7 @@ class InteractionContext(Context):
         self.channel_id = kwargs.get("channel_id")
         self.token = kwargs.get("token")
         self.responded = False
+        self.deferred = False
 
     async def defer(self, ephemeral: Optional[bool] = None) -> None:
         """
@@ -70,8 +72,16 @@ class InteractionContext(Context):
         :param ephemeral: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
         """
+        _type: InteractionCallbackType
+
+        if bool(ephemeral):
+            _type = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+            self.deferred = True
+        else:
+            _type = InteractionCallbackType.UPDATE_MESSAGE
+
         await HTTPClient(interactions.client.cache.token).create_interaction_response(
-            token=self.token, application_id=int(self.id), data={"type": 5}
+            token=self.token, application_id=int(self.id), data={"type": _type.value}
         )
 
     async def send(
@@ -85,7 +95,7 @@ class InteractionContext(Context):
         message_reference: Optional[MessageReference] = None,
         components: Optional[Union[Dict[str, Any], ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
-        type: Optional[int] = None,
+        type: Optional[Union[int, InteractionCallbackType]] = None,
         ephemeral: Optional[bool] = None,
     ) -> Message:
         """
@@ -107,7 +117,7 @@ class InteractionContext(Context):
         :param sticker_ids: A singular or list of IDs to stickers that the application has access to for the message.
         :type sticker_ids: Optional[Union[str, List[str]]]
         :param type: The type of message response if used for interactions or components.
-        :type type: Optional[int]
+        :type type: Optional[Union[int, InteractionCallbackType]]
         :param ephemeral: Whether the response is hidden or not.
         :type ephemeral: Optional[bool]
         :return: The sent message as an object.
@@ -129,7 +139,17 @@ class InteractionContext(Context):
             _components = [] if components is None else [components]
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
-        _type: int = 4 if type is None else type
+
+        _type: int
+        if isinstance(type, InteractionCallbackType):
+            _type = (
+                InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
+                if self.deferred
+                else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
+            )
+        else:
+            _type = type
+
         _ephemeral: int = 0 if ephemeral is None else (1 << 6)
 
         if sticker_ids and len(sticker_ids) > 3:
