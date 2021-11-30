@@ -148,7 +148,7 @@ class InteractionContext(Context):
                 else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
             )
         else:
-            _type = type
+            _type = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE if type is None else type
 
         _ephemeral: int = 0 if ephemeral is None else (1 << 6)
 

@@ -200,17 +200,19 @@ class Request:
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
-                    if not (response.headers["X-Ratelimit-Remaining"] - self.limit):
-                        log.info(
-                            "The application has reached the last remaining request. Cooling down to avoid rate limiting."
-                        )
-                        self.lock.set()
-                        await sleep(1)
-                        self.lock.clear()
-                    else:
-                        self.limit = response.headers["X-Ratelimit-Remaining"]
-                        data = await response.json(content_type=None)
-                        log.debug(data)
+                    if "X-Ratelimit-Remaining" in response.headers.keys():
+                        if not (int(response.headers["X-Ratelimit-Remaining"]) - int(self.limit)):
+                            log.info(
+                                "The application has reached the last remaining request. Cooling down to avoid rate limiting."
+                            )
+                            self.lock.set()
+                            await sleep(1)
+                            self.lock.clear()
+                        else:
+                            self.limit = response.headers["X-Ratelimit-Remaining"]
+
+                    data = await response.json(content_type=None)
+                    log.debug(data)
 
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)

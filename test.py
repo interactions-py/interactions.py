@@ -48,7 +48,11 @@ async def test(ctx):
     await ctx.edit("hola")
 
 
-@client.command(type=2, name="test context menu", scope=852402668294766612)
+@client.command(
+    type=interactions.ApplicationCommandType.MESSAGE,
+    name="test context menu",
+    scope=852402668294766612,
+)
 async def context_command(ctx):
     await ctx.send("hi?")
 
