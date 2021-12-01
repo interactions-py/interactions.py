@@ -121,14 +121,13 @@ class Request:
     :ivar Event lock: The ratelimit lock event.
     """
 
-    __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock", "limit")
+    __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock")
     token: str
     loop: AbstractEventLoop
     ratelimits: dict
     headers: dict
     session: ClientSession
     lock: Event
-    limit: int
 
     def __init__(self, token: str) -> None:
         """
@@ -141,14 +140,12 @@ class Request:
         self.session = session
         self.ratelimits = {}
         self.headers = {
-            "X-Ratelimit-Precision": "millisecond",
             "Authorization": f"Bot {self.token}",
             "User-Agent": f"DiscordBot (https://github.com/goverfl0w/discord-interactions {__version__} "
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
         self.lock = Event(loop=self.loop)
-        self.limit = 50  # representing all requests under 1 second.
 
         self.lock.set()
 
@@ -200,20 +197,18 @@ class Request:
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
-                    if "X-Ratelimit-Remaining" in response.headers.keys():
-                        if not (int(response.headers["X-Ratelimit-Remaining"]) - int(self.limit)):
-                            log.info(
-                                "The application has reached the last remaining request. Cooling down to avoid rate limiting."
-                            )
-                            self.lock.set()
-                            await sleep(1)
-                            self.lock.clear()
-                        else:
-                            self.limit = response.headers["X-Ratelimit-Remaining"]
-
                     data = await response.json(content_type=None)
                     log.debug(data)
 
+                    if "X-Ratelimit-Remaining" in response.headers.keys():
+                        remaining = response.headers["X-Ratelimit-Remaining"]
+
+                        if not int(remaining) and response.status != 429:
+                            time_left = response.headers["X-Ratelimit-Reset-After"]
+                            self.lock.set()
+                            log.warning("The HTTP request has reached the maximum threshold.")
+                            await sleep(int(time_left))
+                            self.lock.clear()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
                     elif response.status == 429:
