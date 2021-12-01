@@ -195,19 +195,14 @@ class Client:
             for command in self.http.cache.interactions.values
         ]
 
-        print("debug line only.")
-
         _command_names = [command["name"] for command in commands]
 
         for command in cached_commands:
             if commands:
                 if command.name not in _command_names:  # delete
-                    log.info(f"Detected API command {command.name} not in cache, deleting....")
                     await self.http.delete_application_command(
                         self.me.id, command.id, command.guild_id
                     )
-
-                    log.info(f"Detected API command {command.name} not in cache, deleted....")
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
