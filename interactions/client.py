@@ -152,42 +152,44 @@ class Client:
 
                         if request.get("code"):
                             raise JSONException(request["code"])
+                # TODO: Solve redundancy in the check.
                 else:
-                    log.info(
-                        "Detected command declared but not in the API, creating and updating cache."
-                    )
-                    request = await self.http.create_application_command(
-                        application_id=self.me.id,
-                        data=payload._json,
-                        guild_id=payload.guild_id,
-                    )
+                    #     log.info(
+                    #         f"Detected command {result.name} declared but not in the API, creating and updating cache."
+                    #     )
+                    #     request = await self.http.create_application_command(
+                    #         application_id=self.me.id,
+                    #         data=payload._json,
+                    #         guild_id=payload.guild_id,
+                    #     )
                     self.http.cache.interactions.add(Item(payload.name, payload))
 
-                    if request.get("code"):
-                        raise JSONException(request["code"])
+                #     if request.get("code"):
+                #         raise JSONException(request["code"])
+
+                #     break
 
         # TODO: Work more on this later.
-        # cached_commands: list = [self.http.cache.interactions.values[command] for command in self.http.cache.interactions.values]
-        # for command in commands:
-        #     result: ApplicationCommand = ApplicationCommand(
-        #         id=command.get("id"),
-        #         type=command.get("type"),
-        #         guild_id=int(command.get("guild_id")),
-        #         name=command.get("name"),
-        #         description=command.get("description", ""),
-        #         options=command.get("options", []),
-        #         default_permission=command.get("default_permission", False),
-        #     )
+        cached_commands: list = [
+            self.http.cache.interactions.values[command]
+            for command in self.http.cache.interactions.values
+        ]
+        for command in commands:
+            result: ApplicationCommand = ApplicationCommand(
+                id=command.get("id"),
+                type=command.get("type"),
+                guild_id=int(command.get("guild_id")),
+                name=command.get("name"),
+                description=command.get("description", ""),
+                options=command.get("options", []),
+                default_permission=command.get("default_permission", False),
+            )
 
-        #     if result not in cached_commands:
-        #         log.info(
-        #             f"Detected unused command {result.name}, deleting from the API and cache."
-        #         )
-        #         request = self.loop.run_until_complete(
-        #             self.http.delete_application_command(
-        #                 application_id=self.me.id, command_id=result.id, guild_id=result.guild_id
-        #             )
-        #         )
+            if result not in cached_commands:
+                log.info(f"Detected unused command {result.name}, deleting from the API and cache.")
+                request = await self.http.delete_application_command(
+                    application_id=self.me.id, command_id=result.id, guild_id=result.guild_id
+                )
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
@@ -248,11 +250,12 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            elif (len(coro.__code__.co_varnames) + 1) < len(options):
-                raise InteractionException(
-                    11,
-                    message="You must have the same amount of arguments as the options of the command.",
-                )
+            if options:
+                if (len(coro.__code__.co_varnames) + 1) < len(options):
+                    raise InteractionException(
+                        11,
+                        message="You must have the same amount of arguments as the options of the command.",
+                    )
 
             _type: int = 0
             if isinstance(type, ApplicationCommandType):
@@ -325,7 +328,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Any:
             payload: Component = Component(**component._json)
-            return self.event(coro, name=f"autocomplete_{payload.custom_id}")
+            return self.event(coro, name=payload.custom_id)
 
         return decorator
 

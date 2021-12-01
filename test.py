@@ -17,6 +17,14 @@ cool_component = interactions.Button(
 
 
 @client.command(
+    name="test", description="this is to conduct generic tests.", scope=852402668294766612
+)
+async def regular_command(ctx):
+    await ctx.defer()
+    await ctx.send("just a regular command.")
+
+
+@client.command(
     name="sub",
     description="let's make sure it works.",
     scope=852402668294766612,
@@ -39,7 +47,7 @@ async def sub_command(ctx):
     scope=852402668294766612,
     options=[
         interactions.Option(
-            type=interactions.OptionType.STRING,
+            type=interactions.OptionType.INTEGER,
             name="arg",
             description="the argument to test",
             required=True,
@@ -53,7 +61,9 @@ async def command_argument(ctx, arg):
 
 @client.autocomplete(name="arg")
 async def auto_response(ctx):
-    print(ctx)
+    for a in range(0, 25):
+        for b in range(0, 25):
+            await ctx.populate([interactions.Choice(name=a, value=b)])
 
 
 @client.component(component=cool_component)

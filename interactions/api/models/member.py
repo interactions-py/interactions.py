@@ -41,6 +41,7 @@ class Member(DictSerializerMixin):
         "is_pending",
         "pending",
         "permissions",
+        "communication_disabled_until",
     )
 
     def __init__(self, **kwargs):

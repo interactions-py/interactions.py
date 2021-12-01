@@ -174,7 +174,7 @@ class Request:
             ratelimit: Lock = self.ratelimits.get(bucket)
 
             if not self.lock.is_set():
-                log.warning("Global lock is still locked, waiting for it to clear...")
+                log.warning("The request is still locked, waiting for it to clear.")
                 await self.lock.wait()
 
             if ratelimit is None:
@@ -210,7 +210,7 @@ class Request:
                             log.warning(
                                 f"The HTTP request has reached the maximum threshold. Cooling down for {time_left} seconds."
                             )
-                            await sleep(int(time_left))
+                            await sleep(float(time_left))
                             self.lock.clear()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)

@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 
-from interactions.api.http import HTTPClient
-
+from .api.http import HTTPClient
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -9,19 +8,20 @@ from .api.models.message import Embed, Message, MessageInteraction, MessageRefer
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .enums import ComponentType, InteractionType
+from .models.command import Choice
 from .models.component import Component
 from .models.misc import InteractionData
 
 class Context(DictSerializerMixin):
 
+    client: HTTPClient
     message: Message
-    author: Member
+    member: Member
     user: User
     channel: Channel
     guild: Guild
     args: List[Any]
     kwargs: Dict[Any, Any]
-    client: HTTPClient
     def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):
@@ -61,3 +61,4 @@ class ComponentContext(InteractionContext):
 
 class AutocompleteContext(Context):
     def __init__(self, **kwargs) -> None: ...
+    async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]: ...
