@@ -19,7 +19,6 @@ class Member(DictSerializerMixin):
     pending: Optional[bool]
     permissions: Optional[str]
     communication_disabled_until: Optional[str]
-
     __slots__ = (
         "_json",
         "user",

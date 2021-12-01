@@ -157,19 +157,22 @@ class Client:
 
                         if request.get("code"):
                             raise JSONException(request["code"])
+                # TODO: Solve redundancy in the check.
                 else:
-                    log.info(
-                        "Detected command declared but not in the API, creating and updating cache."
-                    )
-                    request = await self.http.create_application_command(
-                        application_id=self.me.id,
-                        data=payload._json,
-                        guild_id=payload.guild_id,
-                    )
+                    #     log.info(
+                    #         f"Detected command {result.name} declared but not in the API, creating and updating cache."
+                    #     )
+                    #     request = await self.http.create_application_command(
+                    #         application_id=self.me.id,
+                    #         data=payload._json,
+                    #         guild_id=payload.guild_id,
+                    #     )
                     self.http.cache.interactions.add(Item(payload.name, payload))
 
-                    if request.get("code"):
-                        raise JSONException(request["code"])
+                #     if request.get("code"):
+                #         raise JSONException(request["code"])
+
+                #     break
 
         else:
             log.debug("No commands found, adding to API and cache...")
@@ -194,7 +197,7 @@ class Client:
             self.http.cache.interactions.values[command]
             for command in self.http.cache.interactions.values
         ]
-
+       
         _command_names = [command["name"] for command in commands]
 
         for command in cached_commands:
@@ -278,11 +281,12 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            elif (len(coro.__code__.co_varnames) + 1) < (len(options) if options else 0):
-                raise InteractionException(
-                    11,
-                    message="You must have the same amount of arguments as the options of the command.",
-                )
+            if options:
+                if (len(coro.__code__.co_varnames) + 1) < len(options):
+                    raise InteractionException(
+                        11,
+                        message="You must have the same amount of arguments as the options of the command.",
+                    )
 
             _type: int = 0
             if isinstance(type, ApplicationCommandType):
