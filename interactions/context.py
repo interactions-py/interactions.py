@@ -54,19 +54,6 @@ class InteractionContext(Context):
     :ivar bool deferred: Whether the response was deferred or not.
     """
 
-    __slots__ = (
-        "id",
-        "application_id",
-        "type",
-        "data",
-        "guild_id",
-        "channel_id",
-        "token",
-        "version",
-        "responded",
-        "deferred",
-    )
-
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.message = Message(**kwargs["message"]) if kwargs.get("message") else None

@@ -55,8 +55,8 @@ class InteractionContext(Context):
     channel_id: str
     token: str
     version: int = 1
-    responded: bool = False
-    deferred: bool = False
+    responded: bool
+    deferred: bool
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,
