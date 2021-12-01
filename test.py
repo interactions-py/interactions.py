@@ -3,7 +3,7 @@ import interactions
 
 TOKEN = open(".token").read().split("\n")[0]
 
-client = interactions.Client(token=TOKEN)
+client = interactions.Client(token=TOKEN, disable_sync=True)
 
 
 @client.event

@@ -41,7 +41,8 @@ class Client:
         :type token: str
         :param intents: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.intents.Intents.DEFAULT` or ``513``.
         :type intents: Optional[Union[Intents, List[Intents]]]
-        :return: None
+        :param disable_sync: Whether you want to disable automate synchronization or not.
+        :type disable_sync: Optional[bool]
         """
         if isinstance(intents, list):
             for intent in intents:
