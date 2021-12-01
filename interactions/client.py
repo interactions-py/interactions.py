@@ -148,6 +148,21 @@ class Client:
                     if request.get("code"):
                         raise JSONException(request["code"])
 
+        cached_commands: list = [command.value for command in self.http.cache.interactions]
+        for command in commands:
+            if command not in cached_commands:
+                log.info(
+                    f"Detected unused command {command.name}, deleting from the API and cache."
+                )
+                request = self.loop.run_until_complete(
+                    self.http.delete_application_command(
+                        application_id=self.me.id, command_id=command.id, guild_id=command.guild_id
+                    )
+                )
+
+                if request.get("code"):
+                    raise JSONException(request["code"])
+
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
         A decorator for listening to dispatched events from the
