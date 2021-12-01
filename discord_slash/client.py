@@ -2,6 +2,7 @@ import copy
 import logging
 import re
 import typing
+import warnings
 from contextlib import suppress
 from inspect import getdoc, iscoroutinefunction
 
@@ -1394,6 +1395,13 @@ class SlashCommand:
 
         to_use = msg["d"]
         interaction_type = to_use["type"]
+
+        # it's time to start using the new module guys,
+        # sorry.
+        warnings.warn(
+            message='This pip module is now deprecated as of version 3.0.1a! Please use the new module "discord-py-interactions" to gain access to 3.0.2 and future versions.',
+            category=DeprecationWarning,
+        )
 
         # dis_snek variance seq
 

@@ -3,7 +3,7 @@ from asyncio import get_event_loop
 from logging import Logger, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from .api.cache import Cache, Item
+from .api.cache import Item
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
@@ -12,15 +12,12 @@ from .api.models.intents import Intents
 from .api.models.team import Application
 from .base import Data
 from .enums import ApplicationCommandType
-from .models.command import ApplicationCommand, Option
+from .models.command import ApplicationCommand, Option, Permission
 from .models.component import Button, Component, SelectMenu
-
-cache = Cache()
-
-# TODO: Somehow declare cache to where its embedded
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
+_token: str = ""  # noqa
 
 
 class Client:
@@ -36,14 +33,18 @@ class Client:
     """
 
     def __init__(
-        self, token: str, intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
+        self,
+        token: str,
+        intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
+        disable_sync: Optional[bool] = None,
     ) -> None:
         """
         :param token: The token of the application for authentication and connection.
         :type token: str
-        :param intents: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.intents.Intents.DEFAULT` or ``513``.
-        :type intents: typing.Optional[typing.Union[interactions.api.models.Intents, typing.List[Intents]]]
-        :return: None
+        :param intents?: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.intents.Intents.DEFAULT` or ``513``.
+        :type intents: Optional[Union[Intents, List[Intents]]]
+        :param disable_sync?: Whether you want to disable automate synchronization or not.
+        :type disable_sync: Optional[bool]
         """
         if isinstance(intents, list):
             for intent in intents:
@@ -55,13 +56,26 @@ class Client:
         self.http = HTTPClient(token)
         self.websocket = WebSocket(intents=self.intents)
         self.me = None
+        # the token family :)
         self.token = token
-        cache.token = token
+        self.http.token = token
+        _token = token  # noqa: F841
+
+        if disable_sync:
+            self.automate_sync = False
+            log.warn(
+                "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
+            )
+        else:
+            self.automate_sync = True
 
         # Remove the if not condition for import timings
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_current_bot_information())
-            self.me = Application(**data)  #
+            self.me = Application(**data)
+
+        self.websocket.dispatch.register(self.raw_socket_create)
+        self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
 
     async def login(self, token: str) -> None:
         """
@@ -76,46 +90,107 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
-
-        self.websocket.dispatch.register(self.raw_socket_create)
-        self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
-
-        self.synchronize_commands()
         self.loop.run_until_complete(self.login(self.token))
 
-    def synchronize_commands(self) -> None:
+    async def synchronize(
+        self, payload: ApplicationCommand, permissions: Optional[Union[dict, List[dict]]]
+    ) -> None:
         """
-        Synchronizes all of the commands that are currently existing,
-        and updates those that are currently not being used.
+        Synchronizes the command specified by checking through the
+        currently registered application commands on the API and
+        modifying if there is a detected chagne in structure.
 
         .. warning::
             This internal call does not need to be manually triggered,
             as it will automatically be done for you. Additionally,
             this will not delete unused commands for you.
 
-        :return: None
+        :param payload: The payload/object of the command.
+        :type payload: ApplicationCommand
+        :param permissions: The permissions of the command.
+        :type permissions: Optional[Union[dict, List[dict]]]
         """
-        commands = self.loop.run_until_complete(self.http.get_application_command(self.me.id))
-        change: list = []
 
-        for command in commands:
-            _command: Optional[Item] = cache.interactions.get(command["id"])
-            if _command:
-                if ApplicationCommand(**command) == _command:
-                    log.warning(f"Detected change to command ID {command.id}.")
-                    change.append(command)
-            else:
-                cache.interactions.add(Item(command["id"], ApplicationCommand(**command)))
+        # TODO: Clean up.
+        commands: List[dict] = await self.http.get_application_command(
+            application_id=self.me.id, guild_id=payload.guild_id
+        )
 
-        for command in change:
-            log.debug(f"Updated command {command.id}.")
-            self.http.edit_application_command(
-                application_id=self.me.id,
-                data=command["data"],
-                command_id=command["id"],
-                guild_id=command.get("guild_id"),
-            )
-            cache.interactions.add(Item(command["id"], ApplicationCommand(**command)))
+        if commands:
+            log.debug("Commands were found, checking for sync.")
+            for command in commands:
+                log.debug(f"Checking command {command['name']}.")
+                result: ApplicationCommand = ApplicationCommand(
+                    id=command.get("id"),
+                    type=command.get("type"),
+                    guild_id=int(command.get("guild_id")),
+                    name=command.get("name"),
+                    description=command.get("description", ""),
+                    options=command.get("options", []),
+                    default_permission=command.get("default_permission", False),
+                )
+                self.http.cache.interactions.add(Item(result.name, result))
+
+                if result.name == payload.name:
+                    request: HTTPClient = None
+                    _result_name = result._json["name"]
+                    _payload_name = payload._json["name"]
+
+                    del result._json["name"]
+                    del payload._json["name"]
+                    if result._json != payload._json:
+                        log.info(
+                            f"Detected unsynced command {payload.name}, editing and updating cache."
+                        )
+
+                        result._json["name"] = _result_name
+                        payload._json["name"] = _payload_name
+                        request = await self.http.edit_application_command(
+                            application_id=self.me.id,
+                            data=payload._json,
+                            command_id=result.id,
+                            guild_id=payload.guild_id,
+                        )
+                        self.http.cache.interactions.add(Item(payload.name, payload))
+
+                        if request.get("code"):
+                            raise JSONException(request["code"])
+                else:
+                    log.info(
+                        "Detected command declared but not in the API, creating and updating cache."
+                    )
+                    request = await self.http.create_application_command(
+                        application_id=self.me.id,
+                        data=payload._json,
+                        guild_id=payload.guild_id,
+                    )
+                    self.http.cache.interactions.add(Item(payload.name, payload))
+
+                    if request.get("code"):
+                        raise JSONException(request["code"])
+
+        # TODO: Work more on this later.
+        # cached_commands: list = [self.http.cache.interactions.values[command] for command in self.http.cache.interactions.values]
+        # for command in commands:
+        #     result: ApplicationCommand = ApplicationCommand(
+        #         id=command.get("id"),
+        #         type=command.get("type"),
+        #         guild_id=int(command.get("guild_id")),
+        #         name=command.get("name"),
+        #         description=command.get("description", ""),
+        #         options=command.get("options", []),
+        #         default_permission=command.get("default_permission", False),
+        #     )
+
+        #     if result not in cached_commands:
+        #         log.info(
+        #             f"Detected unused command {result.name}, deleting from the API and cache."
+        #         )
+        #         request = self.loop.run_until_complete(
+        #             self.http.delete_application_command(
+        #                 application_id=self.me.id, command_id=result.id, guild_id=result.guild_id
+        #             )
+        #         )
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
@@ -123,15 +198,17 @@ class Client:
         gateway.
 
         :param coro: The coroutine of the event.
-        :type coro: typing.Coroutine
-        :return: typing.Callable[..., typing.Any]
+        :type coro: Coroutine
+        :return: A callable response.
+        :rtype: Callable[..., Any]
         """
         self.websocket.dispatch.register(coro, name=name)
         return coro
 
     def __process_options(self, coro: Callable) -> List:
         """
-        An option parser function.
+        An option parser function that parses a Coroutine to generate
+        "implicit options", if options aren't explicitly declared.
 
         :param coro: The coroutine of the event.
         :type coro: typing.Coroutine
@@ -144,128 +221,155 @@ class Client:
     def command(
         self,
         *,
-        type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
+        type: Optional[Union[int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
         name: Optional[str] = None,
         description: Optional[str] = None,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        options: Optional[List[Option]] = None,
-        default_permission: Optional[bool] = None
-        # permissions: Optional[List[Permission]] = None
+        options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
+        default_permission: Optional[bool] = None,
+        permissions: Optional[
+            Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
+        ] = None,
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
 
-        :param type: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
-        :type type: typing.Optional[typing.Union[str, int, interactions.enums.ApplicationCommandType]]
+        :param type?: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
+        :type type: Optional[Union[str, int, ApplicationCommandType]]
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
-        :type name: typing.Optional[str]
-        :param description: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type description: typing.Optional[str]
-        :param scope: The "scope"/applicable guilds the application command applies to.
-        :type scope: typing.Optional[typing.Union[int, interactions.api.models.guild.Guild, typing.List[int], typing.List[interactions.api.models.guild.Guild]]]
-        :param options: The "arguments"/options of an application command. This should bel eft blank if you are not using ``CHAT_INPUT``.
-        :type options: typing.Optional[typing.List[interactions.models.command.Option]]
-        :param default_permission: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: typing.Optional[bool]
-        :return: typing.Callable[..., typing.Any]
+        :type name: Optional[str]
+        :param description?: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
+        :type description: Optional[str]
+        :param scope?: The "scope"/applicable guilds the application command applies to.
+        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :param options?: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
+        :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
+        :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
+        :type default_permission: Optional[bool]
+        :param permissions: The permissions of an application command.
+        :type permissions: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]]
+        :return: A callable response.
+        :rtype: Callable[..., Any]
         """
         if not name:
-            raise Exception("Command must have a name!")
+            raise InteractionException(11, message="Your command must have a name.")
 
         if type == ApplicationCommandType.CHAT_INPUT and not description:
-            raise Exception("Chat-input commands must have a description!")
+            raise InteractionException(11, message="Chat-input commands must have a description.")
 
         def decorator(coro: Coroutine) -> Any:
-            if "ctx" not in coro.__code__.co_varnames:
-                raise InteractionException(11)
+            if not len(coro.__code__.co_varnames):
+                raise InteractionException(
+                    11, message="Your command needs at least one argument to return context."
+                )
+            elif (len(coro.__code__.co_varnames) + 1) < len(options):
+                raise InteractionException(
+                    11,
+                    message="You must have the same amount of arguments as the options of the command.",
+                )
+
+            _type: int = 0
             if isinstance(type, ApplicationCommandType):
                 _type: int = type.value
-            if isinstance(type, str):
-                _type: int = ApplicationCommandType.type.value
             else:
-                _type = type
+                _type: int = ApplicationCommandType(type)
 
             _description: str = "" if description is None else description
-            _options: list = (
-                self.__process_options(coro)
-                if options is None
-                else [option._json for option in options]
-            )
+            _options: list = self.__process_options(coro)
+
+            if options:
+                if all(isinstance(option, Option) for option in options):
+                    _options = [option._json for option in options]
+                elif all(isinstance(option, Dict[str, Any]) for option in options):
+                    _options = [option for option in options]
+                elif isinstance(options, Option):
+                    _options = [options._json]
+                else:
+                    _options = [options]
+
             _default_permission: bool = True if default_permission is None else default_permission
-            # _permissions: list = [] if permissions is None else permissions
+            _permissions: list = []
+
+            if permissions:
+                if all(isinstance(permission, Permission) for permission in permissions):
+                    _permissions = [permission._json for permission in permissions]
+                elif all(isinstance(permission, Dict[str, Any]) for permission in permissions):
+                    _permissions = [permission for permission in permissions]
+                elif isinstance(permissions, Permission):
+                    _permissions = [permissions._json]
+                else:
+                    _permissions = [permissions]
+
             _scope: list = []
 
-            if isinstance(scope, list):
-                if all(isinstance(x, Guild) for x in scope):
-                    _scope.append(guild.id for guild in scope)
-                elif all(isinstance(x, int) for x in scope):
-                    _scope.append(guild for guild in scope)
-            else:
-                _scope.append(scope)
+            if scope:
+                if isinstance(scope, list):
+                    if all(isinstance(guild, Guild) for guild in scope):
+                        _scope.append(guild.id for guild in scope)
+                    elif all(isinstance(guild, int) for guild in scope):
+                        _scope.append(guild for guild in scope)
+                else:
+                    _scope.append(scope)
 
             for guild in _scope:
                 payload: ApplicationCommand = ApplicationCommand(
                     type=_type,
+                    guild_id=guild,
                     name=name,
                     description=_description,
                     options=_options,
                     default_permission=_default_permission,
                 )
+                if self.automate_sync:
+                    self.loop.run_until_complete(self.synchronize(payload, _permissions))
 
-                request = self.loop.run_until_complete(
-                    self.http.create_application_command(
-                        self.me.id, data=payload._json, guild_id=guild
-                    )
-                )
-
-                if request.get("code"):
-                    raise JSONException(request["code"])  # TODO: work on this pls
-
-                # indent because of variable definitions
-                for interaction in cache.interactions.values:
-                    if interaction.values[interaction].value.name == name:
-                        self.synchronize_commands(name)
-                        # TODO: make a call to our internal sync method instead of an exception.
-                    else:
-                        cache.interactions.add(Item(id=request["application_id"], value=payload))
-
-            log.info(f"coro args: {coro.__code__.co_varnames}")
-            return self.event(coro, name=name)
+            return self.event(coro, name=f"command_{name}")
 
         return decorator
 
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
-        def decorator(coro: Coroutine) -> Any:
-            payload: Component = Component(
-                type=component.type,
-                custom_id=component._json.get("custom_id"),
-                disabled=component._json.get("disabled"),
-                style=component._json.get("style"),
-                label=component._json.get("label"),
-                emoji=component._json.get("emoji"),
-                url=component._json.get("url"),
-                options=component._json.get("options"),
-                placeholder=component._json.get("placeholder"),
-                min_values=component._json.get("min_values"),
-                max_values=component._json.get("max_values"),
-                components=component._json.get("components"),
-            )
+        """
+        A decorator for handling interaction responses to components.
 
-            return self.event(coro, name=payload.custom_id if payload.custom_id else coro.__name__)
+        :param component: The component you wish to callback for.
+        :type component: Union[Button, SelectMenu]
+        :return: A callable response.
+        :rtype: Callable[..., Any]
+        """
+
+        def decorator(coro: Coroutine) -> Any:
+            payload: Component = Component(**component._json)
+            return self.event(coro, name=f"autocomplete_{payload.custom_id}")
 
         return decorator
 
-    async def raw_socket_create(self, data: Dict[Any, Any]) -> dict:
+    def autocomplete(self, name: str) -> Callable[..., Any]:
+        """
+        A decorator for handling autocompletion fields with commands.
+
+        :param name: The name of the option to autocomplete.
+        :type name: str
+        :return: A callable response.
+        :rtype: Callable[..., Any]
+        """
+
+        def decorator(coro: Coroutine) -> Any:
+            return self.event(coro, name=f"autocomplete_{name}")
+
+        return decorator
+
+    async def raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
         and then returns the data purely based off of what it does in
         the client instantiation class.
 
         :param data: The data that is returned
-        :type data: typing.Dict[typing.Any, typing.Any]
-        :return: The returned data
+        :type data: Dict[Any, Any]
+        :return: A dictionary of raw data.
+        :rtype: Dict[Any, Any]
         """
 
         return data
@@ -275,7 +379,6 @@ class Client:
         This is an internal function that caches the guild creates on ready.
 
         :param guild: The guild object data in question.
-        :type guild: interactions.api.model.guild.Guild
-        :return: None.
+        :type guild: Guild
         """
-        cache.guilds.add(Item(id=guild.id, value=guild))
+        self.http.cache.guilds.add(Item(id=guild.id, value=guild))

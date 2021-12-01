@@ -6,6 +6,7 @@ class ErrorFormatter(Formatter):
     def get_value(self, key, args, kwargs) -> Any: ...
 
 class InteractionException(Exception):
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
     _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
@@ -19,6 +20,7 @@ class InteractionException(Exception):
     def error(self) -> None: ...
 
 class GatewayException(InteractionException):
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
     _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
@@ -29,6 +31,7 @@ class GatewayException(InteractionException):
     def lookup() -> dict: ...
 
 class HTTPException(InteractionException):
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
     _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
@@ -39,6 +42,7 @@ class HTTPException(InteractionException):
     def lookup() -> dict: ...
 
 class JSONException(InteractionException):
+    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
     _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter

@@ -149,8 +149,6 @@ class Guild(DictSerializerMixin):
         # when it boots up, discord apparently has it fire
         # a guild member update to the bot, which then fires this construct.
 
-        # flow you fix it
-
         if hasattr(self, "id"):
             self.id = Snowflake(
                 self.id

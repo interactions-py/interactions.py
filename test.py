@@ -3,7 +3,7 @@ import interactions
 
 TOKEN = open(".token").read().split("\n")[0]
 
-client = interactions.Client(token=TOKEN)
+client = interactions.Client(token=TOKEN, disable_sync=True)
 
 
 @client.event
@@ -15,18 +15,8 @@ async def on_ready():
 
 
 cool_component = interactions.Button(
-    style=interactions.ButtonStyle.PRIMARY, label="hello world!", custom_id="test"
+    style=interactions.ButtonStyle.PRIMARY, label="shiny boi", custom_id="test_custom_id"
 )
-
-
-@client.command(name="test", description="poggers desc", scope=852402668294766612)
-async def command_name(ctx):
-    # row = interactions.ActionRow(
-    #     components=[
-
-    #     ]
-    # )
-    await ctx.send("testing", components=cool_component)
 
 
 @client.command(
@@ -46,14 +36,32 @@ async def sub_command(ctx):
     await ctx.send("just some proof, subcommands *do* in fact work.")
 
 
+@client.command(
+    name="command",
+    description="just a basic testing description.",
+    scope=852402668294766612,
+    options=[
+        interactions.Option(
+            type=interactions.OptionType.STRING,
+            name="arg",
+            description="the argument to test",
+            required=True,
+            autocomplete=True,
+        )
+    ],
+)
+async def command_argument(ctx, arg):
+    await ctx.send(f"You said: {arg}", components=cool_component)
+
+
+@client.autocomplete(name="arg")
+async def auto_response(ctx):
+    print(ctx)
+
+
 @client.component(component=cool_component)
 async def test(ctx):
-    await ctx.edit("hola")
-
-
-@client.command(type=2, name="test context menu", scope=852402668294766612)
-async def context_command(ctx):
-    await ctx.send("hi?")
+    await ctx.send(f"hola. {'we are following up.' if ctx.responded else 'first time?'}")
 
 
 client.start()

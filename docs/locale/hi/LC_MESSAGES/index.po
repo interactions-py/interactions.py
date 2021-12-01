@@ -1,0 +1,125 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, goverfl0w
+# This file is distributed under the same license as the
+# discord-interactions package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-interactions 4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../index.rst:38
+msgid "Pages:"
+msgstr ""
+
+#: ../../index.rst:4
+msgid "discord-interactions"
+msgstr ""
+
+#: ../../index.rst:5
+msgid ""
+"No more hassle with trying to get interactions to work with your Python "
+"Discord bot -- **discord-interactions** is now here."
+msgstr ""
+
+#: ../../index.rst:8
+msgid ""
+"**discord-interactions** is a simple API wrapper for Discord "
+"interactions. We're not here to replace discord.py or any other fork, but"
+" we are here to be the very best Python Discord library there is that "
+"implements interactions very well. This is what our library is all about."
+msgstr ""
+
+#: ../../index.rst:14
+msgid "What are we good for?"
+msgstr ""
+
+#: ../../index.rst:15
+msgid "We offer a **lot** of benefits with using our library:"
+msgstr ""
+
+#: ../../index.rst:17
+msgid "Modern pythonic design that is scalable and modular."
+msgstr ""
+
+#: ../../index.rst:18
+msgid "Asynchronous coroutines and multi-threading capabilities."
+msgstr ""
+
+#: ../../index.rst:19
+msgid "Optimal class object reference with little overhead."
+msgstr ""
+
+#: ../../index.rst:20
+msgid "Easily accessible codebase source."
+msgstr ""
+
+#: ../../index.rst:21
+msgid "Stable/unstable branches for managing module stability when importing."
+msgstr ""
+
+#: ../../index.rst:24
+msgid "What does that mean?"
+msgstr ""
+
+#: ../../index.rst:25
+msgid "Basically, we're good and bad for these things:"
+msgstr ""
+
+#: ../../index.rst:27
+msgid "✔️ Working with application commands."
+msgstr ""
+
+#: ../../index.rst:28
+msgid "✔️ Handling contextual data cached from all channels."
+msgstr ""
+
+#: ../../index.rst:29
+msgid "✔️ General/basic assignment of guild properties to members."
+msgstr ""
+
+#: ../../index.rst:30
+msgid "✔️ Responsive callbacks for buttons and select menus."
+msgstr ""
+
+#: ../../index.rst:31
+msgid "✔️ Voice client capabilities."
+msgstr ""
+
+#: ../../index.rst:32
+msgid "❌ Cooldowns/bucket types."
+msgstr ""
+
+#: ../../index.rst:35
+msgid "Where do I start?"
+msgstr ""
+
+#: ../../index.rst:36
+msgid "Please look at our pages below to find out where to go further."
+msgstr ""
+
+#: ../../index.rst:47
+msgid "Advanced Search"
+msgstr ""
+
+#: ../../index.rst:49
+msgid ":ref:`genindex`"
+msgstr ""
+
+#: ../../index.rst:50
+msgid ":ref:`modindex`"
+msgstr ""
+
+#: ../../index.rst:51
+msgid ":ref:`search`"
+msgstr ""

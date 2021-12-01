@@ -1,11 +1,12 @@
 import sys
 from asyncio import get_event_loop, run_coroutine_threadsafe
 from logging import Logger, basicConfig, getLogger
-from random import random
 from threading import Event, Thread
 from typing import Any, Optional, Union
 
 from orjson import dumps, loads
+
+from interactions.enums import InteractionType, OptionType
 
 from ..base import Data
 from .dispatch import Listener
@@ -24,18 +25,19 @@ class Heartbeat(Thread):
     """
     A class representing a consistent heartbeat connection with the gateway.
 
-    :ivar interactions.api.gateway.WebSocket ws: The WebSocket class to infer on.
-    :ivar typing.Union[int, float] interval: The heartbeat interval determined by the gateway.
-    :ivar threading.Event event: The multi-threading event.
+    :ivar WebSocket ws: The WebSocket class to infer on.
+    :ivar Union[int, float] interval: The heartbeat interval determined by the gateway.
+    :ivar Event event: The multi-threading event.
     """
+
+    __slots__ = ("ws", "interval", "event")
 
     def __init__(self, ws: Any, interval: int) -> None:
         """
         :param ws: The WebSocket inference to run the coroutine off of.
-        :type ws: typing.Any
+        :type ws: Any
         :param interval: The interval to periodically send events.
         :type interval: int
-        :return: None
         """
         super().__init__()
         self.ws = ws
@@ -44,7 +46,7 @@ class Heartbeat(Thread):
 
     def run(self) -> None:
         """Starts the heartbeat connection."""
-        while not self.event.wait(self.interval - random()):
+        while not self.event.wait(self.interval):
             try:
                 coro = run_coroutine_threadsafe(self.ws.heartbeat(), loop=self.ws.loop)
                 while True:
@@ -57,8 +59,9 @@ class Heartbeat(Thread):
                             "The client was unable to send a heartbeat, closing the connection."
                         )
                         self.stop()
+                        break
             except:  # noqa
-                self.stop()  # end the stupid heartbeat looping on death.
+                break
 
     def stop(self) -> None:
         """Stops the heartbeat connection."""
@@ -69,18 +72,31 @@ class WebSocket:
     """
     A class representing a websocket connection with the gateway.
 
-    :ivar interactions.api.models.intents.Intents intents: An instance of :class:`interactions.api.models.Intents`.
-    :ivar asyncio.AbstractEventLoop loop: The coroutine event loop established on.
-    :ivar interactions.api.http.Request req: An instance of :class:`interactions.api.http.Request`.
-    :ivar interactions.api.dispatch.Listener dispatch: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar typing.Any session: The current client session.
+    :ivar Intents intents: An instance of :class:`interactions.api.models.Intents`.
+    :ivar AbstractEventLoop loop: The coroutine event loop established on.
+    :ivar Request req: An instance of :class:`interactions.api.http.Request`.
+    :ivar Listener dispatch: An instance of :class:`interactions.api.dispatch.Listener`.
+    :ivar Any session: The current client session.
     :ivar int session_id: The current ID of the gateway session.
     :ivar int sequence: The current sequence of the gateway connection.
-    :ivar interactions.api.gateway.Heartbeat keep_alive: An instance of :class:`interactions.api.gateway.Heartbeat`.
+    :ivar Heartbeat keep_alive: An instance of :class:`interactions.api.gateway.Heartbeat`.
     :ivar bool closed: The current connection state.
-    :ivar interactions.api.http.HTTPClient http: The internal HTTP client used to connect to the gateway.
+    :ivar HTTPClient http: The internal HTTP client used to connect to the gateway.
     :ivar dict options: The websocket connection options.
     """
+
+    __slots__ = (
+        "intents",
+        "loop",
+        "dispatch",
+        "session",
+        "session_id",
+        "sequence",
+        "keep_alive",
+        "closed",
+        "http",
+        "options",
+    )
 
     def __init__(
         self,
@@ -90,12 +106,11 @@ class WebSocket:
     ) -> None:
         """
         :param intents: The intents used for identifying the connection.
-        :type intents: interactions.api.models.Intents
+        :type intents: Intents
         :param session_id: The session ID if you're trying to resume a connection. Defaults to ``None``.
-        :type session_id: typing.Optional[int]
+        :type session_id: Optional[int]
         :param sequence: The sequence if you're trying to resume a connection. Defaults to ``None``.
-        :type sequence: typing.Optional[int]
-        :return: None
+        :type sequence: Optional[int]
         """
         self.intents = intents
         self.loop = get_event_loop()
@@ -129,7 +144,6 @@ class WebSocket:
 
         :param token: The token to use for identifying.
         :type token: str
-        :return: None
         """
         self.http = HTTPClient(token)
         self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
@@ -218,7 +232,6 @@ class WebSocket:
         :type event: str
         :param data: The data of the event.
         :type data: dict
-        :return: None
         """
         if event != "TYPING_START":
             name: str = event.lower()
@@ -230,13 +243,29 @@ class WebSocket:
                     __import__(path),
                     name.split("_")[0].capitalize(),
                 )
-                self.dispatch.dispatch(
-                    f"on_{name}", obj(**data)  # noqa , object callable pycharm error.
-                )
+                self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
             else:
                 context = self.contextualize(data)
-                _name: str = context.data.name if context.type == 2 else context.data.custom_id
-                self.dispatch.dispatch(_name, context)
+                _name: str
+                _args: list = [context]
+
+                if data["type"] == InteractionType.APPLICATION_COMMAND.value:
+                    _name = f"command_{context.data.name}"
+                    if hasattr(context.data, "options"):
+                        for option in context.data.options:
+                            if option["type"] in (
+                                OptionType.SUB_COMMAND.value,
+                                OptionType.SUB_COMMAND_GROUP.value,
+                            ):
+                                pass
+                            else:
+                                _args.append(option["value"])
+                elif data["type"] == InteractionType.MESSAGE_COMPONENT.value:
+                    _name = f"component_{context.data.custom_id}"
+                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.value:
+                    _name = f"autocomplete_{context.data.name}"
+
+                self.dispatch.dispatch(_name, *_args)
 
             self.dispatch.dispatch("raw_socket_create", data)
 
@@ -248,9 +277,18 @@ class WebSocket:
         :param data: The data from the gateway.
         :type data: dict
         :return: The context object.
+        :rtype: object
         """
         if data["type"] != 1:
-            _context: str = "InteractionContext" if data["type"] == 2 else "ComponentContext"
+            _context: str = ""
+
+            if data["type"] == 2:
+                _context = "InteractionContext"
+            elif data["type"] == 3:
+                _context = "ComponentContext"
+            elif data["type"] == 4:
+                _context = "AutocompleteContext"
+
             context: object = getattr(__import__("interactions.context"), _context)
             return context(**data)
 

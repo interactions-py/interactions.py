@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional, Union
 
+from interactions.api.http import HTTPClient
+
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -7,10 +9,11 @@ from .api.models.message import Embed, Message, MessageInteraction, MessageRefer
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .enums import ComponentType, InteractionType
-from .models import InteractionData
 from .models.component import Component
+from .models.misc import InteractionData
 
 class Context(DictSerializerMixin):
+    __slots__ = ("message", "author", "channel", "guild", "args", "kwargs", "HTTPClient")
     message: Message
     author: Member
     user: User
@@ -18,18 +21,10 @@ class Context(DictSerializerMixin):
     guild: Guild
     args: List[Any]
     kwargs: Dict[Any, Any]
-    __slots__ = ("message", "author", "channel", "user", "guild", "args", "kwargs")
+    client: HTTPClient
     def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):
-    id: str
-    application_id: str
-    type: Union[str, int, InteractionType]
-    data: InteractionData
-    guild_id: str
-    channel_id: str
-    token: str
-    responded: bool
     __slots__ = (
         "message",
         "author",
@@ -45,8 +40,20 @@ class InteractionContext(Context):
         "guild_id",
         "channel_id",
         "token",
+        "version",
         "responded",
+        "deferred",
     )
+    id: str
+    application_id: str
+    type: Union[str, int, InteractionType]
+    data: InteractionData
+    guild_id: str
+    channel_id: str
+    token: str
+    version: int = 1
+    responded: bool = False
+    deferred: bool = False
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,
@@ -64,6 +71,7 @@ class InteractionContext(Context):
     ) -> Message: ...
 
 class ComponentContext(InteractionContext):
+
     custom_id: str
     type: Union[str, int, ComponentType]
     values: list
@@ -88,5 +96,27 @@ class ComponentContext(InteractionContext):
         "type",
         "values",
         "origin",
+    )
+    def __init__(self, **kwargs) -> None: ...
+
+class AutocompleteContext(Context):
+    __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "version",
+        "responded",
+        "deferred",
     )
     def __init__(self, **kwargs) -> None: ...

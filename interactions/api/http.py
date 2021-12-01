@@ -7,6 +7,7 @@ from urllib.parse import quote
 from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
+from ..api.cache import Cache, Item
 from ..api.error import HTTPException
 from ..api.models import (
     Channel,
@@ -30,17 +31,18 @@ basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("http")
 
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
+session: ClientSession = ClientSession()
 
 
 class Route:
     """
     A class representing how an HTTP route is structured.
 
-    :ivar typing.ClassVar[str] __api__: The HTTP route path.
+    :ivar ClassVar[str] __api__: The HTTP route path.
     :ivar str method: The HTTP method.
     :ivar str path: The URL path.
-    :ivar typing.Optional[str] channel_id: The channel ID from the bucket if given.
-    :ivar typing.Optional[str] guild_id: The guild ID from the bucket if given.
+    :ivar Optional[str] channel_id: The channel ID from the bucket if given.
+    :ivar Optional[str] guild_id: The guild ID from the bucket if given.
     """
 
     __slots__ = ("__api__", "method", "path", "channel_id", "guild_id")
@@ -58,7 +60,6 @@ class Route:
         :type path: str
         :param \**kwargs: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
-        :return: None
         """
         self.__api__ = "https://discord.com/api/v9"
         self.method = method
@@ -71,7 +72,8 @@ class Route:
         """
         Returns the route's bucket.
 
-        :return: str
+        :return: The route bucket.
+        :rtype: str
         """
         return f"{self.channel_id}:{self.guild_id}:{self.path}"
 
@@ -80,7 +82,7 @@ class Padlock:
     """
     A class representing ratelimited sessions as a "locked" event.
 
-    :ivar asyncio.Lock lock: The lock coroutine event.
+    :ivar Lock lock: The lock coroutine event.
     :ivar bool keep_open: Whether the lock should stay open or not.
     """
 
@@ -91,8 +93,7 @@ class Padlock:
     def __init__(self, lock: Lock) -> None:
         """
         :param lock: The lock coroutine event.
-        :type lock: asyncio.Lock
-        :return: None
+        :type lock: Lock
         """
         self.lock = lock
         self.keep_open = True
@@ -114,11 +115,11 @@ class Request:
     A class representing how HTTP requests are sent/read.
 
     :ivar str token: The current application token.
-    :ivar asyncio.AbstractEventLoop loop: The current coroutine event loop.
+    :ivar AbstractEventLoop loop: The current coroutine event loop.
     :ivar dict ratelimits: The current ratelimits from the Discord API.
     :ivar dict headers: The current headers for an HTTP request.
-    :ivar asyncio.ClientSession session: The current session for making requests.
-    :ivar asyncio.Event lock: The ratelimit lock event.
+    :ivar ClientSession session: The current session for making requests.
+    :ivar Event lock: The ratelimit lock event.
     """
 
     __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock")
@@ -137,10 +138,9 @@ class Request:
         """
         self.token = token
         self.loop = get_event_loop()
-        self.session = ClientSession()
+        self.session = session
         self.ratelimits = {}
         self.headers = {
-            "X-Ratelimit-Precision": "millisecond",
             "Authorization": f"Bot {self.token}",
             "User-Agent": f"DiscordBot (https://github.com/goverfl0w/discord-interactions {__version__} "
             f"Python/{version_info[0]}.{version_info[1]} "
@@ -160,16 +160,17 @@ class Request:
         Sends a request to the Discord API.
 
         :param route: The HTTP route to request.
-        :type route: interactions.api.http.Route
+        :type route: Route
         :param \**kwargs: Optional keyword-only arguments to pass as information in the request.
         :type \**kwargs: dict
-        :return: None
+        :return: The contents of the request if any.
+        :rtype: Optional[Any]
         """
         self.check_session()
 
         bucket: Optional[str] = route.bucket
 
-        for _ in range(3):  # we're not using this variable, flow why
+        for _ in range(3):
             ratelimit: Lock = self.ratelimits.get(bucket)
 
             if not self.lock.is_set():
@@ -200,6 +201,17 @@ class Request:
                     data = await response.json(content_type=None)
                     log.debug(data)
 
+                    if "X-Ratelimit-Remaining" in response.headers.keys():
+                        remaining = response.headers["X-Ratelimit-Remaining"]
+
+                        if not int(remaining) and response.status != 429:
+                            time_left = response.headers["X-Ratelimit-Reset-After"]
+                            self.lock.set()
+                            log.warning(
+                                f"The HTTP request has reached the maximum threshold. Cooling down for {time_left} seconds."
+                            )
+                            await sleep(int(time_left))
+                            self.lock.clear()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
                     elif response.status == 429:
@@ -207,17 +219,20 @@ class Request:
 
                         if "X-Ratelimit-Global" in response.headers.keys():
                             self.lock.set()
-                            log.warning("The HTTP request has encountered a global API ratelimit.")
+                            log.warning(
+                                f"The HTTP request has encountered a global API ratelimit. Retrying in {retry_after} seconds."
+                            )
                             await sleep(retry_after)
                             self.lock.clear()
                         else:
-                            log.warning("A local ratelimit with the bucket has been encountered.")
+                            log.warning(
+                                f"A local ratelimit with the bucket has been encountered. Retrying in {retry_after} seconds."
+                            )
                             await sleep(retry_after)
                         continue
                     return data
 
-        if response is not None:  # after _ -> 3
-            # This is reached if every retry failed.
+        if response is not None:
             if response.status >= 500:
                 raise HTTPException(
                     response.status, message="The server had an error processing your request."
@@ -238,10 +253,12 @@ class HTTPClient:
     token: str
     headers: dict
     _req: Optional[Request]
+    cache: Cache
 
     def __init__(self, token: str):
         self.token = token
-        self._req = Request(self.token)  # Only one session, in theory
+        self._req = Request(self.token)
+        self.cache = Cache()
 
         # An ideology is that this client does every single HTTP call, which reduces multiple ClientSessions in theory
         # because of how they are constructed/closed. This includes Gateway
@@ -324,7 +341,10 @@ class HTTPClient:
         if user_id is None:
             user_id = "@me"
 
-        return await self._req.request(Route("GET", f"/users/{user_id}"))
+        request = await self._req.request(Route("GET", f"/users/{user_id}"))
+        self.cache.users.add(Item(id=user_id, value=request))
+
+        return request
 
     async def modify_self(self, payload: dict) -> dict:
         """
@@ -354,9 +374,12 @@ class HTTPClient:
         """
         # only named recipient_id because of api mirroring
 
-        return await self._req.request(
+        request = await self._req.request(
             Route("POST", "/users/@me/channels"), json={"recipient_id": recipient_id}
         )
+        self.cache.dms.add(Item(id=recipient_id, value=request))
+
+        return request
 
     # Message endpoint
 
@@ -406,9 +429,12 @@ class HTTPClient:
         :param channel_id: Channel snowflake ID.
         :return dict: Dictionary representing a message (?)
         """
-        return await self._req.request(
+        request = await self._req.request(
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
+        self.cache.messages.add(Item(id=request["id"], value=request))
+
+        return request
 
     async def get_message(self, channel_id: int, message_id: int) -> Optional[dict]:
         """
@@ -507,7 +533,12 @@ class HTTPClient:
 
         :return a list of partial guild objects the current bot user is a part of.
         """
-        return await self._req.request(Route("GET", "/users/@me/guilds"))
+        request = await self._req.request(Route("GET", "/users/@me/guilds"))
+
+        for guild in request:
+            self.cache.self_guilds.add(Item(id=guild["id"], value=guild))
+
+        return request
 
     async def get_guild(self, guild_id: int):
         """
@@ -515,7 +546,10 @@ class HTTPClient:
         :param guild_id: The guild snowflake ID associated.
         :return: The guild object associated, if any.
         """
-        return await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
+        request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
+        self.cache.guilds.add(Item(id=guild_id, value=request))
+
+        return request
 
     async def get_guild_preview(self, guild_id: int) -> GuildPreview:
         """
@@ -823,9 +857,14 @@ class HTTPClient:
         :param guild_id: Guild Snowflake ID
         :return: A list of channels.
         """
-        return await self._req.request(
+        request = await self._req.request(
             Route("GET", "/guilds/{guild_id}/channels", guild_id=guild_id)
         )
+
+        for channel in request:
+            self.cache.channels.add(Item(id=channel["id"], value=request))
+
+        return request
 
     async def get_all_roles(self, guild_id: int) -> List[Role]:
         """
@@ -833,7 +872,14 @@ class HTTPClient:
         :param guild_id: Guild ID snowflake
         :return: An array of Role objects.
         """
-        return await self._req.request(Route("GET", "/guilds/{guild_id}/roles", guild_id=guild_id))
+        request = await self._req.request(
+            Route("GET", "/guilds/{guild_id}/roles", guild_id=guild_id)
+        )
+
+        for role in request:
+            self.cache.roles.add(Item(id=role["id"], value=request))
+
+        return request
 
     async def create_guild_role(
         self, guild_id: int, data: dict, reason: Optional[str] = None
@@ -845,9 +891,12 @@ class HTTPClient:
         :param reason: The reason for this action, if given.
         :return: Role object
         """
-        return await self._req.request(
+        request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
+        self.cache.roles.add(Item(id=request["id"], value=request))
+
+        return request
 
     async def modify_guild_role_position(
         self, guild_id: int, role_id: int, position: int, reason: Optional[str] = None
@@ -988,7 +1037,7 @@ class HTTPClient:
         :param deaf: Whether the user is deafened in voice channels.
         :return: Guild member object (?)
         """
-        return await self._req.request(
+        request = await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/members/{user_id}"),
             json={
                 k: v
@@ -1002,6 +1051,10 @@ class HTTPClient:
                 if v is not None
             },
         )
+
+        self.cache.members.add(Item(id=user_id, value=request))
+
+        return request
 
     async def remove_guild_member(
         self, guild_id: int, user_id: int, reason: Optional[str] = None
@@ -1153,7 +1206,10 @@ class HTTPClient:
         :param channel_id: Channel ID snowflake.
         :return: Channel object.
         """
-        return await self._req.request(Route("GET", f"/channels/{channel_id}"))
+        request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
+        self.cache.channels.add(Item(id=channel_id, value=request))
+
+        return request
 
     async def delete_channel(self, channel_id: int) -> None:
         """
@@ -1205,9 +1261,14 @@ class HTTPClient:
                 "`before`, `after` and `around` are mutually exclusive. Please pass only one of them."
             )
 
-        return await self._req.request(
+        request = await self._req.request(
             Route("GET", f"/channels/{channel_id}/messages"), params=params
         )
+
+        for message in request:
+            self.cache.messages.add(Item(id=message["id"], value=request))
+
+        return request
 
     async def create_channel(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
@@ -1223,9 +1284,12 @@ class HTTPClient:
         :param reason: Reason to show in audit log, if needed.
         :return: Channel object.
         """
-        return await self._req.request(
+        request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
+        self.cache.channels.add(Item(id=request["id"], value=request))
+
+        return request
 
     async def move_channel(
         self,
@@ -1578,16 +1642,22 @@ class HTTPClient:
         if auto_archive_duration:
             payload["auto_archive_duration"] = auto_archive_duration
         if message_id:
-            return await self._req.request(
+            request = await self._req.request(
                 Route("POST", f"/channels/{channel_id}/messages/{message_id}/threads"),
                 json=payload,
                 reason=reason,
             )
+            self.cache.channels.add(Item(id=request["id"], value=request))
+            return request
+
         payload["type"] = thread_type
         payload["invitable"] = invitable
-        return await self._req.request(
+        request = await self._req.request(
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
+        self.cache.channels.add(Item(id=request["id"], value=request))
+
+        return request
 
     # Reaction endpoint
 

@@ -29,6 +29,15 @@ class ThreadMetadata(DictSerializerMixin):
     :ivar typing.Optional[bool] invitable: The ability to invite users to the thread.
     """
 
+    __slots__ = (
+        "_json",
+        "archived",
+        "auto_archive_duration",
+        "archive_timestamp",
+        "locked",
+        "invitable",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -46,6 +55,8 @@ class ThreadMember(DictSerializerMixin):
     :ivar datetime.datetime.timestamp join_timestamp: The timestamp of when the member joined the thread.
     :ivar int flags: The bitshift flags for the member in the thread.
     """
+
+    __slots__ = ("_json", "id", "user_id", "join_timestamp", "flags")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -86,6 +97,36 @@ class Channel(DictSerializerMixin):
     :ivar typing.Optional[int] default_auto_archive_duration: The set auto-archive time for all threads to naturally follow in the channel.
     :ivar typing.Optional[str] permissions: The permissions of the channel.
     """
+
+    __slots__ = (
+        "_json",
+        "id",
+        "type",
+        "guild_id",
+        "position",
+        "permission_overwrites",
+        "name",
+        "topic",
+        "nsfw",
+        "last_message_id",
+        "bitrate",
+        "user_limit",
+        "rate_limit_per_user",
+        "recipients",
+        "icon",
+        "owner_id",
+        "application_id",
+        "parent_id",
+        "last_pin_timestamp",
+        "rtc_region",
+        "video_quality_mode",
+        "message_count",
+        "member_count",
+        "thread_metadata",
+        "member",
+        "default_auto_archive_duration",
+        "permissions",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

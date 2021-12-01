@@ -1,14 +1,10 @@
 from asyncio import AbstractEventLoop
-from logging import Logger
 from typing import Coroutine, Optional
 
-log: Logger
-
 class Listener:
+    __slots__ = ("loop", "events")
     loop: AbstractEventLoop
     events: dict
-
-    __slots__ = ("loop", "events")
     def __init__(self) -> None: ...
     def dispatch(self, name: str, *args, **kwargs) -> None: ...
     def register(self, coro: Coroutine, name: Optional[str] = None) -> None: ...

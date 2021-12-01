@@ -54,9 +54,9 @@ class ClientStatus(DictSerializerMixin):
     """
     An object that symbolizes the status per client device per session.
 
-    :ivar typing.Optional[str] desktop: User's status set for an active desktop application session
-    :ivar typing.Optional[str] mobile: User's status set for an active mobile application session
-    :ivar typing.Optional[str] web: User's status set for an active web application session
+    :ivar Optional[str] desktop: User's status set for an active desktop application session
+    :ivar Optional[str] mobile: User's status set for an active mobile application session
+    :ivar Optional[str] web: User's status set for an active web application session
     """
 
     def __init__(self, **kwargs):

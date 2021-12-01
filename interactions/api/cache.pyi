@@ -2,19 +2,21 @@ from collections import OrderedDict
 from typing import Any, List, Optional, Type
 
 class Item(object):
+
     id: str
     value: Any
     type: Type
     def __init__(self, id: str, value: Any) -> None: ...
 
 class Storage:
+
     values: OrderedDict
     def __init__(self) -> None: ...
     def add(self, item: Item) -> List[Item]: ...
     def get(self, id: str) -> Optional[Item]: ...
 
 class Cache:
-    token: Optional[str]
+    token: str
     dms: Storage
     self_guilds: Storage
     guilds: Storage
@@ -24,4 +26,4 @@ class Cache:
     messages: Storage
     users: Storage
     interactions: Storage
-    def __init__(self, token: Optional[str] = None) -> None: ...
+    def __init__(self) -> None: ...

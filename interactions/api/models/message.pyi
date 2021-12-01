@@ -34,24 +34,33 @@ class MessageType(IntEnum):
     CONTEXT_MENU_COMMAND = 23
 
 class MessageActivity(DictSerializerMixin):
+    __slots__ = ("_json", "type", "party_id")
     _json: dict
     type: int
     party_id: Optional[str]
-
-    __slots__ = ("_json", "type", "party_id")
     def __init__(self, **kwargs): ...
 
 class MessageReference(DictSerializerMixin):
+    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
     _json: dict
     message_id: Optional[int]
     channel_id: Optional[int]
     guild_id: Optional[int]
     fail_if_not_exists: Optional[bool]
-
-    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
     def __init__(self, **kwargs): ...
 
 class Attachment(DictSerializerMixin):
+    __slots__ = (
+        "_json",
+        "id",
+        "filename",
+        "content_type",
+        "size",
+        "url",
+        "proxy_url",
+        "height",
+        "width",
+    )
     _json: dict
     id: int
     filename: str
@@ -61,19 +70,6 @@ class Attachment(DictSerializerMixin):
     proxy_url: str
     height: Optional[int]
     width: Optional[int]
-
-    __slots__ = (
-        "_json",
-        "id",
-        "filename",
-        "description",
-        "content_type",
-        "size",
-        "url",
-        "proxy_url",
-        "height",
-        "width",
-    )
     def __init__(self, **kwargs): ...
 
 class MessageInteraction(DictSerializerMixin):
@@ -108,6 +104,7 @@ class Message(DictSerializerMixin):
     edited_timestamp: Optional[datetime]
     tts: bool
     mention_everyone: bool
+    # mentions: array of Users, and maybe partial members
     mentions: Optional[List[Union[Member, User]]]
     mention_roles: Optional[List[str]]
     mention_channels: Optional[List["ChannelMention"]]

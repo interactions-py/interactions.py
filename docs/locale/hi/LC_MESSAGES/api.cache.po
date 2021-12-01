@@ -1,0 +1,306 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, goverfl0w
+# This file is distributed under the same license as the
+# discord-interactions package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-interactions 4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.cache.rst:4
+msgid "Client Cache"
+msgstr ""
+
+#: interactions.api.cache.Item:1 of
+msgid "A class representing the defined item in a stored dataset."
+msgstr ""
+
+#: interactions.api.cache.Cache interactions.api.cache.Item
+#: interactions.api.cache.Storage of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.cache.Item:3 of
+msgid "The ID of the item."
+msgstr ""
+
+#: interactions.api.cache.Item:4 of
+msgid "The item itself."
+msgstr ""
+
+#: interactions.api.cache.Item:5 of
+msgid "The ID type representation."
+msgstr ""
+
+#: interactions.api.cache.Storage:1 of
+msgid "A class representing a set of items stored as a cache state."
+msgstr ""
+
+#: interactions.api.cache.Storage:3 of
+msgid "The list of items stored."
+msgstr ""
+
+#: interactions.api.cache.Storage.add:1 of
+msgid "Adds a new item to the storage."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_channel interactions.api.cache.Cache.add_dm
+#: interactions.api.cache.Cache.add_guild
+#: interactions.api.cache.Cache.add_interaction
+#: interactions.api.cache.Cache.add_member
+#: interactions.api.cache.Cache.add_message
+#: interactions.api.cache.Cache.add_role
+#: interactions.api.cache.Cache.add_self_guild
+#: interactions.api.cache.Cache.add_user
+#: interactions.api.cache.Cache.get_channel interactions.api.cache.Cache.get_dm
+#: interactions.api.cache.Cache.get_guild
+#: interactions.api.cache.Cache.get_interaction
+#: interactions.api.cache.Cache.get_member
+#: interactions.api.cache.Cache.get_message
+#: interactions.api.cache.Cache.get_role
+#: interactions.api.cache.Cache.get_self_guild
+#: interactions.api.cache.Cache.get_user interactions.api.cache.Storage.add of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.cache.Storage.add:3 of
+msgid "The item to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_channel interactions.api.cache.Cache.add_dm
+#: interactions.api.cache.Cache.add_guild
+#: interactions.api.cache.Cache.add_interaction
+#: interactions.api.cache.Cache.add_member
+#: interactions.api.cache.Cache.add_message
+#: interactions.api.cache.Cache.add_role
+#: interactions.api.cache.Cache.add_self_guild
+#: interactions.api.cache.Cache.add_user
+#: interactions.api.cache.Cache.get_channel interactions.api.cache.Cache.get_dm
+#: interactions.api.cache.Cache.get_guild
+#: interactions.api.cache.Cache.get_interaction
+#: interactions.api.cache.Cache.get_member
+#: interactions.api.cache.Cache.get_message
+#: interactions.api.cache.Cache.get_role
+#: interactions.api.cache.Cache.get_self_guild
+#: interactions.api.cache.Cache.get_user interactions.api.cache.Storage.add of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.cache.Storage.add:5 of
+msgid "typing.List[interactions.api.cache.Item]"
+msgstr ""
+
+#: interactions.api.cache.Cache:1 of
+msgid ""
+"A class representing the cache. This cache collects all of the HTTP "
+"requests made for the represented instances of the class."
+msgstr ""
+
+#: interactions.api.cache.Cache:5 of
+msgid "The cached Direct Messages."
+msgstr ""
+
+#: interactions.api.cache.Cache:6 of
+msgid "The cached guilds upon gateway connection."
+msgstr ""
+
+#: interactions.api.cache.Cache:7 of
+msgid "The cached guilds after ready."
+msgstr ""
+
+#: interactions.api.cache.Cache:8 of
+msgid "The cached channels of guilds."
+msgstr ""
+
+#: interactions.api.cache.Cache:9 of
+msgid "The cached roles of guilds."
+msgstr ""
+
+#: interactions.api.cache.Cache:10 of
+msgid "The cached members of guilds and threads."
+msgstr ""
+
+#: interactions.api.cache.Cache:11 of
+msgid "The cached messages of DMs and channels."
+msgstr ""
+
+#: interactions.api.cache.Cache:12 of
+msgid "The cached interactions upon interaction."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_dm:1 of
+msgid "Adds a DM to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_dm:3 of
+msgid "The Direct Message to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_channel:5
+#: interactions.api.cache.Cache.add_dm:5
+#: interactions.api.cache.Cache.add_guild:5
+#: interactions.api.cache.Cache.add_interaction:7
+#: interactions.api.cache.Cache.add_member:5
+#: interactions.api.cache.Cache.add_message:5
+#: interactions.api.cache.Cache.add_role:5
+#: interactions.api.cache.Cache.add_self_guild:5
+#: interactions.api.cache.Cache.add_user:5
+#: interactions.api.cache.Cache.get_channel:7
+#: interactions.api.cache.Cache.get_dm:5
+#: interactions.api.cache.Cache.get_guild:5
+#: interactions.api.cache.Cache.get_interaction:5
+#: interactions.api.cache.Cache.get_member:7
+#: interactions.api.cache.Cache.get_message:9
+#: interactions.api.cache.Cache.get_role:9
+#: interactions.api.cache.Cache.get_self_guild:5
+#: interactions.api.cache.Cache.get_user:5 of
+msgid "interactions.api.cache.Item"
+msgstr ""
+
+#: interactions.api.cache.Cache.get_dm:1 of
+msgid "Gets a DM from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_dm:3 of
+msgid "The ID of the Direct Message."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_self_guild:1 of
+msgid "Adds a combed guild from the gateway to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_guild:3
+#: interactions.api.cache.Cache.add_self_guild:3 of
+msgid "The guild to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_self_guild:1 of
+msgid "Gets a combed guild from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_channel:3
+#: interactions.api.cache.Cache.get_guild:3
+#: interactions.api.cache.Cache.get_member:3
+#: interactions.api.cache.Cache.get_message:3
+#: interactions.api.cache.Cache.get_role:3
+#: interactions.api.cache.Cache.get_self_guild:3 of
+msgid "The ID of the guild."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_guild:1 of
+msgid "Adds a guild after the ready event to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_guild:1 of
+msgid "Gets a new guild from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_channel:1 of
+msgid "Adds a channel to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_channel:3 of
+msgid "The channel to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_channel:1 of
+msgid "Gets a channel from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_channel:5
+#: interactions.api.cache.Cache.get_message:5 of
+msgid "The ID of the channel."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_role:1 of
+msgid "Adds a role to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_role:3 of
+msgid "The role to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_role:1 of
+msgid "Gets a role from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_member:5
+#: interactions.api.cache.Cache.get_role:5 of
+msgid "The ID of the member."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_role:7 of
+msgid "The ID of the role."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_member:1 of
+msgid "Adds a member to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_member:3 of
+msgid "The member to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_member:1 of
+msgid "Gets a member from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_message:1 of
+msgid "Adds a message to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_message:3 of
+msgid "The message to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_message:1 of
+msgid "Gets a message from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_message:7 of
+msgid "The ID of the message."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_user:1 of
+msgid "Adds a user to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_user:3 of
+msgid "The user to add."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_user:1 of
+msgid "Gets a user from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_user:3 of
+msgid "The ID of the user."
+msgstr ""
+
+#: interactions.api.cache.Cache.get_interaction:1 of
+msgid "Gets an application command/interaction from the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_interaction:3
+#: interactions.api.cache.Cache.get_interaction:3 of
+msgid "The application ID of the command."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_interaction:1 of
+msgid "Adds an application command/interaction to the cache."
+msgstr ""
+
+#: interactions.api.cache.Cache.add_interaction:5 of
+msgid "The application command to add."
+msgstr ""

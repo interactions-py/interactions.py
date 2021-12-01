@@ -14,7 +14,7 @@ class Choice(DictSerializerMixin):
         whereas it's supposed to be ``double``.
 
     :ivar str name: The name of the choice.
-    :ivar typing.Union[str, int, float] value: The returned value of the choice.
+    :ivar Union[str, int, float] value: The returned value of the choice.
     """
 
     __slots__ = ("_json", "name", "value")
@@ -37,17 +37,18 @@ class Option(DictSerializerMixin):
         ``min_values`` and ``max_values`` are useful primarily for
         integer based options.
 
-    :ivar interactions.enums.OptionType type: The type of option.
+    :ivar OptionType type: The type of option.
     :ivar str name: The name of the option.
     :ivar str description: The description of the option.
     :ivar bool focused: Whether the option is currently being autocompleted or not.
-    :ivar bool required: Whether the option has to be filled out.
-    :ivar typing.Optional[str] value: The value that's currently typed out, if autocompleting.
-    :ivar typing.Optional[typing.List[interactions.models.Choice]] choices: The list of choices to select from.
-    :ivar typing.Optional[list] options: The list of subcommand options included.
-    :ivar typing.Optional[typing.List[interactions.api.models.channel.ChannelType] channel_type: Restrictive shown channel types, if given.
-    :ivar typing.Optional[int] min_values: The minimum value supported by the option.
-    :ivar typing.Optional[int] max_values: The maximum value supported by the option.
+    :ivar bool required?: Whether the option has to be filled out.
+    :ivar Optional[str] value?: The value that's currently typed out, if autocompleting.
+    :ivar Optional[List[Choice]] choices?: The list of choices to select from.
+    :ivar Optional[List[Option]] options?: The list of subcommand options included.
+    :ivar Optional[List[ChannelType] channel_types?: Restrictive shown channel types, if given.
+    :ivar Optional[int] min_value: The minimum value supported by the option.
+    :ivar Optional[int] max_value: The maximum value supported by the option.
+    :ivar Optional[bool] autocomplete: A status denoting whether this option is an autocomplete option.
     """
 
     __slots__ = (
@@ -60,9 +61,10 @@ class Option(DictSerializerMixin):
         "value",
         "choices",
         "options",
-        "channel_type",
-        "min_values",
-        "max_values",
+        "channel_types",
+        "min_value",
+        "max_value",
+        "autocomplete",
     )
     _json: dict
     type: OptionType
@@ -73,12 +75,16 @@ class Option(DictSerializerMixin):
     value: Optional[str]
     choices: Optional[List[Choice]]
     options: Optional[list]
-    channel_type: Optional[List[ChannelType]]
-    min_values: Optional[int]
-    max_values: Optional[int]
+    channel_types: Optional[List[ChannelType]]
+    min_value: Optional[OptionType]
+    max_value: Optional[OptionType]
+    autocomplete: Optional[bool]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self._json["type"] = OptionType(kwargs["type"]).value
+        if self._json.get("choices"):
+            self._json["choices"] = [choice._json for choice in self.choices]
 
 
 class Permission(DictSerializerMixin):
@@ -86,7 +92,7 @@ class Permission(DictSerializerMixin):
     A class object representing the permission of an application command.
 
     :ivar int id: The ID of the permission.
-    :ivar interactions.enums.PermissionType type: The type of permission.
+    :ivar PermissionType type: The type of permission.
     :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
     """
 
@@ -98,20 +104,21 @@ class Permission(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self._json["type"] = PermissionType(kwargs["type"]).value
 
 
 class ApplicationCommand(DictSerializerMixin):
     """
     A class object representing all types of commands.
 
-    :ivar typing.Optional[int] id: The ID of the application command.
-    :ivar typing.Optional[int] type: The application command type.
-    :ivar typing.Optional[int] application_id: The general application ID of the command itself.
-    :ivar int guild_id: The guild ID of the application command.
+    :ivar int id: The ID of the application command.
+    :ivar ApplicationCommandType type: The application command type.
+    :ivar Optional[int] application_id?: The general application ID of the command itself.
+    :ivar Optional[int] guild_id?: The guild ID of the application command.
     :ivar str name: The name of the application command.
-    :ivar typing.Optional[str] description: The description of the application command.
-    :ivar typing.Optional[typing.List[interactions.models.Option]] options: The "options"/arguments of the application command.
-    :ivar typing.Optional[bool] default_permission: The default permission accessibility state of the application command.
+    :ivar str description: The description of the application command.
+    :ivar Optional[List[Option]] options?: The "options"/arguments of the application command.
+    :ivar Optional[bool] default_permission?: The default permission accessibility state of the application command.
     :ivar int version: The Application Command version autoincrement identifier.
     :ivar typing.Any default_member_permissions: The default member permission state of the application command.
     :ivar typing.Any dm_permission: The application permissions if executed in a Direct Message.
@@ -133,16 +140,16 @@ class ApplicationCommand(DictSerializerMixin):
         "dm_permission",
     )
     _json: dict
-    id: Optional[int]
-    type: Optional[ApplicationCommandType]
+    id: int
+    type: ApplicationCommandType
     application_id: Optional[int]
     guild_id: Optional[int]
     name: str
-    description: Optional[str]
+    description: str
     options: Optional[List[Option]]
     default_permission: Optional[bool]
     permissions: Optional[List[Permission]]
-    version: int  # Not sure if we need this.
+    version: int
 
     # TODO: Investigate these. These are apparently a thing.
     # TODO: And document them.

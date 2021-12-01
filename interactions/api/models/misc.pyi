@@ -7,29 +7,26 @@ from typing import Optional, Union
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 
 class DictSerializerMixin(object):
+    __slots__ = "_json"
 
     _json: dict
-
-    __slots__ = "_json"
     def __init__(self, **kwargs): ...
 
 class Overwrite(DictSerializerMixin):
+    __slots__ = ("_json", "id", "type", "allow", "deny")
     _json: dict
     id: int
     type: int
     allow: str
     deny: str
-
-    __slots__ = ("_json", "id", "type", "allow", "deny")
     def __init__(self, **kwargs): ...
 
 class ClientStatus(DictSerializerMixin):
+    __slots__ = ("_json", "desktop", "mobile", "web")
     _json: dict
     desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
-
-    __slots__ = ("_json", "desktop", "mobile", "web")
     def __init__(self, **kwargs): ...
 
 class Snowflake(object):

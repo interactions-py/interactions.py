@@ -37,32 +37,22 @@ class GuildFeature(str, Enum):
     )
 
 class WelcomeChannels(DictSerializerMixin):
+    __slots__ = ("_json", "channel_id", "description", "emoji_id", "emoji_name")
     _json: dict
     channel_id: int
     description: str
     emoji_id: Optional[int]
     emoji_name: Optional[str]
-
-    __slots__ = ("_json", "channel_id", "description", "emoji_id", "emoji_name")
     def __init__(self, **kwargs): ...
 
 class WelcomeScreen(DictSerializerMixin):
+    __slots__ = ("_json", "description", "welcome_channels")
     _json: dict
     description: Optional[str]
     welcome_channels: List[WelcomeChannels]
-
-    __slots__ = ("_json", "description", "welcome_channels")
     def __init__(self, **kwargs): ...
 
 class StageInstance(DictSerializerMixin):
-    _json: dict
-    id: int
-    guild_id: int
-    channel_id: int
-    topic: str
-    privacy_level: int  # can be Enum'd
-    discoverable_disabled: bool
-
     __slots__ = (
         "_json",
         "id",
@@ -72,6 +62,13 @@ class StageInstance(DictSerializerMixin):
         "privacy_level",
         "discoverable_disabled",
     )
+    _json: dict
+    id: int
+    guild_id: int
+    channel_id: int
+    topic: str
+    privacy_level: int  # can be Enum'd
+    discoverable_disabled: bool
     def __init__(self, **kwargs): ...
 
 class Guild(DictSerializerMixin):

@@ -9,7 +9,8 @@ from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
-from .enums import InteractionType
+from .enums import InteractionCallbackType, InteractionType
+from .models.command import Choice
 from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
@@ -19,17 +20,19 @@ class Context(DictSerializerMixin):
     The base class of \"context\" for dispatched event data
     from the gateway.
 
-    :ivar interactions.api.models.message.Message message: The message data model.
-    :ivar interactions.api.models.member.Member author: The member data model.
-    :ivar interactions.api.models.user.User user: The user data model.
-    :ivar interactions.api.models.channel.Channel channel: The channel data model.
-    :ivar interactions.api.models.guild.Guild guild: The guild data model.
+    :ivar Message message: The message data model.
+    :ivar Member author: The member data model.
+    :ivar User user: The user data model.
+    :ivar Channel channel: The channel data model.
+    :ivar Guild guild: The guild data model.
     :ivar \*args: Multiple arguments of the context.
     :ivar \**kwargs: Keyword-only arguments of the context.
     """
+    __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.client = HTTPClient(interactions.client._token)
 
 
 class InteractionContext(Context):
@@ -39,13 +42,27 @@ class InteractionContext(Context):
 
     :ivar str id: The ID of the interaction.
     :ivar str application_id: The application ID of the interaction.
-    :ivar typing.Union[str, int, interactions.enums.InteractionType] type: The type of interaction.
-    :ivar interactions.models.misc.InteractionData data: The application command data.
+    :ivar Union[str, int, InteractionType] type: The type of interaction.
+    :ivar InteractionData data: The application command data.
     :ivar str guild_id: The guild ID the interaction falls under.
     :ivar str channel_id: The channel ID the interaction was instantiated from.
     :ivar str token: The token of the interaction response.
-    :ivar int=1 version: The version of interaction creation. Always defaults to ``1``.
+    :ivar bool responded: Whether an original response was made or not.
+    :ivar bool deferred: Whether the response was deferred or not.
     """
+
+    __slots__ = (
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "version",
+        "responded",
+        "deferred",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -61,16 +78,26 @@ class InteractionContext(Context):
         self.channel_id = kwargs.get("channel_id")
         self.token = kwargs.get("token")
         self.responded = False
+        self.deferred = False
 
-    async def defer(self) -> None:
+    async def defer(self, ephemeral: Optional[bool] = None) -> None:
         """
         This \"defers\" an interaction response, allowing up
         to a 15-minute delay between invokation and responding.
 
-        :return: None
+        :param ephemeral: Whether the deferred state is hidden or not.
+        :type ephemeral: Optional[bool]
         """
-        await HTTPClient(interactions.client.cache.token).create_interaction_response(
-            token=self.token, application_id=int(self.id), data={"type": 5}
+        _type: InteractionCallbackType
+
+        if bool(ephemeral):
+            _type = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+            self.deferred = True
+        else:
+            _type = InteractionCallbackType.UPDATE_MESSAGE
+
+        await self.client.create_interaction_response(
+            token=self.token, application_id=int(self.id), data={"type": _type.value}
         )
 
     async def send(
@@ -82,9 +109,9 @@ class InteractionContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
-        components: Optional[Union[Dict[str, Any], ActionRow, Button, SelectMenu]] = None,
+        components: Optional[Union[List[Dict[str, Any]], ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
-        type: Optional[int] = None,
+        type: Optional[Union[int, InteractionCallbackType]] = None,
         ephemeral: Optional[bool] = None,
     ) -> Message:
         """
@@ -92,24 +119,25 @@ class InteractionContext(Context):
         to send an interaction response.
 
         :param content: The contents of the message as a string or string-converted value.
-        :type content: typing.Optional[str]
+        :type content: Optional[str]
         :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: typing.Optional[bool]
+        :type tts: Optional[bool]
         :param embeds: An embed, or list of embeds for the message.
-        :type embeds: typing.Optional[typing.Union[interactions.api.models.message.Embed, typing.List[interactions.api.models.message.Embed]]]
+        :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: typing.Optional[interactions.api.models.message.MessageInteraction]
+        :type allowed_mentions: Optional[MessageInteraction]
         :param message_reference: The message to "refer" if attempting to reply to a message.
-        :type message_reference: typing.Optional[interactions.api.models.message.MessageReference]
+        :type message_reference: Optional[MessageReference]
         :param components: A component, or list of components for the message.
-        :type components: typing.Optional[typing.Union[interactions.models.component.Component, typing.List[interactions.models.component.Component]]]
+        :type components: Optional[Union[Component, List[Component]]]
         :param sticker_ids: A singular or list of IDs to stickers that the application has access to for the message.
-        :type sticker_ids: typing.Optional[typing.Union[str, typing.List[str]]]
+        :type sticker_ids: Optional[Union[str, List[str]]]
         :param type: The type of message response if used for interactions or components.
-        :type type: typing.Optional[int]
+        :type type: Optional[Union[int, InteractionCallbackType]]
         :param ephemeral: Whether the response is hidden or not.
-        :type ephemeral: typing.Optional[bool]
-        :return: interactions.api.models.message.Message
+        :type ephemeral: Optional[bool]
+        :return: The sent message as an object.
+        :rtype: Message
         """
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
@@ -128,7 +156,17 @@ class InteractionContext(Context):
             _components = [] if components is None else [components]
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
-        _type: int = 4 if type is None else type
+
+        _type: int
+        if isinstance(type, InteractionCallbackType):
+            _type = (
+                InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
+                if self.deferred
+                else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
+            )
+        else:
+            _type = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE if type is None else type
+
         _ephemeral: int = 0 if ephemeral is None else (1 << 6)
 
         if sticker_ids and len(sticker_ids) > 3:
@@ -153,12 +191,12 @@ class InteractionContext(Context):
         # TODO: cache.token doesn't exist yet.
         async def func():
             if self.responded:
-                req = await HTTPClient(interactions.client.cache.token)._post_followup(
+                req = await self.client._post_followup(
                     data=payload._json, token=self.token, application_id=self.application_id
                 )
                 return req
             else:
-                req = await HTTPClient(interactions.client.cache.token).create_interaction_response(
+                req = await self.client.create_interaction_response(
                     token=self.token,
                     application_id=int(self.id),
                     data={"type": _type, "data": payload._json},
@@ -180,16 +218,15 @@ class InteractionContext(Context):
         message_reference: Optional[MessageReference] = None,
         components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
         sticker_ids: Optional[Union[str, List[str]]] = None,
-        type: Optional[int] = None,
-        ephemeral: Optional[bool] = None,
     ) -> Message:
         """
-        This allows the invokation state described in the "context"
+        This allows the invocation state described in the "context"
         to send an interaction response. This inherits the arguments
         of the ``.send()`` method.
 
         :inherit:`interactions.context.InteractionContext.send()`
-        :return: interactions.api.models.message.Message
+        :return: The edited message as an object.
+        :rtype: Message
         """
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
@@ -207,8 +244,12 @@ class InteractionContext(Context):
             _components = []
 
         _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
-        _type: int = 4 if type is None else type
-        _ephemeral: int = 0 if ephemeral is None else (1 << 6)
+
+        _type = (
+            InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
+            if self.deferred
+            else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
+        )
 
         if sticker_ids and len(sticker_ids) > 3:
             raise Exception("Message can only have up to 3 stickers.")
@@ -222,18 +263,18 @@ class InteractionContext(Context):
             message_reference=_message_reference,
             components=_components,
             sticker_ids=_sticker_ids,
-            flags=_ephemeral,
+            flags=self.message.ephemeral,
         )
 
         async def func():
-            req = await HTTPClient(interactions.client.cache.token).edit_interaction_response(
+            req = await self.client.edit_interaction_response(
                 token=self.token,
                 application_id=self.id,
                 data={"type": _type, "data": payload._json},
                 message_id=self.message.id,
             )
             self.message = payload
-            self.responded = True
+
             return req
 
         await func()
@@ -247,17 +288,15 @@ class InteractionContext(Context):
         .. note::
             Doing this will proceed in the context message no longer
             being present.
-
-        :return: None
         """
         if self.responded:
-            await HTTPClient(interactions.client.cache.token).delete_webhook_message(
+            await self.client.delete_webhook_message(
                 webhook_id=int(self.id), webhook_token=self.token, message_id=self.message.id
             )
         else:
             # TODO: Wait for Delta to implement an equivocate request method
             # in the HTTPClient for consistency reasons.
-            await HTTPClient(interactions.client.cache.token)._req.request(
+            await self.client._req.request(
                 Route("DELETE", f"/webhooks/{self.id}/{self.token}/messages/@original")
             )
         self.message = None
@@ -274,5 +313,58 @@ class ComponentContext(InteractionContext):
     :ivar bool origin: Whether this is the origin of the component.
     """
 
+    __slots__ = ("custom_id", "type", "values", "origin")
+
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.responded = False  # remind components that it was not responded to.
+
+
+class AutocompleteContext(InteractionContext):
+    """
+    This is a derivation of the base Context class designed specifically for
+    autocomplete data.
+    """
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+    async def populate(self, *, choices: Union[Choice, List[Choice]]) -> List[Choice]:
+        """
+        This "populates" the list of choices that the client-end
+        user will be able to select from in the autocomplete field.
+
+        .. warning::
+            Only a maximum of ``25`` choices may be presented
+            within an autocomplete option.
+
+        :param choices: The choices you wish to present.
+        :type choices: Union[Choice, List[Choice]]
+        :return: The list of choices you've given.
+        :rtype: List[Choice]
+        """
+
+        async def func():
+            if choices:
+                _choices: list = []
+                if all(isinstance(choice, Choice) for choice in choices):
+                    _choices = [choice._json for choice in choices]
+                elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
+                    _choices = [choice for choice in choices]
+                elif isinstance(choices, Choice):
+                    _choices = [choices._json]
+                else:
+                    _choices = [choices]
+
+                await self.client.create_interaction_response(
+                    token=self.token,
+                    application_id=self.application_id,
+                    data={
+                        "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
+                        "data": _choices,
+                    },
+                )
+
+                return _choices
+
+        return await func()
