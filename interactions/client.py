@@ -23,11 +23,11 @@ class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
 
-    :ivar AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
-    :ivar Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar Optional[Union[Intents, List[Intents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
-    :ivar Request http: An instance of :class:`interactions.api.http.Request`.
-    :ivar WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
+    :ivar asyncio.AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
+    :ivar interactions.api.dispatch.Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
+    :ivar typing.Optional[typing.Union[interactions.api.models.intents.Intents, typing.List[interactions.api.models.intentsIntents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
+    :ivar interactions.api.http.Request http: An instance of :class:`interactions.api.http.Request`.
+    :ivar interactions.api.gateway.WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
     :ivar str token: The application token.
     """
 
@@ -59,7 +59,7 @@ class Client:
         self.http.token = token
         _token = token  # noqa: F841
 
-        if disable_sync:
+        if disable_sync not in (False, None):
             self.automate_sync = False
             log.warn(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
@@ -67,8 +67,9 @@ class Client:
         else:
             self.automate_sync = True
 
+        # Remove the if not condition for import timings
         if not self.me:
-            data = self.loop.run_until_complete(self.http.get_self())
+            data = self.loop.run_until_complete(self.http.get_current_bot_information())
             self.me = Application(**data)
 
         self.websocket.dispatch.register(self.raw_socket_create)
@@ -82,6 +83,7 @@ class Client:
 
         :param token: The application token needed for authorization.
         :type token: str
+        :return: None
         """
         while not self.websocket.closed:
             await self.websocket.connect(token)
@@ -118,79 +120,79 @@ class Client:
             for command in commands:
                 log.debug(f"Checking command {command['name']}.")
                 result: ApplicationCommand = ApplicationCommand(
+                    application_id=command.get("application_id"),
                     id=command.get("id"),
                     type=command.get("type"),
-                    guild_id=int(command.get("guild_id")),
+                    guild_id=str(command.get("guild_id")),
                     name=command.get("name"),
                     description=command.get("description", ""),
-                    options=command.get("options", []),
                     default_permission=command.get("default_permission", False),
+                    default_member_permissions=command.get("default_member_permissions", None),
+                    version=command.get("version"),
                 )
                 self.http.cache.interactions.add(Item(result.name, result))
 
-                if self.automate_sync:
-                    if result.name == payload.name:
-                        request: HTTPClient = None
-                        _result_name = result._json["name"]
-                        _payload_name = payload._json["name"]
+                if result.name == payload.name:
+                    request: dict
+                    _result_name = result._json["name"]
+                    _payload_name = payload._json["name"]
 
-                        del result._json["name"]
-                        del payload._json["name"]
-                        if result._json != payload._json:
-                            log.info(
-                                f"Detected unsynced command {payload.name}, editing and updating cache."
-                            )
+                    del result._json["name"]
+                    del payload._json["name"]
+                    if result._json != payload._json:
+                        log.info(
+                            f"Detected unsynced command {payload.name}, editing and updating cache."
+                        )
 
-                            result._json["name"] = _result_name
-                            payload._json["name"] = _payload_name
-                            request = await self.http.edit_application_command(
-                                application_id=self.me.id,
-                                data=payload._json,
-                                command_id=result.id,
-                                guild_id=payload.guild_id,
-                            )
-                            self.http.cache.interactions.add(Item(payload.name, payload))
-
-                            if request.get("code"):
-                                raise JSONException(request["code"])
-                    # TODO: Solve redundancy in the check.
-                    else:
-                        #     log.info(
-                        #         f"Detected command {result.name} declared but not in the API, creating and updating cache."
-                        #     )
-                        #     request = await self.http.create_application_command(
-                        #         application_id=self.me.id,
-                        #         data=payload._json,
-                        #         guild_id=payload.guild_id,
-                        #     )
+                        result._json["name"] = _result_name
+                        payload._json["name"] = _payload_name
+                        request = await self.http.edit_application_command(
+                            application_id=self.me.id,
+                            data=payload._json,
+                            command_id=result.id,
+                            guild_id=payload.guild_id,
+                        )
                         self.http.cache.interactions.add(Item(payload.name, payload))
 
                         if request.get("code"):
                             raise JSONException(request["code"])
-
+                    else:
+                        self.http.cache.interactions.add(Item(payload.name, payload))
                 else:
                     self.http.cache.interactions.add(Item(payload.name, payload))
+        else:
+            log.debug(f"Command {payload.name} was not found, adding to the API and cache.")
+
+            request = await self.http.create_application_command(
+                application_id=self.me.id,
+                data=payload._json,
+                guild_id=payload.guild_id,
+            )
+
+            log.debug(
+                f"Synchronising by adding payload: {payload} with name: {payload.name}, returning {request}"
+            )
+
+            self.http.cache.interactions.add(Item(payload.name, payload))
+
+            if request.get("code"):
+                raise JSONException(request["code"])
 
         cached_commands: list = [
             self.http.cache.interactions.values[command]
             for command in self.http.cache.interactions.values
         ]
-        for command in commands:
-            result: ApplicationCommand = ApplicationCommand(
-                id=command.get("id"),
-                type=command.get("type"),
-                guild_id=int(command.get("guild_id")),
-                name=command.get("name"),
-                description=command.get("description", ""),
-                options=command.get("options", []),
-                default_permission=command.get("default_permission", False),
-            )
+        _command_names: list = [command["name"] for command in commands]
 
-            if result not in cached_commands:
-                log.info(f"Detected unused command {result.name}, deleting from the API and cache.")
-                request = await self.http.delete_application_command(
-                    application_id=self.me.id, command_id=result.id, guild_id=result.guild_id
-                )
+        for command in cached_commands:
+            if commands:
+                if command.name not in _command_names:
+                    log.debug(
+                        f"Detected unused command {command.name}, deleting from the API and cache."
+                    )
+                    await self.http.delete_application_command(
+                        self.me.id, command.id, command.guild_id
+                    )
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
@@ -204,6 +206,21 @@ class Client:
         """
         self.websocket.dispatch.register(coro, name=name)
         return coro
+
+    # def __process_options(self, coro: Callable) -> List:
+    #     """
+    #     An option parser function that parses a Coroutine to generate
+    #     "implicit options", if options aren't explicitly declared.
+
+    #     :param coro: The coroutine of the event.
+    #     :type coro: typing.Coroutine
+    #     :return typing.List[]
+    #     """
+    #     params = iter(inspect.signature(coro).parameters.values())
+    #     log.info(f"params: {list(params)}")
+
+    #     # TODO: Finish
+    #     return []
 
     def command(
         self,
@@ -265,7 +282,7 @@ class Client:
                 _type: int = ApplicationCommandType(type)
 
             _description: str = "" if description is None else description
-            _options: list = []
+            _options: list = self.__process_options(coro)
 
             if options:
                 if all(isinstance(option, Option) for option in options):
@@ -313,7 +330,7 @@ class Client:
                 if self.automate_sync:
                     self.loop.run_until_complete(self.synchronize(payload, _permissions))
 
-            return self.event(coro, name=f"command_{name}")
+            return self.event(coro, name=name)
 
         return decorator
 
@@ -344,14 +361,14 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Any:
-            return self.event(coro, name=f"autocomplete_{name}")
+            return self.event(coro, name=name)
 
         return decorator
 
     async def raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
-        and then returns the data purely basedd off of what it does in
+        and then returns the data purely based off of what it does in
         the client instantiation class.
 
         :param data: The data that is returned
@@ -359,6 +376,7 @@ class Client:
         :return: A dictionary of raw data.
         :rtype: Dict[Any, Any]
         """
+
         return data
 
     async def raw_channel_create(self, channel) -> None:
@@ -386,4 +404,4 @@ class Client:
         :param guild: The guild object data in question.
         :type guild: Guild
         """
-        self.http.cache.guilds.add(Item(id=guild.id, value=guild))
+        self.http.cache.guilds.add(Item(id=str(guild.id), value=guild))

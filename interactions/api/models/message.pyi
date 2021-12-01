@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
+from .channel import Channel
 from .member import Member
 from .misc import DictSerializerMixin
 from .team import Application
@@ -33,7 +34,6 @@ class MessageType(IntEnum):
     CONTEXT_MENU_COMMAND = 23
 
 class MessageActivity(DictSerializerMixin):
-
     _json: dict
     type: int
     party_id: Optional[str]
@@ -91,7 +91,7 @@ class Message(DictSerializerMixin):
     mentions: Optional[List[Union[Member, User]]]
     mention_roles: Optional[List[str]]
     mention_channels: Optional[List["ChannelMention"]]
-    attachments: Optional[List[Attachment]]
+    attachments: List[Attachment]
     embeds: List["Embed"]
     reactions: Optional[List["ReactionObject"]]
     nonce: Union[int, str]
@@ -105,7 +105,7 @@ class Message(DictSerializerMixin):
     flags: int
     referenced_message: Optional["Message"]  # pycharm says it works, idk
     interaction: Optional[MessageInteraction]
-    thread: Optional[ChannelMention]
+    thread: Optional[Channel]
 
     components: Optional[Union["Component", List["Component"]]]  # noqa: F821
     sticker_items: Optional[List["PartialSticker"]]
@@ -167,7 +167,7 @@ class EmbedProvider(DictSerializerMixin):
 
 class EmbedAuthor(DictSerializerMixin):
     _json: dict
-    name: Optional[str]
+    name: str
     url: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
@@ -175,7 +175,7 @@ class EmbedAuthor(DictSerializerMixin):
 
 class EmbedFooter(DictSerializerMixin):
     _json: dict
-    text: Optional[str]
+    text: str
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
     def __init__(self, **kwargs): ...

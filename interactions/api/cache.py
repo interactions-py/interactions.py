@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 
 class Item(object):
@@ -34,6 +34,9 @@ class Storage:
 
     __slots__ = "values"
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
+
     def __init__(self) -> None:
         self.values = OrderedDict()
 
@@ -61,6 +64,14 @@ class Storage:
         if id in self.values.keys():
             return self.values[id]
 
+    def view(self) -> List:
+        """Views all items from storage.
+
+        :return The items stored.
+        :rtype: List[dict]
+        """
+        return [v._json for v in self.values.values()]
+
 
 class Cache:
     """
@@ -77,6 +88,18 @@ class Cache:
     :ivar Cache messages: The cached messages of DMs and channels.
     :ivar Cache interactions: The cached interactions upon interaction.
     """
+
+    __slots__ = (
+        "dms",
+        "self_guilds",
+        "guilds",
+        "channels",
+        "roles",
+        "members",
+        "messages",
+        "users",
+        "interactions",
+    )
 
     def __init__(self) -> None:
         # TODO: Look into a better solution that handles duplication of data

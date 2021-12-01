@@ -1,11 +1,11 @@
 from asyncio import get_event_loop
-from logging import Logger, basicConfig, getLogger
+from logging import basicConfig, getLogger
 from typing import Coroutine, Optional
 
 from ..base import Data
 
 basicConfig(level=Data.LOGGER)
-log: Logger = getLogger("dispatch")
+log = getLogger("dispatch")
 
 
 class Listener:
@@ -15,6 +15,8 @@ class Listener:
     :ivar AbstractEventLoop loop: The coroutine event loop established on.
     :ivar dict events: A list of events being dispatched.
     """
+
+    __slots__ = ("loop", "events")
 
     def __init__(self) -> None:
         self.loop = get_event_loop()
@@ -32,6 +34,7 @@ class Listener:
         :type \**kwargs: dict
         """
         for event in self.events.get(name, []):
+            print(f"{event} args: {args}, kwargs: {kwargs}")
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
 

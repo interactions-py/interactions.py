@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from ..api.models.channel import ChannelType
 from ..api.models.misc import DictSerializerMixin
@@ -34,6 +34,9 @@ class Option(DictSerializerMixin):
         ``options`` is only present for when a subcommand
         has been established.
 
+        ``min_values`` and ``max_values`` are useful primarily for
+        integer based options.
+
     :ivar OptionType type: The type of option.
     :ivar str name: The name of the option.
     :ivar str description: The description of the option.
@@ -43,6 +46,9 @@ class Option(DictSerializerMixin):
     :ivar Optional[List[Choice]] choices?: The list of choices to select from.
     :ivar Optional[List[Option]] options?: The list of subcommand options included.
     :ivar Optional[List[ChannelType] channel_types?: Restrictive shown channel types, if given.
+    :ivar Optional[int] min_value: The minimum value supported by the option.
+    :ivar Optional[int] max_value: The maximum value supported by the option.
+    :ivar Optional[bool] autocomplete: A status denoting whether this option is an autocomplete option.
     """
 
     __slots__ = (
@@ -59,6 +65,8 @@ class Option(DictSerializerMixin):
         "min_value",
         "max_value",
         "autocomplete",
+        "name_localizations",
+        "description_localizations",
     )
     _json: dict
     type: OptionType
@@ -73,6 +81,9 @@ class Option(DictSerializerMixin):
     min_value: Optional[OptionType]
     max_value: Optional[OptionType]
     autocomplete: Optional[bool]
+
+    name_localizations: Optional[Dict[str, str]]
+    description_localizations: Optional[Dict[str, str]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -114,6 +125,8 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar Optional[List[Option]] options?: The "options"/arguments of the application command.
     :ivar Optional[bool] default_permission?: The default permission accessibility state of the application command.
     :ivar int version: The Application Command version autoincrement identifier.
+    :ivar Any default_member_permissions: The default member permission state of the application command.
+    :ivar Any dm_permission: The application permissions if executed in a Direct Message.
     """
 
     __slots__ = (
@@ -128,6 +141,10 @@ class ApplicationCommand(DictSerializerMixin):
         "default_permission",
         "permissions",
         "version",
+        "default_member_permissions",
+        "dm_permission",
+        "description_localizations",
+        "name_localizations",
     )
     _json: dict
     id: int
@@ -140,6 +157,14 @@ class ApplicationCommand(DictSerializerMixin):
     default_permission: Optional[bool]
     permissions: Optional[List[Permission]]
     version: int
+
+    # TODO: Investigate these. These are apparently a thing.
+    # TODO: And document them.
+    default_member_permissions: Optional[Any]
+    dm_permission: Optional[Any]  # Could be any idk
+
+    name_localizations: Optional[Dict[str, str]]
+    description_localizations: Optional[Dict[str, str]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

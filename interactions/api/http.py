@@ -388,7 +388,7 @@ class HTTPClient:
         channel_id: int,
         content: str,
         tts: bool = False,
-        embed: Optional[Embed] = None,
+        embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
         allowed_mentions=None,  # don't know type
         message_reference: Optional[Message] = None,
@@ -397,7 +397,6 @@ class HTTPClient:
         A higher level implementation of :meth:`create_message()` that handles the payload dict internally.
         Does not integrate components into the function, and is a port from v3.0.0
         """
-        # r = Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id)
         payload = {}
 
         if content:
@@ -406,8 +405,8 @@ class HTTPClient:
         if tts:
             payload["tts"] = True
 
-        if embed:
-            payload["embed"] = embed
+        if embeds:
+            payload["embeds"] = embeds
 
         if nonce:
             payload["nonce"] = nonce
@@ -418,7 +417,8 @@ class HTTPClient:
         if message_reference:
             payload["message_reference"] = message_reference
 
-        # return await self._req.request(r, json=payload)
+        # TODO: add attachments to payload.
+
         return await self.create_message(payload, channel_id)
 
     async def create_message(self, payload: dict, channel_id: int) -> dict:
@@ -1515,7 +1515,7 @@ class HTTPClient:
         :param user_id: The ID of the user to add
         """
         return await self._req.request(
-            Route("PUT", f"/channels/{thread_id}/thread-members/@{user_id}")
+            Route("PUT", f"/channels/{thread_id}/thread-members/{user_id}")
         )
 
     async def remove_member_from_thread(self, thread_id: int, user_id: int) -> None:
@@ -1525,14 +1525,27 @@ class HTTPClient:
         :param user_id: The ID of the user to remove
         """
         return await self._req.request(
-            Route("DELETE", f"/channels/{thread_id}/thread-members/@{user_id}")
+            Route("DELETE", f"/channels/{thread_id}/thread-members/{user_id}")
+        )
+
+    async def get_member_from_thread(self, thread_id: int, user_id: int) -> dict:
+        """
+        Get a member from a thread.
+
+        :param thread_id: The ID of the thread
+        :param user_id: The ID of the user to find
+        :return: A thread member object, if they're in the thread.
+        """
+        # Returns 404 if they don't
+        return await self._req.request(
+            Route("GET", f"/channels/{thread_id}/thread-members/{user_id}")
         )
 
     async def list_thread_members(self, thread_id: int) -> List[dict]:
         """
         Get a list of members in the thread.
         :param thread_id: the id of the thread
-        :return: a list of member objects
+        :return: a list of thread member objects
         """
         return await self._req.request(Route("GET", f"/channels/{thread_id}/thread-members"))
 
@@ -1606,8 +1619,8 @@ class HTTPClient:
         self,
         channel_id: int,
         name: str,
-        auto_archive_duration: int,
         thread_type: int = None,
+        auto_archive_duration: Optional[int] = None,
         invitable: Optional[bool] = None,
         message_id: Optional[int] = None,
         reason: Optional[str] = None,
@@ -1625,7 +1638,9 @@ class HTTPClient:
         :param reason: An optional reason for the audit log
         :return: The created thread
         """
-        payload = {"name": name, "auto_archive_duration": auto_archive_duration}
+        payload = {"name": name}
+        if auto_archive_duration:
+            payload["auto_archive_duration"] = auto_archive_duration
         if message_id:
             request = await self._req.request(
                 Route("POST", f"/channels/{channel_id}/messages/{message_id}/threads"),
@@ -2061,7 +2076,7 @@ class HTTPClient:
         """
         Edits an existing interaction message, but token needs to be manually called.
         :param data: A dictionary containing the new response.
-        :param token: token
+        :param token: the token of the interaction
         :param application_id: Application ID snowflake.
         :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
         :return: Updated message data.
@@ -2070,6 +2085,23 @@ class HTTPClient:
         return await self._req.request(
             Route("PATCH", f"/webhooks/{application_id}/{token}/messages/{message_id}"),
             json=data,
+        )
+
+    async def delete_interaction_response(
+        self, token: str, application_id: str, message_id: int = "original"
+    ) -> None:
+        """
+        Deletes an existing interaction message.
+        :param token: the token of the interaction
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        """
+
+        # This is, basically, a helper method for the thing,
+        # because interactions are webhooks
+
+        await self.delete_webhook_message(
+            webhook_id=int(application_id), webhook_token=token, message_id=message_id
         )
 
     async def _post_followup(self, data: dict, token: str, application_id: str) -> None:

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from .misc import DictSerializerMixin
 
@@ -6,7 +6,7 @@ class RoleTags(DictSerializerMixin):
     _json: dict
     bot_id: Optional[int]
     integration_id: Optional[int]
-    premium_subscriber: Optional[int]
+    premium_subscriber: Optional[Any]
     def __init__(self, **kwargs): ...
 
 class Role(DictSerializerMixin):
