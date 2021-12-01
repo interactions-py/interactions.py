@@ -1,6 +1,7 @@
 import sys
 from asyncio import get_event_loop, run_coroutine_threadsafe
 from logging import Logger, basicConfig, getLogger
+from random import random
 from threading import Event, Thread
 from typing import Any, Optional, Union
 
@@ -46,7 +47,7 @@ class Heartbeat(Thread):
 
     def run(self) -> None:
         """Starts the heartbeat connection."""
-        while not self.event.wait(self.interval):
+        while not self.event.wait(self.interval - random()):
             try:
                 coro = run_coroutine_threadsafe(self.ws.heartbeat(), loop=self.ws.loop)
                 while True:
@@ -92,10 +93,10 @@ class WebSocket:
         "session",
         "session_id",
         "sequence",
-        "keep_alive",
+        "_keep_alive",
         "closed",
         "http",
-        "options",
+        "_options",
     )
 
     def __init__(
@@ -119,10 +120,10 @@ class WebSocket:
         self.session_id = session_id
         self.sequence = sequence
 
-        self.keep_alive = None
+        self._keep_alive = None
         self.closed = False
         self.http = None
-        self.options: dict = {
+        self._options: dict = {
             "max_msg_size": 1024 ** 2,
             "timeout": 60,
             "autoclose": False,
@@ -160,68 +161,67 @@ class WebSocket:
                     code = self.session.close_code
                     raise GatewayException(code)
 
-                op: Optional[int] = stream.get("op")
-                event: Optional[str] = stream.get("t")
-                data: Optional[dict] = stream.get("d")
-                self.sequence = stream.get("s")
+                await self.handle_connection(stream)
 
-                if op != OpCodeType.DISPATCH:
-                    log.debug(data)
+    async def handle_connection(self, stream: dict) -> None:
+        """
+        Handles the connection to the gateway.
 
-                    if op == OpCodeType.HELLO:
-                        if not self.session_id:
-                            await self.identify()
-                        else:
-                            await self.resume()
+        :param stream: The data stream from the gateway.
+        :type stream: dict
+        """
+        op: Optional[int] = stream.get("op")
+        event: Optional[str] = stream.get("t")
+        data: Optional[dict] = stream.get("d")
+        self.sequence = stream.get("s")
 
-                        heartbeat_interval = data["heartbeat_interval"]
-                        self.keep_alive = Heartbeat(self, heartbeat_interval)
+        if op != OpCodeType.DISPATCH:
+            log.debug(data)
 
-                        await self.heartbeat()
-                        self.keep_alive.start()
-
-                        continue
-
-                    if op == OpCodeType.HEARTBEAT:
-                        if self.keep_alive:
-                            await self.heartbeat()
-                        continue
-
-                    if op == OpCodeType.HEARTBEAT_ACK:
-                        if self.keep_alive:
-                            log.debug("HEARTBEAT_ACK")
-                        continue
-
-                    if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
-                        log.debug("INVALID_SESSION/RECONNECT")
-
-                        # TODO: Correct sound reconnection logic. When a connection is lost,
-                        # an indefinite "closing connection" loop occurs. (Maybe it's based
-                        # with the Heartbeat threading event?)
-                        if not data or op == OpCodeType.RECONNECT:
-                            try:
-                                await self.resume()
-                            except Exception as exc:
-                                log.error("Server declined to reconnect, closing.")
-                                log.error(exc)
-                                await self.session.close()
-                        else:
-                            self.session_id = None
-                            self.sequence = None
-                            self.closed = True
-
+            if op == OpCodeType.HELLO:
+                if not self.session_id:
+                    await self.identify()
                 else:
-                    if event == "READY":
-                        self.session_id = data["session_id"]
-                        self.sequence = stream["s"]
-                        self.dispatch.dispatch("on_ready")
-                        log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
-                    else:
-                        log.debug(f"{event}: {data}")
-                        self.handle(event, data)
-                    continue
+                    await self.resume()
 
-    def handle(self, event: str, data: dict) -> None:
+                heartbeat_interval = data["heartbeat_interval"]
+                self.keep_alive = Heartbeat(self, heartbeat_interval)
+
+                await self.heartbeat()
+                self.keep_alive.start()
+
+            if op == OpCodeType.HEARTBEAT:
+                if self.keep_alive:
+                    await self.heartbeat()
+
+            if op == OpCodeType.HEARTBEAT_ACK:
+                if self.keep_alive:
+                    log.debug("HEARTBEAT_ACK")
+
+            if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
+                log.debug("INVALID_SESSION/RECONNECT")
+                if not data or op == OpCodeType.RECONNECT:
+                    try:
+                        await self.resume()
+                    except Exception as exc:
+                        log.error("Server declined to reconnect, closing.")
+                        log.error(exc)
+                        await self.session.close()
+                else:
+                    self.session_id = None
+                    self.sequence = None
+                    self.closed = True
+        else:
+            if event == "READY":
+                self.session_id = data["session_id"]
+                self.sequence = stream["s"]
+                self.dispatch.dispatch("on_ready")
+                log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
+            else:
+                log.debug(f"{event}: {data}")
+                self.handle_dispatch(event, data)
+
+    def handle_dispatch(self, event: str, data: dict) -> None:
         """
         Handles the dispatched event data from a gateway event.
 
@@ -246,20 +246,20 @@ class WebSocket:
                 _name: str
                 _args: list = [context]
 
-                if data["type"] == InteractionType.APPLICATION_COMMAND.value:
+                if data["type"] == InteractionType.APPLICATION_COMMAND:
                     _name = context.data.name
                     if hasattr(context.data, "options"):
                         for option in context.data.options:
                             if option["type"] in (
-                                OptionType.SUB_COMMAND.value,
-                                OptionType.SUB_COMMAND_GROUP.value,
+                                OptionType.SUB_COMMAND,
+                                OptionType.SUB_COMMAND_GROUP,
                             ):
                                 pass
                             else:
                                 _args.append(option["value"])
-                elif data["type"] == InteractionType.MESSAGE_COMPONENT.value:
+                elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                     _name = context.data.custom_id
-                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.value:
+                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                     _name = f"autocomplete_{context.data.options[0]['name']}"
 
                 self.dispatch.dispatch(_name, *_args)
@@ -276,14 +276,14 @@ class WebSocket:
         :return: The context object.
         :rtype: object
         """
-        if data["type"] != 1:
+        if data["type"] != InteractionType.PING:
             _context: str = ""
 
-            if data["type"] == 2:
+            if data["type"] == InteractionType.APPLICATION_COMMAND:
                 _context = "InteractionContext"
-            elif data["type"] == 3:
+            elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
-            elif data["type"] == 4:
+            elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                 _context = "AutocompleteContext"
 
             context: object = getattr(__import__("interactions.context"), _context)

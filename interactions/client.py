@@ -55,7 +55,6 @@ class Client:
         self.http = HTTPClient(token)
         self.websocket = WebSocket(intents=self.intents)
         self.me = None
-        # the token family :)
         self.token = token
         self.http.token = token
         _token = token  # noqa: F841
@@ -73,6 +72,8 @@ class Client:
             self.me = Application(**data)
 
         self.websocket.dispatch.register(self.raw_socket_create)
+        self.websocket.dispatch.register(self.raw_channel_create, "on_channel_create")
+        self.websocket.dispatch.register(self.raw_message_create, "on_message_create")
         self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
 
     async def login(self, token: str) -> None:
@@ -90,7 +91,7 @@ class Client:
         self.loop.run_until_complete(self.login(self.token))
 
     async def synchronize(
-        self, payload: ApplicationCommand, permissions: Optional[Union[dict, List[dict]]]
+        self, payload: Optional[ApplicationCommand], permissions: Optional[Union[dict, List[dict]]]
     ) -> None:
         """
         Synchronizes the command specified by checking through the
@@ -103,12 +104,11 @@ class Client:
             this will not delete unused commands for you.
 
         :param payload: The payload/object of the command.
-        :type payload: ApplicationCommand
+        :type payload: Optional[ApplicationCommand]
         :param permissions: The permissions of the command.
         :type permissions: Optional[Union[dict, List[dict]]]
         """
 
-        # TODO: Clean up.
         commands: List[dict] = await self.http.get_application_command(
             application_id=self.me.id, guild_id=payload.guild_id
         )
@@ -128,48 +128,49 @@ class Client:
                 )
                 self.http.cache.interactions.add(Item(result.name, result))
 
-                if result.name == payload.name:
-                    request: HTTPClient = None
-                    _result_name = result._json["name"]
-                    _payload_name = payload._json["name"]
+                if self.automate_sync:
+                    if result.name == payload.name:
+                        request: HTTPClient = None
+                        _result_name = result._json["name"]
+                        _payload_name = payload._json["name"]
 
-                    del result._json["name"]
-                    del payload._json["name"]
-                    if result._json != payload._json:
-                        log.info(
-                            f"Detected unsynced command {payload.name}, editing and updating cache."
-                        )
+                        del result._json["name"]
+                        del payload._json["name"]
+                        if result._json != payload._json:
+                            log.info(
+                                f"Detected unsynced command {payload.name}, editing and updating cache."
+                            )
 
-                        result._json["name"] = _result_name
-                        payload._json["name"] = _payload_name
-                        request = await self.http.edit_application_command(
-                            application_id=self.me.id,
-                            data=payload._json,
-                            command_id=result.id,
-                            guild_id=payload.guild_id,
-                        )
+                            result._json["name"] = _result_name
+                            payload._json["name"] = _payload_name
+                            request = await self.http.edit_application_command(
+                                application_id=self.me.id,
+                                data=payload._json,
+                                command_id=result.id,
+                                guild_id=payload.guild_id,
+                            )
+                            self.http.cache.interactions.add(Item(payload.name, payload))
+
+                            if request.get("code"):
+                                raise JSONException(request["code"])
+                    # TODO: Solve redundancy in the check.
+                    else:
+                        #     log.info(
+                        #         f"Detected command {result.name} declared but not in the API, creating and updating cache."
+                        #     )
+                        #     request = await self.http.create_application_command(
+                        #         application_id=self.me.id,
+                        #         data=payload._json,
+                        #         guild_id=payload.guild_id,
+                        #     )
                         self.http.cache.interactions.add(Item(payload.name, payload))
 
                         if request.get("code"):
                             raise JSONException(request["code"])
-                # TODO: Solve redundancy in the check.
+
                 else:
-                    #     log.info(
-                    #         f"Detected command {result.name} declared but not in the API, creating and updating cache."
-                    #     )
-                    #     request = await self.http.create_application_command(
-                    #         application_id=self.me.id,
-                    #         data=payload._json,
-                    #         guild_id=payload.guild_id,
-                    #     )
                     self.http.cache.interactions.add(Item(payload.name, payload))
 
-                #     if request.get("code"):
-                #         raise JSONException(request["code"])
-
-                #     break
-
-        # TODO: Work more on this later.
         cached_commands: list = [
             self.http.cache.interactions.values[command]
             for command in self.http.cache.interactions.values
@@ -359,6 +360,24 @@ class Client:
         :rtype: Dict[Any, Any]
         """
         return data
+
+    async def raw_channel_create(self, channel) -> None:
+        """
+        This is an internal function that caches the channel creates when dispatched.
+
+        :param channel: The channel object data in question.
+        :type channel: Channel
+        """
+        self.http.cache.channels.add(Item(id=channel.id, value=channel))
+
+    async def raw_message_create(self, message) -> None:
+        """
+        This is an internal function that caches the message creates when dispatched.
+
+        :param message: The message object data in question.
+        :type message: Message
+        """
+        self.http.cache.messages.add(Item(id=message.id, value=message))
 
     async def raw_guild_create(self, guild) -> None:
         """

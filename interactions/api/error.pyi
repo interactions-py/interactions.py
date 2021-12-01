@@ -6,7 +6,6 @@ class ErrorFormatter(Formatter):
     def get_value(self, key, args, kwargs) -> Any: ...
 
 class InteractionException(Exception):
-
     _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter
@@ -20,7 +19,6 @@ class InteractionException(Exception):
     def error(self) -> None: ...
 
 class GatewayException(InteractionException):
-
     _type: Union[int, IntEnum]
     __type: Optional[Union[int, IntEnum]]
     _formatter: ErrorFormatter

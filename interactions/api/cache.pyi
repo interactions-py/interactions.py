@@ -2,14 +2,12 @@ from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Type
 
 class Item(object):
-
     id: str
     value: Any
     type: Type
     def __init__(self, id: str, value: Any) -> None: ...
 
 class Storage:
-
     values: OrderedDict
     def __init__(self) -> None: ...
     def add(self, item: Item) -> List[Item]: ...
