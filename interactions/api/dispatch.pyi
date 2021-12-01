@@ -2,7 +2,6 @@ from asyncio import AbstractEventLoop
 from typing import Coroutine, Optional
 
 class Listener:
-    __slots__ = ("loop", "events")
     loop: AbstractEventLoop
     events: dict
     def __init__(self) -> None: ...

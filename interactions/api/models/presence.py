@@ -7,6 +7,8 @@ class _PresenceParty(DictSerializerMixin):
     :ivar typing.Optional[typing.List[int]] size: An array denoting the party's current and max size
     """
 
+    __slots__ = ("_json", "id", "size")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -19,6 +21,8 @@ class _PresenceAssets(DictSerializerMixin):
     :ivar typing.Optional[str] small_text: Text associated with the small asset
     """
 
+    __slots__ = ("_json", "large_image", "large_text", "small_image", "small_text")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -30,6 +34,8 @@ class _PresenceSecrets(DictSerializerMixin):
     :ivar typing.Optional[str] match: Instanced match secret
     """
 
+    __slots__ = ("_json", "join", "spectate", "match")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -40,6 +46,8 @@ class _PresenceButtons(DictSerializerMixin):
     :ivar str url: URL of the button
     """
 
+    __slots__ = ("_json", "label", "url")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -49,6 +57,8 @@ class _PresenceTimestamp(DictSerializerMixin):
     :ivar Optional[int] start: Unix time in ms when the activity started
     :ivar Optional[int] end: Unix time in ms when the activity ended
     """
+
+    __slots__ = ("_json", "start", "end")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -76,6 +86,25 @@ class PresenceActivity(DictSerializerMixin):
     :ivar typing.Optional[typing.List[_PresenceButtons]] buttons: Custom buttons shown in the RPC.
     """
 
+    __slots__ = (
+        "_json",
+        "name",
+        "type",
+        "url",
+        "created_at",
+        "timestamps",
+        "application_id",
+        "details",
+        "state",
+        "emoji",
+        "party",
+        "assets",
+        "secrets",
+        "instance",
+        "flags",
+        "buttons",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -90,6 +119,8 @@ class PresenceUpdate(DictSerializerMixin):
     :ivar List[PresenceActivity] activities: Users' current activities
     :ivar ClientStatus client_status: User's platform-based status
     """
+
+    __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

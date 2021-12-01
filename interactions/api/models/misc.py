@@ -24,6 +24,8 @@ class DictSerializerMixin(object):
         the object that's using the mixin.
     """
 
+    __slots__ = "_json"
+
     def __init__(self, **kwargs):
         self._json = kwargs
         for key in kwargs:
@@ -46,6 +48,8 @@ class Overwrite(DictSerializerMixin):
     :ivar str deny: Permission bit set.
     """
 
+    __slots__ = ("_json", "id", "type", "allow", "deny")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -58,6 +62,8 @@ class ClientStatus(DictSerializerMixin):
     :ivar Optional[str] mobile: User's status set for an active mobile application session
     :ivar Optional[str] web: User's status set for an active web application session
     """
+
+    __slots__ = ("_json", "desktop", "mobile", "web")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -78,6 +84,8 @@ class Snowflake(object):
         You can still provide integers to them, to ensure ease of use of transition and/or
         if discord API for some odd reason will switch to integer.
     """
+
+    __slots__ = "_snowflake"
 
     # TODO: Should this inherit from the mixin?
 
@@ -145,7 +153,7 @@ class Snowflake(object):
     # but end users might.
 
 
-class Format(object):
+class Format:
     """
     This object is used to respectively format markdown strings
     provided by the WYSIWYG text editor for ease-of-accessibility

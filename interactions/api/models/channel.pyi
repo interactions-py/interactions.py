@@ -19,14 +19,6 @@ class ChannelType(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 class ThreadMetadata(DictSerializerMixin):
-    __slots__ = (
-        "_json",
-        "archived",
-        "auto_archive_duration",
-        "archive_timestamp",
-        "locked",
-        "invitable",
-    )
 
     _json: dict
     archived: bool
@@ -37,7 +29,6 @@ class ThreadMetadata(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class ThreadMember(DictSerializerMixin):
-    __slots__ = ("_json", "id", "user_id", "join_timestamp", "flags")
     _json: dict
     id: Optional[int]  # intents
     user_id: Optional[int]
@@ -46,35 +37,6 @@ class ThreadMember(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Channel(DictSerializerMixin):
-    __slots__ = (
-        "_json",
-        "id",
-        "type",
-        "guild_id",
-        "position",
-        "permission_overwrites",
-        "name",
-        "topic",
-        "nsfw",
-        "last_message_id",
-        "bitrate",
-        "user_limit",
-        "rate_limit_per_user",
-        "recipients",
-        "icon",
-        "owner_id",
-        "application_id",
-        "parent_id",
-        "last_pin_timestamp",
-        "rtc_region",
-        "video_quality_mode",
-        "message_count",
-        "member_count",
-        "thread_metadata",
-        "member",
-        "default_auto_archive_duration",
-        "permissions",
-    )
 
     _json: dict
     id: int  # "Snowflake"

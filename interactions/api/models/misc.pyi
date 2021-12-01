@@ -7,13 +7,10 @@ from typing import Optional, Union
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 
 class DictSerializerMixin(object):
-    __slots__ = "_json"
-
     _json: dict
     def __init__(self, **kwargs): ...
 
 class Overwrite(DictSerializerMixin):
-    __slots__ = ("_json", "id", "type", "allow", "deny")
     _json: dict
     id: int
     type: int
@@ -22,7 +19,6 @@ class Overwrite(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class ClientStatus(DictSerializerMixin):
-    __slots__ = ("_json", "desktop", "mobile", "web")
     _json: dict
     desktop: Optional[str]
     mobile: Optional[str]
@@ -31,8 +27,6 @@ class ClientStatus(DictSerializerMixin):
 
 class Snowflake(object):
     _snowflake: str
-
-    __slots__ = "_snowflake"
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...
     @property
     def increment(self) -> int: ...
@@ -64,21 +58,4 @@ class Format(object):
     TIMESTAMP_SHORT_DT: str
     TIMESTAMP_LONG_DT: str
     TIMESTAMP_RELATIVE: str
-
-    __slots__ = (
-        "USER",
-        "USER_NICK",
-        "CHANNEL",
-        "ROLE",
-        "EMOJI",
-        "EMOJI_ANIMATED",
-        "TIMESTAMP",
-        "TIMESTAMP_SHORT_T",
-        "TIMESTAMP_LONG_T",
-        "TIMESTAMP_SHORT_D",
-        "TIMESTAMP_LONG_D",
-        "TIMESTAMP_SHORT_DT",
-        "TIMESTAMP_LONG_DT",
-        "TIMESTAMP_RELATIVE",
-    )
     def stylize(self, format: str, **kwargs) -> str: ...

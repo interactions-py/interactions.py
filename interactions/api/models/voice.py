@@ -20,6 +20,23 @@ class VoiceState(DictSerializerMixin):
     :ivar typing.Optional[datetime] request_to_speak_timestamp: The timestamp when the user has requested to speak
     """
 
+    __slots__ = (
+        "_json",
+        "guild_id",
+        "channel_id",
+        "user_id",
+        "member",
+        "session_id",
+        "deaf",
+        "mute",
+        "self_deaf",
+        "self_mute",
+        "self_stream",
+        "self_video",
+        "suppress",
+        "request_to_speak_timestamp",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -34,6 +51,8 @@ class VoiceRegion(DictSerializerMixin):
     :ivar bool deprecated: A status denoting whether this region is deprecated (Don't switch to these, if able)
     :ivar bool custom: A status denoting whether this is a custom voice region (for events, etc)
     """
+
+    __slots__ = ("_json", "id", "name", "optimal", "deprecated", "custom")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -60,6 +79,23 @@ class Voice(VoiceState):
     :ivar bool suppress: Whether this user is muted by the current user
     :ivar typing.Optional[datetime] request_to_speak_timestamp: The timestamp when the user has requested to speak
     """
+
+    __slots__ = (
+        "_json",
+        "guild_id",
+        "channel_id",
+        "user_id",
+        "member",
+        "session_id",
+        "deaf",
+        "mute",
+        "self_deaf",
+        "self_mute",
+        "self_stream",
+        "self_video",
+        "suppress",
+        "request_to_speak_timestamp",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

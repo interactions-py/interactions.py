@@ -64,6 +64,30 @@ class Application(DictSerializerMixin):
     :ivar typing.Optional[typing.Any] hook: ?
     """
 
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "icon",
+        "description",
+        "rpc_origins",
+        "bot_public",
+        "bot_require_code_grant",
+        "terms_of_service_url",
+        "privacy_policy_url",
+        "owner",
+        "summary",
+        "verify_key",
+        "team",
+        "guild_id",
+        "primary_sku_id",
+        "slug",
+        "cover_image",
+        "flags",
+        "type",
+        "hook",
+    )
+
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)

@@ -16,6 +16,8 @@ class Listener:
     :ivar dict events: A list of events being dispatched.
     """
 
+    __slots__ = ("loop", "events")
+
     def __init__(self) -> None:
         self.loop = get_event_loop()
         self.events = {}

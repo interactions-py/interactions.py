@@ -8,6 +8,8 @@ class RoleTags(DictSerializerMixin):
     :ivar typing.Optional[Any] premium_subscriber: Whether if this is the guild's premium subscriber role
     """
 
+    __slots__ = ("_json", "bot_id", "integration_id", "premium_subscriber")
+
     # TODO: Figure out what actual type it returns, all it says is null.
 
     def __init__(self, **kwargs):
@@ -30,6 +32,20 @@ class Role(DictSerializerMixin):
     :ivar bool mentionable: A status denoting if this role is mentionable
     :ivar typing.Optional[RoleTags] tags: The tags this role has
     """
+
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "color",
+        "hoist",
+        "icon",
+        "unicode_emoji",
+        "position",
+        "managed",
+        "mentionable",
+        "tags",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

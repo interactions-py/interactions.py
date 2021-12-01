@@ -22,5 +22,24 @@ class User(DictSerializerMixin):
     :ivar typing.Optional[int] public_flags: The user's public flags
     """
 
+    __slots__ = (
+        "_json",
+        "id",
+        "username",
+        "discriminator",
+        "avatar",
+        "bot",
+        "system",
+        "mfa_enabled",
+        "banner",
+        "accent_color",
+        "locale",
+        "verified",
+        "email",
+        "flags",
+        "premium_type",
+        "public_flags",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

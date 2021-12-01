@@ -33,8 +33,6 @@ class GuildFeature(str, Enum):
     SEVEN_DAY_THREAD_ARCHIVE = "SEVEN_DAY_THREAD_ARCHIVE"
     PRIVATE_THREADS = "PRIVATE_THREADS"
 
-    ...
-
 
 class WelcomeChannels(DictSerializerMixin):
     """
@@ -49,6 +47,8 @@ class WelcomeChannels(DictSerializerMixin):
     :ivar typing.Optional[int] emoji_id: The ID of the emoji of the welcome channel.
     :ivar typing.Optional[str] emoji_name: The name of the emoji of the welcome channel.
     """
+
+    __slots__ = ("_json", "channel_id", "description", "emoji_id", "emoji_name")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -67,6 +67,8 @@ class WelcomeScreen(DictSerializerMixin):
     :ivar typing.List[interactions.api.models.guild.WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
 
+    __slots__ = ("_json", "description", "welcome_channels")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -82,6 +84,16 @@ class StageInstance(DictSerializerMixin):
     :ivar int privacy_level: The "privacy"/inclusive accessibility level of the stage.
     :ivar bool discoverable_disabled: Whether the stage can be seen from the stage discovery.
     """
+
+    __slots__ = (
+        "_json",
+        "id",
+        "guild_id",
+        "channel_id",
+        "topic",
+        "privacy_level",
+        "discoverable_disabled",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
