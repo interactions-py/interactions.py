@@ -84,4 +84,5 @@ class Cache:
         self.roles = Storage()
         self.members = Storage()
         self.messages = Storage()
+        self.users = Storage()
         self.interactions = Storage()

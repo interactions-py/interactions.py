@@ -17,6 +17,7 @@ class Client:
     websocket: WebSocket
     me: Optional[User]
     token: str
+    automate_sync: Optional[bool]
     def __init__(
         self, token: str, intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
     ) -> None: ...

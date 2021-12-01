@@ -6,6 +6,8 @@ from typing import Any, Optional, Union
 
 from orjson import dumps, loads
 
+from interactions.enums import InteractionType, OptionType
+
 from ..base import Data
 from .dispatch import Listener
 from .enums import OpCodeType
@@ -55,8 +57,9 @@ class Heartbeat(Thread):
                             "The client was unable to send a heartbeat, closing the connection."
                         )
                         self.stop()
+                        break
             except:  # noqa
-                self.stop()  # end the stupid heartbeat looping on death.
+                break
 
     def stop(self) -> None:
         """Stops the heartbeat connection."""
@@ -222,13 +225,27 @@ class WebSocket:
                     __import__(path),
                     name.split("_")[0].capitalize(),
                 )
-                self.dispatch.dispatch(
-                    f"on_{name}", obj(**data)  # noqa , object callable pycharm error.
-                )
+                self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
             else:
                 context = self.contextualize(data)
-                _name: str = context.data.name if context.type == 2 else context.data.custom_id
-                self.dispatch.dispatch(_name, context)
+                _name: str
+                _args: list = [context]
+
+                if data["type"] == InteractionType.APPLICATION_COMMAND.value:
+                    _name = context.data.name
+                    if hasattr(context.data, "options"):
+                        for option in context.data.options:
+                            if option["type"] in (
+                                OptionType.SUB_COMMAND.value,
+                                OptionType.SUB_COMMAND_GROUP.value,
+                            ):
+                                pass
+                            else:
+                                _args.append(option["value"])
+                elif data["type"] == InteractionType.MESSAGE_COMPONENT.value:
+                    _name = context.data.custom_id
+
+                self.dispatch.dispatch(_name, *_args)
 
             self.dispatch.dispatch("raw_socket_create", data)
 

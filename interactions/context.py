@@ -30,6 +30,7 @@ class Context(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.client = HTTPClient(interactions.client._token)
 
 
 class InteractionContext(Context):
@@ -80,7 +81,7 @@ class InteractionContext(Context):
         else:
             _type = InteractionCallbackType.UPDATE_MESSAGE
 
-        await HTTPClient(interactions.client.cache.token).create_interaction_response(
+        await self.client.create_interaction_response(
             token=self.token, application_id=int(self.id), data={"type": _type.value}
         )
 
@@ -170,12 +171,12 @@ class InteractionContext(Context):
 
         async def func():
             if self.responded:
-                req = await HTTPClient(interactions.client.cache.token)._post_followup(
+                req = await self.client._post_followup(
                     data=payload._json, token=self.token, application_id=self.application_id
                 )
                 return req
             else:
-                req = await HTTPClient(interactions.client.cache.token).create_interaction_response(
+                req = await self.client.create_interaction_response(
                     token=self.token,
                     application_id=int(self.id),
                     data={"type": _type, "data": payload._json},
@@ -246,7 +247,7 @@ class InteractionContext(Context):
         )
 
         async def func():
-            req = await HTTPClient(interactions.client.cache.token).edit_interaction_response(
+            req = await self.client.edit_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data={"type": _type, "data": payload._json},
@@ -269,13 +270,13 @@ class InteractionContext(Context):
             being present.
         """
         if self.responded:
-            await HTTPClient(interactions.client.cache.token).delete_webhook_message(
+            await self.client.delete_webhook_message(
                 webhook_id=int(self.id), webhook_token=self.token, message_id=self.message.id
             )
         else:
             # TODO: Wait for Delta to implement an equivocate request method
             # in the HTTPClient for consistency reasons.
-            await HTTPClient(interactions.client.cache.token)._req.request(
+            await self.client._req.request(
                 Route("DELETE", f"/webhooks/{self.id}/{self.token}/messages/@original")
             )
         self.message = None

@@ -16,16 +16,6 @@ cool_component = interactions.Button(
 )
 
 
-@client.command(name="test", description="poggers desc", scope=852402668294766612)
-async def command_name(ctx):
-    # row = interactions.ActionRow(
-    #     components=[
-
-    #     ]
-    # )
-    await ctx.send("testing", components=cool_component)
-
-
 @client.command(
     name="sub",
     description="let's make sure it works.",
@@ -43,18 +33,26 @@ async def sub_command(ctx):
     await ctx.send("just some proof, subcommands *do* in fact work.")
 
 
+@client.command(
+    name="cmd",
+    description="just a basic testing description.",
+    scope=852402668294766612,
+    options=[
+        interactions.Option(
+            type=interactions.OptionType.STRING,
+            name="arg",
+            description="the argument to test",
+            required=True,
+        )
+    ],
+)
+async def cmd_arg(ctx, arg):
+    await ctx.send(f"You said: {arg}")
+
+
 @client.component(component=cool_component)
 async def test(ctx):
-    await ctx.edit("hola")
-
-
-@client.command(
-    type=interactions.ApplicationCommandType.MESSAGE,
-    name="test context menu",
-    scope=852402668294766612,
-)
-async def context_command(ctx):
-    await ctx.send("hi?")
+    await ctx.edit(f"hola. {'we are following up.' if ctx.responded else ''}")
 
 
 client.start()

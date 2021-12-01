@@ -70,6 +70,7 @@ class Option(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self._json["type"] = OptionType(kwargs["type"]).value
 
 
 class Permission(DictSerializerMixin):
@@ -89,6 +90,7 @@ class Permission(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self._json["type"] = PermissionType(kwargs["type"]).value
 
 
 class ApplicationCommand(DictSerializerMixin):
@@ -96,7 +98,7 @@ class ApplicationCommand(DictSerializerMixin):
     A class object representing all types of commands.
 
     :ivar int id: The ID of the application command.
-    :ivar Union[int, ApplicationCommandType] type: The application command type.
+    :ivar ApplicationCommandType type: The application command type.
     :ivar Optional[int] application_id?: The general application ID of the command itself.
     :ivar Optional[int] guild_id?: The guild ID of the application command.
     :ivar str name: The name of the application command.
@@ -121,7 +123,7 @@ class ApplicationCommand(DictSerializerMixin):
     )
     _json: dict
     id: int
-    type: Union[int, ApplicationCommandType]
+    type: ApplicationCommandType
     application_id: Optional[int]
     guild_id: Optional[int]
     name: str
