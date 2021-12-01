@@ -282,7 +282,7 @@ class Client:
                 _type: int = ApplicationCommandType(type)
 
             _description: str = "" if description is None else description
-            _options: list = self.__process_options(coro)
+            _options: list = []
 
             if options:
                 if all(isinstance(option, Option) for option in options):

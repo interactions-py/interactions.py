@@ -8,23 +8,12 @@ client = interactions.Client(token=TOKEN, disable_sync=False)
 
 @client.event
 async def on_ready():
-    # print(f"{client.me.username}#{client.me.discriminator} logged in.")
-    print(
-        f"{client.me.name} logged in."
-    )  # client.me is an Application, not a User, upon fl0w's req.
+    print(f"{client.me.name} logged in.")
 
 
 cool_component = interactions.Button(
     style=interactions.ButtonStyle.PRIMARY, label="shiny boi", custom_id="test_custom_id"
 )
-
-
-@client.command(
-    name="test", description="this is to conduct generic tests.", scope=852402668294766612
-)
-async def regular_command(ctx):
-    await ctx.defer()
-    await ctx.send("just a regular command.")
 
 
 @client.command(
@@ -50,23 +39,15 @@ async def sub_command(ctx):
     scope=852402668294766612,
     options=[
         interactions.Option(
-            type=interactions.OptionType.INTEGER,
+            type=interactions.OptionType.STRING,
             name="arg",
             description="the argument to test",
-            required=True,
-            autocomplete=True,
+            required=False,
         )
     ],
 )
 async def command_argument(ctx, arg):
     await ctx.send(f"You said: {arg}", components=cool_component)
-
-
-@client.autocomplete(name="arg")
-async def auto_response(ctx):
-    for a in range(0, 25):
-        for b in range(0, 25):
-            await ctx.populate([interactions.Choice(name=a, value=b)])
 
 
 @client.component(component=cool_component)

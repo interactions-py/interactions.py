@@ -147,10 +147,10 @@ class WebSocket:
         :type token: str
         """
         self.http = HTTPClient(token)
-        self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
+        self._options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
         url = await self.http.get_gateway()
 
-        async with self.http._req.session.ws_connect(url, **self.options) as self.session:
+        async with self.http._req.session.ws_connect(url, **self._options) as self.session:
             while not self.closed:
                 stream = await self.recv()
 
@@ -185,17 +185,17 @@ class WebSocket:
                     await self.resume()
 
                 heartbeat_interval = data["heartbeat_interval"]
-                self.keep_alive = Heartbeat(self, heartbeat_interval)
+                self._keep_alive = Heartbeat(self, heartbeat_interval)
 
                 await self.heartbeat()
-                self.keep_alive.start()
+                self._keep_alive.start()
 
             if op == OpCodeType.HEARTBEAT:
-                if self.keep_alive:
+                if self._keep_alive:
                     await self.heartbeat()
 
             if op == OpCodeType.HEARTBEAT_ACK:
-                if self.keep_alive:
+                if self._keep_alive:
                     log.debug("HEARTBEAT_ACK")
 
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
