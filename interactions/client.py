@@ -197,7 +197,7 @@ class Client:
             self.http.cache.interactions.values[command]
             for command in self.http.cache.interactions.values
         ]
-       
+
         _command_names = [command["name"] for command in commands]
 
         for command in cached_commands:
