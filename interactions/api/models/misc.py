@@ -22,6 +22,8 @@ class DictSerializerMixin(object):
         the object that's using the mixin.
     """
 
+    __slots__ = "_json"
+
     def __init__(self, **kwargs):
         for key in kwargs:
             setattr(self, key, kwargs[key])
@@ -31,11 +33,15 @@ class DictSerializerMixin(object):
 class Overwrite(DictSerializerMixin):
     """This is used for the PermissionOverride obj"""
 
+    __slots__ = ("_json", "id", "type", "allow", "deny")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
 class ClientStatus(DictSerializerMixin):
+    __slots__ = ("_json", "desktop", "mobile", "web")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -54,6 +60,22 @@ class Format(object):
         the ``stylize()`` method must be used if you're actually
         looking to give a **str** specific result.
     """
+
+    __slots__ = (
+        "USER",
+        "USER_NICK",
+        "CHANNEL",
+        "ROLE",
+        "EMOJI_STANDARD",
+        "TIMESTAMP",
+        "TIMESTAMP_SHORT_T",
+        "TIMESTAMP_LONG_T",
+        "TIMESTAMP_SHORT_D",
+        "TIMESTAMP_LONG_D",
+        "TIMESTAMP_SHORT_DT",
+        "TIMESTAMP_LONG_DT",
+        "TIMESTAMP_RELATIVE",
+    )
 
     def stylize(self, format: str, **kwargs) -> str:
         r"""

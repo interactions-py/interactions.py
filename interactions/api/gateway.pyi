@@ -7,7 +7,7 @@ from .http import HTTPClient
 from .models.intents import Intents
 
 class Heartbeat(Thread):
-    __slots__ = ("ws", "interval", "event")
+
     ws: Any
     interval: Union[int, float]
     event: Event
@@ -16,18 +16,6 @@ class Heartbeat(Thread):
     def stop(self) -> None: ...
 
 class WebSocket:
-    __slots__ = (
-        "intents",
-        "loop",
-        "dispatch",
-        "session",
-        "session_id",
-        "sequence",
-        "keep_alive",
-        "closed",
-        "http",
-        "options",
-    )
     intents: Intents
     loop: AbstractEventLoop
     dispatch: Listener

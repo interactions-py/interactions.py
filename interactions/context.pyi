@@ -13,7 +13,7 @@ from .models.component import Component
 from .models.misc import InteractionData
 
 class Context(DictSerializerMixin):
-    __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
+
     message: Message
     author: Member
     user: User
@@ -25,18 +25,7 @@ class Context(DictSerializerMixin):
     def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):
-    __slots__ = (
-        "id",
-        "application_id",
-        "type",
-        "data",
-        "guild_id",
-        "channel_id",
-        "token",
-        "version",
-        "responded",
-        "deferred",
-    )
+
     id: str
     application_id: str
     type: Union[str, int, InteractionType]
@@ -63,9 +52,12 @@ class InteractionContext(Context):
     ) -> Message: ...
 
 class ComponentContext(InteractionContext):
-    __slots__ = ("custom_id", "type", "values", "origin")
+
     custom_id: str
     type: Union[str, int, ComponentType]
     values: list
     origin: bool
+    def __init__(self, **kwargs) -> None: ...
+
+class AutocompleteContext(Context):
     def __init__(self, **kwargs) -> None: ...

@@ -10,6 +10,7 @@ from .api.models.message import Embed, Message, MessageInteraction, MessageRefer
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
 from .enums import InteractionCallbackType, InteractionType
+from .models.command import Choice
 from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
@@ -27,6 +28,7 @@ class Context(DictSerializerMixin):
     :ivar \*args: Multiple arguments of the context.
     :ivar \**kwargs: Keyword-only arguments of the context.
     """
+    __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -48,6 +50,19 @@ class InteractionContext(Context):
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     """
+
+    __slots__ = (
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "version",
+        "responded",
+        "deferred",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -293,6 +308,58 @@ class ComponentContext(InteractionContext):
     :ivar bool origin: Whether this is the origin of the component.
     """
 
+    __slots__ = ("custom_id", "type", "values", "origin")
+
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.responded = False  # remind components that it was not responded to.
+
+
+class AutocompleteContext(InteractionContext):
+    """
+    This is a derivation of the base Context class designed specifically for
+    autocomplete data.
+    """
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+    async def populate(self, *, choices: Union[Choice, List[Choice]]) -> List[Choice]:
+        """
+        This "populates" the list of choices that the client-end
+        user will be able to select from in the autocomplete field.
+
+        .. warning::
+            Only a maximum of ``25`` choices may be presented
+            within an autocomplete option.
+
+        :param choices: The choices you wish to present.
+        :type choices: Union[Choice, List[Choice]]
+        :return: The list of choices you've given.
+        :rtype: List[Choice]
+        """
+
+        async def func():
+            if choices:
+                _choices: list = []
+                if all(isinstance(choice, Choice) for choice in choices):
+                    _choices = [choice._json for choice in choices]
+                elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
+                    _choices = [choice for choice in choices]
+                elif isinstance(choices, Choice):
+                    _choices = [choices._json]
+                else:
+                    _choices = [choices]
+
+                await self.client.create_interaction_response(
+                    token=self.token,
+                    application_id=self.application_id,
+                    data={
+                        "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
+                        "data": _choices,
+                    },
+                )
+
+                return _choices
+
+        return await func()

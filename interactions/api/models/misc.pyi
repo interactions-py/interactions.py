@@ -6,13 +6,11 @@ from typing import Optional
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 
 class DictSerializerMixin(object):
-    __slots__ = "_json"
 
     _json: dict
     def __init__(self, **kwargs): ...
 
 class Overwrite(DictSerializerMixin):
-    __slots__ = ("_json", "id", "type", "allow", "deny")
     _json: dict
     id: int
     type: int
@@ -21,7 +19,7 @@ class Overwrite(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class ClientStatus(DictSerializerMixin):
-    __slots__ = ("_json", "desktop", "mobile", "web")
+
     _json: dict
     desktop: Optional[str]
     mobile: Optional[str]
@@ -29,21 +27,6 @@ class ClientStatus(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Format(DictSerializerMixin):
-    __slots__ = (
-        "USER",
-        "USER_NICK",
-        "CHANNEL",
-        "ROLE",
-        "EMOJI_STANDARD",
-        "TIMESTAMP",
-        "TIMESTAMP_SHORT_T",
-        "TIMESTAMP_LONG_T",
-        "TIMESTAMP_SHORT_D",
-        "TIMESTAMP_LONG_D",
-        "TIMESTAMP_SHORT_DT",
-        "TIMESTAMP_LONG_DT",
-        "TIMESTAMP_RELATIVE",
-    )
     USER: str = "<@{id}>"
     USER_NICK: str = "<@!{id}>"
     CHANNEL: str = "<#{id}>"

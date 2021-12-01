@@ -12,7 +12,7 @@ async def on_ready():
 
 
 cool_component = interactions.Button(
-    style=interactions.ButtonStyle.PRIMARY, label="hello world!", custom_id="test"
+    style=interactions.ButtonStyle.PRIMARY, label="shiny boi", custom_id="test_custom_id"
 )
 
 
@@ -34,7 +34,7 @@ async def sub_command(ctx):
 
 
 @client.command(
-    name="cmd",
+    name="command",
     description="just a basic testing description.",
     scope=852402668294766612,
     options=[
@@ -43,16 +43,22 @@ async def sub_command(ctx):
             name="arg",
             description="the argument to test",
             required=True,
+            autocomplete=True,
         )
     ],
 )
-async def cmd_arg(ctx, arg):
-    await ctx.send(f"You said: {arg}")
+async def command_argument(ctx, arg):
+    await ctx.send(f"You said: {arg}", components=cool_component)
+
+
+@client.autocomplete(name="arg")
+async def auto_response(ctx):
+    print(ctx)
 
 
 @client.component(component=cool_component)
 async def test(ctx):
-    await ctx.edit(f"hola. {'we are following up.' if ctx.responded else ''}")
+    await ctx.send(f"hola. {'we are following up.' if ctx.responded else 'first time?'}")
 
 
 client.start()

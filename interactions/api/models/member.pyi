@@ -5,20 +5,6 @@ from .misc import DictSerializerMixin
 from .user import User
 
 class Member(DictSerializerMixin):
-    __slots__ = (
-        "_json",
-        "user",
-        "nick",
-        "avatar",
-        "roles",
-        "joined_at",
-        "premium_since",
-        "deaf",
-        "mute",
-        "is_pending",
-        "pending",
-        "permissions",
-    )
 
     _json: dict
     user: Optional[User]

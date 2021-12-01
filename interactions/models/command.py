@@ -42,7 +42,7 @@ class Option(DictSerializerMixin):
     :ivar Optional[str] value?: The value that's currently typed out, if autocompleting.
     :ivar Optional[List[Choice]] choices?: The list of choices to select from.
     :ivar Optional[List[Option]] options?: The list of subcommand options included.
-    :ivar Optional[List[ChannelType] channel_type?: Restrictive shown channel types, if given.
+    :ivar Optional[List[ChannelType] channel_types?: Restrictive shown channel types, if given.
     """
 
     __slots__ = (
@@ -55,7 +55,10 @@ class Option(DictSerializerMixin):
         "value",
         "choices",
         "options",
-        "channel_type",
+        "channel_types",
+        "min_value",
+        "max_value",
+        "autocomplete",
     )
     _json: dict
     type: OptionType
@@ -66,11 +69,16 @@ class Option(DictSerializerMixin):
     value: Optional[str]
     choices: Optional[List[Choice]]
     options: Optional[list]
-    channel_type: Optional[List[ChannelType]]
+    channel_types: Optional[List[ChannelType]]
+    min_value: Optional[OptionType]
+    max_value: Optional[OptionType]
+    autocomplete: Optional[bool]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._json["type"] = OptionType(kwargs["type"]).value
+        if self._json.get("choices"):
+            self._json["choices"] = [choice._json for choice in self.choices]
 
 
 class Permission(DictSerializerMixin):

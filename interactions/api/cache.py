@@ -11,6 +11,8 @@ class Item(object):
     :ivar Type type: The ID type representation.
     """
 
+    __slots__ = ("id", "value", "type")
+
     def __init__(self, id: str, value: Any) -> None:
         """
         :param id: The item's ID.
@@ -29,6 +31,8 @@ class Storage:
 
     :ivar List[Item] values: The list of items stored.
     """
+
+    __slots__ = "values"
 
     def __init__(self) -> None:
         self.values = OrderedDict()

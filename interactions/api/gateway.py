@@ -30,6 +30,8 @@ class Heartbeat(Thread):
     :ivar Event event: The multi-threading event.
     """
 
+    __slots__ = ("ws", "interval", "event")
+
     def __init__(self, ws: Any, interval: int) -> None:
         """
         :param ws: The WebSocket inference to run the coroutine off of.
@@ -82,6 +84,19 @@ class WebSocket:
     :ivar HTTPClient http: The internal HTTP client used to connect to the gateway.
     :ivar dict options: The websocket connection options.
     """
+
+    __slots__ = (
+        "intents",
+        "loop",
+        "dispatch",
+        "session",
+        "session_id",
+        "sequence",
+        "keep_alive",
+        "closed",
+        "http",
+        "options",
+    )
 
     def __init__(
         self,
@@ -232,7 +247,7 @@ class WebSocket:
                 _args: list = [context]
 
                 if data["type"] == InteractionType.APPLICATION_COMMAND.value:
-                    _name = context.data.name
+                    _name = f"command_{context.data.name}"
                     if hasattr(context.data, "options"):
                         for option in context.data.options:
                             if option["type"] in (
@@ -243,7 +258,9 @@ class WebSocket:
                             else:
                                 _args.append(option["value"])
                 elif data["type"] == InteractionType.MESSAGE_COMPONENT.value:
-                    _name = context.data.custom_id
+                    _name = f"component_{context.data.custom_id}"
+                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.value:
+                    _name = f"autocomplete_{context.data.name}"
 
                 self.dispatch.dispatch(_name, *_args)
 
@@ -260,7 +277,15 @@ class WebSocket:
         :rtype: object
         """
         if data["type"] != 1:
-            _context: str = "InteractionContext" if data["type"] == 2 else "ComponentContext"
+            _context: str = ""
+
+            if data["type"] == 2:
+                _context = "InteractionContext"
+            elif data["type"] == 3:
+                _context = "ComponentContext"
+            elif data["type"] == 4:
+                _context = "AutocompleteContext"
+
             context: object = getattr(__import__("interactions.context"), _context)
             return context(**data)
 
