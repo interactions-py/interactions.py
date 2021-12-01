@@ -1,4 +1,6 @@
 # from io import FileIO
+# debug
+import logging
 from typing import Any, Dict, List, Optional, Union
 
 import interactions.client
@@ -14,6 +16,8 @@ from .models.command import Choice
 from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
+log = logging.getLogger("interactions.context")
+
 
 class Context(DictSerializerMixin):
     r"""
@@ -28,7 +32,6 @@ class Context(DictSerializerMixin):
     :ivar \*args: Multiple arguments of the context.
     :ivar \**kwargs: Keyword-only arguments of the context.
     """
-    __slots__ = ("message", "author", "channel", "guild", "args", "kwargs")
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -67,7 +70,7 @@ class InteractionContext(Context):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.message = Message(**kwargs["message"]) if kwargs.get("message") else None
-        self.author = Member(**kwargs["member"]) if kwargs.get("member") else None
+        self.member = Member(**kwargs["member"]) if kwargs.get("member") else None
         self.user = User(**kwargs["user"]) if kwargs.get("user") else None
         self.channel = Channel(**kwargs["channel"]) if kwargs.get("channel") else None
         self.id = kwargs.get("id")
@@ -313,8 +316,6 @@ class ComponentContext(InteractionContext):
     :ivar bool origin: Whether this is the origin of the component.
     """
 
-    __slots__ = ("custom_id", "type", "values", "origin")
-
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.responded = False  # remind components that it was not responded to.
@@ -329,7 +330,7 @@ class AutocompleteContext(InteractionContext):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-    async def populate(self, *, choices: Union[Choice, List[Choice]]) -> List[Choice]:
+    async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
         """
         This "populates" the list of choices that the client-end
         user will be able to select from in the autocomplete field.
@@ -358,10 +359,10 @@ class AutocompleteContext(InteractionContext):
 
                 await self.client.create_interaction_response(
                     token=self.token,
-                    application_id=self.application_id,
+                    application_id=int(self.id),
                     data={
                         "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
-                        "data": _choices,
+                        "data": {"choices": _choices},
                     },
                 )
 

@@ -26,6 +26,7 @@ class Member(DictSerializerMixin):
     :ivar bool mute: Whether the member is muted.
     :ivar Optional[bool] pending / is_pending: Whether the member is pending to pass membership screening.
     :ivar Optional[str] permissions: Whether the member has permissions.
+    :ivar Optional[str] communication_disabled_until: How long until they're unmuted, if any.
     """
 
     __slots__ = (
@@ -41,6 +42,7 @@ class Member(DictSerializerMixin):
         "is_pending",
         "pending",
         "permissions",
+        "communication_disabled_until",
     )
 
     def __init__(self, **kwargs):

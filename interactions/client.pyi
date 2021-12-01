@@ -8,7 +8,8 @@ from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.team import Application
 from .enums import ApplicationCommandType
-from .models.command import Option
+from .models.command import ApplicationCommand, Option, Permission
+from .models.component import Button, SelectMenu
 
 cache: Cache
 
@@ -21,12 +22,18 @@ class Client:
     token: str
     automate_sync: Optional[bool]
     def __init__(
-        self, token: str, intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT
+        self,
+        token: str,
+        intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
+        disable_sync: Optional[bool] = None,
     ) -> None: ...
     async def login(self, token: str) -> None: ...
     def start(self) -> None: ...
-    def synchronize_commands(self) -> None: ...
+    async def synchronize(
+        self, payload: ApplicationCommand, permissions: Optional[Union[dict, List[dict]]]
+    ) -> None: ...
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]: ...
+    def __process_options(self, coro: Callable) -> List: ...
     def command(
         self,
         *,
@@ -35,8 +42,12 @@ class Client:
         description: Optional[str] = None,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
-        default_permission: Optional[bool] = None
-        # permissions: Optional[List[Permission]] = None
+        default_permission: Optional[bool] = None,
+        permissions: Optional[
+            Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
+        ] = None
     ) -> Callable[..., Any]: ...
+    def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
+    def autocomplete(self, name: str) -> Callable[..., Any]: ...
     async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
     async def raw_guild_create(self, guild) -> None: ...

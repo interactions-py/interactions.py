@@ -250,7 +250,7 @@ class WebSocket:
                 _args: list = [context]
 
                 if data["type"] == InteractionType.APPLICATION_COMMAND.value:
-                    _name = f"command_{context.data.name}"
+                    _name = context.data.name
                     if hasattr(context.data, "options"):
                         for option in context.data.options:
                             if option["type"] in (
@@ -261,9 +261,9 @@ class WebSocket:
                             else:
                                 _args.append(option["value"])
                 elif data["type"] == InteractionType.MESSAGE_COMPONENT.value:
-                    _name = f"component_{context.data.custom_id}"
+                    _name = context.data.custom_id
                 elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE.value:
-                    _name = f"autocomplete_{context.data.name}"
+                    _name = f"autocomplete_{context.data.options[0]['name']}"
 
                 self.dispatch.dispatch(_name, *_args)
 

@@ -18,6 +18,7 @@ class Member(DictSerializerMixin):
     is_pending: Optional[bool]
     pending: Optional[bool]
     permissions: Optional[str]
+    communication_disabled_until: Optional[str]
 
     __slots__ = (
         "_json",
@@ -32,5 +33,6 @@ class Member(DictSerializerMixin):
         "is_pending",
         "pending",
         "permissions",
+        "communication_disabled_until",
     )
     def __init__(self, **kwargs): ...

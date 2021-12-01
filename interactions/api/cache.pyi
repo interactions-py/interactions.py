@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Tuple, Type
 
 class Item(object):
 
@@ -14,6 +14,7 @@ class Storage:
     def __init__(self) -> None: ...
     def add(self, item: Item) -> List[Item]: ...
     def get(self, id: str) -> Optional[Item]: ...
+    def view(self) -> List: ...
 
 class Cache:
     token: str

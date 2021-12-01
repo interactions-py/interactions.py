@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from ..api.models.channel import ChannelType
 from ..api.models.misc import DictSerializerMixin
@@ -65,6 +65,8 @@ class Option(DictSerializerMixin):
         "min_value",
         "max_value",
         "autocomplete",
+        "name_localizations",
+        "description_localizations",
     )
     _json: dict
     type: OptionType
@@ -79,6 +81,9 @@ class Option(DictSerializerMixin):
     min_value: Optional[OptionType]
     max_value: Optional[OptionType]
     autocomplete: Optional[bool]
+
+    name_localizations: Optional[Dict[str, str]]
+    description_localizations: Optional[Dict[str, str]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -120,8 +125,8 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar Optional[List[Option]] options?: The "options"/arguments of the application command.
     :ivar Optional[bool] default_permission?: The default permission accessibility state of the application command.
     :ivar int version: The Application Command version autoincrement identifier.
-    :ivar typing.Any default_member_permissions: The default member permission state of the application command.
-    :ivar typing.Any dm_permission: The application permissions if executed in a Direct Message.
+    :ivar Any default_member_permissions: The default member permission state of the application command.
+    :ivar Any dm_permission: The application permissions if executed in a Direct Message.
     """
 
     __slots__ = (
@@ -138,6 +143,8 @@ class ApplicationCommand(DictSerializerMixin):
         "version",
         "default_member_permissions",
         "dm_permission",
+        "description_localizations",
+        "name_localizations",
     )
     _json: dict
     id: int
@@ -155,6 +162,9 @@ class ApplicationCommand(DictSerializerMixin):
     # TODO: And document them.
     default_member_permissions: Optional[Any]
     dm_permission: Optional[Any]  # Could be any idk
+
+    name_localizations: Optional[Dict[str, str]]
+    description_localizations: Optional[Dict[str, str]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

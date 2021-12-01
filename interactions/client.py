@@ -61,7 +61,7 @@ class Client:
         self.http.token = token
         _token = token  # noqa: F841
 
-        if disable_sync:
+        if disable_sync not in (False, None):
             self.automate_sync = False
             log.warn(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
@@ -121,18 +121,20 @@ class Client:
             for command in commands:
                 log.debug(f"Checking command {command['name']}.")
                 result: ApplicationCommand = ApplicationCommand(
+                    application_id=command.get("application_id"),
                     id=command.get("id"),
                     type=command.get("type"),
-                    guild_id=int(command.get("guild_id")),
+                    guild_id=str(command.get("guild_id")),
                     name=command.get("name"),
                     description=command.get("description", ""),
-                    options=command.get("options", []),
                     default_permission=command.get("default_permission", False),
+                    default_member_permissions=command.get("default_member_permissions", None),
+                    version=command.get("version"),
                 )
                 self.http.cache.interactions.add(Item(result.name, result))
 
                 if result.name == payload.name:
-                    request: HTTPClient = None
+                    request: dict
                     _result_name = result._json["name"]
                     _payload_name = payload._json["name"]
 
@@ -169,28 +171,43 @@ class Client:
                     if request.get("code"):
                         raise JSONException(request["code"])
 
-        # TODO: Work more on this later.
-        # cached_commands: list = [self.http.cache.interactions.values[command] for command in self.http.cache.interactions.values]
-        # for command in commands:
-        #     result: ApplicationCommand = ApplicationCommand(
-        #         id=command.get("id"),
-        #         type=command.get("type"),
-        #         guild_id=int(command.get("guild_id")),
-        #         name=command.get("name"),
-        #         description=command.get("description", ""),
-        #         options=command.get("options", []),
-        #         default_permission=command.get("default_permission", False),
-        #     )
+        else:
+            log.debug("No commands found, adding to API and cache...")
 
-        #     if result not in cached_commands:
-        #         log.info(
-        #             f"Detected unused command {result.name}, deleting from the API and cache."
-        #         )
-        #         request = self.loop.run_until_complete(
-        #             self.http.delete_application_command(
-        #                 application_id=self.me.id, command_id=result.id, guild_id=result.guild_id
-        #             )
-        #         )
+            request = await self.http.create_application_command(
+                application_id=self.me.id,
+                data=payload._json,
+                guild_id=payload.guild_id,
+            )
+
+            log.debug(
+                f"Synchronising by adding payload: {payload} with name: {payload.name}, returning {request}"
+            )
+
+            self.http.cache.interactions.add(Item(payload.name, payload))
+
+            if request.get("code"):
+                raise JSONException(request["code"])
+
+        # TODO: Work more on this later.
+        cached_commands: list = [
+            self.http.cache.interactions.values[command]
+            for command in self.http.cache.interactions.values
+        ]
+
+        print("debug line only.")
+
+        _command_names = [command["name"] for command in commands]
+
+        for command in cached_commands:
+            if commands:
+                if command.name not in _command_names:  # delete
+                    log.info(f"Detected API command {command.name} not in cache, deleting....")
+                    await self.http.delete_application_command(
+                        self.me.id, command.id, command.guild_id
+                    )
+
+                    log.info(f"Detected API command {command.name} not in cache, deleted....")
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
@@ -216,6 +233,8 @@ class Client:
         """
         params = iter(inspect.signature(coro).parameters.values())
         log.info(f"params: {list(params)}")
+
+        # TODO: Finish
         return []
 
     def command(
@@ -264,7 +283,7 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            elif (len(coro.__code__.co_varnames) + 1) < len(options):
+            elif (len(coro.__code__.co_varnames) + 1) < (len(options) if options else 0):
                 raise InteractionException(
                     11,
                     message="You must have the same amount of arguments as the options of the command.",
@@ -325,7 +344,7 @@ class Client:
                 if self.automate_sync:
                     self.loop.run_until_complete(self.synchronize(payload, _permissions))
 
-            return self.event(coro, name=f"command_{name}")
+            return self.event(coro, name=name)
 
         return decorator
 
@@ -341,7 +360,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Any:
             payload: Component = Component(**component._json)
-            return self.event(coro, name=f"autocomplete_{payload.custom_id}")
+            return self.event(coro, name=payload.custom_id)
 
         return decorator
 
@@ -356,7 +375,7 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Any:
-            return self.event(coro, name=f"autocomplete_{name}")
+            return self.event(coro, name=name)
 
         return decorator
 
@@ -381,4 +400,4 @@ class Client:
         :param guild: The guild object data in question.
         :type guild: Guild
         """
-        self.http.cache.guilds.add(Item(id=guild.id, value=guild))
+        self.http.cache.guilds.add(Item(id=str(guild.id), value=guild))
