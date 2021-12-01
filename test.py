@@ -8,7 +8,10 @@ client = interactions.Client(token=TOKEN, disable_sync=True)
 
 @client.event
 async def on_ready():
-    print(f"{client.me.username}#{client.me.discriminator} logged in.")
+    # print(f"{client.me.username}#{client.me.discriminator} logged in.")
+    print(
+        f"{client.me.name} logged in."
+    )  # client.me is an Application, not a User, upon fl0w's req.
 
 
 cool_component = interactions.Button(

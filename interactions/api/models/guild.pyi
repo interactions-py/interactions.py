@@ -5,35 +5,36 @@ from typing import List, Optional
 from .channel import Channel
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceUpdate
 from .role import Role
 from .user import User
 from .voice import VoiceState
 
 class GuildFeature(str, Enum):
-
-    ANIMATED_ICON = "ANIMATED_ICON"
-    BANNER = "BANNER"
-    COMMERCE = "COMMERCE"
-    COMMUNITY = "COMMUNITY"
-    DISCOVERABLE = "DISCOVERABLE"
-    FEATURABLE = "FEATURABLE"
-    INVITE_SPLASH = "INVITE_SPLASH"
-    MEMBER_VERIFICATION_GATE_ENABLED = "MEMBER_VERIFICATION_GATE_ENABLED"
-    NEWS = "NEWS"
-    PARTNERED = "PARTNERED"
-    PREVIEW_ENABLED = "PREVIEW_ENABLED"
-    VANITY_URL = "VANITY_URL"
-    VERIFIED = "VERIFIED"
-    VIP_REGIONS = "VIP_REGIONS"
-    WELCOME_SCREEN_ENABLED = "WELCOME_SCREEN_ENABLED"
-    TICKETED_EVENTS_ENABLED = "TICKETED_EVENTS_ENABLED"
-    MONETIZATION_ENABLED = "MONETIZATION_ENABLED"
-    MORE_STICKERS = "MORE_STICKERS"
-    THREE_DAY_THREAD_ARCHIVE = "THREE_DAY_THREAD_ARCHIVE"
-    SEVEN_DAY_THREAD_ARCHIVE = "SEVEN_DAY_THREAD_ARCHIVE"
-    PRIVATE_THREADS = "PRIVATE_THREADS"
+    __slots__ = (
+        "ANIMATED_ICON",
+        "BANNER",
+        "COMMERCE",
+        "COMMUNITY",
+        "DISCOVERABLE",
+        "FEATURABLE",
+        "INVITE_SPLASH",
+        "MEMBER_VERIFICATION_GATE_ENABLED",
+        "NEWS",
+        "PARTNERED",
+        "PREVIEW_ENABLED",
+        "VANITY_URL",
+        "VERIFIED",
+        "VIP_REGIONS",
+        "WELCOME_SCREEN_ENABLED",
+        "TICKETED_EVENTS_ENABLED",
+        "MONETIZATION_ENABLED",
+        "MORE_STICKERS",
+        "THREE_DAY_THREAD_ARCHIVE",
+        "SEVEN_DAY_THREAD_ARCHIVE",
+        "PRIVATE_THREADS",
+    )
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -61,7 +62,7 @@ class StageInstance(DictSerializerMixin):
 
 class Guild(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     name: str
     icon: Optional[str]
     icon_hash: Optional[str]
@@ -111,6 +112,8 @@ class Guild(DictSerializerMixin):
     nsfw_level: int
     stage_instances: Optional[StageInstance]
     stickers: Optional[List[Sticker]]
+
+    # TODO: slot guild here and the other models below
     def __init__(self, **kwargs): ...
 
 class GuildPreview(DictSerializerMixin):
@@ -128,6 +131,7 @@ class GuildPreview(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Invite(DictSerializerMixin):
+    _json: dict
     uses: int
     max_uses: int
     max_age: int
@@ -136,6 +140,7 @@ class Invite(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class GuildTemplate(DictSerializerMixin):
+    _json: dict
     code: str
     name: str
     description: Optional[str]
@@ -147,4 +152,27 @@ class GuildTemplate(DictSerializerMixin):
     source_guild_id: int
     serialized_source_guild: Guild  # partial
     is_dirty: Optional[bool]
+    def __init__(self, **kwargs): ...
+
+class EventMetadata(DictSerializerMixin):
+    _json: dict
+    location: Optional[str]
+    def __init__(self, **kwargs): ...
+
+class ScheduledEvents(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    guild_id: Snowflake
+    channel_id: Optional[Snowflake]
+    creator_id: Optional[Snowflake]
+    name: str
+    description: str
+    scheduled_start_time: datetime
+    scheduled_end_time: Optional[datetime]
+    privacy_level: int
+    entity_type: int
+    entity_id: Optional[Snowflake]
+    entity_metadata: Optional[EventMetadata]
+    creator: Optional[User]
+    user_count: Optional[int]
     def __init__(self, **kwargs): ...

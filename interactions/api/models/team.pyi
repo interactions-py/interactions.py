@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .misc import DictSerializerMixin
 from .user import User
@@ -9,6 +9,8 @@ class TeamMember(DictSerializerMixin):
     permissions: List[str]
     team_id: int
     user: User
+
+    __slots__ = ("_json", "membership_state", "permissions", "team_id", "user")
     def __init__(self, **kwargs): ...
 
 class Team(DictSerializerMixin):
@@ -18,6 +20,8 @@ class Team(DictSerializerMixin):
     members: List[TeamMember]
     name: str
     owner_user_id: int
+
+    __slots__ = ("_json", "icon", "id", "members", "name", "owner_user_id")
     def __init__(self, **kwargs): ...
 
 class Application(DictSerializerMixin):
@@ -40,4 +44,6 @@ class Application(DictSerializerMixin):
     slug: Optional[str]
     cover_image: Optional[str]
     flags: Optional[int]
+    type: Optional[Any]
+    hook: Optional[Any]
     def __init__(self, **kwargs): ...

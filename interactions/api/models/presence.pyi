@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List, Optional
 
 from .message import Emoji
@@ -32,13 +31,19 @@ class _PresenceButtons(DictSerializerMixin):
     url: str
     def __init__(self, **kwargs): ...
 
+class _PresenceTimestamp(DictSerializerMixin):
+    _json: dict
+    start: Optional[int]
+    end: Optional[int]
+    def __init__(self, **kwargs): ...
+
 class PresenceActivity(DictSerializerMixin):
     _json: dict
     name: str
     type: int
     url: Optional[str]
     created_at: int
-    timestamps: Optional[datetime]
+    timestamps: Optional[_PresenceTimestamp]
     application_id: Optional[int]
     details: Optional[str]
     state: Optional[str]
@@ -48,7 +53,7 @@ class PresenceActivity(DictSerializerMixin):
     secrets: Optional[_PresenceSecrets]
     instance: Optional[bool]
     flags: Optional[int]
-    buttons: Optional[_PresenceButtons]
+    buttons: Optional[List[_PresenceButtons]]
     def __init__(self, **kwargs): ...
 
 class PresenceUpdate(DictSerializerMixin):

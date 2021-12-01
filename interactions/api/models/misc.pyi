@@ -1,4 +1,5 @@
-from typing import Optional
+from datetime import datetime
+from typing import Optional, Union
 
 # TODO: Reorganise these models based on which big obj uses little obj
 # TODO: Potentially rename some model references to enums, if applicable
@@ -6,7 +7,6 @@ from typing import Optional
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 
 class DictSerializerMixin(object):
-
     _json: dict
     def __init__(self, **kwargs): ...
 
@@ -19,26 +19,43 @@ class Overwrite(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class ClientStatus(DictSerializerMixin):
-
     _json: dict
     desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
     def __init__(self, **kwargs): ...
 
-class Format(DictSerializerMixin):
-    USER: str = "<@{id}>"
-    USER_NICK: str = "<@!{id}>"
-    CHANNEL: str = "<#{id}>"
-    ROLE: str = "<@&{id}>"
-    EMOJI: str = "<:{name}:{id}>"
-    EMOJI_ANIMATED: str = "<a:{name}:{id}>"
-    TIMESTAMP: str = "<t:{timestamp}>"
-    TIMESTAMP_SHORT_T: str = "<t:{timestamp}:t>"
-    TIMESTAMP_LONG_T: str = "<t:{timestamp}:T>"
-    TIMESTAMP_SHORT_D: str = "<t:{timestamp}:d>"
-    TIMESTAMP_LONG_D: str = "<t:{timestamp}:D>"
-    TIMESTAMP_SHORT_DT: str = TIMESTAMP
-    TIMESTAMP_LONG_DT: str = "<t:{timestamp}:F>"
-    TIMESTAMP_RELATIVE: str = "<t:{timestamp}:R>"
+class Snowflake(object):
+    _snowflake: str
+    def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...
+    @property
+    def increment(self) -> int: ...
+    @property
+    def worker_id(self) -> int: ...
+    @property
+    def process_id(self) -> int: ...
+    @property
+    def epoch(self) -> float: ...
+    @property
+    def timestamp(self) -> datetime: ...
+    # By inheritance logic, __str__ and __hash__ are already defined in headers.
+    # Just because we can :)
+    def __hash__(self) -> int: ...
+    def __str__(self) -> str: ...
+
+class Format(object):
+    USER: str
+    USER_NICK: str
+    CHANNEL: str
+    ROLE: str
+    EMOJI: str
+    EMOJI_ANIMATED: str
+    TIMESTAMP: str
+    TIMESTAMP_SHORT_T: str
+    TIMESTAMP_LONG_T: str
+    TIMESTAMP_SHORT_D: str
+    TIMESTAMP_LONG_D: str
+    TIMESTAMP_SHORT_DT: str
+    TIMESTAMP_LONG_DT: str
+    TIMESTAMP_RELATIVE: str
     def stylize(self, format: str, **kwargs) -> str: ...

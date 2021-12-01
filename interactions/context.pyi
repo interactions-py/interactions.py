@@ -13,8 +13,6 @@ from .models.component import Component
 from .models.misc import InteractionData
 
 class Context(DictSerializerMixin):
-
-    client: HTTPClient
     message: Message
     member: Member
     user: User
@@ -22,6 +20,9 @@ class Context(DictSerializerMixin):
     guild: Guild
     args: List[Any]
     kwargs: Dict[Any, Any]
+    client: HTTPClient
+
+    # TODO: Alias author for member
     def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):
@@ -34,12 +35,13 @@ class InteractionContext(Context):
     channel_id: str
     token: str
     version: int = 1
-    responded: bool = False
-    deferred: bool = False
+    responded: bool
+    deferred: bool
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,
         content: Optional[str] = None,
+        *,
         tts: Optional[bool] = None,
         # file: Optional[FileIO] = None,
         embeds: Optional[Union[Embed, List[Embed]]] = None,

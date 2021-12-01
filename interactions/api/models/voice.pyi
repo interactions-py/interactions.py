@@ -25,10 +25,11 @@ class VoiceRegion(DictSerializerMixin):
     _json: dict
     id: str
     name: str
-    vip: bool
     optimal: bool
     deprecated: bool
     custom: bool
     def __init__(self, **kwargs): ...
 
-class Voice(VoiceState): ...
+class Voice(VoiceState):
+    # All typehints are already pointed to VoiceState
+    def __init__(self, **kwargs): ...

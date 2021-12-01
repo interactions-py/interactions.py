@@ -7,7 +7,6 @@ from .http import HTTPClient
 from .models.intents import Intents
 
 class Heartbeat(Thread):
-
     ws: Any
     interval: Union[int, float]
     event: Event

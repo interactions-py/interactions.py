@@ -1,4 +1,6 @@
 # from io import FileIO
+# debug
+import logging
 from typing import Any, Dict, List, Optional, Union
 
 import interactions.client
@@ -14,6 +16,8 @@ from .models.command import Choice
 from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
+log = logging.getLogger("interactions.context")
+
 
 class Context(DictSerializerMixin):
     r"""
@@ -28,7 +32,8 @@ class Context(DictSerializerMixin):
     :ivar \*args: Multiple arguments of the context.
     :ivar \**kwargs: Keyword-only arguments of the context.
     """
-    __slots__ = ("client", "message", "member", "user", "channel", "guild", "args", "kwargs")
+
+    __slots__ = ("message", "member", "channel", "guild", "args", "kwargs", "client")
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -52,6 +57,14 @@ class InteractionContext(Context):
     """
 
     __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "client",
         "id",
         "application_id",
         "type",
@@ -105,12 +118,10 @@ class InteractionContext(Context):
         content: Optional[str] = None,
         *,
         tts: Optional[bool] = None,
-        # file: Optional[FileIO] = None,
+        # attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        message_reference: Optional[MessageReference] = None,
         components: Optional[Union[List[Dict[str, Any]], ActionRow, Button, SelectMenu]] = None,
-        sticker_ids: Optional[Union[str, List[str]]] = None,
         type: Optional[Union[int, InteractionCallbackType]] = None,
         ephemeral: Optional[bool] = None,
     ) -> Message:
@@ -126,12 +137,8 @@ class InteractionContext(Context):
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
-        :param message_reference: The message to "refer" if attempting to reply to a message.
-        :type message_reference: Optional[MessageReference]
         :param components: A component, or list of components for the message.
         :type components: Optional[Union[Component, List[Component]]]
-        :param sticker_ids: A singular or list of IDs to stickers that the application has access to for the message.
-        :type sticker_ids: Optional[Union[str, List[str]]]
         :param type: The type of message response if used for interactions or components.
         :type type: Optional[Union[int, InteractionCallbackType]]
         :param ephemeral: Whether the response is hidden or not.
@@ -142,9 +149,9 @@ class InteractionContext(Context):
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
+        # _attachments = [] if attachments else None
         _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _message_reference: dict = {} if message_reference is None else message_reference._json
         _components: list = [{"type": 1, "components": []}]
 
         if isinstance(components, ActionRow):
@@ -153,8 +160,6 @@ class InteractionContext(Context):
             _components[0]["components"] = [] if components is None else [components._json]
         else:
             _components = [] if components is None else [components]
-
-        _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
 
         _type: int
         if isinstance(type, InteractionCallbackType):
@@ -168,22 +173,21 @@ class InteractionContext(Context):
 
         _ephemeral: int = 0 if ephemeral is None else (1 << 6)
 
-        if sticker_ids and len(sticker_ids) > 3:
-            raise Exception("Message can only have up to 3 stickers.")
-
         payload: Message = Message(
             content=_content,
             tts=_tts,
             # file=file,
+            # attachments=_attachments,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
-            message_reference=_message_reference,
             components=_components,
-            sticker_ids=_sticker_ids,
             flags=_ephemeral,
         )
+
+        # TODO: Add attachments into Message obj.
         self.message = payload
 
+        # TODO: cache.token doesn't exist yet.
         async def func():
             if self.responded:
                 req = await self.client._post_followup(
@@ -264,7 +268,7 @@ class InteractionContext(Context):
         async def func():
             req = await self.client.edit_interaction_response(
                 token=self.token,
-                application_id=int(self.id),
+                application_id=self.id,
                 data={"type": _type, "data": payload._json},
                 message_id=self.message.id,
             )
@@ -308,7 +312,28 @@ class ComponentContext(InteractionContext):
     :ivar bool origin: Whether this is the origin of the component.
     """
 
-    __slots__ = ("custom_id", "type", "values", "origin")
+    __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "client",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "responded",
+        "custom_id",
+        "type",
+        "values",
+        "origin",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -320,6 +345,27 @@ class AutocompleteContext(InteractionContext):
     This is a derivation of the base Context class designed specifically for
     autocomplete data.
     """
+
+    __slots__ = (
+        "message",
+        "author",
+        "channel",
+        "user",
+        "guild",
+        "args",
+        "kwargs",
+        "client",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "token",
+        "version",
+        "responded",
+        "deferred",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -356,7 +402,7 @@ class AutocompleteContext(InteractionContext):
                     application_id=int(self.id),
                     data={
                         "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
-                        "data": _choices,
+                        "data": {"choices": _choices},
                     },
                 )
 

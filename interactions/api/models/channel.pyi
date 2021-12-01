@@ -19,6 +19,7 @@ class ChannelType(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 class ThreadMetadata(DictSerializerMixin):
+
     _json: dict
     archived: bool
     auto_archive_duration: int
@@ -28,12 +29,12 @@ class ThreadMetadata(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class ThreadMember(DictSerializerMixin):
-
     _json: dict
     id: Optional[int]  # intents
     user_id: Optional[int]
     join_timestamp: datetime.timestamp
     flags: int
+    def __init__(self, **kwargs): ...
 
 class Channel(DictSerializerMixin):
 
