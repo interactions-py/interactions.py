@@ -130,6 +130,8 @@ class Client:
 
             if request.get("code"):
                 raise JSONException(request["code"])
+            else:
+                self.http.cache.interactions.add(Item(id=payload.name, value=payload))
 
         if commands:
             log.debug("Commands were found, checking for sync.")
@@ -366,7 +368,7 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Any:
-            return self.event(coro, name=name)
+            return self.event(coro, name=f"autocomplete_{name}")
 
         return decorator
 

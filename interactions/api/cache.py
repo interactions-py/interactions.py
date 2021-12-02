@@ -64,6 +64,19 @@ class Storage:
         if id in self.values.keys():
             return self.values[id]
 
+    def update(self, item: Item) -> Optional[Item]:
+        """
+        Updates an item from the storage.
+
+        :param item: The item to update.
+        :return: The updated item, if stored.
+        """
+        if item.id in self.values.keys():
+            self.values[item.id] = item.value
+            return self.values[
+                id
+            ]  # fetches from cache to see if its saved properly, instead of returning input.
+
     def view(self) -> List:
         """Views all items from storage.
 
