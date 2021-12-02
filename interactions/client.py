@@ -114,85 +114,90 @@ class Client:
         commands: List[dict] = await self.http.get_application_command(
             application_id=self.me.id, guild_id=payload.guild_id
         )
+        command_names: List[str] = [command["name"] for command in commands]
 
-        if commands:
-            log.debug("Commands were found, checking for sync.")
-            for command in commands:
-                log.debug(f"Checking command {command['name']}.")
-                result: ApplicationCommand = ApplicationCommand(
-                    application_id=command.get("application_id"),
-                    id=command.get("id"),
-                    type=command.get("type"),
-                    guild_id=str(command.get("guild_id")),
-                    name=command.get("name"),
-                    description=command.get("description", ""),
-                    default_permission=command.get("default_permission", False),
-                    default_member_permissions=command.get("default_member_permissions", None),
-                    version=command.get("version"),
-                )
-                self.http.cache.interactions.add(Item(result.name, result))
-
-                if result.name == payload.name:
-                    request: dict
-                    _result_name = result._json["name"]
-                    _payload_name = payload._json["name"]
-
-                    del result._json["name"]
-                    del payload._json["name"]
-                    if result._json != payload._json:
-                        log.info(
-                            f"Detected unsynced command {payload.name}, editing and updating cache."
-                        )
-
-                        result._json["name"] = _result_name
-                        payload._json["name"] = _payload_name
-                        request = await self.http.edit_application_command(
-                            application_id=self.me.id,
-                            data=payload._json,
-                            command_id=result.id,
-                            guild_id=payload.guild_id,
-                        )
-                        self.http.cache.interactions.add(Item(payload.name, payload))
-
-                        if request.get("code"):
-                            raise JSONException(request["code"])
-                    else:
-                        self.http.cache.interactions.add(Item(payload.name, payload))
-                else:
-                    self.http.cache.interactions.add(Item(payload.name, payload))
-        else:
-            log.debug(f"Command {payload.name} was not found, adding to the API and cache.")
-
-            request = await self.http.create_application_command(
-                application_id=self.me.id,
-                data=payload._json,
-                guild_id=payload.guild_id,
-            )
-
+        async def create() -> None:
+            """
+            Creates a new application command in the API if one
+            does not exist for it.
+            """
             log.debug(
-                f"Synchronising by adding payload: {payload} with name: {payload.name}, returning {request}"
+                f"Command {payload.name} was not found in the API, creating and adding to the cache."
             )
-
-            self.http.cache.interactions.add(Item(payload.name, payload))
+            request = await self.http.create_application_command(
+                application_id=self.me.id, data=payload._json, guild_id=payload.guild_id
+            )
 
             if request.get("code"):
                 raise JSONException(request["code"])
 
-        cached_commands: list = [
-            self.http.cache.interactions.values[command]
-            for command in self.http.cache.interactions.values
-        ]
-        _command_names: list = [command["name"] for command in commands]
+        if commands:
+            log.debug("Commands were found, checking for sync.")
+            if payload.name in command_names:
+                for command in commands:
+                    log.debug(f"Checking command {command['name']}.")
+                    result: ApplicationCommand = ApplicationCommand(
+                        application_id=command.get("application_id"),
+                        id=command.get("id"),
+                        type=command.get("type"),
+                        guild_id=str(command.get("guild_id")),
+                        name=command.get("name"),
+                        description=command.get("description", ""),
+                        default_permission=command.get("default_permission", False),
+                        default_member_permissions=command.get("default_member_permissions", None),
+                        version=command.get("version"),
+                        name_localizations=command.get("name_localizations"),
+                        description_localizations=command.get("description_localizations"),
+                    )
+                    self.http.cache.interactions.add(Item(id=payload.name, value=payload))
 
-        for command in cached_commands:
-            if commands:
-                if command.name not in _command_names:
+                    if payload.name == result.name:
+                        payload_name: str = payload.name
+
+                        del result._json["name"]
+                        del payload._json["name"]
+
+                        if result._json != payload._json:
+                            log.debug(
+                                f"Command {result.name} found unsynced, editing in the API and updating the cache."
+                            )
+                            payload._json["name"] = payload_name
+                            request = await self.http.edit_application_command(
+                                application_id=self.me.id,
+                                data=payload._json,
+                                command_id=result.id,
+                                guild_id=result.guild_id,
+                            )
+                            self.http.cache.interactions.add(Item(id=payload.name, value=payload))
+
+                            if request.get("code"):
+                                raise JSONException(request["code"])
+                            break
+            else:
+                await create()
+        else:
+            await create()
+
+        cached_commands: List[ApplicationCommand] = [
+            command for command in self.http.cache.interactions.view()
+        ]
+        cached_command_names = [command["name"] for command in cached_commands]
+
+        if cached_commands:
+            for command in commands:
+                if command["name"] not in cached_command_names:
                     log.debug(
-                        f"Detected unused command {command.name}, deleting from the API and cache."
+                        f"Command {command['name']} was found in the API but never cached, deleting from the API and cache."
                     )
-                    await self.http.delete_application_command(
-                        self.me.id, command.id, command.guild_id
+                    request = await self.http.delete_application_command(
+                        application_id=self.me.id,
+                        command_id=command["id"],
+                        guild_id=command["guild_id"],
                     )
+
+                    if request:
+                        if request.get("code"):
+                            raise JSONException(request["code"])
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
