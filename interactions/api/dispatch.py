@@ -34,7 +34,6 @@ class Listener:
         :type \**kwargs: dict
         """
         for event in self.events.get(name, []):
-            print(f"{event} args: {args}, kwargs: {kwargs}")
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
 

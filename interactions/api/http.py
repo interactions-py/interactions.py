@@ -198,6 +198,7 @@ class Request:
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
+                    log.debug(f"{route.method} | {route.__api__ + route.path}")
                     data = await response.json(content_type=None)
                     log.debug(data)
 
