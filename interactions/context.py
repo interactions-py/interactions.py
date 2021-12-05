@@ -96,7 +96,7 @@ class InteractionContext(Context):
     async def defer(self, ephemeral: Optional[bool] = None) -> None:
         """
         This \"defers\" an interaction response, allowing up
-        to a 15-minute delay between invokation and responding.
+        to a 15-minute delay between invocation and responding.
 
         :param ephemeral: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
@@ -126,7 +126,7 @@ class InteractionContext(Context):
         ephemeral: Optional[bool] = None,
     ) -> Message:
         """
-        This allows the invokation state described in the "context"
+        This allows the invocation state described in the "context"
         to send an interaction response.
 
         :param content: The contents of the message as a string or string-converted value.
@@ -390,7 +390,11 @@ class AutocompleteContext(InteractionContext):
                 _choices: list = []
                 if all(isinstance(choice, Choice) for choice in choices):
                     _choices = [choice._json for choice in choices]
-                elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
+                # elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
+                elif all(
+                    isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
+                    for choice in choices
+                ):
                     _choices = [choice for choice in choices]
                 elif isinstance(choices, Choice):
                     _choices = [choices._json]

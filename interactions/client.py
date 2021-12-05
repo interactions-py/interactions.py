@@ -294,7 +294,11 @@ class Client:
             if options:
                 if all(isinstance(option, Option) for option in options):
                     _options = [option._json for option in options]
-                elif all(isinstance(option, Dict[str, Any]) for option in options):
+                # elif all(isinstance(option, Dict[str, Any]) for option in options):
+                elif all(
+                    isinstance(option, dict) and all(isinstance(x, str) for x in option)
+                    for option in options
+                ):
                     _options = [option for option in options]
                 elif isinstance(options, Option):
                     _options = [options._json]
@@ -307,7 +311,11 @@ class Client:
             if permissions:
                 if all(isinstance(permission, Permission) for permission in permissions):
                     _permissions = [permission._json for permission in permissions]
-                elif all(isinstance(permission, Dict[str, Any]) for permission in permissions):
+                # elif all(isinstance(permission, Dict[str, Any]) for permission in permissions):
+                elif all(
+                    isinstance(permission, dict) and all(isinstance(x, str) for x in permission)
+                    for permission in permissions
+                ):
                     _permissions = [permission for permission in permissions]
                 elif isinstance(permissions, Permission):
                     _permissions = [permissions._json]
