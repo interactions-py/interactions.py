@@ -150,7 +150,11 @@ class InteractionContext(Context):
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: list = [{"type": 1, "components": []}]
 
@@ -230,7 +234,11 @@ class InteractionContext(Context):
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
-        _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
         _components: list = [{"type": 1, "components": []}]
