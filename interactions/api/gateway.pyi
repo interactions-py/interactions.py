@@ -21,10 +21,10 @@ class WebSocket:
     session: Any
     session_id: Optional[int]
     sequence: Optional[int]
-    _keep_alive: Optional[Heartbeat]
+    keep_alive: Optional[Heartbeat]
     closed: bool
     http: Optional[HTTPClient]
-    _options: dict
+    options: dict
     def __init__(
         self,
         intents: Intents,

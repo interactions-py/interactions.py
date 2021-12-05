@@ -6,7 +6,6 @@ from typing import Any, Optional, Union
 class ErrorFormatter(Formatter):
     """A customized error formatting script to return specific errors."""
 
-    # Need this formatter? Maybe as a starting point, but it's fine either or.
     def get_value(self, key, args, kwargs) -> Any:
         if not isinstance(key, str):
             return Formatter.get_value(self, key=key, args=args, kwargs=kwargs)
@@ -56,9 +55,7 @@ class InteractionException(Exception):
         self._formatter = ErrorFormatter()
         self._lookup = self.lookup()
 
-        self.error()  # On invocation of the object, it should call the exception.
-
-    # The current layout is that it uses the type, and any arguments parsed to generate readable exceptions.
+        self.error()
 
     @staticmethod
     def lookup() -> dict:
@@ -95,7 +92,8 @@ class InteractionException(Exception):
         _err_unidentifiable = False
         _empty_space = " "
 
-        _overrided = "message" in self.kwargs.keys()  # do we need to override at all?
+        # TODO: determine need. do we need to override at all?
+        _overrided = "message" in self.kwargs.keys()
 
         if issubclass(type(self._type), IntEnum):
             _err_val = self.type.name
@@ -109,19 +107,11 @@ class InteractionException(Exception):
         _err_msg = _default_err_msg = "Error code: {_err_rep}"
 
         if self.kwargs != {} and _overrided:
-            _err_msg = self.kwargs[
-                "message"
-            ]  # If there's a `message=`, replace it. (Does not override the default.)
+            _err_msg = self.kwargs["message"]
 
-        # We add, for formatting, the error code for kwargs.
-        self.kwargs["_err_rep"] = _err_rep  #
+        self.kwargs["_err_rep"] = _err_rep
 
-        # Then cause the exception to occur. This requires, if overriding the message, "_err_rep" as a required
-        # format brace. This is necessary to scale, and more importantly, to diagnose.
-
-        # message= should be given when it's needed, i.e. API request failures
-
-        if not _err_unidentifiable:  # looks up from the dictionary the default.
+        if not _err_unidentifiable:
             lookup_str = self._lookup[_err_rep] if _err_rep in self._lookup.keys() else _err_val
             _lookup_str = (
                 lookup_str
@@ -129,14 +119,13 @@ class InteractionException(Exception):
                 else ""
             )
         else:
-            # If it's unidentifiable somehow, we can't do anything about it so don't look it up.
             _lookup_str = lookup_str = ""
 
         custom_err_str = (
             self._formatter.format(_err_msg, **self.kwargs)
             if "_err_rep" in _err_msg
             else self._formatter.format(_err_msg + _empty_space + _default_err_msg, **self.kwargs)
-        )  # Especially useful if it can't look it up, but you want a message anyway :)
+        )
 
         # This is just for writing notes meant to be for the developer(testers):
         #
@@ -280,5 +269,5 @@ class JSONException(InteractionException):
             20028: "The channel you are writing has hit the write rate limit",
             20031: "Your Stage topic, server name, server description, or channel names contain words that are not allowed",
             20035: "Guild premium subscription level too low"
-            # finish dict.
+            #  TODO: finish dict.
         }

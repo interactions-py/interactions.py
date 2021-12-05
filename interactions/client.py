@@ -2,7 +2,7 @@ from asyncio import get_event_loop
 from logging import Logger, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from .api.cache import Item
+from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
@@ -59,7 +59,7 @@ class Client:
         self.http.token = token
         _token = token  # noqa: F841
 
-        if disable_sync not in (False, None):
+        if not disable_sync:  # you don't need to change this. this is already correct.
             self.automate_sync = False
             log.warn(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
@@ -67,15 +67,7 @@ class Client:
         else:
             self.automate_sync = True
 
-        # Remove the if not condition for import timings
-        if not self.me:
-            data = self.loop.run_until_complete(self.http.get_current_bot_information())
-            self.me = Application(**data)
-
-        self.websocket.dispatch.register(self.raw_socket_create)
-        self.websocket.dispatch.register(self.raw_channel_create, "on_channel_create")
-        self.websocket.dispatch.register(self.raw_message_create, "on_message_create")
-        self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
+        self.loop.run_until_complete(self.ready())
 
     async def login(self, token: str) -> None:
         """
@@ -90,11 +82,57 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
-        self.loop.run_until_complete(self.login(self.token))
+        self.loop.run_until_complete(self.ready())
 
-    async def synchronize(
-        self, payload: Optional[ApplicationCommand], permissions: Optional[Union[dict, List[dict]]]
-    ) -> None:
+    async def ready(self) -> bool:
+        """
+        Prepares the client with an internal "ready" check to ensure
+        that all conditions have been met in a chronological order:
+
+        .. code-block::
+
+            CLIENT START
+            |___ GATEWAY
+            |   |___ READY
+            |   |___ DISPATCH
+            |___ SYNCHRONIZE
+            |   |___ CACHE
+            |___ DETECT DECORATOR
+            |   |___ BUILD MODEL
+            |   |___ SYNCHRONIZE
+            |   |___ CALLBACK
+            LOOP
+
+        :return: Whether the client is ready or not.
+        :rtype: bool
+        """
+        ready: bool = False
+
+        def register_events() -> None:
+            self.websocket.dispatch.register(self.raw_socket_create)
+            self.websocket.dispatch.register(self.raw_channel_create, "on_channel_create")
+            self.websocket.dispatch.register(self.raw_message_create, "on_message_create")
+            self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
+
+        async def populate_values() -> None:
+            if not self.me:
+                data = await self.http.get_current_bot_information()
+                self.me = Application(**data)
+            await self.synchronize()
+
+        try:
+            register_events()
+            await populate_values()
+            ready = True
+        except Exception as error:
+            log.critical(f"Could not prepare the client: {error}")
+        finally:
+            if ready:
+                log.debug("Client is now ready.")
+                await self.login(self.token)
+            return ready
+
+    async def synchronize(self, payload: Optional[ApplicationCommand] = None) -> None:
         """
         Synchronizes the command specified by checking through the
         currently registered application commands on the API and
@@ -107,19 +145,16 @@ class Client:
 
         :param payload: The payload/object of the command.
         :type payload: Optional[ApplicationCommand]
-        :param permissions: The permissions of the command.
-        :type permissions: Optional[Union[dict, List[dict]]]
         """
 
         commands: List[dict] = await self.http.get_application_command(
-            application_id=self.me.id, guild_id=payload.guild_id
+            application_id=self.me.id, guild_id=payload.guild_id if payload else None
         )
         command_names: List[str] = [command["name"] for command in commands]
 
         async def create() -> None:
             """
-            Creates a new application command in the API if one
-            does not exist for it.
+            Creates a new application command in the API if one does not exist for it.
             """
             log.debug(
                 f"Command {payload.name} was not found in the API, creating and adding to the cache."
@@ -131,52 +166,58 @@ class Client:
             if request.get("code"):
                 raise JSONException(request["code"])
             else:
-                self.http.cache.interactions.add(Item(id=payload.name, value=payload))
+                self.http.cache.interactions.add(Build(id=payload.name, value=payload))
 
         if commands:
             log.debug("Commands were found, checking for sync.")
-            if payload.name in command_names:
-                for command in commands:
-                    log.debug(f"Checking command {command['name']}.")
-                    result: ApplicationCommand = ApplicationCommand(
-                        application_id=command.get("application_id"),
-                        id=command.get("id"),
-                        type=command.get("type"),
-                        guild_id=str(command.get("guild_id")),
-                        name=command.get("name"),
-                        description=command.get("description", ""),
-                        default_permission=command.get("default_permission", False),
-                        default_member_permissions=command.get("default_member_permissions", None),
-                        version=command.get("version"),
-                        name_localizations=command.get("name_localizations"),
-                        description_localizations=command.get("description_localizations"),
-                    )
-                    self.http.cache.interactions.add(Item(id=payload.name, value=payload))
+            for command in commands:
+                result: ApplicationCommand = ApplicationCommand(
+                    application_id=command.get("application_id"),
+                    id=command.get("id"),
+                    type=command.get("type"),
+                    guild_id=str(command.get("guild_id")),
+                    name=command.get("name"),
+                    description=command.get("description", ""),
+                    default_permission=command.get("default_permission", False),
+                    default_member_permissions=command.get("default_member_permissions", None),
+                    version=command.get("version"),
+                    name_localizations=command.get("name_localizations"),
+                    description_localizations=command.get("description_localizations"),
+                )
 
-                    if payload.name == result.name:
-                        payload_name: str = payload.name
+                if payload:
+                    if payload.name in command_names:
+                        log.debug(f"Checking command {payload.name} for syncing.")
 
-                        del result._json["name"]
-                        del payload._json["name"]
+                        if payload.name == result.name:
+                            payload_name: str = payload.name
 
-                        if result._json != payload._json:
-                            log.debug(
-                                f"Command {result.name} found unsynced, editing in the API and updating the cache."
-                            )
-                            payload._json["name"] = payload_name
-                            request = await self.http.edit_application_command(
-                                application_id=self.me.id,
-                                data=payload._json,
-                                command_id=result.id,
-                                guild_id=result.guild_id,
-                            )
-                            self.http.cache.interactions.add(Item(id=payload.name, value=payload))
+                            del result._json["name"]
+                            del payload._json["name"]
 
-                            if request.get("code"):
-                                raise JSONException(request["code"])
-                            break
-            else:
-                await create()
+                            if result._json != payload._json:
+                                log.debug(
+                                    f"Command {result.name} found unsynced, editing in the API and updating the cache."
+                                )
+                                payload._json["name"] = payload_name
+                                request = await self.http.edit_application_command(
+                                    application_id=self.me.id,
+                                    data=payload._json,
+                                    command_id=result.id,
+                                    guild_id=result.guild_id,
+                                )
+                                self.http.cache.interactions.add(
+                                    Build(id=payload.name, value=payload)
+                                )
+
+                                if request.get("code"):
+                                    raise JSONException(request["code"])
+                                break
+                    else:
+                        await create()
+                else:
+                    log.debug(f"Adding command {result.name} to cache.")
+                    self.http.cache.interactions.add(Build(id=result.name, value=result))
         else:
             await create()
 
@@ -213,21 +254,6 @@ class Client:
         """
         self.websocket.dispatch.register(coro, name=name)
         return coro
-
-    # def __process_options(self, coro: Callable) -> List:
-    #     """
-    #     An option parser function that parses a Coroutine to generate
-    #     "implicit options", if options aren't explicitly declared.
-
-    #     :param coro: The coroutine of the event.
-    #     :type coro: typing.Coroutine
-    #     :return typing.List[]
-    #     """
-    #     params = iter(inspect.signature(coro).parameters.values())
-    #     log.info(f"params: {list(params)}")
-
-    #     # TODO: Finish
-    #     return []
 
     def command(
         self,
@@ -294,9 +320,8 @@ class Client:
             if options:
                 if all(isinstance(option, Option) for option in options):
                     _options = [option._json for option in options]
-                # elif all(isinstance(option, Dict[str, Any]) for option in options):
                 elif all(
-                    isinstance(option, dict) and all(isinstance(x, str) for x in option)
+                    isinstance(option, dict) and all(isinstance(value, str) for value in option)
                     for option in options
                 ):
                     _options = [option for option in options]
@@ -306,21 +331,23 @@ class Client:
                     _options = [options]
 
             _default_permission: bool = True if default_permission is None else default_permission
-            _permissions: list = []
 
-            if permissions:
-                if all(isinstance(permission, Permission) for permission in permissions):
-                    _permissions = [permission._json for permission in permissions]
-                # elif all(isinstance(permission, Dict[str, Any]) for permission in permissions):
-                elif all(
-                    isinstance(permission, dict) and all(isinstance(x, str) for x in permission)
-                    for permission in permissions
-                ):
-                    _permissions = [permission for permission in permissions]
-                elif isinstance(permissions, Permission):
-                    _permissions = [permissions._json]
-                else:
-                    _permissions = [permissions]
+            # TODO: Implement permission building and syncing.
+            # _permissions: list = []
+
+            # if permissions:
+            #     if all(isinstance(permission, Permission) for permission in permissions):
+            #         _permissions = [permission._json for permission in permissions]
+            #     elif all(
+            #         isinstance(permission, dict)
+            #         and all(isinstance(value, str) for value in permission)
+            #         for permission in permissions
+            #     ):
+            #         _permissions = [permission for permission in permissions]
+            #     elif isinstance(permissions, Permission):
+            #         _permissions = [permissions._json]
+            #     else:
+            #         _permissions = [permissions]
 
             _scope: list = []
 
@@ -343,7 +370,7 @@ class Client:
                     default_permission=_default_permission,
                 )
                 if self.automate_sync:
-                    self.loop.run_until_complete(self.synchronize(payload, _permissions))
+                    self.loop.run_until_complete(self.synchronize(payload))
 
             return self.event(coro, name=name)
 
@@ -394,14 +421,18 @@ class Client:
 
         return data
 
-    async def raw_channel_create(self, channel) -> None:
+    async def raw_channel_create(self, channel) -> dict:
         """
         This is an internal function that caches the channel creates when dispatched.
 
         :param channel: The channel object data in question.
         :type channel: Channel
+        :return: The channel as a dictionary of raw data.
+        :rtype: dict
         """
-        self.http.cache.channels.add(Item(id=channel.id, value=channel))
+        self.http.cache.channels.add(Build(id=channel.id, value=channel))
+
+        return channel._json
 
     async def raw_message_create(self, message) -> None:
         """
@@ -409,8 +440,12 @@ class Client:
 
         :param message: The message object data in question.
         :type message: Message
+        :return: The message as a dictionary of raw data.
+        :rtype: dict
         """
-        self.http.cache.messages.add(Item(id=message.id, value=message))
+        self.http.cache.messages.add(Build(id=message.id, value=message))
+
+        return message._json
 
     async def raw_guild_create(self, guild) -> None:
         """
@@ -418,5 +453,9 @@ class Client:
 
         :param guild: The guild object data in question.
         :type guild: Guild
+        :return: The guild as a dictionary of raw data.
+        :rtype: dict
         """
-        self.http.cache.guilds.add(Item(id=str(guild.id), value=guild))
+        self.http.cache.guilds.add(Build(id=str(guild.id), value=guild))
+
+        return guild._json

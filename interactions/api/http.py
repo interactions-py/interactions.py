@@ -1,4 +1,5 @@
 from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
+from json import dumps
 from logging import Logger, basicConfig, getLogger
 from sys import version_info
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
@@ -58,7 +59,7 @@ class Route:
         :type method: str
         :param path: The path of the HTTP/URL.
         :type path: str
-        :param \**kwargs: Optional keyword-only arguments to pass as information in the route.
+        :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
         """
         self.__api__ = "https://discord.com/api/v9"
@@ -134,7 +135,6 @@ class Request:
         """
         :param token: The application token used for authorizing.
         :type token: str
-        :return: None
         """
         self.token = token
         self.loop = get_event_loop()
@@ -161,7 +161,7 @@ class Request:
 
         :param route: The HTTP route to request.
         :type route: Route
-        :param \**kwargs: Optional keyword-only arguments to pass as information in the request.
+        :param \**kwargs?: Optional keyword-only arguments to pass as information in the request.
         :type \**kwargs: dict
         :return: The contents of the request if any.
         :rtype: Optional[Any]
@@ -198,10 +198,9 @@ class Request:
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
-                    log.debug(f"{route.method} | {route.__api__ + route.path}")
+                    log.debug(f"{route.method}: {route.__api__ + route.path}")
                     data = await response.json(content_type=None)
-                    log.debug(data)
-
+                    log.debug(f"RETURN: {dumps(data, indent=4, sort_keys=True)}")
                     if "X-Ratelimit-Remaining" in response.headers.keys():
                         remaining = response.headers["X-Ratelimit-Remaining"]
 

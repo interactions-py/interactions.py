@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 
 class Item(object):
@@ -77,7 +77,7 @@ class Storage:
                 id
             ]  # fetches from cache to see if its saved properly, instead of returning input.
 
-    def view(self) -> List:
+    def view(self) -> list:
         """Views all items from storage.
 
         :return The items stored.

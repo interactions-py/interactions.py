@@ -1,11 +1,13 @@
 import sys
 from asyncio import get_event_loop, run_coroutine_threadsafe
+from json import dumps
 from logging import Logger, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
 from typing import Any, Optional, Union
 
-from orjson import dumps, loads
+from orjson import dumps as ordumps
+from orjson import loads
 
 from interactions.enums import InteractionType, OptionType
 
@@ -93,10 +95,10 @@ class WebSocket:
         "session",
         "session_id",
         "sequence",
-        "_keep_alive",
+        "keep_alive",
         "closed",
         "http",
-        "_options",
+        "options",
     )
 
     def __init__(
@@ -108,9 +110,9 @@ class WebSocket:
         """
         :param intents: The intents used for identifying the connection.
         :type intents: Intents
-        :param session_id: The session ID if you're trying to resume a connection. Defaults to ``None``.
+        :param session_id?: The session ID if you're trying to resume a connection. Defaults to ``None``.
         :type session_id: Optional[int]
-        :param sequence: The sequence if you're trying to resume a connection. Defaults to ``None``.
+        :param sequence?: The sequence if you're trying to resume a connection. Defaults to ``None``.
         :type sequence: Optional[int]
         """
         self.intents = intents
@@ -120,10 +122,10 @@ class WebSocket:
         self.session_id = session_id
         self.sequence = sequence
 
-        self._keep_alive = None
+        self.keep_alive = None
         self.closed = False
         self.http = None
-        self._options: dict = {
+        self.options: dict = {
             "max_msg_size": 1024 ** 2,
             "timeout": 60,
             "autoclose": False,
@@ -147,10 +149,10 @@ class WebSocket:
         :type token: str
         """
         self.http = HTTPClient(token)
-        self._options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
+        self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
         url = await self.http.get_gateway()
 
-        async with self.http._req.session.ws_connect(url, **self._options) as self.session:
+        async with self.http._req.session.ws_connect(url, **self.options) as self.session:
             while not self.closed:
                 stream = await self.recv()
 
@@ -185,17 +187,17 @@ class WebSocket:
                     await self.resume()
 
                 heartbeat_interval = data["heartbeat_interval"]
-                self._keep_alive = Heartbeat(self, heartbeat_interval)
+                self.keep_alive = Heartbeat(self, heartbeat_interval)
 
                 await self.heartbeat()
-                self._keep_alive.start()
+                self.keep_alive.start()
 
             if op == OpCodeType.HEARTBEAT:
-                if self._keep_alive:
+                if self.keep_alive:
                     await self.heartbeat()
 
             if op == OpCodeType.HEARTBEAT_ACK:
-                if self._keep_alive:
+                if self.keep_alive:
                     log.debug("HEARTBEAT_ACK")
 
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
@@ -218,7 +220,7 @@ class WebSocket:
                 self.dispatch.dispatch("on_ready")
                 log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
             else:
-                log.debug(f"{event}: {data}")
+                log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
                 self.handle_dispatch(event, data)
 
     def handle_dispatch(self, event: str, data: dict) -> None:
@@ -300,7 +302,7 @@ class WebSocket:
             return context(**data)
 
     async def send(self, data: Union[str, dict]) -> None:
-        packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
+        packet: str = ordumps(data).decode("utf-8") if isinstance(data, dict) else data
         await self.session.send_str(packet)
         log.debug(packet)
 

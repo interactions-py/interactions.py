@@ -40,7 +40,7 @@ class DictSerializerMixin(object):
                 setattr(self, key, kwargs[key])
             else:
                 log.warning(
-                    f"Attribute {key} is not in {self.__class__.__name__}'s current model! Skipping..."
+                    f"Attribute {key} is missing from the {self.__class__.__name__} data model, skipping."
                 )
                 # work on message printout? Effective, but I think it should be a little bit more friendly
                 # towards end users
@@ -102,6 +102,7 @@ class Snowflake(object):
     __slots__ = "_snowflake"
 
     # TODO: Should this inherit from the mixin?
+    # no --f0.
 
     # Slotting properties are pointless, they are not in-memory
     # and are instead computed in-model.
