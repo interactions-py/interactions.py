@@ -42,6 +42,7 @@ class SelectMenu(DictSerializerMixin):
         "_json",
         "type",
         "custom_id",
+        "options",
         "placeholder",
         "min_values",
         "max_values",
