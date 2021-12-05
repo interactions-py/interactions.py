@@ -1,4 +1,4 @@
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class User(DictSerializerMixin):
@@ -43,3 +43,4 @@ class User(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id)

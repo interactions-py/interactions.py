@@ -4,7 +4,7 @@ from typing import List, Optional
 from .channel import Channel, ThreadMember
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import ClientStatus, DictSerializerMixin
+from .misc import ClientStatus, DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
@@ -84,30 +84,32 @@ class Presence(DictSerializerMixin):
     client_status: ClientStatus
 
 class Reaction(DictSerializerMixin):
-    # There's no official data model for this, so this is psuedo for the most part here.
+    # There's no official data model for this, so this is pseudo for the most part here.
     _json: dict
-    user_id: Optional[str]
-    channel_id: str
-    message_id: str
-    guild_id: Optional[str]
+    user_id: Optional[Snowflake]
+    channel_id: Snowflake
+    message_id: Snowflake
+    guild_id: Optional[Snowflake]
     member: Optional[str]
     emoji: Optional[Emoji]
     def __init__(self, **kwargs): ...
 
-class ReactionRemove(Reaction): ...  # TODO: look more into this. weird aliasing from the GW?
+class ReactionRemove(Reaction):
+    # typehinting already subclassed
+    def __init__(self, **kwargs): ...
 
 class ThreadList(DictSerializerMixin):
     _json: dict
-    guild_id: str
-    channel_ids: Optional[List[str]]
+    guild_id: Snowflake
+    channel_ids: Optional[List[Snowflake]]
     threads: List[Channel]
     members: List[ThreadMember]
     def __init__(self, **kwargs): ...
 
 class ThreadMembers(DictSerializerMixin):
     _json: dict
-    id: str
-    guild_id: str
+    id: Snowflake
+    guild_id: Snowflake
     member_count: int
     added_members: Optional[List[ThreadMember]]
     removed_member_ids: Optional[List[str]]

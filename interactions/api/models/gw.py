@@ -1,4 +1,4 @@
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class ChannelPins(DictSerializerMixin):
@@ -116,11 +116,21 @@ class Reaction(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.user_id = Snowflake(self.user_id) if self.user_id else None
+        self.channel_id = Snowflake(self.channel_id)
+        self.message_id = Snowflake(self.message_id)
+        self.guild_id = Snowflake(self.guild_id) if self.guild_id else None
 
 
 class ReactionRemove(Reaction):
-    ...
-    # TODO: look more into this. weird aliasing from the GW?
+    __slots__ = ("_json", "user_id", "channel_id", "message_id", "guild_id", "emoji")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.user_id = Snowflake(self.user_id) if self.user_id else None
+        self.channel_id = Snowflake(self.channel_id)
+        self.message_id = Snowflake(self.message_id)
+        self.guild_id = Snowflake(self.guild_id) if self.guild_id else None
 
 
 class ThreadList(DictSerializerMixin):
@@ -128,6 +138,7 @@ class ThreadList(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id)
 
 
 class ThreadMembers(DictSerializerMixin):
@@ -135,3 +146,5 @@ class ThreadMembers(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id)
+        self.guild_id = Snowflake(self.guild_id)
