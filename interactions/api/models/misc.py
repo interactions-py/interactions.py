@@ -3,7 +3,10 @@
 # TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 import datetime
+import logging
 from typing import Union
+
+log = logging.getLogger("interactions.mixin")
 
 
 class DictSerializerMixin(object):
@@ -28,8 +31,19 @@ class DictSerializerMixin(object):
 
     def __init__(self, **kwargs):
         self._json = kwargs
+        # for key in kwargs:
+        #    setattr(self, key, kwargs[key])
+
         for key in kwargs:
-            setattr(self, key, kwargs[key])
+            if key in self.__slots__ if hasattr(self, "__slots__") else True:
+                # else case if the mixin is used outside of this library and/or SDK.
+                setattr(self, key, kwargs[key])
+            else:
+                log.warning(
+                    f"Attribute {key} is not in {self.__class__.__name__}'s current model! Skipping..."
+                )
+                # work on message printout? Effective, but I think it should be a little bit more friendly
+                # towards end users
 
         # if self.__slots__ is not None:  # safeguard, runtime check
         if hasattr(self, "__slots__"):
