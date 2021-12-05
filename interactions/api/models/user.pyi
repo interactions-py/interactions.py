@@ -1,10 +1,10 @@
 from typing import Any, Optional
 
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 class User(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     username: str
     discriminator: str
     avatar: Optional[str]

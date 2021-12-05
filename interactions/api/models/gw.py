@@ -140,8 +140,14 @@ class Reaction(DictSerializerMixin):
 
 
 class ReactionRemove(Reaction):
-    ...
-    # TODO: look more into this. weird aliasing from the GW?
+    __slots__ = ("_json", "user_id", "channel_id", "message_id", "guild_id", "emoji")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.user_id = Snowflake(self.user_id) if self.user_id else None
+        self.channel_id = Snowflake(self.channel_id)
+        self.message_id = Snowflake(self.message_id)
+        self.guild_id = Snowflake(self.guild_id) if self.guild_id else None
 
 
 class ThreadList(DictSerializerMixin):
