@@ -97,7 +97,6 @@ class WebSocket:
         "closed",
         "http",
         "_options",
-        "blacklist",
     )
 
     def __init__(
@@ -239,17 +238,19 @@ class WebSocket:
             if event != "INTERACTION_CREATE":
                 try:
                     _name: str = [piece for piece in name.split("_")]
-                    obj: object = getattr(
-                        __import__(path),
+                    _name = (
                         _name[0].capitalize()
                         if len(_name) < 3
-                        else "".join(piece.capitalize() for piece in _name[:-1]),
+                        else "".join(piece.capitalize() for piece in _name[:-1])
+                    )
+                    log.debug(f"Dispatching object {_name} from event {name}")
+                    obj: object = getattr(
+                        __import__(path),
+                        _name,
                     )
                     self.dispatch.dispatch(f"on_{_name}", obj(**data))  # noqa
-                except AttributeError:  # noqa
-                    log.fatal(
-                        f"You're missing a data model for the event {name}, skipping dispatch."
-                    )
+                except AttributeError as error:  # noqa
+                    log.fatal(f"You're missing a data model for the event {name}: {error}")
             else:
                 context = self.contextualize(data)
                 _name: str

@@ -1,7 +1,7 @@
-pre-commit
-isort
-flake8
-black
-autoflake
-aiohttp
-orjson
+pre-commit==3.2.0
+isort==5.9.3
+flake8==3.9.2
+black==21.8b0
+autoflake==1.4
+aiohttp==3.7.4.post0
+orjson==3.6.3

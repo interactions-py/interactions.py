@@ -19,6 +19,8 @@ extras = {
 extras["lint"] += extras["readthedocs"]
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 
+requirements = open("requirements.txt").split("\n")[:-1]
+
 setup(
     name="discord-py-interactions",
     version=VERSION,
@@ -26,7 +28,7 @@ setup(
     author_email="jwalston2002@gmail.com",
     description="A simple API wrapper for Discord interactions.",
     extras_require=extras,
-    install_requires=["pre-commit", "aiohttp", "orjson"],
+    install_requires=requirements,
     license="MIT License",
     long_description=README,
     url="https://github.com/goverfl0w/discord-interactions",
