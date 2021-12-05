@@ -20,7 +20,7 @@ class Context(DictSerializerMixin):
     guild: Guild
     client: HTTPClient
 
-    # TODO: Alias author for member
+    # TODO: AFTER v4: Alias author for member.
     def __init__(self, **kwargs) -> None: ...
 
 class InteractionContext(Context):

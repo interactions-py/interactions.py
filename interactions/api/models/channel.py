@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class ChannelType(IntEnum):
@@ -60,6 +60,8 @@ class ThreadMember(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.user_id = Snowflake(self.user_id) if hasattr(self, "user_id") else None
 
 
 class ThreadList(DictSerializerMixin):
@@ -67,6 +69,12 @@ class ThreadList(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.channel_ids = (
+            [Snowflake(channel_id) for channel_id in self.channel_ids]
+            if hasattr(self, "channel_id")
+            else None
+        )
 
 
 class Channel(DictSerializerMixin):
@@ -137,6 +145,16 @@ class Channel(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.last_message_id = (
+            Snowflake(self.last_message_id) if hasattr(self, "last_message_id") else None
+        )
+        self.owner_id = Snowflake(self.owner_id) if hasattr(self, "owner_id") else None
+        self.application_id = (
+            Snowflake(self.application_id) if hasattr(self, "application_id") else None
+        )
+        self.parent_id = Snowflake(self.parent_id) if hasattr(self, "parent_id") else None
 
 
 class ChannelPins(DictSerializerMixin):
@@ -144,3 +162,5 @@ class ChannelPins(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.guild_id = Snowflake(self.channel_id) if hasattr(self, "channel_id") else None

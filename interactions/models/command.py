@@ -87,7 +87,7 @@ class Option(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self._json["type"] = OptionType(kwargs["type"]).value
+        self._json.update({"type": self.type.value})
         if self._json.get("choices"):
             self._json["choices"] = [choice._json for choice in self.choices]
 
@@ -109,7 +109,7 @@ class Permission(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self._json["type"] = PermissionType(kwargs["type"]).value
+        self._json.update({"type": self.type.value})
 
 
 class ApplicationCommand(DictSerializerMixin):
@@ -158,10 +158,9 @@ class ApplicationCommand(DictSerializerMixin):
     permissions: Optional[List[Permission]]
     version: int
 
-    # TODO: Investigate these and document them. These are apparently a thing.
-    # permission v2?
+    # TODO: Investigate these once documented by Discord.
     default_member_permissions: Optional[Any]
-    dm_permission: Optional[Any]  # Could be any idk
+    dm_permission: Optional[Any]
 
     name_localizations: Optional[Dict[str, str]]
     description_localizations: Optional[Dict[str, str]]

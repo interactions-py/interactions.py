@@ -1,4 +1,4 @@
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class ChannelPins(DictSerializerMixin):
@@ -6,6 +6,8 @@ class ChannelPins(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if hasattr(self, "channel_id") else None
 
 
 class GuildBan(DictSerializerMixin):
@@ -13,6 +15,7 @@ class GuildBan(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class GuildEmojis(DictSerializerMixin):
@@ -20,6 +23,7 @@ class GuildEmojis(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class GuildIntegrations(DictSerializerMixin):
@@ -27,6 +31,7 @@ class GuildIntegrations(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class GuildMember(DictSerializerMixin):
@@ -46,6 +51,7 @@ class GuildMember(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class GuildMembers(DictSerializerMixin):
@@ -62,6 +68,7 @@ class GuildMembers(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class GuildRole(DictSerializerMixin):
@@ -69,6 +76,8 @@ class GuildRole(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.role_id = Snowflake(self.role_id) if hasattr(self, "role_id") else None
 
 
 class GuildStickers(DictSerializerMixin):
@@ -76,6 +85,7 @@ class GuildStickers(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class Integration(DictSerializerMixin):
@@ -103,12 +113,19 @@ class Integration(DictSerializerMixin):
         "guild_id",
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.role_id = Snowflake(self.role_id) if hasattr(self, "role_id") else None
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+
 
 class Presence(DictSerializerMixin):
     __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class Reaction(DictSerializerMixin):
@@ -116,6 +133,10 @@ class Reaction(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.user_id = Snowflake(self.user_id) if hasattr(self, "user_id") else None
+        self.channel_id = Snowflake(self.channel_id) if hasattr(self, "channel_id") else None
+        self.message_id = Snowflake(self.message_id) if hasattr(self, "message_id") else None
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
 
 
 class ReactionRemove(Reaction):
@@ -128,6 +149,12 @@ class ThreadList(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.channel_ids = (
+            [Snowflake(channel_id) for channel_id in self.channel_ids]
+            if hasattr(self, "channel_ids")
+            else None
+        )
 
 
 class ThreadMembers(DictSerializerMixin):
@@ -135,3 +162,10 @@ class ThreadMembers(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.removed_member_ids = (
+            [Snowflake(removed_member_id) for removed_member_id in self.removed_member_ids]
+            if hasattr(self, "removed_member_ids")
+            else None
+        )

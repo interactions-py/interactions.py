@@ -148,6 +148,8 @@ class Component(DictSerializerMixin):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.type = ComponentType(self.type)
+        self.style = ButtonStyle(self.style) if self.style else None
+        self.options = [SelectMenu(**option) for option in self.options] if self.options else None
 
 
 class ActionRow(DictSerializerMixin):

@@ -52,6 +52,8 @@ class WelcomeChannels(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.channel_id = Snowflake(self.channel_id) if self.channel_id else None
+        self.emoji_id = Snowflake(self.emoji_id) if self.emoji_id else None
 
 
 class WelcomeScreen(DictSerializerMixin):
@@ -97,6 +99,9 @@ class StageInstance(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.guild_id = Snowflake(self.guild_id) if hasattr(self, "guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if hasattr(self, "channel_id") else None
 
 
 class Guild(DictSerializerMixin):
@@ -211,18 +216,11 @@ class Guild(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # the hasattrs are only here because for some reason
-        # when it boots up, discord apparently has it fire
-        # a guild member update to the bot, which then fires this construct.
-
-        if hasattr(self, "id"):
-            self.id = Snowflake(
-                self.id
-            )  # This converts it from data json "string" to Snowflake "string"
-        if hasattr(self, "owner_id"):
-            self.owner_id = Snowflake(self.owner_id)
-            if self.afk_channel_id:
-                self.afk_channel_id = Snowflake(self.afk_channel_id)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.owner_id = Snowflake(self.owner_id) if hasattr(self, "owner_id") else None
+        self.afk_channel_id = (
+            Snowflake(self.afk_channel_id) if hasattr(self, "afk_channel_id") else None
+        )
 
 
 class GuildPreview(DictSerializerMixin):
@@ -260,6 +258,7 @@ class GuildPreview(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
 
 
 class Integration(DictSerializerMixin):
@@ -282,6 +281,11 @@ class Integration(DictSerializerMixin):
         "revoked",
         "application",
     )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.role_id = Snowflake(self.role_id) if hasattr(self, "role_id") else None
 
 
 class Invite(DictSerializerMixin):
@@ -335,6 +339,10 @@ class GuildTemplate(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.creator_id = Snowflake(self.creator_id) if hasattr(self, "creator_id") else None
+        self.source_guild_id = (
+            Snowflake(self.source_guild_id) if hasattr(self, "source_guild_id") else None
+        )
 
 
 class EventMetadata(DictSerializerMixin):
@@ -394,3 +402,7 @@ class ScheduledEvents(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.channel_id = Snowflake(self.channel_id) if hasattr(self, "channel_id") else None
+        self.creator_id = Snowflake(self.creator_id) if hasattr(self, "creator_id") else None
+        self.entity_id = Snowflake(self.entity_id) if hasattr(self, "entity_id") else None
