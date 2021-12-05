@@ -1003,7 +1003,6 @@ class HTTPClient:
         :param guild_id: Guild ID snowflake.
         :return: A list of banned users.
         """
-        # TODO: Create banned entry.
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/bans"))
 
     async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]:
@@ -2310,6 +2309,18 @@ class HTTPClient:
 
         return await self._req.request(
             Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}")
+        )
+
+    async def delete_original_webhook_message(self, webhook_id: int, webhook_token: str) -> None:
+        """
+        Deletes the original message object sent.
+
+        :param webhook_id: Webhook ID snowflake.
+        :param webhook_token: Webhook token.
+        """
+
+        return await self._req.request(
+            Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/@original")
         )
 
     # Emoji endpoints, a subset of guild but it should get it's own thing...

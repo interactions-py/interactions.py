@@ -112,8 +112,6 @@ class Guild(DictSerializerMixin):
     nsfw_level: int
     stage_instances: Optional[StageInstance]
     stickers: Optional[List[Sticker]]
-
-    # TODO: slot guild here and the other models below
     def __init__(self, **kwargs): ...
 
 class GuildPreview(DictSerializerMixin):

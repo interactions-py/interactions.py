@@ -262,6 +262,28 @@ class GuildPreview(DictSerializerMixin):
         super().__init__(**kwargs)
 
 
+class Integration(DictSerializerMixin):
+
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "type",
+        "enabled",
+        "syncing",
+        "role_id",
+        "enable_emoticons",
+        "expire_behavior",
+        "expire_grace_period",
+        "user",
+        "account",
+        "synced_at",
+        "subscriber_count",
+        "revoked",
+        "application",
+    )
+
+
 class Invite(DictSerializerMixin):
     """
     The invite object.

@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 from typing import Optional, Union
 
-# TODO: Reorganise these models based on which big obj uses little obj
 # TODO: Potentially rename some model references to enums, if applicable
 # TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug

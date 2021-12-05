@@ -158,8 +158,8 @@ class ApplicationCommand(DictSerializerMixin):
     permissions: Optional[List[Permission]]
     version: int
 
-    # TODO: Investigate these. These are apparently a thing.
-    # TODO: And document them.
+    # TODO: Investigate these and document them. These are apparently a thing.
+    # permission v2?
     default_member_permissions: Optional[Any]
     dm_permission: Optional[Any]  # Could be any idk
 

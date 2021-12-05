@@ -54,7 +54,9 @@ class GuildMembers(DictSerializerMixin):
     chunk_index: int
     chunk_count: int
     not_found: Optional[list]
-    presences: Optional[list]  # TODO: build Presence data model(s)
+    presences: Optional[
+        List["Presence"]
+    ]  # TODO: Check what this returns, then compare to existing models first.
     nonce: Optional[str]
     def __init__(self, **kwargs): ...
 

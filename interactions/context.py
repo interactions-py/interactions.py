@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import interactions.client
 
-from .api.http import HTTPClient, Route
+from .api.http import HTTPClient
 from .api.models.channel import Channel
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
@@ -198,7 +198,6 @@ class InteractionContext(Context):
         # TODO: Add attachments into Message obj.
         self.message = payload
 
-        # TODO: cache.token doesn't exist yet.
         async def func():
             if self.responded:
                 req = await self.client._post_followup(
@@ -306,11 +305,7 @@ class InteractionContext(Context):
                 webhook_id=int(self.id), webhook_token=self.token, message_id=self.message.id
             )
         else:
-            # TODO: Wait for Delta to implement an equivocate request method
-            # in the HTTPClient for consistency reasons.
-            await self.client._req.request(
-                Route("DELETE", f"/webhooks/{self.id}/{self.token}/messages/@original")
-            )
+            await self.client.delete_original_webhook_message(int(self.id), self.token)
         self.message = None
 
 

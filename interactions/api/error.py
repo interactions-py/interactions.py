@@ -93,7 +93,7 @@ class InteractionException(Exception):
         _empty_space = " "
 
         # TODO: determine need. do we need to override at all?
-        _overrided = "message" in self.kwargs.keys()
+        _overrided = "message" in self.kwargs
 
         if issubclass(type(self._type), IntEnum):
             _err_val = self.type.name

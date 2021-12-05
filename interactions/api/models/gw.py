@@ -80,7 +80,28 @@ class GuildStickers(DictSerializerMixin):
 
 class Integration(DictSerializerMixin):
     ...
-    # TODO: Make an actual integration data model in the guild file.
+    # the difference between gw's implementation and guilds' is the Guild ID key.
+    # TODO: Document guilds' implementation of integration
+
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "type",
+        "enabled",
+        "syncing",
+        "role_id",
+        "enable_emoticons",
+        "expire_behavior",
+        "expire_grace_period",
+        "user",
+        "account",
+        "synced_at",
+        "subscriber_count",
+        "revoked",
+        "application",
+        "guild_id",
+    )
 
 
 class Presence(DictSerializerMixin):
