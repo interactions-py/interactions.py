@@ -155,6 +155,60 @@ class Guild(DictSerializerMixin):
     :ivar typing.Optional[typing.List[interactions.api.models.message.Sticker]] stickers: The list of stickers from the guild.
     """
 
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "icon",
+        "icon_hash",
+        "splash",
+        "discovery_splash",
+        "owner",
+        "owner_id",
+        "permissions",
+        "region",
+        "afk_channel_id",
+        "afk_timeout",
+        "widget_enabled",
+        "widget_channel_id",
+        "verification_level",
+        "default_message_notifications",
+        "explicit_content_filter",
+        "roles",
+        "emojis",
+        "features",
+        "mfa_level",
+        "application_id",
+        "system_channel_id",
+        "system_channel_flags",
+        "rules_channel_id",
+        "joined_at",
+        "large",
+        "unavailable",
+        "member_count",
+        "voice_states",
+        "members",
+        "channels",
+        "threads",
+        "presences",
+        "max_presences",
+        "max_members",
+        "vanity_url_code",
+        "description",
+        "banner",
+        "premium_tier",
+        "premium_subscription_count",
+        "preferred_locale",
+        "public_updates_channel_id",
+        "max_video_channel_users",
+        "approximate_member_count",
+        "approximate_presence_count",
+        "welcome_screen",
+        "nsfw_level",
+        "stage_instances",
+        "stickers",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # the hasattrs are only here because for some reason
@@ -190,6 +244,20 @@ class GuildPreview(DictSerializerMixin):
     :ivar typing.Optional[str] description: The description of the guild.
     """
 
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "icon",
+        "splash",
+        "discovery_splash",
+        "emoji",
+        "features",
+        "approximate_member_count",
+        "approximate_presence_count",
+        "description",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -204,6 +272,8 @@ class Invite(DictSerializerMixin):
     :ivar bool temporary: A detection of whether this invite is temporary or not.
     :ivar datetime created_at: The time when this invite was created.
     """
+
+    __slots__ = ("_json", "uses", "max_uses", "max_age", "temporary", "created_at")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -226,6 +296,21 @@ class GuildTemplate(DictSerializerMixin):
     :ivar typing.Optional[bool] is_dirty: A status that denotes if the changes are unsynced.
     """
 
+    __slots__ = (
+        "_json",
+        "code",
+        "name",
+        "description",
+        "usage_count",
+        "creator_id",
+        "creator",
+        "created_at",
+        "updated_at",
+        "source_guild_id",
+        "serialized_source_guild",
+        "is_dirty",
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -236,6 +321,8 @@ class EventMetadata(DictSerializerMixin):
 
     :ivar typing.Optional[str] location: The location of the event, if any.
     """
+
+    __slots__ = ("_json", "location")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -264,6 +351,24 @@ class ScheduledEvents(DictSerializerMixin):
     :ivar typing.Optional[User] creator: The user that created the scheduled event.
     :ivar typing.Optional[int] user_count: The number of users subscribed to the scheduled event.
     """
+
+    __slots__ = (
+        "_json",
+        "id",
+        "guild_id",
+        "channel_id",
+        "creator_id",
+        "name",
+        "description",
+        "scheduled_start_time",
+        "scheduled_end_time",
+        "privacy_level",
+        "entity_type",
+        "entity_id",
+        "entity_metadata",
+        "creator",
+        "user_count",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

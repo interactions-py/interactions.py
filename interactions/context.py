@@ -95,7 +95,7 @@ class InteractionContext(Context):
     async def defer(self, ephemeral: Optional[bool] = None) -> None:
         """
         This \"defers\" an interaction response, allowing up
-        to a 15-minute delay between invokation and responding.
+        to a 15-minute delay between invocation and responding.
 
         :param ephemeral: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
@@ -131,7 +131,7 @@ class InteractionContext(Context):
         ephemeral: Optional[bool] = None,
     ) -> Message:
         """
-        This allows the invokation state described in the "context"
+        This allows the invocation state described in the "context"
         to send an interaction response.
 
         :param content: The contents of the message as a string or string-converted value.
@@ -155,7 +155,11 @@ class InteractionContext(Context):
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: list = [{"type": 1, "components": []}]
 
@@ -236,7 +240,11 @@ class InteractionContext(Context):
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
-        _embeds: list = [] if embeds is None else [embed._json for embed in embeds]
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
         _components: list = [{"type": 1, "components": []}]
@@ -395,7 +403,11 @@ class AutocompleteContext(InteractionContext):
                 _choices: list = []
                 if all(isinstance(choice, Choice) for choice in choices):
                     _choices = [choice._json for choice in choices]
-                elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
+                # elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
+                elif all(
+                    isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
+                    for choice in choices
+                ):
                     _choices = [choice for choice in choices]
                 elif isinstance(choices, Choice):
                     _choices = [choices._json]

@@ -187,7 +187,7 @@ class Request:
                 kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
 
                 try:
-                    reason = kwargs.get("reason")
+                    reason = kwargs.pop("reason")
                 except:  # noqa
                     pass
                 else:
@@ -1053,7 +1053,7 @@ class HTTPClient:
             },
         )
 
-        self.cache.members.add(Item(id=user_id, value=request))
+        self.cache.members.add(Item(id=str(user_id), value=request))
 
         return request
 
