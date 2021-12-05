@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import IntEnum
 
 from .member import Member
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 from .user import User
 
 
@@ -35,6 +35,7 @@ class MessageActivity(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.party_id = Snowflake(self.party_id) if self._json.get("party_id") else None
 
 
 class MessageReference(DictSerializerMixin):
@@ -55,6 +56,9 @@ class MessageReference(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.message_id = Snowflake(self.message_id) if self._json.get("message_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
 
 
 class Attachment(DictSerializerMixin):
@@ -91,6 +95,7 @@ class Attachment(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
 
 
 class MessageInteraction(DictSerializerMixin):
@@ -108,6 +113,7 @@ class MessageInteraction(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
 
 
 class ChannelMention(DictSerializerMixin):
@@ -125,6 +131,8 @@ class ChannelMention(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
 
 
 class Message(DictSerializerMixin):
@@ -203,6 +211,14 @@ class Message(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.webhook_id = Snowflake(self.webhook_id) if self._json.get("webhook_id") else None
+        self.application_id = (
+            Snowflake(self.application_id) if self._json.get("application_id") else None
+        )
         self.timestamp = (
             datetime.fromisoformat(self._json.get("timestamp"))
             if self._json.get("timestamp")
@@ -239,6 +255,7 @@ class Emoji(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
 
 
 class ReactionObject(DictSerializerMixin):
@@ -268,6 +285,7 @@ class PartialSticker(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
 
 
 class Sticker(PartialSticker):
@@ -306,6 +324,8 @@ class Sticker(PartialSticker):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.pack_id = Snowflake(self.pack_id) if self._json.get("pack_id") else None
 
 
 class EmbedImageStruct(DictSerializerMixin):

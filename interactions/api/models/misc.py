@@ -6,7 +6,7 @@ import datetime
 import logging
 from typing import Union
 
-log = logging.getLogger("interactions.mixin")
+log = logging.getLogger("mixin")
 
 
 class DictSerializerMixin(object):

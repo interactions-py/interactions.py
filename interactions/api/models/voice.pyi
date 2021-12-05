@@ -2,15 +2,15 @@ from datetime import datetime
 from typing import Optional
 
 from .member import Member
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 class VoiceState(DictSerializerMixin):
     _json: dict
-    guild_id: Optional[int]
-    channel_id: Optional[int]
+    guild_id: Optional[Snowflake]
+    channel_id: Optional[Snowflake]
     user_id: int
     member: Member
-    session_id: str
+    session_id: Snowflake
     deaf: bool
     mute: bool
     self_deaf: bool
@@ -23,7 +23,7 @@ class VoiceState(DictSerializerMixin):
 
 class VoiceRegion(DictSerializerMixin):
     _json: dict
-    id: str
+    id: Snowflake
     name: str
     optimal: bool
     deprecated: bool

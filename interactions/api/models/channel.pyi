@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional
 
-from .misc import DictSerializerMixin, Overwrite
+from .misc import DictSerializerMixin, Overwrite, Snowflake
 from .user import User
 
 class ChannelType(IntEnum):
@@ -29,8 +29,8 @@ class ThreadMetadata(DictSerializerMixin):
 
 class ThreadMember(DictSerializerMixin):
     _json: dict
-    id: Optional[int]  # intents
-    user_id: Optional[int]
+    id: Optional[Snowflake]  # intents
+    user_id: Optional[Snowflake]
     join_timestamp: datetime.timestamp
     flags: int
     def __init__(self, **kwargs): ...
@@ -39,21 +39,21 @@ class Channel(DictSerializerMixin):
     _json: dict
     id: int  # "Snowflake"
     type: int
-    guild_id: Optional[int]
+    guild_id: Optional[Snowflake]
     position: Optional[int]
     permission_overwrites: List[Overwrite]
     name: str  # This apparently exists in DMs. Untested in v9, known in v6
     topic: Optional[str]
     nsfw: Optional[bool]
-    last_message_id: Optional[int]
+    last_message_id: Optional[Snowflake]
     bitrate: Optional[int]  # not really needed in our case
     user_limit: Optional[int]
     rate_limit_per_user: Optional[int]
     recipients: Optional[List[User]]
     icon: Optional[str]
-    owner_id: Optional[int]
-    application_id: Optional[int]
-    parent_id: Optional[int]
+    owner_id: Optional[Snowflake]
+    application_id: Optional[Snowflake]
+    parent_id: Optional[Snowflake]
     last_pin_timestamp: Optional[datetime]
     rtc_region: Optional[str]
     video_quality_mode: Optional[int]

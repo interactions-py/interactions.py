@@ -11,31 +11,31 @@ from .user import User
 
 class ChannelPins(DictSerializerMixin):
     _json: dict
-    guild_id: Optional[str]
-    channel_id: str
+    guild_id: Optional[Snowflake]
+    channel_id: Snowflake
     last_pin_timestamp: Optional[datetime]
     def __init__(self, **kwargs): ...
 
 class GuildBan(DictSerializerMixin):
     _json: dict
-    guild_id: str
+    guild_id: Snowflake
     user: User
     def __init__(self, **kwargs): ...
 
 class GuildEmojis(DictSerializerMixin):
     _json: dict
-    guild_id: str
+    guild_id: Snowflake
     emojis: List[Emoji]
     def __init__(self, **kwargs): ...
 
 class GuildIntegrations(DictSerializerMixin):
     _json: dict
-    guild_id: str
+    guild_id: Snowflake
     def __init__(self, **kwargs): ...
 
 class GuildMember(DictSerializerMixin):
     _json: dict
-    guild_id: str
+    guild_id: Snowflake
     roles: Optional[List[str]]
     user: Optional[User]
     nick: Optional[str]
@@ -49,7 +49,7 @@ class GuildMember(DictSerializerMixin):
 
 class GuildMembers(DictSerializerMixin):
     _json: dict
-    guild_id: str
+    guild_id: Snowflake
     members: List[Member]
     chunk_index: int
     chunk_count: int
@@ -62,14 +62,14 @@ class GuildMembers(DictSerializerMixin):
 
 class GuildRole(DictSerializerMixin):
     _json: dict
-    guild_id: str
+    guild_id: Snowflake
     role: Role
-    role_id: Optional[str]
+    role_id: Optional[Snowflake]
     def __init__(self, **kwargs): ...
 
 class GuildStickers(DictSerializerMixin):
     _json: dict
-    guild_id: str
+    guild_id: Snowflake
     stickers: List[Sticker]
     def __init__(self, **kwargs): ...
 
@@ -78,7 +78,7 @@ class Integration(DictSerializerMixin): ...
 class Presence(DictSerializerMixin):
     _json: dict
     user: User
-    guild_id: str
+    guild_id: Snowflake
     status: str
     activities: List[PresenceActivity]
     client_status: ClientStatus

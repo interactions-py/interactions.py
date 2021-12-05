@@ -11,7 +11,7 @@ from .api.models.intents import Intents
 from .api.models.team import Application
 from .base import Data
 from .enums import ApplicationCommandType
-from .models.command import ApplicationCommand, Option, Permission
+from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu
 
 basicConfig(level=Data.LOGGER)
@@ -67,7 +67,9 @@ class Client:
         else:
             self.automate_sync = True
 
-        self.loop.run_until_complete(self.ready())
+        if not self.me:
+            data = self.loop.run_until_complete(self.http.get_current_bot_information())
+            self.me = Application(**data)
 
     async def login(self, token: str) -> None:
         """
@@ -84,7 +86,7 @@ class Client:
         """Starts the client session."""
         self.loop.run_until_complete(self.ready())
 
-    async def ready(self) -> bool:
+    async def ready(self) -> None:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
@@ -102,9 +104,6 @@ class Client:
             |   |___ SYNCHRONIZE
             |   |___ CALLBACK
             LOOP
-
-        :return: Whether the client is ready or not.
-        :rtype: bool
         """
         ready: bool = False
 
@@ -114,15 +113,8 @@ class Client:
             self.websocket.dispatch.register(self.raw_message_create, "on_message_create")
             self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
 
-        async def populate_values() -> None:
-            if not self.me:
-                data = await self.http.get_current_bot_information()
-                self.me = Application(**data)
-            await self.synchronize()
-
         try:
-            register_events()
-            await populate_values()
+            await self.synchronize()
             ready = True
         except Exception as error:
             log.critical(f"Could not prepare the client: {error}")
@@ -130,7 +122,6 @@ class Client:
             if ready:
                 log.debug("Client is now ready.")
                 await self.login(self.token)
-            return ready
 
     async def synchronize(self, payload: Optional[ApplicationCommand] = None) -> None:
         """
@@ -146,9 +137,12 @@ class Client:
         :param payload: The payload/object of the command.
         :type payload: Optional[ApplicationCommand]
         """
+        _guild = None
+        if payload:
+            _guild = str(payload.guild_id)
 
         commands: List[dict] = await self.http.get_application_command(
-            application_id=self.me.id, guild_id=payload.guild_id if payload else None
+            application_id=str(self.me.id), guild_id=_guild
         )
         command_names: List[str] = [command["name"] for command in commands]
 
@@ -264,9 +258,9 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
         default_permission: Optional[bool] = None,
-        permissions: Optional[
-            Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
-        ] = None,
+        # permissions: Optional[
+        #     Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
+        # ] = None,
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,

@@ -1,11 +1,11 @@
 from typing import Any, Optional
 
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 class RoleTags(DictSerializerMixin):
     _json: dict
-    bot_id: Optional[int]
-    integration_id: Optional[int]
+    bot_id: Optional[Snowflake]
+    integration_id: Optional[Snowflake]
     premium_subscriber: Optional[Any]
     def __init__(self, **kwargs): ...
 

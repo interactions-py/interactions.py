@@ -1,4 +1,4 @@
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class TeamMember(DictSerializerMixin):
@@ -17,6 +17,7 @@ class TeamMember(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.team_id = Snowflake(self.team_id) if self._json.get("team_id") else None
 
 
 class Team(DictSerializerMixin):
@@ -32,6 +33,10 @@ class Team(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.owner_user_id = (
+            Snowflake(self.owner_user_id) if self._json.get("owner_user_id") else None
+        )
 
 
 class Application(DictSerializerMixin):
@@ -91,3 +96,8 @@ class Application(DictSerializerMixin):
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.primary_sku_id = (
+            Snowflake(self.primary_sku_id) if self._json.get("primary_sku_id") else None
+        )

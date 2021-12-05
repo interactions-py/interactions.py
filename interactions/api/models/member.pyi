@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .misc import DictSerializerMixin
 from .user import User
@@ -19,4 +19,5 @@ class Member(DictSerializerMixin):
     pending: Optional[bool]
     permissions: Optional[str]
     communication_disabled_until: Optional[str]
+    hoisted_role: Any  # TODO: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...

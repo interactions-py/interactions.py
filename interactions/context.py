@@ -16,7 +16,7 @@ from .models.command import Choice
 from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
-log = logging.getLogger("interactions.context")
+log = logging.getLogger("context")
 
 
 class Context(DictSerializerMixin):

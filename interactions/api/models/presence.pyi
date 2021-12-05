@@ -1,12 +1,12 @@
 from typing import List, Optional
 
 from .message import Emoji
-from .misc import ClientStatus, DictSerializerMixin
+from .misc import ClientStatus, DictSerializerMixin, Snowflake
 from .user import User
 
 class _PresenceParty(DictSerializerMixin):
     _json: dict
-    id: Optional[str]
+    id: Optional[Snowflake]
     size: Optional[List[int]]
     def __init__(self, **kwargs): ...
 
@@ -44,7 +44,7 @@ class PresenceActivity(DictSerializerMixin):
     url: Optional[str]
     created_at: int
     timestamps: Optional[_PresenceTimestamp]
-    application_id: Optional[int]
+    application_id: Optional[Snowflake]
     details: Optional[str]
     state: Optional[str]
     emoji: Optional[Emoji]

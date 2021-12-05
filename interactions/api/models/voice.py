@@ -1,4 +1,4 @@
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class VoiceState(DictSerializerMixin):
@@ -56,6 +56,7 @@ class VoiceRegion(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
 
 
 class Voice(VoiceState):
@@ -99,3 +100,7 @@ class Voice(VoiceState):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
+        self.session_id = Snowflake(self.session_id) if self._json.get("session_id") else None

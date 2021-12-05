@@ -43,4 +43,4 @@ class User(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if hasattr(self, "id") else None
+        self.id = Snowflake(self.id) if self._json.get("id") else None

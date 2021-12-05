@@ -8,7 +8,7 @@ client = interactions.Client(token=TOKEN, disable_sync=True)
 
 @client.event
 async def on_ready():
-    print(f"{client.me.name} logged in.")
+    print(f"{client.me.name} ({client.me.id} {(type(client.me.id))}) logged in.")
 
 
 cool_component = interactions.Button(

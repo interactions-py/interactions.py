@@ -1,4 +1,4 @@
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class _PresenceParty(DictSerializerMixin):
@@ -107,6 +107,9 @@ class PresenceActivity(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.application_id = (
+            Snowflake(self.application_id) if self._json.get("application_id") else None
+        )
 
 
 class PresenceUpdate(DictSerializerMixin):
@@ -124,3 +127,4 @@ class PresenceUpdate(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None

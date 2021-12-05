@@ -1,4 +1,4 @@
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 
 
 class RoleTags(DictSerializerMixin):
@@ -14,6 +14,11 @@ class RoleTags(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.bot_id = Snowflake(self.bot_id) if self._json.get("bot_id") else None
+        self.integration_id = (
+            Snowflake(self.integration_id) if self._json.get("integration_id") else None
+        )
 
 
 class Role(DictSerializerMixin):
@@ -49,3 +54,4 @@ class Role(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None

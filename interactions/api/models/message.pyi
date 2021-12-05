@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel
 from .member import Member
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 from .team import Application
 from .user import User
 
@@ -36,14 +36,14 @@ class MessageType(IntEnum):
 class MessageActivity(DictSerializerMixin):
     _json: dict
     type: int
-    party_id: Optional[str]
+    party_id: Optional[Snowflake]
     def __init__(self, **kwargs): ...
 
 class MessageReference(DictSerializerMixin):
     _json: dict
-    message_id: Optional[int]
-    channel_id: Optional[int]
-    guild_id: Optional[int]
+    message_id: Optional[Snowflake]
+    channel_id: Optional[Snowflake]
+    guild_id: Optional[Snowflake]
     fail_if_not_exists: Optional[bool]
     def __init__(self, **kwargs): ...
 
@@ -79,7 +79,7 @@ class Message(DictSerializerMixin):
     _json: dict
     id: int
     channel_id: int
-    guild_id: Optional[int]
+    guild_id: Optional[Snowflake]
     author: User
     member: Optional[Member]
     content: str
@@ -96,7 +96,7 @@ class Message(DictSerializerMixin):
     reactions: Optional[List["ReactionObject"]]
     nonce: Union[int, str]
     pinned: bool
-    webhook_id: Optional[int]
+    webhook_id: Optional[Snowflake]
     type: int
     activity: Optional[MessageActivity]
     application: Optional[Application]
@@ -114,7 +114,7 @@ class Message(DictSerializerMixin):
 
 class Emoji(DictSerializerMixin):
     _json: dict
-    id: Optional[int]
+    id: Optional[Snowflake]
     name: Optional[str]
     roles: Optional[List[str]]
     user: Optional[User]
@@ -140,13 +140,13 @@ class PartialSticker(DictSerializerMixin):
 
 class Sticker(PartialSticker):
     _json: dict
-    pack_id: Optional[int]
+    pack_id: Optional[Snowflake]
     description: Optional[str]
     tags: str
     asset: str  # deprecated
     type: int  # has its own dedicated enum
     available: Optional[bool]
-    guild_id: Optional[int]
+    guild_id: Optional[Snowflake]
     user: Optional[User]
     sort_value: Optional[int]
     def __init__(self, **kwargs): ...

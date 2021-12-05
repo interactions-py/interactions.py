@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .channel import Channel
 from .member import Member
@@ -40,7 +40,7 @@ class WelcomeChannels(DictSerializerMixin):
     _json: dict
     channel_id: int
     description: str
-    emoji_id: Optional[int]
+    emoji_id: Optional[Snowflake]
     emoji_name: Optional[str]
     def __init__(self, **kwargs): ...
 
@@ -72,10 +72,10 @@ class Guild(DictSerializerMixin):
     owner_id: int
     permissions: Optional[str]
     region: Optional[str]  # None, we don't do Voices.
-    afk_channel_id: Optional[int]
+    afk_channel_id: Optional[Snowflake]
     afk_timeout: int
     widget_enabled: Optional[bool]
-    widget_channel_id: Optional[int]
+    widget_channel_id: Optional[Snowflake]
     verification_level: int
     default_message_notifications: int
     explicit_content_filter: int
@@ -83,10 +83,10 @@ class Guild(DictSerializerMixin):
     emojis: List[Emoji]
     features: List[GuildFeature]
     mfa_level: int
-    application_id: Optional[int]
-    system_channel_id: Optional[int]
+    application_id: Optional[Snowflake]
+    system_channel_id: Optional[Snowflake]
     system_channel_flags: int
-    rules_channel_id: Optional[int]
+    rules_channel_id: Optional[Snowflake]
     joined_at: Optional[datetime]
     large: Optional[bool]
     unavailable: Optional[bool]
@@ -104,7 +104,7 @@ class Guild(DictSerializerMixin):
     premium_tier: int
     premium_subscription_count: Optional[int]
     preferred_locale: str
-    public_updates_channel_id: Optional[int]
+    public_updates_channel_id: Optional[Snowflake]
     max_video_channel_users: Optional[int]
     approximate_member_count: Optional[int]
     approximate_presence_count: Optional[int]
@@ -112,6 +112,17 @@ class Guild(DictSerializerMixin):
     nsfw_level: int
     stage_instances: Optional[StageInstance]
     stickers: Optional[List[Sticker]]
+
+    # TODO: Investigate all of these once Discord has them all documented.
+    guild_hashes: Any
+    embedded_activities: Any
+    guild_scheduled_events: Any
+    nsfw: Any
+    application_command_count: Any
+    premium_progress_bar_enabled: Any
+    hub_type: Any
+    lazy: Any
+    application_command_counts: Any
     def __init__(self, **kwargs): ...
 
 class GuildPreview(DictSerializerMixin):

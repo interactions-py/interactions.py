@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from .misc import DictSerializerMixin
+from .misc import DictSerializerMixin, Snowflake
 from .user import User
 
 class TeamMember(DictSerializerMixin):
@@ -39,8 +39,8 @@ class Application(DictSerializerMixin):
     summary: str
     verify_key: str
     team: Optional[Team]
-    guild_id: Optional[int]
-    primary_sku_id: Optional[int]
+    guild_id: Optional[Snowflake]
+    primary_sku_id: Optional[Snowflake]
     slug: Optional[str]
     cover_image: Optional[str]
     flags: Optional[int]
