@@ -319,9 +319,9 @@ class Client:
             if scope:
                 if isinstance(scope, list):
                     if all(isinstance(guild, Guild) for guild in scope):
-                        _scope.append(guild.id for guild in scope)
+                        [_scope.append(guild.id) for guild in scope]
                     elif all(isinstance(guild, int) for guild in scope):
-                        _scope.append(guild for guild in scope)
+                        [_scope.append(guild) for guild in scope]
                 else:
                     _scope.append(scope)
 

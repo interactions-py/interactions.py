@@ -3,7 +3,7 @@ import interactions
 
 TOKEN = open(".token").read().split("\n")[0]
 
-client = interactions.Client(token=TOKEN, disable_sync=False)
+client = interactions.Client(token=TOKEN, disable_sync=True)
 
 
 @client.event
@@ -30,6 +30,7 @@ cool_component = interactions.Button(
     ],
 )
 async def sub_command(ctx):
+    await ctx.defer()
     await ctx.send("just some proof, subcommands *do* in fact work.")
 
 

@@ -62,6 +62,13 @@ class ThreadMember(DictSerializerMixin):
         super().__init__(**kwargs)
 
 
+class ThreadList(DictSerializerMixin):
+    __slots__ = ("_json", "guild_id", "channel_ids", "threads", "members")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class Channel(DictSerializerMixin):
     """
     A class object representing all types of channels.
@@ -127,6 +134,13 @@ class Channel(DictSerializerMixin):
         "default_auto_archive_duration",
         "permissions",
     )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class ChannelPins(DictSerializerMixin):
+    __slots__ = ("_json", "guild_id", "channel_id", "last_pin_timestamp")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

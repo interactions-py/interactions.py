@@ -18,8 +18,6 @@ class Context(DictSerializerMixin):
     user: User
     channel: Channel
     guild: Guild
-    args: List[Any]
-    kwargs: Dict[Any, Any]
     client: HTTPClient
 
     # TODO: Alias author for member
@@ -29,7 +27,7 @@ class InteractionContext(Context):
 
     id: str
     application_id: str
-    type: Union[str, int, InteractionType]
+    type: Union[int, InteractionType]
     data: InteractionData
     guild_id: str
     channel_id: str

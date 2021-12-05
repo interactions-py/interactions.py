@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import IntEnum
 
+from .member import Member
 from .misc import DictSerializerMixin
 from .user import User
 
@@ -18,16 +19,16 @@ class MessageType(IntEnum):
 
 class MessageActivity(DictSerializerMixin):
     """
-    A class object representing the activity state of a message.
+        A class object representing the activity state of a message.
+    ~
+        .. note::
+            ``party_id`` is ambiguous -- Discord poorly documented this. :)
 
-    .. note::
-        ``party_id`` is ambiguous -- Discord poorly documented this. :)
+            We assume it's for game rich presence invites?
+            i.e. : Phasmophobia, Call of Duty
 
-        We assume it's for game rich presence invites?
-        i.e. : Phasmophobia, Call of Duty
-
-    :ivar int type: The message activity type.
-    :ivar typing.Optional[str] party_id: The party ID of the activity.
+        :ivar int type: The message activity type.
+        :ivar typing.Optional[str] party_id: The party ID of the activity.
     """
 
     __slots__ = ("_json", "type", "party_id")
@@ -208,6 +209,7 @@ class Message(DictSerializerMixin):
             else datetime.utcnow()
         )
         self.author = User(**self._json.get("author")) if self._json.get("author") else None
+        self.member = Member(**self._json.get("member")) if self._json.get("member") else None
 
 
 class Emoji(DictSerializerMixin):

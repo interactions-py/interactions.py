@@ -19,7 +19,6 @@ class ChannelType(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 class ThreadMetadata(DictSerializerMixin):
-
     _json: dict
     archived: bool
     auto_archive_duration: int
@@ -37,7 +36,6 @@ class ThreadMember(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Channel(DictSerializerMixin):
-
     _json: dict
     id: int  # "Snowflake"
     type: int

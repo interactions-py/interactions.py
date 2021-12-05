@@ -58,7 +58,6 @@ class InteractionContext(Context):
 
     __slots__ = (
         "message",
-        "author",
         "channel",
         "user",
         "guild",
@@ -104,10 +103,16 @@ class InteractionContext(Context):
         _type: InteractionCallbackType
 
         if bool(ephemeral):
-            _type = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+            if self.type == InteractionType.MESSAGE_COMPONENT:
+                _type = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+            elif self.type == InteractionType.APPLICATION_COMMAND:
+                _type = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
             self.deferred = True
         else:
-            _type = InteractionCallbackType.UPDATE_MESSAGE
+            if self.type == InteractionType.MESSAGE_COMPONENT:
+                _type = InteractionCallbackType.UPDATE_MESSAGE
+            elif self.type == InteractionType.APPLICATION_COMMAND:
+                _type = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
             token=self.token, application_id=int(self.id), data={"type": _type.value}
@@ -169,9 +174,11 @@ class InteractionContext(Context):
                 else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
             )
         else:
-            _type = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE if type is None else type
+            _type = (
+                InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value if type is None else type
+            )
 
-        _ephemeral: int = 0 if ephemeral is None else (1 << 6)
+        _ephemeral: int = 0 if not bool(ephemeral) else (1 << 6)
 
         payload: Message = Message(
             content=_content,
@@ -216,7 +223,6 @@ class InteractionContext(Context):
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
         components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
-        sticker_ids: Optional[Union[str, List[str]]] = None,
     ) -> Message:
         """
         This allows the invocation state described in the "context"
@@ -242,16 +248,11 @@ class InteractionContext(Context):
         else:
             _components = []
 
-        _sticker_ids: list = [] if sticker_ids is None else [sticker for sticker in sticker_ids]
-
         _type = (
             InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
             if self.deferred
             else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
         )
-
-        if sticker_ids and len(sticker_ids) > 3:
-            raise Exception("Message can only have up to 3 stickers.")
 
         payload: Message = Message(
             content=_content,
@@ -261,17 +262,21 @@ class InteractionContext(Context):
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
             components=_components,
-            sticker_ids=_sticker_ids,
             flags=self.message.ephemeral,
         )
 
         async def func():
-            req = await self.client.edit_interaction_response(
-                token=self.token,
-                application_id=self.id,
-                data={"type": _type, "data": payload._json},
-                message_id=self.message.id,
-            )
+            if self.type == InteractionType.MESSAGE_COMPONENT:
+                req = await self.client._post_followup(
+                    data=payload._json, token=self.token, application_id=self.application_id
+                )
+            else:
+                req = await self.client.edit_interaction_response(
+                    token=self.token,
+                    application_id=self.id,
+                    data={"type": _type, "data": payload._json},
+                    message_id=self.message.id,
+                )
             self.message = payload
 
             return req
