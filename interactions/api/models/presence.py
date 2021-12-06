@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from .misc import DictSerializerMixin, Snowflake
 
 
@@ -81,8 +79,9 @@ class PresenceActivity(DictSerializerMixin):
     """
     A class object representing the current activity data of a presence.
 
-    :ivar name: The activity name
-    :ivar type: The activity type
+    :ivar str name: The activity name
+    :ivar str type: The activity type
+    :ivar str id: The activity ID.
     :ivar Optional[str] url: stream url (if type is 1)
     :ivar Snowflake created_at: Unix timestamp of when the activity was created to the User's session
     :ivar Optional[PresenceTimestamp] timestamps: Unix timestamps for start and/or end of the game
@@ -102,6 +101,7 @@ class PresenceActivity(DictSerializerMixin):
         "_json",
         "name",
         "type",
+        "id",
         "url",
         "created_at",
         "timestamps",
@@ -123,7 +123,7 @@ class PresenceActivity(DictSerializerMixin):
             Snowflake(self.application_id) if self._json.get("application_id") else None
         )
         self.created_at = (
-            datetime.fromisoformat(self._json.get("created_at"))
+            Snowflake((self._json.get("created_at") - 1420070400000) << 22)
             if self._json.get("created_at")
             else None
         )

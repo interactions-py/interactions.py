@@ -259,7 +259,7 @@ class WebSocket:
                         __import__(path),
                         _name,
                     )
-                    self.dispatch.dispatch(f"on_{_name}", obj(**data))  # noqa
+                    self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
                 except AttributeError as error:  # noqa
                     log.fatal(f"You're missing a data model for the event {name}: {error}")
             else:
