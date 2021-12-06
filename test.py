@@ -1,9 +1,11 @@
 # This is a written example used to test and debug the state of v4.0
+import logging
+
 import interactions
 
 TOKEN = open(".token").read().split("\n")[0]
 
-client = interactions.Client(token=TOKEN, disable_sync=True)
+client = interactions.Client(token=TOKEN, disable_sync=True, log_level=logging.INFO)
 
 
 @client.event
@@ -11,13 +13,9 @@ async def on_ready():
     print(f"{client.me.name} ({client.me.id} {(type(client.me.id))}) logged in.")
 
 
-cool_component = interactions.Button(
-    style=interactions.ButtonStyle.PRIMARY, label="shiny boi", custom_id="test_custom_id"
-)
-
 cool_modal = interactions.Modal(
     custom_id="test_custom_modal",
-    title="modal title!",
+    title="Vent to me.",
     components=[
         interactions.ModalInput(
             style=interactions.TextStyleType.PARAGRAPH,
@@ -30,47 +28,19 @@ cool_modal = interactions.Modal(
 
 
 @client.command(
-    name="sub",
-    description="let's make sure it works.",
-    scope=852402668294766612,
-    options=[
-        interactions.Option(
-            type=interactions.OptionType.SUB_COMMAND,
-            name="command",
-            description="cool name",
-            required=False,
-        )
-    ],
+    type=interactions.ApplicationCommandType.USER, name="Vent to Digiorno", scope=852402668294766612
 )
-async def sub_command(ctx: interactions.context.CommandContext):
+async def context_print_name(ctx: interactions.context.CommandContext):
+    # user_mention = interactions.Format.stylize(interactions.Format.USER, id=ctx.target.id)
+    # await ctx.send(f"Okay, {user_mention}! Nice to see you here.")
     await ctx.popup(cool_modal)
 
 
-@client.modal(modal=cool_modal)
-async def modal_response(ctx):
-    await ctx.send("Hello there!")
-
-
-@client.command(
-    name="command",
-    description="just a basic testing description.",
-    scope=852402668294766612,
-    options=[
-        interactions.Option(
-            type=interactions.OptionType.STRING,
-            name="arg",
-            description="the argument to test",
-            required=False,
-        )
-    ],
-)
-async def command_argument(ctx: interactions.context.CommandContext, arg):
-    await ctx.send(f"You said: {arg}", components=cool_component)
-
-
-@client.component(component=cool_component)
-async def test(ctx: interactions.context.ComponentContext):
-    await ctx.send(f"hola. {'we are following up.' if ctx.responded else 'first time?'}")
+@client.modal(cool_modal)
+async def context_modal_response(ctx: interactions.context.CommandContext):
+    await ctx.send(
+        f"I see, I see... talking about ||{ctx.data.components[0].components[0]['value']}|| is very serious. I'm sorry to hear that."
+    )
 
 
 client.start()

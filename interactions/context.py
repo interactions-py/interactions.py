@@ -78,8 +78,8 @@ class CommandContext(Context):
         "application_id",
         "custom_id",
         "type",
-        "name",
         "data",
+        "target",
         "version",
         "token",
         "guild_id",
@@ -98,6 +98,17 @@ class CommandContext(Context):
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.type = InteractionType(self.type)
         self.data = InteractionData(**self.data) if self._json.get("data") else None
+
+        if self._json.get("data").get("target_id"):
+            self.target = str(self.data.target_id)
+
+            if str(self.data.target_id) in self.data.resolved.users:
+                self.target = self.data.resolved.users[self.target]
+            elif str(self.data.target_id) in self.data.resolved.members:
+                self.target = self.data.resolved.members[self.target]
+            else:
+                self.target = self.data.resolved.messages[self.target]
+
         self.responded = False
         self.deferred = False
 

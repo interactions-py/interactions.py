@@ -27,10 +27,8 @@ class CommandContext(Context):
     application_id: Snowflake
     custom_id: str
     type: InteractionType
-    name: str
-    description: Optional[str]
-    options: Optional[List[Option]]
     data: InteractionData
+    target: Optional[Union[Message, Member, User]]
     version: int
     token: str
     guild_id: Snowflake

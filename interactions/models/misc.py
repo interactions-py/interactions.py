@@ -8,27 +8,55 @@ from ..api.models.role import Role
 from ..api.models.user import User
 from ..enums import ApplicationCommandType, InteractionType
 from ..models.command import Option
-from ..models.component import SelectOption
+from ..models.component import Component, SelectOption
 
 
-class InteractionResolvedData:
+class InteractionResolvedData(DictSerializerMixin):
     """
     A class representing the resolved information of an interaction data.
 
-    :ivar Dict[Union[str, int], User] users: The resolved users data.
-    :ivar Dict[Union[str, int], Member] members: The resolved members data.
-    :ivar Dict[Union[str, int], Role] roles: The resolved roles data.
-    :ivar Dict[Union[str, int], Channel] channels: The resolved channels data.
-    :ivar Dict[Union[str, int], Message] messages: The resolved messages data.
+    :ivar Dict[str, User] users: The resolved users data.
+    :ivar Dict[str, Member] members: The resolved members data.
+    :ivar Dict[str, Role] roles: The resolved roles data.
+    :ivar Dict[str, Channel] channels: The resolved channels data.
+    :ivar Dict[str, Message] messages: The resolved messages data.
     """
 
-    users: Dict[Union[str, int], User]
-    members: Dict[Union[str, int], Member]
-    roles: Dict[Union[str, int], Role]
-    channels: Dict[Union[str, int], Channel]
-    messages: Dict[Union[str, int], Message]
+    __slots__ = ("_json", "users", "members", "roles", "channels", "messages")
+    users: Dict[str, User]
+    members: Dict[str, Member]
+    roles: Dict[str, Role]
+    channels: Dict[str, Channel]
+    messages: Dict[str, Message]
 
-    __slots__ = ("users", "members", "roles", "channels", "messages")
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        if self._json.get("users"):
+            [
+                self.users.update({user: User(**self.users[user])})
+                for user in self._json.get("users")
+            ]
+        if self._json.get("members"):
+            [
+                self.members.update({member: Member(**self.members[member])})
+                for member in self._json.get("members")
+            ]
+        if self._json.get("roles"):
+            [
+                self.roles.update({role: Role(**self.roles[role])})
+                for role in self._json.get("roles")
+            ]
+        if self._json.get("channels"):
+            [
+                self.channels.update({channel: Channel(**self.channels[channel])})
+                for channel in self._json.get("channels")
+            ]
+        if self._json.get("messages"):
+            [
+                self.messages.update({message: Message(**self.messages[message])})
+                for message in self._json.get("messages")
+            ]
 
 
 class InteractionData(DictSerializerMixin):
@@ -64,6 +92,7 @@ class InteractionData(DictSerializerMixin):
         "resolved",
         "options",
         "custom_id",
+        "components",
         "component_type",
         "values",
         "target_id",
@@ -77,6 +106,11 @@ class InteractionData(DictSerializerMixin):
         )
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.target_id = Snowflake(self.target_id) if self._json.get("target_id") else None
+        self.components = (
+            [Component(**component) for component in self.components]
+            if self._json.get("components")
+            else None
+        )
 
 
 class Interaction(DictSerializerMixin):

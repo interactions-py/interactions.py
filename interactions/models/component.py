@@ -188,6 +188,7 @@ class Component(DictSerializerMixin):
         "min_values",
         "max_values",
         "components",
+        "value",  # TODO: document this
     )
     type: ComponentType
     custom_id: Optional[str]
@@ -205,12 +206,15 @@ class Component(DictSerializerMixin):
             list, "ActionRow", List["ActionRow"], Button, List[Button], SelectMenu, List[SelectMenu]
         ]
     ]
+    value: Optional[str]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.type = ComponentType(self.type)
-        self.style = ButtonStyle(self.style) if self.style else None
-        self.options = [SelectMenu(**option) for option in self.options] if self.options else None
+        self.style = ButtonStyle(self.style) if self._json.get("style") else None
+        self.options = (
+            [SelectMenu(**option) for option in self.options] if self._json.get("options") else None
+        )
 
 
 class ActionRow(DictSerializerMixin):

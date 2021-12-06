@@ -99,9 +99,6 @@ class Snowflake(object):
 
     __slots__ = "_snowflake"
 
-    # TODO: Should this inherit from the mixin?
-    # no --f0.
-
     # Slotting properties are pointless, they are not in-memory
     # and are instead computed in-model.
 
@@ -196,7 +193,8 @@ class Format:
     TIMESTAMP_LONG_DT = "<t:{timestamp}:F>"
     TIMESTAMP_RELATIVE = "<t:{timestamp}:R>"
 
-    def stylize(self, format: str, **kwargs) -> str:
+    @classmethod
+    def stylize(cls, format: str, **kwargs) -> str:
         r"""
         This takes a format style from the object and
         converts it into a useable string for ease.
