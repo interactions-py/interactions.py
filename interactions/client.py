@@ -23,11 +23,11 @@ class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
 
-    :ivar asyncio.AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
-    :ivar interactions.api.dispatch.Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar typing.Optional[typing.Union[interactions.api.models.intents.Intents, typing.List[interactions.api.models.intentsIntents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
-    :ivar interactions.api.http.Request http: An instance of :class:`interactions.api.http.Request`.
-    :ivar interactions.api.gateway.WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
+    :ivar AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
+    :ivar Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
+    :ivar Optional[Union[Intents, List[Intents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
+    :ivar HTTPClient http: An instance of :class:`interactions.api.http.Request`.
+    :ivar WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
     :ivar str token: The application token.
     """
 
@@ -117,6 +117,7 @@ class Client:
             self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
 
         try:
+            register_events()
             await self.synchronize()
             ready = True
         except Exception as error:
