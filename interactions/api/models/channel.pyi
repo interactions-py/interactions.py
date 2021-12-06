@@ -1,22 +1,8 @@
 from datetime import datetime
-from enum import IntEnum
 from typing import List, Optional
 
 from .misc import DictSerializerMixin, Overwrite, Snowflake
 from .user import User
-
-class ChannelType(IntEnum):
-    GUILD_TEXT = 0
-    DM = 1
-    GUILD_VOICE = 2
-    GROUP_DM = 3
-    GUILD_CATEGORY = 4
-    GUILD_NEWS = 5
-    GUILD_STORE = 6
-    GUILD_NEWS_THREAD = 10
-    GUILD_PUBLIC_THREAD = 11
-    GUILD_PRIVATE_THREAD = 12
-    GUILD_STAGE_VOICE = 13
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict
@@ -37,8 +23,8 @@ class ThreadMember(DictSerializerMixin):
 
 class Channel(DictSerializerMixin):
     _json: dict
-    id: int  # "Snowflake"
-    type: int
+    id: Snowflake
+    type: ChannelType
     guild_id: Optional[Snowflake]
     position: Optional[int]
     permission_overwrites: List[Overwrite]

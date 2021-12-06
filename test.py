@@ -30,7 +30,6 @@ cool_component = interactions.Button(
     ],
 )
 async def sub_command(ctx):
-    await ctx.defer()
     await ctx.send("just some proof, subcommands *do* in fact work.")
 
 

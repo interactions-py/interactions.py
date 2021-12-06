@@ -11,7 +11,7 @@ class RoleTags(DictSerializerMixin):
 
 class Role(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     name: str
     color: int
     hoist: bool

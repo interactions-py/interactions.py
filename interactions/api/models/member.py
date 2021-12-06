@@ -1,17 +1,13 @@
+from datetime import datetime
+
 from .misc import DictSerializerMixin
 
 
 class Member(DictSerializerMixin):
     """
-    A class object representing the member of a guild.
+    A class object representing the user of a guild, known as a "member."
 
     .. note::
-        Also known as the guild member class object. (or partial)
-
-        The methodology, instead of regular d.py conventions
-        is to do member.user to get the pure User object, instead of
-        d.py's option of merging.
-
         ``pending`` and ``permissions`` only apply for members retroactively
         requiring to verify rules via. membership screening or lack permissions
         to speak.
@@ -19,9 +15,9 @@ class Member(DictSerializerMixin):
     :ivar interactions.api.models.user.User user: The user of the guild.
     :ivar str nick: The nickname of the member.
     :ivar Optional[str] avatar: The hash containing the user's guild avatar, if applicable.
-    :ivar List[int] roles: The list of roles of the member.
-    :ivar datetime.timestamp joined_at: The timestamp the member joined the guild at.
-    :ivar datetime.datetime premium_since: The timestamp the member has been a server booster since.
+    :ivar List[Role] roles: The list of roles of the member.
+    :ivar datetime joined_at: The timestamp the member joined the guild at.
+    :ivar datetime premium_since: The timestamp the member has been a server booster since.
     :ivar bool deaf: Whether the member is deafened.
     :ivar bool mute: Whether the member is muted.
     :ivar Optional[bool] pending / is_pending: Whether the member is pending to pass membership screening.
@@ -43,8 +39,19 @@ class Member(DictSerializerMixin):
         "pending",
         "permissions",
         "communication_disabled_until",
+        # TODO: Investigate what this is for once documented by Discord.
         "hoisted_role",
     )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.joined_at = (
+            datetime.fromisoformat(self._json.get("joined_at"))
+            if self._json.get("joined_at")
+            else None
+        )
+        self.premium_since = (
+            datetime.fromisoformat(self._json.get("premium_since"))
+            if self._json.get("premium_since")
+            else None
+        )

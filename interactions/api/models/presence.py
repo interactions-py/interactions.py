@@ -1,24 +1,31 @@
+from datetime import datetime
+
 from .misc import DictSerializerMixin, Snowflake
 
 
-class _PresenceParty(DictSerializerMixin):
+class PresenceParty(DictSerializerMixin):
     """
-    :ivar typing.Optional[str] id: ID of the party.
-    :ivar typing.Optional[typing.List[int]] size: An array denoting the party's current and max size
+    A class object representing the party data of a presence.
+
+    :ivar Optional[Snowflake] id: ID of the party.
+    :ivar Optional[List[int]] size: An array denoting the party's current and max size
     """
 
     __slots__ = ("_json", "id", "size")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
 
 
-class _PresenceAssets(DictSerializerMixin):
+class PresenceAssets(DictSerializerMixin):
     """
-    :ivar typing.Optional[str] large_image: ID for a large asset of the activity
-    :ivar typing.Optional[str] large_text: Text associated with the large asset
-    :ivar typing.Optional[str] small_image: ID for a small asset of the activity
-    :ivar typing.Optional[str] small_text: Text associated with the small asset
+    A class object representing the assets of a presence.
+
+    :ivar Optional[str] large_image: ID for a large asset of the activity
+    :ivar Optional[str] large_text: Text associated with the large asset
+    :ivar Optional[str] small_image: ID for a small asset of the activity
+    :ivar Optional[str] small_text: Text associated with the small asset
     """
 
     __slots__ = ("_json", "large_image", "large_text", "small_image", "small_text")
@@ -27,11 +34,13 @@ class _PresenceAssets(DictSerializerMixin):
         super().__init__(**kwargs)
 
 
-class _PresenceSecrets(DictSerializerMixin):
+class PresenceSecrets(DictSerializerMixin):
     """
-    :ivar typing.Optional[str] join: Join secret
-    :ivar typing.Optional[str] spectate: Spectate secret
-    :ivar typing.Optional[str] match: Instanced match secret
+    A class object representing "secret" join information of a presence.
+
+    :ivar Optional[str] join: Join secret
+    :ivar Optional[str] spectate: Spectate secret
+    :ivar Optional[str] match: Instanced match secret
     """
 
     __slots__ = ("_json", "join", "spectate", "match")
@@ -40,8 +49,10 @@ class _PresenceSecrets(DictSerializerMixin):
         super().__init__(**kwargs)
 
 
-class _PresenceButtons(DictSerializerMixin):
+class PresenceButtons(DictSerializerMixin):
     """
+    A class object representing the buttons of a presence.
+
     :ivar str label: Text of the button
     :ivar str url: URL of the button
     """
@@ -52,8 +63,10 @@ class _PresenceButtons(DictSerializerMixin):
         super().__init__(**kwargs)
 
 
-class _PresenceTimestamp(DictSerializerMixin):
+class PresenceTimestamp(DictSerializerMixin):
     """
+    A class object representing the timestamp data of a presence.
+
     :ivar Optional[int] start: Unix time in ms when the activity started
     :ivar Optional[int] end: Unix time in ms when the activity ended
     """
@@ -66,24 +79,23 @@ class _PresenceTimestamp(DictSerializerMixin):
 
 class PresenceActivity(DictSerializerMixin):
     """
-    An object that points to a RPC variant of a users'
-    activity.
+    A class object representing the current activity data of a presence.
 
     :ivar name: The activity name
     :ivar type: The activity type
-    :ivar typing.Optional[str] url: stream url (if type is 1)
-    :ivar int created_at: Unix timestamp of when the activity was created to the User's session
-    :ivar typing.Optional[_PresenceTimestamp] timestamps: Unix timestamps for start and/or end of the game
-    :ivar typing.Optional[int] application_id: Application ID for the game
-    :ivar typing.Optional[str] details: What the player is currently doing
-    :ivar typing.Optional[str] state: Current party status
-    :ivar typing.Optional[Emoji] emoji: The emoji used for the custom status
-    :ivar typing.Optional[_PresenceParty] party: Info for the current players' party
-    :ivar typing.Optional[_PresenceAssets] assets: Images for the presence and their associated hover texts
-    :ivar typing.Optional[_PresenceSecrets] secrets: for RPC join/spectate
-    :ivar typing.Optional[bool] instance: A status denoting if the activity is a game session
-    :ivar typing.Optional[int] flags: activity flags
-    :ivar typing.Optional[typing.List[_PresenceButtons]] buttons: Custom buttons shown in the RPC.
+    :ivar Optional[str] url: stream url (if type is 1)
+    :ivar Snowflake created_at: Unix timestamp of when the activity was created to the User's session
+    :ivar Optional[PresenceTimestamp] timestamps: Unix timestamps for start and/or end of the game
+    :ivar Optional[Snowflake] application_id: Application ID for the game
+    :ivar Optional[str] details: What the player is currently doing
+    :ivar Optional[str] state: Current party status
+    :ivar Optional[Emoji] emoji: The emoji used for the custom status
+    :ivar Optional[PresenceParty] party: Info for the current players' party
+    :ivar Optional[PresenceAssets] assets: Images for the presence and their associated hover texts
+    :ivar Optional[PresenceSecrets] secrets: for RPC join/spectate
+    :ivar Optional[bool] instance: A status denoting if the activity is a game session
+    :ivar Optional[int] flags: activity flags
+    :ivar Optional[List[PresenceButtons]] buttons: Custom buttons shown in the RPC.
     """
 
     __slots__ = (
@@ -110,21 +122,19 @@ class PresenceActivity(DictSerializerMixin):
         self.application_id = (
             Snowflake(self.application_id) if self._json.get("application_id") else None
         )
-
-
-class PresenceUpdate(DictSerializerMixin):
-    """
-    Presence update object.
-
-    :ivar User user: User object associated with the presence.
-    :ivar int guild_id: ID of the guild.
-    :ivar str status: Status type (idle, dnd, online, offline)
-    :ivar List[PresenceActivity] activities: Users' current activities
-    :ivar ClientStatus client_status: User's platform-based status
-    """
-
-    __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.created_at = (
+            datetime.fromisoformat(self._json.get("created_at"))
+            if self._json.get("created_at")
+            else None
+        )
+        self.timestamps = (
+            PresenceTimestamp(**self.timestamps) if self._json.get("timestamps") else None
+        )
+        self.party = PresenceParty(**self.party) if self._json.get("party") else None
+        self.assets = PresenceAssets(**self.assets) if self._json.get("assets") else None
+        self.secrets = PresenceSecrets(**self.secrets) if self._json.get("secrets") else None
+        self.buttons = (
+            [PresenceButtons(**button) for button in self.buttons]
+            if self._json.get("buttons")
+            else None
+        )

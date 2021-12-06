@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Union
 from ..api.models.channel import Channel
 from ..api.models.member import Member
 from ..api.models.message import Message
-from ..api.models.misc import DictSerializerMixin
+from ..api.models.misc import DictSerializerMixin, Snowflake
 from ..api.models.role import Role
 from ..api.models.user import User
 from ..enums import ApplicationCommandType, InteractionType
@@ -28,6 +28,8 @@ class InteractionResolvedData:
     channels: Dict[Union[str, int], Channel]
     messages: Dict[Union[str, int], Message]
 
+    __slots__ = ("users", "members", "roles", "channels", "messages")
+
 
 class InteractionData(DictSerializerMixin):
     """
@@ -44,7 +46,7 @@ class InteractionData(DictSerializerMixin):
     :ivar Optional[str] target_id?: The targeted ID of the interaction.
     """
 
-    id: str
+    id: Snowflake
     name: str
     type: ApplicationCommandType
     resolved: Optional[InteractionResolvedData]
@@ -52,10 +54,29 @@ class InteractionData(DictSerializerMixin):
     custom_id: Optional[str]
     component_type: Optional[int]
     values: Optional[Union[SelectOption, List[SelectOption]]]
-    target_id: Optional[str]
+    target_id: Optional[Snowflake]
 
-    def __init__(self, **kwargs) -> None:
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "type",
+        "resolved",
+        "options",
+        "custom_id",
+        "component_type",
+        "values",
+        "target_id",
+    )
+
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.type = ApplicationCommandType(self.type)
+        self.resolved = (
+            InteractionResolvedData(**self.resolved) if self._json.get("resolved") else None
+        )
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.target_id = Snowflake(self.target_id) if self._json.get("target_id") else None
 
 
 class Interaction(DictSerializerMixin):
@@ -75,17 +96,41 @@ class Interaction(DictSerializerMixin):
     :ivar Optional[Message] message?: The message of the interaction.
     """
 
-    id: str
-    application_id: str
+    id: Snowflake
+    application_id: Snowflake
     type: InteractionType
     data: Optional[InteractionData]
-    guild_id: Optional[str]
-    channel_id: Optional[str]
+    guild_id: Optional[Snowflake]
+    channel_id: Optional[Snowflake]
     member: Optional[Member]
     user: Optional[User]
     token: str
-    version: int = 1
+    version: int
     message: Optional[Message]
 
-    def __init__(self, **kwargs) -> None:
+    __slots__ = (
+        "_json",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "member",
+        "user",
+        "token",
+        "version",
+        "message",
+    )
+
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.type = InteractionType(self.type)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.application_id = (
+            Snowflake(self.application_id) if self._json.get("application_id") else None
+        )
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.member = Member(**self.member) if self._json.get("member") else None
+        self.user = User(**self.user) if self._json.get("user") else None

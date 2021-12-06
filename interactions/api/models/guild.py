@@ -1,37 +1,10 @@
-from enum import Enum
+from datetime import datetime
 
+from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
-
-
-class GuildFeature(str, Enum):
-    """
-    An enumerable string-formatted class representing all of the features a guild can have.
-
-    .. note:
-        Equivalent of `Guild Features <https://discord.com/developers/docs/resources/guild#guild-object-guild-features>`_ in the Discord API.
-    """
-
-    ANIMATED_ICON = "ANIMATED_ICON"
-    BANNER = "BANNER"
-    COMMERCE = "COMMERCE"
-    COMMUNITY = "COMMUNITY"
-    DISCOVERABLE = "DISCOVERABLE"
-    FEATURABLE = "FEATURABLE"
-    INVITE_SPLASH = "INVITE_SPLASH"
-    MEMBER_VERIFICATION_GATE_ENABLED = "MEMBER_VERIFICATION_GATE_ENABLED"
-    NEWS = "NEWS"
-    PARTNERED = "PARTNERED"
-    PREVIEW_ENABLED = "PREVIEW_ENABLED"
-    VANITY_URL = "VANITY_URL"
-    VERIFIED = "VERIFIED"
-    VIP_REGIONS = "VIP_REGIONS"
-    WELCOME_SCREEN_ENABLED = "WELCOME_SCREEN_ENABLED"
-    TICKETED_EVENTS_ENABLED = "TICKETED_EVENTS_ENABLED"
-    MONETIZATION_ENABLED = "MONETIZATION_ENABLED"
-    MORE_STICKERS = "MORE_STICKERS"
-    THREE_DAY_THREAD_ARCHIVE = "THREE_DAY_THREAD_ARCHIVE"
-    SEVEN_DAY_THREAD_ARCHIVE = "SEVEN_DAY_THREAD_ARCHIVE"
-    PRIVATE_THREADS = "PRIVATE_THREADS"
+from .presence import PresenceActivity
+from .team import Application
+from .user import User
 
 
 class WelcomeChannels(DictSerializerMixin):
@@ -42,10 +15,10 @@ class WelcomeChannels(DictSerializerMixin):
         ``emoji_id`` and ``emoji_name`` are given values respectively if the welcome channel
         uses an emoji.
 
-    :ivar int channel_id: The ID of the welcome channel.
+    :ivar Snowflake channel_id: The ID of the welcome channel.
     :ivar str description: The description of the welcome channel.
-    :ivar typing.Optional[int] emoji_id: The ID of the emoji of the welcome channel.
-    :ivar typing.Optional[str] emoji_name: The name of the emoji of the welcome channel.
+    :ivar Optional[Snowflake] emoji_id: The ID of the emoji of the welcome channel.
+    :ivar Optional[str] emoji_name: The name of the emoji of the welcome channel.
     """
 
     __slots__ = ("_json", "channel_id", "description", "emoji_id", "emoji_name")
@@ -65,23 +38,28 @@ class WelcomeScreen(DictSerializerMixin):
 
         We assume it's for the welcome screen topic.
 
-    :ivar typing.Optional[str] description: The description of the welcome sceen.
-    :ivar typing.List[interactions.api.models.guild.WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
+    :ivar Optional[str] description: The description of the welcome sceen.
+    :ivar List[WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
 
     __slots__ = ("_json", "description", "welcome_channels")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.welcome_channels = (
+            [WelcomeChannels(**welcome_channel) for welcome_channel in self.welcome_channels]
+            if self.welcome_channels
+            else None
+        )
 
 
 class StageInstance(DictSerializerMixin):
     """
     A class object representing an instace of a stage channel in a guild.
 
-    :ivar int id: The ID of the stage.
-    :ivar int guild_id: The guild ID the stage is in.
-    :ivar int channel_id: The channel ID the stage is instantiated from.
+    :ivar Snowflake id: The ID of the stage.
+    :ivar Snowflake guild_id: The guild ID the stage is in.
+    :ivar Snowflake channel_id: The channel ID the stage is instantiated from.
     :ivar str topic: The topic of the stage.
     :ivar int privacy_level: The "privacy"/inclusive accessibility level of the stage.
     :ivar bool discoverable_disabled: Whether the stage can be seen from the stage discovery.
@@ -115,49 +93,49 @@ class Guild(DictSerializerMixin):
 
     :ivar Snowflake id: The ID of the guild.
     :ivar str name: The name of the guild.
-    :ivar typing.Optional[str] icon: The icon of the guild.
-    :ivar typing.Optional[str] icon_hash: The hashed version of the icon of the guild.
-    :ivar typing.Optional[str] splash: The invite splash banner of the guild.
-    :ivar typing.Optional[str] discovery_splash: The discovery splash banner of the guild.
-    :ivar typing.Optional[bool] owner: Whether the guild is owned.
+    :ivar Optional[str] icon: The icon of the guild.
+    :ivar Optional[str] icon_hash: The hashed version of the icon of the guild.
+    :ivar Optional[str] splash: The invite splash banner of the guild.
+    :ivar Optional[str] discovery_splash: The discovery splash banner of the guild.
+    :ivar Optional[bool] owner: Whether the guild is owned.
     :ivar Snowflake owner_id: The ID of the owner of the guild.
-    :ivar typing.Optional[str] permissions: The permissions of the guild.
-    :ivar typing.Optional[str] region: The geographical region of the guild.
-    :ivar typing.Optional[Snowflake] afk_channel_id: The AFK voice channel of the guild.
+    :ivar Optional[str] permissions: The permissions of the guild.
+    :ivar Optional[str] region: The geographical region of the guild.
+    :ivar Optional[Snowflake] afk_channel_id: The AFK voice channel of the guild.
     :ivar int afk_timeout: The timeout of the AFK voice channel of the guild.
-    :ivar typing.Optional[bool] widget_enabled: Whether widgets are enabled in the guild.
-    :ivar typing.Optional[int] widget_channel_id: The channel ID of the widget in the guild.
+    :ivar Optional[bool] widget_enabled: Whether widgets are enabled in the guild.
+    :ivar Optional[Snowflake] widget_channel_id: The channel ID of the widget in the guild.
     :ivar int verification_level: The level of user verification of the guild.
     :ivar int default_message_notifications: The default message notifications setting of the guild.
     :ivar int explicit_content_filter: The explicit content filter setting level of the guild.
-    :ivar typing.List[interactions.api.models.role.Role] roles: The list of roles in the guild.
-    :ivar typing.List[interactions.api.models.message.Emoji] emojis: The list of emojis from the guild.
-    :ivar typing.List[interactions.api.models.guild.GuildFeature] features: The list of features of the guild.
+    :ivar List[Role] roles: The list of roles in the guild.
+    :ivar List[Emoji] emojis: The list of emojis from the guild.
+    :ivar List[GuildFeature] features: The list of features of the guild.
     :ivar int mfa_level: The MFA level of the guild.
-    :ivar typing.Optional[int] application_id: The application ID of the guild.
-    :ivar typing.Optional[int] system_channel_id: The channel ID of the system of the guild.
-    :ivar typing.Optional[int] rules_channel_id: The channel ID of Discord's defined "rules" channel of the guild.
-    :ivar typing.Optional[datetime.datetime] joined_at: The timestamp the member joined the guild.
-    :ivar typing.Optional[bool] large: Whether the guild is considered "large."
-    :ivar typing.Optional[bool] unavailable: Whether the guild is unavailable to access.
-    :ivar typing.Optional[int] member_count: The amount of members in the guild.
-    :ivar typing.Optional[typing.List[interactions.api.models.presence.PresenceUpdate]] presences: The list of presences in the guild.
-    :ivar typing.Optional[int] max_presences: The maximum amount of presences allowed in the guild.
-    :ivar typing.Optional[int] max_members: The maximum amount of members allowed in the guild.
-    :ivar typing.Optional[str] vanity_url_code: The vanity URL of the guild.
-    :ivar typing.Optional[str] description: The description of the guild.
-    :ivar typing.Optional[str] banner: The banner of the guild.
+    :ivar Optional[Snowflake] application_id: The application ID of the guild.
+    :ivar Optional[Snowflake] system_channel_id: The channel ID of the system of the guild.
+    :ivar Optional[Snowflake] rules_channel_id: The channel ID of Discord's defined "rules" channel of the guild.
+    :ivar Optional[datetime] joined_at: The timestamp the member joined the guild.
+    :ivar Optional[bool] large: Whether the guild is considered "large."
+    :ivar Optional[bool] unavailable: Whether the guild is unavailable to access.
+    :ivar Optional[int] member_count: The amount of members in the guild.
+    :ivar Optional[List[PresenceUpdate]] presences: The list of presences in the guild.
+    :ivar Optional[int] max_presences: The maximum amount of presences allowed in the guild.
+    :ivar Optional[int] max_members: The maximum amount of members allowed in the guild.
+    :ivar Optional[str] vanity_url_code: The vanity URL of the guild.
+    :ivar Optional[str] description: The description of the guild.
+    :ivar Optional[str] banner: The banner of the guild.
     :ivar int premium_tier: The server boost level of the guild.
-    :ivar typing.Optional[int] premium_subscription_count: The amount of server boosters in the guild.
+    :ivar Optional[int] premium_subscription_count: The amount of server boosters in the guild.
     :ivar str preferred_locale: The "preferred" local region of the guild.
-    :ivar typing.Optional[int] public_updates_channel_id: The channel ID for community updates of the guild.
-    :ivar typing.Optional[int] max_video_channel_users: The maximum amount of video streaming members in a channel allowed in a guild.
-    :ivar typing.Optional[int] approximate_member_count: The approximate amount of members in the guild.
-    :ivar typing.Optional[int] approximate_presence_count: The approximate amount of presences in the guild.
-    :ivar typing.Optional[interactions.api.models.guild.WelcomeScreen] welcome_screen: The welcome screen of the guild.
+    :ivar Optional[Snowflake] public_updates_channel_id: The channel ID for community updates of the guild.
+    :ivar Optional[int] max_video_channel_users: The maximum amount of video streaming members in a channel allowed in a guild.
+    :ivar Optional[int] approximate_member_count: The approximate amount of members in the guild.
+    :ivar Optional[int] approximate_presence_count: The approximate amount of presences in the guild.
+    :ivar Optional[WelcomeScreen] welcome_screen: The welcome screen of the guild.
     :ivar int nsfw_level: The NSFW safety filter level of the guild.
-    :ivar typing.Optional[interactions.api.models.guild.StageInstance] stage_instances: The stage instance of the guild.
-    :ivar typing.Optional[typing.List[interactions.api.models.message.Sticker]] stickers: The list of stickers from the guild.
+    :ivar Optional[List[StageInstance]] stage_instances: The stage instance of the guild.
+    :ivar Optional[List[Sticker]] stickers: The list of stickers from the guild.
     """
 
     __slots__ = (
@@ -231,25 +209,48 @@ class Guild(DictSerializerMixin):
         self.afk_channel_id = (
             Snowflake(self.afk_channel_id) if self._json.get("afk_channel_id") else None
         )
+        self.emojis = (
+            [Emoji(**emoji) for emoji in self.emojis] if self._json.get("emojis") else None
+        )
+        self.joined_at = (
+            datetime.fromisoformat(self._json.get("joined_at"))
+            if self._json.get("joined_at")
+            else None
+        )
+        self.presences = (
+            [PresenceActivity(**presence) for presence in self.presences]
+            if self._json.get("presences")
+            else None
+        )
+        self.welcome_screen = (
+            WelcomeScreen(**self.welcome_screen) if self._json.get("welcome_screen") else None
+        )
+        self.stage_instances = (
+            [StageInstance(**stage_instance) for stage_instance in self.stage_instances]
+            if self._json.get("stage_instances")
+            else None
+        )
+        self.stickers = (
+            [Sticker(**sticker) for sticker in self.stickers]
+            if self._json.get("stickers")
+            else None
+        )
 
 
 class GuildPreview(DictSerializerMixin):
     """
-    A model representing the preview of a guild.
+    A class object representing the preview of a guild.
 
-    ..note::
-        This refers to the documentation `here <https://discord.com/developers/docs/resources/guild>_`
-
-    :ivar int id: The ID of the guild.
+    :ivar Snowflake id: The ID of the guild.
     :ivar str name: The name of the guild.
-    :ivar typing.Optional[str] icon: The icon of the guild.
-    :ivar typing.Optional[str] splash: The invite splash banner of the guild.
-    :ivar typing.Optional[str] discovery_splash: The discovery splash banner of the guild.
-    :ivar typing.List[interactions.api.models.message.Emoji] emojis: The list of emojis from the guild.
-    :ivar typing.List[interactions.api.models.guild.GuildFeature] features: The list of features of the guild.
+    :ivar Optional[str] icon: The icon of the guild.
+    :ivar Optional[str] splash: The invite splash banner of the guild.
+    :ivar Optional[str] discovery_splash: The discovery splash banner of the guild.
+    :ivar List[Emoji] emojis: The list of emojis from the guild.
+    :ivar List[GuildFeature] features: The list of features of the guild.
     :ivar int approximate_member_count: The approximate amount of members in the guild.
     :ivar int approximate_presence_count: The approximate amount of presences in the guild.
-    :ivar typing.Optional[str] description: The description of the guild.
+    :ivar Optional[str] description: The description of the guild.
     """
 
     __slots__ = (
@@ -259,7 +260,7 @@ class GuildPreview(DictSerializerMixin):
         "icon",
         "splash",
         "discovery_splash",
-        "emoji",
+        "emojis",
         "features",
         "approximate_member_count",
         "approximate_presence_count",
@@ -269,9 +270,31 @@ class GuildPreview(DictSerializerMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.emojis = (
+            [Emoji(**emoji) for emoji in self.emojis] if self._json.get("emojis") else None
+        )
 
 
 class Integration(DictSerializerMixin):
+    """
+    A class object representing an integration in a guild.
+
+    :ivar Snowflake id: The ID of the integration.
+    :ivar str name: The name of the integration.
+    :ivar str type: The type of integration.
+    :ivar bool enabled: Whether the integration is enabled or not.
+    :ivar bool syncing: Whether the integration is syncing or not.
+    :ivar Snowflake role_id: The role ID that the integration uses for "subscribed" users.
+    :ivar bool enable_emoticons: Whether emoticons should be enabled or not.
+    :ivar int expire_behavior: The expiration behavior of the integration.
+    :ivar int expire_grace_period: The "grace period" of the integration when expired -- how long it can still be used.
+    :ivar User user: The user of the integration.
+    :ivar Any account: The account of the integration.
+    :ivar datetime synced_at: The time that the integration was last synced.
+    :ivar int subscriber_count: The current subscriber count of the integration.
+    :ivar bool revoked: Whether the integration was revoked for use or not.
+    :ivar Application application: The application used for the integration.
+    """
 
     __slots__ = (
         "_json",
@@ -296,6 +319,11 @@ class Integration(DictSerializerMixin):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.role_id = Snowflake(self.role_id) if self._json.get("role_id") else None
+        self.user = User(**self.user) if self._json.get("user") else None
+        # TODO: Create an "Integration account" data model. It's missing apparently?
+        self.application = (
+            Application(**self.application) if self._json.get("application") else None
+        )
 
 
 class Invite(DictSerializerMixin):
@@ -313,6 +341,11 @@ class Invite(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.created_at = (
+            datetime.fromisoformat(self._json.get("created_at"))
+            if self._json.get("created_at")
+            else None
+        )
 
 
 class GuildTemplate(DictSerializerMixin):
@@ -321,15 +354,15 @@ class GuildTemplate(DictSerializerMixin):
 
     :ivar str code: The code of the guild template.
     :ivar str name: The name of the guild template.
-    :ivar typing.Optional[str] description: The description of the guild template, if given.
+    :ivar Optional[str] description: The description of the guild template, if given.
     :ivar int usage_count: The amount of uses on the template.
-    :ivar int creator_id: User ID of the creator of this template.
+    :ivar Snowflake creator_id: User ID of the creator of this template.
     :ivar User creator: The User object of the creator of this template.
     :ivar datetime created_at: The time when this template was created.
     :ivar datetime created_at: The time when this template was updated.
-    :ivar int source_guild_id: The Guild ID that the template sourced from.
+    :ivar Snowflake source_guild_id: The Guild ID that the template sourced from.
     :ivar Guild serialized_source_guild: A partial Guild object from the sourced template.
-    :ivar typing.Optional[bool] is_dirty: A status that denotes if the changes are unsynced.
+    :ivar Optional[bool] is_dirty: A status that denotes if the changes are unsynced.
     """
 
     __slots__ = (
@@ -353,13 +386,19 @@ class GuildTemplate(DictSerializerMixin):
         self.source_guild_id = (
             Snowflake(self.source_guild_id) if self._json.get("source_guild_id") else None
         )
+        self.user = User(**self.user) if self._json.get("user") else None
+        self.serialized_source_guild = (
+            Guild(**self.serialized_source_guild)
+            if self._json.get("serialized_source_guild")
+            else None
+        )
 
 
 class EventMetadata(DictSerializerMixin):
     """
-    The metadata of an event entity, if any.
+    A class object representing the metadata of an event entity.
 
-    :ivar typing.Optional[str] location: The location of the event, if any.
+    :ivar Optional[str] location: The location of the event, if any.
     """
 
     __slots__ = ("_json", "location")
@@ -370,7 +409,7 @@ class EventMetadata(DictSerializerMixin):
 
 class ScheduledEvents(DictSerializerMixin):
     """
-    The scheduled events object in a guild.
+    A class object representing the scheduled events of a guild.
 
     ..note::
         Some attributes are optional via creator_id/creator implementation by the API:
@@ -378,18 +417,18 @@ class ScheduledEvents(DictSerializerMixin):
 
     :ivar Snowflake id: The ID of the scheduled event.
     :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
-    :ivar typing.Optional[Snowflake] channel_id: The channel ID in wich the scheduled event belongs to, if any.
-    :ivar typing.Optional[Snowflake] creator_id: The ID of the user that created the scheduled event.
+    :ivar Optional[Snowflake] channel_id: The channel ID in wich the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] creator_id: The ID of the user that created the scheduled event.
     :ivar str name: The name of the scheduled event.
     :ivar str description: The description of the scheduled event.
     :ivar datetime scheduled_start_time: The scheduled event start time.
-    :ivar typing.Optional[datetime] scheduled_end_time: The scheduled event end time, if any.
+    :ivar Optional[datetime] scheduled_end_time: The scheduled event end time, if any.
     :ivar int privacy_level: The privacy level of the scheduled event.
     :ivar int entity_type: The type of the scheduled event.
-    :ivar typing.Optional[Snowflake] entity_id: The ID of the entity associated with the scheduled event.
-    :ivar typing.Optional[EventMetadata] entity_metadata: Additional metadata associated with the scheduled event.
-    :ivar typing.Optional[User] creator: The user that created the scheduled event.
-    :ivar typing.Optional[int] user_count: The number of users subscribed to the scheduled event.
+    :ivar Optional[Snowflake] entity_id: The ID of the entity associated with the scheduled event.
+    :ivar Optional[EventMetadata] entity_metadata: Additional metadata associated with the scheduled event.
+    :ivar Optional[User] creator: The user that created the scheduled event.
+    :ivar Optional[int] user_count: The number of users subscribed to the scheduled event.
     """
 
     __slots__ = (
@@ -413,6 +452,21 @@ class ScheduledEvents(DictSerializerMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.creator_id = Snowflake(self.creator_id) if self._json.get("creator_id") else None
         self.entity_id = Snowflake(self.entity_id) if self._json.get("entity_id") else None
+        self.scheduled_start_time = (
+            datetime.fromisoformat(self._json.get("scheduled_start_time"))
+            if self._json.get("scheduled_start_time")
+            else None
+        )
+        self.scheduled_end_time = (
+            datetime.fromisoformat(self._json.get("scheduled_end_time"))
+            if self._json.get("scheduled_end_time")
+            else None
+        )
+        self.entity_metadata = (
+            EventMetadata(**self.entity_metadata) if self._json.get("entity_metadata") else None
+        )
+        self.creator = User(**self.creator) if self._json.get("creator") else None

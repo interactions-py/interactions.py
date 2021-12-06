@@ -23,7 +23,6 @@ from ..api.models import (
     Role,
     StageInstance,
     User,
-    VoiceRegion,
     WelcomeScreen,
 )
 from ..base import Data, __version__
@@ -311,15 +310,6 @@ class HTTPClient:
         Returns info about the current authorization of the bot user
         """
         return await self._req.request(Route("GET", "/oauth2/@me"))
-
-    # ---- Misc.
-
-    async def get_voice_regions(self) -> List[VoiceRegion]:
-        """
-        Gets a list from the API a list of voice regions.
-        :return: An array of Voice Region objects.
-        """
-        return await self._req.request(Route("GET", "/voice/regions"))
 
     # ---- User endpoint
 

@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 
 class Item(object):
@@ -46,8 +46,8 @@ class Storage:
 
         :param item: The item to add.
         :type item: Item
-        :return: The item added.
-        :rtype: List[Item]
+        :return: The new storage.
+        :rtype: OrderedDict
         """
         self.values.update({item.id: item.value})
         return self.values
@@ -70,6 +70,7 @@ class Storage:
 
         :param item: The item to update.
         :return: The updated item, if stored.
+        :rtype: Optional[Item]
         """
         if item.id in self.values.keys():
             self.values[item.id] = item.value
@@ -77,7 +78,7 @@ class Storage:
                 id
             ]  # fetches from cache to see if its saved properly, instead of returning input.
 
-    def view(self) -> list:
+    def view(self) -> List[dict]:
         """Views all items from storage.
 
         :return The items stored.
@@ -115,8 +116,6 @@ class Cache:
     )
 
     def __init__(self) -> None:
-        # TODO: Look into a better solution that handles duplication of data
-        # in a storage.
         self.dms = Storage()
         self.self_guilds = Storage()
         self.guilds = Storage()

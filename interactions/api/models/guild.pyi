@@ -9,32 +9,6 @@ from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceUpdate
 from .role import Role
 from .user import User
-from .voice import VoiceState
-
-class GuildFeature(str, Enum):
-    __slots__ = (
-        "ANIMATED_ICON",
-        "BANNER",
-        "COMMERCE",
-        "COMMUNITY",
-        "DISCOVERABLE",
-        "FEATURABLE",
-        "INVITE_SPLASH",
-        "MEMBER_VERIFICATION_GATE_ENABLED",
-        "NEWS",
-        "PARTNERED",
-        "PREVIEW_ENABLED",
-        "VANITY_URL",
-        "VERIFIED",
-        "VIP_REGIONS",
-        "WELCOME_SCREEN_ENABLED",
-        "TICKETED_EVENTS_ENABLED",
-        "MONETIZATION_ENABLED",
-        "MORE_STICKERS",
-        "THREE_DAY_THREAD_ARCHIVE",
-        "SEVEN_DAY_THREAD_ARCHIVE",
-        "PRIVATE_THREADS",
-    )
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -81,7 +55,6 @@ class Guild(DictSerializerMixin):
     explicit_content_filter: int
     roles: List[Role]
     emojis: List[Emoji]
-    features: List[GuildFeature]
     mfa_level: int
     application_id: Optional[Snowflake]
     system_channel_id: Optional[Snowflake]
@@ -91,7 +64,6 @@ class Guild(DictSerializerMixin):
     large: Optional[bool]
     unavailable: Optional[bool]
     member_count: Optional[int]
-    voice_states: Optional[List[VoiceState]]
     members: Optional[List[Member]]
     channels: Optional[List[Channel]]
     threads: Optional[List[Channel]]  # threads, because of their metadata
@@ -110,7 +82,7 @@ class Guild(DictSerializerMixin):
     approximate_presence_count: Optional[int]
     welcome_screen: Optional[WelcomeScreen]
     nsfw_level: int
-    stage_instances: Optional[StageInstance]
+    stage_instances: Optional[List[StageInstance]]
     stickers: Optional[List[Sticker]]
 
     # TODO: Investigate all of these once Discord has them all documented.
@@ -133,7 +105,6 @@ class GuildPreview(DictSerializerMixin):
     splash: Optional[str]
     discovery_splash: Optional[str]
     emoji: List[Emoji]
-    features: List[GuildFeature]
     approximate_member_count: int
     approximate_presence_count: int
     description: Optional[str]

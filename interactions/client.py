@@ -36,6 +36,7 @@ class Client:
         token: str,
         intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
         disable_sync: Optional[bool] = None,
+        log_level: Optional[int] = Data.LOGGER,
     ) -> None:
         """
         :param token: The token of the application for authentication and connection.
@@ -44,6 +45,8 @@ class Client:
         :type intents: Optional[Union[Intents, List[Intents]]]
         :param disable_sync?: Whether you want to disable automate synchronization or not.
         :type disable_sync: Optional[bool]
+        :param log_level: The logging level to set for the terminal. Defaults to what is set internally.
+        :type log_level: Optional[int]
         """
         if isinstance(intents, list):
             for intent in intents:

@@ -7,26 +7,22 @@ class TeamMember(DictSerializerMixin):
     _json: dict
     membership_state: int
     permissions: List[str]
-    team_id: int
+    team_id: Snowflake
     user: User
-
-    __slots__ = ("_json", "membership_state", "permissions", "team_id", "user")
     def __init__(self, **kwargs): ...
 
 class Team(DictSerializerMixin):
     _json: dict
     icon: Optional[str]
-    id: int
+    id: Snowflake
     members: List[TeamMember]
     name: str
     owner_user_id: int
-
-    __slots__ = ("_json", "icon", "id", "members", "name", "owner_user_id")
     def __init__(self, **kwargs): ...
 
 class Application(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     name: str
     icon: Optional[str]
     description: str

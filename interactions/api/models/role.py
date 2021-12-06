@@ -3,12 +3,14 @@ from .misc import DictSerializerMixin, Snowflake
 
 class RoleTags(DictSerializerMixin):
     """
-    :ivar typing.Optional[int] bot_id: The id of the bot this role belongs to
-    :ivar typing.Optional[int] integration_id: The id of the integration this role belongs to
-    :ivar typing.Optional[Any] premium_subscriber: Whether if this is the guild's premium subscriber role
+    A class object representing the tags of a role.
+
+    :ivar Optional[Snowflake] bot_id: The id of the bot this role belongs to
+    :ivar Optional[Snowflake] integration_id: The id of the integration this role belongs to
+    :ivar Optional[Any] premium_subscriber: Whether if this is the guild's premium subscriber role
     """
 
-    __slots__ = ("_json", "bot_id", "integration_id", "premium_subscriber")
+    __slots__ = ("_json", "id", "bot_id", "integration_id", "premium_subscriber")
 
     # TODO: Figure out what actual type it returns, all it says is null.
 
@@ -23,19 +25,19 @@ class RoleTags(DictSerializerMixin):
 
 class Role(DictSerializerMixin):
     """
-    The role object.
+    A class object representing a role.
 
-    :ivar int id: Role ID
+    :ivar Snowflake id: Role ID
     :ivar str name: Role name
     :ivar int color: Role color in integer representation
     :ivar bool hoist: A status denoting if this role is hoisted
-    :ivar typing.Optional[str] icon: Role icon hash, if any.
-    :ivar typing.Optional[str] unicode_emoji: Role unicode emoji
+    :ivar Optional[str] icon: Role icon hash, if any.
+    :ivar Optional[str] unicode_emoji: Role unicode emoji
     :ivar int position: Role position
     :ivar str permissions: Role permissions as a bit set
     :ivar bool managed: A status denoting if this role is managed by an integration
     :ivar bool mentionable: A status denoting if this role is mentionable
-    :ivar typing.Optional[RoleTags] tags: The tags this role has
+    :ivar Optional[RoleTags] tags: The tags this role has
     """
 
     __slots__ = (
@@ -50,8 +52,10 @@ class Role(DictSerializerMixin):
         "managed",
         "mentionable",
         "tags",
+        "permissions",
     )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.tags = RoleTags(**self.tags) if self._json.get("tags") else None

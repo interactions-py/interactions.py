@@ -57,6 +57,7 @@ class InteractionContext(Context):
     """
 
     __slots__ = (
+        "member",
         "message",
         "channel",
         "user",

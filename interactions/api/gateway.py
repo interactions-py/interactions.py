@@ -237,7 +237,7 @@ class WebSocket:
             path: str = "interactions"
             path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
 
-            if event != "INTERACTION_CREATE":
+            if event != "INTERACTION_CREATE" and "VOICE" not in event:
                 try:
                     _name: str = [piece for piece in name.split("_")]
                     _name = (
@@ -259,6 +259,7 @@ class WebSocket:
                 _args: list = [context]
 
                 if data["type"] == InteractionType.APPLICATION_COMMAND:
+                    print(context.data)
                     _name = context.data.name
                     if hasattr(context.data, "options"):
                         for option in context.data.options:

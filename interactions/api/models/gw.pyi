@@ -90,7 +90,7 @@ class Reaction(DictSerializerMixin):
     channel_id: Snowflake
     message_id: Snowflake
     guild_id: Optional[Snowflake]
-    member: Optional[str]
+    member: Optional[Member]
     emoji: Optional[Emoji]
     def __init__(self, **kwargs): ...
 
@@ -112,5 +112,5 @@ class ThreadMembers(DictSerializerMixin):
     guild_id: Snowflake
     member_count: int
     added_members: Optional[List[ThreadMember]]
-    removed_member_ids: Optional[List[str]]
+    removed_member_ids: Optional[List[Snowflake]]
     def __init__(self, **kwargs): ...

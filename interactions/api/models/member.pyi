@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from .misc import DictSerializerMixin
+from .role import Role
 from .user import User
 
 class Member(DictSerializerMixin):
@@ -10,8 +11,8 @@ class Member(DictSerializerMixin):
     user: Optional[User]
     nick: Optional[str]
     avatar: Optional[str]
-    roles: List[int]
-    joined_at: datetime.timestamp
+    roles: List[Role]
+    joined_at: datetime
     premium_since: datetime
     deaf: bool
     mute: bool
