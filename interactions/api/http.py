@@ -201,24 +201,24 @@ class Request:
 
                         if not int(remaining) and response.status != 429:
                             time_left = response.headers["X-Ratelimit-Reset-After"]
-                            self.lock.set()
+                            self.lock.clear()
                             log.warning(
                                 f"The HTTP request has reached the maximum threshold. Cooling down for {time_left} seconds."
                             )
                             await sleep(float(time_left))
-                            self.lock.clear()
+                            self.lock.set()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
                     elif response.status == 429:
                         retry_after = data["retry_after"]
 
                         if "X-Ratelimit-Global" in response.headers.keys():
-                            self.lock.set()
+                            self.lock.clear()
                             log.warning(
                                 f"The HTTP request has encountered a global API ratelimit. Retrying in {retry_after} seconds."
                             )
                             await sleep(retry_after)
-                            self.lock.clear()
+                            self.lock.set()
                         else:
                             log.warning(
                                 f"A local ratelimit with the bucket has been encountered. Retrying in {retry_after} seconds."
