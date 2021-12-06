@@ -263,15 +263,14 @@ class WebSocket:
                 except AttributeError as error:  # noqa
                     log.fatal(f"You're missing a data model for the event {name}: {error}")
             else:
-                context = self.contextualize(data)
-                _name: str
-                _args: list = [context]
-
                 if not data.get("type"):
                     log.warning(
                         "Context data is being constructed but there's no type! Skipping..."
                     )
                 else:
+                    context = self.contextualize(data)
+                    _name: str
+                    _args: list = [context]
                     if data["type"] == InteractionType.APPLICATION_COMMAND:
                         print(context.data)
                         _name = context.data.name
