@@ -24,6 +24,7 @@ Interactions
     :maxdepth: 2
     :caption: Frameworks/Commands
 
+    ext.rst
     context.rst
 
 .. toctree::

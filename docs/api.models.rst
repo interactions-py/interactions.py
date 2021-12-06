@@ -8,6 +8,7 @@ Model Objects
 
     api.models.channel.rst
     api.models.guild.rst
+    api.models.gw.rst
     api.models.intents.rst
     api.models.member.rst
     api.models.message.rst
@@ -16,4 +17,3 @@ Model Objects
     api.models.role.rst
     api.models.team.rst
     api.models.user.rst
-    api.models.voice.rst
