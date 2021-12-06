@@ -146,7 +146,9 @@ class WebSocket:
             else None
         )
 
-    async def connect(self, token: str, shard: Optional[List[int]] = None) -> None:
+    async def connect(
+        self, token: str, shard: Optional[List[int]] = None, presence: Optional[Presence] = None
+    ) -> None:
         """
         Establishes a connection to the gateway.
 
@@ -154,6 +156,8 @@ class WebSocket:
         :type token: str
         :param shard?: The shard ID to identify under.
         :type shard: Optional[int]
+        :param presence?: The presence to identify with.
+        :type presence: Optional[Presence]
         """
         self.http = HTTPClient(token)
         self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
@@ -170,9 +174,11 @@ class WebSocket:
                     code = self.session.close_code
                     raise GatewayException(code)
 
-                await self.handle_connection(stream, shard)
+                await self.handle_connection(stream, shard, presence)
 
-    async def handle_connection(self, stream: dict, shard: Optional[List[int]] = None) -> None:
+    async def handle_connection(
+        self, stream: dict, shard: Optional[List[int]] = None, presence: Optional[Presence] = None
+    ) -> None:
         """
         Handles the connection to the gateway.
 
@@ -180,6 +186,8 @@ class WebSocket:
         :type stream: dict
         :param shard?: The shard ID to identify under.
         :type shard: Optional[int]
+        :param presence?: The presence to identify with.
+        :type presence: Optional[Presence]
         """
         op: Optional[int] = stream.get("op")
         event: Optional[str] = stream.get("t")
@@ -191,7 +199,7 @@ class WebSocket:
 
             if op == OpCodeType.HELLO:
                 if not self.session_id:
-                    await self.identify(shard)
+                    await self.identify(shard, presence)
                 else:
                     await self.resume()
 
@@ -264,9 +272,7 @@ class WebSocket:
                     log.fatal(f"You're missing a data model for the event {name}: {error}")
             else:
                 if not data.get("type"):
-                    log.warning(
-                        "Context data is being constructed but there's no type! Skipping..."
-                    )
+                    log.warning("Context data is being constructed but there's no type. Skipping.")
                 else:
                     context = self.contextualize(data)
                     _name: str
@@ -275,9 +281,7 @@ class WebSocket:
                         print(context.data)
                         _name = context.data.name
                         if hasattr(context.data, "options"):
-                            if (
-                                context.data.options
-                            ):  # because of the Mixin, the above conditional never misses. nonechecking
+                            if context.data.options:
                                 for option in context.data.options:
                                     if option["type"] in (
                                         OptionType.SUB_COMMAND,
@@ -292,6 +296,10 @@ class WebSocket:
                         _name = f"autocomplete_{context.data.options[0]['name']}"
                     elif data["type"] == InteractionType.MODAL_SUBMIT:
                         _name = f"modal_{context.data.custom_id}"
+                        if hasattr(context.data, "components"):
+                            if context.data.components:
+                                for component in context.data.components:
+                                    _args.append(component.components)
 
                     self.dispatch.dispatch(_name, *_args)
 
@@ -353,9 +361,10 @@ class WebSocket:
 
         if shard:
             payload["d"]["shard"] = shard
-        if presence:
-            payload["d"]["presence"] = presence._json
+        # if presence:
+        #     payload["d"]["presence"] = presence._json
 
+        log.debug(f"IDENTIFYING {presence} {payload}")
         await self.send(payload)
         log.debug("IDENTIFY")
 

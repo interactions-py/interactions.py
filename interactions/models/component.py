@@ -5,63 +5,6 @@ from ..api.models.misc import DictSerializerMixin
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 
-class ModalInput(DictSerializerMixin):
-    """
-    A class object representing the input of a modal.
-
-    :ivar ComponentType type: The type of input. Always defaults to ``4``.
-    :ivar TextStyleType style: The style of the input.
-    :ivar str custom_id: The custom Id of the input.
-    :ivar str label: The label of the input.
-    :ivar Optional[str] placeholder: The placeholder of the input.
-    :ivar Optional[int] min_length: The minimum length of the input.
-    :ivar Optional[int] max_length: The maximum length of the input.
-    """
-
-    __slots__ = (
-        "_json",
-        "type",
-        "style",
-        "custom_id",
-        "label",
-        "placeholder",
-        "min_length",
-        "max_length",
-    )
-    type: ComponentType
-    style: TextStyleType
-    custom_id: str
-    label: str
-    placeholder: Optional[str]
-    min_length: Optional[int]
-    max_length: Optional[int]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.type = ComponentType.INPUT_TEXT
-        self.style = TextStyleType(self.style)
-        self._json.update({"type": self.type.value, "style": self.style.value})
-
-
-class Modal(DictSerializerMixin):
-    """
-    A class object representing a modal.
-
-    :ivar str custom_id: The custom ID of the modal.
-    :ivar str title: The title of the modal.
-    :ivar List[Component] components: The components of the modal.
-    """
-
-    __slots__ = ("_json", "custom_id", "title", "components")
-    custom_id: str
-    title: str
-    components: List[ModalInput]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._json.update({"components": [component._json for component in self.components]})
-
-
 class SelectOption(DictSerializerMixin):
     """
     A class object representing the select option of a select menu.
@@ -214,6 +157,74 @@ class Component(DictSerializerMixin):
         self.style = ButtonStyle(self.style) if self._json.get("style") else None
         self.options = (
             [SelectMenu(**option) for option in self.options] if self._json.get("options") else None
+        )
+
+
+class ModalInput(DictSerializerMixin):
+    """
+    A class object representing the input of a modal.
+
+    :ivar ComponentType type: The type of input. Always defaults to ``4``.
+    :ivar TextStyleType style: The style of the input.
+    :ivar str custom_id: The custom Id of the input.
+    :ivar str label: The label of the input.
+    :ivar Optional[str] placeholder: The placeholder of the input.
+    :ivar Optional[int] min_length: The minimum length of the input.
+    :ivar Optional[int] max_length: The maximum length of the input.
+    """
+
+    __slots__ = (
+        "_json",
+        "type",
+        "style",
+        "custom_id",
+        "label",
+        "placeholder",
+        "min_length",
+        "max_length",
+    )
+    type: ComponentType
+    style: TextStyleType
+    custom_id: str
+    label: str
+    placeholder: Optional[str]
+    min_length: Optional[int]
+    max_length: Optional[int]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.type = ComponentType.INPUT_TEXT
+        self.style = TextStyleType(self.style)
+        self._json.update({"type": self.type.value, "style": self.style.value})
+
+
+class Modal(DictSerializerMixin):
+    """
+    A class object representing a modal.
+
+    :ivar str custom_id: The custom ID of the modal.
+    :ivar str title: The title of the modal.
+    :ivar List[Component] components: The components of the modal.
+    """
+
+    __slots__ = ("_json", "custom_id", "title", "components")
+    custom_id: str
+    title: str
+    components: List[ModalInput]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.components = (
+            [Component(**component._json) for component in self.components]
+            if self._json.get("components")
+            else None
+        )
+        self._json.update(
+            {
+                "components": [
+                    {"type": 1, "components": [component._json]} for component in self.components
+                ]
+            }
         )
 
 

@@ -1,6 +1,8 @@
 from asyncio import AbstractEventLoop
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
+from interactions.api.models.gw import Presence
+
 from .api.cache import Cache
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
@@ -22,6 +24,7 @@ class Client:
     token: str
     automate_sync: Optional[bool]
     shard: Optional[List[int]]
+    presence: Optional[Presence]
     def __init__(
         self,
         token: str,
@@ -29,6 +32,7 @@ class Client:
         disable_sync: Optional[bool] = None,
         log_level: Optional[int] = None,
         shard: Optional[List[int]] = None,
+        presence: Optional[Presence] = None,
     ) -> None: ...
     async def login(self, token: str) -> None: ...
     def start(self) -> None: ...

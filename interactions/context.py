@@ -1,3 +1,4 @@
+from json import dumps
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Dict, List, Optional, Union
 
@@ -382,17 +383,20 @@ class CommandContext(Context):
         """
 
         payload: dict = {
-            "title": modal.title,
-            "components": [{"type": 1, "components": modal._json.get("components")}],
-            "custom_id": modal.custom_id,
+            "type": InteractionCallbackType.MODAL.value,
+            "data": {
+                "title": modal.title,
+                "components": modal._json.get("components"),
+                "custom_id": modal.custom_id,
+            },
         }
 
-        print(payload)
+        print(dumps(payload, indent=4))
 
         await self.client.create_interaction_response(
             token=self.token,
             application_id=str(self.id),
-            data={"type": InteractionCallbackType.MODAL.value, "data": payload},
+            data=payload,
         )
 
 

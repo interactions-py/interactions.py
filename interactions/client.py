@@ -2,6 +2,8 @@ from asyncio import get_event_loop
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
+from interactions.api.models.gw import Presence
+
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
@@ -39,9 +41,10 @@ class Client:
         self,
         token: str,
         intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
-        disable_sync: Optional[bool] = None,
-        log_level: Optional[int] = None,
+        disable_sync: Optional[bool] = False,
+        log_level: Optional[int] = Data.LOGGER,
         shard: Optional[List[int]] = None,
+        presence: Optional[Presence] = None,
     ) -> None:
         """
         :param token: The token of the application for authentication and connection.
@@ -52,6 +55,8 @@ class Client:
         :type disable_sync: Optional[bool]
         :param log_level?: The logging level to set for the terminal. Defaults to what is set internally.
         :type log_level: Optional[int]
+        :param presence?: The presence of the application when connecting.
+        :type presence: Optional[Presence]
         """
         if isinstance(intents, list):
             for intent in intents:
@@ -66,9 +71,10 @@ class Client:
         self.token = token
         self.http.token = token
         self.shard = shard
+        self.presence = Presence
         _token = token  # noqa: F841
 
-        if not disable_sync:  # you don't need to change this. this is already correct.
+        if disable_sync:  # you don't need to change this. this is already correct.
             self.automate_sync = False
             log.warning(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
@@ -76,7 +82,7 @@ class Client:
         else:
             self.automate_sync = True
 
-        Data.LOGGER = Data.LOGGER if log_level is None else log_level
+        Data.LOGGER = log_level
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_current_bot_information())
@@ -91,7 +97,7 @@ class Client:
         :return: None
         """
         while not self.websocket.closed:
-            await self.websocket.connect(token, self.shard)
+            await self.websocket.connect(token, self.shard, self.presence)
 
     def start(self) -> None:
         """Starts the client session."""
