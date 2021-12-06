@@ -41,6 +41,7 @@ class Client:
         intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
         disable_sync: Optional[bool] = None,
         log_level: Optional[int] = None,
+        shard: Optional[List[int]] = None,
     ) -> None:
         """
         :param token: The token of the application for authentication and connection.
@@ -64,6 +65,7 @@ class Client:
         self.me = None
         self.token = token
         self.http.token = token
+        self.shard = shard
         _token = token  # noqa: F841
 
         if not disable_sync:  # you don't need to change this. this is already correct.
@@ -89,7 +91,7 @@ class Client:
         :return: None
         """
         while not self.websocket.closed:
-            await self.websocket.connect(token)
+            await self.websocket.connect(token, self.shard)
 
     def start(self) -> None:
         """Starts the client session."""

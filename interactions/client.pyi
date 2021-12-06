@@ -21,6 +21,7 @@ class Client:
     me: Optional[Application]
     token: str
     automate_sync: Optional[bool]
+    shard: Optional[List[int]]
     def __init__(
         self,
         token: str,

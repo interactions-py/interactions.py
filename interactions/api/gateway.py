@@ -4,11 +4,12 @@ from json import dumps
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 from orjson import dumps as ordumps
 from orjson import loads
 
+from interactions.api.models.gw import Presence
 from interactions.enums import InteractionType, OptionType
 
 from ..base import CustomFormatter, Data
@@ -145,12 +146,14 @@ class WebSocket:
             else None
         )
 
-    async def connect(self, token: str) -> None:
+    async def connect(self, token: str, shard: Optional[List[int]] = None) -> None:
         """
         Establishes a connection to the gateway.
 
         :param token: The token to use for identifying.
         :type token: str
+        :param shard?: The shard ID to identify under.
+        :type shard: Optional[int]
         """
         self.http = HTTPClient(token)
         self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
@@ -167,14 +170,16 @@ class WebSocket:
                     code = self.session.close_code
                     raise GatewayException(code)
 
-                await self.handle_connection(stream)
+                await self.handle_connection(stream, shard)
 
-    async def handle_connection(self, stream: dict) -> None:
+    async def handle_connection(self, stream: dict, shard: Optional[List[int]] = None) -> None:
         """
         Handles the connection to the gateway.
 
         :param stream: The data stream from the gateway.
         :type stream: dict
+        :param shard?: The shard ID to identify under.
+        :type shard: Optional[int]
         """
         op: Optional[int] = stream.get("op")
         event: Optional[str] = stream.get("t")
@@ -186,7 +191,7 @@ class WebSocket:
 
             if op == OpCodeType.HELLO:
                 if not self.session_id:
-                    await self.identify()
+                    await self.identify(shard)
                 else:
                     await self.resume()
 
@@ -314,8 +319,15 @@ class WebSocket:
         await self.session.send_str(packet)
         log.debug(packet)
 
-    async def identify(self) -> None:
-        """Sends an ``IDENTIFY`` packet to the gateway."""
+    async def identify(
+        self, shard: Optional[List[int]] = None, presence: Optional[Presence] = None
+    ) -> None:
+        """
+        Sends an ``IDENTIFY`` packet to the gateway.
+
+        :param shard?: The shard ID to identify under.
+        :type shard: Optional[int]
+        """
         payload: dict = {
             "op": OpCodeType.IDENTIFY,
             "d": {
@@ -328,6 +340,12 @@ class WebSocket:
                 },
             },
         }
+
+        if shard:
+            payload["d"]["shard"] = shard
+        if presence:
+            payload["d"]["presence"] = presence._json
+
         await self.send(payload)
         log.debug("IDENTIFY")
 
