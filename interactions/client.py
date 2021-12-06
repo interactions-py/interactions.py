@@ -1,5 +1,5 @@
 from asyncio import get_event_loop
-from logging import Logger, basicConfig, getLogger
+from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Item as Build
@@ -9,13 +9,17 @@ from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.team import Application
-from .base import Data
+from .base import CustomFormatter, Data
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
+stream: StreamHandler = StreamHandler()
+stream.setLevel(Data.LOGGER)
+stream.setFormatter(CustomFormatter())
+log.addHandler(stream)
 _token: str = ""  # noqa
 
 
@@ -36,7 +40,7 @@ class Client:
         token: str,
         intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
         disable_sync: Optional[bool] = None,
-        log_level: Optional[int] = Data.LOGGER,
+        log_level: Optional[int] = None,
     ) -> None:
         """
         :param token: The token of the application for authentication and connection.
@@ -45,7 +49,7 @@ class Client:
         :type intents: Optional[Union[Intents, List[Intents]]]
         :param disable_sync?: Whether you want to disable automate synchronization or not.
         :type disable_sync: Optional[bool]
-        :param log_level: The logging level to set for the terminal. Defaults to what is set internally.
+        :param log_level?: The logging level to set for the terminal. Defaults to what is set internally.
         :type log_level: Optional[int]
         """
         if isinstance(intents, list):
@@ -69,6 +73,8 @@ class Client:
             )
         else:
             self.automate_sync = True
+
+        Data.LOGGER = Data.LOGGER if log_level is None else log_level
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_current_bot_information())

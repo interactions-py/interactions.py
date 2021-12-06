@@ -1,7 +1,7 @@
 import sys
 from asyncio import get_event_loop, run_coroutine_threadsafe
 from json import dumps
-from logging import Logger, basicConfig, getLogger
+from logging import Logger, StreamHandler, basicConfig, getLogger
 from random import random
 from threading import Event, Thread
 from typing import Any, Optional, Union
@@ -11,7 +11,7 @@ from orjson import loads
 
 from interactions.enums import InteractionType, OptionType
 
-from ..base import Data
+from ..base import CustomFormatter, Data
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
@@ -20,6 +20,10 @@ from .models.intents import Intents
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("gateway")
+stream: StreamHandler = StreamHandler()
+stream.setLevel(Data.LOGGER)
+stream.setFormatter(CustomFormatter())
+log.addHandler(stream)
 
 __all__ = ("Heartbeat", "WebSocket")
 

@@ -1,6 +1,6 @@
 # from io import FileIO
 # debug
-import logging
+from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Dict, List, Optional, Union
 
 import interactions.client
@@ -11,12 +11,18 @@ from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin
 from .api.models.user import User
+from .base import CustomFormatter, Data
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, SelectMenu
 from .models.misc import InteractionData
 
-log = logging.getLogger("context")
+basicConfig(level=Data.LOGGER)
+log: Logger = getLogger("context")
+stream: StreamHandler = StreamHandler()
+stream.setLevel(Data.LOGGER)
+stream.setFormatter(CustomFormatter())
+log.addHandler(stream)
 
 
 class Context(DictSerializerMixin):
