@@ -331,6 +331,8 @@ class WebSocket:
 
         :param shard?: The shard ID to identify under.
         :type shard: Optional[int]
+        :param presence?: The presence to change the bot to on identify.
+        :type presence: Optional[Presence]
         """
         payload: dict = {
             "op": OpCodeType.IDENTIFY,

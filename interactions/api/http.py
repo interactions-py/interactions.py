@@ -21,6 +21,7 @@ from ..api.models import (
     Member,
     Message,
     Role,
+    Snowflake,
     StageInstance,
     User,
     WelcomeScreen,
@@ -362,7 +363,7 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", "/users/@me/channels"), json={"recipient_id": recipient_id}
         )
-        self.cache.dms.add(Item(id=recipient_id, value=request))
+        self.cache.dms.add(Item(id=str(recipient_id), value=request))
 
         return request
 
@@ -370,7 +371,7 @@ class HTTPClient:
 
     async def send_message(
         self,
-        channel_id: int,
+        channel_id: Union[int, Snowflake],
         content: str,
         tts: bool = False,
         embeds: Optional[List[Embed]] = None,
@@ -403,6 +404,10 @@ class HTTPClient:
             payload["message_reference"] = message_reference
 
         # TODO: add attachments to payload.
+
+        if isinstance(channel_id, Snowflake):
+            # TODO: Convert HTTP endpoints to support Snowflake model/str as per schema.
+            channel_id = int(channel_id)
 
         return await self.create_message(payload, channel_id)
 
@@ -532,7 +537,7 @@ class HTTPClient:
         :return: The guild object associated, if any.
         """
         request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
-        self.cache.guilds.add(Item(id=guild_id, value=request))
+        self.cache.guilds.add(Item(id=str(guild_id), value=request))
 
         return request
 
@@ -1191,7 +1196,7 @@ class HTTPClient:
         :return: Channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=channel_id, value=request))
+        self.cache.channels.add(Item(id=str(channel_id), value=request))
 
         return request
 

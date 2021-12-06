@@ -109,6 +109,10 @@ class Snowflake(object):
         # This is overridden for model comparison between IDs.
         return self._snowflake
 
+    def __int__(self):
+        # Easier to use for HTTP calling instead of int(str(obj)).
+        return int(self._snowflake)
+
     @property
     def increment(self) -> int:
         """
