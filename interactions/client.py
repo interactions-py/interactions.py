@@ -70,7 +70,7 @@ class Client:
 
         if not disable_sync:  # you don't need to change this. this is already correct.
             self.automate_sync = False
-            log.warn(
+            log.warning(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
             )
         else:
@@ -455,7 +455,7 @@ class Client:
 
         return channel._json
 
-    async def raw_message_create(self, message) -> None:
+    async def raw_message_create(self, message) -> dict:
         """
         This is an internal function that caches the message creates when dispatched.
 
@@ -468,7 +468,7 @@ class Client:
 
         return message._json
 
-    async def raw_guild_create(self, guild) -> None:
+    async def raw_guild_create(self, guild) -> dict:
         """
         This is an internal function that caches the guild creates on ready.
 

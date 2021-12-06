@@ -248,11 +248,11 @@ class WebSocket:
 
             if event != "INTERACTION_CREATE" and "VOICE" not in event:
                 try:
-                    _name: str = [piece for piece in name.split("_")]
-                    _name = (
-                        _name[0].capitalize()
-                        if len(_name) < 3
-                        else "".join(piece.capitalize() for piece in _name[:-1])
+                    lst_names: list = [piece for piece in name.split("_")]
+                    _name: str = (
+                        lst_names[0].capitalize()
+                        if len(lst_names) < 3
+                        else "".join(piece.capitalize() for piece in lst_names[:-1])
                     )
                     log.debug(f"Dispatching object {_name} from event {name}")
                     obj: object = getattr(
@@ -267,29 +267,34 @@ class WebSocket:
                 _name: str
                 _args: list = [context]
 
-                if data["type"] == InteractionType.APPLICATION_COMMAND:
-                    print(context.data)
-                    _name = context.data.name
-                    if hasattr(context.data, "options"):
-                        if (
-                            context.data.options
-                        ):  # because of the Mixin, the above conditional never misses. nonechecking
-                            for option in context.data.options:
-                                if option["type"] in (
-                                    OptionType.SUB_COMMAND,
-                                    OptionType.SUB_COMMAND_GROUP,
-                                ):
-                                    pass
-                                else:
-                                    _args.append(option["value"])
-                elif data["type"] == InteractionType.MESSAGE_COMPONENT:
-                    _name = context.data.custom_id
-                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                    _name = f"autocomplete_{context.data.options[0]['name']}"
-                elif data["type"] == InteractionType.MODAL_SUBMIT:
-                    _name = f"modal_{context.data.custom_id}"
+                if not data.get("type"):
+                    log.warning(
+                        "Context data is being constructed but there's no type! Skipping..."
+                    )
+                else:
+                    if data["type"] == InteractionType.APPLICATION_COMMAND:
+                        print(context.data)
+                        _name = context.data.name
+                        if hasattr(context.data, "options"):
+                            if (
+                                context.data.options
+                            ):  # because of the Mixin, the above conditional never misses. nonechecking
+                                for option in context.data.options:
+                                    if option["type"] in (
+                                        OptionType.SUB_COMMAND,
+                                        OptionType.SUB_COMMAND_GROUP,
+                                    ):
+                                        pass
+                                    else:
+                                        _args.append(option["value"])
+                    elif data["type"] == InteractionType.MESSAGE_COMPONENT:
+                        _name = context.data.custom_id
+                    elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
+                        _name = f"autocomplete_{context.data.options[0]['name']}"
+                    elif data["type"] == InteractionType.MODAL_SUBMIT:
+                        _name = f"modal_{context.data.custom_id}"
 
-                self.dispatch.dispatch(_name, *_args)
+                    self.dispatch.dispatch(_name, *_args)
 
             self.dispatch.dispatch("raw_socket_create", data)
 
