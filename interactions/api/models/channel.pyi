@@ -1,8 +1,11 @@
 from datetime import datetime
+from enum import IntEnum
 from typing import List, Optional
 
 from .misc import DictSerializerMixin, Overwrite, Snowflake
 from .user import User
+
+class ChannelType(IntEnum): ...
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict

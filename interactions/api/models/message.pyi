@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import IntEnum
 from typing import List, Optional, Union
 
 from .channel import Channel
@@ -25,7 +24,7 @@ class MessageReference(DictSerializerMixin):
 
 class Attachment(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     filename: str
     content_type: Optional[str]
     size: int
@@ -37,7 +36,7 @@ class Attachment(DictSerializerMixin):
 
 class MessageInteraction(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     type: int  # replace with Enum
     name: str
     user: User
@@ -45,16 +44,16 @@ class MessageInteraction(DictSerializerMixin):
 
 class ChannelMention(DictSerializerMixin):
     _json: dict
-    id: int
-    guild_id: int
+    id: Snowflake
+    guild_id: Snowflake
     type: int  # Replace with enum from Channel Type, another PR
     name: str
     def __init__(self, **kwargs): ...
 
 class Message(DictSerializerMixin):
     _json: dict
-    id: int
-    channel_id: int
+    id: Snowflake
+    channel_id: Snowflake
     guild_id: Optional[Snowflake]
     author: User
     member: Optional[Member]
@@ -76,7 +75,7 @@ class Message(DictSerializerMixin):
     type: int
     activity: Optional[MessageActivity]
     application: Optional[Application]
-    application_id: int
+    application_id: Snowflake
     message_reference: Optional[MessageReference]
     flags: int
     referenced_message: Optional["Message"]  # pycharm says it works, idk
@@ -109,7 +108,7 @@ class ReactionObject(DictSerializerMixin):
 
 class PartialSticker(DictSerializerMixin):
     _json: dict
-    id: int
+    id: Snowflake
     name: str
     format_type: int
     def __init__(self, **kwargs): ...
