@@ -19,7 +19,7 @@ extras = {
 extras["lint"] += extras["readthedocs"]
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 
-requirements = open("requirements.txt").split("\n")[:-1]
+requirements = open("requirements.txt").read().split("\n")[:-1]
 
 setup(
     name="discord-py-interactions",
