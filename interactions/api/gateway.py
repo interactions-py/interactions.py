@@ -286,6 +286,8 @@ class WebSocket:
                     _name = context.data.custom_id
                 elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                     _name = f"autocomplete_{context.data.options[0]['name']}"
+                elif data["type"] == InteractionType.MODAL_SUBMIT:
+                    _name = f"modal_{context.data.custom_id}"
 
                 self.dispatch.dispatch(_name, *_args)
 
@@ -304,8 +306,8 @@ class WebSocket:
         if data["type"] != InteractionType.PING:
             _context: str = ""
 
-            if data["type"] == InteractionType.APPLICATION_COMMAND:
-                _context = "InteractionContext"
+            if data["type"] in (InteractionType.APPLICATION_COMMAND, InteractionType.MODAL_SUBMIT):
+                _context = "CommandContext"
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
             elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:

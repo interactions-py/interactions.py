@@ -1,5 +1,3 @@
-# from io import FileIO
-# debug
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Dict, List, Optional, Union
 
@@ -7,14 +5,15 @@ import interactions.client
 
 from .api.http import HTTPClient
 from .api.models.channel import Channel
+from .api.models.guild import Guild
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
-from .api.models.misc import DictSerializerMixin
+from .api.models.misc import DictSerializerMixin, Snowflake
 from .api.models.user import User
 from .base import CustomFormatter, Data
-from .enums import InteractionCallbackType, InteractionType
+from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
-from .models.component import ActionRow, Button, SelectMenu
+from .models.component import ActionRow, Button, Modal, SelectMenu
 from .models.misc import InteractionData
 
 basicConfig(level=Data.LOGGER)
@@ -30,72 +29,75 @@ class Context(DictSerializerMixin):
     The base class of \"context\" for dispatched event data
     from the gateway.
 
-    :ivar Message message: The message data model.
+    :ivar Optional[Message] message: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
     :ivar Channel channel: The channel data model.
     :ivar Guild guild: The guild data model.
-    :ivar \*args: Multiple arguments of the context.
-    :ivar \**kwargs: Keyword-only arguments of the context.
     """
 
-    __slots__ = ("message", "member", "channel", "guild", "args", "kwargs", "client")
+    __slots__ = ("message", "member", "author", "user", "channel", "guild", "client")
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.message = Message(**self.message) if self._json.get("message") else None
+        self.member = Member(**self.member) if self._json.get("member") else None
+        self.author = self.member
+        self.user = User(**self.user) if self._json.get("user") else None
+        self.channel = Channel(**self.channel) if self._json.get("channel") else None
+        self.guild = Guild(**self.guild) if self._json.get("guild") else None
         self.client = HTTPClient(interactions.client._token)
 
 
-class InteractionContext(Context):
+class CommandContext(Context):
     """
-    This is a derivation of the base Context class designed specifically for
-    interaction data.
+    A derivation of :class:`interactions.context.Context`
+    designed specifically for application command data.
 
-    :ivar str id: The ID of the interaction.
-    :ivar str application_id: The application ID of the interaction.
-    :ivar Union[str, int, InteractionType] type: The type of interaction.
+    :ivar Snowflake id: The ID of the interaction.
+    :ivar Snowflake application_id: The application ID of the interaction.
+    :ivar InteractionType type: The type of interaction.
+    :ivar str name: The name of the command in the interaction.
+    :ivar Optional[str] description?: The description of the command in the interaction.
+    :ivar Optional[List[Option]] options?: The options of the command in the interaction, if any.
     :ivar InteractionData data: The application command data.
-    :ivar str guild_id: The guild ID the interaction falls under.
-    :ivar str channel_id: The channel ID the interaction was instantiated from.
     :ivar str token: The token of the interaction response.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     """
 
     __slots__ = (
-        "member",
         "message",
-        "channel",
+        "member",
+        "author",
         "user",
+        "channel",
         "guild",
-        "args",
-        "kwargs",
         "client",
         "id",
         "application_id",
+        "custom_id",
         "type",
+        "name",
         "data",
+        "version",
+        "token",
         "guild_id",
         "channel_id",
-        "token",
-        "version",
         "responded",
         "deferred",
     )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.message = Message(**kwargs["message"]) if kwargs.get("message") else None
-        self.member = Member(**kwargs["member"]) if kwargs.get("member") else None
-        self.user = User(**kwargs["user"]) if kwargs.get("user") else None
-        self.channel = Channel(**kwargs["channel"]) if kwargs.get("channel") else None
-        self.id = kwargs.get("id")
-        self.application_id = kwargs.get("application_id")
-        self.type = InteractionType(int(kwargs["type"])) if kwargs.get("type") else None
-        self.data = InteractionData(**kwargs["data"])
-        self.guild_id = kwargs.get("guild_id")
-        self.channel_id = kwargs.get("channel_id")
-        self.token = kwargs.get("token")
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.application_id = (
+            Snowflake(self.application_id) if self._json.get("application_id") else None
+        )
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.type = InteractionType(self.type)
+        self.data = InteractionData(**self.data) if self._json.get("data") else None
         self.responded = False
         self.deferred = False
 
@@ -214,7 +216,7 @@ class InteractionContext(Context):
             else:
                 req = await self.client.create_interaction_response(
                     token=self.token,
-                    application_id=int(self.id),
+                    application_id=str(self.id),
                     data={"type": _type, "data": payload._json},
                 )
                 self.responded = True
@@ -287,7 +289,7 @@ class InteractionContext(Context):
             else:
                 req = await self.client.edit_interaction_response(
                     token=self.token,
-                    application_id=self.id,
+                    application_id=str(self.id),
                     data={"type": _type, "data": payload._json},
                     message_id=self.message.id,
                 )
@@ -309,75 +311,87 @@ class InteractionContext(Context):
         """
         if self.responded:
             await self.client.delete_webhook_message(
-                webhook_id=int(self.id), webhook_token=self.token, message_id=self.message.id
+                webhook_id=str(self.id), webhook_token=self.token, message_id=self.message.id
             )
         else:
             await self.client.delete_original_webhook_message(int(self.id), self.token)
         self.message = None
 
+    async def popup(self, modal: Modal) -> None:
+        """
+        This "pops up" a modal to present information back to the
+        user.
 
-class ComponentContext(InteractionContext):
+        :param modal: The components you wish to show.
+        :type modal: Modal
+        """
+
+        payload: dict = {
+            "title": modal.title,
+            "components": [{"type": 1, "components": modal._json.get("components")}],
+            "custom_id": modal.custom_id,
+        }
+
+        print(payload)
+
+        await self.client.create_interaction_response(
+            token=self.token,
+            application_id=str(self.id),
+            data={"type": InteractionCallbackType.MODAL.value, "data": payload},
+        )
+
+
+class ComponentContext(CommandContext):
     """
-    This is a derivation of the base Context class designed specifically for
-    component data.
-
-    :ivar str custom_id: The customized ID for the component to call.
-    :ivar typing.Union[str, int, interactions.enums.ComponentType] type: The type of component.
-    :ivar list values: The curated list of values under the component. This will be ``None`` if the type is not ``SELECT_MENU``.
-    :ivar bool origin: Whether this is the origin of the component.
+    A derivation of :class:`interactions.context.CommandContext`
+    designed specifically for component data.
     """
 
     __slots__ = (
         "message",
         "author",
-        "channel",
         "user",
+        "channel",
         "guild",
-        "args",
-        "kwargs",
         "client",
         "id",
         "application_id",
         "type",
+        "name",
+        "description",
+        "options",
         "data",
-        "guild_id",
-        "channel_id",
-        "token",
         "responded",
+        "deferred",
         "custom_id",
-        "type",
-        "values",
-        "origin",
     )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.type = ComponentType(self.type)
         self.responded = False  # remind components that it was not responded to.
 
 
-class AutocompleteContext(InteractionContext):
+class AutocompleteContext(CommandContext):
     """
-    This is a derivation of the base Context class designed specifically for
-    autocomplete data.
+    A derivation of :class:`interactions.context.CommandContext`
+    designed specifically for autocomplete data.
     """
 
     __slots__ = (
         "message",
         "author",
-        "channel",
         "user",
+        "channel",
         "guild",
-        "args",
-        "kwargs",
         "client",
         "id",
         "application_id",
         "type",
+        "name",
+        "description",
+        "options",
         "data",
-        "guild_id",
-        "channel_id",
-        "token",
-        "version",
         "responded",
         "deferred",
     )
@@ -418,7 +432,7 @@ class AutocompleteContext(InteractionContext):
 
                 await self.client.create_interaction_response(
                     token=self.token,
-                    application_id=int(self.id),
+                    application_id=str(self.id),
                     data={
                         "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
                         "data": {"choices": _choices},

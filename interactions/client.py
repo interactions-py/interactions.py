@@ -12,7 +12,7 @@ from .api.models.team import Application
 from .base import CustomFormatter, Data
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
-from .models.component import Button, Component, SelectMenu
+from .models.component import Button, Component, Modal, SelectMenu
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
@@ -410,6 +410,21 @@ class Client:
 
         def decorator(coro: Coroutine) -> Any:
             return self.event(coro, name=f"autocomplete_{name}")
+
+        return decorator
+
+    def modal(self, modal: Modal) -> Callable[..., Any]:
+        """
+        A decorator for handling interactions with modals.
+
+        :param modal: The modal you wish to callback for.
+        :type modal: Modal
+        :return: A callable response.
+        :rtype: Callable[..., Any]
+        """
+
+        def decorator(coro: Coroutine) -> Any:
+            return self.event(coro, name=f"modal_{modal.custom_id}")
 
         return decorator
 

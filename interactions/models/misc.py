@@ -71,7 +71,7 @@ class InteractionData(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.type = ApplicationCommandType(self.type)
+        self.type = ApplicationCommandType(self.type) if self._json.get("type") else None
         self.resolved = (
             InteractionResolvedData(**self.resolved) if self._json.get("resolved") else None
         )
