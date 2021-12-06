@@ -55,7 +55,7 @@ class Application(DictSerializerMixin):
     """
     A class object representing an appliation.
 
-    ..note::
+    .. note::
         ``type`` and ``hook`` are currently undocumented in the API.
 
     :ivar Snowflake id: Application ID

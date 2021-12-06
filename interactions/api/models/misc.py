@@ -13,16 +13,14 @@ class DictSerializerMixin(object):
     """
     The purpose of this mixin is to be subclassed.
 
-    ..note::
-
+    .. note::
         On subclass, it:
             -- From kwargs (received from the Discord API response), add it to the `_json` attribute
             such that it can be reused by other libraries/extensions
             -- Aids in attributing the kwargs to actual model attributes, i.e. `User.id`
             -- Dynamically sets attributes not given to kwargs but slotted to None, signifying that it doesn't exist.
 
-    ..warning::
-
+    .. warning::
         This does NOT convert them to its own data types, i.e. timestamps, or User within Member. This is left by
         the object that's using the mixin.
     """
@@ -94,7 +92,7 @@ class Snowflake(object):
 
     (Basically, snowflakes will be treated as if they were from d.py 0.16.12)
 
-    ..note::
+    .. note::
         You can still provide integers to them, to ensure ease of use of transition and/or
         if discord API for some odd reason will switch to integer.
     """
@@ -207,7 +205,8 @@ class Format:
         :type format: str
         :param \**kwargs: Multiple key-word arguments to use, where key=value is format=value.
         :type \**kwargs: dict
-        :return: str
+        :return: The formatted string.
+        :rtype: str
         """
         new: str = f""  # noqa: F541
         for kwarg in kwargs:

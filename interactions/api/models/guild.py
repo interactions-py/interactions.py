@@ -411,7 +411,7 @@ class ScheduledEvents(DictSerializerMixin):
     """
     A class object representing the scheduled events of a guild.
 
-    ..note::
+    .. note::
         Some attributes are optional via creator_id/creator implementation by the API:
         "`creator_id` will be null and `creator` will not be included for events created before October 25th, 2021, when the concept of `creator_id` was introduced and tracked."
 
