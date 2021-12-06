@@ -328,6 +328,50 @@ class CommandContext(Context):
             await self.client.delete_original_webhook_message(int(self.id), self.token)
         self.message = None
 
+    async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
+        """
+        This "populates" the list of choices that the client-end
+        user will be able to select from in the autocomplete field.
+
+        .. warning::
+            Only a maximum of ``25`` choices may be presented
+            within an autocomplete option.
+
+        :param choices: The choices you wish to present.
+        :type choices: Union[Choice, List[Choice]]
+        :return: The list of choices you've given.
+        :rtype: List[Choice]
+        """
+
+        async def func():
+            if choices:
+                _choices: list = []
+                if all(isinstance(choice, Choice) for choice in choices):
+                    _choices = [choice._json for choice in choices]
+                # elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
+                elif all(
+                    isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
+                    for choice in choices
+                ):
+                    _choices = [choice for choice in choices]
+                elif isinstance(choices, Choice):
+                    _choices = [choices._json]
+                else:
+                    _choices = [choices]
+
+                await self.client.create_interaction_response(
+                    token=self.token,
+                    application_id=str(self.id),
+                    data={
+                        "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
+                        "data": {"choices": _choices},
+                    },
+                )
+
+                return _choices
+
+        return await func()
+
     async def popup(self, modal: Modal) -> None:
         """
         This "pops up" a modal to present information back to the
@@ -381,75 +425,3 @@ class ComponentContext(CommandContext):
         super().__init__(**kwargs)
         self.type = ComponentType(self.type)
         self.responded = False  # remind components that it was not responded to.
-
-
-class AutocompleteContext(CommandContext):
-    """
-    A derivation of :class:`interactions.context.CommandContext`
-    designed specifically for autocomplete data.
-    """
-
-    __slots__ = (
-        "message",
-        "author",
-        "user",
-        "channel",
-        "guild",
-        "client",
-        "id",
-        "application_id",
-        "type",
-        "name",
-        "description",
-        "options",
-        "data",
-        "responded",
-        "deferred",
-    )
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
-    async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
-        """
-        This "populates" the list of choices that the client-end
-        user will be able to select from in the autocomplete field.
-
-        .. warning::
-            Only a maximum of ``25`` choices may be presented
-            within an autocomplete option.
-
-        :param choices: The choices you wish to present.
-        :type choices: Union[Choice, List[Choice]]
-        :return: The list of choices you've given.
-        :rtype: List[Choice]
-        """
-
-        async def func():
-            if choices:
-                _choices: list = []
-                if all(isinstance(choice, Choice) for choice in choices):
-                    _choices = [choice._json for choice in choices]
-                # elif all(isinstance(choice, Dict[str, Any]) for choice in choices):
-                elif all(
-                    isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
-                    for choice in choices
-                ):
-                    _choices = [choice for choice in choices]
-                elif isinstance(choices, Choice):
-                    _choices = [choices._json]
-                else:
-                    _choices = [choices]
-
-                await self.client.create_interaction_response(
-                    token=self.token,
-                    application_id=str(self.id),
-                    data={
-                        "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
-                        "data": {"choices": _choices},
-                    },
-                )
-
-                return _choices
-
-        return await func()

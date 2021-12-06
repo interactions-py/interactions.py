@@ -178,20 +178,20 @@ class Format:
         looking to give a **str** specific result.
     """
 
-    USER = "<@{id}>"
-    USER_NICK = "<@!{id}>"
-    CHANNEL = "<#{id}>"
-    ROLE = "<@&{id}>"
-    EMOJI = "<:{name}:{id}>"
-    EMOJI_ANIMATED = "<a:{name}:{id}>"
-    TIMESTAMP = "<t:{timestamp}>"
-    TIMESTAMP_SHORT_T = "<t:{timestamp}:t>"
-    TIMESTAMP_LONG_T = "<t:{timestamp}:T>"
-    TIMESTAMP_SHORT_D = "<t:{timestamp}:d>"
-    TIMESTAMP_LONG_D = "<t:{timestamp}:D>"
+    USER = "<@%s>"
+    USER_NICK = "<@!%s>"
+    CHANNEL = "<#%s>"
+    ROLE = "<@&%s>"
+    EMOJI = "<:%s:%d>"
+    EMOJI_ANIMATED = "<a:%s:%d>"
+    TIMESTAMP = "<t:%s>"
+    TIMESTAMP_SHORT_T = "<t:%s:t>"
+    TIMESTAMP_LONG_T = "<t:%s:T>"
+    TIMESTAMP_SHORT_D = "<t:%s:d>"
+    TIMESTAMP_LONG_D = "<t:%s:D>"
     TIMESTAMP_SHORT_DT = TIMESTAMP
-    TIMESTAMP_LONG_DT = "<t:{timestamp}:F>"
-    TIMESTAMP_RELATIVE = "<t:{timestamp}:R>"
+    TIMESTAMP_LONG_DT = "<t:%s:F>"
+    TIMESTAMP_RELATIVE = "<t:%s:R>"
 
     @classmethod
     def stylize(cls, format: str, **kwargs) -> str:
@@ -209,5 +209,5 @@ class Format:
         new: str = f""  # noqa: F541
         for kwarg in kwargs:
             if format == kwarg:
-                new = new + format
+                new = new % format
         return new

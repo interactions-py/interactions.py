@@ -306,12 +306,14 @@ class WebSocket:
         if data["type"] != InteractionType.PING:
             _context: str = ""
 
-            if data["type"] in (InteractionType.APPLICATION_COMMAND, InteractionType.MODAL_SUBMIT):
+            if data["type"] in (
+                InteractionType.APPLICATION_COMMAND,
+                InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE,
+                InteractionType.MODAL_SUBMIT,
+            ):
                 _context = "CommandContext"
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
-            elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                _context = "AutocompleteContext"
 
             context: object = getattr(__import__("interactions.context"), _context)
             return context(**data)
