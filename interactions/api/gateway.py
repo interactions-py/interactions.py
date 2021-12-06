@@ -266,14 +266,17 @@ class WebSocket:
                     print(context.data)
                     _name = context.data.name
                     if hasattr(context.data, "options"):
-                        for option in context.data.options:
-                            if option["type"] in (
-                                OptionType.SUB_COMMAND,
-                                OptionType.SUB_COMMAND_GROUP,
-                            ):
-                                pass
-                            else:
-                                _args.append(option["value"])
+                        if (
+                            context.data.options
+                        ):  # because of the Mixin, the above conditional never misses. nonechecking
+                            for option in context.data.options:
+                                if option["type"] in (
+                                    OptionType.SUB_COMMAND,
+                                    OptionType.SUB_COMMAND_GROUP,
+                                ):
+                                    pass
+                                else:
+                                    _args.append(option["value"])
                 elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                     _name = context.data.custom_id
                 elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
