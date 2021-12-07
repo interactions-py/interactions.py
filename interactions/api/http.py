@@ -1844,7 +1844,7 @@ class HTTPClient:
     # TODO: Please clean this up.
 
     async def get_application_command(
-        self, application_id: int, guild_id: Optional[int] = None
+        self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
     ) -> List[dict]:
         """
         Get all application commands from an application
@@ -1852,6 +1852,8 @@ class HTTPClient:
         :param guild_id: Guild to get commands from, if specified. Defaults to global (None)
         :return: A list of Application commands.
         """
+        application_id = int(application_id)
+
         if not guild_id:
             return await self._req.request(Route("GET", f"/applications/{application_id}/commands"))
         return await self._req.request(
@@ -1859,7 +1861,7 @@ class HTTPClient:
         )
 
     async def create_application_command(
-        self, application_id: int, data: dict, guild_id: Optional[int] = None
+        self, application_id: Union[int, Snowflake], data: dict, guild_id: Optional[int] = None
     ):
         """
         Registers to the Discord API an application command.
@@ -1869,6 +1871,8 @@ class HTTPClient:
         :param guild_id: Guild ID snowflake to put them in, if applicable.
         :return: An application command object.
         """
+
+        application_id = int(application_id)
 
         url = (
             f"/applications/{application_id}/commands"
@@ -1901,7 +1905,11 @@ class HTTPClient:
         return await self._req.request(Route("PUT", url), json=data)
 
     async def edit_application_command(
-        self, application_id: int, data: dict, command_id: int, guild_id: Optional[int] = None
+        self,
+        application_id: Union[int, Snowflake],
+        data: dict,
+        command_id: int,
+        guild_id: Optional[int] = None,
     ) -> dict:
         """
         Edits an application command.
@@ -1912,6 +1920,7 @@ class HTTPClient:
         :param guild_id: Guild ID snowflake, if given. Defaults to None/global.
         :return: The updated application command object.
         """
+        application_id = int(application_id)
         r = (
             Route(
                 "POST",
@@ -1931,7 +1940,7 @@ class HTTPClient:
         return await self._req.request(r, json=data)
 
     async def delete_application_command(
-        self, application_id: int, command_id: int, guild_id: Optional[int] = None
+        self, application_id: Union[int, Snowflake], command_id: int, guild_id: Optional[int] = None
     ) -> None:
         """
         Deletes an application command.
@@ -1940,6 +1949,8 @@ class HTTPClient:
         :param command_id: Application command ID snowflake.
         :param guild_id: Guild ID snowflake, if declared. Defaults to None (Global).
         """
+
+        application_id = int(application_id)
 
         r = (
             Route(
