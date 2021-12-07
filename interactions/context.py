@@ -292,6 +292,9 @@ class CommandContext(Context):
             else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
         )
 
+        for key, item in interactions.client._cache.messages:
+            print(f"{item} in message cache as ID {key}")
+
         payload: Message = Message(
             content=_content,
             tts=_tts,
@@ -300,13 +303,12 @@ class CommandContext(Context):
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
             components=_components,
-            flags=self.message.ephemeral,
         )
 
         async def func():
             if self.type == InteractionType.MESSAGE_COMPONENT:
                 await self.client._post_followup(
-                    data=payload._json, token=self.token, application_id=self.application_id
+                    data=payload._json, token=self.token, application_id=str(self.application_id)
                 )
             else:
                 await self.client.edit_interaction_response(

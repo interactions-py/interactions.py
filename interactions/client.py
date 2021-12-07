@@ -4,6 +4,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from interactions.api.models.gw import Presence
 
+from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
@@ -23,6 +24,7 @@ stream.setLevel(Data.LOGGER)
 stream.setFormatter(CustomFormatter())
 log.addHandler(stream)
 _token: str = ""  # noqa
+_cache: Cache = Cache()
 
 
 class Client:
@@ -73,6 +75,7 @@ class Client:
         self.shard = shard
         self.presence = presence
         _token = token  # noqa: F841
+        _cache = self.http.cache  # noqa: F841
 
         if disable_sync:  # you don't need to change this. this is already correct.
             self.automate_sync = False
