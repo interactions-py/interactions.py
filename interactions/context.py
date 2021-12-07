@@ -1,10 +1,9 @@
-from json import dumps
 from logging import Logger, StreamHandler, basicConfig, getLogger
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import interactions.client
 
-from .api.http import HTTPClient
+from .api.http import HTTPClient, Route
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -14,7 +13,7 @@ from .api.models.user import User
 from .base import CustomFormatter, Data
 from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
-from .models.component import ActionRow, Button, Modal, SelectMenu
+from .models.component import ActionRow, Button, Component, Modal, SelectMenu
 from .models.misc import InteractionData
 
 basicConfig(level=Data.LOGGER)
@@ -27,10 +26,13 @@ log.addHandler(stream)
 
 class Context(DictSerializerMixin):
     r"""
-    The base class of \"context\" for dispatched event data
-    from the gateway.
+    The base class of "context" for dispatched event data
+    from the gateway. The premise of having this class is so
+    that the user-facing API is able to allow developers to
+    easily access information presented from any event in
+    a "contextualized" sense.
 
-    :ivar Optional[Message] message: The message data model.
+    :ivar Optional[Message] message?: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
     :ivar Channel channel: The channel data model.
@@ -55,6 +57,18 @@ class CommandContext(Context):
     A derivation of :class:`interactions.context.Context`
     designed specifically for application command data.
 
+    .. warning::
+        The ``guild`` attribute of the base context
+        is not accessible for any interaction-related events
+        since the current Discord API schema does not return
+        this as a value, but instead ``guild_id``. You will
+        need to manually fetch for this data for the time being.
+
+        You can fetch with ``client.get_guild(guild_id)`` which
+        will return a JSON dictionary, which you can then use
+        ``interactions.Guild(**data)`` for an object or continue
+        with a dictionary for your own purposes.
+
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
@@ -78,6 +92,7 @@ class CommandContext(Context):
         "id",
         "application_id",
         "custom_id",
+        "callback",
         "type",
         "data",
         "target",
@@ -97,6 +112,7 @@ class CommandContext(Context):
         )
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.callback = None
         self.type = InteractionType(self.type)
         self.data = InteractionData(**self.data) if self._json.get("data") else None
 
@@ -113,61 +129,59 @@ class CommandContext(Context):
         self.responded = False
         self.deferred = False
 
-    async def defer(self, ephemeral: Optional[bool] = None) -> None:
+    async def defer(self, ephemeral: Optional[bool] = False) -> None:
         """
-        This \"defers\" an interaction response, allowing up
+        This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
-        :param ephemeral: Whether the deferred state is hidden or not.
+        :param ephemeral?: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
         """
-        _type: InteractionCallbackType
-
+        self.deferred = True
+        _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
         if bool(ephemeral):
             if self.type == InteractionType.MESSAGE_COMPONENT:
-                _type = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+                self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
             elif self.type == InteractionType.APPLICATION_COMMAND:
-                _type = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-            self.deferred = True
+                self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
         else:
             if self.type == InteractionType.MESSAGE_COMPONENT:
-                _type = InteractionCallbackType.UPDATE_MESSAGE
+                self.callback = InteractionCallbackType.UPDATE_MESSAGE
             elif self.type == InteractionType.APPLICATION_COMMAND:
-                _type = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
+                self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
-            token=self.token, application_id=int(self.id), data={"type": _type.value}
+            token=self.token,
+            application_id=int(self.id),
+            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
         )
 
     async def send(
         self,
         content: Optional[str] = None,
         *,
-        tts: Optional[bool] = None,
+        tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[List[Dict[str, Any]], ActionRow, Button, SelectMenu]] = None,
-        type: Optional[Union[int, InteractionCallbackType]] = None,
-        ephemeral: Optional[bool] = None,
+        components: Optional[Union[Component, List[Component]]] = None,
+        ephemeral: Optional[bool] = False,
     ) -> Message:
         """
         This allows the invocation state described in the "context"
         to send an interaction response.
 
-        :param content: The contents of the message as a string or string-converted value.
+        :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
-        :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param embeds: An embed, or list of embeds for the message.
+        :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions: The message interactions/mention limits that the message can refer to.
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
-        :param components: A component, or list of components for the message.
+        :param components?: A component, or list of components for the message.
         :type components: Optional[Union[Component, List[Component]]]
-        :param type: The type of message response if used for interactions or components.
-        :type type: Optional[Union[int, InteractionCallbackType]]
-        :param ephemeral: Whether the response is hidden or not.
+        :param ephemeral?: Whether the response is hidden or not.
         :type ephemeral: Optional[bool]
         :return: The sent message as an object.
         :rtype: Message
@@ -191,20 +205,16 @@ class CommandContext(Context):
         else:
             _components = [] if components is None else [components]
 
-        _type: int
-        if isinstance(type, InteractionCallbackType):
-            _type = (
-                InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
-                if self.deferred
-                else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
-            )
-        else:
-            _type = (
-                InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value if type is None else type
+        _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
+
+        if not self.deferred:
+            self.callback = (
+                InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
+                if self.type == InteractionType.APPLICATION_COMMAND
+                else InteractionCallbackType.UPDATE_MESSAGE
             )
 
-        _ephemeral: int = 0 if not bool(ephemeral) else (1 << 6)
-
+        # TODO: Add attachments into Message obj.
         payload: Message = Message(
             content=_content,
             tts=_tts,
@@ -215,24 +225,24 @@ class CommandContext(Context):
             components=_components,
             flags=_ephemeral,
         )
-
-        # TODO: Add attachments into Message obj.
         self.message = payload
+        _payload: dict = {"type": self.callback.value, "data": payload._json}
 
         async def func():
-            if self.responded:
-                req = await self.client._post_followup(
-                    data=payload._json, token=self.token, application_id=self.application_id
+            if self.responded or self.deferred:
+                await self.client._req.request(
+                    Route(
+                        "PATCH", f"/webhooks/{self.application_id}/{self.token}/messages/@original"
+                    ),
+                    json=_payload,
                 )
-                return req
             else:
-                req = await self.client.create_interaction_response(
+                await self.client.create_interaction_response(
                     token=self.token,
                     application_id=str(self.id),
-                    data={"type": _type, "data": payload._json},
+                    data=_payload,
                 )
                 self.responded = True
-                return req
 
         await func()
         return payload
@@ -253,7 +263,7 @@ class CommandContext(Context):
         to send an interaction response. This inherits the arguments
         of the ``.send()`` method.
 
-        :inherit:`interactions.context.InteractionContext.send()`
+        :inherit:`interactions.context.CommandContext.send()`
         :return: The edited message as an object.
         :rtype: Message
         """
@@ -295,19 +305,17 @@ class CommandContext(Context):
 
         async def func():
             if self.type == InteractionType.MESSAGE_COMPONENT:
-                req = await self.client._post_followup(
+                await self.client._post_followup(
                     data=payload._json, token=self.token, application_id=self.application_id
                 )
             else:
-                req = await self.client.edit_interaction_response(
+                await self.client.edit_interaction_response(
                     token=self.token,
                     application_id=str(self.id),
                     data={"type": _type, "data": payload._json},
                     message_id=self.message.id,
                 )
             self.message = payload
-
-            return req
 
         await func()
         return payload
@@ -390,8 +398,6 @@ class CommandContext(Context):
                 "custom_id": modal.custom_id,
             },
         }
-
-        print(dumps(payload, indent=4))
 
         await self.client.create_interaction_response(
             token=self.token,

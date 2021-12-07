@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from .api.http import HTTPClient
 from .api.models.channel import Channel
@@ -7,9 +7,9 @@ from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin, Snowflake
 from .api.models.user import User
-from .enums import ComponentType, InteractionType
+from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
-from .models.component import ActionRow, Button, Modal, SelectMenu
+from .models.component import ActionRow, Button, Component, Modal, SelectMenu
 from .models.misc import InteractionData
 
 class Context(DictSerializerMixin):
@@ -27,6 +27,7 @@ class CommandContext(Context):
     application_id: Snowflake
     custom_id: str
     type: InteractionType
+    callback: Optional[InteractionCallbackType]
     data: InteractionData
     target: Optional[Union[Message, Member, User]]
     version: int
@@ -42,14 +43,12 @@ class CommandContext(Context):
         content: Optional[str] = None,
         *,
         tts: Optional[bool] = None,
-        # file: Optional[FileIO] = None,
+        # attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        message_reference: Optional[MessageReference] = None,
-        components: Optional[Union["Component", List["Component"]]] = None,
-        sticker_ids: Optional[Union[str, List[str]]] = None,
-        type: Optional[int] = None,
-        flags: Optional[int] = None,
+        components: Optional[Union[Component, List[Component]]] = None,
+        type: Optional[Union[int, InteractionCallbackType]] = None,
+        ephemeral: Optional[bool] = None,
     ) -> Message: ...
     async def edit(
         self,

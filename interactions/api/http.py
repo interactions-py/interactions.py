@@ -193,9 +193,9 @@ class Request:
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
-                    log.debug(f"{route.method}: {route.__api__ + route.path}")
+                    log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
                     data = await response.json(content_type=None)
-                    log.debug(f"RETURN: {dumps(data, indent=4, sort_keys=True)}")
+                    log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
                     if "X-Ratelimit-Remaining" in response.headers.keys():
                         remaining = response.headers["X-Ratelimit-Remaining"]
 

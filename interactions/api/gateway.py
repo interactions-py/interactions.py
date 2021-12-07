@@ -278,7 +278,6 @@ class WebSocket:
                     _name: str
                     _args: list = [context]
                     if data["type"] == InteractionType.APPLICATION_COMMAND:
-                        print(context.data)
                         _name = context.data.name
                         if hasattr(context.data, "options"):
                             if context.data.options:
