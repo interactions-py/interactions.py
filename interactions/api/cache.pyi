@@ -27,3 +27,5 @@ class Cache:
     users: Storage
     interactions: Storage
     def __init__(self) -> None: ...
+
+ref_cache: Cache

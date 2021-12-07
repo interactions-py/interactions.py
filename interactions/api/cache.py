@@ -125,3 +125,6 @@ class Cache:
         self.messages = Storage()
         self.users = Storage()
         self.interactions = Storage()
+
+
+ref_cache = Cache()  # noqa

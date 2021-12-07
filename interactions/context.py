@@ -144,17 +144,17 @@ class CommandContext(Context):
                 self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
             elif self.type == InteractionType.APPLICATION_COMMAND:
                 self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-        else:
-            if self.type == InteractionType.MESSAGE_COMPONENT:
-                self.callback = InteractionCallbackType.UPDATE_MESSAGE
-            elif self.type == InteractionType.APPLICATION_COMMAND:
-                self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
             token=self.token,
             application_id=int(self.id),
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},
         )
+
+        if self.type == InteractionType.MESSAGE_COMPONENT:
+            self.callback = InteractionCallbackType.UPDATE_MESSAGE
+        elif self.type == InteractionType.APPLICATION_COMMAND:
+            self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
     async def send(
         self,
@@ -283,14 +283,7 @@ class CommandContext(Context):
         else:
             _components = []
 
-        _type = (
-            InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE.value
-            if self.deferred
-            else InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE.value
-        )
-
-        for key, item in interactions.client._cache.messages:
-            print(f"{item} in message cache as ID {key}")
+        log.warning(interactions.client._cache.messages.view())
 
         payload: Message = Message(
             content=_content,
@@ -303,17 +296,20 @@ class CommandContext(Context):
         )
 
         async def func():
-            if self.type == InteractionType.MESSAGE_COMPONENT:
-                await self.client._post_followup(
-                    data=payload._json, token=self.token, application_id=str(self.application_id)
-                )
-            else:
-                await self.client.edit_interaction_response(
-                    token=self.token,
-                    application_id=str(self.id),
-                    data={"type": _type, "data": payload._json},
-                    message_id=self.message.id,
-                )
+            if self.deferred:
+                if self.type == InteractionType.MESSAGE_COMPONENT:
+                    await self.client._post_followup(
+                        data=payload._json,
+                        token=self.token,
+                        application_id=str(self.application_id),
+                    )
+                else:
+                    await self.client.edit_interaction_response(
+                        token=self.token,
+                        application_id=str(self.id),
+                        data={"type": self.callback.value, "data": payload._json},
+                        message_id=self.message.id,
+                    )
             self.message = payload
 
         await func()

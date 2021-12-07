@@ -2,14 +2,13 @@ from asyncio import get_event_loop
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from interactions.api.models.gw import Presence
-
 from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
+from .api.models.gw import Presence
 from .api.models.intents import Intents
 from .api.models.team import Application
 from .base import CustomFormatter, Data
@@ -24,7 +23,7 @@ stream.setLevel(Data.LOGGER)
 stream.setFormatter(CustomFormatter())
 log.addHandler(stream)
 _token: str = ""  # noqa
-_cache: Cache = Cache()
+_cache: Optional[Cache] = None
 
 
 class Client:
@@ -131,6 +130,7 @@ class Client:
             self.websocket.dispatch.register(self.raw_socket_create)
             self.websocket.dispatch.register(self.raw_channel_create, "on_channel_create")
             self.websocket.dispatch.register(self.raw_message_create, "on_message_create")
+            self.websocket.dispatch.register(self.raw_message_create, "on_message_update")
             self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
 
         try:

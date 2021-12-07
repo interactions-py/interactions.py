@@ -55,7 +55,8 @@ async def context_print_name(ctx: interactions.context.CommandContext):
     # user_mention = interactions.Format.stylize(interactions.Format.USER, id=ctx.target.id)
     # await ctx.send(f"Okay, {user_mention}! Nice to see you here.")
     await ctx.defer(ephemeral=True)
-    await ctx.send("deferring hidden test!", ephemeral=True)
+    await ctx.send("deferring hidden test!")
+    await ctx.edit("new text")
     # await ctx.popup(cool_modal)
 
 

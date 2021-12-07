@@ -8,6 +8,8 @@ from urllib.parse import quote
 from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
+import interactions.api.cache
+
 from ..api.cache import Cache, Item
 from ..api.error import HTTPException
 from ..api.models import (
@@ -253,7 +255,7 @@ class HTTPClient:
     def __init__(self, token: str):
         self.token = token
         self._req = Request(self.token)
-        self.cache = Cache()
+        self.cache = interactions.api.cache.ref_cache
 
         # An ideology is that this client does every single HTTP call, which reduces multiple ClientSessions in theory
         # because of how they are constructed/closed. This includes Gateway
