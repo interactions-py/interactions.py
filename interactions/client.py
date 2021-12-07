@@ -152,7 +152,7 @@ class Client:
             as it will automatically be done for you. Additionally,
             this will not delete unused commands for you.
 
-        :param payload: The payload/object of the command.
+        :param payload?: The payload/object of the command.
         :type payload: Optional[ApplicationCommand]
         """
         _guild = None
@@ -261,6 +261,8 @@ class Client:
 
         :param coro: The coroutine of the event.
         :type coro: Coroutine
+        :param name?: The name of the event.
+        :type name: Optional[str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -284,6 +286,26 @@ class Client:
         A decorator for registering an application command to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
+
+        The structure of a chat-input command:
+
+        .. code-block:: python
+
+            @command(name="command-name", description="this is a command.")
+            async def command_name(ctx):
+                ...
+
+        You are also able to establish it as a message or user command by simply passing
+        the ``type`` kwarg field into the decorator:
+
+        .. code-block:: python
+
+            @command(type=interactions.ApplicationCommandType.MESSAGE, name="Message Command")
+            async def message_command(ctx):
+                ...
+
+        The ``scope`` kwarg field may also be used to designate the command in question
+        applicable to a guild or set of guilds.
 
         :param type?: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
         :type type: Optional[Union[str, int, ApplicationCommandType]]
@@ -324,7 +346,7 @@ class Client:
             if isinstance(type, ApplicationCommandType):
                 _type: int = type.value
             else:
-                _type: int = ApplicationCommandType(type)
+                _type: int = ApplicationCommandType(type).value
 
             _description: str = "" if description is None else description
             _options: list = []
@@ -390,7 +412,23 @@ class Client:
 
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
         """
-        A decorator for handling interaction responses to components.
+        A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
+        events involving components.
+
+        The structure for a component callback:
+
+        .. code-block:: python
+
+            @component(interactions.Button(
+                style=interactions.ButtonStyle.PRIMARY,
+                label="click me!",
+                custom_id="click_me_button",
+            ))
+            async def button_response(ctx):
+                ...
+
+        The context of the component callback decorator inherits the same
+        as of the command decorator.
 
         :param component: The component you wish to callback for.
         :type component: Union[Button, SelectMenu]
@@ -406,7 +444,16 @@ class Client:
 
     def autocomplete(self, name: str) -> Callable[..., Any]:
         """
-        A decorator for handling autocompletion fields with commands.
+        A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
+        events involving autocompletion fields.
+
+        The structure for an autocomplete callback:
+
+        .. code-block:: python
+
+            @autocomplete("option_name")
+            async def autocomplete_choice_list(ctx):
+                await ctx.populate([...])
 
         :param name: The name of the option to autocomplete.
         :type name: str
@@ -421,7 +468,26 @@ class Client:
 
     def modal(self, modal: Modal) -> Callable[..., Any]:
         """
-        A decorator for handling interactions with modals.
+        A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
+        events involving modals.
+
+        The structure for a modal callback:
+
+        .. code-block:: python
+
+            @modal(interactions.Modal(
+                interactions.TextInput(
+                    style=interactions.TextStyleType.PARAGRAPH,
+                    custom_id="how_was_your_day_field",
+                    label="How has your day been?",
+                    placeholder="Well, so far...",
+                ),
+            ))
+            async def modal_response(ctx):
+                ...
+
+        The context of the modal callback decorator inherits the same
+        as of the component decorator.
 
         :param modal: The modal you wish to callback for.
         :type modal: Modal

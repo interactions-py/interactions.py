@@ -31,13 +31,13 @@ cool_modal = interactions.Modal(
     custom_id="test_custom_modal",
     title="Vent to me.",
     components=[
-        interactions.ModalInput(
+        interactions.TextInput(
             style=interactions.TextStyleType.PARAGRAPH,
             custom_id="custom_id_one",
             label="Tell me about your life.",
             placeholder="Well, it started ever since I was born, and...",
         ),
-        interactions.ModalInput(
+        interactions.TextInput(
             style=interactions.TextStyleType.SHORT,
             custom_id="custom_id_two",
             label="How?",

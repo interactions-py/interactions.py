@@ -5,9 +5,9 @@ class RoleTags(DictSerializerMixin):
     """
     A class object representing the tags of a role.
 
-    :ivar Optional[Snowflake] bot_id: The id of the bot this role belongs to
-    :ivar Optional[Snowflake] integration_id: The id of the integration this role belongs to
-    :ivar Optional[Any] premium_subscriber: Whether if this is the guild's premium subscriber role
+    :ivar Optional[Snowflake] bot_id?: The id of the bot this role belongs to
+    :ivar Optional[Snowflake] integration_id?: The id of the integration this role belongs to
+    :ivar Optional[Any] premium_subscriber?: Whether if this is the guild's premium subscriber role
     """
 
     __slots__ = ("_json", "id", "bot_id", "integration_id", "premium_subscriber")
@@ -31,13 +31,13 @@ class Role(DictSerializerMixin):
     :ivar str name: Role name
     :ivar int color: Role color in integer representation
     :ivar bool hoist: A status denoting if this role is hoisted
-    :ivar Optional[str] icon: Role icon hash, if any.
-    :ivar Optional[str] unicode_emoji: Role unicode emoji
+    :ivar Optional[str] icon?: Role icon hash, if any.
+    :ivar Optional[str] unicode_emoji?: Role unicode emoji
     :ivar int position: Role position
     :ivar str permissions: Role permissions as a bit set
     :ivar bool managed: A status denoting if this role is managed by an integration
     :ivar bool mentionable: A status denoting if this role is mentionable
-    :ivar Optional[RoleTags] tags: The tags this role has
+    :ivar Optional[RoleTags] tags?: The tags this role has
     """
 
     __slots__ = (

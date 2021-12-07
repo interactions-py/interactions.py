@@ -30,9 +30,9 @@ class ThreadMetadata(DictSerializerMixin):
 
     :ivar bool archived: The current thread accessibility state.
     :ivar int auto_archive_duration: The auto-archive time.
-    :ivar datetime.timestamp archive_timestamp: The timestamp that the thread will be/has been closed at.
+    :ivar datetime archive_timestamp: The timestamp that the thread will be/has been closed at.
     :ivar bool locked: The current message state of the thread.
-    :ivar Optional[bool] invitable: The ability to invite users to the thread.
+    :ivar Optional[bool] invitable?: The ability to invite users to the thread.
     """
 
     __slots__ = (
@@ -61,9 +61,9 @@ class ThreadMember(DictSerializerMixin):
         ``id`` only shows if there are active intents involved with the member
         in the thread.
 
-    :ivar Optional[Snowflake] id: The "ID" or intents of the member.
+    :ivar Optional[Snowflake] id?: The "ID" or intents of the member.
     :ivar Snowflake user_id: The user ID of the member.
-    :ivar datetime.timestamp join_timestamp: The timestamp of when the member joined the thread.
+    :ivar datetime join_timestamp: The timestamp of when the member joined the thread.
     :ivar int flags: The bitshift flags for the member in the thread.
     """
 
@@ -90,30 +90,30 @@ class Channel(DictSerializerMixin):
 
     :ivar Snowflake id: The (snowflake) ID of the channel.
     :ivar ChannelType type: The type of channel.
-    :ivar Optional[Snowflake] guild_id: The ID of the guild if it is not a DM channel.
-    :ivar Optional[int] position: The position of the channel.
+    :ivar Optional[Snowflake] guild_id?: The ID of the guild if it is not a DM channel.
+    :ivar Optional[int] position?: The position of the channel.
     :ivar List[Overwrite] permission_overwrites: The non-synced permissions of the channel.
     :ivar str name: The name of the channel.
-    :ivar Optional[str] topic: The description of the channel.
-    :ivar Optional[bool] nsfw: Whether the channel is NSFW.
+    :ivar Optional[str] topic?: The description of the channel.
+    :ivar Optional[bool] nsfw?: Whether the channel is NSFW.
     :ivar Snowflake last_message_id: The ID of the last message sent.
-    :ivar Optional[int] bitrate: The audio bitrate of the channel.
-    :ivar Optional[int] user_limit: The maximum amount of users allowed in the channel.
-    :ivar Optional[int] rate_limit_per_user: The concurrent ratelimit for users in the channel.
-    :ivar Optional[List[User]] recipients: The recipients of the channel.
-    :ivar Optional[str] icon: The icon of the channel.
-    :ivar Optional[Snowflake] owner_id: The owner of the channel.
-    :ivar Optional[Snowflake] application_id: The application of the channel.
-    :ivar Optional[Snowflake] parent_id: The ID of the "parent"/main channel.
-    :ivar Optional[datetime] last_pin_timestamp: The timestamp of the last pinned message in the channel.
-    :ivar Optional[str] rtc_region: The region of the WebRTC connection for the channel.
-    :ivar Optional[int] video_quality_mode: The set quality mode for video streaming in the channel.
+    :ivar Optional[int] bitrate?: The audio bitrate of the channel.
+    :ivar Optional[int] user_limit?: The maximum amount of users allowed in the channel.
+    :ivar Optional[int] rate_limit_per_user?: The concurrent ratelimit for users in the channel.
+    :ivar Optional[List[User]] recipients?: The recipients of the channel.
+    :ivar Optional[str] icon?: The icon of the channel.
+    :ivar Optional[Snowflake] owner_id?: The owner of the channel.
+    :ivar Optional[Snowflake] application_id?: The application of the channel.
+    :ivar Optional[Snowflake] parent_id?: The ID of the "parent"/main channel.
+    :ivar Optional[datetime] last_pin_timestamp?: The timestamp of the last pinned message in the channel.
+    :ivar Optional[str] rtc_region?: The region of the WebRTC connection for the channel.
+    :ivar Optional[int] video_quality_mode?: The set quality mode for video streaming in the channel.
     :ivar int message_count: The amount of messages in the channel.
-    :ivar Optional[int] member_count: The amount of members in the channel.
-    :ivar Optional[ThreadMetadata] thread_metadata: The thread metadata of the channel.
-    :ivar Optional[ThreadMember] member: The member of the thread in the channel.
-    :ivar Optional[int] default_auto_archive_duration: The set auto-archive time for all threads to naturally follow in the channel.
-    :ivar Optional[str] permissions: The permissions of the channel.
+    :ivar Optional[int] member_count?: The amount of members in the channel.
+    :ivar Optional[ThreadMetadata] thread_metadata?: The thread metadata of the channel.
+    :ivar Optional[ThreadMember] member?: The member of the thread in the channel.
+    :ivar Optional[int] default_auto_archive_duration?: The set auto-archive time for all threads to naturally follow in the channel.
+    :ivar Optional[str] permissions?: The permissions of the channel.
     """
 
     __slots__ = (

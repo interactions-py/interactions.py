@@ -85,15 +85,15 @@ class GuildMember(DictSerializerMixin):
     A class object representing the gateway events ``GUILD_MEMBER_ADD``, ``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Optional[List[Role]]: The roles of the event.
-    :ivar Optional[User]: The user of the event.
-    :ivar Optional[str] nick: The nickname of the user of the event.
-    :ivar Optional[str] avatar: The avatar URL of the user of the event.
-    :ivar Optional[datetime] joined_at: The time that the user of the event joined at.
-    :ivar Optional[datetime] premium_since: The time that the user of the event has since had "premium."
-    :ivar Optional[bool] deaf: Whether the member of the event is deafened or not.
-    :ivar Optional[bool] mute: Whether the member of the event is muted or not.
-    :ivar Optional[bool] pending: Whether the member of the event is still pending -- pass membership screening -- or not.
+    :ivar Optional[List[Role]] roles?: The roles of the event.
+    :ivar Optional[User] user?: The user of the event.
+    :ivar Optional[str] nick?: The nickname of the user of the event.
+    :ivar Optional[str] avatar?: The avatar URL of the user of the event.
+    :ivar Optional[datetime] joined_at?: The time that the user of the event joined at.
+    :ivar Optional[datetime] premium_since?: The time that the user of the event has since had "premium."
+    :ivar Optional[bool] deaf?: Whether the member of the event is deafened or not.
+    :ivar Optional[bool] mute?: Whether the member of the event is muted or not.
+    :ivar Optional[bool] pending?: Whether the member of the event is still pending -- pass membership screening -- or not.
     """
 
     __slots__ = (
@@ -169,7 +169,7 @@ class GuildRole(DictSerializerMixin):
 
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar Role role: The role of the event.
-    :ivar Optional[Snowflake] role_id: The role ID of the event.
+    :ivar Optional[Snowflake] role_id?: The role ID of the event.
     """
 
     __slots__ = ("_json", "guild_id", "role", "role_id")
@@ -287,12 +287,12 @@ class Reaction(DictSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD``.
 
-    :ivar Optional[Snowflake] user_id: The user ID of the event.
+    :ivar Optional[Snowflake] user_id?: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
     :ivar Snowflake message_id: The message ID of the event.
-    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
-    :ivar Optional[Member] member: The member of the event.
-    :ivar Optional[Emoji] emoji: The emoji of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    :ivar Optional[Member] member?: The member of the event.
+    :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
     __slots__ = ("_json", "user_id", "channel_id", "message_id", "guild_id", "member", "emoji")
@@ -315,11 +315,11 @@ class ReactionRemove(Reaction):
         This class inherits the already existing attributes of :class:`interactions.api.models.gw.Reaction`.
         The main missing attribute is ``member``.
 
-    :ivar Optional[Snowflake] user_id: The user ID of the event.
+    :ivar Optional[Snowflake] user_id?: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
     :ivar Snowflake message_id: The message ID of the event.
-    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
-    :ivar Optional[Emoji] emoji: The emoji of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
     __slots__ = ("_json", "user_id", "channel_id", "message_id", "guild_id", "emoji")
@@ -338,7 +338,7 @@ class ThreadList(DictSerializerMixin):
     A class object representing the gateway event ``THREAD_LIST_SYNC``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Optional[List[Snowflake]] channel_ids: The channel IDs of the event.
+    :ivar Optional[List[Snowflake]] channel_ids?: The channel IDs of the event.
     :ivar List[Channel] threads: The threads of the event.
     :ivar List[ThreadMember] members: The members of the thread of the event.
     """
@@ -370,8 +370,8 @@ class ThreadMembers(DictSerializerMixin):
     :ivar Snowflake id: The ID of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar int member_count: The member count of the event.
-    :ivar Optional[List[ThreadMember]] added_members: The added members of the thread of the event.
-    :ivar Optional[List[Snowflake]] removed_member_ids: The removed IDs of members of the thread of the event.
+    :ivar Optional[List[ThreadMember]] added_members?: The added members of the thread of the event.
+    :ivar Optional[List[Snowflake]] removed_member_ids?: The removed IDs of members of the thread of the event.
     """
 
     __slots__ = ("_json", "id", "guild_id", "member_count", "added_members", "removed_member_ids")

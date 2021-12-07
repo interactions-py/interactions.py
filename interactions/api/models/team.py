@@ -29,7 +29,7 @@ class Team(DictSerializerMixin):
     """
     A class object representing a team.
 
-    :ivar Optional[str] icon: The hash of the team's icon
+    :ivar Optional[str] icon?: The hash of the team's icon
     :ivar Snowflake id: The team's unique ID
     :ivar List[TeamMember] members: The members of the team
     :ivar str name: The team name
@@ -60,22 +60,22 @@ class Application(DictSerializerMixin):
 
     :ivar Snowflake id: Application ID
     :ivar str name: Application Name
-    :ivar Optional[str] icon: Icon hash of the application
+    :ivar Optional[str] icon?: Icon hash of the application
     :ivar str description: Application Description
-    :ivar Optional[List[str]] rpc_origins: An array of rpc origin urls, if RPC is used.
+    :ivar Optional[List[str]] rpc_origins?: An array of rpc origin urls, if RPC is used.
     :ivar bool bot_public: A status denoting if anyone can invite the bot to guilds
     :ivar bool bot_require_code_grant: A status denoting whether full Oauth2 is required for the app's bot to join a guild
-    :ivar Optional[str] terms_of_service_url: URL of the app's Terms of Service
-    :ivar Optional[str] privacy_policy_url: URL of the app's Privacy Policy
-    :ivar Optional[User] owner: User object of the owner
+    :ivar Optional[str] terms_of_service_url?: URL of the app's Terms of Service
+    :ivar Optional[str] privacy_policy_url?: URL of the app's Privacy Policy
+    :ivar Optional[User] owner?: User object of the owner
     :ivar str summary: Summary of the store page, if this application is a game sold on Discord
     :ivar str verify_key: Hex encoded key for verification in interactions and/or the GameSDK's GetTicket
-    :ivar Optional[Team] team: A list of team members, if this app belongs to a team.
-    :ivar Optional[Snowflake] guild_id: Guild ID linked, if this app is a game sold on Discord
-    :ivar Optional[int] primary_sku_id: Game SKU ID, if this app is a game sold on Discord
-    :ivar Optional[str] slug: URL slug that links to the store page, if this app is a game sold on Discord
-    :ivar Optional[str] cover_image: The app's default rich presence invite cover image
-    :ivar Optional[int] flags: The application's public flags
+    :ivar Optional[Team] team?: A list of team members, if this app belongs to a team.
+    :ivar Optional[Snowflake] guild_id?: Guild ID linked, if this app is a game sold on Discord
+    :ivar Optional[int] primary_sku_id?: Game SKU ID, if this app is a game sold on Discord
+    :ivar Optional[str] slug?: URL slug that links to the store page, if this app is a game sold on Discord
+    :ivar Optional[str] cover_image?: The app's default rich presence invite cover image
+    :ivar Optional[int] flags?: The application's public flags
     """
 
     __slots__ = (
