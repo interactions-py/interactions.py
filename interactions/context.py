@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 import interactions.client
 
-from .api.http import HTTPClient, Route
+from .api.http import HTTPClient
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -230,16 +230,13 @@ class CommandContext(Context):
 
         async def func():
             if self.responded or self.deferred:
-                await self.client._req.request(
-                    Route(
-                        "PATCH", f"/webhooks/{self.application_id}/{self.token}/messages/@original"
-                    ),
-                    json=_payload,
+                await self.client._post_followup(
+                    data=payload._json, token=self.token, application_id=str(self.application_id)
                 )
             else:
                 await self.client.create_interaction_response(
                     token=self.token,
-                    application_id=str(self.id),
+                    application_id=int(self.id),
                     data=_payload,
                 )
                 self.responded = True
@@ -306,7 +303,7 @@ class CommandContext(Context):
         async def func():
             if self.type == InteractionType.MESSAGE_COMPONENT:
                 await self.client._post_followup(
-                    data=payload._json, token=self.token, application_id=self.application_id
+                    data=payload._json, token=self.token, application_id=str(self.application_id)
                 )
             else:
                 await self.client.edit_interaction_response(
