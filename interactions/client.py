@@ -71,7 +71,7 @@ class Client:
         self.token = token
         self.http.token = token
         self.shard = shard
-        self.presence = Presence
+        self.presence = presence
         _token = token  # noqa: F841
 
         if disable_sync:  # you don't need to change this. this is already correct.
@@ -160,7 +160,7 @@ class Client:
             _guild = str(payload.guild_id)
 
         commands: List[dict] = await self.http.get_application_command(
-            application_id=str(self.me.id), guild_id=_guild
+            application_id=self.me.id, guild_id=_guild
         )
         command_names: List[str] = [command["name"] for command in commands]
 
@@ -233,9 +233,7 @@ class Client:
         else:
             await create()
 
-        cached_commands: List[ApplicationCommand] = [
-            command for command in self.http.cache.interactions.view()
-        ]
+        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view()]
         cached_command_names = [command["name"] for command in cached_commands]
 
         if cached_commands:
