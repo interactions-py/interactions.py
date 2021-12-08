@@ -1,4 +1,7 @@
+import sys
 from asyncio import get_event_loop
+from importlib import import_module
+from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
@@ -12,6 +15,8 @@ from .api.models.gw import Presence
 from .api.models.intents import Intents
 from .api.models.team import Application
 from .base import CustomFormatter, Data
+from .decor import command
+from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, Modal, SelectMenu
@@ -73,6 +78,7 @@ class Client:
         self.http.token = token
         self.shard = shard
         self.presence = presence
+        self.extensions = []
         _token = token  # noqa: F841
         _cache = self.http.cache  # noqa: F841
 
@@ -325,13 +331,16 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        if not name:
-            raise InteractionException(11, message="Your command must have a name.")
 
-        if type == ApplicationCommandType.CHAT_INPUT and not description:
-            raise InteractionException(11, message="Chat-input commands must have a description.")
+        def decorator(coro: Coroutine) -> Callable[..., Any]:
+            if not name:
+                raise InteractionException(11, message="Your command must have a name.")
 
-        def decorator(coro: Coroutine) -> Any:
+            if type == ApplicationCommandType.CHAT_INPUT and not description:
+                raise InteractionException(
+                    11, message="Chat-input commands must have a description."
+                )
+
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
@@ -343,69 +352,17 @@ class Client:
                         message="You must have the same amount of arguments as the options of the command.",
                     )
 
-            _type: int = 0
-            if isinstance(type, ApplicationCommandType):
-                _type: int = type.value
-            else:
-                _type: int = ApplicationCommandType(type).value
+            commands: List[ApplicationCommand] = command(
+                type=type,
+                name=name,
+                description=description,
+                scope=scope,
+                options=options,
+                default_permission=default_permission,
+            )
 
-            _description: str = "" if description is None else description
-            _options: list = []
-
-            if options:
-                if all(isinstance(option, Option) for option in options):
-                    _options = [option._json for option in options]
-                elif all(
-                    isinstance(option, dict) and all(isinstance(value, str) for value in option)
-                    for option in options
-                ):
-                    _options = [option for option in options]
-                elif isinstance(options, Option):
-                    _options = [options._json]
-                else:
-                    _options = [options]
-
-            _default_permission: bool = True if default_permission is None else default_permission
-
-            # TODO: Implement permission building and syncing.
-            # _permissions: list = []
-
-            # if permissions:
-            #     if all(isinstance(permission, Permission) for permission in permissions):
-            #         _permissions = [permission._json for permission in permissions]
-            #     elif all(
-            #         isinstance(permission, dict)
-            #         and all(isinstance(value, str) for value in permission)
-            #         for permission in permissions
-            #     ):
-            #         _permissions = [permission for permission in permissions]
-            #     elif isinstance(permissions, Permission):
-            #         _permissions = [permissions._json]
-            #     else:
-            #         _permissions = [permissions]
-
-            _scope: list = []
-
-            if scope:
-                if isinstance(scope, list):
-                    if all(isinstance(guild, Guild) for guild in scope):
-                        [_scope.append(guild.id) for guild in scope]
-                    elif all(isinstance(guild, int) for guild in scope):
-                        [_scope.append(guild) for guild in scope]
-                else:
-                    _scope.append(scope)
-
-            for guild in _scope:
-                payload: ApplicationCommand = ApplicationCommand(
-                    type=_type,
-                    guild_id=guild,
-                    name=name,
-                    description=_description,
-                    options=_options,
-                    default_permission=_default_permission,
-                )
-                if self.automate_sync:
-                    self.loop.run_until_complete(self.synchronize(payload))
+            if self.automate_sync:
+                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
             return self.event(coro, name=name)
 
@@ -438,7 +395,7 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Any:
-            payload: Component = Component(**component._json)
+            payload: Component = _component(component)
             return self.event(coro, name=payload.custom_id)
 
         return decorator
@@ -501,6 +458,77 @@ class Client:
 
         return decorator
 
+    def load(self, name: str, package: Optional[str] = None) -> None:
+        """
+        "Loads" an extension off of the current client by adding a new class
+        which is imported from the library.
+
+        :param name: The name of the extension.
+        :type name: str
+        :param package?: The package of the extension.
+        :type package: Optional[str]
+        """
+        _name: str = resolve_name(name, package)
+
+        if _name in self.extensions:
+            log.error(f"Extension {name} has already been loaded. Skipping.")
+
+        module = import_module(name, package)
+
+        try:
+            setup = getattr(module, "setup")
+            setup(self)
+        except Exception as error:
+            del sys.modules[name]
+            log.error(f"Could not load {name}: {error}. Skipping.")
+        else:
+            log.debug(f"Loaded extension {name}.")
+            self.extensions[_name] = module
+
+    def remove(self, name: str, package: Optional[str] = None) -> None:
+        """
+        Removes an extension out of the current client from an import resolve.
+
+        :param name: The name of the extension.
+        :type name: str
+        :param package?: The package of the extension.
+        :type package: Optional[str]
+        """
+        _name: str = resolve_name(name, package)
+        module = self.extensions.get(_name)
+
+        if module not in self.extensions:
+            log.error(f"Extension {name} has not been loaded before. Skipping.")
+
+        try:
+            teardown = getattr(module, "teardown")
+            teardown()
+        except AttributeError:
+            pass
+        else:
+            log.debug(f"Removed extension {name}.")
+            del sys.modules[_name]
+            del self.extensions[_name]
+
+    def reload(self, name: str, package: Optional[str] = None) -> None:
+        """
+        "Reloads" an extension off of current client from an import resolve.
+
+        :param name: The name of the extension.
+        :type name: str
+        :param package?: The package of the extension.
+        :type package: Optional[str]
+        """
+        _name: str = resolve_name(name, package)
+        module = self.extensions.get(_name)
+
+        if module is None:
+            log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
+            self.extend(name, package)
+
+        self.remove(name, package)
+        self.load(name, package)
+
     async def raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
@@ -553,3 +581,34 @@ class Client:
         self.http.cache.guilds.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
+
+
+class Extension:
+    """
+    A class that allows you to represent "extensions" of your code, or
+    essentially cogs that can be ran independent of the root file in
+    an object-oriented structure.
+
+    The structure of an extension:
+
+    .. code-block:: python
+
+        class CoolCode(interactions.Extension):
+            def __init__(self, client):
+                ...
+
+            @self.client.command(
+                type=interactions.ApplicationCommandType.USER,
+                name="User command in cog",
+            )
+            async def cog_user_cmd(self, ctx):
+                ...
+
+        def setup(bot):
+            CoolCode(bot)
+    """
+
+    client: Client
+
+    def __new__(cls, bot: Client) -> None:
+        cls.client = bot

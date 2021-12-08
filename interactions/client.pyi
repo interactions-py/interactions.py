@@ -10,10 +10,11 @@ from .api.models.guild import Guild
 from .api.models.intents import Intents
 from .api.models.team import Application
 from .enums import ApplicationCommandType
-from .models.command import ApplicationCommand, Option, Permission
+from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
-cache: Cache
+_token: str = ""  # noqa
+_cache: Optional[Cache] = None
 
 class Client:
     loop: AbstractEventLoop
@@ -25,6 +26,7 @@ class Client:
     automate_sync: Optional[bool]
     shard: Optional[List[int]]
     presence: Optional[Presence]
+    extensions: Optional[Any]
     def __init__(
         self,
         token: str,
@@ -56,7 +58,14 @@ class Client:
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(self, name: str) -> Callable[..., Any]: ...
     def modal(self, modal: Modal) -> Callable[..., Any]: ...
+    def load(self, name: str, package: Optional[str] = None) -> None: ...
+    def remove(self, name: str, package: Optional[str] = None) -> None: ...
+    def reload(self, name: str, package: Optional[str] = None) -> None: ...
     async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
     async def raw_channel_create(self, message) -> dict: ...
     async def raw_message_create(self, message) -> dict: ...
     async def raw_guild_create(self, guild) -> dict: ...
+
+class Extension:
+    client: Client
+    def __new__(cls, bot: Client) -> None: ...
