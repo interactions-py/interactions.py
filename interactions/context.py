@@ -1,9 +1,6 @@
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import List, Optional, Union
 
-import interactions.client
-
-from .api.http import HTTPClient
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -49,7 +46,6 @@ class Context(DictSerializerMixin):
         self.user = User(**self.user) if self._json.get("user") else None
         self.channel = Channel(**self.channel) if self._json.get("channel") else None
         self.guild = Guild(**self.guild) if self._json.get("guild") else None
-        self.client = HTTPClient(interactions.client._token)
 
 
 class CommandContext(Context):
@@ -139,22 +135,17 @@ class CommandContext(Context):
         """
         self.deferred = True
         _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
-        if bool(ephemeral):
-            if self.type == InteractionType.MESSAGE_COMPONENT:
-                self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-            elif self.type == InteractionType.APPLICATION_COMMAND:
-                self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        # ephemeral doesn't change callback typings. just data json
+        if self.type == InteractionType.MESSAGE_COMPONENT:
+            self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        elif self.type == InteractionType.APPLICATION_COMMAND:
+            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
             token=self.token,
             application_id=int(self.id),
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},
         )
-
-        if self.type == InteractionType.MESSAGE_COMPONENT:
-            self.callback = InteractionCallbackType.UPDATE_MESSAGE
-        elif self.type == InteractionType.APPLICATION_COMMAND:
-            self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
     async def send(
         self,
@@ -230,9 +221,20 @@ class CommandContext(Context):
 
         async def func():
             if self.responded or self.deferred:
-                await self.client._post_followup(
-                    data=payload._json, token=self.token, application_id=str(self.application_id)
-                )
+                if self.type == InteractionType.APPLICATION_COMMAND and self.deferred:
+                    res = await self.client.edit_interaction_response(
+                        data=payload._json,
+                        token=self.token,
+                        application_id=str(self.application_id),
+                    )
+                    self.responded = True
+                    self.message = Message(**res)
+                else:
+                    await self.client._post_followup(
+                        data=payload._json,
+                        token=self.token,
+                        application_id=str(self.application_id),
+                    )
             else:
                 await self.client.create_interaction_response(
                     token=self.token,
@@ -283,8 +285,6 @@ class CommandContext(Context):
         else:
             _components = []
 
-        log.warning(interactions.client._cache.messages.view())
-
         payload: Message = Message(
             content=_content,
             tts=_tts,
@@ -304,13 +304,39 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                 else:
-                    await self.client.edit_interaction_response(
-                        token=self.token,
-                        application_id=str(self.id),
-                        data={"type": self.callback.value, "data": payload._json},
-                        message_id=self.message.id,
+                    if hasattr(self.message, "id") and self.message.id is not None:
+                        res = await self.client.edit_message(
+                            int(self.channel_id), int(self.message.id), payload=payload._json
+                        )
+                        self.message = Message(**res)
+                    else:
+                        res = await self.client.edit_interaction_response(
+                            token=self.token,
+                            application_id=str(self.id),
+                            data={"type": self.callback.value, "data": payload._json},
+                            message_id=self.message.id if self.message else "@original",
+                        )
+                        if res["flags"] == 64:
+                            log.warning("You can't edit hidden messages.")
+                            self.message = payload
+                        else:
+                            await self.client.edit_message(
+                                int(self.channel_id), res["id"], payload=payload._json
+                            )
+                            self.message = Message(**res)
+            else:
+                res = await self.client.edit_interaction_response(
+                    token=self.token,
+                    application_id=str(self.application_id),
+                    data={"type": self.callback.value, "data": payload._json},
+                )
+                if res["flags"] == 64:
+                    log.warning("You can't edit hidden messages.")
+                else:
+                    await self.client.edit_message(
+                        int(self.channel_id), res["id"], payload=payload._json
                     )
-            self.message = payload
+                    self.message = Message(**res)
 
         await func()
         return payload
@@ -326,7 +352,7 @@ class CommandContext(Context):
         """
         if self.responded:
             await self.client.delete_webhook_message(
-                webhook_id=str(self.id), webhook_token=self.token, message_id=self.message.id
+                webhook_id=int(self.id), webhook_token=self.token, message_id=int(self.message.id)
             )
         else:
             await self.client.delete_original_webhook_message(int(self.id), self.token)
@@ -365,7 +391,7 @@ class CommandContext(Context):
 
                 await self.client.create_interaction_response(
                     token=self.token,
-                    application_id=str(self.id),
+                    application_id=int(self.id),
                     data={
                         "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
                         "data": {"choices": _choices},
@@ -396,7 +422,7 @@ class CommandContext(Context):
 
         await self.client.create_interaction_response(
             token=self.token,
-            application_id=str(self.id),
+            application_id=int(self.id),
             data=payload,
         )
 

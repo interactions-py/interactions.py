@@ -328,6 +328,9 @@ class WebSocket:
                 _context = "ComponentContext"
 
             context: object = getattr(__import__("interactions.context"), _context)
+
+            data["client"] = self.http
+
             return context(**data)
 
     async def send(self, data: Union[str, dict]) -> None:

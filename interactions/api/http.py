@@ -2073,7 +2073,7 @@ class HTTPClient:
         )
 
     async def edit_interaction_response(
-        self, data: dict, token: str, application_id: str, message_id: int = "@original"
+        self, data: dict, token: str, application_id: str, message_id: str = "@original"
     ) -> dict:
         """
         Edits an existing interaction message, but token needs to be manually called.
