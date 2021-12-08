@@ -1843,7 +1843,6 @@ class HTTPClient:
     # Interaction endpoint (Application commands) **
 
     # TODO: Merge single and batch variants ?
-    # TODO: Please clean this up.
 
     async def get_application_command(
         self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
@@ -1910,7 +1909,7 @@ class HTTPClient:
         self,
         application_id: Union[int, Snowflake],
         data: dict,
-        command_id: int,
+        command_id: Union[int, Snowflake],
         guild_id: Optional[int] = None,
     ) -> dict:
         """
@@ -1922,7 +1921,7 @@ class HTTPClient:
         :param guild_id: Guild ID snowflake, if given. Defaults to None/global.
         :return: The updated application command object.
         """
-        application_id = int(application_id)
+        application_id, command_id = int(application_id), int(command_id)
         r = (
             Route(
                 "POST",
@@ -2513,7 +2512,7 @@ class HTTPClient:
         after: Snowflake = None,
     ) -> dict:
         """
-        Get the registed users of a scheduled event.
+        Get the registered users of a scheduled event.
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event snowflake.
         :param limit: Limit of how many users to pull from the event. Defaults to 100.

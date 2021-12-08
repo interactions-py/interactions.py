@@ -49,9 +49,9 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[List[Option]] = None,
         default_permission: Optional[bool] = None,
-        permissions: Optional[
-            Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
-        ] = None
+        # permissions: Optional[
+        #    Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
+        # ] = None
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(self, name: str) -> Callable[..., Any]: ...
