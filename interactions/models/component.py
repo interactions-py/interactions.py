@@ -214,6 +214,8 @@ class TextInput(DictSerializerMixin):
     :ivar TextStyleType style: The style of the input.
     :ivar str custom_id: The custom Id of the input.
     :ivar str label: The label of the input.
+    :ivar Optional[str] value: The pre-filled value of the input.
+    :ivar Optional[bool] required?: Whether the input is required or not.
     :ivar Optional[str] placeholder?: The placeholder of the input.
     :ivar Optional[int] min_length?: The minimum length of the input.
     :ivar Optional[int] max_length?: The maximum length of the input.
@@ -225,6 +227,8 @@ class TextInput(DictSerializerMixin):
         "style",
         "custom_id",
         "label",
+        "value",
+        "required",
         "placeholder",
         "min_length",
         "max_length",
@@ -233,6 +237,8 @@ class TextInput(DictSerializerMixin):
     style: TextStyleType
     custom_id: str
     label: str
+    value: Optional[str]
+    required: Optional[bool]
     placeholder: Optional[str]
     min_length: Optional[int]
     max_length: Optional[int]
