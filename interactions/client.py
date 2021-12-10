@@ -78,7 +78,7 @@ class Client:
         self.http.token = token
         self.shard = shard
         self.presence = presence
-        self.extensions = []
+        self.extensions = {}
         _token = token  # noqa: F841
         _cache = self.http.cache  # noqa: F841
 
