@@ -177,9 +177,7 @@ class Client:
             """
             Creates a new application command in the API if one does not exist for it.
             """
-            log.debug(
-                f"Command {payload.name} was not found in the API, creating and adding to the cache."
-            )
+            log.debug("A command was not found in the API, creating and adding to the cache.")
             request = await self.http.create_application_command(
                 application_id=self.me.id, data=payload._json, guild_id=payload.guild_id
             )

@@ -22,7 +22,7 @@ log.addHandler(stream)
 
 
 class Context(DictSerializerMixin):
-    r"""
+    """
     The base class of "context" for dispatched event data
     from the gateway. The premise of having this class is so
     that the user-facing API is able to allow developers to
