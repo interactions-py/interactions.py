@@ -1,121 +1,145 @@
-.. currentmodule:: discord_slash
-
 Frequently Asked Questions
 ==========================
 
-Why don't my slash commands show up?
-************************************
-If your slash commands don't show up, then you have not added them to Discord correctly. Check these items.
+Got a question about our library? Well, your answer is probably laying somewhere around here.
 
-* Ensure that your application has the ``applications.commands`` scope in that guild.
-* If you're creating global command, then you may have to wait up to 1 hour for them to update. It's suggested to use guild command for testing.
-* See `How to add slash commands?`.
+.. note::
 
-How to add slash commands?
-******************************
+    This page is maintained by the Helpers of the Discord server,
+    and updated by the library developer at their discretion. For any
+    comments, feedback or concerns please consider joining our server
+    and bringing it up in our support channels.
 
-Adding a slash command is a two part process.
+.. warning::
 
-1. Registering the command to Discord so the command show up when you type ``/``.
-2. Adding it to your bot.
+    This FAQ list currently reflects v4.0 as of the time of this writing,
+    all other versions are considered deprecated. Because of this, there
+    will not be any answers for questions regarding v3.0 and below.
 
-Add a slash command on Discord
----------------------------------
-If you want your commands automatically registered, set ``sync_commands`` to ``True`` at :class:`.client.SlashCommand`.
+discord.py is dead! Will this library die too?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The short answer is: **no**.
+
+The decision to become a standalone library that is now an API wrapper for the Discord API
+was made before Danny posted his gist on GitHub about ceasing development of discord.py.
+This is the official statement from the library developer regarding this:
+
+.. image:: _static/not_dead.png
+
+Are you going to/will/consider fork(ing) discord.py?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The short answer is: **no**.
+
+The long answer is a list of numerous reasons as to why this decision was made:
+
+* There are/will be numerous forks out there for discord.py, and because of that, we cannot safely guarantee our ability to help users out who may be using their own form of modified code.
+* The original purpose of this library was to act as an extension of discord.py, but due to the issue of constantly having to monkeypatch solutions into their codebase to keep our library working introduced extreme technical debt. Forking discord.py and building off of it does not change anything from our issue of avoiding this.
+* The goal of this library is to solely implement support and integrate the use of interactions from the Discord API. Making this library unique in a sense that we only do this seemed reasonable and within our margin of standards at the time.
+* The message intent will inevitably be forced as a privileged intent in April 2022. The practicality of trying to support message commands will be infeasible since Discord Developers have `already admitted`_ that "not wanting to implement application commands" will not be a valid reason for applying for this privileged intent.
+* Forking discord.py would be a massive change to our current codebase, throwing away all of the effort we've put into it so far, and basically just be rewriting how v2.0a was created. That would make it nothing more than discord.py-interactions at that point -- plus, we're already a library that keeps very similar naming conventions as discord.py does, so this is pointless.
+
+Will discord.py be able to work with this library?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The short answer is: **yes.**
+
+However, the term "work" is loosely structured here. Imagine it like taping a hole in the wall instead of repairing the wall.
+We're essentially "plastering" support for discord.py instead of doing the surgery on its internal organs to make it work well
+with our library. As it currently stands, **discord-interactions and discord.py** are API wrappers. You will be able to run code
+*alongside* one another, and you will be able to plug in some classes, but the data conversion **must be exact.**
+
+What does that mean? Well, we'll show you:
 
 .. code-block:: python
 
-   from discord_slash import SlashCommand
-   
-   slash = SlashCommand(client, sync_commands=True)
+    import interactions
+    from discord.ext import commands
 
-Or, if you want to send requests manually, you can use :class:`.http.SlashCommandRequest`.
+    interactions = interactions.Client(token="...")
+    dpy = commands.Bot(prefix="/")
 
-Or, if you don't want to use `discord.Client`, you can use :mod:`.utils.manage_commands`.
+    @dpy.command()
+    async def hello(ctx):
+        await ctx.send("Hello from discord.py!")
 
-Or, you can make requests directly to Discord API, read the `docs <https://discord.com/developers/docs/interactions/slash-commands#registering-a-command>`_.
+    @interactions.command(
+        name="test",
+        description="this is just a testing command."
+    )
+    async def test(ctx):
+        await ctx.send("Hello from discord-interactions!")
 
-Add the command to your bot
----------------------------
-To add a slash command to your bot, you need to use the decorator on a coroutine, just like discord.py's command system but a bit different.
+    interactions.start()
+    dpy.run(token="...", bot=True)
 
-See :ref:`quickstart` for an example.
+Both of these variables ``interactions`` and ``dpy`` will be able to run in the same established environment, and additionally
+will both function properly as their respective libraries intend them to. What about the models, though? That's a simple answer:
 
-For normal slash command, use :meth:`.client.SlashCommand.slash`, and for subcommand, use :meth:`.client.SlashCommand.subcommand`.
+.. code-block:: python
 
-How to delete slash commands?
-*****************************
+    import discord
+    from interactions.api.models.member import Member
 
-If ``sync_commands`` is set to ``True``, commands will automatically be removed as needed.
+    @dpy.command()
+    async def borrowing(ctx, member: Member):
+        await ctx.send(f"Member ID: {member.id}")
 
-However, if you are not using ``sync_commands`` you can do it manually by this methods:
+    @interactions.command(...)
+    async def second_borrowing(ctx, member: discord.Member):
+        await ctx.send(f"Member ID: {member.id}")
 
-* Deleting a single command with :meth:`.http.SlashCommandRequest.remove_slash_command` or :meth:`utils.manage_commands.remove_slash_command`
-* Deleting all commands using :meth:`utils.manage_commands.remove_all_commands`
-* Deleting all commands in a specified guild, or all global commands by :meth:`utils.manage_commands.remove_all_commands_in`
-* Making a HTTP request to `discord <https://discord.com/developers/docs/interactions/slash-commands#delete-global-application-command>`_
+Both of these will be able to both run and give their proper value. It is *very* important to note here, though, that you
+**must** be returning back the exact same information that our objects depend on. A missing class instance can easily lead to
+it breaking, hence the "plastering" that is going on here.
 
-To delete a single command yourself you'll have to have the command id, which can be found by getting all commands for a guild / global commands.
+Where should we go with discord.py being gone?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The most *biased* answer would be to, of course, *use discord-interactions.* We already offer a lot of the integral API wrapper
+aspects as discord.py does, however, we only specialize in interactions. Which means things such as these won't be supported
+officially by us (but might be available as 3rd parties):
 
-What is the difference between ctx.send and ctx.channel.send?
-*************************************************************
-* Also answers: How to send files?, How to get :class:`discord.Message` object from ``.send()``?, etc.
+- Cooldowns
+- Message commands
+- Voice clients
 
-ctx.send
---------
-This sends a message or response of the slash command via the interaction response or interaction webhook.
+There are other libraries of course though. As a general rule of thumb, if you're looking to do mainly slash commands and that
+tidbit then we highly recommend using our library, especially as **discord-components** merges as of version 4.0. But if you
+want something way more open and versatile, then we recommend these sources:
 
-These are only available by this:
+- `Pycord`_ (the most actively maintained).
+- `dis-snek`_ (high level, "hackable" API wrapper with ease of modification).
+- `nextcord`_ (more abstract and fast approach to the Discord API).
 
-1. Show command triggering message. (a.k.a. ACK)
-2. Hide the response so only message author can see.
+It's personally recommended from the library developer to seek these paths instead of sticking to an older version of a library,
+e.g. discord.py 1.7.3 or 2.0.0a as they can eventually become deprecated with more pending changes to the API by Discord engineers.
 
-However, you are unable to use after 15 mins from the invocation.
+Why are you not supporting cooldowns?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cooldowns aren't really an actual feature of the Discord API itself, but rather more of a convienent feature implemented in
+discord.py in order to avoid spamming of commands.
 
-ctx.channel.send
-----------------
-``ctx.channel`` is the :class:`discord.TextChannel` object for the channel that the slash command was used in.
-``send()`` is the sending coroutine in discord.py. (:meth:`discord.TextChannel.send`)
+**What if people spam slash/sub commands?**
 
-.. warning:: 
-   * If the bot is not in the guild, but slash commands are, ``ctx.channel`` will be ``None`` and this won't work.
-   * If the bot does not have view/send permissions in that channel this also won't work, but slash commands show up no matter what the channel specific permissions.
+That's the neat part: it's really hard to do that, and most of the time, they won't. Unless they copy the exact string that was
+used when you open up the UI element to do it numerous times, most users do and will not be able to know how to do this. However,
+if you as a bot developer feel at unease about this, you are more than welcome to implement your own cooldown methods yourself.
+Cooldowns were an ultimatum that came as the result of message commands being able to be spammable, and since we won't be supporting
+them, there's no feasibility to having them in our library.
 
-These are not supported compared to ``ctx.send``:
+Will we not be able to create message commands?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is a tricky question to really answer. If you want the *technical* answer: you can definitely create them with our library,
+however, you'll have to program them in the ``on_message_create`` listener event that we use. This is already something a majority
+of discord.py bot developers frown upon doing, so this is at your own risk to code your own command handlers into it. Luckily, you
+can take a page out of discord.js' book if you want to do this, since they've never heard of an external command handler framework
+before in their entire life.
 
-1. Showing command triggering message.
-2. Hiding the response so only message author can see.
+My question is not answered on here!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please join our Discord server for any further support regarding our library and/or any integration code depending on it.
 
-You can use them both together, just be aware of permissions.
+* Invite Link: https://discord.gg/KkgMBVuEkx
 
-Can I use something of discord.py's in this extension?
-******************************************************
-Most things work, but a few that are listed below don't.
-
-Checks
-------
-discord.py check decorators can work, but its not 100% guaranteed every checks will work.
-
-Events
-------
-Command-related events like ``on_command_error``, ``on_command``, etc.
-This extension triggers some events, check the `events docs <https://discord-py-slash-command.readthedocs.io/en/latest/events.html#>`_ 
-
-Converters
-----------
-Use ``options=[...]`` on the slash command / subcommand decorator instead.
-
-Note:
-Pretty much anything from the discord's commands extension doesn't work, also some bot things.
-
-.. warning::
-   If you use something that might take a while, eg ``wait_for`` you'll run into two issues:
-
-   1. If you don't respond within 3 seconds (``ctx.defer()`` or `ctx.send(..)``) discord invalidates the interaction.
-   2. The interaction only lasts for 15 minutes, so if you try and send something with the interaction (``ctx.send``) more than 15 mins after the command was ran it won't work.
-
-   As an alternative you can use ``ctx.channel.send`` but this relies on the the bot being in the guild, and the bot having send perms in that channel.
-
-Any more questions?
-*******************
-Join the `discord server <https://discord.gg/KkgMBVuEkx>`_ and ask in ``#questions``!
+.. _already admitted: https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1#whats-going-to-happen-to-my-bot
+.. _Pycord: https://github.com/Pycord-Development/pycord
+.. _dis-snek: https://github.com/Discord-Snake-Pit/Dis-Snek
+.. _nextcord: https://github.com/nextcord/nextcord

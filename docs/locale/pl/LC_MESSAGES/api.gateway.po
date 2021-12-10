@@ -1,0 +1,146 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, goverfl0w
+# This file is distributed under the same license as the
+# discord-interactions package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-interactions 4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.gateway.rst:4
+msgid "Gateway"
+msgstr ""
+
+#: interactions.api.gateway.Heartbeat:1 of
+msgid "A class representing a consistent heartbeat connection with the gateway."
+msgstr ""
+
+#: interactions.api.gateway.Heartbeat interactions.api.gateway.WebSocket of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.gateway.Heartbeat:3 of
+msgid "The WebSocket class to infer on."
+msgstr ""
+
+#: interactions.api.gateway.Heartbeat:4 of
+msgid "The heartbeat interval determined by the gateway."
+msgstr ""
+
+#: interactions.api.gateway.Heartbeat:5 of
+msgid "The multi-threading event."
+msgstr ""
+
+#: interactions.api.gateway.Heartbeat.run:1 of
+msgid "Starts the heartbeat connection."
+msgstr ""
+
+#: interactions.api.gateway.Heartbeat.stop:1 of
+msgid "Stops the heartbeat connection."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:1 of
+msgid "A class representing a websocket connection with the gateway."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:3 of
+msgid "An instance of :class:`interactions.api.models.Intents`."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:4 of
+msgid "The coroutine event loop established on."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:5 of
+msgid "An instance of :class:`interactions.api.http.Request`."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:6 of
+msgid "An instance of :class:`interactions.api.dispatch.Listener`."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:7 of
+msgid "The current client session."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:8 of
+msgid "The current ID of the gateway session."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:9 of
+msgid "The current sequence of the gateway connection."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:10 of
+msgid "An instance of :class:`interactions.api.gateway.Heartbeat`."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:11 of
+msgid "The current connection state."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket:12 of
+msgid "The internal HTTP client used to connect to the gateway."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.recv:1 of
+msgid "Receives packets sent from the gateway."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.connect:1 of
+msgid "Establishes a connection to the gateway."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.connect
+#: interactions.api.gateway.WebSocket.handle of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.connect:3 of
+msgid "The token to use for identifying."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.connect
+#: interactions.api.gateway.WebSocket.handle of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.connect:5
+#: interactions.api.gateway.WebSocket.handle:7 of
+msgid "None"
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.handle:1 of
+msgid "Handles the dispatched event data from a gateway event."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.handle:3 of
+msgid "The name of the event."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.handle:5 of
+msgid "The data of the event."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.identify:1 of
+msgid "Sends an ``IDENTIFY`` packet to the gateway."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.resume:1 of
+msgid "Sends a ``RESUME`` packet to the gateway."
+msgstr ""
+
+#: interactions.api.gateway.WebSocket.heartbeat:1 of
+msgid "Sends a ``HEARTBEAT`` packet to the gateway."
+msgstr ""

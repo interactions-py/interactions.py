@@ -1,3 +1,4 @@
+# env/venv/gh-based
 *.egg
 *.egg-info/
 *.eggs/
@@ -6,3 +7,6 @@
 _build/
 build/
 dist/
+.env
+.venv
+.vscode

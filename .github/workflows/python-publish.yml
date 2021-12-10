@@ -1,17 +1,8 @@
-# This workflows will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
-name: Upload Python Package
-
-on:
-  release:
-    types: [created]
-
+name: Publish release
 jobs:
   deploy:
-
+    name: Deploy
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -29,3 +20,6 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/*
+on:
+  release:
+    types: [created]

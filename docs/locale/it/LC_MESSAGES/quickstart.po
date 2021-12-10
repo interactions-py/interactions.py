@@ -1,0 +1,130 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, goverfl0w
+# This file is distributed under the same license as the
+# discord-interactions package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-interactions 4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../quickstart.rst:2
+msgid "Quickstart"
+msgstr ""
+
+#: ../../quickstart.rst:4
+msgid ""
+"Looking into trying to get started with our library? Well, you've come to"
+" the right page then!"
+msgstr ""
+
+#: ../../quickstart.rst:8
+msgid ""
+"This quickstart guide is extremely rough and contains experimental code. "
+"Do not follow us strictly until v4.0 is released! Everything is subject "
+"to change in here due to the development of the API wrapper continuously "
+"being reflected."
+msgstr ""
+
+#: ../../quickstart.rst:14
+msgid "Installing"
+msgstr ""
+
+#: ../../quickstart.rst:16
+msgid ""
+"**discord-interactions** is a Python library for the Discord Artificial "
+"Programming Interface. (API) A library in Python has to be installed "
+"through the `pip` file. Run this in your terminal/command line in order "
+"to install our library:"
+msgstr ""
+
+#: ../../quickstart.rst:20
+msgid "``pip install -U discord-interactions``"
+msgstr ""
+
+#: ../../quickstart.rst:22
+msgid ""
+"If you're unable to run it through your terminal/command line, you need "
+"to make sure that it's accessible as an Environment Path. Search more on "
+"Google for how to do this."
+msgstr ""
+
+#: ../../quickstart.rst:26
+msgid "Minimal Bot"
+msgstr ""
+
+#: ../../quickstart.rst:28
+msgid ""
+"Bots can be a little confusing to create. That's why we've decided to try"
+" and make the process as streamlined as humanly possible, in order for it"
+" to be friendlier to understand for our fellow bot developers. Please "
+"note that **a Discord bot should not be your first project if you're "
+"learning how to code**. There are plenty of other projects to consider "
+"first before this, as a Discord bot is not exactly beginner-friendly."
+msgstr ""
+
+#: ../../quickstart.rst:34
+msgid "This code block below shows a simple bot being created:"
+msgstr ""
+
+#: ../../quickstart.rst:52
+msgid ""
+"There's quite a lot of things that are going on here, so let's break it "
+"down step-by-step:"
+msgstr ""
+
+#: ../../quickstart.rst:54
+msgid ""
+"``import interactions`` -- This is the import line. If this returns a "
+"``ModuleNotFoundError``, please look at our `Installing`_ section here."
+msgstr ""
+
+#: ../../quickstart.rst:55
+msgid ""
+"``bot = interactions.Client(token=\"...\")`` -- This is the ``bot`` "
+"variable that defines our bot. This basically instantiates the `Client`_ "
+"class, which requires a ``token`` keyword-argument to be passed. In order"
+" to get a token, please look at the image given below."
+msgstr ""
+
+#: ../../quickstart.rst:56
+msgid ""
+"``@bot.application_command()`` -- This is something known as a "
+"*decorator* in Python. This decorator is in charge and responsible of "
+"making sure that the Discord API is told about the slash/sub command that"
+" you wish to create, and sends an HTTP request correspondingly. Any "
+"changes to the information contained in this decorator will be "
+"synchronously updated with the API automatically for you."
+msgstr ""
+
+#: ../../quickstart.rst:57
+msgid ""
+"``await ctx.send(\"Hello world!\")`` -- This is what lets us send a "
+"\"message\", or otherwise known as an interaction response back to the "
+"Discord API for us. ``ctx`` is abbreviated as the \"context\" of the "
+"command, so numerous fields and attributes such as channels, guilds; and "
+"etc. are able to be inputted."
+msgstr ""
+
+#: ../../quickstart.rst:58
+msgid ""
+"``bot.start()`` -- Finally, this is what tells our library to turn your "
+"bot from offline to online."
+msgstr ""
+
+#: ../../quickstart.rst:62
+msgid ""
+"And it's really as simple as that! If you would like to learn more about "
+"what our library offers, or see more examples of our code, please be sure"
+" to check out our `coding examples`_ page on our docs!"
+msgstr ""

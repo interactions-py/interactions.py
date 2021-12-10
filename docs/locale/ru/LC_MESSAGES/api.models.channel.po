@@ -1,0 +1,233 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, goverfl0w
+# This file is distributed under the same license as the
+# discord-interactions package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: discord-interactions 4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.models.channel.rst:4
+msgid "Channel Models"
+msgstr ""
+
+#: interactions.api.models.channel.ChannelType:1 of
+msgid "An enumerable object representing the type of channels."
+msgstr ""
+
+#: interactions.api.models.channel.ChannelType:3 of
+msgid "..note::"
+msgstr ""
+
+#: interactions.api.models.channel.ChannelType:4 of
+msgid ""
+"While all of them are listed, not all of them will be used at this "
+"library's scope."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:1 of
+msgid "A class object representing the metadata of a thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:4 of
+msgid ""
+"``invitable`` will only show if the thread can have an invited created "
+"with the current cached permissions."
+msgstr ""
+
+#: interactions.api.models.channel.Channel
+#: interactions.api.models.channel.ThreadMember
+#: interactions.api.models.channel.ThreadMetadata of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:7 of
+msgid "The current thread accessibility state."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:8 of
+msgid "The auto-archive time."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:9 of
+msgid "The timestamp that the thread will be/has been closed at."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:10 of
+msgid "The current message state of the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:11 of
+msgid "The ability to invite users to the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:1 of
+msgid "A class object representing a member in a thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:4 of
+msgid ""
+"``id`` only shows if there are active intents involved with the member in"
+" the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:7 of
+msgid "The \"ID\" or intents of the member."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:8 of
+msgid "The user ID of the member."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:9 of
+msgid "The timestamp of when the member joined the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:10 of
+msgid "The bitshift flags for the member in the thread."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:1 of
+msgid "A class object representing all types of channels."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:4 of
+msgid ""
+"The purpose of this model is to be used as a base class, and is never "
+"needed to be used directly."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:7 of
+msgid "The (snowflake) ID of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:8 of
+msgid "The type of channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:9 of
+msgid "The ID of the guild if it is not a DM channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:10 of
+msgid "The position of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:11 of
+msgid "The non-synced permissions of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:12 of
+msgid "The name of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:13 of
+msgid "The description of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:14 of
+msgid "Whether the channel is NSFW."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:15 of
+msgid "The ID of the last message sent."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:16 of
+msgid "The audio bitrate of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:17 of
+msgid "The maximum amount of users allowed in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:18 of
+msgid "The concurrent ratelimit for users in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:19 of
+msgid "The recipients of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:20 of
+msgid "The icon of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:21 of
+msgid "The owner of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:22 of
+msgid "The application of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:23 of
+msgid "The ID of the \"parent\"/main channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:24 of
+msgid "The timestamp of the last pinned message in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:25 of
+msgid "The region of the WebRTC connection for the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:26 of
+msgid "The set quality mode for video streaming in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:27 of
+msgid "The amount of messages in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:28 of
+msgid "The amount of members in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:29 of
+msgid "The thread metadata of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:30 of
+msgid "The member of the thread in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:31 of
+msgid ""
+"The set auto-archive time for all threads to naturally follow in the "
+"channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel:32 of
+msgid "The permissions of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.TextChannel:1 of
+msgid ""
+"This is a derivation of :class:`interactions.api.models.channel.Channel` "
+"but for text channels."
+msgstr ""
+
+#: interactions.api.models.channel.DMChannel:1 of
+msgid ""
+"This is a derivation of :class:`interactions.api.models.channel.Channel` "
+"but for DM channels."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadChannel:1 of
+msgid ""
+"This is a derivation of :class:`interactions.api.models.channel.Channel` "
+"but for thread channels."
+msgstr ""

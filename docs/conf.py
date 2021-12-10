@@ -15,7 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
-from discord_slash import __version__
+from interactions.base import __version__
 
 # -- Project information -----------------------------------------------------
 
@@ -40,7 +40,8 @@ templates_path = ["_templates"]
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = "en"
+language = None
+locale_dirs = ["locale/"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

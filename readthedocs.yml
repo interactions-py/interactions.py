@@ -19,7 +19,7 @@ formats:
 
 # Optionally set the version of Python and requirements required to build your docs
 python:
-  version: 3.7
+  version: 3.8 # apparently RTD is screaming that 3.x "doesn't exist"
   install:
     - method: pip
       extra_requirements:

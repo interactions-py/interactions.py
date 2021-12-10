@@ -1,0 +1,170 @@
+from typing import Dict, List, Optional, Union
+
+from ..api.models.channel import Channel
+from ..api.models.member import Member
+from ..api.models.message import Message
+from ..api.models.misc import DictSerializerMixin, Snowflake
+from ..api.models.role import Role
+from ..api.models.user import User
+from ..enums import ApplicationCommandType, InteractionType
+from ..models.command import Option
+from ..models.component import Component, SelectOption
+
+
+class InteractionResolvedData(DictSerializerMixin):
+    """
+    A class representing the resolved information of an interaction data.
+
+    :ivar Dict[str, User] users: The resolved users data.
+    :ivar Dict[str, Member] members: The resolved members data.
+    :ivar Dict[str, Role] roles: The resolved roles data.
+    :ivar Dict[str, Channel] channels: The resolved channels data.
+    :ivar Dict[str, Message] messages: The resolved messages data.
+    """
+
+    __slots__ = ("_json", "users", "members", "roles", "channels", "messages")
+    users: Dict[str, User]
+    members: Dict[str, Member]
+    roles: Dict[str, Role]
+    channels: Dict[str, Channel]
+    messages: Dict[str, Message]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        if self._json.get("users"):
+            [
+                self.users.update({user: User(**self.users[user])})
+                for user in self._json.get("users")
+            ]
+        if self._json.get("members"):
+            [
+                self.members.update({member: Member(**self.members[member])})
+                for member in self._json.get("members")
+            ]
+        if self._json.get("roles"):
+            [
+                self.roles.update({role: Role(**self.roles[role])})
+                for role in self._json.get("roles")
+            ]
+        if self._json.get("channels"):
+            [
+                self.channels.update({channel: Channel(**self.channels[channel])})
+                for channel in self._json.get("channels")
+            ]
+        if self._json.get("messages"):
+            [
+                self.messages.update({message: Message(**self.messages[message])})
+                for message in self._json.get("messages")
+            ]
+
+
+class InteractionData(DictSerializerMixin):
+    """
+    A class object representing the data of an interaction.
+
+    :ivar str id: The ID of the interaction data.
+    :ivar str name: The name of the interaction.
+    :ivar ApplicationCommandType type: The type of command from the interaction.
+    :ivar Optional[InteractionResolvedData] resolved?: The resolved version of the data.
+    :ivar Optional[Union[Option, List[Option]]] options?: The options of the interaction.
+    :ivar Optional[str] custom_id?: The custom ID of the interaction.
+    :ivar Optional[int] component_type?: The type of component from the interaction.
+    :ivar Optional[Union[SelectOption, List[SelectOption]]] values?: The values of the selected options in the interaction.
+    :ivar Optional[str] target_id?: The targeted ID of the interaction.
+    """
+
+    id: Snowflake
+    name: str
+    type: ApplicationCommandType
+    resolved: Optional[InteractionResolvedData]
+    options: Optional[Union[Option, List[Option]]]
+    custom_id: Optional[str]
+    component_type: Optional[int]
+    values: Optional[Union[SelectOption, List[SelectOption]]]
+    target_id: Optional[Snowflake]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "name",
+        "type",
+        "resolved",
+        "options",
+        "custom_id",
+        "components",
+        "component_type",
+        "values",
+        "target_id",
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.type = ApplicationCommandType(self.type) if self._json.get("type") else None
+        self.resolved = (
+            InteractionResolvedData(**self.resolved) if self._json.get("resolved") else None
+        )
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.target_id = Snowflake(self.target_id) if self._json.get("target_id") else None
+        self.components = (
+            [Component(**component) for component in self.components]
+            if self._json.get("components")
+            else None
+        )
+
+
+class Interaction(DictSerializerMixin):
+    """
+    A class object representing an interaction.
+
+    :ivar str id: The ID of the interaction.
+    :ivar str application_id: The application's ID of the interaction.
+    :ivar InteractionType type: The type of interaction.
+    :ivar Optional[InteractionData] data?: The data of the interaction.
+    :ivar Optional[str] guild_id?: The guild ID of the interaction.
+    :ivar Optional[str] channel_id?: The channel ID of the interaction.
+    :ivar Optional[Member] member?: The member who invoked the interaction.
+    :ivar Optional[User] user?: The user who invoked the interaction.
+    :ivar str token: The token of the interaction.
+    :ivar version: The version of the interaction as an autoincrement identifier.
+    :ivar Optional[Message] message?: The message of the interaction.
+    """
+
+    id: Snowflake
+    application_id: Snowflake
+    type: InteractionType
+    data: Optional[InteractionData]
+    guild_id: Optional[Snowflake]
+    channel_id: Optional[Snowflake]
+    member: Optional[Member]
+    user: Optional[User]
+    token: str
+    version: int
+    message: Optional[Message]
+
+    __slots__ = (
+        "_json",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "guild_id",
+        "channel_id",
+        "member",
+        "user",
+        "token",
+        "version",
+        "message",
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.type = InteractionType(self.type)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.application_id = (
+            Snowflake(self.application_id) if self._json.get("application_id") else None
+        )
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.member = Member(**self.member) if self._json.get("member") else None
+        self.user = User(**self.user) if self._json.get("user") else None

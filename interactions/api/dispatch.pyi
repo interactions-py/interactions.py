@@ -1,0 +1,9 @@
+from asyncio import AbstractEventLoop
+from typing import Coroutine, Optional
+
+class Listener:
+    loop: AbstractEventLoop
+    events: dict
+    def __init__(self) -> None: ...
+    def dispatch(self, name: str, *args, **kwargs) -> None: ...
+    def register(self, coro: Coroutine, name: Optional[str] = None) -> None: ...

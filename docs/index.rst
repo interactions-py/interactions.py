@@ -1,39 +1,53 @@
-.. discord-py-slash-command documentation master file, created by
-   sphinx-quickstart on Sat Dec 12 13:49:27 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. image:: _static/banner.png
 
-Welcome
-=======
+discord-interactions
+====================
+No more hassle with trying to get interactions to work with your Python Discord bot
+-- **discord-interactions** is now here.
 
-Hello there! Welcome to the official documentation of our library
-extension made for discord.py: being able to use Discord Slash Commands.
+**discord-interactions** is a simple API wrapper for Discord interactions.
+We're not here to replace discord.py or any other fork, but we are here to be the very best
+Python Discord library there is that implements interactions very well. This is what our
+library is all about.
 
-Before we start going into the advanced stuff, it is highly recommended
-to check out the `quickstart`_ page first from here or below in the contents.
+What are we good for?
+*********************
+These are the biggest advantages that you will receive out of using our library:
 
-If there are any questions that you have about the documentation
-of this library extension that the docs do not currently cover over, please
-feel free to reach out to others on the `Discord`_!
+* Modern library architecture design for easy modularity and scalability.
+* Sane HTTP 429 ratelimiting.
+* Dynamic object data generation via. dispatch.
+* On-demand caching.
+* `await`/async coroutine functionality.
 
-.. _quickstart: https://discord-py-slash-command.readthedocs.io/en/latest/quickstart.html
-.. _Discord: https://discord.gg/KkgMBVuEkx
+What does that mean?
+^^^^^^^^^^^^^^^^^^^^
+We're basically the library you'll want to use for these specific things:
+
+* ✔️ Working with application commands and components. (Interactions)
+* ✔️ Handling data from any text channel, cached and dispatched.
+* ✔️ General permissions handling on guild members.
+* ✔️ Responsive callbacks for components.
+
+We won't be doing these things as a core aspect of our library, however:
+
+* ❌ Voice client capabilities.
+* ❌ Cooldowns/bucket types.
+
+Where do I start?
+*****************
+Please look at our pages below to find out where to go further.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Pages:
 
    quickstart.rst
-   gettingstarted.rst
-   migration.rst
-   components.rst
-   discord_slash.rst
-   events.rst
-   discord_slash.utils.rst
+   api.rst
    faq.rst
 
-Indices and tables
-==================
+Advanced Search
+===============
 
 * :ref:`genindex`
 * :ref:`modindex`
