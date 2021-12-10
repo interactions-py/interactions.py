@@ -14,11 +14,11 @@ discord-interactions
 
 .. image:: https://img.shields.io/pypi/pyversions/discord-py-interactions.svg
     :target: https://pypi.python.org/pypi/discord-py-interactions/
-    :alt: PyPI pyversions
+    :alt: PyPI Versions
 
 .. image:: https://img.shields.io/pypi/v/discord-py-interactions.svg
     :target: https://pypi.python.org/pypi/discord-py-interactions/
-    :alt: PyPI version shields.io
+    :alt: PyPI Version
 
 .. image:: https://readthedocs.org/projects/discord-interactions/badge/?version=latest
     :target: http://discord-interactions.readthedocs.io/?badge=latest

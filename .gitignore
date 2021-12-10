@@ -10,7 +10,3 @@ dist/
 .env
 .venv
 .vscode
-
-# testing based
-.token
-ext/
