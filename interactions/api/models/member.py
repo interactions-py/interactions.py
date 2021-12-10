@@ -39,7 +39,6 @@ class Member(DictSerializerMixin):
         "pending",
         "permissions",
         "communication_disabled_until",
-        # TODO: Investigate what this is for once documented by Discord.
         "hoisted_role",
     )
 

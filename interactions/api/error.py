@@ -91,8 +91,6 @@ class InteractionException(Exception):
         _err_val = ""
         _err_unidentifiable = False
         _empty_space = " "
-
-        # TODO: determine need. do we need to override at all?
         _overrided = "message" in self.kwargs
 
         if issubclass(type(self._type), IntEnum):
@@ -269,5 +267,5 @@ class JSONException(InteractionException):
             20028: "The channel you are writing has hit the write rate limit",
             20031: "Your Stage topic, server name, server description, or channel names contain words that are not allowed",
             20035: "Guild premium subscription level too low"
-            #  TODO: finish dict.
+            #  TODO: post-v4: finish dict.
         }

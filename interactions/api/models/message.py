@@ -182,6 +182,7 @@ class Message(DictSerializerMixin):
     :ivar Optional[MessageActivity] activity?: Message activity object that's sent by Rich Presence
     :ivar Optional[Application] application?: Application object that's sent by Rich Presence
     :ivar Optional[MessageReference] message_reference?: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
+    :ivar Optional[Any] allowed_mentions: The allowed mentions of roles attached in the message.
     :ivar int flags: Message flags
     :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread:? The thread that started from this message, if any, with a thread member object embedded.
@@ -216,7 +217,7 @@ class Message(DictSerializerMixin):
         "application",
         "application_id",
         "message_reference",
-        "allowed_mentions",  # TODO: add this to the documentation.
+        "allowed_mentions",
         "flags",
         "referenced_message",
         "interaction",

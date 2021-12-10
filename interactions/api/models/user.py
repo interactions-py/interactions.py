@@ -7,7 +7,7 @@ class User(DictSerializerMixin):
 
     :ivar Snowflake id: The User ID
     :ivar str username: The Username associated (not necessarily unique across the platform)
-    :ivar str discriminator: The User's 4-digit discord-tag (#XXXX)
+    :ivar str discriminator: The User's 4-digit discord-tag (i.e.: XXXX)
     :ivar Optional[str] avatar?: The user's avatar hash, if any.
     :ivar Optional[bool] bot?: A status denoting if the user is a bot.
     :ivar Optional[bool] system?: A status denoting if the user is an Official Discord System user.

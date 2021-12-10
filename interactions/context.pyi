@@ -43,7 +43,7 @@ class CommandContext(Context):
         content: Optional[str] = None,
         *,
         tts: Optional[bool] = None,
-        # attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[Union[Component, List[Component]]] = None,

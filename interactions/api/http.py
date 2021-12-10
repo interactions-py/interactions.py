@@ -405,10 +405,9 @@ class HTTPClient:
         if message_reference:
             payload["message_reference"] = message_reference
 
-        # TODO: add attachments to payload.
+        # TODO: post-v4. add attachments to payload.
 
         if isinstance(channel_id, Snowflake):
-            # TODO: Convert HTTP endpoints to support Snowflake model/str as per schema.
             channel_id = int(channel_id)
 
         return await self.create_message(payload, channel_id)

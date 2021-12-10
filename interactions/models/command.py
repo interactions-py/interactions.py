@@ -100,7 +100,7 @@ class Option(DictSerializerMixin):
     max_value: Optional[int]
     autocomplete: Optional[bool]
 
-    name_localizations: Optional[Dict[str, str]]  # TODO: document these when Discord does.
+    name_localizations: Optional[Dict[str, str]]  # TODO: post-v4: document these when Discord does.
     description_localizations: Optional[Dict[str, str]]
 
     def __init__(self, **kwargs) -> None:
@@ -193,11 +193,11 @@ class ApplicationCommand(DictSerializerMixin):
     permissions: Optional[List[Permission]]
     version: int
 
-    # TODO: Investigate these once documented by Discord.
+    # TODO: post-v4: Investigate these once documented by Discord.
     default_member_permissions: Optional[Any]
     dm_permission: Optional[Any]
 
-    # TODO: Document once Discord does.
+    # TODO: post-v4: Document once Discord does.
     name_localizations: Optional[Dict[str, str]]
     description_localizations: Optional[Dict[str, str]]
 

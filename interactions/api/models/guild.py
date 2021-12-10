@@ -190,7 +190,7 @@ class Guild(DictSerializerMixin):
         "nsfw_level",
         "stage_instances",
         "stickers",
-        # TODO: Investigate all of these once Discord has them all documented.
+        # TODO: post-v4: Investigate all of these once Discord has them all documented.
         "guild_hashes",
         "embedded_activities",
         "guild_scheduled_events",

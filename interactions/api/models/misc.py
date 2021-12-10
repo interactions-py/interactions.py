@@ -1,3 +1,4 @@
+# TODO: This is post-v4.
 # TODO: Reorganise these models based on which big obj uses little obj
 # TODO: Potentially rename some model references to enums, if applicable
 # TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.

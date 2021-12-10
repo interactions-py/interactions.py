@@ -56,7 +56,7 @@ class GuildMembers(DictSerializerMixin):
     not_found: Optional[list]
     presences: Optional[
         List["Presence"]
-    ]  # TODO: Check what this returns, then compare to existing models first.
+    ]
     nonce: Optional[str]
     def __init__(self, **kwargs): ...
 

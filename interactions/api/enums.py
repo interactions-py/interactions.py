@@ -1,7 +1,7 @@
 # Normal libraries
 from enum import IntEnum
 
-# TODO: Implement this into the new error system at a later point.
+# TODO: post-v4: Implement this into the new error system at a later point.
 # class DefaultErrorType(IntEnum):
 #     """
 #     An enumerable object for the default errors that occur with interaction creation.
@@ -50,7 +50,7 @@ class OpCodeType(IntEnum):
     GUILD_SYNC = 12
 
 
-# TODO: Implement this into the new error system at a later point.
+# TODO: post-v4: Implement this into the new error system at a later point.
 # class WSCloseCodeType(IntEnum):
 #     """
 #     An enumerable object for the Gateway's closing connection codes.
@@ -76,7 +76,7 @@ class OpCodeType(IntEnum):
 #     DISALLOWED_INTENTS = 4014
 
 
-# TODO: Implement this into the new error system at a later point.
+# TODO: post-v4: Implement this into the new error system at a later point.
 # class HTTPResponseType(IntEnum):
 #     """
 #     An enumerable object for the HTTP response codes Discord gives out.
@@ -98,7 +98,7 @@ class OpCodeType(IntEnum):
 #     GATEWAY_UNAVAILABLE = 502
 
 
-# TODO: Implement this into the new error system at a later point.
+# TODO: post-v4: Implement this into the new error system at a later point.
 # class JSONResponseType(IntEnum):
 #     """
 #     An enumerable object for the JSON error response codes Discord gives out.

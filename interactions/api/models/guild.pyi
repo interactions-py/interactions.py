@@ -85,7 +85,7 @@ class Guild(DictSerializerMixin):
     stage_instances: Optional[List[StageInstance]]
     stickers: Optional[List[Sticker]]
 
-    # TODO: Investigate all of these once Discord has them all documented.
+    # TODO: post-v4: Investigate all of these once Discord has them all documented.
     guild_hashes: Any
     embedded_activities: Any
     guild_scheduled_events: Any

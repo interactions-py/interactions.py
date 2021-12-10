@@ -152,7 +152,7 @@ class CommandContext(Context):
         content: Optional[str] = None,
         *,
         tts: Optional[bool] = False,
-        # attachments: Optional[List[Any]] = None,  # TODO: Replace with own file type.
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[Union[Component, List[Component]]] = None,
@@ -205,7 +205,7 @@ class CommandContext(Context):
                 else InteractionCallbackType.UPDATE_MESSAGE
             )
 
-        # TODO: Add attachments into Message obj.
+        # TODO: post-v4: Add attachments into Message obj.
         payload: Message = Message(
             content=_content,
             tts=_tts,

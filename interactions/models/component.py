@@ -169,7 +169,7 @@ class Component(DictSerializerMixin):
         "min_values",
         "max_values",
         "components",
-        "value",  # TODO: document this
+        "value",  # TODO: post-v4: document this
     )
     type: ComponentType
     custom_id: Optional[str]
