@@ -17,7 +17,7 @@ Installing
 A library in Python has to be installed through the `pip` file. Run this in your terminal/command line
 in order to install our library:
 
-``pip install -U discord-interactions``
+``pip install -U discord-py-interactions``
 
 If you're unable to run it through your terminal/command line, you need to make sure that it's
 accessible as an Environment Path. Search more on Google for how to do this.
