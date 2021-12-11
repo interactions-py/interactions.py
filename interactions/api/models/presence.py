@@ -133,8 +133,3 @@ class PresenceActivity(DictSerializerMixin):
         self.party = PresenceParty(**self.party) if self._json.get("party") else None
         self.assets = PresenceAssets(**self.assets) if self._json.get("assets") else None
         self.secrets = PresenceSecrets(**self.secrets) if self._json.get("secrets") else None
-        self.buttons = (
-            [PresenceButtons(**button) for button in self.buttons]
-            if self._json.get("buttons")
-            else None
-        )
