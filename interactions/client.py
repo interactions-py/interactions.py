@@ -581,32 +581,33 @@ class Client:
         return guild._json
 
 
-class Extension:
-    """
-    A class that allows you to represent "extensions" of your code, or
-    essentially cogs that can be ran independent of the root file in
-    an object-oriented structure.
+# TODO: Implement the rest of cog behaviour when possible.
+# class Extension:
+#     """
+#     A class that allows you to represent "extensions" of your code, or
+#     essentially cogs that can be ran independent of the root file in
+#     an object-oriented structure.
 
-    The structure of an extension:
+#     The structure of an extension:
 
-    .. code-block:: python
+#     .. code-block:: python
 
-        class CoolCode(interactions.Extension):
-            def __init__(self, client):
-                ...
+#         class CoolCode(interactions.Extension):
+#             def __init__(self, client):
+#                 ...
 
-            @self.client.command(
-                type=interactions.ApplicationCommandType.USER,
-                name="User command in cog",
-            )
-            async def cog_user_cmd(self, ctx):
-                ...
+#             @self.client.command(
+#                 type=interactions.ApplicationCommandType.USER,
+#                 name="User command in cog",
+#             )
+#             async def cog_user_cmd(self, ctx):
+#                 ...
 
-        def setup(bot):
-            CoolCode(bot)
-    """
+#         def setup(bot):
+#             CoolCode(bot)
+#     """
 
-    client: Client
+#     client: Client
 
-    def __new__(cls, bot: Client) -> None:
-        cls.client = bot
+#     def __new__(cls, bot: Client) -> None:
+#         cls.client = bot

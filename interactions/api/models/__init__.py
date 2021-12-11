@@ -1,3 +1,10 @@
+"""
+interactions.api.models
+
+This section of the library maintains
+and stores all of the data defining
+models for dispatched Gateway events.
+"""
 from .channel import *  # noqa: F401 F403
 from .guild import *  # noqa: F401 F403
 from .gw import *  # noqa: F401 F403
