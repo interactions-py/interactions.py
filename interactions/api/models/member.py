@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from .misc import DictSerializerMixin
+from .user import User
 
 
 class Member(DictSerializerMixin):
@@ -44,6 +45,7 @@ class Member(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.user = User(**self.user) if self._json.get("user") else None
         self.joined_at = (
             datetime.fromisoformat(self._json.get("joined_at"))
             if self._json.get("joined_at")
