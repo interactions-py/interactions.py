@@ -4,6 +4,11 @@ from enum import IntEnum
 class ApplicationCommandType(IntEnum):
     """
     An enumerable object representing the types of application commands.
+
+    :ivar CHAT_INPUT: 1
+    :ivar USER: 2
+    :ivar MESSAGE: 3
+    :ivar AUTOCOMPLETE: 4
     """
 
     CHAT_INPUT = 1
@@ -15,6 +20,12 @@ class ApplicationCommandType(IntEnum):
 class InteractionType(IntEnum):
     """
     An enumerable object representing the types of interactions.
+
+    :ivar PING: 1
+    :ivar APPLICATION_COMMAND: 2
+    :ivar MESSAGE_COMPONENT: 3
+    :ivar APPLICATION_COMMAND_AUTOCOMPLETE: 4
+    :ivar MODAL_SUBMIT: 5
     """
 
     PING = 1
@@ -27,6 +38,14 @@ class InteractionType(IntEnum):
 class InteractionCallbackType(IntEnum):
     """
     An enumerable object representing the callback types of interaction responses.
+
+    :ivar PONG: 1
+    :ivar CHANNEL_MESSAGE_WITH_SOURCE: 4
+    :ivar DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE: 5
+    :ivar DEFERRED_UPDATE_MESSAGE: 6
+    :ivar UPDATE_MESSAGE: 7
+    :ivar APPLICATION_COMMAND_AUTOCOMPLETE_RESULT: 8
+    :ivar MODAL: 9
     """
 
     PONG = 1
@@ -40,7 +59,18 @@ class InteractionCallbackType(IntEnum):
 
 class OptionType(IntEnum):
     """
-    Enumerable object of literal integers holding equivocal values of a slash command's option(s).
+    An enumerable object representing the types of an application command option.
+
+    :ivar SUB_COMMAND: 1
+    :ivar SUB_COMMAND_GROUP: 2
+    :ivar STRING: 3
+    :ivar INTEGER: 4
+    :ivar BOOLEAN: 5
+    :ivar USER: 6
+    :ivar CHANNEL: 7
+    :ivar ROLE: 8
+    :ivar MENTIONABLE: 9
+    :ivar NUMBER: 10
     """
 
     SUB_COMMAND = 1
@@ -58,6 +88,9 @@ class OptionType(IntEnum):
 class PermissionType(IntEnum):
     """
     Enumerable object of literal integers holding equivocal values of a slash command's permission(s).
+
+    :ivar ROLE: 1
+    :ivar USER: 2
     """
 
     ROLE = 1
@@ -66,7 +99,12 @@ class PermissionType(IntEnum):
 
 class ComponentType(IntEnum):
     """
-    Enumerable object of literal integers holding equivocal values of a component(s) type.
+    An numerable object representing the types of a component.
+
+    :ivar ACTION_ROW: 1
+    :ivar BUTTON: 2
+    :ivar SELECT: 3
+    :ivar INPUT_TEXT: 4
     """
 
     ACTION_ROW = 1
@@ -76,7 +114,15 @@ class ComponentType(IntEnum):
 
 
 class ButtonStyle(IntEnum):
-    """An enumerable object representing the styles of button components."""
+    """
+    An enumerable object representing the styles of button components.
+
+    :ivar PRIMARY: 1
+    :ivar SECONDARY: 2
+    :ivar SUCCESS: 3
+    :ivar DANGER: 4
+    :ivar LINK: 5
+    """
 
     PRIMARY = 1
     SECONDARY = 2
@@ -86,7 +132,12 @@ class ButtonStyle(IntEnum):
 
 
 class TextStyleType(IntEnum):
-    """An enumerable object representing the styles of text inputs."""
+    """
+    An enumerable object representing the styles of text inputs.
+
+    :ivar SHORT: 1
+    :ivar PARAGRAPH: 2
+    """
 
     SHORT = 1
     PARAGRAPH = 2
