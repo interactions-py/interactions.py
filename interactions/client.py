@@ -433,6 +433,11 @@ class Client:
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving modals.
 
+        .. error::
+            This feature is currently under experimental/**beta access**
+            to those whitelisted for tetsing. Currently using this will
+            present you with an error with the modal not working.
+
         The structure for a modal callback:
 
         .. code-block:: python
