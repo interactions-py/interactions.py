@@ -173,19 +173,24 @@ class Client:
         )
         command_names: List[str] = [command["name"] for command in commands]
 
-        async def create() -> None:
+        async def create(data: ApplicationCommand) -> None:
             """
             Creates a new application command in the API if one does not exist for it.
+            :param data: The data of the command to create.
+            :type data: ApplicationCommand
             """
-            log.debug("A command was not found in the API, creating and adding to the cache.")
+            log.debug(
+                f"Command {data.name} was not found in the API, creating and adding to the cache."
+            )
+
             request = await self.http.create_application_command(
-                application_id=self.me.id, data=payload._json, guild_id=payload.guild_id
+                application_id=self.me.id, data=data._json, guild_id=data.guild_id
             )
 
             if request.get("code"):
                 raise JSONException(request["code"])
             else:
-                self.http.cache.interactions.add(Build(id=payload.name, value=payload))
+                self.http.cache.interactions.add(Build(id=data.name, value=data))
 
         if commands:
             log.debug("Commands were found, checking for sync.")
@@ -233,12 +238,13 @@ class Client:
                                     raise JSONException(request["code"])
                                 break
                     else:
-                        await create()
+                        await create(payload)
                 else:
                     log.debug(f"Adding command {result.name} to cache.")
                     self.http.cache.interactions.add(Build(id=result.name, value=result))
         else:
-            await create()
+            if payload:
+                await create(payload)
 
         cached_commands: List[dict] = [command for command in self.http.cache.interactions.view()]
         cached_command_names = [command["name"] for command in cached_commands]
