@@ -286,13 +286,28 @@ class WebSocket:
                                         OptionType.SUB_COMMAND,
                                         OptionType.SUB_COMMAND_GROUP,
                                     ):
-                                        pass
+                                        if option.get("options"):
+                                            for sub_option in option["options"]:
+                                                _args.append(sub_option)
+                                        else:
+                                            pass
                                     else:
                                         _args.append(option["value"])
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = context.data.custom_id
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                        _name = f"autocomplete_{context.data.options[0]['name']}"
+                        _name = "autocomplete_"
+                        if hasattr(context.data, "options"):
+                            if context.data.options:
+                                for option in context.data.options:
+                                    if option["type"] in (
+                                        OptionType.SUB_COMMAND,
+                                        OptionType.SUB_COMMAND_GROUP,
+                                    ):
+                                        if option.get("options"):
+                                            for sub_option in option["options"]:
+                                                if sub_option.get("focused"):
+                                                    _name += sub_option["name"]
                     elif data["type"] == InteractionType.MODAL_SUBMIT:
                         _name = f"modal_{context.data.custom_id}"
                         if hasattr(context.data, "components"):
