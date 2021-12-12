@@ -107,6 +107,8 @@ class Option(DictSerializerMixin):
         super().__init__(**kwargs)
         self.type = OptionType(self.type)
         self._json.update({"type": self.type.value})
+        if self._json.get("options"):
+            self._json["options"] = [option._json for option in self.options]
         if self._json.get("choices"):
             self._json["choices"] = [choice._json for choice in self.choices]
 
