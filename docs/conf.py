@@ -30,7 +30,15 @@ version = ".".join(__version__.split(".", 2)[:2])
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "karma_sphinx_theme"]
+autosectionlabel_prefix_document = True
+hoverxref_auto_ref = True
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.autosectionlabel",
+    "hoverxref.extension",
+    "karma_sphinx_theme",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

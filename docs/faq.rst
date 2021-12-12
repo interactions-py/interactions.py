@@ -6,15 +6,9 @@ Got a question about our library? Well, your answer is probably laying somewhere
 .. note::
 
     This page is maintained by the Helpers of the Discord server,
-    and updated by the library developer at their discretion. For any
+    and developers at their discretion. For any
     comments, feedback or concerns please consider joining our server
     and bringing it up in our support channels.
-
-.. warning::
-
-    This FAQ list currently reflects v4.0 as of the time of this writing,
-    all other versions are considered deprecated. Because of this, there
-    will not be any answers for questions regarding v3.0 and below.
 
 discord.py is dead! Will this library die too?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
