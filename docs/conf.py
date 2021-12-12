@@ -32,6 +32,7 @@ version = ".".join(__version__.split(".", 2)[:2])
 # ones.
 autosectionlabel_prefix_document = True
 hoverxref_auto_ref = True
+hoverxref_sphinxtabs = True
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
@@ -39,6 +40,14 @@ extensions = [
     "hoverxref.extension",
     "karma_sphinx_theme",
 ]
+
+# Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
+# https://stackoverflow.com/questions/67485567/sphinx-cross-reference-in-latex
+latex_elements = {
+    "preamble": r"""
+\renewcommand{\hyperref}[2][]{#2}
+"""
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
