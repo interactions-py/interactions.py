@@ -90,7 +90,9 @@ class Client:
         else:
             self.automate_sync = True
 
-        Data.LOGGER = log_level
+        log_names: list = ["client", "context", "dispatch", "gateway", "http"]
+        for logger in log_names:
+            getLogger(logger).setLevel(log_level)
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_current_bot_information())
