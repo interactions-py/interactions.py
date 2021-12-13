@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.0.1
     hooks:
     - id: requirements-txt-fixer
       name: Requirements
@@ -25,15 +25,15 @@ repos:
     - id: check-merge-conflict
       name: Merge Conflicts
   - repo: https://github.com/psf/black
-    rev: 21.8b0
+    rev: 21.12b0
     hooks:
     - id: black
       name: Black Formatting
       language: python
       types: [file, python]
       args: [--line-length=100]
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
     hooks:
     - id: flake8
       name: flake8 Formatting
@@ -41,7 +41,7 @@ repos:
       types: [file, python]
       args: [--max-line-length=100, --ignore=E203 E501 E402 W503 W504]
   - repo: https://github.com/pycqa/isort
-    rev: 5.9.3
+    rev: 5.10.1
     hooks:
       - id: isort
         name: isort Formatting
