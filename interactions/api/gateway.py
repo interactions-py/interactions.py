@@ -277,27 +277,32 @@ class WebSocket:
                     context = self.contextualize(data)
                     _name: str
                     _args: list = [context]
+                    _kwargs: dict = dict()
                     if data["type"] == InteractionType.APPLICATION_COMMAND:
                         _name = context.data.name
                         if hasattr(context.data, "options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    if option["type"] in (
-                                        OptionType.SUB_COMMAND,
-                                        OptionType.SUB_COMMAND_GROUP,
-                                    ):
-                                        if option.get("options"):
+                                    if option["type"] == OptionType.SUB_COMMAND_GROUP:
+                                        _kwargs["sub_command_group"] = option["name"]
+                                        if "options" in option:
+                                            for group_option in option["options"]:
+                                                _kwargs["sub_command"] = group_option["name"]
+                                                if "options" in group_option:
+                                                    for sub_option in group_option["options"]:
+                                                        _kwargs[sub_option["name"]] = sub_option["value"]
+                                    elif option["type"] == OptionType.SUB_COMMAND:
+                                        _kwargs["sub_command"] = option["name"]
+                                        if "options" in option:
                                             for sub_option in option["options"]:
-                                                _args.append(sub_option)
-                                        else:
-                                            pass
+                                                _kwargs[sub_option["name"]] = sub_option["value"]
                                     else:
-                                        _args.append(option["value"])
+                                        _kwargs[option["name"]] = option["value"]
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = context.data.custom_id
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                         _name = "autocomplete_"
-                        if "options" in context.data:
+                        if hasattr(context.data, "options"):
                             if context.data.options:
                                 for option in context.data.options:
                                     if option["type"] == OptionType.SUB_COMMAND_GROUP:
@@ -325,7 +330,7 @@ class WebSocket:
                                     for _value in component.components:
                                         _args.append(_value["value"])
 
-                    self.dispatch.dispatch(_name, *_args)
+                    self.dispatch.dispatch(_name, *_args, **_kwargs)
 
             self.dispatch.dispatch("raw_socket_create", data)
 
