@@ -297,23 +297,23 @@ class WebSocket:
                         _name = context.data.custom_id
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                         _name = "autocomplete_"
-                        if hasattr(context.data, "options"):
+                        if "options" in context.data:
                             if context.data.options:
                                 for option in context.data.options:
                                     if option["type"] == OptionType.SUB_COMMAND_GROUP:
-                                        if option.get("options"):
+                                        if "options" in option:
                                             for group_option in option["options"]:
-                                                if group_option.get("options"):
+                                                if "options" in group_option:
                                                     for sub_option in option["options"]:
                                                         if sub_option.get("focused"):
                                                             _name += sub_option["name"]
                                                             _args.append(sub_option["value"])
                                     elif option["type"] == OptionType.SUB_COMMAND:
-                                        if option.get("options"):
+                                        if "options" in option:
                                             for sub_option in option["options"]:
                                                 if sub_option.get("focused"):
                                                     _name += sub_option["name"]
-                                                    _args.append(sub_option["value"])
+                                                    _args.append(option["value"])
                                     elif option.get("focused"):
                                         _name += option["name"]
                                         _args.append(option["value"])
