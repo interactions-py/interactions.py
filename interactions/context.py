@@ -435,6 +435,7 @@ class ComponentContext(CommandContext):
 
     __slots__ = (
         "message",
+        "member",
         "author",
         "user",
         "channel",
