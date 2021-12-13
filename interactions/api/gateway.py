@@ -307,13 +307,13 @@ class WebSocket:
                                                     for sub_option in option["options"]:
                                                         if sub_option.get("focused"):
                                                             _name += sub_option["name"]
-                                                            _args.append(option["value"])
+                                                            _args.append(sub_option["value"])
                                     elif option["type"] == OptionType.SUB_COMMAND:
                                         if option.get("options"):
                                             for sub_option in option["options"]:
                                                 if sub_option.get("focused"):
                                                     _name += sub_option["name"]
-                                                    _args.append(option["value"])
+                                                    _args.append(sub_option["value"])
                                     elif option.get("focused"):
                                         _name += option["name"]
                                         _args.append(option["value"])
