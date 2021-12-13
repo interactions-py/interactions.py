@@ -192,6 +192,8 @@ class Component(DictSerializerMixin):
         self.options = (
             [SelectMenu(**option) for option in self.options] if self._json.get("options") else None
         )
+        if self._json.get("components"):
+            self._json["components"] = [component._json for component in self.components]
 
 
 class TextInput(DictSerializerMixin):
