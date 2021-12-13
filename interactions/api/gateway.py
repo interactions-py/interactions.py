@@ -290,7 +290,9 @@ class WebSocket:
                                                 _kwargs["sub_command"] = group_option["name"]
                                                 if "options" in group_option:
                                                     for sub_option in group_option["options"]:
-                                                        _kwargs[sub_option["name"]] = sub_option["value"]
+                                                        _kwargs[sub_option["name"]] = sub_option[
+                                                            "value"
+                                                        ]
                                     elif option["type"] == OptionType.SUB_COMMAND:
                                         _kwargs["sub_command"] = option["name"]
                                         if "options" in option:
