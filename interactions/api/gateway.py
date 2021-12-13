@@ -300,14 +300,23 @@ class WebSocket:
                         if hasattr(context.data, "options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    if option["type"] in (
-                                        OptionType.SUB_COMMAND,
-                                        OptionType.SUB_COMMAND_GROUP,
-                                    ):
+                                    if option["type"] == OptionType.SUB_COMMAND_GROUP:
+                                        if option.get("options"):
+                                            for group_option in option["options"]:
+                                                if group_option.get("options"):
+                                                    for sub_option in option["options"]:
+                                                        if sub_option.get("focused"):
+                                                            _name += sub_option["name"]
+                                                            _args.append(option["value"])
+                                    elif option["type"] == OptionType.SUB_COMMAND:
                                         if option.get("options"):
                                             for sub_option in option["options"]:
                                                 if sub_option.get("focused"):
                                                     _name += sub_option["name"]
+                                                    _args.append(option["value"])
+                                    elif option.get("focused"):
+                                        _name += option["name"]
+                                        _args.append(option["value"])
                     elif data["type"] == InteractionType.MODAL_SUBMIT:
                         _name = f"modal_{context.data.custom_id}"
                         if hasattr(context.data, "components"):
