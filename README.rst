@@ -100,9 +100,6 @@ I think I'm all ready!
 ^^^^^^^^^^^^^^^^^^^^^^
 Feel free to begin making `Pull Requests`_ and `Issues`_ on our GitHub!
 
-Advanced Search
-===============
-
 .. _quickstart guide: https://discord-interactions.rtfd.io/en/latest/quickstart.html
 .. _contribution requirements: https://github.com/goverfl0w/discord-interactions/blob/stable/CONTRIBUTING.md
 .. _MIT License: https://github.com/goverfl0w/discord-interactions/blob/stable/LICENSE
