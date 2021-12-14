@@ -283,23 +283,9 @@ class WebSocket:
                         if hasattr(context.data, "options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    if option["type"] == OptionType.SUB_COMMAND_GROUP:
-                                        _kwargs["sub_command_group"] = option["name"]
-                                        if "options" in option:
-                                            for group_option in option["options"]:
-                                                _kwargs["sub_command"] = group_option["name"]
-                                                if "options" in group_option:
-                                                    for sub_option in group_option["options"]:
-                                                        _kwargs[sub_option["name"]] = sub_option[
-                                                            "value"
-                                                        ]
-                                    elif option["type"] == OptionType.SUB_COMMAND:
-                                        _kwargs["sub_command"] = option["name"]
-                                        if "options" in option:
-                                            for sub_option in option["options"]:
-                                                _kwargs[sub_option["name"]] = sub_option["value"]
-                                    else:
-                                        _kwargs[option["name"]] = option["value"]
+                                    _kwargs.update(
+                                        self.check_sub_command(option)
+                                    )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = context.data.custom_id
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
@@ -307,23 +293,11 @@ class WebSocket:
                         if hasattr(context.data, "options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    if option["type"] == OptionType.SUB_COMMAND_GROUP:
-                                        if "options" in option:
-                                            for group_option in option["options"]:
-                                                if "options" in group_option:
-                                                    for sub_option in option["options"]:
-                                                        if sub_option.get("focused"):
-                                                            _name += sub_option["name"]
-                                                            _args.append(sub_option["value"])
-                                    elif option["type"] == OptionType.SUB_COMMAND:
-                                        if "options" in option:
-                                            for sub_option in option["options"]:
-                                                if sub_option.get("focused"):
-                                                    _name += sub_option["name"]
-                                                    _args.append(option["value"])
-                                    elif option.get("focused"):
-                                        _name += option["name"]
-                                        _args.append(option["value"])
+                                    add_name, add_args = self.check_sub_auto(option)
+                                    if add_name:
+                                        _name += add_name
+                                    if add_args:
+                                        _args.append(add_args)
                     elif data["type"] == InteractionType.MODAL_SUBMIT:
                         _name = f"modal_{context.data.custom_id}"
                         if hasattr(context.data, "components"):
@@ -335,6 +309,40 @@ class WebSocket:
                     self.dispatch.dispatch(_name, *_args, **_kwargs)
 
             self.dispatch.dispatch("raw_socket_create", data)
+
+    def check_sub_command(self, option) -> dict:
+        _kwargs = dict()
+        if "options" in option:
+            if option["type"] == OptionType.SUB_COMMAND_GROUP:
+                _kwargs["sub_command_group"] = option["name"]
+                for group_option in option["options"]:
+                    _kwargs["sub_command"] = group_option["name"]
+                    if "options" in group_option:
+                        for sub_option in group_option["options"]:
+                            _kwargs[sub_option["name"]] = sub_option["value"]
+            elif option["type"] == OptionType.SUB_COMMAND:
+                _kwargs["sub_command"] = option["name"]
+                for sub_option in option["options"]:
+                    _kwargs[sub_option["name"]] = sub_option["value"]
+        else:
+            _kwargs[option["name"]] = option["value"]
+
+        return _kwargs
+
+    def check_sub_auto(self, option) -> tuple:
+        if "options" in option:
+            if option["type"] == OptionType.SUB_COMMAND_GROUP:
+                for group_option in option["options"]:
+                    if "options" in group_option:
+                        for sub_option in option["options"]:
+                            if sub_option.get("focused"):
+                                return sub_option["name"], sub_option["value"]
+            elif option["type"] == OptionType.SUB_COMMAND:
+                for sub_option in option["options"]:
+                    if sub_option.get("focused"):
+                        return sub_option["name"], sub_option["value"]
+        elif option.get("focused"):
+            return option["name"], option["value"]
 
     def contextualize(self, data: dict) -> object:
         """
