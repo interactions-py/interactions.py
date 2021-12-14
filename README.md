@@ -175,4 +175,3 @@ For more advanced use, please refer to our official documentation on [context me
     - [discord-interactions-python](https://github.com/discord/discord-interactions-python)
 - If you are looking for a similar library for other languages, please refer to here:
     - [discord-api-docs Community Resources: Interactions](https://discord.com/developers/docs/topics/community-resources#interactions)
-

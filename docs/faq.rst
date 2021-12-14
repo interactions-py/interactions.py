@@ -26,7 +26,7 @@ If you want your commands automatically registered, set ``sync_commands`` to ``T
 .. code-block:: python
 
    from discord_slash import SlashCommand
-   
+
    slash = SlashCommand(client, sync_commands=True)
 
 Or, if you want to send requests manually, you can use :class:`.http.SlashCommandRequest`.
@@ -77,7 +77,7 @@ ctx.channel.send
 ``ctx.channel`` is the :class:`discord.TextChannel` object for the channel that the slash command was used in.
 ``send()`` is the sending coroutine in discord.py. (:meth:`discord.TextChannel.send`)
 
-.. warning:: 
+.. warning::
    * If the bot is not in the guild, but slash commands are, ``ctx.channel`` will be ``None`` and this won't work.
    * If the bot does not have view/send permissions in that channel this also won't work, but slash commands show up no matter what the channel specific permissions.
 
@@ -99,7 +99,7 @@ discord.py check decorators can work, but its not 100% guaranteed every checks w
 Events
 ------
 Command-related events like ``on_command_error``, ``on_command``, etc.
-This extension triggers some events, check the `events docs <https://discord-py-slash-command.readthedocs.io/en/latest/events.html#>`_ 
+This extension triggers some events, check the `events docs <https://discord-py-slash-command.readthedocs.io/en/latest/events.html#>`_
 
 Converters
 ----------

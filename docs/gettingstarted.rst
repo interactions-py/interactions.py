@@ -44,7 +44,7 @@ works:
     "name": "test",
     "description": "This is just a test command, nothing more.",
   }
-  
+
 Now that we have a basic understanding of how the JSON table works, we can
 take this knowledge and convert it into a decorator method for the Python
 code as shown below:
@@ -55,7 +55,7 @@ code as shown below:
                description="This is just a test command, nothing more.")
   async def test(ctx):
     await ctx.send(content="Hello World!")
-    
+
 Now that we've gone over how Discord handles the declaration of slash commands
 through their Bot API, let's go over what some of the other things mean within
 the *logical* part of our code, the command function:
@@ -139,7 +139,7 @@ The purpose of having the ``ApplicationCommandOptionType`` value passed into our
 is so that we can help the Discord UI understand what kind of value we're inputting here. For instance,
 if we're wanting to put in a string response, we'll pass the ID 3 so that the UI of Discord chat bar
 knows to format it visually this way. If we're looking for a user, then we'll pass ID 6 so that it presents
-us with a list of users in our server instead, making it easier on our lives. 
+us with a list of users in our server instead, making it easier on our lives.
 
 This is not to be confused, however, with formatting the response type itself. This is merely a method so
 that the API wrapper can help us with passing the correct type or instance variable with the arguments of the
@@ -150,7 +150,7 @@ Now, we can finally visualize this by coding an example of this being used in th
 .. code-block:: python
 
   from discord_slash.utils.manage_commands import create_option
-  
+
   @slash.slash(name="test",
                description="This is just a test command, nothing more.",
                options=[
@@ -163,23 +163,23 @@ Now, we can finally visualize this by coding an example of this being used in th
                ])
   async def test(ctx, optone: str):
     await ctx.send(content=f"I got you, you said {optone}!")
-    
+
 Additionally, we could also declare the type of our command's option through this method shown here:
 
 .. code-block:: python
 
   from discord_slash.model import SlashCommandOptionType
-  
+
   (...)
-  
+
                   option_type=SlashCommandOptionType.STRING
-                  
+
 More in the option? Give them a choice.
 ---------------------------------------
 
 Alas, there is also a way to give even more information to options with Discord's Slash Commands:
 a choice. Not like something that you're given at birth of when you become of legal age as an adult,
-we're not here to give you *that* kind of life advice, but the choice of what value you want your 
+we're not here to give you *that* kind of life advice, but the choice of what value you want your
 option to rather pass. Below is a table that shows the JSON structure of how choices are represented
 for an option:
 
@@ -200,16 +200,16 @@ be designed:
     "name": "ChoiceOne",
     "value": "Hello command, this is my value!"
   }
-    
+
 To make it really simple, the ``name`` field is only to be used for how you want the choice to be presented
 through Discord's UI. It's the "appearance" of how you want your choice shown, not the actual returned value
-of it. Hence, this is why ``value`` is the second field passed for that, which can be either in the form of 
+of it. Hence, this is why ``value`` is the second field passed for that, which can be either in the form of
 a string or integer. Below is an implementation of this design in the Python code:
 
 .. code-block:: python
 
   from discord_slash.utils.manage_commands import create_option, create_choice
-  
+
   @slash.slash(name="test",
                description="This is just a test command, nothing more.",
                options=[
@@ -236,9 +236,9 @@ a string or integer. Below is an implementation of this design in the Python cod
 Want to restrict access? Setup permissions!
 -------------------------------------------
 
-Slash commands also support the ability to set permissions to allow only certain roles and/or users 
-to run a slash command. Permissions can be applied to both global and guild based commands. They 
-are defined per guild, per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here is the table that shows the JSON 
+Slash commands also support the ability to set permissions to allow only certain roles and/or users
+to run a slash command. Permissions can be applied to both global and guild based commands. They
+are defined per guild, per top-level command (the base command for subcommands), and each guild can have multiple permissions. Here is the table that shows the JSON
 structure of how permissions are represented:
 
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
@@ -251,7 +251,7 @@ structure of how permissions are represented:
 | permission  | boolean                                    | ``True`` to allow, ``False`` to disallow.                                                           |
 +-------------+--------------------------------------------+-----------------------------------------------------------------------------------------------------+
 
-How the type parameter works is very simple. Discord has many ids to represent different things. As you can 
+How the type parameter works is very simple. Discord has many ids to represent different things. As you can
 set permissions to apply for User or Role, `ApplicationCommandPermissionType`_ is used. It's a number and
 following table shows the supported id types for permissions:
 
@@ -270,12 +270,12 @@ This is an example of how a single permission will look when represented as a js
   {
     "id": 12345678,
     "type": 1,
-    "permission": True 
+    "permission": True
   }
 
 Now, let take a look at an example. The slash command decorator has a permissions parameter where
 it takes in a dictionary. The key being the guild id to apply permissions on, and value being the list
-of permissions to apply. For each permission, we can use the handy ``create_permission`` method to 
+of permissions to apply. For each permission, we can use the handy ``create_permission`` method to
 build the permission json explained above.
 
 In this case, we are setting 2 permissions for a guild with an id of ``12345678``. Firstly, we are allowing
@@ -297,7 +297,7 @@ role with id ``99999999`` and disallowing user with id ``88888888`` from running
   async def test(ctx):
     await ctx.send(content="Hello World!")
 
-Alternatively, you can use the ``@slash.permission`` decorator to define your guild permissions for the 
+Alternatively, you can use the ``@slash.permission`` decorator to define your guild permissions for the
 command as show in the following example:
 
 .. code-block:: python
@@ -307,9 +307,9 @@ command as show in the following example:
 
   @slash.slash(name="test",
                description="This is just a test command, nothing more.")
-  @slash.permission(guild_id=12345678, 
+  @slash.permission(guild_id=12345678,
                     permissions=[
-                      create_permission(99999999, SlashCommandPermissionType.ROLE, True), 
+                      create_permission(99999999, SlashCommandPermissionType.ROLE, True),
                       create_permission(88888888, SlashCommandPermissionType.USER, False)
                     ])
   async def test(ctx):
@@ -426,7 +426,7 @@ Subcommands are way to "nest" your slash commands under one (or more) given name
 This table is importantly distinguishing the **library's** naming conventions and not the way that th eDiscord API handles it. The API does subcommand grouping and bases through the options of a slash command, so we decided to create a decorator instead to make this easy for bot developers alike to use. We will not be giving a JSON example of this because of this reason.
 
 .. code-block :: python
-  
+
   # This will appear as "/bot latency" as latency is not an option,
   # but apart of the command name itself.
   @slash.subcommand(base="bot",
@@ -434,7 +434,7 @@ This table is importantly distinguishing the **library's** naming conventions an
                     description="Returns the bot's latency.")
   async def bot_latency(ctx):
     await ctx.send(f"Hello! {round(bot.latency * 1000)} ms.")
-    
+
 If you would like to add a group instead, you may simply base the ``subcommand_group``` kwarg into the decorator. Please note that the slash command limit is 25 commands per subcommand group per subcommand base. (Laymen's term for 25 subcommands in a group, and 25 groups in a base. This is not a global exception and may also apply as a limitation for guild commands.)
 
 Handling my errors.
