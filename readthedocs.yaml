@@ -1,8 +1,6 @@
 version: 2
 sphinx:
   configuration: docs/conf.py
-formats:
-  - pdf
 python:
   version: 3.8  # we have to use this, 3.9 is not supported for RTD.
   install:
