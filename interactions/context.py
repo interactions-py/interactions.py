@@ -41,8 +41,7 @@ class Context(DictSerializerMixin):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.message = Message(**self.message) if self._json.get("message") else None
-        if self._json.get("member"):
-            self.member = Member(**self.member)
+        self.member = Member(**self.member) if self._json.get("member") else None
         self.author = self.member
         self.user = User(**self.user) if self._json.get("user") else None
         self.channel = Channel(**self.channel) if self._json.get("channel") else None
@@ -107,10 +106,8 @@ class CommandContext(Context):
         self.application_id = (
             Snowflake(self.application_id) if self._json.get("application_id") else None
         )
-        if self._json.get("guild_id"):
-            self.guild_id = Snowflake(self.guild_id)
-        if self._json.get("channel_id"):
-            self.channel_id = Snowflake(self.channel_id)
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.callback = None
         self.type = InteractionType(self.type)
         self.data = InteractionData(**self.data) if self._json.get("data") else None
@@ -446,11 +443,15 @@ class ComponentContext(CommandContext):
         "client",
         "id",
         "application_id",
+        "custom_id",
+        "callback",
         "type",
-        "name",
-        "description",
-        "options",
         "data",
+        "target",
+        "version",
+        "token",
+        "guild_id",
+        "channel_id",
         "responded",
         "deferred",
         "custom_id",
