@@ -291,9 +291,6 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
         options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
         default_permission: Optional[bool] = None,
-        # permissions: Optional[
-        #     Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
-        # ] = None,
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
@@ -332,8 +329,6 @@ class Client:
         :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
-        :param permissions: The permissions of an application command.
-        :type permissions: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """

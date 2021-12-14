@@ -16,9 +16,6 @@ def command(
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
     options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
     default_permission: Optional[bool] = None,
-    # permissions: Optional[
-    #     Union[Dict[str, Any], List[Dict[str, Any]], Permission, List[Permission]]
-    # ] = None,
 ) -> List[ApplicationCommand]:
     """
     A wrapper designed to interpret the client-facing API for
