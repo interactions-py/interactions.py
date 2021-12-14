@@ -34,7 +34,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/goverfl0w/discord-interactions",
     packages=find_packages(),
-    python_requires=">=3.9",
+    python_requires=">=3.8.6",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
