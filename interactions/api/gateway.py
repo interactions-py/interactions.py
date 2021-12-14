@@ -283,9 +283,7 @@ class WebSocket:
                         if hasattr(context.data, "options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    _kwargs.update(
-                                        self.check_sub_command(option)
-                                    )
+                                    _kwargs.update(self.check_sub_command(option))
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = context.data.custom_id
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
