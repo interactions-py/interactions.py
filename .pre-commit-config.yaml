@@ -1,0 +1,49 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    - id: requirements-txt-fixer
+      name: Requirements
+      types: [file]
+    - id: debug-statements
+      name: Debugging
+      language: python
+      types: [file, python]
+    - id: trailing-whitespace
+      name: Trailing Whitespace
+      language: python
+      types: [file]
+    - id: end-of-file-fixer
+      name: EOF Newlines
+      language: python
+      types: [file]
+    - id: check-yaml
+      name: YAML Structure
+      language: python
+    - id: check-toml
+      name: TOML Structure
+    - id: check-merge-conflict
+      name: Merge Conflicts
+  - repo: https://github.com/psf/black
+    rev: 21.12b0
+    hooks:
+    - id: black
+      name: Black Formatting
+      language: python
+      types: [file, python]
+      args: [--line-length=100]
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+    - id: flake8
+      name: flake8 Formatting
+      language: python
+      types: [file, python]
+      args: [--max-line-length=100, --ignore=E203 E501 E402 W503 W504]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort Formatting
+        language: python
+        types: [file, python]
