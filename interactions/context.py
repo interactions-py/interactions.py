@@ -41,7 +41,8 @@ class Context(DictSerializerMixin):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.message = Message(**self.message) if self._json.get("message") else None
-        self.member = Member(**self.member) if self._json.get("member") else None
+        if self._json.get("member"):
+            self.member = Member(**self.member)
         self.author = self.member
         self.user = User(**self.user) if self._json.get("user") else None
         self.channel = Channel(**self.channel) if self._json.get("channel") else None
