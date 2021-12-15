@@ -369,7 +369,7 @@ class Client:
 
         return decorator
 
-    def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
+    def component(self, component: Union[Button, SelectMenu, str]) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving components.
@@ -389,15 +389,15 @@ class Client:
         The context of the component callback decorator inherits the same
         as of the command decorator.
 
-        :param component: The component you wish to callback for.
-        :type component: Union[Button, SelectMenu]
+        :param component: The component or custom_id you wish to callback for.
+        :type component: Union[Button, SelectMenu, str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
 
         def decorator(coro: Coroutine) -> Any:
-            payload: Component = _component(component)
-            return self.event(coro, name=payload.custom_id)
+            payload: Component = _component(component).custom_id if isinstance(component, Component) else component
+            return self.event(coro, name=payload)
 
         return decorator
 
