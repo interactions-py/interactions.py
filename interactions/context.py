@@ -507,7 +507,7 @@ class ComponentContext(CommandContext):
 
         :param ephemeral?: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
-        :param edit_origin?: Wheter you want to edit the original message or send a followup message
+        :param edit_origin?: Whether you want to edit the original message or send a followup message
         :type edit_origin: Optional[bool]
         """
         self.deferred = True
