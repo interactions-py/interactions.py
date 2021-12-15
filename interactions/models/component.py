@@ -70,6 +70,8 @@ class SelectMenu(DictSerializerMixin):
         "min_values",
         "max_values",
         "disabled",
+        "label",
+        "value",
     )
     type: ComponentType
     custom_id: str
@@ -83,7 +85,7 @@ class SelectMenu(DictSerializerMixin):
         super().__init__(**kwargs)
         self.type = ComponentType.SELECT
         self.options = (
-            [SelectOption(**option) for option in self.options]
+            [SelectOption(**option._json) for option in self.options]
             if self._json.get("options")
             else None
         )
