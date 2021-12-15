@@ -1,14 +1,15 @@
-## About this Pull Request
+## About
 
-This pull request does (insert here), which effectively solves issues (X) and (Y).
+This pull request is about (X), which does (Y).
 
 ## Checklist
 
-- [ ] I've run the `pre_push.py` script to format and lint the change(s) made.
-- [ ] I've checked to make sure this pull request runs on Python `3.6.X`.
-- [ ] This fixes/solves something from the project's [Issues](https://github.com/goverfl0w/discord-interactions/issues).
-    - Issue (if referenceable):
-- [ ] This adds something new.
-    - [ ] This is not a code change.
-    - [ ] (If required) Relevant documentation has been updated/added.
-    - [ ] There is/are (a) breaking change(s).
+- [ ] I've ran `pre-commit` to format and lint the change(s) made.
+- [ ] I've checked to make sure the change(s) work on `3.8.6` and higher.
+- [ ] This fixes/solves an [Issue](https://github.com/goverfl0w/discord-interactions/issues).
+  - (If existent):
+- [ ] I've made this pull request for/as: (check all that apply)
+  - [ ] Documentation
+  - [ ] Breaking change
+  - [ ] New feature/enhancement
+  - [ ] Bugfix
