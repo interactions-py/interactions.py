@@ -10,6 +10,3 @@ dist/
 .env
 .venv
 .vscode
-main.py
-Token
-.idea
