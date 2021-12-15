@@ -502,7 +502,13 @@ class ComponentContext(CommandContext):
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
     ) -> None:
         """
-        Please add this I am not familiar enough
+        This "defers" an component response, allowing up
+        to a 15-minute delay between invocation and responding.
+
+        :param ephemeral?: Whether the deferred state is hidden or not.
+        :type ephemeral: Optional[bool]
+        :param edit_origin?: Wheter you want to edit the original message or send a followup message
+        :type edit_origin: Optional[bool]
         """
         self.deferred = True
         _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
