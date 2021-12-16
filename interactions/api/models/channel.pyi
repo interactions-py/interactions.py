@@ -1,9 +1,13 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional
+from typing import List, Optional, Union
 
+from .message import Message, Embed, MessageInteraction
+from ...models.component import Component
 from .misc import DictSerializerMixin, Overwrite, Snowflake
 from .user import User
+from ..http import HTTPClient
+
 
 class ChannelType(IntEnum): ...
 
@@ -26,6 +30,7 @@ class ThreadMember(DictSerializerMixin):
 
 class Channel(DictSerializerMixin):
     _json: dict
+    client: HTTPClient
     id: Snowflake
     type: ChannelType
     guild_id: Optional[Snowflake]
@@ -53,3 +58,15 @@ class Channel(DictSerializerMixin):
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
+
+    async def send(
+            self,
+            client: HTTPClient,
+            *,
+            content: Optional[str] = None,
+            tts: Optional[bool] = False,
+            # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+            embeds: Optional[Union[Embed, List[Embed]]] = None,
+            allowed_mentions: Optional[MessageInteraction] = None,
+            components: Optional[Union[Component, List[Component]]] = None,
+    ) -> Message: ...

@@ -3,6 +3,12 @@ from enum import IntEnum
 
 from .misc import DictSerializerMixin, Snowflake
 
+# from typing import List, Optional, Union
+
+
+# from .message import Message
+# from ...models.component import ActionRow, SelectMenu, Button, Component
+
 
 class ChannelType(IntEnum):
     """An enumerable object representing the type of channels."""
@@ -144,6 +150,7 @@ class Channel(DictSerializerMixin):
         "member",
         "default_auto_archive_duration",
         "permissions",
+        "client",
     )
 
     def __init__(self, **kwargs):
@@ -164,3 +171,67 @@ class Channel(DictSerializerMixin):
             if self._json.get("last_pin_timestamp")
             else None
         )
+
+    '''
+    async def send(
+        self,
+        client,
+        *,
+        content: Optional[str] = None,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        embeds: Optional[Union[interactions.Embed, List[interactions.Embed]]] = None,
+        allowed_mentions: Optional[MessageInteraction] = None,
+        components: Optional[Union[Component, List[Component]]] = None,
+    ) -> "Message":
+        """
+        Allows sending a message
+
+        :param client
+        :param content?: The contents of the message as a string or string-converted value.
+        :type content: Optional[str]
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
+        :type tts: Optional[bool]
+        :param embeds?: An embed, or list of embeds for the message.
+        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
+        :type allowed_mentions: Optional[MessageInteraction]
+        :param components?: A component, or list of components for the message.
+        :type components: Optional[Union[Component, List[Component]]]
+        :param ephemeral?: Whether the response is hidden or not.
+        :rtype: Message
+        """
+        _content: str = "" if content is None else content
+        _tts: bool = False if tts is None else tts
+        # _file = None if file is None else file
+        # _attachments = [] if attachments else None
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
+        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _components: list = [{"type": 1, "components": []}]
+
+        if isinstance(components, ActionRow):
+            _components[0]["components"] = [component._json for component in components.components]
+        elif isinstance(components, Button):
+            _components[0]["components"] = [] if components is None else [components._json]
+        elif isinstance(components, SelectMenu):
+            components._json["options"] = [option._json for option in components.options]
+            _components[0]["components"] = [] if components is None else [components._json]
+        else:
+            _components = [] if components is None else [components]
+
+        # TODO: post-v4: Add attachments into Message obj.
+        message = Message(
+            content=_content,
+            tts=_tts,
+            # file=file,
+            # attachments=_attachments,
+            embeds=_embeds,
+            allowed_mentions=_allowed_mentions,
+            components=_components,
+            client=client
+        )
+        '''

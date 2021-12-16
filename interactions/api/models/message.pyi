@@ -54,7 +54,8 @@ class ChannelMention(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Message(DictSerializerMixin):
-    client: HTTPClient
+    client: Optional[HTTPClient]
+    http: HTTPClient
     _json: dict
     id: Snowflake
     channel_id: Snowflake
@@ -102,6 +103,7 @@ class Message(DictSerializerMixin):
         message_reference: Optional["MessageReference"] = None,
         components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
     ) -> "Message": ...
+
 
 class Emoji(DictSerializerMixin):
     _json: dict

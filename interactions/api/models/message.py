@@ -278,7 +278,7 @@ class Message(DictSerializerMixin):
             MessageInteraction(**self.interaction) if self._json.get("interaction") else None
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
-        print(self.client.token)
+        self.client = self.client if self.client else None
 
     async def delete(self, reason: Optional[str] = None) -> None:
         """
@@ -335,6 +335,9 @@ class Message(DictSerializerMixin):
             message_reference=_message_reference,
         )
 
+        await self.client.edit_message(
+            channel_id=int(self.channel_id), message_id=int(self.id), payload=payload._json
+        )
         return payload
 
 
