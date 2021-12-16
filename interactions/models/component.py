@@ -100,7 +100,7 @@ class Button(DictSerializerMixin):
 
         interactions.Button(
             style=interactions.ButtonStyle.DANGER,
-            str="Delete",
+            label="Delete",
             custom_id="delete_message",
         )
 
