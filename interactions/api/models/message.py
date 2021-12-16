@@ -294,7 +294,7 @@ class Message(DictSerializerMixin):
         self,
         content: Optional[str] = None,
         *,
-        tts: Optional[bool] = None,
+        tts: Optional[bool] = False,
         # file: Optional[FileIO] = None,
         embeds: Optional[Union["Embed", List["Embed"]]] = None,
         allowed_mentions: Optional["MessageInteraction"] = None,
