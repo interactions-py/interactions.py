@@ -558,8 +558,8 @@ class Embed(DictSerializerMixin):
         self.author = EmbedAuthor(**self.author) if self._json.get("author") else None
 
         if isinstance(self._json.get("fields"), dict):
-            self.fields = [field for field in self.fields] if self._json.get("fields") else None
-        else:
             self.fields = (
                 [EmbedField(**field) for field in self.fields] if self._json.get("fields") else None
             )
+        else:
+            self.fields = [field for field in self.fields] if self._json.get("fields") else None
