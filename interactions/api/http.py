@@ -192,6 +192,11 @@ class Request:
             with Padlock(ratelimit) as lock:  # noqa: F841
                 kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
                 kwargs["headers"]["Content-Type"] = "application/json"
+
+                if kwargs.get("reason"):
+                    kwargs["headers"]["X-Audit-Log-Reason"] = kwargs["reason"]
+                    del kwargs["reason"]
+
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:

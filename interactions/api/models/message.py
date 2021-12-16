@@ -587,7 +587,7 @@ class Embed(DictSerializerMixin):
         )
 
     :ivar Optional[str] title?: Title of embed
-    :ivar Optional[str] type?: Embed type
+    :ivar Optional[str] type?: Embed type, relevant by CDN file connected. This is only important to rendering.
     :ivar Optional[str] description?: Embed description
     :ivar Optional[str] url?: URL of embed
     :ivar Optional[datetime] timestamp?: Timestamp of embed content
@@ -631,6 +631,10 @@ class Embed(DictSerializerMixin):
         self.video = EmbedImageStruct(**self.video) if self._json.get("video") else None
         self.provider = EmbedProvider(**self.provider) if self._json.get("provider") else None
         self.author = EmbedAuthor(**self.author) if self._json.get("author") else None
-        self.fields = (
-            [EmbedField(**field) for field in self.fields] if self._json.get("fields") else None
-        )
+
+        if isinstance(self._json.get("fields"), dict):
+            self.fields = (
+                [EmbedField(**field) for field in self.fields] if self._json.get("fields") else None
+            )
+        else:
+            self.fields = [field for field in self.fields] if self._json.get("fields") else None
