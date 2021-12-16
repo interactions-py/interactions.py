@@ -399,8 +399,10 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Any:
-            payload: Component = _component(component)
-            return self.event(coro, name=payload.custom_id)
+            payload: str = (
+                _component(component).custom_id if isinstance(component, Component) else component
+            )
+            return self.event(coro, name=payload)
 
         return decorator
 
