@@ -249,7 +249,7 @@ class WebSocket:
             path: str = "interactions"
             path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
 
-            if event != "INTERACTION_CREATE" and "VOICE" not in event:
+            if event != "INTERACTION_CREATE":
                 try:
                     lst_names: list = [piece for piece in name.split("_")]
                     _name: str = (

@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 from ..api.models.channel import Channel
 from ..api.models.member import Member
@@ -6,9 +6,9 @@ from ..api.models.message import Message
 from ..api.models.misc import DictSerializerMixin, Snowflake
 from ..api.models.role import Role
 from ..api.models.user import User
-from ..enums import ApplicationCommandType, InteractionType
+from ..enums import ApplicationCommandType, ComponentType, InteractionType
 from ..models.command import Option
-from ..models.component import Component, SelectOption
+from ..models.component import SelectOption
 
 
 class InteractionResolvedData(DictSerializerMixin):
@@ -67,10 +67,10 @@ class InteractionData(DictSerializerMixin):
     :ivar str name: The name of the interaction.
     :ivar ApplicationCommandType type: The type of command from the interaction.
     :ivar Optional[InteractionResolvedData] resolved?: The resolved version of the data.
-    :ivar Optional[Union[Option, List[Option]]] options?: The options of the interaction.
+    :ivar Optional[Option, List[Option]] options?: The options of the interaction.
     :ivar Optional[str] custom_id?: The custom ID of the interaction.
-    :ivar Optional[int] component_type?: The type of component from the interaction.
-    :ivar Optional[Union[SelectOption, List[SelectOption]]] values?: The values of the selected options in the interaction.
+    :ivar Optional[ComponentType] component_type?: The type of component from the interaction.
+    :ivar Optional[List[SelectOption]] values?: The values of the selected options in the interaction.
     :ivar Optional[str] target_id?: The targeted ID of the interaction.
     """
 
@@ -78,10 +78,10 @@ class InteractionData(DictSerializerMixin):
     name: str
     type: ApplicationCommandType
     resolved: Optional[InteractionResolvedData]
-    options: Optional[Union[Option, List[Option]]]
+    options: Optional[List[Option]]
     custom_id: Optional[str]
-    component_type: Optional[int]
-    values: Optional[Union[SelectOption, List[SelectOption]]]
+    component_type: Optional[ComponentType]
+    values: Optional[List[SelectOption]]
     target_id: Optional[Snowflake]
 
     __slots__ = (
@@ -106,11 +106,14 @@ class InteractionData(DictSerializerMixin):
         )
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.target_id = Snowflake(self.target_id) if self._json.get("target_id") else None
-        self.components = (
-            [Component(**component) for component in self.components]
-            if self._json.get("components")
-            else None
+        self.options = (
+            [Option(**option) for option in self.options] if self._json.get("options") else None
         )
+        self.component_type = ComponentType(self.component_type)
+        self.values = (
+            [SelectOption(**value) for value in self.values] if self._json.get("values") else None
+        )
+        self._json.update({"component_type": self.component_type.value})
 
 
 class Interaction(DictSerializerMixin):
