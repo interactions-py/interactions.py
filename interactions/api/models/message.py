@@ -319,7 +319,7 @@ class Message(DictSerializerMixin):
         """
 
         _content: str = "" if content is None else content
-        _tts: bool = False if tts is None else tts
+        _tts: bool = True if bool(tts) else tts
         # _file = None if file is None else file
         _embeds: list = (
             []
