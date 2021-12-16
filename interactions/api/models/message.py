@@ -2,7 +2,6 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ChannelType
 from .member import Member
 from .misc import DictSerializerMixin, Snowflake
@@ -279,6 +278,7 @@ class Message(DictSerializerMixin):
             MessageInteraction(**self.interaction) if self._json.get("interaction") else None
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
+        print(self.client.token)
 
     async def delete(self, reason: Optional[str] = None) -> None:
         """
@@ -299,7 +299,6 @@ class Message(DictSerializerMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = None,
         allowed_mentions: Optional["MessageInteraction"] = None,
         message_reference: Optional["MessageReference"] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
     ) -> "Message":
         """
         This method edits a message.
@@ -312,8 +311,6 @@ class Message(DictSerializerMixin):
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
-        :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[Component, List[Component]]]
         :return: The edited message as an object.
         :rtype: Message
         """
@@ -328,17 +325,6 @@ class Message(DictSerializerMixin):
         )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
-        _components: list = [{"type": 1, "components": []}]
-
-        if isinstance(components, ActionRow):
-            _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, SelectMenu):
-            components._json["options"] = [option._json for option in components.options]
-            _components[0]["components"] = [] if components is None else [components._json]
-        elif isinstance(components, Button):
-            _components[0]["components"] = [] if components is None else [components._json]
-        else:
-            _components = []
 
         payload: Message = Message(
             content=_content,
@@ -347,7 +333,6 @@ class Message(DictSerializerMixin):
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
-            components=_components,
         )
 
         return payload
