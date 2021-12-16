@@ -280,7 +280,10 @@ class CommandContext(Context):
 
         if isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, (Button, SelectMenu)):
+        elif isinstance(components, Button):
+            _components[0]["components"] = [] if components is None else [components._json]
+        elif isinstance(components, SelectMenu):
+            components._json["options"] = [option._json for option in components.options]
             _components[0]["components"] = [] if components is None else [components._json]
         else:
             _components = []

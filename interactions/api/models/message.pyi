@@ -7,6 +7,9 @@ from .misc import DictSerializerMixin, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
+from ..http import HTTPClient
+from ...models.component import ActionRow, Button, SelectMenu
+
 
 class MessageActivity(DictSerializerMixin):
     _json: dict
@@ -51,6 +54,7 @@ class ChannelMention(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Message(DictSerializerMixin):
+    client: HTTPClient
     _json: dict
     id: Snowflake
     channel_id: Snowflake
@@ -86,6 +90,18 @@ class Message(DictSerializerMixin):
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
     def __init__(self, **kwargs): ...
+    async def delete(self, reason: Optional[str] = None) -> None: ...
+    async def edit(
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = None,
+        # file: Optional[FileIO] = None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = None,
+        allowed_mentions: Optional["MessageInteraction"] = None,
+        message_reference: Optional["MessageReference"] = None,
+        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+    ) -> "Message": ...
 
 class Emoji(DictSerializerMixin):
     _json: dict
