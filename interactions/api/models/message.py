@@ -556,6 +556,10 @@ class Embed(DictSerializerMixin):
         self.video = EmbedImageStruct(**self.video) if self._json.get("video") else None
         self.provider = EmbedProvider(**self.provider) if self._json.get("provider") else None
         self.author = EmbedAuthor(**self.author) if self._json.get("author") else None
-        self.fields = (
-            [EmbedField(**field) for field in self.fields] if self._json.get("fields") else None
-        )
+
+        if isinstance(self._json.get("fields"), dict):
+            self.fields = [field for field in self.fields] if self._json.get("fields") else None
+        else:
+            self.fields = (
+                [EmbedField(**field) for field in self.fields] if self._json.get("fields") else None
+            )
