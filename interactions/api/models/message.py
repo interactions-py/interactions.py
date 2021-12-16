@@ -512,7 +512,7 @@ class Embed(DictSerializerMixin):
         )
 
     :ivar Optional[str] title?: Title of embed
-    :ivar Optional[str] type?: Embed type
+    :ivar Optional[str] type?: Embed type, relevant by CDN file connected. This is only important to rendering.
     :ivar Optional[str] description?: Embed description
     :ivar Optional[str] url?: URL of embed
     :ivar Optional[datetime] timestamp?: Timestamp of embed content
