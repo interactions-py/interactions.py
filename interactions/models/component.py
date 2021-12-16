@@ -192,6 +192,8 @@ class Component(DictSerializerMixin):
         self.options = (
             [SelectMenu(**option) for option in self.options] if self._json.get("options") else None
         )
+        if self._json.get("components"):
+            self._json["components"] = [component._json for component in self.components]
 
 
 class TextInput(DictSerializerMixin):
@@ -322,8 +324,10 @@ class ActionRow(DictSerializerMixin):
         super().__init__(**kwargs)
         self.type = ComponentType.ACTION_ROW
         self.components = (
-            [Component(**component) for component in self.components]
+            [Component(**component._json) for component in self.components]
             if self._json.get("components")
             else None
         )
         self._json.update({"type": self.type.value})
+        if self._json.get("components"):
+            self._json["components"] = [component._json for component in self.components]

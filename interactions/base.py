@@ -20,7 +20,7 @@ __authors__ = {
 class Data:
     """A class representing constants for the library."""
 
-    LOGGER: ClassVar[int] = logging.DEBUG
+    LOGGER: ClassVar[int] = logging.WARNING
 
 
 class CustomFormatter(logging.Formatter):
