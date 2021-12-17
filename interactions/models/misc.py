@@ -113,7 +113,7 @@ class InteractionData(DictSerializerMixin):
         self.values = (
             [SelectOption(**value) for value in self.values] if self._json.get("values") else None
         )
-        self._json.update({"component_type": self.component_type.value})
+        self._json.update({"component_type": self.component_type.value, "type": self.type.value})
 
 
 class Interaction(DictSerializerMixin):
