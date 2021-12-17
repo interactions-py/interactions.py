@@ -108,6 +108,7 @@ class GuildMember(DictSerializerMixin):
         "deaf",
         "mute",
         "pending",
+        "hoisted_role",  # TODO: investigate what this is.
     )
 
     def __init__(self, **kwargs):
