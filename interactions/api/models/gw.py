@@ -105,6 +105,7 @@ class GuildMember(DictSerializerMixin):
         "avatar",
         "joined_at",
         "premium_since",
+        "communication_disabled_until",  # TODO: investigate what this is.
         "deaf",
         "mute",
         "pending",
