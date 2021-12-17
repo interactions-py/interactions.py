@@ -1,0 +1,12 @@
+# env/venv/gh-based
+*.egg
+*.egg-info/
+*.eggs/
+*.pyc
+.cache/
+_build/
+build/
+dist/
+.env
+.venv
+.vscode
