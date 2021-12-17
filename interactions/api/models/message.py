@@ -127,7 +127,8 @@ class MessageInteraction(DictSerializerMixin):
     :ivar User user: The user who invoked the interaction.
     """
 
-    __slots__ = ("_json", "id", "type", "name", "user")
+    # TODO: document member attr.
+    __slots__ = ("_json", "id", "type", "name", "user", "member")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
