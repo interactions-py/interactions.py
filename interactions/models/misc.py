@@ -109,7 +109,9 @@ class InteractionData(DictSerializerMixin):
         self.options = (
             [Option(**option) for option in self.options] if self._json.get("options") else None
         )
-        self.component_type = ComponentType(self.component_type)
+        self.component_type = (
+            ComponentType(self.component_type) if self._json.get("component_type") else None
+        )
         self.values = (
             [SelectOption(**value) for value in self.values] if self._json.get("values") else None
         )
