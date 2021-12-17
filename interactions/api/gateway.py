@@ -262,7 +262,9 @@ class WebSocket:
                         __import__(path),
                         _name,
                     )
-                    if event.lower() == "message_create":
+                    if (
+                        event.lower() == "message_create"
+                    ):  # TODO: add client on all events (channel_create, ect...)
                         data["client"] = self.http
                     self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
                 except AttributeError as error:  # noqa

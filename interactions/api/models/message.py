@@ -278,7 +278,6 @@ class Message(DictSerializerMixin):
             MessageInteraction(**self.interaction) if self._json.get("interaction") else None
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
-        self.client = self.client if self.client else None
 
     async def delete(self, reason: Optional[str] = None) -> None:
         """
@@ -339,6 +338,9 @@ class Message(DictSerializerMixin):
             channel_id=int(self.channel_id), message_id=int(self.id), payload=payload._json
         )
         return payload
+
+    async def reply(self) -> "Message":
+        await self.client.send_message()
 
 
 class Emoji(DictSerializerMixin):

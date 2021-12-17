@@ -1,13 +1,8 @@
 from datetime import datetime
 from enum import IntEnum
+from typing import Optional
 
 from .misc import DictSerializerMixin, Snowflake
-
-# from typing import List, Optional, Union
-
-
-# from .message import Message
-# from ...models.component import ActionRow, SelectMenu, Button, Component
 
 
 class ChannelType(IntEnum):
@@ -171,23 +166,21 @@ class Channel(DictSerializerMixin):
             if self._json.get("last_pin_timestamp")
             else None
         )
+        self.client = self.client if self.client else None
 
-    '''
     async def send(
         self,
-        client,
-        *,
         content: Optional[str] = None,
+        *,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[interactions.Embed, List[interactions.Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[Component, List[Component]]] = None,
-    ) -> "Message":
+        embeds=None,
+        allowed_mentions=None,
+        components=None,
+    ):
         """
-        Allows sending a message
+        Sends a message in the channel
 
-        :param client
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
@@ -198,9 +191,12 @@ class Channel(DictSerializerMixin):
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
         :type components: Optional[Union[Component, List[Component]]]
-        :param ephemeral?: Whether the response is hidden or not.
+        :return: The sent message as an object.
         :rtype: Message
         """
+        from ...models.component import ActionRow, Button, SelectMenu
+        from .message import Message
+
         _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
@@ -224,7 +220,7 @@ class Channel(DictSerializerMixin):
             _components = [] if components is None else [components]
 
         # TODO: post-v4: Add attachments into Message obj.
-        message = Message(
+        payload = Message(
             content=_content,
             tts=_tts,
             # file=file,
@@ -232,6 +228,14 @@ class Channel(DictSerializerMixin):
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
-            client=client
         )
-        '''
+
+        res = await self.client.create_message(channel_id=int(self.id), payload=payload._json)
+        message = Message(**res, client=self.client)
+        return message
+
+    async def delete(self) -> None:
+        """
+        Deletes the channel.
+        """
+        await self.client.delete_channel(channel_id=int(self.id))

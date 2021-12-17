@@ -141,6 +141,7 @@ class Guild(DictSerializerMixin):
     __slots__ = (
         "_json",
         "id",
+        "client",
         "name",
         "icon",
         "icon_hash",

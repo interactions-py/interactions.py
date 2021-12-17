@@ -9,6 +9,7 @@ from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceUpdate
 from .role import Role
 from .user import User
+from ..http import HTTPClient
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -36,6 +37,7 @@ class StageInstance(DictSerializerMixin):
 
 class Guild(DictSerializerMixin):
     _json: dict
+    client: HTTPClient
     id: Snowflake
     name: str
     icon: Optional[str]
