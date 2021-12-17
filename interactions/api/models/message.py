@@ -128,7 +128,8 @@ class MessageInteraction(DictSerializerMixin):
     :ivar User user: The user who invoked the interaction.
     """
 
-    __slots__ = ("_json", "id", "type", "name", "user")
+    # TODO: document member attr.
+    __slots__ = ("_json", "id", "type", "name", "user", "member")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -613,16 +614,28 @@ class Embed(DictSerializerMixin):
             if self._json.get("timestamp")
             else datetime.utcnow()
         )
-        self.footer = EmbedFooter(**self.footer) if self._json.get("footer") else None
-        self.image = EmbedImageStruct(**self.image) if self._json.get("image") else None
-        self.thumbnail = EmbedImageStruct(**self.thumbnail) if self._json.get("thumbnail") else None
-        self.video = EmbedImageStruct(**self.video) if self._json.get("video") else None
-        self.provider = EmbedProvider(**self.provider) if self._json.get("provider") else None
-        self.author = EmbedAuthor(**self.author) if self._json.get("author") else None
-
-        if isinstance(self._json.get("fields"), dict):
-            self.fields = (
-                [EmbedField(**field) for field in self.fields] if self._json.get("fields") else None
-            )
-        else:
-            self.fields = [field for field in self.fields] if self._json.get("fields") else None
+        self.footer = (
+            EmbedFooter(**self.footer) if isinstance(self._json.get("footer"), dict) else None
+        )
+        self.image = (
+            EmbedImageStruct(**self.image) if isinstance(self._json.get("image"), dict) else None
+        )
+        self.thumbnail = (
+            EmbedImageStruct(**self.thumbnail)
+            if isinstance(self._json.get("thumbnail"), dict)
+            else None
+        )
+        self.video = (
+            EmbedImageStruct(**self.video) if isinstance(self._json.get("video"), dict) else None
+        )
+        self.provider = (
+            EmbedProvider(**self.provider) if isinstance(self._json.get("provider"), dict) else None
+        )
+        self.author = (
+            EmbedAuthor(**self.author) if isinstance(self._json.get("author"), dict) else None
+        )
+        self.fields = (
+            [EmbedField(**field) for field in self.fields]
+            if isinstance(self._json.get("fields"), dict)
+            else None
+        )
