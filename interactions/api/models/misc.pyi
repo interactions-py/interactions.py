@@ -43,7 +43,7 @@ class Snowflake(object):
     def __str__(self) -> str: ...
     def __int__(self) -> int: ...
 
-class Format(object):
+class Format:
     USER: str
     USER_NICK: str
     CHANNEL: str

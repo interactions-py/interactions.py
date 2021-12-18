@@ -3,7 +3,7 @@ from typing import ClassVar
 
 from colorama import Fore, Style, init
 
-__version__ = "4.0.0"
+__version__ = "4.0.1"
 __repo_url__ = "https://github.com/goverfl0w/discord-interactions"
 __authors__ = {
     "current": [

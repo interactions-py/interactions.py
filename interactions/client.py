@@ -1,5 +1,7 @@
 import sys
 from asyncio import get_event_loop
+
+# from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
@@ -90,7 +92,7 @@ class Client:
         else:
             self.automate_sync = True
 
-        log_names: list = ["client", "context", "dispatch", "gateway", "http"]
+        log_names: list = ["client", "context", "dispatch", "gateway", "http", "mixin"]
         for logger in log_names:
             getLogger(logger).setLevel(log_level)
 
@@ -201,7 +203,7 @@ class Client:
                     application_id=command.get("application_id"),
                     id=command.get("id"),
                     type=command.get("type"),
-                    guild_id=str(command.get("guild_id")),
+                    guild_id=str(command["guild_id"]) if command.get("guild_id") else None,
                     name=command.get("name"),
                     description=command.get("description", ""),
                     default_permission=command.get("default_permission", False),
@@ -230,7 +232,7 @@ class Client:
                                     application_id=self.me.id,
                                     data=payload._json,
                                     command_id=result.id,
-                                    guild_id=result.guild_id,
+                                    guild_id=result._json.get("guild_id"),
                                 )
                                 self.http.cache.interactions.add(
                                     Build(id=payload.name, value=payload)
@@ -248,7 +250,7 @@ class Client:
             if payload:
                 await create(payload)
 
-        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view()]
+        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view]
         cached_command_names = [command["name"] for command in cached_commands]
 
         if cached_commands:
@@ -260,7 +262,7 @@ class Client:
                     request = await self.http.delete_application_command(
                         application_id=self.me.id,
                         command_id=command["id"],
-                        guild_id=command["guild_id"],
+                        guild_id=command.get("guild_id"),
                     )
 
                     if request:
@@ -604,9 +606,9 @@ class Client:
 
 #         class CoolCode(interactions.Extension):
 #             def __init__(self, client):
-#                 ...
+#                 self.client = client
 
-#             @self.client.command(
+#             @command(
 #                 type=interactions.ApplicationCommandType.USER,
 #                 name="User command in cog",
 #             )
@@ -618,6 +620,15 @@ class Client:
 #     """
 
 #     client: Client
+#     commands: Optional[List[ApplicationCommand]]
+#     listeners: Optional[List[Listener]]
 
 #     def __new__(cls, bot: Client) -> None:
 #         cls.client = bot
+#         cls.commands = []
+
+#         for _, content in cls.__dict__.items():
+#             content = content if isinstance(content.callback, partial) else None
+#             if isinstance(content, ApplicationCommand):
+#                 cls.commands.append(content)
+#                 bot.command(**content)

@@ -109,13 +109,13 @@ class InteractionData(DictSerializerMixin):
         self.options = (
             [Option(**option) for option in self.options] if self._json.get("options") else None
         )
-        self.component_type = (
-            ComponentType(self.component_type) if self._json.get("component_type") else None
-        )
         self.values = (
             [SelectOption(**value) for value in self.values] if self._json.get("values") else None
         )
-        self._json.update({"component_type": self.component_type.value, "type": self.type.value})
+        if self._json.get("component_type"):
+            self.component_type = ComponentType(self.component_type)
+            self._json.update({"component_type": self.component_type.value})
+        self._json.update({"type": self.type.value})
 
 
 class Interaction(DictSerializerMixin):
@@ -169,6 +169,7 @@ class Interaction(DictSerializerMixin):
         self.application_id = (
             Snowflake(self.application_id) if self._json.get("application_id") else None
         )
+        self.data = InteractionData(**self.data) if self._json.get("data") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.member = Member(**self.member) if self._json.get("member") else None
