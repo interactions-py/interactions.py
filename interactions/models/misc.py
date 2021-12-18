@@ -169,6 +169,7 @@ class Interaction(DictSerializerMixin):
         self.application_id = (
             Snowflake(self.application_id) if self._json.get("application_id") else None
         )
+        self.data = InteractionData(**self.data) if self._json.get("data") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.member = Member(**self.member) if self._json.get("member") else None
