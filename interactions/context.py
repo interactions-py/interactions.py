@@ -8,7 +8,7 @@ from .api.models.message import Embed, Message, MessageInteraction, MessageRefer
 from .api.models.misc import DictSerializerMixin, Snowflake
 from .api.models.user import User
 from .base import CustomFormatter, Data
-from .enums import ComponentType, InteractionCallbackType, InteractionType
+from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Component, Modal, SelectMenu
 from .models.misc import InteractionData
@@ -87,7 +87,6 @@ class CommandContext(Context):
         "client",
         "id",
         "application_id",
-        "custom_id",
         "callback",
         "type",
         "data",
@@ -134,8 +133,7 @@ class CommandContext(Context):
         :type ephemeral: Optional[bool]
         """
         self.deferred = True
-        _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
-        # ephemeral doesn't change callback typings. just data json
+        _ephemeral: int = (1 << 6) if ephemeral else 0
         if self.type == InteractionType.MESSAGE_COMPONENT:
             self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         elif self.type == InteractionType.APPLICATION_COMMAND:
@@ -191,19 +189,25 @@ class CommandContext(Context):
 
         if isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, (Button, SelectMenu)):
+        elif isinstance(components, Button):
+            _components[0]["components"] = [] if components is None else [components._json]
+        elif isinstance(components, SelectMenu):
+            components._json["options"] = [option._json for option in components.options]
             _components[0]["components"] = [] if components is None else [components._json]
         else:
             _components = [] if components is None else [components]
 
-        _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
+        _ephemeral: int = (1 << 6) if ephemeral else 0
 
-        if not self.deferred:
+        if not self.deferred and self.type != InteractionType.MESSAGE_COMPONENT:
             self.callback = (
                 InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
                 if self.type == InteractionType.APPLICATION_COMMAND
                 else InteractionCallbackType.UPDATE_MESSAGE
             )
+
+        if not self.deferred and self.type == InteractionType.MESSAGE_COMPONENT:
+            self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
         # TODO: post-v4: Add attachments into Message obj.
         payload: Message = Message(
@@ -220,8 +224,18 @@ class CommandContext(Context):
         _payload: dict = {"type": self.callback.value, "data": payload._json}
 
         async def func():
-            if self.responded or self.deferred:
-                if self.type == InteractionType.APPLICATION_COMMAND and self.deferred:
+            if (
+                self.responded
+                or self.deferred
+                or self.type == InteractionType.MESSAGE_COMPONENT
+                and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+            ):
+                if (
+                    self.type == InteractionType.APPLICATION_COMMAND
+                    and self.deferred
+                    or self.type == InteractionType.MESSAGE_COMPONENT
+                    and self.deferred
+                ):
                     res = await self.client.edit_interaction_response(
                         data=payload._json,
                         token=self.token,
@@ -280,8 +294,12 @@ class CommandContext(Context):
 
         if isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, (Button, SelectMenu)):
+        elif isinstance(components, Button):
             _components[0]["components"] = [] if components is None else [components._json]
+        elif isinstance(components, SelectMenu):
+            components._json["options"] = [option._json for option in components.options]
+            _components[0]["components"] = [] if components is None else [components._json]
+
         else:
             _components = []
 
@@ -297,14 +315,28 @@ class CommandContext(Context):
 
         async def func():
             if self.deferred:
-                if self.type == InteractionType.MESSAGE_COMPONENT:
+                if (
+                    self.type == InteractionType.MESSAGE_COMPONENT
+                    and self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+                ):
                     await self.client._post_followup(
                         data=payload._json,
                         token=self.token,
                         application_id=str(self.application_id),
                     )
                 else:
-                    if hasattr(self.message, "id") and self.message.id is not None:
+                    if (
+                        self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+                        and self.type == InteractionType.MESSAGE_COMPONENT
+                    ):
+                        res = await self.client.edit_interaction_response(
+                            data=payload._json,
+                            token=self.token,
+                            application_id=str(self.application_id),
+                        )
+                        self.responded = True
+                        self.message = Message(**res)
+                    elif hasattr(self.message, "id") and self.message.id is not None:
                         res = await self.client.edit_message(
                             int(self.channel_id), int(self.message.id), payload=payload._json
                         )
@@ -325,6 +357,11 @@ class CommandContext(Context):
                             )
                             self.message = Message(**res)
             else:
+                self.callback = (
+                    InteractionCallbackType.UPDATE_MESSAGE
+                    if self.type == InteractionType.MESSAGE_COMPONENT
+                    else self.callback
+                )
                 res = await self.client.edit_interaction_response(
                     token=self.token,
                     application_id=str(self.application_id),
@@ -443,7 +480,6 @@ class ComponentContext(CommandContext):
         "client",
         "id",
         "application_id",
-        "custom_id",
         "callback",
         "type",
         "data",
@@ -454,10 +490,35 @@ class ComponentContext(CommandContext):
         "channel_id",
         "responded",
         "deferred",
-        "custom_id",
     )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.type = ComponentType(self.type)
         self.responded = False  # remind components that it was not responded to.
+        self.deferred = False  # remind components they not have been deferred
+
+    async def defer(
+        self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
+    ) -> None:
+        """
+        This "defers" an component response, allowing up
+        to a 15-minute delay between invocation and responding.
+
+        :param ephemeral?: Whether the deferred state is hidden or not.
+        :type ephemeral: Optional[bool]
+        :param edit_origin?: Whether you want to edit the original message or send a followup message
+        :type edit_origin: Optional[bool]
+        """
+        self.deferred = True
+        _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
+        # ephemeral doesn't change callback typings. just data json
+        if self.type == InteractionType.MESSAGE_COMPONENT and edit_origin:
+            self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        elif self.type == InteractionType.MESSAGE_COMPONENT and not edit_origin:
+            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+
+        await self.client.create_interaction_response(
+            token=self.token,
+            application_id=int(self.id),
+            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+        )

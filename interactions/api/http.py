@@ -192,6 +192,11 @@ class Request:
             with Padlock(ratelimit) as lock:  # noqa: F841
                 kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
                 kwargs["headers"]["Content-Type"] = "application/json"
+
+                if kwargs.get("reason"):
+                    kwargs["headers"]["X-Audit-Log-Reason"] = kwargs["reason"]
+                    del kwargs["reason"]
+
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
@@ -330,7 +335,7 @@ class HTTPClient:
             user_id = "@me"
 
         request = await self._req.request(Route("GET", f"/users/{user_id}"))
-        self.cache.users.add(Item(id=user_id, value=request))
+        self.cache.users.add(Item(id=user_id, value=User(**request)))
 
         return request
 
@@ -365,7 +370,7 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", "/users/@me/channels"), json={"recipient_id": recipient_id}
         )
-        self.cache.dms.add(Item(id=str(recipient_id), value=request))
+        self.cache.dms.add(Item(id=str(recipient_id), value=Channel(**request)))
 
         return request
 
@@ -423,7 +428,7 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
-        self.cache.messages.add(Item(id=request["id"], value=request))
+        self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
 
         return request
 
@@ -527,7 +532,7 @@ class HTTPClient:
         request = await self._req.request(Route("GET", "/users/@me/guilds"))
 
         for guild in request:
-            self.cache.self_guilds.add(Item(id=guild["id"], value=guild))
+            self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
 
         return request
 
@@ -538,7 +543,7 @@ class HTTPClient:
         :return: The guild object associated, if any.
         """
         request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
-        self.cache.guilds.add(Item(id=str(guild_id), value=request))
+        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request)))
 
         return request
 
@@ -853,22 +858,22 @@ class HTTPClient:
         )
 
         for channel in request:
-            self.cache.channels.add(Item(id=channel["id"], value=request))
+            self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
 
         return request
 
-    async def get_all_roles(self, guild_id: int) -> List[Role]:
+    async def get_all_roles(self, guild_id: int) -> List[dict]:
         """
         Gets all roles from a Guild.
         :param guild_id: Guild ID snowflake
-        :return: An array of Role objects.
+        :return: An array of Role objects as dictionaries.
         """
         request = await self._req.request(
             Route("GET", "/guilds/{guild_id}/roles", guild_id=guild_id)
         )
 
         for role in request:
-            self.cache.roles.add(Item(id=role["id"], value=request))
+            self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
 
         return request
 
@@ -885,7 +890,7 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
-        self.cache.roles.add(Item(id=request["id"], value=request))
+        self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
 
         return request
 
@@ -1014,7 +1019,7 @@ class HTTPClient:
         roles: Optional[List[Role]] = None,
         mute: bool = None,
         deaf: bool = None,
-    ) -> Member:
+    ) -> dict:
         """
         A low level method of adding a user to a guild with pre-defined attributes.
 
@@ -1025,7 +1030,7 @@ class HTTPClient:
         :param roles: An array of roles that the user is assigned.
         :param mute: Whether the user is mute in voice channels.
         :param deaf: Whether the user is deafened in voice channels.
-        :return: Guild member object (?)
+        :return: Guild member object as dictionary
         """
         request = await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/members/{user_id}"),
@@ -1042,7 +1047,7 @@ class HTTPClient:
             },
         )
 
-        self.cache.members.add(Item(id=str(user_id), value=request))
+        self.cache.members.add(Item(id=str(user_id), value=Member(**request)))
 
         return request
 
@@ -1190,14 +1195,14 @@ class HTTPClient:
 
     # Channel endpoint.
 
-    async def get_channel(self, channel_id: int) -> Channel:
+    async def get_channel(self, channel_id: int) -> dict:
         """
         Gets a channel by ID. If the channel is a thread, it also includes thread members (and other thread attributes)
         :param channel_id: Channel ID snowflake.
-        :return: Channel object.
+        :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=request))
+        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request)))
 
         return request
 
@@ -1256,13 +1261,13 @@ class HTTPClient:
         )
 
         for message in request:
-            self.cache.messages.add(Item(id=message["id"], value=request))
+            self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
     async def create_channel(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
-    ) -> Channel:
+    ) -> dict:
         """
         Creates a channel within a guild.
 
@@ -1272,12 +1277,12 @@ class HTTPClient:
         :param guild_id: Guild ID snowflake.
         :param payload: Payload data.
         :param reason: Reason to show in audit log, if needed.
-        :return: Channel object.
+        :return: Channel object as dictionary.
         """
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
-        self.cache.channels.add(Item(id=request["id"], value=request))
+        self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
 
         return request
 

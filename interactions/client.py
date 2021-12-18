@@ -1,5 +1,7 @@
 import sys
 from asyncio import get_event_loop
+
+# from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
@@ -248,7 +250,7 @@ class Client:
             if payload:
                 await create(payload)
 
-        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view()]
+        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view]
         cached_command_names = [command["name"] for command in cached_commands]
 
         if cached_commands:
@@ -396,8 +398,10 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Any:
-            payload: Component = _component(component)
-            return self.event(coro, name=payload.custom_id)
+            payload: str = (
+                _component(component).custom_id if isinstance(component, Component) else component
+            )
+            return self.event(coro, name=payload)
 
         return decorator
 
@@ -429,6 +433,11 @@ class Client:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving modals.
+
+        .. error::
+            This feature is currently under experimental/**beta access**
+            to those whitelisted for tetsing. Currently using this will
+            present you with an error with the modal not working.
 
         The structure for a modal callback:
 
@@ -597,9 +606,9 @@ class Client:
 
 #         class CoolCode(interactions.Extension):
 #             def __init__(self, client):
-#                 ...
+#                 self.client = client
 
-#             @self.client.command(
+#             @command(
 #                 type=interactions.ApplicationCommandType.USER,
 #                 name="User command in cog",
 #             )
@@ -611,6 +620,15 @@ class Client:
 #     """
 
 #     client: Client
+#     commands: Optional[List[ApplicationCommand]]
+#     listeners: Optional[List[Listener]]
 
 #     def __new__(cls, bot: Client) -> None:
 #         cls.client = bot
+#         cls.commands = []
+
+#         for _, content in cls.__dict__.items():
+#             content = content if isinstance(content.callback, partial) else None
+#             if isinstance(content, ApplicationCommand):
+#                 cls.commands.append(content)
+#                 bot.command(**content)

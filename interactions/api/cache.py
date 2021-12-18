@@ -78,6 +78,7 @@ class Storage:
                 id
             ]  # fetches from cache to see if its saved properly, instead of returning input.
 
+    @property
     def view(self) -> List[dict]:
         """Views all items from storage.
 

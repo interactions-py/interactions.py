@@ -31,6 +31,8 @@ msgid ""
 "No more hassle with trying to get interactions to work with your Python "
 "Discord bot -- **discord-interactions** is now here."
 msgstr ""
+"Kein Ärger mehr, Interaktionen mit Ihrem Python Discord Bot "
+"zum Laufen zu bringen -- **discord-interactions** ist jetzt da."
 
 #: ../../index.rst:8
 msgid ""
@@ -39,26 +41,30 @@ msgid ""
 " we are here to be the very best Python Discord library there is that "
 "implements interactions very well. This is what our library is all about."
 msgstr ""
+"**discord-interactions** ist ein einfacher API-Wrapper für Discord "
+"Interaktionen. Wir sind nicht hier, um discord.py oder einen anderen Fork zu ersetzen, aber"
+"Wir sind hier, um die beste Python Discord-Bibliothek zu sein, die es gibt"
+"Implementiert Interaktionen sehr gut. Darum geht es in unserer Bibliothek."
 
 #: ../../index.rst:14
 msgid "What are we good for?"
-msgstr ""
+msgstr "Wofür sind wir gut?"
 
 #: ../../index.rst:15
 msgid "We offer a **lot** of benefits with using our library:"
-msgstr ""
+msgstr "Wir bieten **viele** Vorteile bei der Nutzung unserer Bibliothek:"
 
 #: ../../index.rst:17
 msgid "Modern pythonic design that is scalable and modular."
-msgstr ""
+msgstr "Modernes Python-Design, das skalierbar und modular ist."
 
 #: ../../index.rst:18
 msgid "Asynchronous coroutines and multi-threading capabilities."
-msgstr ""
+msgstr "Asynchrone Coroutinen und Multithreading-Fähigkeiten."
 
 #: ../../index.rst:19
 msgid "Optimal class object reference with little overhead."
-msgstr ""
+msgstr "Optimale Klassenobjektreferenz mit geringem Overhead."
 
 #: ../../index.rst:20
 msgid "Easily accessible codebase source."

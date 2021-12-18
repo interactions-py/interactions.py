@@ -30,7 +30,24 @@ version = ".".join(__version__.split(".", 2)[:2])
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "karma_sphinx_theme"]
+autosectionlabel_prefix_document = True
+hoverxref_auto_ref = True
+hoverxref_sphinxtabs = True
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.autosectionlabel",
+    "hoverxref.extension",
+    "karma_sphinx_theme",
+]
+
+# Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
+# https://stackoverflow.com/questions/67485567/sphinx-cross-reference-in-latex
+latex_elements = {
+    "preamble": r"""
+\renewcommand{\hyperref}[2][]{#2}
+"""
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -40,8 +57,9 @@ templates_path = ["_templates"]
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "de"
 locale_dirs = ["locale/"]
+gettext_compact = True
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

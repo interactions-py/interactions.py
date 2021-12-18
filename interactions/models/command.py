@@ -110,7 +110,10 @@ class Option(DictSerializerMixin):
         if self._json.get("options"):
             self._json["options"] = [option._json for option in self.options]
         if self._json.get("choices"):
-            self._json["choices"] = [choice._json for choice in self.choices]
+            if isinstance(self._json.get("choices"), dict):
+                self._json["choices"] = [choice for choice in self.choices]
+            else:
+                self._json["choices"] = [choice._json for choice in self.choices]
 
 
 class Permission(DictSerializerMixin):

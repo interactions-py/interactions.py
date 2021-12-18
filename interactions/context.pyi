@@ -25,7 +25,6 @@ class Context(DictSerializerMixin):
 class CommandContext(Context):
     id: Snowflake
     application_id: Snowflake
-    custom_id: str
     type: InteractionType
     callback: Optional[InteractionCallbackType]
     data: InteractionData
@@ -42,29 +41,29 @@ class CommandContext(Context):
         self,
         content: Optional[str] = None,
         *,
-        tts: Optional[bool] = None,
+        tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[Union[Component, List[Component]]] = None,
-        type: Optional[Union[int, InteractionCallbackType]] = None,
-        ephemeral: Optional[bool] = None,
+        ephemeral: Optional[bool] = False,
     ) -> Message: ...
     async def edit(
         self,
         content: Optional[str] = None,
         *,
-        tts: Optional[bool] = None,
-        # file: Optional[FileIO] = None,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        message_reference: Optional[MessageReference] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+        components: Optional[Union[Component, List[Component]]] = None,
     ) -> Message: ...
     async def delete(self) -> None: ...
     async def popup(self, modal: Modal): ...
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]: ...
 
 class ComponentContext(CommandContext):
-    type: ComponentType
     def __init__(self, **kwargs) -> None: ...
+    def defer(
+        self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
+    ) -> None: ...

@@ -1,26 +1,14 @@
 Quickstart
 ==========
 
-Looking into trying to get started with our library? Well, you've come to the right page then!
-
-.. note::
-
-    This quickstart guide is extremely rough and contains experimental code.
-    Do not follow us strictly until v4.0 is released! Everything is subject
-    to change in here due to the development of the API wrapper continuously
-    being reflected.
-
 Installing
 **********
 
-**discord-interactions** is a Python library for the Discord Artificial Programming Interface. (API)
+**discord-interactions** is a :ref:`Python library <index:discord-interactions>` for the Discord Artificial Programming Interface. (API)
 A library in Python has to be installed through the `pip` file. Run this in your terminal/command line
 in order to install our library:
 
 ``pip install -U discord-py-interactions``
-
-If you're unable to run it through your terminal/command line, you need to make sure that it's
-accessible as an Environment Path. Search more on Google for how to do this.
 
 Minimal Bot
 ***********
@@ -34,6 +22,7 @@ Discord bot is not exactly beginner-friendly.
 This code block below shows a simple bot being created:
 
 .. code-block:: python
+    :linenos:
 
     import interactions
 
@@ -45,27 +34,48 @@ This code block below shows a simple bot being created:
         scope=1234567890
     )
     async def test(ctx):
-        print("we're here so far.")
-        # await ctx.send("Hello world!")
+        await ctx.send("Hello world!")
 
     bot.start()
 
 There's quite a lot of things that are going on here, so let's break it down step-by-step:
 
-* ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please look at our `Installing`_ section here.
-* ``bot = interactions.Client(token="...")`` -- This is the ``bot`` variable that defines our bot. This basically instantiates the `Client`_ class, which requires a ``token`` keyword-argument to be passed. In order to get a token, please look at the image given below.
+* ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please look at our section on how to :ref:`install <quickstart:Installing>` here.
+* ``bot = interactions.Client(token="...")`` -- This is the ``bot`` variable that defines our bot. This basically instantiates the :ref:`application client <client:Bot Client>`, which requires a ``token`` keyword-argument to be passed. In order to get a token, please look at the image given below.
 * ``@bot.command()`` -- This is something known as a *decorator* in Python. This decorator is in charge and responsible of making sure that the Discord API is told about the slash/sub command that you wish to create, and sends an HTTP request correspondingly. Any changes to the information contained in this decorator will be synchronously updated with the API automatically for you. The ``scope`` field shown here is optional, which represents a guild command if you wish to have a command appear in only specific servers that bot is in. This can be a guild object or the ID.
+* ``async def test(ctx):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``bot.start()`` -- Finally, this is what tells our library to turn your bot from offline to online.
 
 .. image:: _static/client_token.png
 
-And it's really as simple as that! If you would like to learn more about what our library offers, or see
-more examples of our code, please be sure to check out our `coding examples`_ page on our docs!
-
 Context menus
 *************
 
-Documentation for this will be coming soon.
+While, granted that application commands are way more intuitive and easier to work with as both
+a bot developer and user from a UX approach, some may not want to always type the same command
+over and over again to repeat a repetitive task. Introducing: **context menus.** Also
+known as "user" and "message" respectively, this simple switch in command structure allows you to
+quickly empower your bot with the ability to make right-click actions with menial efort.
+
+In order to create a menu-based command, all you need to do is simply add this one line into
+your ``@command`` decorator:
+
+.. code-block:: python
+    :linenos:
+
+    @bot.command(
+        type=interactions.ApplicationCommandType.USER,
+        name="User Command",
+        scope=1234567890
+    )
+    async def test(ctx):
+        await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
+
+The structure of a menu command differs significantly from that of a regular one:
+
+- You cannot have any options or choices.
+- You cannot have a description.
+- The ``name`` filter follows a different regex pattern.
 
 Components
 **********
@@ -80,10 +90,8 @@ simple but quite powerful when put into practice This code block below shows a s
 implementation of a component:
 
 .. code-block:: python
+    :linenos:
 
-    import interactions
-
-    bot = interactions.Client(token="...")
     button = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
         label="hello world!",
@@ -107,10 +115,7 @@ This is a design that we ended up choosing to simplify responding
 to buttons when someone presses on one, and to allow bot developers
 to plug in *which* button they want a response to. No more ``wait_for_component``
 and ``wait_for`` functions with huge if-else chains; this removes
-redundancy in your code and overall eases into the practice of modularity. This code block
-shown above will give a response that will apear something like this:
-
-.. image:: _static/button_example.png
+redundancy in your code and overall eases into the practice of modularity.
 
 What kinds of components are there?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -129,8 +134,7 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
 5 per message that you send. This code block below shows how:
 
 .. code-block:: python
-
-    ...
+    :linenos:
 
     button = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
@@ -148,8 +152,6 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
         components=[button, menu]
     )
 
-    ...
-
     @bot.command(...)
     async def test(ctx):
         await ctx.send("rows!", components=row)
@@ -160,6 +162,4 @@ rows whenever you need or want to. This field will also support raw arrays and
 tables, if you so wish to choose to not use our class objects instead.
 
 .. _Client: https://discord-interactions.rtfd.io/en/unstable/client.html
-.. _Installing: https://discord-interactions.rtfd.io/en/unstable/quickstart.html#installing
-.. _coding examples: /#/
 .. _find these component types: https://discord-interactions.readthedocs.io/en/unstable/models.component.html
