@@ -11,3 +11,4 @@ dist/
 .venv
 .vscode
 __pycache__
+.token
