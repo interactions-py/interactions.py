@@ -87,7 +87,6 @@ class CommandContext(Context):
         "client",
         "id",
         "application_id",
-        "custom_id",
         "callback",
         "type",
         "data",
@@ -135,7 +134,6 @@ class CommandContext(Context):
         """
         self.deferred = True
         _ephemeral: int = (1 << 6) if ephemeral else 0
-        # ephemeral doesn't change callback typings. just data json
         if self.type == InteractionType.MESSAGE_COMPONENT:
             self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         elif self.type == InteractionType.APPLICATION_COMMAND:
@@ -482,7 +480,6 @@ class ComponentContext(CommandContext):
         "client",
         "id",
         "application_id",
-        "custom_id",
         "callback",
         "type",
         "data",
@@ -493,12 +490,10 @@ class ComponentContext(CommandContext):
         "channel_id",
         "responded",
         "deferred",
-        "custom_id",
     )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.type = InteractionType(self.type)
         self.responded = False  # remind components that it was not responded to.
         self.deferred = False  # remind components they not have been deferred
 

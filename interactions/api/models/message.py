@@ -552,27 +552,37 @@ class Embed(DictSerializerMixin):
             else datetime.utcnow()
         )
         self.footer = (
-            EmbedFooter(**self.footer) if isinstance(self._json.get("footer"), dict) else None
+            EmbedFooter(**self.footer)
+            if isinstance(self._json.get("footer"), dict)
+            else self._json.get("footer")
         )
         self.image = (
-            EmbedImageStruct(**self.image) if isinstance(self._json.get("image"), dict) else None
+            EmbedImageStruct(**self.image)
+            if isinstance(self._json.get("image"), dict)
+            else self._json.get("image")
         )
         self.thumbnail = (
             EmbedImageStruct(**self.thumbnail)
             if isinstance(self._json.get("thumbnail"), dict)
-            else None
+            else self._json.get("thumbnail")
         )
         self.video = (
-            EmbedImageStruct(**self.video) if isinstance(self._json.get("video"), dict) else None
+            EmbedImageStruct(**self.video)
+            if isinstance(self._json.get("video"), dict)
+            else self._json.get("video")
         )
         self.provider = (
-            EmbedProvider(**self.provider) if isinstance(self._json.get("provider"), dict) else None
+            EmbedProvider(**self.provider)
+            if isinstance(self._json.get("provider"), dict)
+            else self._json.get("provider")
         )
         self.author = (
-            EmbedAuthor(**self.author) if isinstance(self._json.get("author"), dict) else None
+            EmbedAuthor(**self.author)
+            if isinstance(self._json.get("author"), dict)
+            else self._json.get("author")
         )
         self.fields = (
             [EmbedField(**field) for field in self.fields]
             if isinstance(self._json.get("fields"), dict)
-            else None
+            else self._json.get("fields")
         )
