@@ -108,7 +108,10 @@ class Option(DictSerializerMixin):
         self.type = OptionType(self.type)
         self._json.update({"type": self.type.value})
         if self._json.get("options"):
-            self._json["options"] = [option._json for option in self.options]
+            if all(isinstance(option, dict) for option in self.options):
+                self._json["options"] = [option for option in self.options]
+            else:
+                self._json["options"] = [option._json for option in self.options]
         if self._json.get("choices"):
             if isinstance(self._json.get("choices"), dict):
                 self._json["choices"] = [choice for choice in self.choices]
