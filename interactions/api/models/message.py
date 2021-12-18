@@ -370,7 +370,7 @@ class Message(DictSerializerMixin):
         from ...models.component import ActionRow, Button, SelectMenu
 
         _content: str = "" if content is None else content
-        _tts: bool = False if tts is None else tts
+        _tts: bool = True if bool(tts) else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
         _embeds: list = (
