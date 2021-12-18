@@ -1,6 +1,6 @@
 import interactions
 
-bot = interactions.Client(token=open(".token").read())
+bot = interactions.Client(token=open("bot.token").read())
 
 
 @bot.event
@@ -11,7 +11,6 @@ async def on_ready():
 @bot.command(
     name="basic-command",
     description="ever wanted a basic command? well, here it is!",
-    scope=852402668294766612,
     options=[
         interactions.Option(
             type=interactions.OptionType.STRING,
@@ -25,5 +24,5 @@ async def basic_command(ctx, option):
     await ctx.send(f"{option}")
 
 
-bot.load("simple_cog")
+# bot.load("simple_cog")
 bot.start()
