@@ -248,7 +248,7 @@ class Client:
             if payload:
                 await create(payload)
 
-        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view()]
+        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view]
         cached_command_names = [command["name"] for command in cached_commands]
 
         if cached_commands:
