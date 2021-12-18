@@ -261,7 +261,7 @@ class WebSocket:
                     for sub_option in option["options"]:
                         kwargs[sub_option["name"]] = sub_option["value"]
             else:
-                kwargs[option['name']] = option['value']
+                kwargs[option["name"]] = option["value"]
 
             return kwargs
 
@@ -314,7 +314,11 @@ class WebSocket:
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    _kwargs.update(check_sub_command(option if isinstance(option, dict) else option._json))
+                                    _kwargs.update(
+                                        check_sub_command(
+                                            option if isinstance(option, dict) else option._json
+                                        )
+                                    )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = context.data.custom_id
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
@@ -322,7 +326,9 @@ class WebSocket:
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    add_name, add_args = check_sub_auto(option if isinstance(option, dict) else option._json)
+                                    add_name, add_args = check_sub_auto(
+                                        option if isinstance(option, dict) else option._json
+                                    )
                                     if add_name:
                                         _name += add_name
                                     if add_args:
