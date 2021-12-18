@@ -58,4 +58,4 @@ class Member(DictSerializerMixin):
             else None
         )
 
-    # TODO: add roles, remove roles, send(DM)(?)
+    # TODO: send(DM)(?)

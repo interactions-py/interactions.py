@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from .channel import Channel
 from .member import Member
@@ -113,6 +113,18 @@ class Guild(DictSerializerMixin):
             self,
             member_id: int,
             reason: Optional[str] = None,
+    ) -> None: ...
+    async def add_member_roles(
+            self,
+            roles: Union[List[Union[Role, int]], Role, int],
+            member_id: int,
+            reason: Optional[str],
+    ) -> None: ...
+    async def remove_member_roles(
+            self,
+            roles: Union[List[Union[Role, int]], Role, int],
+            member_id: int,
+            reason: Optional[str],
     ) -> None: ...
 
 class GuildPreview(DictSerializerMixin):

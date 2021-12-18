@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional, Union
 
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
+from .role import Role
 from .team import Application
 from .user import User
 
@@ -296,7 +297,85 @@ class Guild(DictSerializerMixin):
             reason=reason,
         )
 
-    # TODO: role create, channel create, get_member, kick
+    async def add_member_roles(
+        self,
+        roles: Union[List[Union[Role, int]], Role, int],
+        member_id: int,
+        reason: Optional[str],
+    ) -> None:
+        """
+        This method adds a or multiple role(s) to a member
+        :param roles: The role(s) to add. Either ``Role`` object or role_id
+        :type roles: Union[List[Union[Role, int]], Role, int]
+        :param member_id: The id of the member to add the roles to
+        :type member_id: int
+        :param reason: The reason why the roles are added
+        :type reason: Optional[str]
+        """
+        if isinstance(roles, list):
+            roles = [int(role.id) if isinstance(role, Role) else role for role in roles]
+            for role in roles:
+                await self.client.add_member_role(
+                    guild_id=int(self.id),
+                    user_id=member_id,
+                    role_id=role,
+                    reason=reason,
+                )
+        elif isinstance(roles, Role):
+            await self.client.add_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=int(roles.id),
+                reason=reason,
+            )
+        else:
+            await self.client.add_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=roles,
+                reason=reason,
+            )
+
+    async def remove_member_roles(
+        self,
+        roles: Union[List[Union[Role, int]], Role, int],
+        member_id: int,
+        reason: Optional[str],
+    ) -> None:
+        """
+        This method removes a or multiple role(s) from a member
+        :param roles: The role(s) to remove. Either ``Role`` object or role_id
+        :type roles: Union[List[Union[Role, int]], Role, int]
+        :param member_id: The id of the member to remove the roles from
+        :type member_id: int
+        :param reason: The reason why the roles are removed
+        :type reason: Optional[str]
+        """
+        if isinstance(roles, list):
+            roles = [int(role.id) if isinstance(role, Role) else role for role in roles]
+            for role in roles:
+                await self.client.remove_member_role(
+                    guild_id=int(self.id),
+                    user_id=member_id,
+                    role_id=role,
+                    reason=reason,
+                )
+        elif isinstance(roles, Role):
+            await self.client.remove_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=int(roles.id),
+                reason=reason,
+            )
+        else:
+            await self.client.remove_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=roles,
+                reason=reason,
+            )
+
+    # TODO: role create, channel create, get_member, delete role
 
 
 class GuildPreview(DictSerializerMixin):
