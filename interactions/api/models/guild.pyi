@@ -104,7 +104,7 @@ class Guild(DictSerializerMixin):
             reason: Optional[str] = None,
             delete_message_days: Optional[int] = 0,
     ) -> None: ...
-    async def unban(
+    async def remove_ban(
             self,
             user_id: int,
             reason: Optional[str] = None,
