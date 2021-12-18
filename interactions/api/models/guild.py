@@ -246,7 +246,6 @@ class Guild(DictSerializerMixin):
     ) -> None:
         """
         Bans a member from the guild
-
         :param member_id: The id of the member to ban
         :type member_id: int
         :param reason?: The reason of the ban
@@ -261,7 +260,43 @@ class Guild(DictSerializerMixin):
             delete_message_days=delete_message_days,
         )
 
-        # TODO: unban, role create, channel create, get_member, kick
+    async def remove_ban(
+        self,
+        user_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Removes the ban of a user
+        :param user_id: The id of the user to remove the ban from
+        :type user_id: int
+        :param reason?: The reason for the removal of the ban
+        :type reason: Optional[str]
+        """
+        await self.client.remove_guild_ban(
+            guild_id=int(self.id),
+            user_id=user_id,
+            reason=reason,
+        )
+
+    async def kick(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Kicks a member from the guild
+        :param member_id: The id of the member to kick
+        :type member_id: int
+        :param reason?: The reason for the kick
+        :type reason: Optional[str]
+        """
+        await self.client.create_guild_kick(
+            guild_id=int(self.id),
+            user_id=member_id,
+            reason=reason,
+        )
+
+    # TODO: role create, channel create, get_member, kick
 
 
 class GuildPreview(DictSerializerMixin):
