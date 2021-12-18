@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 from .misc import DictSerializerMixin, Snowflake
+from ..http import HTTPClient
 
 class RoleTags(DictSerializerMixin):
     _json: dict
@@ -11,6 +12,7 @@ class RoleTags(DictSerializerMixin):
 
 class Role(DictSerializerMixin):
     _json: dict
+    client: HTTPClient
     id: Snowflake
     name: str
     color: int

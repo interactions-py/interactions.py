@@ -340,8 +340,75 @@ class Message(DictSerializerMixin):
         )
         return payload
 
-    async def reply(self) -> "Message":
-        await self.client.send_message()
+    async def reply(
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None
+        embeds: Optional[Union["Embed", List["Embed"]]] = None,
+        allowed_mentions: Optional["MessageInteraction"] = None,
+        components=None,
+    ) -> "Message":
+        """
+        Sends a new message replying to the old.
+
+        :param content?: The contents of the message as a string or string-converted value.
+        :type content: Optional[str]
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
+        :type tts: Optional[bool]
+        :param embeds?: An embed, or list of embeds for the message.
+        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
+        :type allowed_mentions: Optional[MessageInteraction]
+        :param components?: A component, or list of components for the message.
+        :type components: Optional[Union[Component, List[Component]]]
+        :return: The sent message as an object.
+        :rtype: Message
+        """
+
+        from ...models.component import ActionRow, Button, SelectMenu
+
+        _content: str = "" if content is None else content
+        _tts: bool = False if tts is None else tts
+        # _file = None if file is None else file
+        # _attachments = [] if attachments else None
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
+        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _components: list = [{"type": 1, "components": []}]
+        _message_reference = MessageReference(message_id=int(self.id))._json
+
+        if isinstance(components, ActionRow):
+            _components[0]["components"] = [component._json for component in components.components]
+        elif isinstance(components, Button):
+            _components[0]["components"] = [] if components is None else [components._json]
+        elif isinstance(components, SelectMenu):
+            components._json["options"] = [option._json for option in components.options]
+            _components[0]["components"] = [] if components is None else [components._json]
+        else:
+            _components = [] if components is None else [components]
+
+        # TODO: post-v4: Add attachments into Message obj.
+        payload = Message(
+            content=_content,
+            tts=_tts,
+            # file=file,
+            # attachments=_attachments,
+            embeds=_embeds,
+            message_reference=_message_reference,
+            allowed_mentions=_allowed_mentions,
+            components=_components,
+        )
+
+        res = await self.client.create_message(
+            channel_id=int(self.channel_id), payload=payload._json
+        )
+        message = Message(**res, client=self.client)
+        return message
 
 
 class Emoji(DictSerializerMixin):

@@ -57,3 +57,5 @@ class Member(DictSerializerMixin):
             if self._json.get("premium_since")
             else None
         )
+
+    # TODO: add roles, remove roles, send(DM)

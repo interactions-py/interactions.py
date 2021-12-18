@@ -104,6 +104,16 @@ class Message(DictSerializerMixin):
         components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
     ) -> "Message": ...
 
+    async def reply(self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None
+        embeds: Optional[Union["Embed", List["Embed"]]] = None,
+        allowed_mentions: Optional["MessageInteraction"] = None,
+        components=None,
+    ) -> "Message": ...
+
 
 class Emoji(DictSerializerMixin):
     _json: dict

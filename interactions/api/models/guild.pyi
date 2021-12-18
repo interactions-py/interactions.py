@@ -98,6 +98,12 @@ class Guild(DictSerializerMixin):
     lazy: Any
     application_command_counts: Any
     def __init__(self, **kwargs): ...
+    async def ban(
+            self,
+            member_id: int,
+            reason: Optional[str] = None,
+            delete_message_days: Optional[int] = 0,
+    ) -> None: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict

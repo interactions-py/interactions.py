@@ -166,7 +166,6 @@ class Channel(DictSerializerMixin):
             if self._json.get("last_pin_timestamp")
             else None
         )
-        self.client = self.client if self.client else None
 
     async def send(
         self,

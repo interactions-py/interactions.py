@@ -4,10 +4,12 @@ from typing import Any, List, Optional
 from .misc import DictSerializerMixin
 from .role import Role
 from .user import User
+from ..http import HTTPClient
 
 class Member(DictSerializerMixin):
 
     _json: dict
+    client: HTTPClient
     user: Optional[User]
     nick: Optional[str]
     avatar: Optional[str]

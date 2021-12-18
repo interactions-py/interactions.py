@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
@@ -236,6 +237,31 @@ class Guild(DictSerializerMixin):
             if self._json.get("stickers")
             else None
         )
+
+    async def ban(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
+    ) -> None:
+        """
+        Bans a member from the guild
+
+        :param member_id: The id of the member to ban
+        :type member_id: int
+        :param reason?: The reason of the ban
+        :type reason: Optional[str]
+        :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :type delete_message_days: Optional[int]
+        """
+        await self.client.create_guild_ban(
+            guild_id=int(self.id),
+            user_id=member_id,
+            reason=reason,
+            delete_message_days=delete_message_days,
+        )
+
+        # TODO: unban, role create, channel create, get_member, kick
 
 
 class GuildPreview(DictSerializerMixin):
