@@ -78,10 +78,20 @@ def command(
         else:
             _scope.append(scope)
 
-    for guild in _scope:
+    if _scope:
+        for guild in _scope:
+            payload: ApplicationCommand = ApplicationCommand(
+                type=_type,
+                guild_id=guild,
+                name=name,
+                description=_description,
+                options=_options,
+                default_permission=_default_permission,
+            )
+            payloads.append(payload)
+    else:
         payload: ApplicationCommand = ApplicationCommand(
             type=_type,
-            guild_id=guild,
             name=name,
             description=_description,
             options=_options,

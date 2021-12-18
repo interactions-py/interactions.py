@@ -1,6 +1,6 @@
 import interactions
 
-bot = interactions.Client(token=open("bot.token").read())
+bot = interactions.Client(token=open("bot.token").read(), log_level=-1)
 
 
 @bot.event
@@ -9,19 +9,11 @@ async def on_ready():
 
 
 @bot.command(
-    name="basic-command",
-    description="ever wanted a basic command? well, here it is!",
-    options=[
-        interactions.Option(
-            type=interactions.OptionType.STRING,
-            name="option",
-            description="please PLEASE write in me! UwU :(",
-            required=True,
-        )
-    ],
+    name="global-command",
+    description="ever wanted a global command? well, here it is!",
 )
-async def basic_command(ctx, option):
-    await ctx.send(f"{option}")
+async def basic_command(ctx):
+    await ctx.send("Global commands are back in action, baby!")
 
 
 # bot.load("simple_cog")

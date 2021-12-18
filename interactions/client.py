@@ -203,7 +203,7 @@ class Client:
                     application_id=command.get("application_id"),
                     id=command.get("id"),
                     type=command.get("type"),
-                    guild_id=str(command.get("guild_id")),
+                    guild_id=str(command["guild_id"]) if command.get("guild_id") else None,
                     name=command.get("name"),
                     description=command.get("description", ""),
                     default_permission=command.get("default_permission", False),
@@ -232,7 +232,7 @@ class Client:
                                     application_id=self.me.id,
                                     data=payload._json,
                                     command_id=result.id,
-                                    guild_id=result.guild_id,
+                                    guild_id=result._json.get("guild_id"),
                                 )
                                 self.http.cache.interactions.add(
                                     Build(id=payload.name, value=payload)
@@ -262,7 +262,7 @@ class Client:
                     request = await self.http.delete_application_command(
                         application_id=self.me.id,
                         command_id=command["id"],
-                        guild_id=command["guild_id"],
+                        guild_id=command.get("guild_id"),
                     )
 
                     if request:
