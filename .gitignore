@@ -10,3 +10,4 @@ dist/
 .env
 .venv
 .vscode
+__pycache__

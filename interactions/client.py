@@ -1,5 +1,7 @@
 import sys
 from asyncio import get_event_loop
+
+# from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
@@ -604,9 +606,9 @@ class Client:
 
 #         class CoolCode(interactions.Extension):
 #             def __init__(self, client):
-#                 ...
+#                 self.client = client
 
-#             @self.client.command(
+#             @command(
 #                 type=interactions.ApplicationCommandType.USER,
 #                 name="User command in cog",
 #             )
@@ -618,6 +620,15 @@ class Client:
 #     """
 
 #     client: Client
+#     commands: Optional[List[ApplicationCommand]]
+#     listeners: Optional[List[Listener]]
 
 #     def __new__(cls, bot: Client) -> None:
 #         cls.client = bot
+#         cls.commands = []
+
+#         for _, content in cls.__dict__.items():
+#             content = content if isinstance(content.callback, partial) else None
+#             if isinstance(content, ApplicationCommand):
+#                 cls.commands.append(content)
+#                 bot.command(**content)
