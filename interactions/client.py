@@ -92,7 +92,7 @@ class Client:
         else:
             self.automate_sync = True
 
-        log_names: list = ["client", "context", "dispatch", "gateway", "http"]
+        log_names: list = ["client", "context", "dispatch", "gateway", "http", "mixin"]
         for logger in log_names:
             getLogger(logger).setLevel(log_level)
 
