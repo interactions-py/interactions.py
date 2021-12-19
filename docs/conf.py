@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "hoverxref.extension",
     "karma_sphinx_theme",
+    "sphinx_rtd_dark_mode",
 ]
 
 # Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
@@ -48,6 +49,9 @@ latex_elements = {
 \renewcommand{\hyperref}[2][]{#2}
 """
 }
+
+# user starts in dark mode
+default_dark_mode = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
