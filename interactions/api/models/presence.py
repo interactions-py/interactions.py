@@ -115,6 +115,11 @@ class PresenceActivity(DictSerializerMixin):
         "instance",
         "flags",
         "buttons",
+        # TODO: document/investigate what these do.
+        "users",
+        "status",
+        "client_status",
+        "activities",
     )
 
     def __init__(self, **kwargs):
