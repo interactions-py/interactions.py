@@ -338,7 +338,7 @@ class Guild(DictSerializerMixin):
 
     async def remove_member_roles(
         self,
-        roles: Union[List[Union[Role, int]], Role, int],
+        roles: Union[List[Role], Role, int],
         member_id: int,
         reason: Optional[str],
     ) -> None:
