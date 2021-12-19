@@ -304,7 +304,7 @@ class WebSocket:
                         "guild_create",
                         "guild_role_create",
                     ]:
-                        data["client"] = self.http
+                        data["_client"] = self.http
                     self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
                 except AttributeError as error:  # noqa
                     log.fatal(f"You're missing a data model for the event {name}: {error}")
