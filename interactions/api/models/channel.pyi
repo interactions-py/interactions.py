@@ -30,7 +30,7 @@ class ThreadMember(DictSerializerMixin):
 
 class Channel(DictSerializerMixin):
     _json: dict
-    client: HTTPClient
+    _client: HTTPClient
     id: Snowflake
     type: ChannelType
     guild_id: Optional[Snowflake]
