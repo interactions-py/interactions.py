@@ -404,7 +404,7 @@ class Message(DictSerializerMixin):
             components=_components,
         )
 
-        res = await self.client.create_message(
+        res = await self._client.create_message(
             channel_id=int(self.channel_id), payload=payload._json
         )
         message = Message(**res, client=self.client)
