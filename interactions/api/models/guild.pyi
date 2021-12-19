@@ -37,7 +37,7 @@ class StageInstance(DictSerializerMixin):
 
 class Guild(DictSerializerMixin):
     _json: dict
-    client: HTTPClient
+    _client: HTTPClient
     id: Snowflake
     name: str
     icon: Optional[str]
