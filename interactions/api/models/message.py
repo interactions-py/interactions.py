@@ -335,7 +335,7 @@ class Message(DictSerializerMixin):
             message_reference=_message_reference,
         )
 
-        await self.client.edit_message(
+        await self._client.edit_message(
             channel_id=int(self.channel_id), message_id=int(self.id), payload=payload._json
         )
         return payload
