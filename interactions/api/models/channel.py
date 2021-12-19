@@ -145,7 +145,7 @@ class Channel(DictSerializerMixin):
         "member",
         "default_auto_archive_duration",
         "permissions",
-        "client",
+        "_client",
     )
 
     def __init__(self, **kwargs):
