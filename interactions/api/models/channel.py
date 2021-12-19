@@ -229,7 +229,7 @@ class Channel(DictSerializerMixin):
             components=_components,
         )
 
-        res = await self.client.create_message(channel_id=int(self.id), payload=payload._json)
+        res = await self._client.create_message(channel_id=int(self.id), payload=payload._json)
         message = Message(**res, client=self.client)
         return message
 
