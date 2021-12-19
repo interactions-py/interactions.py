@@ -31,7 +31,7 @@ setup(
     install_requires=requirements,
     license="MIT License",
     long_description=README,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     url="https://github.com/goverfl0w/discord-interactions",
     packages=find_packages(),
     python_requires=">=3.8.6",

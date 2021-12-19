@@ -100,6 +100,7 @@ class Application(DictSerializerMixin):
         "flags",
         "type",
         "hook",
+        "tags",  # TODO: document/investigate what it does.
     )
 
     def __init__(self, **kwargs):
