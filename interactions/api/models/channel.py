@@ -237,4 +237,4 @@ class Channel(DictSerializerMixin):
         """
         Deletes the channel.
         """
-        await self.client.delete_channel(channel_id=int(self.id))
+        await self._client.delete_channel(channel_id=int(self.id))
