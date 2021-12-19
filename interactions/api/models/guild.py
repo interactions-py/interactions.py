@@ -254,7 +254,7 @@ class Guild(DictSerializerMixin):
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
         :type delete_message_days: Optional[int]
         """
-        await self.client.create_guild_ban(
+        await self._client.create_guild_ban(
             guild_id=int(self.id),
             user_id=member_id,
             reason=reason,
