@@ -9,7 +9,7 @@ from ..http import HTTPClient
 class Member(DictSerializerMixin):
 
     _json: dict
-    client: HTTPClient
+    _client: HTTPClient
     user: Optional[User]
     nick: Optional[str]
     avatar: Optional[str]
