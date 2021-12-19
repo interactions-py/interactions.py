@@ -5,6 +5,7 @@
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 import datetime
 import logging
+from math import floor
 from typing import Union
 
 log = logging.getLogger("mixin")
@@ -147,7 +148,7 @@ class Snowflake(object):
 
         :return: A float containing the seconds since Discord Epoch.
         """
-        return ((int(self._snowflake) >> 22) + 1420070400000) / 1000
+        return floor(((int(self._snowflake) >> 22) + 1420070400000) / 1000)
 
     @property
     def timestamp(self) -> datetime.datetime:
