@@ -354,7 +354,7 @@ class Guild(DictSerializerMixin):
         if isinstance(roles, list):
             roles = [int(role.id) if isinstance(role, Role) else role for role in roles]
             for role in roles:
-                await self.client.remove_member_role(
+                await self._client.remove_member_role(
                     guild_id=int(self.id),
                     user_id=member_id,
                     role_id=role,
