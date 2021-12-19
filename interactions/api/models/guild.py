@@ -291,7 +291,7 @@ class Guild(DictSerializerMixin):
         :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
-        await self.client.create_guild_kick(
+        await self._client.create_guild_kick(
             guild_id=int(self.id),
             user_id=member_id,
             reason=reason,
