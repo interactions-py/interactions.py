@@ -53,7 +53,7 @@ class Role(DictSerializerMixin):
         "mentionable",
         "tags",
         "permissions",
-        "client",
+        "_client",
     )
 
     def __init__(self, **kwargs):
