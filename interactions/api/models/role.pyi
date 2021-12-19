@@ -12,7 +12,7 @@ class RoleTags(DictSerializerMixin):
 
 class Role(DictSerializerMixin):
     _json: dict
-    client: HTTPClient
+    _client: HTTPClient
     id: Snowflake
     name: str
     color: int
