@@ -190,6 +190,7 @@ class CommandContext(Context):
         if isinstance(components, list) and components and isinstance(action_row, ActionRow) for action_row in components:
             for action_row in components:
                 print(f"got here lol {action_row}")
+            return
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
         elif isinstance(components, Button):
