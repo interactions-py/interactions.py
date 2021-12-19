@@ -187,7 +187,10 @@ class CommandContext(Context):
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: list = [{"type": 1, "components": []}]
 
-        if isinstance(components, ActionRow):
+        if isinstance(components, list) and components and isinstance(action_row, ActionRow) for action_row in components:
+            for action_row in components:
+                print(f"got here lol {action_row}")
+        elif isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
         elif isinstance(components, Button):
             _components[0]["components"] = [] if components is None else [components._json]
