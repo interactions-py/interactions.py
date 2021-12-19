@@ -286,7 +286,7 @@ class Message(DictSerializerMixin):
         :param reason: Optional reason to show up in the audit log. Defaults to `None`.
         :type reason: Optional[str]
         """
-        await self.client.delete_message(
+        await self._client.delete_message(
             message_id=int(self.id), channel_id=int(self.channel_id), reason=reason
         )
 
