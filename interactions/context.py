@@ -187,7 +187,7 @@ class CommandContext(Context):
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: list = [{"type": 1, "components": []}]
 
-        if isinstance(components, list) and components and isinstance(action_row, ActionRow) for action_row in components:
+        if isinstance(components, list) and components and (isinstance(action_row, ActionRow) for action_row in components):
             for action_row in components:
                 print(f"got here lol {action_row}")
             return
