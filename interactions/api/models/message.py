@@ -227,7 +227,7 @@ class Message(DictSerializerMixin):
         "components",
         "sticker_items",
         "stickers",
-        "client",
+        "_client",
     )
 
     def __init__(self, **kwargs):
