@@ -245,27 +245,28 @@ class WebSocket:
         :type data: dict
         """
 
-        def check_sub_command(option) -> dict:
-            _kwargs = dict()
-            if option._json.get("options"):
-                if option["type"] == OptionType.SUB_COMMAND_GROUP:
-                    _kwargs["sub_command_group"] = option["name"]
+        def check_sub_command(option: dict) -> dict:
+            kwargs = dict()
+            if option["type"] == OptionType.SUB_COMMAND_GROUP:
+                kwargs["sub_command_group"] = option["name"]
+                if option.get("options"):
                     for group_option in option["options"]:
-                        _kwargs["sub_command"] = group_option["name"]
+                        kwargs["sub_command"] = group_option["name"]
                         if group_option.get("options"):
                             for sub_option in group_option["options"]:
-                                _kwargs[sub_option["name"]] = sub_option["value"]
-                elif option["type"] == OptionType.SUB_COMMAND:
-                    _kwargs["sub_command"] = option["name"]
+                                kwargs[sub_option["name"]] = sub_option["value"]
+            elif option["type"] == OptionType.SUB_COMMAND:
+                kwargs["sub_command"] = option["name"]
+                if option.get("options"):
                     for sub_option in option["options"]:
-                        _kwargs[sub_option["name"]] = sub_option["value"]
+                        kwargs[sub_option["name"]] = sub_option["value"]
             else:
-                _kwargs[option.name] = option.value
+                kwargs[option["name"]] = option["value"]
 
-            return _kwargs
+            return kwargs
 
-        def check_sub_auto(option) -> tuple:
-            if option._json.get("options"):
+        def check_sub_auto(option: dict) -> tuple:
+            if option.get("options"):
                 if option["type"] == OptionType.SUB_COMMAND_GROUP:
                     for group_option in option["options"]:
                         if group_option.get("options"):
@@ -313,7 +314,11 @@ class WebSocket:
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    _kwargs.update(check_sub_command(option))
+                                    _kwargs.update(
+                                        check_sub_command(
+                                            option if isinstance(option, dict) else option._json
+                                        )
+                                    )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = context.data.custom_id
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
@@ -321,7 +326,9 @@ class WebSocket:
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
-                                    add_name, add_args = check_sub_auto(option)
+                                    add_name, add_args = check_sub_auto(
+                                        option if isinstance(option, dict) else option._json
+                                    )
                                     if add_name:
                                         _name += add_name
                                     if add_args:
