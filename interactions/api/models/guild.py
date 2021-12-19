@@ -368,7 +368,7 @@ class Guild(DictSerializerMixin):
                 reason=reason,
             )
         else:
-            await self.client.remove_member_role(
+            await self._client.remove_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
                 role_id=roles,
