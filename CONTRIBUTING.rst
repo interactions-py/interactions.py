@@ -18,7 +18,6 @@ for us to log certain events and procedures internally that may happen before, d
 error may be produced:
 
 .. code-block:: python
-    :linenos:
 
     import interactions
     from logging import DEBUG
