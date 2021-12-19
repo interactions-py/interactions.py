@@ -152,7 +152,7 @@ class Request:
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
-        self.lock = Event(loop=self.loop)
+        self.lock = Event() if version_info >= (3, 10) else Event(loop=self.loop)
 
         self.lock.set()
 
@@ -1859,11 +1859,12 @@ class HTTPClient:
         """
         application_id = int(application_id)
 
-        if not guild_id:
+        if guild_id in (None, "None"):
             return await self._req.request(Route("GET", f"/applications/{application_id}/commands"))
-        return await self._req.request(
-            Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands")
-        )
+        else:
+            return await self._req.request(
+                Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands")
+            )
 
     async def create_application_command(
         self, application_id: Union[int, Snowflake], data: dict, guild_id: Optional[int] = None
@@ -1881,7 +1882,7 @@ class HTTPClient:
 
         url = (
             f"/applications/{application_id}/commands"
-            if not guild_id
+            if guild_id in (None, "None")
             else f"/applications/{application_id}/guilds/{guild_id}/commands"
         )
 
@@ -1933,7 +1934,7 @@ class HTTPClient:
                 application_id=application_id,
                 command_id=command_id,
             )
-            if not guild_id
+            if guild_id in (None, "None")
             else Route(
                 "PATCH",
                 "/applications/{application_id}/guilds/" "{guild_id}/commands/{command_id}",
@@ -1965,7 +1966,7 @@ class HTTPClient:
                 command_id=command_id,
                 guild_id=guild_id,
             )
-            if guild_id
+            if guild_id not in (None, "None")
             else Route(
                 "DELETE",
                 "/applications/{application_id}/commands/{command_id}",
