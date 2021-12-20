@@ -482,7 +482,7 @@ class Guild(DictSerializerMixin):
         Edits a role in the guild
         :param role_id: The id of the role to edit
         :type role_id: int
-        :param name: The name of the role, defaults to the current value of the role
+        :param name?: The name of the role, defaults to the current value of the role
         :type name: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
         :type color: Optional[int]
@@ -490,7 +490,7 @@ class Guild(DictSerializerMixin):
         :type hoist: Optional[bool]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
         :type mentionable: Optional[bool]
-        :param reason?: The reason why the role is created, default ``None``
+        :param reason?: The reason why the role is edited, default ``None``
         :type reason: Optional[str]
         :return: The modified role object
         :rtype: Role

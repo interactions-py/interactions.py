@@ -25,3 +25,8 @@ class Role(DictSerializerMixin):
     mentionable: bool
     tags: Optional[RoleTags]
     def __init__(self, **kwargs): ...
+    async def delete(
+            self,
+            guild_id: int,
+            reason: Optional[str] = None,
+    ) -> None: ...
