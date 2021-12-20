@@ -301,7 +301,7 @@ class Message(DictSerializerMixin):
         message_reference: Optional["MessageReference"] = None,
     ) -> "Message":
         """
-        This method edits a message.
+        This method edits a message. Only available for messages sent by the bot.
 
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
