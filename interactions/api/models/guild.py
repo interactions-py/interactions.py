@@ -399,6 +399,8 @@ class Guild(DictSerializerMixin):
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is created, default ``None``
         :type reason: Optional[str]
+        :return: The created Role
+        :rtype: Role
         """
 
         payload = Role(
@@ -434,17 +436,88 @@ class Guild(DictSerializerMixin):
     async def delete_guild_channel(
         self,
         channel_id: int,
-        reason: Optional[str] = None,
     ) -> None:
         """
         Deletes a channel from the guild
         :param channel_id: The id of the channel to delete
         :type channel_id: int
-        :param reason: The reason of the deletion
+        """
+        await self._client.delete_channel(
+            channel_id=channel_id,
+        )
+
+    async def delete_guild_role(
+        self,
+        role_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes a role from the guild
+        :param role_id: The id of the role to delete
+        :type role_id: int
+        :param reason?: The reason of the deletion
         :type reason: Optional[str]
         """
 
-    # TODO: channel create, delete role, delete channel, edit channel, edit role
+        await self._client.delete_guild_role(
+            guild_id=int(self.id),
+            role_id=role_id,
+            reason=reason,
+        )
+
+    async def modify_guild_role(
+        self,
+        role_id: int,
+        name: Optional[str] = None,
+        # permissions,
+        color: Optional[int] = None,
+        hoist: Optional[bool] = None,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> Role:
+        """
+        Edits a role in the guild
+        :param role_id: The id of the role to edit
+        :type role_id: int
+        :param name: The name of the role, defaults to the current value of the role
+        :type name: Optional[str]
+        :param color?: RGB color value as integer, defaults to the current value of the role
+        :type color: Optional[int]
+        :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
+        :type hoist: Optional[bool]
+        :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
+        :type mentionable: Optional[bool]
+        :param reason?: The reason why the role is created, default ``None``
+        :type reason: Optional[str]
+        :return: The modified role object
+        :rtype: Role
+        """
+
+        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        for i in roles:
+            if int(i["id"]) == role_id:
+                role = Role(**i)
+                break
+            else:
+                pass
+        _name = role.name if name is None else name
+        _color = role.color if color is None else color
+        _hoist = role.hoist if hoist is None else hoist
+        _mentionable = role.mentionable if mentionable is None else mentionable
+
+        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+
+        res = await self._client.modify_guild_role(
+            guild_id=int(self.id),
+            role_id=role_id,
+            data=payload._json,
+            reason=reason,
+        )
+        return Role(**res, _client=self._client)
+
+    # TODO: channel create, edit channel, edit role
 
 
 class GuildPreview(DictSerializerMixin):

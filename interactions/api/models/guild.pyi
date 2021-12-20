@@ -99,10 +99,10 @@ class Guild(DictSerializerMixin):
     application_command_counts: Any
     def __init__(self, **kwargs): ...
     async def ban(
-            self,
-            member_id: int,
-            reason: Optional[str] = None,
-            delete_message_days: Optional[int] = 0,
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
     ) -> None: ...
     async def remove_ban(
             self,
@@ -137,10 +137,31 @@ class Guild(DictSerializerMixin):
             mentionable: Optional[bool] = False,
             reason: Optional[str] = None,
     ) -> Role: ...
-    async def get_member(
+    async def get_guild_member(
             self,
             member_id: int,
     ) -> Member: ...
+    async def delete_guild_channel(
+            self,
+            channel_id: int,
+    ) -> None: ...
+    async def delete_guild_role(
+            self,
+            role_id: int,
+            reason: Optional[str],
+    ) -> None: ...
+    async def modify_guild_role(
+            self,
+            role_id: int,
+            name: Optional[str] = None,
+            # permissions,
+            color: Optional[int] = None,
+            hoist: Optional[bool] = None,
+            # icon,
+            # unicode_emoji,
+            mentionable: Optional[bool] = None,
+            reason: Optional[str] = None,
+    ) -> Role: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
