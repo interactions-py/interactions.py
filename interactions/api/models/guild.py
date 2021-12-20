@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
+from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
@@ -502,9 +503,9 @@ class Guild(DictSerializerMixin):
                 break
             else:
                 pass
-        _name = role.name if name is None else name
-        _color = role.color if color is None else color
-        _hoist = role.hoist if hoist is None else hoist
+        _name = role.name if not name else name
+        _color = role.color if not color else color
+        _hoist = role.hoist if not hoist else hoist
         _mentionable = role.mentionable if mentionable is None else mentionable
 
         payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
@@ -517,7 +518,144 @@ class Guild(DictSerializerMixin):
         )
         return Role(**res, _client=self._client)
 
-    # TODO: channel create, edit channel, edit role
+    async def create_guild_channel(
+        self,
+        name: str,
+        type: ChannelType,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = 0,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Creates a channel in the guild
+        :param name: The name of the channel
+        :type name: str
+        :param type: The type of the channel
+        :type type: ChannelType
+        :param topic?: The topic of that channel
+        :type topic: Optional[str]
+        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
+        :type bitrate Optional[int]
+        :param user_limit?: (voice channel only) Maximum amount of users in the channel
+        :type user_limit: Optional[int]
+        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
+        :type rate_limit_per_user: Optional[int]
+        :param position?: Sorting position of the channel
+        :type position: Optional[int]
+        :param parent_id?: The id of the parent category for a channel
+        :type parent_id: Optional[int]
+        :param nsfw?: Whether the channel is nsfw or not, default ``False``
+        :type nsfw: Optional[bool]
+        :param reason: The reason for the creation
+        :type reason: Optional[str]
+        """
+
+        if (
+            type == ChannelType.DM
+            or type == ChannelType.DM.value
+            or type == ChannelType.GROUP_DM
+            or type == ChannelType.GROUP_DM.value
+        ):
+            raise ValueError(
+                "ChannelType must not be a direct-message when creating Guild Channels!"
+            )
+
+        payload = Channel(
+            name=name,
+            type=type,
+            topic=topic,
+            bitrate=bitrate,
+            user_limit=user_limit,
+            rate_limit_per_user=rate_limit_per_user,
+            position=position,
+            parent_id=parent_id,
+            nsfw=nsfw,
+        )
+
+        res = await self._client.create_channel(
+            guild_id=int(self.id),
+            reason=reason,
+            payload=payload._json,
+        )
+
+        channel = Channel(**res, _client=self._client)
+        return channel
+
+    async def modify_guild_channel(
+        self,
+        channel_id: int,
+        name: Optional[str] = None,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = None,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Edits a channel of the guild
+        :param channel_id: The id of the channel to modify
+        :type channel_id: int
+        :param name?: The name of the channel, defaults to the current value of the channel
+        :type name: str
+        :param topic?: The topic of that channel, defaults to the current value of the channel
+        :type topic: Optional[str]
+        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
+        :type bitrate Optional[int]
+        :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
+        :type user_limit: Optional[int]
+        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
+        :type rate_limit_per_user: Optional[int]
+        :param position?: Sorting position of the channel, defaults to the current value of the channel
+        :type position: Optional[int]
+        :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
+        :type parent_id: Optional[int]
+        :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
+        :type nsfw: Optional[bool]
+        :param reason: The reason for the edit
+        :type reason: Optional[str]
+        :return: The modified channel
+        :rtype: Channel
+        """
+        ch = Channel(**await self._client.get_channel(channel_id=channel_id))
+
+        _name = ch.name if not name else name
+        _topic = ch.topic if not topic else topic
+        _bitrate = ch.bitrate if not bitrate else bitrate
+        _user_limit = ch.user_limit if not user_limit else user_limit
+        _rate_limit_per_user = (
+            ch.rate_limit_per_user if not rate_limit_per_user else rate_limit_per_user
+        )
+        _position = ch.position if not position else position
+        _parent_id = ch.parent_id if not parent_id else parent_id
+        _nsfw = ch.nsfw if not nsfw else nsfw
+
+        payload = Channel(
+            name=_name,
+            topic=_topic,
+            bitrate=_bitrate,
+            user_limit=_user_limit,
+            rate_limit_per_user=_rate_limit_per_user,
+            position=_position,
+            parent_id=_parent_id,
+            nsfw=_nsfw,
+        )
+
+        res = await self._client.modify_channel(
+            channel_id=channel_id,
+            reason=reason,
+            data=payload._json,
+        )
+        return Channel(**res, _client=self._client)
 
 
 class GuildPreview(DictSerializerMixin):
