@@ -5,6 +5,7 @@ from .misc import DictSerializerMixin
 from .role import Role
 from .user import User
 from ..http import HTTPClient
+from .message import Message
 
 class Member(DictSerializerMixin):
 
@@ -47,3 +48,12 @@ class Member(DictSerializerMixin):
             guild_id: int,
             reason: Optional[str],
     ) -> None: ...
+    async def send(
+            self,
+            content: Optional[str] = None,
+            *,
+            tts: Optional[bool] = False,
+            # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+            embeds=None,
+            allowed_mentions=None,
+    ) -> Message: ...

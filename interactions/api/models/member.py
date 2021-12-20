@@ -178,4 +178,55 @@ class Member(DictSerializerMixin):
                 reason=reason,
             )
 
-    # TODO: send(DM)(?)
+    async def send(
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        embeds=None,
+        allowed_mentions=None,
+    ):
+        """
+        Sends a DM to the member
+
+        :param content?: The contents of the message as a string or string-converted value.
+        :type content: Optional[str]
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
+        :type tts: Optional[bool]
+        :param embeds?: An embed, or list of embeds for the message.
+        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
+        :type allowed_mentions: Optional[MessageInteraction]
+        :return: The sent message as an object.
+        :rtype: Message
+        """
+        from .channel import Channel
+        from .message import Message
+
+        _content: str = "" if content is None else content
+        _tts: bool = False if tts is None else tts
+        # _file = None if file is None else file
+        # _attachments = [] if attachments else None
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
+        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+
+        # TODO: post-v4: Add attachments into Message obj.
+        payload = Message(
+            content=_content,
+            tts=_tts,
+            # file=file,
+            # attachments=_attachments,
+            embeds=_embeds,
+            allowed_mentions=_allowed_mentions,
+        )
+
+        channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
+        res = await self._client.create_message(channel_id=int(channel.id), payload=payload._json)
+
+        message = Message(**res, client=self._client)
+        return message
