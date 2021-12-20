@@ -188,8 +188,11 @@ class CommandContext(Context):
         _components: list = [{"type": 1, "components": []}]
 
         if isinstance(components, list) and components and (isinstance(action_row, ActionRow) for action_row in components):
+            _components = []
             for action_row in components:
-                _components[0]["components"].append([component._json for component in action_row.components])
+                _action_row = {"type": 1, "components": []}
+                _action_row.extend([component._json for component in action_row.components])
+                _components.append(_action_row)
                 print(f"got here lol {_components[0]['components']}")
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
