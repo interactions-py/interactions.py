@@ -84,7 +84,7 @@ class Client:
         _token = token  # noqa: F841
         _cache = self.http.cache  # noqa: F841
 
-        if disable_sync:  # you don't need to change this. this is already correct.
+        if disable_sync:
             self.automate_sync = False
             log.warning(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."

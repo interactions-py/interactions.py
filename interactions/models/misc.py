@@ -100,7 +100,11 @@ class InteractionData(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.type = ApplicationCommandType(self.type) if self._json.get("type") else None
+        if self._json.get("type"):
+            self.type = ApplicationCommandType(self.type)
+            self._json.update({"type": self.type.value})
+        else:
+            self.type = 0
         self.resolved = (
             InteractionResolvedData(**self.resolved) if self._json.get("resolved") else None
         )
@@ -115,7 +119,6 @@ class InteractionData(DictSerializerMixin):
         if self._json.get("component_type"):
             self.component_type = ComponentType(self.component_type)
             self._json.update({"component_type": self.component_type.value})
-        self._json.update({"type": self.type.value})
 
 
 class Interaction(DictSerializerMixin):
