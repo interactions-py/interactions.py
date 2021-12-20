@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import List, Optional, Union
 
 from .misc import DictSerializerMixin
+from .role import Role
 from .user import User
 
 
@@ -57,5 +59,123 @@ class Member(DictSerializerMixin):
             if self._json.get("premium_since")
             else None
         )
+
+    async def ban(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
+    ) -> None:
+        """
+        Bans the member from a guild
+        :param guild_id: The id of the guild to ban the member from
+        :type guild_id: int
+        :param reason?: The reason of the ban
+        :type reason: Optional[str]
+        :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :type delete_message_days: Optional[int]
+        """
+        await self._client.create_guild_ban(
+            guild_id=guild_id,
+            user_id=int(self.user.id),
+            reason=reason,
+            delete_message_days=delete_message_days,
+        )
+
+    async def kick(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Kicks the member from a guild
+        :param guild_id: The id of the guild to kick the member from
+        :type guild_id: int
+        :param reason?: The reason for the kick
+        :type reason: Optional[str]
+        """
+        await self._client.create_guild_kick(
+            guild_id=guild_id,
+            user_id=int(self.user.id),
+            reason=reason,
+        )
+
+    async def add_roles(
+        self,
+        roles: Union[List[Role], Role, int],
+        guild_id: int,
+        reason: Optional[str],
+    ) -> None:
+        """
+        This method adds a or multiple role(s) to a member
+        :param roles: The role(s) to add. Either ``Role`` object or role_id
+        :type roles: Union[List[Role], Role, int]
+        :param guild_id: The id of the guild to add the roles to the member
+        :type guild_id: int
+        :param reason?: The reason why the roles are added
+        :type reason: Optional[str]
+        """
+        if isinstance(roles, list):
+            roles = [int(role.id) for role in roles]
+            for role in roles:
+                await self._client.add_member_role(
+                    guild_id=guild_id,
+                    user_id=int(self.user.id),
+                    role_id=role,
+                    reason=reason,
+                )
+        elif isinstance(roles, Role):
+            await self._client.add_member_role(
+                guild_id=guild_id,
+                user_id=int(self.user.id),
+                role_id=int(roles.id),
+                reason=reason,
+            )
+        else:
+            await self._client.add_member_role(
+                guild_id=guild_id,
+                user_id=int(self.user.id),
+                role_id=roles,
+                reason=reason,
+            )
+
+    async def remove_roles(
+        self,
+        roles: Union[List[Role], Role, int],
+        guild_id: int,
+        reason: Optional[str],
+    ) -> None:
+        """
+        This method removes a or multiple role(s) from a member
+        :param roles: The role(s) to remove. Either ``Role`` object or role_id
+        :type roles: Union[List[Role], Role, int]
+        :param guild_id: The id of the guild to remove the roles of the member
+        :type guild_id: int
+        :param reason?: The reason why the roles are removed
+        :type reason: Optional[str]
+        """
+        if isinstance(roles, list):
+            roles = [int(role.id) for role in roles]
+            for role in roles:
+                await self._client.remove_member_role(
+                    guild_id=guild_id,
+                    user_id=int(self.user.id),
+                    role_id=role,
+                    reason=reason,
+                )
+        elif isinstance(roles, Role):
+            await self._client.remove_member_role(
+                guild_id=guild_id,
+                user_id=int(self.user.id),
+                role_id=int(roles.id),
+                reason=reason,
+            )
+        else:
+            await self._client.remove_member_role(
+                guild_id=guild_id,
+                user_id=int(self.user.id),
+                role_id=roles,
+                reason=reason,
+            )
 
     # TODO: send(DM)(?)

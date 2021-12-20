@@ -60,3 +60,5 @@ class Role(DictSerializerMixin):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.tags = RoleTags(**self.tags) if self._json.get("tags") else None
+
+    # TODO: edit, delete

@@ -116,16 +116,31 @@ class Guild(DictSerializerMixin):
     ) -> None: ...
     async def add_member_roles(
             self,
-            roles: Union[List[Union[Role, int]], Role, int],
+            roles: Union[List[Role], Role, int],
             member_id: int,
             reason: Optional[str],
     ) -> None: ...
     async def remove_member_roles(
             self,
-            roles: Union[List[Union[Role, int]], Role, int],
+            roles: Union[List[Role], Role, int],
             member_id: int,
             reason: Optional[str],
     ) -> None: ...
+    async def create_guild_role(
+            self,
+            name: str,
+            # permissions,
+            color: Optional[int] = 0,
+            hoist: Optional[bool] = False,
+            # icon,
+            # unicode_emoji,
+            mentionable: Optional[bool] = False,
+            reason: Optional[str] = None,
+    ) -> Role: ...
+    async def get_member(
+            self,
+            member_id: int,
+    ) -> Member: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict

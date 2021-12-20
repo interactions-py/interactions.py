@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
+from .member import Member
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
@@ -299,23 +300,23 @@ class Guild(DictSerializerMixin):
 
     async def add_member_roles(
         self,
-        roles: Union[List[Union[Role, int]], Role, int],
+        roles: Union[List[Role], Role, int],
         member_id: int,
         reason: Optional[str],
     ) -> None:
         """
         This method adds a or multiple role(s) to a member
         :param roles: The role(s) to add. Either ``Role`` object or role_id
-        :type roles: Union[List[Union[Role, int]], Role, int]
+        :type roles: Union[List[Role], Role, int]
         :param member_id: The id of the member to add the roles to
         :type member_id: int
-        :param reason: The reason why the roles are added
+        :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
         if isinstance(roles, list):
-            roles = [int(role.id) if isinstance(role, Role) else role for role in roles]
+            roles = [int(role.id) for role in roles]
             for role in roles:
-                await self.client.add_member_role(
+                await self._client.add_member_role(
                     guild_id=int(self.id),
                     user_id=member_id,
                     role_id=role,
@@ -345,14 +346,14 @@ class Guild(DictSerializerMixin):
         """
         This method removes a or multiple role(s) from a member
         :param roles: The role(s) to remove. Either ``Role`` object or role_id
-        :type roles: Union[List[Union[Role, int]], Role, int]
+        :type roles: Union[List[Role], Role, int]
         :param member_id: The id of the member to remove the roles from
         :type member_id: int
-        :param reason: The reason why the roles are removed
+        :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
         if isinstance(roles, list):
-            roles = [int(role.id) if isinstance(role, Role) else role for role in roles]
+            roles = [int(role.id) for role in roles]
             for role in roles:
                 await self._client.remove_member_role(
                     guild_id=int(self.id),
@@ -375,7 +376,75 @@ class Guild(DictSerializerMixin):
                 reason=reason,
             )
 
-    # TODO: role create, channel create, get_member, delete role
+    async def create_guild_role(
+        self,
+        name: str,
+        # permissions,
+        color: Optional[int] = 0,
+        hoist: Optional[bool] = False,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Role:
+        """
+        Creates a new role in the guild
+        :param name: The name of the role
+        :type name: str
+        :param color?: RGB color value as integer, default ``0``
+        :type color: Optional[int]
+        :param hoist?: Whether the role should be displayed separately in the sidebar, default ``False``
+        :type hoist: Optional[bool]
+        :param mentionable?: Whether the role should be mentionable, default ``False``
+        :type mentionable: Optional[bool]
+        :param reason?: The reason why the role is created, default ``None``
+        :type reason: Optional[str]
+        """
+
+        payload = Role(
+            name=name,
+            color=color,
+            hoist=hoist,
+            mentionable=mentionable,
+        )
+        res = await self._client.create_guild_role(
+            guild_id=int(self.id),
+            reason=reason,
+            data=payload._json,
+        )
+        role = Role(**res, _client=self._client)
+        return role
+
+    async def get_guild_member(
+        self,
+        member_id: int,
+    ) -> Member:
+        """
+        Searches for the member with specified id in the guild and returns the member as member object
+        :param member_id: The id of the member to search for
+        :type member_id: int
+        """
+        res = await self._client.get_member(
+            guild_id=int(self.id),
+            member_id=member_id,
+        )
+        member = Member(**res, _client=self._client)
+        return member
+
+    async def delete_guild_channel(
+        self,
+        channel_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes a channel from the guild
+        :param channel_id: The id of the channel to delete
+        :type channel_id: int
+        :param reason: The reason of the deletion
+        :type reason: Optional[str]
+        """
+
+    # TODO: channel create, delete role, delete channel, edit channel, edit role
 
 
 class GuildPreview(DictSerializerMixin):

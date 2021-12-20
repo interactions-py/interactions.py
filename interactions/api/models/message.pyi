@@ -54,7 +54,7 @@ class ChannelMention(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Message(DictSerializerMixin):
-    client: HTTPClient
+    _client: HTTPClient
     _json: dict
     id: Snowflake
     channel_id: Snowflake
