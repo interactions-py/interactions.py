@@ -272,7 +272,6 @@ class Presence(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        print(self._json)
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.user = User(**self.user) if self._json.get("user") else None
         self.activities = (

@@ -193,9 +193,9 @@ class Request:
                 kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
                 kwargs["headers"]["Content-Type"] = "application/json"
 
-                if kwargs.get("reason"):
-                    kwargs["headers"]["X-Audit-Log-Reason"] = kwargs["reason"]
-                    del kwargs["reason"]
+                reason = kwargs.pop("reason", None)
+                if reason:
+                    kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
 
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
@@ -1175,7 +1175,9 @@ class HTTPClient:
             reason=reason,
         )
 
-    async def modify_member(self, user_id: int, guild_id: int, payload: dict):
+    async def modify_member(
+        self, user_id: int, guild_id: int, payload: dict, reason: Optional[str] = None
+    ):
         """
         Edits a member.
         This can nick them, change their roles, mute/deafen (and its contrary), and moving them across channels and/or disconnect them
@@ -1183,7 +1185,8 @@ class HTTPClient:
         :param user_id: Member ID snowflake.
         :param guild_id: Guild ID snowflake.
         :param payload: Payload representing parameters (nick, roles, mute, deaf, channel_id)
-        :return: ? (modified voice state? not sure)
+        :param reason: The reason for this action. Defaults to None.
+        :return: Modified member object.
         """
 
         return await self._req.request(
@@ -1191,6 +1194,7 @@ class HTTPClient:
                 "PATCH", "/guilds/{guild_id}/members/{user_id}", guild_id=guild_id, user_id=user_id
             ),
             json=payload,
+            reason=reason,
         )
 
     # Channel endpoint.
