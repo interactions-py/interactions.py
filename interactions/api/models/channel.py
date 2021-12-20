@@ -239,4 +239,66 @@ class Channel(DictSerializerMixin):
         """
         await self._client.delete_channel(channel_id=int(self.id))
 
-    # TODO: edit
+    async def modify(
+        self,
+        name: Optional[str] = None,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = None,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Edits the channel
+        :param name?: The name of the channel, defaults to the current value of the channel
+        :type name: str
+        :param topic?: The topic of that channel, defaults to the current value of the channel
+        :type topic: Optional[str]
+        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
+        :type bitrate Optional[int]
+        :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
+        :type user_limit: Optional[int]
+        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
+        :type rate_limit_per_user: Optional[int]
+        :param position?: Sorting position of the channel, defaults to the current value of the channel
+        :type position: Optional[int]
+        :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
+        :type parent_id: Optional[int]
+        :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
+        :type nsfw: Optional[bool]
+        :param reason: The reason for the edit
+        :type reason: Optional[str]
+        :return: The modified channel as new object
+        :rtype: Channel
+        """
+        _name = self.name if not name else name
+        _topic = self.topic if not topic else topic
+        _bitrate = self.bitrate if not bitrate else bitrate
+        _user_limit = self.user_limit if not user_limit else user_limit
+        _rate_limit_per_user = (
+            self.rate_limit_per_user if not rate_limit_per_user else rate_limit_per_user
+        )
+        _position = self.position if not position else position
+        _parent_id = self.parent_id if not parent_id else parent_id
+        _nsfw = self.nsfw if not nsfw else nsfw
+
+        payload = Channel(
+            name=_name,
+            topic=_topic,
+            bitrate=_bitrate,
+            user_limit=_user_limit,
+            rate_limit_per_user=_rate_limit_per_user,
+            position=_position,
+            parent_id=_parent_id,
+            nsfw=_nsfw,
+        )
+        res = await self._client.modify_channel(
+            channel_id=int(self.id),
+            reason=reason,
+            data=payload._json,
+        )
+        return Channel(**res, _client=self._client)

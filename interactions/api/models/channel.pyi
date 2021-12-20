@@ -58,7 +58,6 @@ class Channel(DictSerializerMixin):
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
-
     async def send(
             self,
             content: Optional[str] = None,
@@ -71,3 +70,16 @@ class Channel(DictSerializerMixin):
     ) -> Message: ...
 
     async def delete(self) -> None: ...
+    async def modify(
+            self,
+            name: Optional[str] = None,
+            topic: Optional[str] = None,
+            bitrate: Optional[int] = None,
+            user_limit: Optional[int] = None,
+            rate_limit_per_user: Optional[int] = None,
+            position: Optional[int] = None,
+            # permission_overwrites,
+            parent_id: Optional[int] = None,
+            nsfw: Optional[bool] = False,
+            reason: Optional[str] = None,
+    ) -> "Channel": ...
