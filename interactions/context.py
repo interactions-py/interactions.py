@@ -187,7 +187,19 @@ class CommandContext(Context):
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: list = [{"type": 1, "components": []}]
 
-        if isinstance(components, ActionRow):
+        if (
+            isinstance(components, list)
+            and components
+            and (isinstance(action_row, ActionRow) for action_row in components)
+        ):
+            _components = []
+            for action_row in components:
+                _action_row = {"type": 1, "components": []}
+                _action_row["components"].extend(
+                    [component._json for component in action_row.components]
+                )
+                _components.append(_action_row)
+        elif isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
         elif isinstance(components, Button):
             _components[0]["components"] = [] if components is None else [components._json]
@@ -292,7 +304,19 @@ class CommandContext(Context):
         _message_reference: dict = {} if message_reference is None else message_reference._json
         _components: list = [{"type": 1, "components": []}]
 
-        if isinstance(components, ActionRow):
+        if (
+            isinstance(components, list)
+            and components
+            and (isinstance(action_row, ActionRow) for action_row in components)
+        ):
+            _components = []
+            for action_row in components:
+                _action_row = {"type": 1, "components": []}
+                _action_row["components"].extend(
+                    [component._json for component in action_row.components]
+                )
+                _components.append(_action_row)
+        elif isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
         elif isinstance(components, Button):
             _components[0]["components"] = [] if components is None else [components._json]

@@ -152,7 +152,7 @@ class Request:
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
-        self.lock = Event(loop=self.loop)
+        self.lock = Event() if version_info >= (3, 10) else Event(loop=self.loop)
 
         self.lock.set()
 
