@@ -105,89 +105,89 @@ class Guild(DictSerializerMixin):
         delete_message_days: Optional[int] = 0,
     ) -> None: ...
     async def remove_ban(
-            self,
-            user_id: int,
-            reason: Optional[str] = None,
+        self,
+        user_id: int,
+        reason: Optional[str] = None,
     ) -> None: ...
     async def kick(
-            self,
-            member_id: int,
-            reason: Optional[str] = None,
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
     ) -> None: ...
     async def add_member_roles(
-            self,
-            roles: Union[List[Role], Role, int],
-            member_id: int,
-            reason: Optional[str],
+        self,
+        roles: Union[List[Role], Role, int],
+        member_id: int,
+        reason: Optional[str],
     ) -> None: ...
     async def remove_member_roles(
-            self,
-            roles: Union[List[Role], Role, int],
-            member_id: int,
-            reason: Optional[str],
+        self,
+        roles: Union[List[Role], Role, int],
+        member_id: int,
+        reason: Optional[str],
     ) -> None: ...
     async def create_guild_role(
-            self,
-            name: str,
-            # permissions,
-            color: Optional[int] = 0,
-            hoist: Optional[bool] = False,
-            # icon,
-            # unicode_emoji,
-            mentionable: Optional[bool] = False,
-            reason: Optional[str] = None,
+        self,
+        name: str,
+        # permissions,
+        color: Optional[int] = 0,
+        hoist: Optional[bool] = False,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = False,
+        reason: Optional[str] = None,
     ) -> Role: ...
     async def get_guild_member(
-            self,
-            member_id: int,
+        self,
+        member_id: int,
     ) -> Member: ...
     async def delete_guild_channel(
-            self,
-            channel_id: int,
+        self,
+        channel_id: int,
     ) -> None: ...
     async def delete_guild_role(
-            self,
-            role_id: int,
-            reason: Optional[str],
+        self,
+        role_id: int,
+        reason: Optional[str],
     ) -> None: ...
     async def modify_guild_role(
-            self,
-            role_id: int,
-            name: Optional[str] = None,
-            # permissions,
-            color: Optional[int] = None,
-            hoist: Optional[bool] = None,
-            # icon,
-            # unicode_emoji,
-            mentionable: Optional[bool] = None,
-            reason: Optional[str] = None,
+        self,
+        role_id: int,
+        name: Optional[str] = None,
+        # permissions,
+        color: Optional[int] = None,
+        hoist: Optional[bool] = None,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = None,
+        reason: Optional[str] = None,
     ) -> Role: ...
     async def create_guild_channel(
-            self,
-            type: ChannelType,
-            topic: Optional[str] = None,
-            bitrate: Optional[int] = None,
-            user_limit: Optional[int] = None,
-            rate_limit_per_user: Optional[int] = 0,
-            position: Optional[int] = None,
-            # permission_overwrites,
-            parent_id: Optional[int] = None,
-            nsfw: Optional[bool] = False,
-            reason: Optional[str] = None
+        self,
+        type: ChannelType,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = 0,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None
     ) -> Channel: ...
     async def modify_guild_channel(
-            self,
-            channel_id: int,
-            name: Optional[str] = None,
-            topic: Optional[str] = None,
-            bitrate: Optional[int] = None,
-            user_limit: Optional[int] = None,
-            rate_limit_per_user: Optional[int] = None,
-            position: Optional[int] = None,
-            # permission_overwrites,
-            parent_id: Optional[int] = None,
-            nsfw: Optional[bool] = False,
-            reason: Optional[str] = None
+        self,
+        channel_id: int,
+        name: Optional[str] = None,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = None,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None
     ) -> Channel: ...
 
 class GuildPreview(DictSerializerMixin):

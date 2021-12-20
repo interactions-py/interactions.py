@@ -26,7 +26,19 @@ class Role(DictSerializerMixin):
     tags: Optional[RoleTags]
     def __init__(self, **kwargs): ...
     async def delete(
-            self,
-            guild_id: int,
-            reason: Optional[str] = None,
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
     ) -> None: ...
+    async def modify(
+        self,
+        guild_id: int,
+        name: Optional[str] = None,
+        # permissions,
+        color: Optional[int] = None,
+        hoist: Optional[bool] = None,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> "Role": ...

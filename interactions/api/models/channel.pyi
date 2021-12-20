@@ -59,27 +59,27 @@ class Channel(DictSerializerMixin):
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
     async def send(
-            self,
-            content: Optional[str] = None,
-            *,
-            tts: Optional[bool] = False,
-            # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-            embeds: Optional[Union[Embed, List[Embed]]] = None,
-            allowed_mentions: Optional[MessageInteraction] = None,
-            components: Optional[Union[Component, List[Component]]] = None,
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        embeds: Optional[Union[Embed, List[Embed]]] = None,
+        allowed_mentions: Optional[MessageInteraction] = None,
+        components: Optional[Union[Component, List[Component]]] = None,
     ) -> Message: ...
 
     async def delete(self) -> None: ...
     async def modify(
-            self,
-            name: Optional[str] = None,
-            topic: Optional[str] = None,
-            bitrate: Optional[int] = None,
-            user_limit: Optional[int] = None,
-            rate_limit_per_user: Optional[int] = None,
-            position: Optional[int] = None,
-            # permission_overwrites,
-            parent_id: Optional[int] = None,
-            nsfw: Optional[bool] = False,
-            reason: Optional[str] = None,
+        self,
+        name: Optional[str] = None,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = None,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
     ) -> "Channel": ...
