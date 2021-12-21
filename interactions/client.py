@@ -21,7 +21,7 @@ from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
-from .models.component import Button, Component, Modal, SelectMenu
+from .models.component import Button, Modal, SelectMenu
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
@@ -399,7 +399,9 @@ class Client:
 
         def decorator(coro: Coroutine) -> Any:
             payload: str = (
-                _component(component).custom_id if isinstance(component, Component) else component
+                _component(component).custom_id
+                if isinstance(component, (Button, SelectMenu))
+                else component
             )
             return self.event(coro, name=payload)
 
