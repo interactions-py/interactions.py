@@ -164,6 +164,7 @@ class Guild(DictSerializerMixin):
     ) -> Role: ...
     async def create_channel(
         self,
+        name: str,
         type: ChannelType,
         topic: Optional[str] = None,
         bitrate: Optional[int] = None,

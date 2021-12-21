@@ -210,5 +210,5 @@ class Member(DictSerializerMixin):
         channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
         res = await self._client.create_message(channel_id=int(channel.id), payload=payload._json)
 
-        message = Message(**res, client=self._client)
+        message = Message(**res, _client=self._client)
         return message

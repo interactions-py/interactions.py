@@ -214,11 +214,11 @@ class Channel(DictSerializerMixin):
         _embeds: list = []
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: list = [{"type": 1, "components": []}]
-
-        if isinstance(embeds, list):
-            _embeds = [embed._json for embed in embeds]
-        else:
-            _embeds = [embeds._json]
+        if embeds:
+            if isinstance(embeds, list):
+                _embeds = [embed._json for embed in embeds]
+            else:
+                _embeds = [embeds._json]
 
         if isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
@@ -242,7 +242,7 @@ class Channel(DictSerializerMixin):
         )
 
         res = await self._client.create_message(channel_id=int(self.id), payload=payload._json)
-        message = Message(**res, client=self._client)
+        message = Message(**res, _client=self._client)
         return message
 
     async def delete(self) -> None:
@@ -297,9 +297,11 @@ class Channel(DictSerializerMixin):
         _position = self.position if not position else position
         _parent_id = self.parent_id if not parent_id else parent_id
         _nsfw = self.nsfw if not nsfw else nsfw
+        _type = self.type
 
         payload = Channel(
             name=_name,
+            type=_type,
             topic=_topic,
             bitrate=_bitrate,
             user_limit=_user_limit,

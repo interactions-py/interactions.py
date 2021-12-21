@@ -9,6 +9,7 @@ from .team import Application
 from .user import User
 from ..http import HTTPClient
 from ...models.component import ActionRow, Button, SelectMenu
+from .guild import Guild
 
 
 class MessageActivity(DictSerializerMixin):
@@ -112,6 +113,8 @@ class Message(DictSerializerMixin):
         allowed_mentions: Optional["MessageInteraction"] = None,
         components=None,
     ) -> "Message": ...
+    async def get_channel(self) -> Channel: ...
+    async def get_guild(self) -> Guild: ...
 
 
 class Emoji(DictSerializerMixin):

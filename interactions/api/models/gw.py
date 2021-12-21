@@ -40,7 +40,7 @@ class GuildBan(DictSerializerMixin):
     :ivar User user: The user of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "user")
+    __slots__ = ("_json", "guild_id", "user", "_client")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -105,6 +105,8 @@ class GuildMember(DictSerializerMixin):
         "avatar",
         "joined_at",
         "premium_since",
+        "is_pending",  # TODO: investigate what this is.
+        "_client",
         "communication_disabled_until",  # TODO: investigate what this is.
         "deaf",
         "mute",
@@ -174,7 +176,14 @@ class GuildRole(DictSerializerMixin):
     :ivar Optional[Snowflake] role_id?: The role ID of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "role", "role_id")
+    __slots__ = (
+        "_json",
+        "guild_id",
+        "role",
+        "role_id",
+        "_client",
+        "guild_hashes",  # TODO: investigate what this is.
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

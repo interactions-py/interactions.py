@@ -280,6 +280,20 @@ class Message(DictSerializerMixin):
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
 
+    async def get_channel(self) -> Channel:
+        """
+        Gets the channel where the message was sent
+        :rtype: Channel
+        """
+        res = await self._client.get_channel(channel_id=int(self.channel_id))
+        return Channel(**res, _client=self._client)
+
+    async def get_guild(self):
+        from .guild import Guild
+
+        res = await self._client.get_guild(guild_id=int(self.guild_id))
+        return Guild(**res, _client=self._client)
+
     async def delete(self, reason: Optional[str] = None) -> None:
         """
         Deletes the message.
@@ -407,7 +421,7 @@ class Message(DictSerializerMixin):
         res = await self._client.create_message(
             channel_id=int(self.channel_id), payload=payload._json
         )
-        message = Message(**res, client=self._client)
+        message = Message(**res, _client=self._client)
         return message
 
 
