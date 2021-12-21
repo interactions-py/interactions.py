@@ -114,19 +114,19 @@ class Guild(DictSerializerMixin):
         member_id: int,
         reason: Optional[str] = None,
     ) -> None: ...
-    async def add_member_roles(
+    async def add_member_role(
         self,
-        roles: Union[List[Role], Role, int],
+        role: Union[Role, int],
         member_id: int,
         reason: Optional[str],
     ) -> None: ...
-    async def remove_member_roles(
+    async def remove_member_role(
         self,
-        roles: Union[List[Role], Role, int],
+        role: Union[Role, int],
         member_id: int,
         reason: Optional[str],
     ) -> None: ...
-    async def create_guild_role(
+    async def create_role(
         self,
         name: str,
         # permissions,
@@ -137,20 +137,20 @@ class Guild(DictSerializerMixin):
         mentionable: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> Role: ...
-    async def get_guild_member(
+    async def get_member(
         self,
         member_id: int,
     ) -> Member: ...
-    async def delete_guild_channel(
+    async def delete_channel(
         self,
         channel_id: int,
     ) -> None: ...
-    async def delete_guild_role(
+    async def delete_role(
         self,
         role_id: int,
         reason: Optional[str],
     ) -> None: ...
-    async def modify_guild_role(
+    async def modify_role(
         self,
         role_id: int,
         name: Optional[str] = None,
@@ -162,7 +162,7 @@ class Guild(DictSerializerMixin):
         mentionable: Optional[bool] = None,
         reason: Optional[str] = None,
     ) -> Role: ...
-    async def create_guild_channel(
+    async def create_channel(
         self,
         type: ChannelType,
         topic: Optional[str] = None,
@@ -175,7 +175,7 @@ class Guild(DictSerializerMixin):
         nsfw: Optional[bool] = False,
         reason: Optional[str] = None
     ) -> Channel: ...
-    async def modify_guild_channel(
+    async def modify_channel(
         self,
         channel_id: int,
         name: Optional[str] = None,

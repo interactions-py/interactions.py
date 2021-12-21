@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
@@ -240,6 +240,17 @@ class Guild(DictSerializerMixin):
             if self._json.get("stickers")
             else None
         )
+        self.members = (
+            [Member(**member, _client=self._client) for member in self.members]
+            if self._json.get("members")
+            else None
+        )
+        if not self.members and self._client:
+            members = self._client.cache.self_guilds.values[str(self.id)].members
+            if all(isinstance(member, Member) for member in members):
+                self.members = members
+            else:
+                self.members = [Member(**member, _client=self._client) for member in members]
 
     async def ban(
         self,
@@ -299,85 +310,67 @@ class Guild(DictSerializerMixin):
             reason=reason,
         )
 
-    async def add_member_roles(
+    async def add_member_role(
         self,
-        roles: Union[List[Role], Role, int],
+        role: Union[Role, int],
         member_id: int,
         reason: Optional[str],
     ) -> None:
         """
-        This method adds a or multiple role(s) to a member
-        :param roles: The role(s) to add. Either ``Role`` object or role_id
-        :type roles: Union[List[Role], Role, int]
+        This method adds a role to a member
+        :param role: The role to add. Either ``Role`` object or role_id
+        :type role Union[Role, int]
         :param member_id: The id of the member to add the roles to
         :type member_id: int
         :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
-        if isinstance(roles, list):
-            roles = [int(role.id) for role in roles]
-            for role in roles:
-                await self._client.add_member_role(
-                    guild_id=int(self.id),
-                    user_id=member_id,
-                    role_id=role,
-                    reason=reason,
-                )
-        elif isinstance(roles, Role):
+        if isinstance(role, Role):
             await self._client.add_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
-                role_id=int(roles.id),
+                role_id=int(role.id),
                 reason=reason,
             )
         else:
             await self._client.add_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
-                role_id=roles,
+                role_id=role,
                 reason=reason,
             )
 
-    async def remove_member_roles(
+    async def remove_member_role(
         self,
-        roles: Union[List[Role], Role, int],
+        role: Union[Role, int],
         member_id: int,
         reason: Optional[str],
     ) -> None:
         """
         This method removes a or multiple role(s) from a member
-        :param roles: The role(s) to remove. Either ``Role`` object or role_id
-        :type roles: Union[List[Role], Role, int]
+        :param role: The role to remove. Either ``Role`` object or role_id
+        :type role: Union[List[Role], Role, int]
         :param member_id: The id of the member to remove the roles from
         :type member_id: int
         :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
-        if isinstance(roles, list):
-            roles = [int(role.id) for role in roles]
-            for role in roles:
-                await self._client.remove_member_role(
-                    guild_id=int(self.id),
-                    user_id=member_id,
-                    role_id=role,
-                    reason=reason,
-                )
-        elif isinstance(roles, Role):
+        if isinstance(role, Role):
             await self._client.remove_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
-                role_id=int(roles.id),
+                role_id=int(role.id),
                 reason=reason,
             )
         else:
             await self._client.remove_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
-                role_id=roles,
+                role_id=role,
                 reason=reason,
             )
 
-    async def create_guild_role(
+    async def create_role(
         self,
         name: str,
         # permissions,
@@ -418,7 +411,7 @@ class Guild(DictSerializerMixin):
         role = Role(**res, _client=self._client)
         return role
 
-    async def get_guild_member(
+    async def get_member(
         self,
         member_id: int,
     ) -> Member:
@@ -434,7 +427,7 @@ class Guild(DictSerializerMixin):
         member = Member(**res, _client=self._client)
         return member
 
-    async def delete_guild_channel(
+    async def delete_channel(
         self,
         channel_id: int,
     ) -> None:
@@ -447,7 +440,7 @@ class Guild(DictSerializerMixin):
             channel_id=channel_id,
         )
 
-    async def delete_guild_role(
+    async def delete_role(
         self,
         role_id: int,
         reason: Optional[str] = None,
@@ -466,7 +459,7 @@ class Guild(DictSerializerMixin):
             reason=reason,
         )
 
-    async def modify_guild_role(
+    async def modify_role(
         self,
         role_id: int,
         name: Optional[str] = None,
@@ -518,7 +511,7 @@ class Guild(DictSerializerMixin):
         )
         return Role(**res, _client=self._client)
 
-    async def create_guild_channel(
+    async def create_channel(
         self,
         name: str,
         type: ChannelType,
@@ -587,7 +580,7 @@ class Guild(DictSerializerMixin):
         channel = Channel(**res, _client=self._client)
         return channel
 
-    async def modify_guild_channel(
+    async def modify_channel(
         self,
         channel_id: int,
         name: Optional[str] = None,
