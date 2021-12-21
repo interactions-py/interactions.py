@@ -349,7 +349,7 @@ class Guild(DictSerializerMixin):
         """
         This method removes a or multiple role(s) from a member
         :param role: The role to remove. Either ``Role`` object or role_id
-        :type role: Union[List[Role], Role, int]
+        :type role: Union[Role, int]
         :param member_id: The id of the member to remove the roles from
         :type member_id: int
         :param reason?: The reason why the roles are removed

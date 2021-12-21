@@ -36,15 +36,15 @@ class Member(DictSerializerMixin):
         guild_id: int,
         reason: Optional[str] = None,
     ) -> None: ...
-    async def add_roles(
+    async def add_role(
         self,
-        roles: Union[List[Role], Role, int],
+        role: Union[Role, int],
         guild_id: int,
         reason: Optional[str],
     ) -> None: ...
-    async def remove_roles(
+    async def remove_role(
         self,
-        roles: Union[List[Role], Role, int],
+        role: Union[Role, int],
         guild_id: int,
         reason: Optional[str],
     ) -> None: ...
