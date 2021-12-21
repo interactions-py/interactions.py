@@ -211,13 +211,14 @@ class Channel(DictSerializerMixin):
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        _embeds: list = (
-            []
-            if embeds is None
-            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
-        )
+        _embeds: list = []
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: list = [{"type": 1, "components": []}]
+
+        if isinstance(embeds, list):
+            _embeds = [embed._json for embed in embeds]
+        else:
+            _embeds = [embeds._json]
 
         if isinstance(components, ActionRow):
             _components[0]["components"] = [component._json for component in components.components]
