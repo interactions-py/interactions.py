@@ -200,14 +200,14 @@ class CommandContext(Context):
                 for action_row in components
             ]
         elif isinstance(components, ActionRow):
-            _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, Button):
-            _components[0]["components"] = [] if components is None else [components._json]
-        elif isinstance(components, SelectMenu):
-            components._json["options"] = [option._json for option in components.options]
-            _components[0]["components"] = [] if components is None else [components._json]
+            _components[0]["components"] = [
+                (component._json if components.get("_json") else [])
+                for component in components.components
+            ]
+        elif isinstance(components, (Button, SelectMenu)):
+            _components[0]["components"] = [components._json] if components.get("_json") else []
         else:
-            _components = [] if components is None else [components]
+            _components = [components] if components.get("_json") else []
 
         _ephemeral: int = (1 << 6) if ephemeral else 0
 
@@ -314,13 +314,12 @@ class CommandContext(Context):
                 for action_row in components
             ]
         elif isinstance(components, ActionRow):
-            _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, Button):
-            _components[0]["components"] = [] if components is None else [components._json]
-        elif isinstance(components, SelectMenu):
-            components._json["options"] = [option._json for option in components.options]
-            _components[0]["components"] = [] if components is None else [components._json]
-
+            _components[0]["components"] = [
+                (component._json if components.get("_json") else [])
+                for component in components.components
+            ]
+        elif isinstance(components, (Button, SelectMenu)):
+            _components[0]["components"] = [components._json] if components.get("_json") else []
         else:
             _components = []
 
