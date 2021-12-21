@@ -411,7 +411,7 @@ class CommandContext(Context):
                 [components._json] if components._json.get("custom_id") else []
             )
         elif components is None:
-            print(_message_reference)
+            _components = None
         else:
             _components = []
 
