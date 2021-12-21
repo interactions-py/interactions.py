@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .misc import DictSerializerMixin, Snowflake
 
 
@@ -53,9 +55,72 @@ class Role(DictSerializerMixin):
         "mentionable",
         "tags",
         "permissions",
+        "_client",
     )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.tags = RoleTags(**self.tags) if self._json.get("tags") else None
+
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes the role from the guild
+        :param guild_id: The id of the guild to delete the role from
+        :type guild_id: int
+        :param reason: The reason for the deletion
+        :type reason: Optional[str]
+        """
+
+        await self._client.delete_guild_role(
+            guild_id=guild_id, role_id=int(self.id), reason=reason
+        ),
+
+    async def modify(
+        self,
+        guild_id: int,
+        name: Optional[str] = None,
+        # permissions,
+        color: Optional[int] = None,
+        hoist: Optional[bool] = None,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> "Role":
+        """
+        Edits the role in a guild
+        :param guild_id: The id of the guild to edit the role on
+        :type guild_id: int
+        :param name?: The name of the role, defaults to the current value of the role
+        :type name: Optional[str]
+        :param color?: RGB color value as integer, defaults to the current value of the role
+        :type color: Optional[int]
+        :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
+        :type hoist: Optional[bool]
+        :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
+        :type mentionable: Optional[bool]
+        :param reason?: The reason why the role is edited, default ``None``
+        :type reason: Optional[str]
+        :return: The modified role object
+        :rtype: Role
+        """
+
+        _name = self.name if not name else name
+        _color = self.color if not color else color
+        _hoist = self.hoist if not hoist else hoist
+        _mentionable = self.mentionable if mentionable is None else mentionable
+
+        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+
+        res = await self._client.modify_guild_role(
+            guild_id=guild_id,
+            role_id=int(self.id),
+            data=payload._json,
+            reason=reason,
+        )
+        return Role(**res, _client=self._client)
