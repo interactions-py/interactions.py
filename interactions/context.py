@@ -251,6 +251,8 @@ class CommandContext(Context):
             _components[0]["components"] = (
                 [components._json] if components._json.get("custom_id") else []
             )
+        elif components is None:
+            _components = None
         else:
             _components = []
 
