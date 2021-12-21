@@ -286,12 +286,11 @@ class Guild(DictSerializerMixin):
         :param reason?: The reason for the removal of the ban
         :type reason: Optional[str]
         """
-        res = await self._client.remove_guild_ban(
+        await self._client.remove_guild_ban(
             guild_id=int(self.id),
             user_id=user_id,
             reason=reason,
         )
-        print(res)
 
     async def kick(
         self,
