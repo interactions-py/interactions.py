@@ -210,6 +210,8 @@ class CommandContext(Context):
             and components
             and all(isinstance(component, (Button, SelectMenu)) for component in components)
         ):
+            if isinstance(components[0], SelectMenu):
+                components[0]._json["options"] = [option._json for option in components[0].options]
             _components = [
                 {
                     "type": 1,
@@ -348,6 +350,8 @@ class CommandContext(Context):
             and components
             and all(isinstance(component, (Button, SelectMenu)) for component in components)
         ):
+            if isinstance(components[0], SelectMenu):
+                components[0]._json["options"] = [option._json for option in components[0].options]
             _components = [
                 {
                     "type": 1,
