@@ -193,7 +193,7 @@ class CommandContext(Context):
         if (
             isinstance(components, list)
             and components
-            and (isinstance(action_row, ActionRow) for action_row in components)
+            and all(isinstance(action_row, ActionRow) for action_row in components)
         ):
             _components = [
                 {
@@ -317,7 +317,7 @@ class CommandContext(Context):
         if (
             isinstance(components, list)
             and components
-            and (isinstance(action_row, ActionRow) for action_row in components)
+            and all(isinstance(action_row, ActionRow) for action_row in components)
         ):
             _components = [
                 {
