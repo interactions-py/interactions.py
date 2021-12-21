@@ -221,6 +221,25 @@ class CommandContext(Context):
                     ],
                 }
             ]
+        elif (
+            isinstance(components, list)
+            and components
+            and all(isinstance(action_row, list) for action_row in components)
+        ):
+            _components = []
+            for action_row in components:
+                for component in action_row:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [option._json for option in component.options]
+                _components.append(
+                    {
+                        "type": 1,
+                        "components": [
+                            (component._json if component._json.get("custom_id") else [])
+                            for component in action_row
+                        ],
+                    }
+                )
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
                 (component._json if component._json.get("custom_id") else [])
@@ -361,6 +380,25 @@ class CommandContext(Context):
                     ],
                 }
             ]
+        elif (
+            isinstance(components, list)
+            and components
+            and all(isinstance(action_row, list) for action_row in components)
+        ):
+            _components = []
+            for action_row in components:
+                for component in action_row:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [option._json for option in component.options]
+                _components.append(
+                    {
+                        "type": 1,
+                        "components": [
+                            (component._json if component._json.get("custom_id") else [])
+                            for component in action_row
+                        ],
+                    }
+                )
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
                 (component._json if component._json.get("custom_id") else [])
