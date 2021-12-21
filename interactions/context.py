@@ -199,7 +199,7 @@ class CommandContext(Context):
                 {
                     "type": 1,
                     "components": [
-                        (component._json if components._json.get("custom_id") else [])
+                        (component._json if component._json.get("custom_id") else [])
                         for component in action_row.components
                     ],
                 }
@@ -207,7 +207,7 @@ class CommandContext(Context):
             ]
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
-                (component._json if components._json.get("custom_id") else [])
+                (component._json if component._json.get("custom_id") else [])
                 for component in components.components
             ]
         elif isinstance(components, (Button, SelectMenu)):
@@ -323,7 +323,7 @@ class CommandContext(Context):
                 {
                     "type": 1,
                     "components": [
-                        (component._json if components._json.get("custom_id") else [])
+                        (component._json if component._json.get("custom_id") else [])
                         for component in action_row.components
                     ],
                 }
@@ -331,7 +331,7 @@ class CommandContext(Context):
             ]
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
-                (component._json if components._json.get("custom_id") else [])
+                (component._json if component._json.get("custom_id") else [])
                 for component in components.components
             ]
         elif isinstance(components, (Button, SelectMenu)):
