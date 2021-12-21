@@ -35,6 +35,8 @@ class CommandContext(Context):
     channel_id: Snowflake
     responded: bool
     deferred: bool
+    locale: str
+    guild_locale: str
     def __init__(self, **kwargs) -> None: ...
     async def defer(self, ephemeral: Optional[bool] = None) -> None: ...
     async def send(

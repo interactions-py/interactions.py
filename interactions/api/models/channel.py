@@ -67,7 +67,18 @@ class ThreadMember(DictSerializerMixin):
     :ivar int flags: The bitshift flags for the member in the thread.
     """
 
-    __slots__ = ("_json", "id", "user_id", "join_timestamp", "flags")
+    __slots__ = (
+        "_json",
+        "id",
+        "user_id",
+        "join_timestamp",
+        "flags",
+        # TODO: Document below attributes.
+        "user",
+        "team_id",
+        "membership_state",
+        "permissions",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

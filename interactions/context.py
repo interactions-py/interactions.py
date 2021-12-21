@@ -97,6 +97,9 @@ class CommandContext(Context):
         "channel_id",
         "responded",
         "deferred",
+        #
+        "locale",
+        "guild_locale",
     )
 
     def __init__(self, **kwargs) -> None:
@@ -508,6 +511,9 @@ class ComponentContext(CommandContext):
         "channel_id",
         "responded",
         "deferred",
+        #
+        "locale",
+        "guild_locale",
     )
 
     def __init__(self, **kwargs) -> None:
