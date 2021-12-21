@@ -196,18 +196,26 @@ class CommandContext(Context):
             and (isinstance(action_row, ActionRow) for action_row in components)
         ):
             _components = [
-                {"type": 1, "components": [component._json for component in action_row.components]}
+                {
+                    "type": 1,
+                    "components": [
+                        (component._json if components._json.get("custom_id") else [])
+                        for component in action_row.components
+                    ],
+                }
                 for action_row in components
             ]
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
-                (component._json if components.get("_json") else [])
+                (component._json if components._json.get("custom_id") else [])
                 for component in components.components
             ]
         elif isinstance(components, (Button, SelectMenu)):
-            _components[0]["components"] = [components._json] if components.get("_json") else []
+            _components[0]["components"] = (
+                [components._json] if components._json.get("custom_id") else []
+            )
         else:
-            _components = [components] if components.get("_json") else []
+            _components = [components] if components._json.get("custom_id") else []
 
         _ephemeral: int = (1 << 6) if ephemeral else 0
 
@@ -310,16 +318,24 @@ class CommandContext(Context):
             and (isinstance(action_row, ActionRow) for action_row in components)
         ):
             _components = [
-                {"type": 1, "components": [component._json for component in action_row.components]}
+                {
+                    "type": 1,
+                    "components": [
+                        (component._json if components._json.get("custom_id") else [])
+                        for component in action_row.components
+                    ],
+                }
                 for action_row in components
             ]
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
-                (component._json if components.get("_json") else [])
+                (component._json if components._json.get("custom_id") else [])
                 for component in components.components
             ]
         elif isinstance(components, (Button, SelectMenu)):
-            _components[0]["components"] = [components._json] if components.get("_json") else []
+            _components[0]["components"] = (
+                [components._json] if components._json.get("custom_id") else []
+            )
         else:
             _components = []
 
