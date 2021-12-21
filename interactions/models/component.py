@@ -85,7 +85,12 @@ class SelectMenu(DictSerializerMixin):
         super().__init__(**kwargs)
         self.type = ComponentType.SELECT
         self.options = (
-            [SelectOption(**option._json) for option in self.options]
+            [
+                SelectOption(**option._json)
+                if not isinstance(option, dict)
+                else SelectOption(**option)
+                for option in self.options
+            ]
             if self._json.get("options")
             else None
         )
@@ -192,7 +197,14 @@ class Component(DictSerializerMixin):
         self.type = ComponentType(self.type)
         self.style = ButtonStyle(self.style) if self._json.get("style") else None
         self.options = (
-            [SelectMenu(**option) for option in self.options] if self._json.get("options") else None
+            [
+                SelectOption(**option._json)
+                if isinstance(option, SelectOption)
+                else SelectOption(**option)
+                for option in self.options
+            ]
+            if self._json.get("options")
+            else None
         )
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]

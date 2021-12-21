@@ -8,7 +8,6 @@ from ..api.models.role import Role
 from ..api.models.user import User
 from ..enums import ApplicationCommandType, ComponentType, InteractionType
 from ..models.command import Option
-from ..models.component import SelectOption
 
 
 class InteractionResolvedData(DictSerializerMixin):
@@ -70,7 +69,7 @@ class InteractionData(DictSerializerMixin):
     :ivar Optional[Option, List[Option]] options?: The options of the interaction.
     :ivar Optional[str] custom_id?: The custom ID of the interaction.
     :ivar Optional[ComponentType] component_type?: The type of component from the interaction.
-    :ivar Optional[List[SelectOption]] values?: The values of the selected options in the interaction.
+    :ivar Optional[List[str]] values?: The values of the selected options in the interaction.
     :ivar Optional[str] target_id?: The targeted ID of the interaction.
     """
 
@@ -81,7 +80,7 @@ class InteractionData(DictSerializerMixin):
     options: Optional[List[Option]]
     custom_id: Optional[str]
     component_type: Optional[ComponentType]
-    values: Optional[List[SelectOption]]
+    values: Optional[List[str]]
     target_id: Optional[Snowflake]
 
     __slots__ = (
@@ -113,9 +112,7 @@ class InteractionData(DictSerializerMixin):
         self.options = (
             [Option(**option) for option in self.options] if self._json.get("options") else None
         )
-        self.values = (
-            [SelectOption(**value) for value in self.values] if self._json.get("values") else None
-        )
+        self.values = self.values if self._json.get("values") else None
         if self._json.get("component_type"):
             self.component_type = ComponentType(self.component_type)
             self._json.update({"component_type": self.component_type.value})
