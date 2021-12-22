@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
+from typing import List, Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
@@ -226,6 +227,7 @@ class Message(DictSerializerMixin):
         "components",
         "sticker_items",
         "stickers",
+        "_client",
     )
 
     def __init__(self, **kwargs):
@@ -277,6 +279,150 @@ class Message(DictSerializerMixin):
             MessageInteraction(**self.interaction) if self._json.get("interaction") else None
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
+
+    async def get_channel(self) -> Channel:
+        """
+        Gets the channel where the message was sent
+        :rtype: Channel
+        """
+        res = await self._client.get_channel(channel_id=int(self.channel_id))
+        return Channel(**res, _client=self._client)
+
+    async def get_guild(self):
+        from .guild import Guild
+
+        res = await self._client.get_guild(guild_id=int(self.guild_id))
+        return Guild(**res, _client=self._client)
+
+    async def delete(self, reason: Optional[str] = None) -> None:
+        """
+        Deletes the message.
+        :param reason: Optional reason to show up in the audit log. Defaults to `None`.
+        :type reason: Optional[str]
+        """
+        await self._client.delete_message(
+            message_id=int(self.id), channel_id=int(self.channel_id), reason=reason
+        )
+
+    async def edit(
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = False,
+        # file: Optional[FileIO] = None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = None,
+        allowed_mentions: Optional["MessageInteraction"] = None,
+        message_reference: Optional["MessageReference"] = None,
+    ) -> "Message":
+        """
+        This method edits a message. Only available for messages sent by the bot.
+
+        :param content?: The contents of the message as a string or string-converted value.
+        :type content: Optional[str]
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
+        :type tts: Optional[bool]
+        :param embeds?: An embed, or list of embeds for the message.
+        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
+        :type allowed_mentions: Optional[MessageInteraction]
+        :return: The edited message as an object.
+        :rtype: Message
+        """
+
+        _content: str = "" if content is None else content
+        _tts: bool = True if bool(tts) else tts
+        # _file = None if file is None else file
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
+        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _message_reference: dict = {} if message_reference is None else message_reference._json
+
+        payload: Message = Message(
+            content=_content,
+            tts=_tts,
+            # file=file,
+            embeds=_embeds,
+            allowed_mentions=_allowed_mentions,
+            message_reference=_message_reference,
+        )
+
+        await self._client.edit_message(
+            channel_id=int(self.channel_id), message_id=int(self.id), payload=payload._json
+        )
+        return payload
+
+    async def reply(
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None
+        embeds: Optional[Union["Embed", List["Embed"]]] = None,
+        allowed_mentions: Optional["MessageInteraction"] = None,
+        components=None,
+    ) -> "Message":
+        """
+        Sends a new message replying to the old.
+
+        :param content?: The contents of the message as a string or string-converted value.
+        :type content: Optional[str]
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
+        :type tts: Optional[bool]
+        :param embeds?: An embed, or list of embeds for the message.
+        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
+        :type allowed_mentions: Optional[MessageInteraction]
+        :param components?: A component, or list of components for the message.
+        :type components: Optional[Union[Component, List[Component]]]
+        :return: The sent message as an object.
+        :rtype: Message
+        """
+
+        from ...models.component import ActionRow, Button, SelectMenu
+
+        _content: str = "" if content is None else content
+        _tts: bool = True if bool(tts) else tts
+        # _file = None if file is None else file
+        # _attachments = [] if attachments else None
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
+        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _components: list = [{"type": 1, "components": []}]
+        _message_reference = MessageReference(message_id=int(self.id))._json
+
+        if isinstance(components, ActionRow):
+            _components[0]["components"] = [component._json for component in components.components]
+        elif isinstance(components, Button):
+            _components[0]["components"] = [] if components is None else [components._json]
+        elif isinstance(components, SelectMenu):
+            components._json["options"] = [option._json for option in components.options]
+            _components[0]["components"] = [] if components is None else [components._json]
+        else:
+            _components = [] if components is None else [components]
+
+        # TODO: post-v4: Add attachments into Message obj.
+        payload = Message(
+            content=_content,
+            tts=_tts,
+            # file=file,
+            # attachments=_attachments,
+            embeds=_embeds,
+            message_reference=_message_reference,
+            allowed_mentions=_allowed_mentions,
+            components=_components,
+        )
+
+        res = await self._client.create_message(
+            channel_id=int(self.channel_id), payload=payload._json
+        )
+        message = Message(**res, _client=self._client)
+        return message
 
 
 class Emoji(DictSerializerMixin):

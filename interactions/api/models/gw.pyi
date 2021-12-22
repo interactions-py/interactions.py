@@ -8,6 +8,7 @@ from .misc import ClientStatus, DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
+from ..http import HTTPClient
 
 class ChannelPins(DictSerializerMixin):
     _json: dict
@@ -20,6 +21,7 @@ class GuildBan(DictSerializerMixin):
     _json: dict
     guild_id: Snowflake
     user: User
+    _client: Optional[HTTPClient]
     def __init__(self, **kwargs): ...
 
 class GuildEmojis(DictSerializerMixin):
@@ -45,6 +47,7 @@ class GuildMember(DictSerializerMixin):
     deaf: Optional[bool]
     mute: Optional[bool]
     pending: Optional[bool]
+    _client: Optional[HTTPClient]
     def __init__(self, **kwargs): ...
 
 class GuildMembers(DictSerializerMixin):
@@ -65,6 +68,7 @@ class GuildRole(DictSerializerMixin):
     guild_id: Snowflake
     role: Role
     role_id: Optional[Snowflake]
+    _client: Optional[HTTPClient]
     def __init__(self, **kwargs): ...
 
 class GuildStickers(DictSerializerMixin):

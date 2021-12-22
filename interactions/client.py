@@ -590,7 +590,7 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self.http.cache.guilds.add(Build(id=str(guild.id), value=guild))
+        self.http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
 
