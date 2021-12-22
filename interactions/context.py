@@ -156,7 +156,9 @@ class CommandContext(Context):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[Component, List[Component]]] = None,
+        components: Optional[
+            Union[Union[ActionRow, Button, SelectMenu], List[Union[ActionRow, Button, SelectMenu]]]
+        ] = None,
         ephemeral: Optional[bool] = False,
     ) -> Message:
         """
@@ -328,7 +330,9 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+        components: Optional[
+            Union[Union[ActionRow, Button, SelectMenu], List[Union[ActionRow, Button, SelectMenu]]]
+        ] = None,
     ) -> Message:
         """
         This allows the invocation state described in the "context"
