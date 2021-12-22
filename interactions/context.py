@@ -10,7 +10,7 @@ from .api.models.user import User
 from .base import CustomFormatter, Data
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
-from .models.component import ActionRow, Button, Component, Modal, SelectMenu
+from .models.component import ActionRow, Button, Modal, SelectMenu
 from .models.misc import InteractionData
 
 basicConfig(level=Data.LOGGER)
@@ -226,11 +226,13 @@ class CommandContext(Context):
         elif (
             isinstance(components, list)
             and components
-            and all(isinstance(action_row, list) for action_row in components)
+            and all(isinstance(action_row, (list, ActionRow)) for action_row in components)
         ):
             _components = []
             for action_row in components:
-                for component in action_row:
+                for component in (
+                    action_row if isinstance(action_row, list) else action_row.components
+                ):
                     if isinstance(component, SelectMenu):
                         component._json["options"] = [option._json for option in component.options]
                 _components.append(
@@ -238,7 +240,11 @@ class CommandContext(Context):
                         "type": 1,
                         "components": [
                             (component._json if component._json.get("custom_id") else [])
-                            for component in action_row
+                            for component in (
+                                action_row
+                                if isinstance(action_row, list)
+                                else action_row.components
+                            )
                         ],
                     }
                 )
@@ -389,11 +395,13 @@ class CommandContext(Context):
         elif (
             isinstance(components, list)
             and components
-            and all(isinstance(action_row, list) for action_row in components)
+            and all(isinstance(action_row, (list, ActionRow)) for action_row in components)
         ):
             _components = []
             for action_row in components:
-                for component in action_row:
+                for component in (
+                    action_row if isinstance(action_row, list) else action_row.components
+                ):
                     if isinstance(component, SelectMenu):
                         component._json["options"] = [option._json for option in component.options]
                 _components.append(
@@ -401,7 +409,11 @@ class CommandContext(Context):
                         "type": 1,
                         "components": [
                             (component._json if component._json.get("custom_id") else [])
-                            for component in action_row
+                            for component in (
+                                action_row
+                                if isinstance(action_row, list)
+                                else action_row.components
+                            )
                         ],
                     }
                 )
