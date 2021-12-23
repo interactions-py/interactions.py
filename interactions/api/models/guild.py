@@ -668,7 +668,7 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> Member:
         """
-        Modifies a member of a guild.
+        Modifies a member of the guild.
 
         :param member_id: The id of the member to modify
         :type member_id: int
