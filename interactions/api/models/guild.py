@@ -655,7 +655,7 @@ class Guild(DictSerializerMixin):
     async def modify_member(
         self,
         member_id: int,
-        nick: Optional[str] = "",  # can't be None because None would remove the nickname
+        nick: Optional[str] = " ",  # can't be None because None would remove the nickname
         roles: Optional[List[int]] = None,
         mute: Optional[bool] = None,
         deaf: Optional[bool] = None,
@@ -687,26 +687,28 @@ class Guild(DictSerializerMixin):
         :type reason: Optional[str]
         """
         member = Member(**await self._client.get_member(guild_id=int(self.id), member_id=member_id))
-        _nick = member.nick if nick == "" else nick
+        _nick = member.nick if nick == " " else nick
         _roles = member.roles if not roles else roles
-        _mute = member.mute if not mute else mute
-        _deaf = member.deaf if not deaf else deaf
         _communication_disabled_until = (
             member.communication_disabled_until
-            if not communication_disabled_until
+            if communication_disabled_until == 0
             else communication_disabled_until
         )
 
         payload = Member(
             nick=_nick,
             roles=_roles,
-            mute=_mute,
-            deaf=_deaf,
             communication_disabled_until=_communication_disabled_until,
         )
 
         if channel_id != 0:
             payload._json["channel_id"] = channel_id
+
+        if mute:
+            payload._json["mute"] = mute
+
+        if deaf:
+            payload._json["deaf"] = deaf
 
         res = await self._client.modify_member(
             user_id=member_id,
