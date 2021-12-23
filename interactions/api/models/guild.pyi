@@ -174,7 +174,7 @@ class Guild(DictSerializerMixin):
         # permission_overwrites,
         parent_id: Optional[int] = None,
         nsfw: Optional[bool] = False,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
     ) -> Channel: ...
     async def modify_channel(
         self,
@@ -188,7 +188,7 @@ class Guild(DictSerializerMixin):
         # permission_overwrites,
         parent_id: Optional[int] = None,
         nsfw: Optional[bool] = False,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
     ) -> Channel: ...
 
 class GuildPreview(DictSerializerMixin):
@@ -206,6 +206,12 @@ class GuildPreview(DictSerializerMixin):
 
 class Invite(DictSerializerMixin):
     _json: dict
+    _client: HTTPClient
+    type: str
+    guild_id: Snowflake
+    expires_at: str
+    code: str
+    channel_id: Snowflake
     uses: int
     max_uses: int
     max_age: int

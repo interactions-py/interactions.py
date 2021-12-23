@@ -753,7 +753,22 @@ class Invite(DictSerializerMixin):
     :ivar datetime created_at: The time when this invite was created.
     """
 
-    __slots__ = ("_json", "uses", "max_uses", "max_age", "temporary", "created_at")
+    __slots__ = (
+        "_json",
+        "_client",
+        "uses",
+        "max_uses",
+        "max_age",
+        "temporary",
+        "created_at",
+        # TODO: Investigate their purposes and document.
+        "types",
+        "inviter",
+        "guild_id",
+        "expires_at",
+        "code",
+        "channel_id",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
