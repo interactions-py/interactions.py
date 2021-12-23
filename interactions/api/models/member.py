@@ -278,3 +278,18 @@ class Member(DictSerializerMixin):
             reason=reason,
         )
         return Member(**res, _client=self._client)
+
+    async def add_to_thread(
+        self,
+        thread_id: int,
+    ) -> None:
+        """
+        Adds the member to a thread.
+
+        :param thread_id: The id of the thread to add the member to
+        :type thread_id: int
+        """
+        await self._client.add_member_to_thread(
+            user_id=int(self.user.id),
+            thread_id=thread_id,
+        )

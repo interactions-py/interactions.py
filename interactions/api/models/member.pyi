@@ -59,17 +59,21 @@ class Member(DictSerializerMixin):
     ) -> Message: ...
 
     async def modify(
-            self,
-            guild_id: int,
-            nick: Optional[str] = " ",
-            roles: Optional[List[int]] = None,
-            mute: Optional[bool] = None,
-            deaf: Optional[bool] = None,
-            channel_id: Optional[
-                int
-            ] = 0,
-            communication_disabled_until: Optional[
-                datetime.isoformat
-            ] = 0,
-            reason: Optional[str] = None,
+        self,
+        guild_id: int,
+        nick: Optional[str] = " ",
+        roles: Optional[List[int]] = None,
+        mute: Optional[bool] = None,
+        deaf: Optional[bool] = None,
+        channel_id: Optional[
+            int
+        ] = 0,
+        communication_disabled_until: Optional[
+            datetime.isoformat
+        ] = 0,
+        reason: Optional[str] = None,
     ) -> "Member": ...
+    async def add_to_thread(
+        self,
+        thread_id: int,
+    ) -> None: ...
