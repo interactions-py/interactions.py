@@ -316,3 +316,14 @@ class Channel(DictSerializerMixin):
             data=payload._json,
         )
         return Channel(**res, _client=self._client)
+
+
+class Thread(Channel):
+    """An object representing a thread.
+
+    .. note::
+        This is a derivation of the base Channel, since a
+        thread can be its own event.
+    """
+
+    ...

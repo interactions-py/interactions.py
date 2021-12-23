@@ -293,7 +293,7 @@ class Presence(DictSerializerMixin):
         )
 
 
-class Reaction(DictSerializerMixin):
+class MessageReaction(DictSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD``.
 
@@ -317,7 +317,7 @@ class Reaction(DictSerializerMixin):
         self.emoji = Emoji(**self.emoji) if self._json.get("emoji") else None
 
 
-class ReactionRemove(Reaction):
+class ReactionRemove(MessageReaction):
     """
     A class object representing the gateway events ``MESSAGE_REACTION_REMOVE``, ``MESSAGE_REACTION_REMOVE_ALL`` and ``MESSAGE_REACTION_REMOVE_EMOJI``.
 

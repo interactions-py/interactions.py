@@ -8,7 +8,6 @@ from .misc import DictSerializerMixin, Overwrite, Snowflake
 from .user import User
 from ..http import HTTPClient
 
-
 class ChannelType(IntEnum): ...
 
 class ThreadMetadata(DictSerializerMixin):
@@ -68,7 +67,6 @@ class Channel(DictSerializerMixin):
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[Union[Component, List[Component]]] = None,
     ) -> Message: ...
-
     async def delete(self) -> None: ...
     async def modify(
         self,
@@ -83,3 +81,5 @@ class Channel(DictSerializerMixin):
         nsfw: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> "Channel": ...
+
+class Thread(Channel): ...

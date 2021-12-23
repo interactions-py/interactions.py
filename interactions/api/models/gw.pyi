@@ -57,9 +57,7 @@ class GuildMembers(DictSerializerMixin):
     chunk_index: int
     chunk_count: int
     not_found: Optional[list]
-    presences: Optional[
-        List["Presence"]
-    ]
+    presences: Optional[List["Presence"]]
     nonce: Optional[str]
     def __init__(self, **kwargs): ...
 
@@ -87,7 +85,7 @@ class Presence(DictSerializerMixin):
     activities: List[PresenceActivity]
     client_status: ClientStatus
 
-class Reaction(DictSerializerMixin):
+class MessageReaction(DictSerializerMixin):
     # There's no official data model for this, so this is pseudo for the most part here.
     _json: dict
     user_id: Optional[Snowflake]
@@ -98,7 +96,7 @@ class Reaction(DictSerializerMixin):
     emoji: Optional[Emoji]
     def __init__(self, **kwargs): ...
 
-class ReactionRemove(Reaction):
+class ReactionRemove(MessageReaction):
     # typehinting already subclassed
     def __init__(self, **kwargs): ...
 
