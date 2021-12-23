@@ -1,8 +1,7 @@
 from datetime import datetime
-from enum import Enum
 from typing import Any, List, Optional, Union
 
-from .channel import Channel, ChannelType
+from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
@@ -68,7 +67,7 @@ class Guild(DictSerializerMixin):
     member_count: Optional[int]
     members: Optional[List[Member]]
     channels: Optional[List[Channel]]
-    threads: Optional[List[Channel]]  # threads, because of their metadata
+    threads: Optional[List[Thread]]  # threads, because of their metadata
     presences: Optional[List[PresenceUpdate]]
     max_presences: Optional[int]
     max_members: Optional[int]
