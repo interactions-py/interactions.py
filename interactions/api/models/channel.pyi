@@ -68,7 +68,6 @@ class Channel(DictSerializerMixin):
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[Union[Component, List[Component]]] = None,
     ) -> Message: ...
-
     async def delete(self) -> None: ...
     async def modify(
         self,
@@ -83,3 +82,7 @@ class Channel(DictSerializerMixin):
         nsfw: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> "Channel": ...
+    async def add_member(
+        self,
+        member_id: int,
+    ) -> None: ...
