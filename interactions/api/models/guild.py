@@ -672,18 +672,19 @@ class Guild(DictSerializerMixin):
 
         :param member_id: The id of the member to modify
         :type member_id: int
-        :param nick: The nickname of the member
+        :param nick?: The nickname of the member `None` removes the nickname
         :type nick: Optional[str]
-        :param roles: A list of all role ids the member has
+        :param roles?: A list of all role ids the member has
         :type roles: Optional[List[int]]
-        :param mute: whether the user is muted in voice channels
+        :param mute?: whether the user is muted in voice channels
         :type mute: Optional[bool]
-        :param deaf: whether the user is deafened in voice channels
-        :param channel_id: id of channel to move user to (if they are connected to voice)
+        :param deaf?: whether the user is deafened in voice channels
+        :type deaf: Optional[bool]
+        :param channel_id?: id of channel to move user to (if they are connected to voice). `None` to disconnect the user from its channel
         :type channel_id: Optional[int]
-        :param communication_disabled_until: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
+        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future). `None` removes the timeout
         :type communication_disabled_until: Optional[datetime.isoformat]
-        :param reason: The reason of the modifying
+        :param reason?: The reason of the modifying
         :type reason: Optional[str]
         """
         member = Member(**await self._client.get_member(guild_id=int(self.id), member_id=member_id))
