@@ -371,7 +371,7 @@ class Client:
 
         return decorator
 
-    def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
+    def component(self, component: Union[str, Button, SelectMenu]) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving components.
@@ -380,6 +380,7 @@ class Client:
 
         .. code-block:: python
 
+            # Method 1
             @component(interactions.Button(
                 style=interactions.ButtonStyle.PRIMARY,
                 label="click me!",
@@ -388,11 +389,16 @@ class Client:
             async def button_response(ctx):
                 ...
 
+            # Method 2
+            @component("custom_id")
+            async def button_response(ctx):
+                ...
+
         The context of the component callback decorator inherits the same
         as of the command decorator.
 
         :param component: The component you wish to callback for.
-        :type component: Union[Button, SelectMenu]
+        :type component: Union[str, Button, SelectMenu]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
