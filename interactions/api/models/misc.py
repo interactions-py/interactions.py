@@ -153,7 +153,7 @@ class Snowflake(object):
     @property
     def timestamp(self) -> datetime.datetime:
         """
-        The Datetime object variation of the the "Timestamp" field of the snowflake.
+        The Datetime object variation of the "Timestamp" field of the snowflake.
 
         :return: The converted Datetime object from the Epoch. This respects UTC.
         """
@@ -203,7 +203,7 @@ class Format:
     def stylize(cls, format: str, **kwargs) -> str:
         r"""
         This takes a format style from the object and
-        converts it into a useable string for ease.
+        converts it into an useable string for ease.
 
         :param format: The format string to use.
         :type format: str

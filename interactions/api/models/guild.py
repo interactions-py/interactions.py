@@ -42,7 +42,7 @@ class WelcomeScreen(DictSerializerMixin):
 
         We assume it's for the welcome screen topic.
 
-    :ivar Optional[str] description?: The description of the welcome sceen.
+    :ivar Optional[str] description?: The description of the welcome screen.
     :ivar List[WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
 
@@ -59,7 +59,7 @@ class WelcomeScreen(DictSerializerMixin):
 
 class StageInstance(DictSerializerMixin):
     """
-    A class object representing an instace of a stage channel in a guild.
+    A class object representing an instance of a stage channel in a guild.
 
     :ivar Snowflake id: The ID of the stage.
     :ivar Snowflake guild_id: The guild ID the stage is in.
@@ -833,7 +833,7 @@ class ScheduledEvents(DictSerializerMixin):
 
     :ivar Snowflake id: The ID of the scheduled event.
     :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
-    :ivar Optional[Snowflake] channel_id?: The channel ID in wich the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] channel_id?: The channel ID in which the scheduled event belongs to, if any.
     :ivar Optional[Snowflake] creator_id?: The ID of the user that created the scheduled event.
     :ivar str name: The name of the scheduled event.
     :ivar str description: The description of the scheduled event.

@@ -525,7 +525,7 @@ class ComponentContext(CommandContext):
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
     ) -> None:
         """
-        This "defers" an component response, allowing up
+        This "defers" a component response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param ephemeral?: Whether the deferred state is hidden or not.

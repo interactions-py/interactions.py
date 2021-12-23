@@ -24,7 +24,7 @@ class InteractionException(Exception):
         and for extensive testing/review before integration.
         Likewise, this will show the concepts before use, and will be refined when time goes on.
 
-    :ivar interactions.api.error.ErrorFormatter _formatter: The built in formatter.
+    :ivar interactions.api.error.ErrorFormatter _formatter: The built-in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
 
     """
@@ -145,7 +145,7 @@ class GatewayException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent Gateway closing OP codes.
 
-    :ivar ErrorFormatter _formatter: The built in formatter.
+    :ivar ErrorFormatter _formatter: The built-in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
@@ -178,7 +178,7 @@ class HTTPException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent HTTP Exceptions.
 
-    :ivar ErrorFormatter _formatter: The built in formatter.
+    :ivar ErrorFormatter _formatter: The built-in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 
@@ -204,7 +204,7 @@ class JSONException(InteractionException):
     """
     This is a derivation of InteractionException in that this is used to represent JSON API Exceptions.
 
-    :ivar ErrorFormatter _formatter: The built in formatter.
+    :ivar ErrorFormatter _formatter: The built-in formatter.
     :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
     """
 

@@ -171,7 +171,7 @@ class Message(DictSerializerMixin):
     :ivar Optional[datetime] edited_timestamp?: Timestamp denoting when the message was edited, if any.
     :ivar bool tts: Status dictating if this was a TTS message or not.
     :ivar bool mention_everyone: Status dictating of this message mentions everyone
-    :ivar Optional[List[Union[Member, User]]] mentions?: Array of user objects with an addictional partial member field.
+    :ivar Optional[List[Union[Member, User]]] mentions?: Array of user objects with an additional partial member field.
     :ivar Optional[List[str]] mention_roles?: Array of roles mentioned in this message
     :ivar Optional[List[ChannelMention]] mention_channels?: Channels mentioned in this message, if any.
     :ivar List[Attachment] attachments: An array of attachments
@@ -189,7 +189,7 @@ class Message(DictSerializerMixin):
     :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread:? The thread that started from this message, if any, with a thread member object embedded.
     :ivar Optional[Union[Component, List[Component]]] components?: Components associated with this message, if any.
-    :ivar Optional[List[PartialSticker"]] sticker_items?: An array of message sticker item objects, if sent with them.
+    :ivar Optional[List["PartialSticker"]] sticker_items?: An array of message sticker item objects, if sent with them.
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
     """
 
