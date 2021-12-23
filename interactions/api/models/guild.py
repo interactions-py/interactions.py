@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
@@ -651,6 +651,70 @@ class Guild(DictSerializerMixin):
             data=payload._json,
         )
         return Channel(**res, _client=self._client)
+
+    async def modify_member(
+        self,
+        member_id: int,
+        nick: Optional[str] = "",  # can't be None because None would remove the nickname
+        roles: Optional[List[int]] = None,
+        mute: Optional[bool] = None,
+        deaf: Optional[bool] = None,
+        channel_id: Optional[
+            int
+        ] = 0,  # can't be None because None would kick the member from the channel
+        communication_disabled_until: Optional[
+            datetime.isoformat
+        ] = 0,  # can't be None because None would remove the timeout
+        reason: Optional[str] = None,
+    ) -> Member:
+        """
+        Modifies a member of a guild.
+
+        :param member_id: The id of the member to modify
+        :type member_id: int
+        :param nick: The nickname of the member
+        :type nick: Optional[str]
+        :param roles: A list of all role ids the member has
+        :type roles: Optional[List[int]]
+        :param mute: whether the user is muted in voice channels
+        :type mute: Optional[bool]
+        :param deaf: whether the user is deafened in voice channels
+        :param channel_id: id of channel to move user to (if they are connected to voice)
+        :type channel_id: Optional[int]
+        :param communication_disabled_until: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
+        :type communication_disabled_until: Optional[datetime.isoformat]
+        :param reason: The reason of the modifying
+        :type reason: Optional[str]
+        """
+        member = Member(**await self._client.get_member(guild_id=int(self.id), member_id=member_id))
+        _nick = member.nick if nick == "" else nick
+        _roles = member.roles if not roles else roles
+        _mute = member.mute if not mute else mute
+        _deaf = member.deaf if not deaf else deaf
+        _communication_disabled_until = (
+            member.communication_disabled_until
+            if not communication_disabled_until
+            else communication_disabled_until
+        )
+
+        payload = Member(
+            nick=_nick,
+            roles=_roles,
+            mute=_mute,
+            deaf=_deaf,
+            communication_disabled_until=_communication_disabled_until,
+        )
+
+        if channel_id != 0:
+            payload._json["channel_id"] = channel_id
+
+        res = await self._client.modify_member(
+            user_id=member_id,
+            guild_id=int(self.id),
+            payload=payload._json,
+            reason=reason,
+        )
+        return Member(**res, _client=self._client)
 
 
 class GuildPreview(DictSerializerMixin):
