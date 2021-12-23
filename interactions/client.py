@@ -281,7 +281,7 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self.websocket.dispatch.register(coro, name=name)
+        self.websocket.dispatch.register(coro, name)
         return coro
 
     def command(
@@ -367,7 +367,7 @@ class Client:
             if self.automate_sync:
                 [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
-            return self.event(coro, name=name)
+            return self.event(coro, name=f"command_{name}")
 
         return decorator
 
@@ -409,7 +409,7 @@ class Client:
                 if isinstance(component, (Button, SelectMenu))
                 else component
             )
-            return self.event(coro, name=payload)
+            return self.event(coro, name=f"component_{payload}")
 
         return decorator
 
