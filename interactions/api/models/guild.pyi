@@ -1,8 +1,7 @@
 from datetime import datetime
-from enum import Enum
 from typing import Any, List, Optional, Union
 
-from .channel import Channel, ChannelType
+from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
@@ -68,7 +67,7 @@ class Guild(DictSerializerMixin):
     member_count: Optional[int]
     members: Optional[List[Member]]
     channels: Optional[List[Channel]]
-    threads: Optional[List[Channel]]  # threads, because of their metadata
+    threads: Optional[List[Thread]]  # threads, because of their metadata
     presences: Optional[List[PresenceUpdate]]
     max_presences: Optional[int]
     max_members: Optional[int]
@@ -174,7 +173,7 @@ class Guild(DictSerializerMixin):
         # permission_overwrites,
         parent_id: Optional[int] = None,
         nsfw: Optional[bool] = False,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
     ) -> Channel: ...
     async def modify_channel(
         self,
@@ -188,7 +187,7 @@ class Guild(DictSerializerMixin):
         # permission_overwrites,
         parent_id: Optional[int] = None,
         nsfw: Optional[bool] = False,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
     ) -> Channel: ...
 
     async def modify_member(
@@ -218,6 +217,12 @@ class GuildPreview(DictSerializerMixin):
 
 class Invite(DictSerializerMixin):
     _json: dict
+    _client: HTTPClient
+    type: str
+    guild_id: Snowflake
+    expires_at: str
+    code: str
+    channel_id: Snowflake
     uses: int
     max_uses: int
     max_age: int

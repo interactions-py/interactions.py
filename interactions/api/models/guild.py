@@ -123,6 +123,9 @@ class Guild(DictSerializerMixin):
     :ivar Optional[bool] large?: Whether the guild is considered "large."
     :ivar Optional[bool] unavailable?: Whether the guild is unavailable to access.
     :ivar Optional[int] member_count?: The amount of members in the guild.
+    :ivar Optional[List[Member]] members?: The members in the guild.
+    :ivar Optional[List[Channel]] channels?: The channels in the guild.
+    :ivar Optional[List[Thread]] threads?: All known threads in the guild.
     :ivar Optional[List[PresenceUpdate]] presences?: The list of presences in the guild.
     :ivar Optional[int] max_presences?: The maximum amount of presences allowed in the guild.
     :ivar Optional[int] max_members?: The maximum amount of members allowed in the guild.
@@ -820,7 +823,22 @@ class Invite(DictSerializerMixin):
     :ivar datetime created_at: The time when this invite was created.
     """
 
-    __slots__ = ("_json", "uses", "max_uses", "max_age", "temporary", "created_at")
+    __slots__ = (
+        "_json",
+        "_client",
+        "uses",
+        "max_uses",
+        "max_age",
+        "temporary",
+        "created_at",
+        # TODO: Investigate their purposes and document.
+        "types",
+        "inviter",
+        "guild_id",
+        "expires_at",
+        "code",
+        "channel_id",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
