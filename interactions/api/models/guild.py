@@ -1,8 +1,12 @@
 from datetime import datetime
+from typing import Optional, Union
 
+from .channel import Channel, ChannelType
+from .member import Member
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
+from .role import Role
 from .team import Application
 from .user import User
 
@@ -119,6 +123,9 @@ class Guild(DictSerializerMixin):
     :ivar Optional[bool] large?: Whether the guild is considered "large."
     :ivar Optional[bool] unavailable?: Whether the guild is unavailable to access.
     :ivar Optional[int] member_count?: The amount of members in the guild.
+    :ivar Optional[List[Member]] members?: The members in the guild.
+    :ivar Optional[List[Channel]] channels?: The channels in the guild.
+    :ivar Optional[List[Thread]] threads?: All known threads in the guild.
     :ivar Optional[List[PresenceUpdate]] presences?: The list of presences in the guild.
     :ivar Optional[int] max_presences?: The maximum amount of presences allowed in the guild.
     :ivar Optional[int] max_members?: The maximum amount of members allowed in the guild.
@@ -141,6 +148,7 @@ class Guild(DictSerializerMixin):
     __slots__ = (
         "_json",
         "id",
+        "_client",
         "name",
         "icon",
         "icon_hash",
@@ -235,6 +243,417 @@ class Guild(DictSerializerMixin):
             if self._json.get("stickers")
             else None
         )
+        self.members = (
+            [Member(**member, _client=self._client) for member in self.members]
+            if self._json.get("members")
+            else None
+        )
+        if not self.members and self._client:
+            members = self._client.cache.self_guilds.values[str(self.id)].members
+            if all(isinstance(member, Member) for member in members):
+                self.members = members
+            else:
+                self.members = [Member(**member, _client=self._client) for member in members]
+
+    async def ban(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
+    ) -> None:
+        """
+        Bans a member from the guild
+        :param member_id: The id of the member to ban
+        :type member_id: int
+        :param reason?: The reason of the ban
+        :type reason: Optional[str]
+        :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :type delete_message_days: Optional[int]
+        """
+        await self._client.create_guild_ban(
+            guild_id=int(self.id),
+            user_id=member_id,
+            reason=reason,
+            delete_message_days=delete_message_days,
+        )
+
+    async def remove_ban(
+        self,
+        user_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Removes the ban of a user
+        :param user_id: The id of the user to remove the ban from
+        :type user_id: int
+        :param reason?: The reason for the removal of the ban
+        :type reason: Optional[str]
+        """
+        await self._client.remove_guild_ban(
+            guild_id=int(self.id),
+            user_id=user_id,
+            reason=reason,
+        )
+
+    async def kick(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Kicks a member from the guild
+        :param member_id: The id of the member to kick
+        :type member_id: int
+        :param reason?: The reason for the kick
+        :type reason: Optional[str]
+        """
+        await self._client.create_guild_kick(
+            guild_id=int(self.id),
+            user_id=member_id,
+            reason=reason,
+        )
+
+    async def add_member_role(
+        self,
+        role: Union[Role, int],
+        member_id: int,
+        reason: Optional[str],
+    ) -> None:
+        """
+        This method adds a role to a member
+        :param role: The role to add. Either ``Role`` object or role_id
+        :type role Union[Role, int]
+        :param member_id: The id of the member to add the roles to
+        :type member_id: int
+        :param reason?: The reason why the roles are added
+        :type reason: Optional[str]
+        """
+        if isinstance(role, Role):
+            await self._client.add_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=int(role.id),
+                reason=reason,
+            )
+        else:
+            await self._client.add_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=role,
+                reason=reason,
+            )
+
+    async def remove_member_role(
+        self,
+        role: Union[Role, int],
+        member_id: int,
+        reason: Optional[str],
+    ) -> None:
+        """
+        This method removes a or multiple role(s) from a member
+        :param role: The role to remove. Either ``Role`` object or role_id
+        :type role: Union[Role, int]
+        :param member_id: The id of the member to remove the roles from
+        :type member_id: int
+        :param reason?: The reason why the roles are removed
+        :type reason: Optional[str]
+        """
+        if isinstance(role, Role):
+            await self._client.remove_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=int(role.id),
+                reason=reason,
+            )
+        else:
+            await self._client.remove_member_role(
+                guild_id=int(self.id),
+                user_id=member_id,
+                role_id=role,
+                reason=reason,
+            )
+
+    async def create_role(
+        self,
+        name: str,
+        # permissions,
+        color: Optional[int] = 0,
+        hoist: Optional[bool] = False,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Role:
+        """
+        Creates a new role in the guild
+        :param name: The name of the role
+        :type name: str
+        :param color?: RGB color value as integer, default ``0``
+        :type color: Optional[int]
+        :param hoist?: Whether the role should be displayed separately in the sidebar, default ``False``
+        :type hoist: Optional[bool]
+        :param mentionable?: Whether the role should be mentionable, default ``False``
+        :type mentionable: Optional[bool]
+        :param reason?: The reason why the role is created, default ``None``
+        :type reason: Optional[str]
+        :return: The created Role
+        :rtype: Role
+        """
+
+        payload = Role(
+            name=name,
+            color=color,
+            hoist=hoist,
+            mentionable=mentionable,
+        )
+        res = await self._client.create_guild_role(
+            guild_id=int(self.id),
+            reason=reason,
+            data=payload._json,
+        )
+        role = Role(**res, _client=self._client)
+        return role
+
+    async def get_member(
+        self,
+        member_id: int,
+    ) -> Member:
+        """
+        Searches for the member with specified id in the guild and returns the member as member object
+        :param member_id: The id of the member to search for
+        :type member_id: int
+        """
+        res = await self._client.get_member(
+            guild_id=int(self.id),
+            member_id=member_id,
+        )
+        member = Member(**res, _client=self._client)
+        return member
+
+    async def delete_channel(
+        self,
+        channel_id: int,
+    ) -> None:
+        """
+        Deletes a channel from the guild
+        :param channel_id: The id of the channel to delete
+        :type channel_id: int
+        """
+        await self._client.delete_channel(
+            channel_id=channel_id,
+        )
+
+    async def delete_role(
+        self,
+        role_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes a role from the guild
+        :param role_id: The id of the role to delete
+        :type role_id: int
+        :param reason?: The reason of the deletion
+        :type reason: Optional[str]
+        """
+
+        await self._client.delete_guild_role(
+            guild_id=int(self.id),
+            role_id=role_id,
+            reason=reason,
+        )
+
+    async def modify_role(
+        self,
+        role_id: int,
+        name: Optional[str] = None,
+        # permissions,
+        color: Optional[int] = None,
+        hoist: Optional[bool] = None,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> Role:
+        """
+        Edits a role in the guild
+        :param role_id: The id of the role to edit
+        :type role_id: int
+        :param name?: The name of the role, defaults to the current value of the role
+        :type name: Optional[str]
+        :param color?: RGB color value as integer, defaults to the current value of the role
+        :type color: Optional[int]
+        :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
+        :type hoist: Optional[bool]
+        :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
+        :type mentionable: Optional[bool]
+        :param reason?: The reason why the role is edited, default ``None``
+        :type reason: Optional[str]
+        :return: The modified role object
+        :rtype: Role
+        """
+
+        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        for i in roles:
+            if int(i["id"]) == role_id:
+                role = Role(**i)
+                break
+            else:
+                pass
+        _name = role.name if not name else name
+        _color = role.color if not color else color
+        _hoist = role.hoist if not hoist else hoist
+        _mentionable = role.mentionable if mentionable is None else mentionable
+
+        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+
+        res = await self._client.modify_guild_role(
+            guild_id=int(self.id),
+            role_id=role_id,
+            data=payload._json,
+            reason=reason,
+        )
+        return Role(**res, _client=self._client)
+
+    async def create_channel(
+        self,
+        name: str,
+        type: ChannelType,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = 0,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Creates a channel in the guild
+        :param name: The name of the channel
+        :type name: str
+        :param type: The type of the channel
+        :type type: ChannelType
+        :param topic?: The topic of that channel
+        :type topic: Optional[str]
+        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
+        :type bitrate Optional[int]
+        :param user_limit?: (voice channel only) Maximum amount of users in the channel
+        :type user_limit: Optional[int]
+        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
+        :type rate_limit_per_user: Optional[int]
+        :param position?: Sorting position of the channel
+        :type position: Optional[int]
+        :param parent_id?: The id of the parent category for a channel
+        :type parent_id: Optional[int]
+        :param nsfw?: Whether the channel is nsfw or not, default ``False``
+        :type nsfw: Optional[bool]
+        :param reason: The reason for the creation
+        :type reason: Optional[str]
+        """
+
+        if (
+            type == ChannelType.DM
+            or type == ChannelType.DM.value
+            or type == ChannelType.GROUP_DM
+            or type == ChannelType.GROUP_DM.value
+        ):
+            raise ValueError(
+                "ChannelType must not be a direct-message when creating Guild Channels!"
+            )
+
+        payload = Channel(
+            name=name,
+            type=type,
+            topic=topic,
+            bitrate=bitrate,
+            user_limit=user_limit,
+            rate_limit_per_user=rate_limit_per_user,
+            position=position,
+            parent_id=parent_id,
+            nsfw=nsfw,
+        )
+
+        res = await self._client.create_channel(
+            guild_id=int(self.id),
+            reason=reason,
+            payload=payload._json,
+        )
+
+        channel = Channel(**res, _client=self._client)
+        return channel
+
+    async def modify_channel(
+        self,
+        channel_id: int,
+        name: Optional[str] = None,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = None,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Edits a channel of the guild
+        :param channel_id: The id of the channel to modify
+        :type channel_id: int
+        :param name?: The name of the channel, defaults to the current value of the channel
+        :type name: str
+        :param topic?: The topic of that channel, defaults to the current value of the channel
+        :type topic: Optional[str]
+        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
+        :type bitrate Optional[int]
+        :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
+        :type user_limit: Optional[int]
+        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
+        :type rate_limit_per_user: Optional[int]
+        :param position?: Sorting position of the channel, defaults to the current value of the channel
+        :type position: Optional[int]
+        :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
+        :type parent_id: Optional[int]
+        :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
+        :type nsfw: Optional[bool]
+        :param reason: The reason for the edit
+        :type reason: Optional[str]
+        :return: The modified channel
+        :rtype: Channel
+        """
+        ch = Channel(**await self._client.get_channel(channel_id=channel_id))
+
+        _name = ch.name if not name else name
+        _topic = ch.topic if not topic else topic
+        _bitrate = ch.bitrate if not bitrate else bitrate
+        _user_limit = ch.user_limit if not user_limit else user_limit
+        _rate_limit_per_user = (
+            ch.rate_limit_per_user if not rate_limit_per_user else rate_limit_per_user
+        )
+        _position = ch.position if not position else position
+        _parent_id = ch.parent_id if not parent_id else parent_id
+        _nsfw = ch.nsfw if not nsfw else nsfw
+        _type = ch.type
+
+        payload = Channel(
+            name=_name,
+            type=_type,
+            topic=_topic,
+            bitrate=_bitrate,
+            user_limit=_user_limit,
+            rate_limit_per_user=_rate_limit_per_user,
+            position=_position,
+            parent_id=_parent_id,
+            nsfw=_nsfw,
+        )
+
+        res = await self._client.modify_channel(
+            channel_id=channel_id,
+            reason=reason,
+            data=payload._json,
+        )
+        return Channel(**res, _client=self._client)
 
 
 class GuildPreview(DictSerializerMixin):
@@ -337,7 +756,22 @@ class Invite(DictSerializerMixin):
     :ivar datetime created_at: The time when this invite was created.
     """
 
-    __slots__ = ("_json", "uses", "max_uses", "max_age", "temporary", "created_at")
+    __slots__ = (
+        "_json",
+        "_client",
+        "uses",
+        "max_uses",
+        "max_age",
+        "temporary",
+        "created_at",
+        # TODO: Investigate their purposes and document.
+        "types",
+        "inviter",
+        "guild_id",
+        "expires_at",
+        "code",
+        "channel_id",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

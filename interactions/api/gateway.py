@@ -298,6 +298,8 @@ class WebSocket:
                         __import__(path),
                         _name,
                     )
+                    if "_create" in event.lower() or "_add" in event.lower():
+                        data["_client"] = self.http
                     self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
                 except AttributeError as error:  # noqa
                     log.fatal(f"You're missing a data model for the event {name}: {error}")
@@ -310,7 +312,7 @@ class WebSocket:
                     _args: list = [context]
                     _kwargs: dict = dict()
                     if data["type"] == InteractionType.APPLICATION_COMMAND:
-                        _name = context.data.name
+                        _name = f"command_{context.data.name}"
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
@@ -320,7 +322,7 @@ class WebSocket:
                                         )
                                     )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
-                        _name = context.data.custom_id
+                        _name = f"component_{context.data.custom_id}"
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                         _name = "autocomplete_"
                         if context.data._json.get("options"):

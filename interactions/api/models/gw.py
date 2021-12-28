@@ -40,7 +40,7 @@ class GuildBan(DictSerializerMixin):
     :ivar User user: The user of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "user")
+    __slots__ = ("_json", "guild_id", "user", "_client")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -105,6 +105,8 @@ class GuildMember(DictSerializerMixin):
         "avatar",
         "joined_at",
         "premium_since",
+        "is_pending",  # TODO: investigate what this is.
+        "_client",
         "communication_disabled_until",  # TODO: investigate what this is.
         "deaf",
         "mute",
@@ -174,7 +176,14 @@ class GuildRole(DictSerializerMixin):
     :ivar Optional[Snowflake] role_id?: The role ID of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "role", "role_id")
+    __slots__ = (
+        "_json",
+        "guild_id",
+        "role",
+        "role_id",
+        "_client",
+        "guild_hashes",  # TODO: investigate what this is.
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -284,7 +293,7 @@ class Presence(DictSerializerMixin):
         )
 
 
-class Reaction(DictSerializerMixin):
+class MessageReaction(DictSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD``.
 
@@ -308,7 +317,7 @@ class Reaction(DictSerializerMixin):
         self.emoji = Emoji(**self.emoji) if self._json.get("emoji") else None
 
 
-class ReactionRemove(Reaction):
+class ReactionRemove(MessageReaction):
     """
     A class object representing the gateway events ``MESSAGE_REACTION_REMOVE``, ``MESSAGE_REACTION_REMOVE_ALL`` and ``MESSAGE_REACTION_REMOVE_EMOJI``.
 

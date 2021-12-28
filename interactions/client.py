@@ -281,7 +281,7 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self.websocket.dispatch.register(coro, name=name)
+        self.websocket.dispatch.register(coro, name)
         return coro
 
     def command(
@@ -367,11 +367,11 @@ class Client:
             if self.automate_sync:
                 [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
-            return self.event(coro, name=name)
+            return self.event(coro, name=f"command_{name}")
 
         return decorator
 
-    def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
+    def component(self, component: Union[str, Button, SelectMenu]) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving components.
@@ -380,6 +380,7 @@ class Client:
 
         .. code-block:: python
 
+            # Method 1
             @component(interactions.Button(
                 style=interactions.ButtonStyle.PRIMARY,
                 label="click me!",
@@ -388,11 +389,16 @@ class Client:
             async def button_response(ctx):
                 ...
 
+            # Method 2
+            @component("custom_id")
+            async def button_response(ctx):
+                ...
+
         The context of the component callback decorator inherits the same
         as of the command decorator.
 
         :param component: The component you wish to callback for.
-        :type component: Union[Button, SelectMenu]
+        :type component: Union[str, Button, SelectMenu]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -403,7 +409,7 @@ class Client:
                 if isinstance(component, (Button, SelectMenu))
                 else component
             )
-            return self.event(coro, name=payload)
+            return self.event(coro, name=f"component_{payload}")
 
         return decorator
 
@@ -590,7 +596,7 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self.http.cache.guilds.add(Build(id=str(guild.id), value=guild))
+        self.http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
 

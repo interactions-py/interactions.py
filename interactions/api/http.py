@@ -987,9 +987,8 @@ class HTTPClient:
         """
 
         return await self._req.request(
-            Route(
-                "DELETE", "/guilds/{guild_id}/bans/{user_id}", guild_id=guild_id, user_id=user_id
-            ),
+            Route("DELETE", f"/guilds/{guild_id}/bans/{user_id}"),
+            json={},
             reason=reason,
         )
 

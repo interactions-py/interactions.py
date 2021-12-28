@@ -1,14 +1,14 @@
 from datetime import datetime
-from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
-from .channel import Channel
+from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
 from .misc import DictSerializerMixin, Snowflake
 from .presence import PresenceUpdate
 from .role import Role
 from .user import User
+from ..http import HTTPClient
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -36,6 +36,7 @@ class StageInstance(DictSerializerMixin):
 
 class Guild(DictSerializerMixin):
     _json: dict
+    _client: HTTPClient
     id: Snowflake
     name: str
     icon: Optional[str]
@@ -66,7 +67,7 @@ class Guild(DictSerializerMixin):
     member_count: Optional[int]
     members: Optional[List[Member]]
     channels: Optional[List[Channel]]
-    threads: Optional[List[Channel]]  # threads, because of their metadata
+    threads: Optional[List[Thread]]  # threads, because of their metadata
     presences: Optional[List[PresenceUpdate]]
     max_presences: Optional[int]
     max_members: Optional[int]
@@ -96,6 +97,98 @@ class Guild(DictSerializerMixin):
     lazy: Any
     application_command_counts: Any
     def __init__(self, **kwargs): ...
+    async def ban(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
+    ) -> None: ...
+    async def remove_ban(
+        self,
+        user_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def kick(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def add_member_role(
+        self,
+        role: Union[Role, int],
+        member_id: int,
+        reason: Optional[str],
+    ) -> None: ...
+    async def remove_member_role(
+        self,
+        role: Union[Role, int],
+        member_id: int,
+        reason: Optional[str],
+    ) -> None: ...
+    async def create_role(
+        self,
+        name: str,
+        # permissions,
+        color: Optional[int] = 0,
+        hoist: Optional[bool] = False,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Role: ...
+    async def get_member(
+        self,
+        member_id: int,
+    ) -> Member: ...
+    async def delete_channel(
+        self,
+        channel_id: int,
+    ) -> None: ...
+    async def delete_role(
+        self,
+        role_id: int,
+        reason: Optional[str],
+    ) -> None: ...
+    async def modify_role(
+        self,
+        role_id: int,
+        name: Optional[str] = None,
+        # permissions,
+        color: Optional[int] = None,
+        hoist: Optional[bool] = None,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> Role: ...
+    async def create_channel(
+        self,
+        name: str,
+        type: ChannelType,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = 0,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
+    async def modify_channel(
+        self,
+        channel_id: int,
+        name: Optional[str] = None,
+        topic: Optional[str] = None,
+        bitrate: Optional[int] = None,
+        user_limit: Optional[int] = None,
+        rate_limit_per_user: Optional[int] = None,
+        position: Optional[int] = None,
+        # permission_overwrites,
+        parent_id: Optional[int] = None,
+        nsfw: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
@@ -112,6 +205,12 @@ class GuildPreview(DictSerializerMixin):
 
 class Invite(DictSerializerMixin):
     _json: dict
+    _client: HTTPClient
+    type: str
+    guild_id: Snowflake
+    expires_at: str
+    code: str
+    channel_id: Snowflake
     uses: int
     max_uses: int
     max_age: int

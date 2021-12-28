@@ -12,7 +12,7 @@ async def on_ready():
     name="global-command",
     description="ever wanted a global command? well, here it is!",
 )
-async def basic_command(ctx):
+async def basic_command(ctx: interactions.CommandContext):
     await ctx.send("Global commands are back in action, baby!")
 
 
