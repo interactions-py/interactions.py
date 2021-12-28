@@ -201,7 +201,11 @@ class CommandContext(Context):
                 {
                     "type": 1,
                     "components": [
-                        (component._json if component._json.get("custom_id") else [])
+                        (
+                            component._json
+                            if component._json.get("custom_id") or component._json.get("url")
+                            else []
+                        )
                         for component in action_row.components
                     ],
                 }
@@ -218,7 +222,11 @@ class CommandContext(Context):
                 {
                     "type": 1,
                     "components": [
-                        (component._json if component._json.get("custom_id") else [])
+                        (
+                            component._json
+                            if component._json.get("custom_id") or component._json.get("url")
+                            else []
+                        )
                         for component in components
                     ],
                 }
@@ -239,7 +247,11 @@ class CommandContext(Context):
                     {
                         "type": 1,
                         "components": [
-                            (component._json if component._json.get("custom_id") else [])
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
                             for component in (
                                 action_row
                                 if isinstance(action_row, list)
@@ -250,14 +262,20 @@ class CommandContext(Context):
                 )
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
-                (component._json if component._json.get("custom_id") else [])
+                (
+                    component._json
+                    if component._json.get("custom_id") or component._json.get("url")
+                    else []
+                )
                 for component in components.components
             ]
         elif isinstance(components, (Button, SelectMenu)):
             if isinstance(components, SelectMenu):
                 components._json["options"] = [option._json for option in components.options]
             _components[0]["components"] = (
-                [components._json] if components._json.get("custom_id") else []
+                [components._json]
+                if components._json.get("custom_id") or components._json.get("url")
+                else []
             )
         elif components is None:
             _components = None
@@ -370,7 +388,11 @@ class CommandContext(Context):
                 {
                     "type": 1,
                     "components": [
-                        (component._json if component._json.get("custom_id") else [])
+                        (
+                            component._json
+                            if component._json.get("custom_id") or component._json.get("url")
+                            else []
+                        )
                         for component in action_row.components
                     ],
                 }
@@ -387,7 +409,11 @@ class CommandContext(Context):
                 {
                     "type": 1,
                     "components": [
-                        (component._json if component._json.get("custom_id") else [])
+                        (
+                            component._json
+                            if component._json.get("custom_id") or component._json.get("url")
+                            else []
+                        )
                         for component in components
                     ],
                 }
@@ -408,7 +434,11 @@ class CommandContext(Context):
                     {
                         "type": 1,
                         "components": [
-                            (component._json if component._json.get("custom_id") else [])
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
                             for component in (
                                 action_row
                                 if isinstance(action_row, list)
@@ -419,14 +449,20 @@ class CommandContext(Context):
                 )
         elif isinstance(components, ActionRow):
             _components[0]["components"] = [
-                (component._json if component._json.get("custom_id") else [])
+                (
+                    component._json
+                    if component._json.get("custom_id") or component._json.get("url")
+                    else []
+                )
                 for component in components.components
             ]
         elif isinstance(components, (Button, SelectMenu)):
             if isinstance(components, SelectMenu):
                 components._json["options"] = [option._json for option in components.options]
             _components[0]["components"] = (
-                [components._json] if components._json.get("custom_id") else []
+                [components._json]
+                if components._json.get("custom_id") or components._json.get("url")
+                else []
             )
         elif components is None:
             _components = None
