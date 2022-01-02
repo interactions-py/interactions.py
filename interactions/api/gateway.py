@@ -324,7 +324,7 @@ class WebSocket:
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = f"component_{context.data.custom_id}"
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                        _name = "autocomplete_"
+                        _name = f"autocomplete_{context.data.id}"
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
@@ -332,7 +332,7 @@ class WebSocket:
                                         option if isinstance(option, dict) else option._json
                                     )
                                     if add_name:
-                                        _name += add_name
+                                        _name += f"_{add_name}"
                                     if add_args:
                                         _args.append(add_args)
                     elif data["type"] == InteractionType.MODAL_SUBMIT:
@@ -368,10 +368,8 @@ class WebSocket:
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
 
-            context: object = getattr(__import__("interactions.context"), _context)
-
             data["client"] = self.http
-
+            context: object = getattr(__import__("interactions.context"), _context)
             return context(**data)
 
     async def send(self, data: Union[str, dict]) -> None:
