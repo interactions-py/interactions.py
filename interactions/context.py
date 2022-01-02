@@ -40,12 +40,18 @@ class Context(DictSerializerMixin):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.message = Message(**self.message) if self._json.get("message") else None
-        self.member = Member(**self.member) if self._json.get("member") else None
+        self.message = (
+            Message(**self.message, _client=self.client) if self._json.get("message") else None
+        )
+        self.member = (
+            Member(**self.member, _client=self.client) if self._json.get("member") else None
+        )
         self.author = self.member
         self.user = User(**self.user) if self._json.get("user") else None
-        self.channel = Channel(**self.channel) if self._json.get("channel") else None
-        self.guild = Guild(**self.guild) if self._json.get("guild") else None
+        self.channel = (
+            Channel(**self.channel, _client=self.client) if self._json.get("channel") else None
+        )
+        self.guild = Guild(**self.guild, _client=self.client) if self._json.get("guild") else None
 
 
 class CommandContext(Context):
