@@ -157,7 +157,7 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[
-            Union[Union[ActionRow, Button, SelectMenu], List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
         ] = None,
         ephemeral: Optional[bool] = False,
     ) -> Message:
@@ -174,7 +174,7 @@ class CommandContext(Context):
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[Union[ActionRow, Button, SelectMenu], List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
         :type ephemeral: Optional[bool]
         :return: The sent message as an object.
@@ -355,7 +355,7 @@ class CommandContext(Context):
         allowed_mentions: Optional[MessageInteraction] = None,
         message_reference: Optional[MessageReference] = None,
         components: Optional[
-            Union[Union[ActionRow, Button, SelectMenu], List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
         ] = None,
     ) -> Message:
         """

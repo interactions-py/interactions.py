@@ -48,7 +48,7 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[
-            Union[Union[ActionRow, Button, SelectMenu], List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
         ] = None,
         ephemeral: Optional[bool] = False,
     ) -> Message: ...
@@ -61,7 +61,7 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[
-            Union[Union[ActionRow, Button, SelectMenu], List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
         ] = None,
     ) -> Message: ...
     async def delete(self) -> None: ...
