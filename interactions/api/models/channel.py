@@ -328,7 +328,7 @@ class Channel(DictSerializerMixin):
         :type member_id: int
         """
         if not self.thread_metadata:
-            raise TypeError("The Channel you specified is not a thread!")
+            raise TypeError("The Channel you specified is not a thread!")  # TODO: Move to new error formatter.
         await self._client.add_member_to_thread(thread_id=int(self.id), user_id=member_id)
 
 
