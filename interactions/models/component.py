@@ -114,7 +114,7 @@ class Button(DictSerializerMixin):
     :ivar ComponentType type: The type of button. Always defaults to ``2``.
     :ivar ButtonStyle style: The style of the button.
     :ivar str label: The label of the button.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the laebl of the button.
+    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the button.
     :ivar Optional[str] custom_id?: The customized "ID" of the button.
     :ivar Optional[str] url?: The URL route/path of the button.
     :ivar Optional[bool] disabled?: Whether the button is unable to be used.
