@@ -216,16 +216,12 @@ class Member(DictSerializerMixin):
     async def modify(
         self,
         guild_id: int,
-        nick: Optional[str] = " ",  # can't be None because None would remove the nickname
+        nick: Optional[str] = None,
         roles: Optional[List[int]] = None,
         mute: Optional[bool] = None,
         deaf: Optional[bool] = None,
-        channel_id: Optional[
-            int
-        ] = 0,  # can't be None because None would kick the member from the channel
-        communication_disabled_until: Optional[
-            datetime.isoformat
-        ] = 0,  # can't be None because None would remove the timeout
+        channel_id: Optional[int] = None,
+        communication_disabled_until: Optional[datetime.isoformat] = None,
         reason: Optional[str] = None,
     ) -> "Member":
         """
@@ -233,7 +229,7 @@ class Member(DictSerializerMixin):
 
         :param guild_id: The id of the guild to modify the member on
         :type guild_id: int
-        :param nick?: The nickname of the member `None` removes the nickname
+        :param nick?: The nickname of the member
         :type nick: Optional[str]
         :param roles?: A list of all role ids the member has
         :type roles: Optional[List[int]]
@@ -241,40 +237,37 @@ class Member(DictSerializerMixin):
         :type mute: Optional[bool]
         :param deaf?: whether the user is deafened in voice channels
         :type deaf: Optional[bool]
-        :param channel_id?: id of channel to move user to (if they are connected to voice). `None` to disconnect the user from its channel
+        :param channel_id?: id of channel to move user to (if they are connected to voice)
         :type channel_id: Optional[int]
-        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future). `None` removes the timeout
+        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
         :type reason: Optional[str]
         """
-        _nick = self.nick if nick == " " else nick
-        _roles = self.roles if not roles else roles
-        _communication_disabled_until = (
-            self.communication_disabled_until
-            if communication_disabled_until == 0
-            else communication_disabled_until
-        )
 
-        payload = Member(
-            nick=_nick,
-            roles=_roles,
-            communication_disabled_until=_communication_disabled_until,
-        )
+        payload = {}
+        if nick:
+            payload["nick"] = nick
+
+        if roles:
+            payload["roles"] = roles
 
         if channel_id != 0:
-            payload._json["channel_id"] = channel_id
+            payload["channel_id"] = channel_id
 
         if mute:
-            payload._json["mute"] = mute
+            payload["mute"] = mute
 
         if deaf:
-            payload._json["deaf"] = deaf
+            payload["deaf"] = deaf
+
+        if communication_disabled_until:
+            payload["communication_disabled_until"] = communication_disabled_until
 
         res = await self._client.modify_member(
             user_id=int(self.user.id),
             guild_id=guild_id,
-            payload=payload._json,
+            payload=payload,
             reason=reason,
         )
         return Member(**res, _client=self._client)

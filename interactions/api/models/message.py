@@ -187,9 +187,9 @@ class Message(DictSerializerMixin):
     :ivar Optional[Any] allowed_mentions: The allowed mentions of roles attached in the message.
     :ivar int flags: Message flags
     :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
-    :ivar Optional[Channel] thread:? The thread that started from this message, if any, with a thread member object embedded.
+    :ivar Optional[Channel] thread?: The thread that started from this message, if any, with a thread member object embedded.
     :ivar Optional[Union[Component, List[Component]]] components?: Components associated with this message, if any.
-    :ivar Optional[List["PartialSticker"]] sticker_items?: An array of message sticker item objects, if sent with them.
+    :ivar Optional[List[PartialSticker]] sticker_items?: An array of message sticker item objects, if sent with them.
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
     """
 
