@@ -21,7 +21,7 @@ def command(
     A wrapper designed to interpret the client-facing API for
     how a command is to be created and used.
 
-    :return: A list of command paylods.
+    :return: A list of command payloads.
     :rtype: List[ApplicationCommand]
     """
     _type: int = 0

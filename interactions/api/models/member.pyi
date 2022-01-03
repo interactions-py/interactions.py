@@ -22,7 +22,7 @@ class Member(DictSerializerMixin):
     is_pending: Optional[bool]
     pending: Optional[bool]
     permissions: Optional[str]
-    communication_disabled_until: Optional[str]
+    communication_disabled_until: Optional[datetime.isoformat]
     hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
     async def ban(
@@ -57,3 +57,19 @@ class Member(DictSerializerMixin):
         embeds=None,
         allowed_mentions=None,
     ) -> Message: ...
+
+    async def modify(
+        self,
+        guild_id: int,
+        nick: Optional[str] = None,
+        roles: Optional[List[int]] = None,
+        mute: Optional[bool] = None,
+        deaf: Optional[bool] = None,
+        channel_id: Optional[int] = None,
+        communication_disabled_until: Optional[datetime.isoformat] = None,
+        reason: Optional[str] = None,
+    ) -> "Member": ...
+    async def add_to_thread(
+        self,
+        thread_id: int,
+    ) -> None: ...

@@ -36,7 +36,7 @@ Ever since December 2019, this open-source project has become the culmination of
 - Looking for a compatible library that implements all interactions?
 - Itching to get your hands on slash commands, but in a simple manner?
 
-Look no more! The goal of this library is to make all three of these questions go from possibilites to trivial matters.
+Look no more! The goal of this library is to make all three of these questions go from possibilities to trivial matters.
 
 What can we do?
 ***************

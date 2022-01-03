@@ -317,6 +317,22 @@ class Channel(DictSerializerMixin):
         )
         return Channel(**res, _client=self._client)
 
+    async def add_member(
+        self,
+        member_id: int,
+    ) -> None:
+        """
+        This adds a member to the channel, if the channel is a thread
+
+        :param member_id: The id of the member to add to the channel
+        :type member_id: int
+        """
+        if not self.thread_metadata:
+            raise TypeError(
+                "The Channel you specified is not a thread!"
+            )  # TODO: Move to new error formatter.
+        await self._client.add_member_to_thread(thread_id=int(self.id), user_id=member_id)
+
 
 class Thread(Channel):
     """An object representing a thread.

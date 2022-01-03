@@ -99,7 +99,7 @@ class PermissionType(IntEnum):
 
 class ComponentType(IntEnum):
     """
-    An numerable object representing the types of a component.
+    An enumerable object representing the types of a component.
 
     :ivar ACTION_ROW: 1
     :ivar BUTTON: 2

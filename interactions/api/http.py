@@ -106,7 +106,7 @@ class Padlock:
         self.keep_open = True
 
     def click(self) -> None:
-        """Re-closes the lock after the instiantiation and invocation ends."""
+        """Re-closes the lock after the instantiation and invocation ends."""
         self.keep_open = False
 
     def __enter__(self) -> Any:
@@ -609,7 +609,7 @@ class HTTPClient:
 
     async def get_guild_widget_image(self, guild_id: int, style: Optional[str] = None) -> str:
         """
-        Get a url representing a png image widget for the guild.
+        Get an url representing a png image widget for the guild.
         ..note::
             See _<https://discord.com/developers/docs/resources/guild#get-guild-widget-image> for list of styles.
 
@@ -752,7 +752,7 @@ class HTTPClient:
         self, template_code: str, name: str, icon: Optional[str] = None
     ) -> Guild:
         """
-        Create a a new guild based on a template.
+        Create a new guild based on a template.
 
         ..note::
             This endpoint can only be used by bots in less than 10 guilds.
@@ -1118,7 +1118,7 @@ class HTTPClient:
 
     async def search_guild_members(self, guild_id: int, query: str, limit: int = 1) -> List[Member]:
         """
-        Search a guild for members who's username or nickname starts with provided string.
+        Search a guild for members whose username or nickname starts with provided string.
 
         :param guild_id: Guild ID snowflake.
         :param query: The string to search for
@@ -2333,7 +2333,7 @@ class HTTPClient:
             Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/@original")
         )
 
-    # Emoji endpoints, a subset of guild but it should get it's own thing...
+    # Emoji endpoints, a subset of guild but it should get its own thing...
 
     async def get_all_emoji(self, guild_id: int) -> List[Emoji]:
         """
