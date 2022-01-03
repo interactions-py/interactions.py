@@ -44,6 +44,8 @@ class Context(DictSerializerMixin):
         self.member = Member(**self.member) if self._json.get("member") else None
         self.author = self.member
         self.user = User(**self.user) if self._json.get("user") else None
+
+        # TODO: The below attributes are always None because they aren't by API return.
         self.channel = Channel(**self.channel) if self._json.get("channel") else None
         self.guild = Guild(**self.guild) if self._json.get("guild") else None
 
@@ -73,6 +75,8 @@ class CommandContext(Context):
     :ivar Optional[List[Option]] options?: The options of the command in the interaction, if any.
     :ivar InteractionData data: The application command data.
     :ivar str token: The token of the interaction response.
+    :ivar Snowflake channel_id: The ID of the current channel.
+    :ivar Snowflake guild_id: The ID of the current guild.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     """
