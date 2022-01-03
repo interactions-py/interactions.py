@@ -7,6 +7,8 @@ from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
+from interactions.api.models.misc import Snowflake
+
 from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
@@ -413,7 +415,9 @@ class Client:
 
         return decorator
 
-    def autocomplete(self, name: str) -> Callable[..., Any]:
+    def autocomplete(
+        self, name: str, command: Union[ApplicationCommand, int]
+    ) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving autocompletion fields.
@@ -428,12 +432,17 @@ class Client:
 
         :param name: The name of the option to autocomplete.
         :type name: str
+        :param command: The command or commnd ID with the option.
+        :type command: Union[ApplicationCommand, int]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
+        _command: Union[Snowflake, int] = (
+            command.id if isinstance(command, ApplicationCommand) else command
+        )
 
         def decorator(coro: Coroutine) -> Any:
-            return self.event(coro, name=f"autocomplete_{name}")
+            return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
         return decorator
 
