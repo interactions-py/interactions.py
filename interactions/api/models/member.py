@@ -252,7 +252,7 @@ class Member(DictSerializerMixin):
         if roles:
             payload["roles"] = roles
 
-        if channel_id != 0:
+        if channel_id:
             payload["channel_id"] = channel_id
 
         if mute:
