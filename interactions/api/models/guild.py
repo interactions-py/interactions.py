@@ -754,15 +754,11 @@ class Guild(DictSerializerMixin):
         return Member(**res, _client=self._client)
 
     async def get_preview(self) -> "GuildPreview":
-        """
-        Get the guild's preview.
-        """
+        """Get the guild's preview."""
         return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
-        """
-        Removes the bot from the guild.
-        """
+        """Removes the bot from the guild."""
         await self._client.leave_guild(guild_id=int(self.id))
 
     async def modify(
@@ -829,6 +825,8 @@ class Guild(DictSerializerMixin):
         :type premium_progress_bar_enabled: Optional[bool]
         :param reason?: The reason for the modifying
         :type reason: Optional[str]
+        :return: The modified guild
+        :rtype: Guild
         """
 
         if (
@@ -920,6 +918,8 @@ class Guild(DictSerializerMixin):
         :type channel_id: Optional[int]
         :param description?: The description of the scheduled event
         :type description: Optional[str]
+        :return: The created event
+        :rtype: ScheduledEvents
         """
 
         if entity_type != EntityType.EXTERNAL and not channel_id:
@@ -983,6 +983,8 @@ class Guild(DictSerializerMixin):
         :type channel_id: Optional[int]
         :param description?: The description of the scheduled event
         :type description: Optional[str]
+        :return: The modified event
+        :rtype: ScheduledEvents
         """
 
         if entity_type == EntityType.EXTERNAL and not entity_metadata:
