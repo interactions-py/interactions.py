@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
+from enum import IntEnum
 
 from .channel import Channel, ChannelType, Thread
 from .member import Member
@@ -9,6 +10,16 @@ from .presence import PresenceUpdate
 from .role import Role
 from .user import User
 from ..http import HTTPClient
+
+class VerificationLevel(IntEnum): ...
+
+class ExplicitContentFilterLevel(IntEnum): ...
+
+class DefaultMessageNotificationLevel(IntEnum): ...
+
+class EntityType(IntEnum): ...
+
+class EventStatus(IntEnum): ...
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -189,7 +200,6 @@ class Guild(DictSerializerMixin):
         nsfw: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> Channel: ...
-
     async def modify_member(
         self,
         member_id: int,
@@ -201,6 +211,60 @@ class Guild(DictSerializerMixin):
         communication_disabled_until: Optional[datetime.isoformat] = None,
         reason: Optional[str] = None,
     ) -> Member: ...
+    async def get_preview(self) -> GuildPreview: ...
+    async def leave(self) -> None: ...
+    async def modify(
+        self,
+        name: Optional[str] = None,
+        verification_level: Optional[VerificationLevel] = None,
+        default_message_notifications: Optional[DefaultMessageNotificationLevel] = None,
+        explicit_content_filter: Optional[ExplicitContentFilterLevel] = None,
+        afk_channel_id: Optional[int] = None,
+        afk_timeout: Optional[int] = None,
+        # icon, TODO: implement images
+        owner_id: Optional[int] = None,
+        # splash, TODO: implement images
+        # discovery_splash, TODO: implement images
+        # banner, TODO: implement images
+        system_channel_id: Optional[int] = None,
+        suppress_join_notifications: Optional[bool] = None,
+        suppress_premium_subscriptions: Optional[bool] = None,
+        suppress_guild_reminder_notifications: Optional[bool] = None,
+        suppress_join_notification_replies: Optional[bool] = None,
+        rules_channel_id: Optional[int] = None,
+        public_updates_channel_id: Optional[int] = None,
+        preferred_locale: Optional[str] = None,
+        description: Optional[str] = None,
+        premium_progress_bar_enabled: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
+    async def create_scheduled_event(
+        self,
+        name: str,
+        entity_type: EntityType,
+        scheduled_start_time: datetime.isoformat,
+        scheduled_end_time: Optional[datetime.isoformat] = None,
+        entity_metadata: Optional["EventMetadata"] = None,
+        channel_id: Optional[int] = None,
+        description: Optional[str] = None,
+        # privacy_level, TODO: implement when more levels available
+        ) -> "ScheduledEvents": ...
+    async def modify_scheduled_event(
+        self,
+        event_id: int,
+        name: Optional[str] = None,
+        entity_type: Optional[EntityType] = None,
+        scheduled_start_time: Optional[datetime.isoformat] = None,
+        scheduled_end_time: Optional[datetime.isoformat] = None,
+        entity_metadata: Optional["EventMetadata"] = None,
+        channel_id: Optional[int] = None,
+        description: Optional[str] = None,
+        # privacy_level, TODO: implement when more levels available
+    ) -> "ScheduledEvents": ...
+    async def delete_scheduled_event(
+        self,
+        event_id: int
+    ) -> None: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
@@ -266,4 +330,5 @@ class ScheduledEvents(DictSerializerMixin):
     entity_metadata: Optional[EventMetadata]
     creator: Optional[User]
     user_count: Optional[int]
+    status: int
     def __init__(self, **kwargs): ...

@@ -557,7 +557,7 @@ class HTTPClient:
 
     async def modify_guild(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
-    ) -> None:
+    ) -> dict:
         """
         Modifies a guild's attributes.
 
@@ -569,7 +569,9 @@ class HTTPClient:
         :param reason: Reason to send to the audit log, if given.
         """
 
-        await self._req.request(Route("PATCH", f"/guilds/{guild_id}"), json=payload, reason=reason)
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}"), json=payload, reason=reason
+        )
 
     async def leave_guild(self, guild_id: int) -> None:
         """
@@ -2410,13 +2412,16 @@ class HTTPClient:
             "name",
             "privacy_level",
             "scheduled_start_time",
+            "scheduled_end_time",
+            "entity_metadata",
             "description",
             "entity_type",
         )
         payload = {k: v for k, v in data.items() if k in valid_keys}
 
         return await self._req.request(
-            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=guild_id), json=payload
+            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=int(guild_id)),
+            json=payload,
         )
 
     async def get_scheduled_event(
@@ -2476,6 +2481,8 @@ class HTTPClient:
             "name",
             "privacy_level",
             "scheduled_start_time",
+            "scheduled_end_time",
+            "entity_metadata",
             "description",
             "entity_type",
         )
