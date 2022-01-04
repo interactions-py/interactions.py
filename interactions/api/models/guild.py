@@ -38,12 +38,16 @@ class DefaultMessageNotificationLevel(IntEnum):
 
 
 class EntityType(IntEnum):
+    """An enumerable object representing the type of event."""
+
     STAGE_INSTANCE = 1
     VOICE = 2
     EXTERNAL = 3
 
 
 class EventStatus(IntEnum):
+    """An enumerable object representing the status of an event."""
+
     SCHEDULED = 1
     ACTIVE = 2
     COMPLETED = 3
