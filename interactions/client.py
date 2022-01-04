@@ -425,7 +425,7 @@ class Client:
             return self.event(coro, name=f"command_{name}")
 
         return decorator
-    
+
     def user_command(
         self,
         *,
@@ -474,10 +474,7 @@ class Client:
             )
 
             if self.automate_sync:
-                [
-                    self.loop.run_until_complete(self.synchronize(command))
-                    for command in commands
-                ]
+                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
