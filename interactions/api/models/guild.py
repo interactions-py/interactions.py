@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
@@ -42,7 +42,7 @@ class WelcomeScreen(DictSerializerMixin):
 
         We assume it's for the welcome screen topic.
 
-    :ivar Optional[str] description?: The description of the welcome sceen.
+    :ivar Optional[str] description?: The description of the welcome screen.
     :ivar List[WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
 
@@ -59,7 +59,7 @@ class WelcomeScreen(DictSerializerMixin):
 
 class StageInstance(DictSerializerMixin):
     """
-    A class object representing an instace of a stage channel in a guild.
+    A class object representing an instance of a stage channel in a guild.
 
     :ivar Snowflake id: The ID of the stage.
     :ivar Snowflake guild_id: The guild ID the stage is in.
@@ -650,6 +650,65 @@ class Guild(DictSerializerMixin):
         )
         return Channel(**res, _client=self._client)
 
+    async def modify_member(
+        self,
+        member_id: int,
+        nick: Optional[str] = None,
+        roles: Optional[List[int]] = None,
+        mute: Optional[bool] = None,
+        deaf: Optional[bool] = None,
+        channel_id: Optional[int] = None,
+        communication_disabled_until: Optional[datetime.isoformat] = None,
+        reason: Optional[str] = None,
+    ) -> Member:
+        """
+        Modifies a member of the guild.
+
+        :param member_id: The id of the member to modify
+        :type member_id: int
+        :param nick?: The nickname of the member
+        :type nick: Optional[str]
+        :param roles?: A list of all role ids the member has
+        :type roles: Optional[List[int]]
+        :param mute?: whether the user is muted in voice channels
+        :type mute: Optional[bool]
+        :param deaf?: whether the user is deafened in voice channels
+        :type deaf: Optional[bool]
+        :param channel_id?: id of channel to move user to (if they are connected to voice)
+        :type channel_id: Optional[int]
+        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
+        :type communication_disabled_until: Optional[datetime.isoformat]
+        :param reason?: The reason of the modifying
+        :type reason: Optional[str]
+        """
+
+        payload = {}
+        if nick:
+            payload["nick"] = nick
+
+        if roles:
+            payload["roles"] = roles
+
+        if channel_id:
+            payload["channel_id"] = channel_id
+
+        if mute:
+            payload["mute"] = mute
+
+        if deaf:
+            payload["deaf"] = deaf
+
+        if communication_disabled_until:
+            payload["communication_disabled_until"] = communication_disabled_until
+
+        res = await self._client.modify_member(
+            user_id=member_id,
+            guild_id=int(self.id),
+            payload=payload,
+            reason=reason,
+        )
+        return Member(**res, _client=self._client)
+
 
 class GuildPreview(DictSerializerMixin):
     """
@@ -846,7 +905,7 @@ class ScheduledEvents(DictSerializerMixin):
 
     :ivar Snowflake id: The ID of the scheduled event.
     :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
-    :ivar Optional[Snowflake] channel_id?: The channel ID in wich the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] channel_id?: The channel ID in which the scheduled event belongs to, if any.
     :ivar Optional[Snowflake] creator_id?: The ID of the user that created the scheduled event.
     :ivar str name: The name of the scheduled event.
     :ivar str description: The description of the scheduled event.

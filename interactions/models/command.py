@@ -50,7 +50,7 @@ class Option(DictSerializerMixin):
         interactions.Option(
             type=interactions.OptionType.STRING,
             name="option_name",
-            description="i'm a meaningless option in your life. (depressed noisese)",
+            description="i'm a meaningless option in your life. (depressed noises)",
             required=True,
             choices=[interactions.Choice(...)], # optional
         )
@@ -63,7 +63,7 @@ class Option(DictSerializerMixin):
     :ivar Optional[str] value?: The value that's currently typed out, if autocompleting.
     :ivar Optional[List[Choice]] choices?: The list of choices to select from.
     :ivar Optional[List[Option]] options?: The list of subcommand options included.
-    :ivar Optional[List[ChannelType] channel_types?: Restrictive shown channel types, if given.
+    :ivar Optional[List[ChannelType]] channel_types?: Restrictive shown channel types, if given.
     :ivar Optional[int] min_value?: The minimum value supported by the option.
     :ivar Optional[int] max_value?: The maximum value supported by the option.
     :ivar Optional[bool] autocomplete?: A status denoting whether this option is an autocomplete option.
@@ -111,12 +111,16 @@ class Option(DictSerializerMixin):
             if all(isinstance(option, dict) for option in self.options):
                 self._json["options"] = list(self.options)
             else:
-                self._json["options"] = [option._json for option in self.options]
+                self._json["options"] = [
+                    option if isinstance(option, dict) else option._json for option in self.options
+                ]
         if self._json.get("choices"):
             if isinstance(self._json.get("choices"), dict):
                 self._json["choices"] = list(self.choices)
             else:
-                self._json["choices"] = [choice._json for choice in self.choices]
+                self._json["choices"] = [
+                    choice if isinstance(choice, dict) else choice._json for choice in self.choices
+                ]
 
 
 class Permission(DictSerializerMixin):

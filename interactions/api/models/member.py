@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from .misc import DictSerializerMixin
 from .role import Role
@@ -211,3 +211,77 @@ class Member(DictSerializerMixin):
         res = await self._client.create_message(channel_id=int(channel.id), payload=payload._json)
 
         return Message(**res, _client=self._client)
+
+    async def modify(
+        self,
+        guild_id: int,
+        nick: Optional[str] = None,
+        roles: Optional[List[int]] = None,
+        mute: Optional[bool] = None,
+        deaf: Optional[bool] = None,
+        channel_id: Optional[int] = None,
+        communication_disabled_until: Optional[datetime.isoformat] = None,
+        reason: Optional[str] = None,
+    ) -> "Member":
+        """
+        Modifies the member of a guild.
+
+        :param guild_id: The id of the guild to modify the member on
+        :type guild_id: int
+        :param nick?: The nickname of the member
+        :type nick: Optional[str]
+        :param roles?: A list of all role ids the member has
+        :type roles: Optional[List[int]]
+        :param mute?: whether the user is muted in voice channels
+        :type mute: Optional[bool]
+        :param deaf?: whether the user is deafened in voice channels
+        :type deaf: Optional[bool]
+        :param channel_id?: id of channel to move user to (if they are connected to voice)
+        :type channel_id: Optional[int]
+        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
+        :type communication_disabled_until: Optional[datetime.isoformat]
+        :param reason?: The reason of the modifying
+        :type reason: Optional[str]
+        """
+
+        payload = {}
+        if nick:
+            payload["nick"] = nick
+
+        if roles:
+            payload["roles"] = roles
+
+        if channel_id:
+            payload["channel_id"] = channel_id
+
+        if mute:
+            payload["mute"] = mute
+
+        if deaf:
+            payload["deaf"] = deaf
+
+        if communication_disabled_until:
+            payload["communication_disabled_until"] = communication_disabled_until
+
+        res = await self._client.modify_member(
+            user_id=int(self.user.id),
+            guild_id=guild_id,
+            payload=payload,
+            reason=reason,
+        )
+        return Member(**res, _client=self._client)
+
+    async def add_to_thread(
+        self,
+        thread_id: int,
+    ) -> None:
+        """
+        Adds the member to a thread.
+
+        :param thread_id: The id of the thread to add the member to
+        :type thread_id: int
+        """
+        await self._client.add_member_to_thread(
+            user_id=int(self.user.id),
+            thread_id=thread_id,
+        )

@@ -160,7 +160,7 @@ class Client:
         """
         Synchronizes the command specified by checking through the
         currently registered application commands on the API and
-        modifying if there is a detected chagne in structure.
+        modifying if there is a detected change in structure.
 
         .. warning::
             This internal call does not need to be manually triggered,
@@ -452,7 +452,7 @@ class Client:
 
         .. error::
             This feature is currently under experimental/**beta access**
-            to those whitelisted for tetsing. Currently using this will
+            to those whitelisted for testing. Currently using this will
             present you with an error with the modal not working.
 
         The structure for a modal callback:

@@ -190,6 +190,18 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> Channel: ...
 
+    async def modify_member(
+        self,
+        member_id: int,
+        nick: Optional[str] = None,
+        roles: Optional[List[int]] = None,
+        mute: Optional[bool] = None,
+        deaf: Optional[bool] = None,
+        channel_id: Optional[int] = None,
+        communication_disabled_until: Optional[datetime.isoformat] = None,
+        reason: Optional[str] = None,
+    ) -> Member: ...
+
 class GuildPreview(DictSerializerMixin):
     _json: dict
     id: int

@@ -81,5 +81,9 @@ class Channel(DictSerializerMixin):
         nsfw: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> "Channel": ...
+    async def add_member(
+        self,
+        member_id: int,
+    ) -> None: ...
 
 class Thread(Channel): ...
