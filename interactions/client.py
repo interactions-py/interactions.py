@@ -350,12 +350,11 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            if options:
-                if (len(coro.__code__.co_varnames) + 1) < len(options):
-                    raise InteractionException(
-                        11,
-                        message="You must have the same amount of arguments as the options of the command.",
-                    )
+            if options and (len(coro.__code__.co_varnames) + 1) < len(options):
+                raise InteractionException(
+                    11,
+                    message="You must have the same amount of arguments as the options of the command.",
+                )
 
             commands: List[ApplicationCommand] = command(
                 type=type,

@@ -215,5 +215,5 @@ class Format:
         new: str = f""  # noqa: F541
         for kwarg in kwargs:
             if format == kwarg:
-                new = new % format
+                new %= format
         return new

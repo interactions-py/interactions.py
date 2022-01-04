@@ -205,13 +205,11 @@ class WebSocket:
                 await self.heartbeat()
                 self.keep_alive.start()
 
-            if op == OpCodeType.HEARTBEAT:
-                if self.keep_alive:
-                    await self.heartbeat()
+            if op == OpCodeType.HEARTBEAT and self.keep_alive:
+                await self.heartbeat()
 
-            if op == OpCodeType.HEARTBEAT_ACK:
-                if self.keep_alive:
-                    log.debug("HEARTBEAT_ACK")
+            if op == OpCodeType.HEARTBEAT_ACK and self.keep_alive:
+                log.debug("HEARTBEAT_ACK")
 
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
@@ -226,15 +224,14 @@ class WebSocket:
                     self.session_id = None
                     self.sequence = None
                     self.closed = True
+        elif event == "READY":
+            self.session_id = data["session_id"]
+            self.sequence = stream["s"]
+            self.dispatch.dispatch("on_ready")
+            log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
         else:
-            if event == "READY":
-                self.session_id = data["session_id"]
-                self.sequence = stream["s"]
-                self.dispatch.dispatch("on_ready")
-                log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
-            else:
-                log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
-                self.handle_dispatch(event, data)
+            log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
+            self.handle_dispatch(event, data)
 
     def handle_dispatch(self, event: str, data: dict) -> None:
         """
@@ -246,7 +243,7 @@ class WebSocket:
         """
 
         def check_sub_command(option: dict) -> dict:
-            kwargs = dict()
+            kwargs: dict = {}
             if option["type"] == OptionType.SUB_COMMAND_GROUP:
                 kwargs["sub_command_group"] = option["name"]
                 if option.get("options"):

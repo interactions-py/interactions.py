@@ -411,8 +411,7 @@ class Guild(DictSerializerMixin):
             reason=reason,
             data=payload._json,
         )
-        role = Role(**res, _client=self._client)
-        return role
+        return Role(**res, _client=self._client)
 
     async def get_member(
         self,
@@ -427,8 +426,7 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id),
             member_id=member_id,
         )
-        member = Member(**res, _client=self._client)
-        return member
+        return Member(**res, _client=self._client)
 
     async def delete_channel(
         self,
@@ -497,8 +495,6 @@ class Guild(DictSerializerMixin):
             if int(i["id"]) == role_id:
                 role = Role(**i)
                 break
-            else:
-                pass
         _name = role.name if not name else name
         _color = role.color if not color else color
         _hoist = role.hoist if not hoist else hoist
@@ -552,12 +548,12 @@ class Guild(DictSerializerMixin):
         :type reason: Optional[str]
         """
 
-        if (
-            type == ChannelType.DM
-            or type == ChannelType.DM.value
-            or type == ChannelType.GROUP_DM
-            or type == ChannelType.GROUP_DM.value
-        ):
+        if type in [
+            ChannelType.DM,
+            ChannelType.DM.value,
+            ChannelType.GROUP_DM,
+            ChannelType.GROUP_DM.value,
+        ]:
             raise ValueError(
                 "ChannelType must not be a direct-message when creating Guild Channels!"
             )
@@ -580,8 +576,7 @@ class Guild(DictSerializerMixin):
             payload=payload._json,
         )
 
-        channel = Channel(**res, _client=self._client)
-        return channel
+        return Channel(**res, _client=self._client)
 
     async def modify_channel(
         self,

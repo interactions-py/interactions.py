@@ -242,8 +242,7 @@ class Channel(DictSerializerMixin):
         )
 
         res = await self._client.create_message(channel_id=int(self.id), payload=payload._json)
-        message = Message(**res, _client=self._client)
-        return message
+        return Message(**res, _client=self._client)
 
     async def delete(self) -> None:
         """
