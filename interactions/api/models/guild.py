@@ -44,6 +44,7 @@ class EntityType(IntEnum):
 
 
 class EventStatus(IntEnum):
+    """An enumerable object representing the status of an event."""
     SCHEDULED = 1
     ACTIVE = 2
     COMPLETED = 3
