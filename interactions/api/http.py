@@ -561,12 +561,11 @@ class HTTPClient:
         """
         Modifies a guild's attributes.
 
-        ..note::
-            This only sends the payload. You will have to check it when a higher-level function calls this.
-
         :param guild_id: Guild ID snowflake.
         :param payload: The parameters to change.
         :param reason: Reason to send to the audit log, if given.
+        :return: The modified guild object as a dictionary
+        :rtype: dict
         """
 
         return await self._req.request(
