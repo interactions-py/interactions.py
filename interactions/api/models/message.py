@@ -289,6 +289,10 @@ class Message(DictSerializerMixin):
         return Channel(**res, _client=self._client)
 
     async def get_guild(self):
+        """
+        Gets the guild where the message was sent
+        :rtype: Guild
+        """
         from .guild import Guild
 
         res = await self._client.get_guild(guild_id=int(self.guild_id))
