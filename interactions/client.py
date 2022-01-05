@@ -1,6 +1,5 @@
 import sys
 from asyncio import get_event_loop
-from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
@@ -642,9 +641,14 @@ class Extension:
     def __new__(cls, bot: Client) -> None:
         cls.client = bot
         cls.commands = []
+        cls.listeners = []
 
         for _, content in cls.__dict__.items():
-            content = content if isinstance(content.callback, partial) else None
-            if isinstance(content, ApplicationCommand):
-                cls.commands.append(content)
-                bot.command(**content)
+            if not content.startswith("__") or content.startswith("_"):
+                if "on_" in content:
+                    cls.listeners.append(content)
+                else:
+                    cls.commands.append(content)
+
+        for _command in cls.commands:
+            cls.client.command(**_command)
