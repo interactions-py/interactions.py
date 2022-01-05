@@ -10,7 +10,7 @@ from interactions.api.models.misc import Snowflake
 
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.error import InteractionException, JSONException
+from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
@@ -188,14 +188,10 @@ class Client:
                 f"Command {data.name} was not found in the API, creating and adding to the cache."
             )
 
-            request = await self.http.create_application_command(
+            await self.http.create_application_command(
                 application_id=self.me.id, data=data._json, guild_id=data.guild_id
             )
-
-            if request.get("code"):
-                raise JSONException(request["code"])
-            else:
-                self.http.cache.interactions.add(Build(id=data.name, value=data))
+            self.http.cache.interactions.add(Build(id=data.name, value=data))
 
         if commands:
             log.debug("Commands were found, checking for sync.")
@@ -229,7 +225,7 @@ class Client:
                                     f"Command {result.name} found unsynced, editing in the API and updating the cache."
                                 )
                                 payload._json["name"] = payload_name
-                                request = await self.http.edit_application_command(
+                                await self.http.edit_application_command(
                                     application_id=self.me.id,
                                     data=payload._json,
                                     command_id=result.id,
@@ -238,9 +234,6 @@ class Client:
                                 self.http.cache.interactions.add(
                                     Build(id=payload.name, value=payload)
                                 )
-
-                                if request.get("code"):
-                                    raise JSONException(request["code"])
                                 break
                     else:
                         await create(payload)
@@ -260,15 +253,11 @@ class Client:
                     log.debug(
                         f"Command {command['name']} was found in the API but never cached, deleting from the API and cache."
                     )
-                    request = await self.http.delete_application_command(
+                    await self.http.delete_application_command(
                         application_id=self.me.id,
                         command_id=command["id"],
                         guild_id=command.get("guild_id"),
                     )
-
-                    if request:
-                        if request.get("code"):
-                            raise JSONException(request["code"])
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
@@ -525,15 +514,9 @@ class Client:
         if module not in self.extensions:
             log.error(f"Extension {name} has not been loaded before. Skipping.")
 
-        try:
-            teardown = getattr(module, "teardown")
-            teardown()
-        except AttributeError:
-            pass
-        else:
-            log.debug(f"Removed extension {name}.")
-            del sys.modules[_name]
-            del self.extensions[_name]
+        log.debug(f"Removed extension {name}.")
+        del sys.modules[_name]
+        del self.extensions[_name]
 
     def reload(self, name: str, package: Optional[str] = None) -> None:
         """
