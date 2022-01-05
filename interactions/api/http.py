@@ -203,6 +203,7 @@ class Request:
                     log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
                     data = await response.json(content_type=None)
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+
                     if "X-Ratelimit-Remaining" in response.headers.keys():
                         remaining = response.headers["X-Ratelimit-Remaining"]
 
@@ -216,6 +217,8 @@ class Request:
                             self.lock.set()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
+                    if data.get("code"):
+                        raise HTTPException(data["code"])
                     elif response.status == 429:
                         retry_after = data["retry_after"]
 

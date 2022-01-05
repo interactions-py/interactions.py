@@ -753,7 +753,7 @@ class Embed(DictSerializerMixin):
         self.fields = (
             [
                 EmbedField(**field) if isinstance(field, dict) else field
-                for field in self._json.get("fields")[0]
+                for field in self._json["fields"][0]
             ]
             if self._json.get("fields")
             else None
