@@ -165,7 +165,7 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = None,
         ephemeral: Optional[bool] = False,
     ) -> Message:

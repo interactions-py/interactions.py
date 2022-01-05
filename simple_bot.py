@@ -1,11 +1,33 @@
 import interactions
 
-bot = interactions.Client(token=open("bot.token").read(), log_level=-1)
+bot = interactions.Client(token=open("bot.token").read(), disable_sync=True, log_level=10)
 
 
 @bot.event
 async def on_ready():
     print("bot is now online.")
+
+
+@bot.command(name="guild-command", description="haha guild go brrr", scope=852402668294766612)
+async def guild_command(ctx: interactions.CommandContext):
+    embed = interactions.Embed(
+        title="Embed title",
+        fields=[
+            interactions.EmbedField(
+                name="field name",
+                value="values!",
+            ),
+            interactions.EmbedField(
+                name="field name",
+                value="values!",
+            ),
+            interactions.EmbedField(
+                name="field name",
+                value="values!",
+            ),
+        ],
+    )
+    await ctx.send("aloha senor.", embeds=embed)
 
 
 @bot.command(

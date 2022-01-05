@@ -727,7 +727,20 @@ class Embed(DictSerializerMixin):
             else self._json.get("author")
         )
         self.fields = (
-            [EmbedField(**field) for field in self.fields]
-            if isinstance(self._json.get("fields"), list)
-            else self._json.get("fields")
+            [
+                EmbedField(**field) if isinstance(field, dict) else field
+                for field in self._json.get("fields")[0]
+            ]
+            if self._json.get("fields")
+            else None
         )
+
+        # TODO: Complete partial fix.
+        # The issue seems to be that this itself is not updating
+        # JSON result correctly. After numerous attempts I seem to
+        # have the attribute to do it, but _json won't budge at all.
+        # a genexpr is a poor way to go about this, but I know later
+        # on we'll be refactoring this anyhow. What the fuck is breaking
+        # it?
+        if self.fields:
+            self._json.update({"fields": [field._json for field in self.fields[0]]})
