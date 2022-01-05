@@ -332,6 +332,50 @@ class Channel(DictSerializerMixin):
             )  # TODO: Move to new error formatter.
         await self._client.add_member_to_thread(thread_id=int(self.id), user_id=member_id)
 
+    async def pin_message(
+        self,
+        message_id: int,
+    ) -> None:
+        """
+        Pins a message to the channel
+
+        :param message_id: The id of the message to pin
+        :type message_id: int
+        """
+
+        await self._client.pin_message(channel_id=int(self.id), message_id=message_id)
+
+    async def unpin_message(
+        self,
+        message_id: int,
+    ) -> None:
+        """
+        UNpins a message from the channel
+
+        :param message_id: The id of the message to unpin
+        :type message_id: int
+        """
+
+        await self._client.unpin_message(channel_id=int(self.id), message_id=message_id)
+
+    async def publish_message(
+        self,
+        message_id: int,
+    ):
+        """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
+
+        :param message_id: The id of the message to publish
+        :type message_id: int
+        :return: message object
+        :rtype: Message
+        """
+        from .message import Message
+
+        res = await self._client.publish_message(
+            channel_id=int(self.id), message_id=int(message_id)
+        )
+        return Message(**res, _client=self._client)
+
 
 class Thread(Channel):
     """An object representing a thread.

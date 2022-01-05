@@ -85,5 +85,17 @@ class Channel(DictSerializerMixin):
         self,
         member_id: int,
     ) -> None: ...
+    async def pin_message(
+            self,
+            message_id: int,
+    ) -> None: ...
+    async def unpin_message(
+        self,
+        message_id: int,
+    ) -> None: ...
+    async def publish_message(
+        self,
+        message_id: int,
+    ) -> Message: ...
 
 class Thread(Channel): ...

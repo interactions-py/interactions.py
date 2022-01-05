@@ -427,6 +427,26 @@ class Message(DictSerializerMixin):
         )
         return Message(**res, _client=self._client)
 
+    async def pin(self) -> None:
+        """Pins the message to its channel"""
+
+        await self._client.pin_message(channel_id=int(self.channel_id), message_id=int(self.id))
+
+    async def unpin(self) -> None:
+        """Unpins the message from its channel"""
+        await self._client.unpin_message(channel_id=int(self.channel_id), message_id=int(self.id))
+
+    async def publish(self) -> "Message":
+        """Publishes (API calls it crossposts) the message in its channel to any that is followed by.
+
+        :return: message object
+        :rtype: Message
+        """
+        res = await self._client.publish_message(
+            channel_id=int(self.channel_id), message_id=int(self.id)
+        )
+        return Message(**res, _client=self._client)
+
 
 class Emoji(DictSerializerMixin):
     """
