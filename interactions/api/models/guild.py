@@ -1042,6 +1042,65 @@ class Guild(DictSerializerMixin):
             guild_scheduled_event_id=Snowflake(event_id),
         )
 
+    async def get_all_channels(self) -> List[Channel]:
+        """
+        Gets all channels of the guild as list
+
+        :rtype: List[Channel]
+        """
+        res = self._client.get_all_channels(int(self.id))
+        channels = [Channel(**channel, _client=self._client) for channel in res]
+        return channels
+
+    async def get_all_roles(self) -> List[Role]:
+        """
+        Gets all roles of the guild as list
+
+        :rtype: List[Role]
+        """
+        res = self._client.get_all_roles(int(self.id))
+        roles = [Role(**role, _client=self._client) for role in res]
+        return roles
+
+    async def modify_role_position(
+        self,
+        role_id: Union[Role, int],
+        position: int,
+        reason: Optional[str] = None,
+    ) -> List[Role]:
+        """
+        Modifies the position of a role in the guild
+
+        :param role_id: The id of the role to modify the position of
+        :type role_id: Union[Role, int]
+        :param position: The new position of the role
+        :type position: int
+        :param reason?: The reason for the modifying
+        :type reason: Optional[str]
+        :return: List of guild roles with updated hierarchy
+        :rtype: List[Role]
+        """
+
+        _role_id = role_id.id if isinstance(role_id, Role) else role_id
+        res = await self._client.modify_guild_role_position(
+            guild_id=int(self.id), position=position, role_id=_role_id, reason=reason
+        )
+        roles = [Role(**role, _client=self._client) for role in res]
+        return roles
+
+    async def get_bans(self) -> List[dict]:
+        """
+        Gets a list of banned users
+
+        :return: List of banned users with reasons
+        :rtype: List[dict]
+        """
+
+        res = await self._client.get_guild_bans(int(self.id))
+        for ban in res:
+            ban["user"] = User(**ban["user"])
+        return res
+
 
 class GuildPreview(DictSerializerMixin):
     """

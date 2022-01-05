@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from .misc import DictSerializerMixin, Snowflake
 
@@ -124,3 +124,28 @@ class Role(DictSerializerMixin):
             reason=reason,
         )
         return Role(**res, _client=self._client)
+
+    async def modify_position(
+        self,
+        guild_id: int,
+        position: int,
+        reason: Optional[str] = None,
+    ) -> List["Role"]:
+        """
+        Modifies the position of a role in the guild
+
+        :param guild_id: The id of the guild to modify the role position on
+        :type guild_id: int
+        :param position: The new position of the role
+        :type position: int
+        :param reason?: The reason for the modifying
+        :type reason: Optional[str]
+        :return: List of guild roles with updated hierarchy
+        :rtype: List[Role]
+        """
+
+        res = await self._client.modify_guild_role_position(
+            guild_id=guild_id, position=position, role_id=int(self.id), reason=reason
+        )
+        roles = [Role(**role, _client=self._client) for role in res]
+        return roles

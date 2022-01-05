@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from .misc import DictSerializerMixin, Snowflake
 from ..http import HTTPClient
@@ -42,3 +42,9 @@ class Role(DictSerializerMixin):
         mentionable: Optional[bool] = None,
         reason: Optional[str] = None,
     ) -> "Role": ...
+    async def modify_position(
+        self,
+        guild_id: int,
+        position: int,
+        reason: Optional[str] = None,
+    ) -> List["Role"]: ...
