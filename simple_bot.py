@@ -12,20 +12,10 @@ async def on_ready():
 async def guild_command(ctx: interactions.CommandContext):
     embed = interactions.Embed(
         title="Embed title",
-        fields=[
-            interactions.EmbedField(
-                name="field name",
-                value="values!",
-            ),
-            interactions.EmbedField(
-                name="field name",
-                value="values!",
-            ),
-            interactions.EmbedField(
-                name="field name",
-                value="values!",
-            ),
-        ],
+        author=interactions.EmbedAuthor(
+            name="author name",
+            url="https://cdn.discordapp.com/avatars/242351388137488384/85f546d0b24092658b47f0778506cf35.webp?size=512",
+        ),
     )
     await ctx.send("aloha senor.", embeds=embed)
 

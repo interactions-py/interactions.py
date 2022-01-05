@@ -744,3 +744,6 @@ class Embed(DictSerializerMixin):
         # it?
         if self.fields:
             self._json.update({"fields": [field._json for field in self.fields[0]]})
+
+        if self.author:
+            self._json.update({"author": self.author._json})
