@@ -464,6 +464,8 @@ class Guild(DictSerializerMixin):
         Searches for the member with specified id in the guild and returns the member as member object
         :param member_id: The id of the member to search for
         :type member_id: int
+        :return: The member searched for
+        :rtype: Member
         """
         res = await self._client.get_member(
             guild_id=int(self.id),
@@ -589,6 +591,8 @@ class Guild(DictSerializerMixin):
         :type nsfw: Optional[bool]
         :param reason: The reason for the creation
         :type reason: Optional[str]
+        :return: The created channel
+        :rtype: Channel
         """
 
         if type in [
@@ -723,6 +727,8 @@ class Guild(DictSerializerMixin):
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
         :type reason: Optional[str]
+        :return: The modified member
+        :rtype: Member
         """
 
         payload = {}
@@ -961,6 +967,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = None,
         channel_id: Optional[int] = None,
         description: Optional[str] = None,
+        status: Optional[EventStatus] = None,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -982,6 +989,8 @@ class Guild(DictSerializerMixin):
         :type channel_id: Optional[int]
         :param description?: The description of the scheduled event
         :type description: Optional[str]
+        :param status?: The status of the scheduled event
+        :type status: Optional[EventStatus]
         :return: The modified event
         :rtype: ScheduledEvents
         """
@@ -1011,6 +1020,8 @@ class Guild(DictSerializerMixin):
             payload["entity_metadata"] = entity_metadata
         if description:
             payload["description"] = description
+        if status:
+            payload["status"] = status
 
         res = await self._client.modify_scheduled_event(
             guild_id=self.id,

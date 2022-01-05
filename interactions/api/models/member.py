@@ -242,6 +242,8 @@ class Member(DictSerializerMixin):
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
         :type reason: Optional[str]
+        :return: The modified member object
+        :rtype: Member
         """
 
         payload = {}
