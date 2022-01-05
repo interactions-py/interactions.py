@@ -1,6 +1,6 @@
 import interactions
 
-bot = interactions.Client(token=open("bot.token").read(), disable_sync=True, log_level=10)
+bot = interactions.Client(token=open("bot.token").read(), disable_sync=True)
 
 
 @bot.event
@@ -14,7 +14,9 @@ async def guild_command(ctx: interactions.CommandContext):
         title="Embed title",
         author=interactions.EmbedAuthor(
             name="author name",
-            url="https://cdn.discordapp.com/avatars/242351388137488384/85f546d0b24092658b47f0778506cf35.webp?size=512",
+            url=interactions.EmbedImageStruct(
+                url="https://cdn.discordapp.com/avatars/242351388137488384/85f546d0b24092658b47f0778506cf35.webp?size=512"
+            ),
         ),
     )
     await ctx.send("aloha senor.", embeds=embed)
@@ -47,5 +49,5 @@ async def component_res(ctx: interactions.ComponentContext):
     )
 
 
-# bot.load("simple_cog")
+bot.load("simple_cog")
 bot.start()
