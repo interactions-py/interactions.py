@@ -350,7 +350,7 @@ class Channel(DictSerializerMixin):
         message_id: int,
     ) -> None:
         """
-        UNpins a message from the channel
+        Upins a message from the channel
 
         :param message_id: The id of the message to unpin
         :type message_id: int
