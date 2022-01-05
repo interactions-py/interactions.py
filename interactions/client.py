@@ -413,9 +413,7 @@ class Client:
             commands: List[ApplicationCommand] = command(
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
-                description=None,
                 scope=scope,
-                options=None,
                 default_permission=default_permission,
             )
 
@@ -425,7 +423,7 @@ class Client:
             return self.event(coro, name=f"command_{name}")
 
         return decorator
-    
+
     def user_command(
         self,
         *,
@@ -467,17 +465,12 @@ class Client:
             commands: List[ApplicationCommand] = command(
                 type=ApplicationCommandType.USER,
                 name=name,
-                description=None,
                 scope=scope,
-                options=None,
                 default_permission=default_permission,
             )
 
             if self.automate_sync:
-                [
-                    self.loop.run_until_complete(self.synchronize(command))
-                    for command in commands
-                ]
+                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
