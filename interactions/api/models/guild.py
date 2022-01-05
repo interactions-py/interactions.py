@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import IntEnum
 from typing import List, Optional, Union
 
 from .channel import Channel, ChannelType
@@ -9,6 +10,48 @@ from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
+
+
+class VerificationLevel(IntEnum):
+    """An enumerable object representing the verification level of a guild."""
+
+    NONE = 0
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    VERY_HIGH = 4
+
+
+class ExplicitContentFilterLevel(IntEnum):
+    """An enumerable object representing the explicit content filter level of a guild."""
+
+    DISABLED = 0
+    MEMBERS_WITHOUT_ROLES = 1
+    ALL_MEMBERS = 2
+
+
+class DefaultMessageNotificationLevel(IntEnum):
+    """An enumerable object representing the default message notification level of a guild."""
+
+    ALL_MESSAGES = 0
+    ONLY_MENTIONS = 1
+
+
+class EntityType(IntEnum):
+    """An enumerable object representing the type of event."""
+
+    STAGE_INSTANCE = 1
+    VOICE = 2
+    EXTERNAL = 3
+
+
+class EventStatus(IntEnum):
+    """An enumerable object representing the status of an event."""
+
+    SCHEDULED = 1
+    ACTIVE = 2
+    COMPLETED = 3
+    CANCELED = 4
 
 
 class WelcomeChannels(DictSerializerMixin):
@@ -555,7 +598,7 @@ class Guild(DictSerializerMixin):
             ChannelType.GROUP_DM.value,
         ]:
             raise ValueError(
-                "ChannelType must not be a direct-message when creating Guild Channels!"
+                "ChannelType must not be a direct-message when creating Guild Channels!"  # TODO: move to custom error formatter
             )
 
         payload = Channel(
@@ -708,6 +751,285 @@ class Guild(DictSerializerMixin):
             reason=reason,
         )
         return Member(**res, _client=self._client)
+
+    async def get_preview(self) -> "GuildPreview":
+        """Get the guild's preview."""
+        return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
+
+    async def leave(self) -> None:
+        """Removes the bot from the guild."""
+        await self._client.leave_guild(guild_id=int(self.id))
+
+    async def modify(
+        self,
+        name: Optional[str] = None,
+        verification_level: Optional[VerificationLevel] = None,
+        default_message_notifications: Optional[DefaultMessageNotificationLevel] = None,
+        explicit_content_filter: Optional[ExplicitContentFilterLevel] = None,
+        afk_channel_id: Optional[int] = None,
+        afk_timeout: Optional[int] = None,
+        # icon, TODO: implement images
+        owner_id: Optional[int] = None,
+        # splash, TODO: implement images
+        # discovery_splash, TODO: implement images
+        # banner, TODO: implement images
+        system_channel_id: Optional[int] = None,
+        suppress_join_notifications: Optional[bool] = None,
+        suppress_premium_subscriptions: Optional[bool] = None,
+        suppress_guild_reminder_notifications: Optional[bool] = None,
+        suppress_join_notification_replies: Optional[bool] = None,
+        rules_channel_id: Optional[int] = None,
+        public_updates_channel_id: Optional[int] = None,
+        preferred_locale: Optional[str] = None,
+        description: Optional[str] = None,
+        premium_progress_bar_enabled: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Modifies the current guild.
+
+        :param name?: The new name of the guild
+        :type name: Optional[str]
+        :param verification_level?: The verification level of the guild
+        :type verification_level: Optional[VerificationLevel]
+        :param default_message_notifications?: The default message notification level for members
+        :type default_message_notifications: Optional[DefaultMessageNotificationLevel]
+        :param explicit_content_filter?: The explicit content filter level for media content
+        :type explicit_content_filter: Optional[ExplicitContentFilterLevel]
+        :param afk_channel_id?: The id for the afk voice channel
+        :type afk_channel_id: Optional[int]
+        :param afk_timeout?: Afk timeout in seconds
+        :type afk_timeout: Optional[int]
+        :param owner_id?: The id of the user to transfer the guild ownership to. You must be the owner to perform this
+        :type owner_id: Optional[int]
+        :param system_channel_id?: The id of the channel where guild notices such as welcome messages and boost events are posted
+        :type system_channel_id: Optional[int]
+        :param suppress_join_notifications?: Whether to suppress member join notifications in the system channel or not
+        :type suppress_join_notifications: Optional[bool]
+        :param suppress_premium_subscriptions?: Whether to suppress server boost notifications in the system channel or not
+        :type suppress_premium_subscriptions: Optional[bool]
+        :param suppress_guild_reminder_notifications?: Whether to suppress server setup tips in the system channel or not
+        :type suppress_guild_reminder_notifications: Optional[bool]
+        :param suppress_join_notification_replies?: Whether to hide member join sticker reply buttons in the system channel or not
+        :type suppress_join_notification_replies: Optional[bool]
+        :param rules_channel_id?: The id of the channel where guilds display rules and/or guidelines
+        :type rules_channel_id: Optional[int]
+        :param public_updates_channel_id?: The id of the channel where admins and moderators of community guilds receive notices from Discord
+        :type public_updates_channel_id: Optional[int]
+        :param preferred_locale?: The preferred locale of a community guild used in server discovery and notices from Discord; defaults to "en-US"
+        :type preferred_locale: Optional[str]
+        :param description?: The description for the guild, if the guild is discoverable
+        :type description: Optional[str]
+        :param premium_progress_bar_enabled?: Whether the guild's boost progress bar is enabled
+        :type premium_progress_bar_enabled: Optional[bool]
+        :param reason?: The reason for the modifying
+        :type reason: Optional[str]
+        :return: The modified guild
+        :rtype: Guild
+        """
+
+        if (
+            suppress_join_notifications is None
+            and suppress_premium_subscriptions is None
+            and suppress_guild_reminder_notifications is None
+            and suppress_join_notification_replies is None
+        ):
+            system_channel_flags = None
+        else:
+            _suppress_join_notifications = (1 << 0) if suppress_join_notifications else 0
+            _suppress_premium_subscriptions = (1 << 1) if suppress_premium_subscriptions else 0
+            _suppress_guild_reminder_notifications = (
+                (1 << 2) if suppress_guild_reminder_notifications else 0
+            )
+            _suppress_join_notification_replies = (
+                (1 << 3) if suppress_join_notification_replies else 0
+            )
+            system_channel_flags = (
+                _suppress_join_notifications
+                | _suppress_premium_subscriptions
+                | _suppress_guild_reminder_notifications
+                | _suppress_join_notification_replies
+            )
+
+        payload = {}
+
+        if name:
+            payload["name"] = name
+        if verification_level:
+            payload["verification_level"] = verification_level.value
+        if default_message_notifications:
+            payload["default_message_notifications"] = default_message_notifications.value
+        if explicit_content_filter:
+            payload["explicit_content_filter"] = explicit_content_filter.value
+        if afk_channel_id:
+            payload["afk_channel_id"] = afk_channel_id
+        if afk_timeout:
+            payload["afk_timeout"] = afk_timeout
+        if owner_id:
+            payload["owner_id"] = owner_id
+        if system_channel_id:
+            payload["system_channel_id"] = system_channel_id
+        if system_channel_flags:
+            payload["system_channel_flags"] = system_channel_flags
+        if rules_channel_id:
+            payload["rules_channel_id"] = rules_channel_id
+        if public_updates_channel_id:
+            payload["public_updates_channel_id"] = rules_channel_id
+        if preferred_locale:
+            payload["preferred_locale"] = preferred_locale
+        if description:
+            payload["description"] = description
+        if premium_progress_bar_enabled:
+            payload["premium_progress_bar_enabled"] = premium_progress_bar_enabled
+
+        res = await self._client.modify_guild(
+            guild_id=int(self.id),
+            payload=payload,
+            reason=reason,
+        )
+        return Guild(**res, _client=self._client)
+
+    async def create_scheduled_event(
+        self,
+        name: str,
+        entity_type: EntityType,
+        scheduled_start_time: datetime.isoformat,
+        scheduled_end_time: Optional[datetime.isoformat] = None,
+        entity_metadata: Optional["EventMetadata"] = None,
+        channel_id: Optional[int] = None,
+        description: Optional[str] = None,
+        # privacy_level, TODO: implement when more levels available
+    ) -> "ScheduledEvents":
+        """
+        creates a scheduled event for the guild.
+
+        :param name: The name of the event
+        :type name: str
+        :param entity_type: The entity type of the scheduled event
+        :type entity_type: EntityType
+        :param scheduled_start_time: The time to schedule the scheduled event
+        :type scheduled_start_time: datetime.isoformat
+        :param scheduled_end_time?: The time when the scheduled event is scheduled to end
+        :type scheduled_end_time: Optional[datetime.isoformat]
+        :param entity_metadata?: The entity metadata of the scheduled event
+        :type entity_metadata: Optional[EventMetadata]
+        :param channel_id?: The channel id of the scheduled event.
+        :type channel_id: Optional[int]
+        :param description?: The description of the scheduled event
+        :type description: Optional[str]
+        :return: The created event
+        :rtype: ScheduledEvents
+        """
+
+        if entity_type != EntityType.EXTERNAL and not channel_id:
+            raise ValueError(
+                "channel_id is required when entity_type is not external!"
+            )  # TODO: replace with custom error formatter
+        if entity_type == EntityType.EXTERNAL and not entity_metadata:
+            raise ValueError(
+                "entity_metadata is required for external events!"
+            )  # TODO: replace with custom error formatter
+
+        payload = {}
+
+        payload["name"] = name
+        payload["entity_type"] = entity_type.value
+        payload["scheduled_start_time"] = scheduled_start_time
+        payload["privacy_level"] = 2
+        if scheduled_end_time:
+            payload["scheduled_end_time"] = scheduled_end_time
+        if entity_metadata:
+            payload["entity_metadata"] = entity_metadata
+        if channel_id:
+            payload["channel_id"] = channel_id
+        if description:
+            payload["description"] = description
+
+        res = await self._client.create_scheduled_event(
+            guild_id=self.id,
+            data=payload,
+        )
+        return ScheduledEvents(**res)
+
+    async def modify_scheduled_event(
+        self,
+        event_id: int,
+        name: Optional[str] = None,
+        entity_type: Optional[EntityType] = None,
+        scheduled_start_time: Optional[datetime.isoformat] = None,
+        scheduled_end_time: Optional[datetime.isoformat] = None,
+        entity_metadata: Optional["EventMetadata"] = None,
+        channel_id: Optional[int] = None,
+        description: Optional[str] = None,
+        # privacy_level, TODO: implement when more levels available
+    ) -> "ScheduledEvents":
+        """
+        Edits a scheduled event of the guild.
+
+        :param event_id: The id of the event to edit
+        :type event_id: int
+        :param name: The name of the event
+        :type name: Optional[str]
+        :param entity_type: The entity type of the scheduled event
+        :type entity_type: Optional[EntityType]
+        :param scheduled_start_time: The time to schedule the scheduled event
+        :type scheduled_start_time: Optional[datetime.isoformat]
+        :param scheduled_end_time?: The time when the scheduled event is scheduled to end
+        :type scheduled_end_time: Optional[datetime.isoformat]
+        :param entity_metadata?: The entity metadata of the scheduled event
+        :type entity_metadata: Optional[EventMetadata]
+        :param channel_id?: The channel id of the scheduled event.
+        :type channel_id: Optional[int]
+        :param description?: The description of the scheduled event
+        :type description: Optional[str]
+        :return: The modified event
+        :rtype: ScheduledEvents
+        """
+
+        if entity_type == EntityType.EXTERNAL and not entity_metadata:
+            raise ValueError(
+                "entity_metadata is required for external events!"
+            )  # TODO: replace with custom error formatter
+        if entity_type == EntityType.EXTERNAL and not scheduled_end_time:
+            raise ValueError(
+                "External events require an end time!"
+            )  # TODO: replace with custom error formatter
+
+        payload = {}
+        if name:
+            payload["name"] = name
+        if channel_id:
+            payload["channel_id"] = channel_id
+        if scheduled_start_time:
+            payload["scheduled_start_time"] = scheduled_start_time
+        if entity_type:
+            payload["entity_type"] = entity_type.value
+            payload["channel_id"] = None
+        if scheduled_end_time:
+            payload["scheduled_end_time"] = scheduled_end_time
+        if entity_metadata:
+            payload["entity_metadata"] = entity_metadata
+        if description:
+            payload["description"] = description
+
+        res = await self._client.modify_scheduled_event(
+            guild_id=self.id,
+            guild_scheduled_event_id=Snowflake(event_id),
+            data=payload,
+        )
+        return ScheduledEvents(**res)
+
+    async def delete_scheduled_event(self, event_id: int) -> None:
+        """
+        Deletes a scheduled event of the guild
+
+        :param event_id: The id of the event to delete
+        :type event_id: int
+        """
+        await self._client.delete_scheduled_event(
+            guild_id=self.id,
+            guild_scheduled_event_id=Snowflake(event_id),
+        )
 
 
 class GuildPreview(DictSerializerMixin):
@@ -917,6 +1239,7 @@ class ScheduledEvents(DictSerializerMixin):
     :ivar Optional[EventMetadata] entity_metadata?: Additional metadata associated with the scheduled event.
     :ivar Optional[User] creator?: The user that created the scheduled event.
     :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
+    :ivar int status: The status of the scheduled event
     """
 
     __slots__ = (
@@ -935,6 +1258,7 @@ class ScheduledEvents(DictSerializerMixin):
         "entity_metadata",
         "creator",
         "user_count",
+        "status",
     )
 
     def __init__(self, **kwargs):
