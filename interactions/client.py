@@ -1,12 +1,12 @@
 import sys
 from asyncio import get_event_loop
-
-# from functools import partial
+from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
+from interactions.api.dispatch import Listener
 from interactions.api.models.misc import Snowflake
 
 from .api.cache import Cache
@@ -610,41 +610,41 @@ class Client:
 
 
 # TODO: Implement the rest of cog behaviour when possible.
-# class Extension:
-#     """
-#     A class that allows you to represent "extensions" of your code, or
-#     essentially cogs that can be ran independent of the root file in
-#     an object-oriented structure.
+class Extension:
+    """
+    A class that allows you to represent "extensions" of your code, or
+    essentially cogs that can be ran independent of the root file in
+    an object-oriented structure.
 
-#     The structure of an extension:
+    The structure of an extension:
 
-#     .. code-block:: python
+    .. code-block:: python
 
-#         class CoolCode(interactions.Extension):
-#             def __init__(self, client):
-#                 self.client = client
+        class CoolCode(interactions.Extension):
+            def __init__(self, client):
+                self.client = client
 
-#             @command(
-#                 type=interactions.ApplicationCommandType.USER,
-#                 name="User command in cog",
-#             )
-#             async def cog_user_cmd(self, ctx):
-#                 ...
+            @command(
+                type=interactions.ApplicationCommandType.USER,
+                name="User command in cog",
+            )
+            async def cog_user_cmd(self, ctx):
+                ...
 
-#         def setup(bot):
-#             CoolCode(bot)
-#     """
+        def setup(bot):
+            CoolCode(bot)
+    """
 
-#     client: Client
-#     commands: Optional[List[ApplicationCommand]]
-#     listeners: Optional[List[Listener]]
+    client: Client
+    commands: Optional[List[ApplicationCommand]]
+    listeners: Optional[List[Listener]]
 
-#     def __new__(cls, bot: Client) -> None:
-#         cls.client = bot
-#         cls.commands = []
+    def __new__(cls, bot: Client) -> None:
+        cls.client = bot
+        cls.commands = []
 
-#         for _, content in cls.__dict__.items():
-#             content = content if isinstance(content.callback, partial) else None
-#             if isinstance(content, ApplicationCommand):
-#                 cls.commands.append(content)
-#                 bot.command(**content)
+        for _, content in cls.__dict__.items():
+            content = content if isinstance(content.callback, partial) else None
+            if isinstance(content, ApplicationCommand):
+                cls.commands.append(content)
+                bot.command(**content)
