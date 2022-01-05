@@ -376,6 +376,17 @@ class Channel(DictSerializerMixin):
         )
         return Message(**res, _client=self._client)
 
+    async def get_pinned_messages(self):
+        """
+        Get all pinned messages from the channel.
+        :return: A list of pinned message objects.
+        """
+        from .message import Message
+
+        res = await self._client.get_pinned_messages(int(self.id))
+        messages = [Message(**message, _client=self._client) for message in res]
+        return messages
+
 
 class Thread(Channel):
     """An object representing a thread.
