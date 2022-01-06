@@ -284,10 +284,8 @@ class CommandContext(Context):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
-            elif components is None:
-                _components = None
-            else:
-                _components = []
+        else:
+            _components = []
 
         _ephemeral: int = (1 << 6) if ephemeral else 0
 

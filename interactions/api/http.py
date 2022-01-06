@@ -217,8 +217,9 @@ class Request:
                             self.lock.set()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
-                    if data.get("code"):
-                        raise HTTPException(data["code"])
+                    if isinstance(data, dict):
+                        if data.get("code"):
+                            raise HTTPException(data["code"])
                     elif response.status == 429:
                         retry_after = data["retry_after"]
 
@@ -1392,6 +1393,7 @@ class HTTPClient:
         return await self._req.request(
             Route("PUT", f"/channels/{channel_id}/permissions/{overwrite_id}"),
             json={"allow": allow, "deny": deny, "type": perm_type},
+            reason=reason,
         )
 
     async def delete_channel_permission(
