@@ -38,10 +38,10 @@ class EmbeddedActivity(DictSerializerMixin):
 
     ..note:: This is entirely undocumented by the API.
 
-    :ivar List[Snowflake] users: The list of users in the event.
+    :ivar List[Snowflake] users: The list of users of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar PresenceActivity embedded_activity: The embedded presence activity of the associated event.
-    :ivar Snowflake channel_id: The channel_id ID of the event.
+    :ivar Snowflake channel_id: The channel ID of the event.
     """
 
     __slots__ = ("_json", "users", "guild_id", "embedded_activity", "channel_id")
