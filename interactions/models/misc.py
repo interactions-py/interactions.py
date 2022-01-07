@@ -36,26 +36,36 @@ class InteractionResolvedData(DictSerializerMixin):
                 self.users.update({user: User(**self.users[user])})
                 for user in self._json.get("users")
             ]
+        else:
+            self.users = {}
         if self._json.get("members"):
             [
                 self.members.update({member: Member(**self.members[member])})
                 for member in self._json.get("members")
             ]
+        else:
+            self.members = {}
         if self._json.get("roles"):
             [
                 self.roles.update({role: Role(**self.roles[role])})
                 for role in self._json.get("roles")
             ]
+        else:
+            self.roles = {}
         if self._json.get("channels"):
             [
                 self.channels.update({channel: Channel(**self.channels[channel])})
                 for channel in self._json.get("channels")
             ]
+        else:
+            self.channels = {}
         if self._json.get("messages"):
             [
                 self.messages.update({message: Message(**self.messages[message])})
                 for message in self._json.get("messages")
             ]
+        else:
+            self.messages = {}
 
 
 class InteractionData(DictSerializerMixin):
