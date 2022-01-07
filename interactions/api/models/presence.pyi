@@ -40,7 +40,6 @@ class PresenceActivity(DictSerializerMixin):
     _json: dict
     name: str
     type: int
-    id: str
     url: Optional[str]
     created_at: Snowflake
     timestamps: Optional[PresenceTimestamp]

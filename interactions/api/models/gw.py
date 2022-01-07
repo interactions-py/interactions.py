@@ -32,6 +32,36 @@ class ChannelPins(DictSerializerMixin):
         )
 
 
+class EmbeddedActivity(DictSerializerMixin):
+    """
+    A class object representing the event ``EMBEDDED_ACTIVITY_UPDATE``.
+
+    ..note:: This is entirely undocumented by the API.
+
+    :ivar List[Snowflake] users: The list of users in the event.
+    :ivar Snowflake guild_id: The guild ID of the event.
+    :ivar PresenceActivity embedded_activity: The embedded presence activity of the associated event.
+    :ivar Snowflake channel_id: The channel_id ID of the event.
+    """
+
+    __slots__ = ("_json", "users", "guild_id", "embedded_activity", "channel_id")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.users = (
+            [Snowflake(user) for user in self._json.get("users")]
+            if self._json.get("users")
+            else None
+        )
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.embedded_activity = (
+            PresenceActivity(**self.embedded_activity)
+            if self._json.get("embedded_activity")
+            else None
+        )
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+
+
 class GuildBan(DictSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_BAN_ADD``.

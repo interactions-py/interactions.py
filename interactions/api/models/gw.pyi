@@ -17,6 +17,14 @@ class ChannelPins(DictSerializerMixin):
     last_pin_timestamp: Optional[datetime]
     def __init__(self, **kwargs): ...
 
+class EmbeddedActivity(DictSerializerMixin):
+    _json: dict
+    users: List[Snowflake]
+    guild_id: Snowflake
+    embedded_activity: PresenceActivity
+    channel_id: Snowflake
+    def __init__(self, **kwargs): ...
+
 class GuildBan(DictSerializerMixin):
     _json: dict
     guild_id: Snowflake
