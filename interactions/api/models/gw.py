@@ -36,7 +36,8 @@ class EmbeddedActivity(DictSerializerMixin):
     """
     A class object representing the event ``EMBEDDED_ACTIVITY_UPDATE``.
 
-    ..note:: This is entirely undocumented by the API.
+    .. note::
+        This is entirely undocumented by the API.
 
     :ivar List[Snowflake] users: The list of users of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
@@ -107,6 +108,23 @@ class GuildIntegrations(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+
+
+class GuildJoinRequest(DictSerializerMixin):
+    """
+    A class object representing the gateway events ``GUILD_JOIN_REQUEST_CREATE``, ``GUILD_JOIN_REQUEST_UPDATE``, and ``GUILD_JOIN_REQUEST_DELETE``
+
+    .. note::
+        This is entirely undocumented by the API.
+
+    :ivar Snowflake user_id: The user ID of the event.
+    :ivar Snowflake guild_id: The guild ID of the event.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
 
 
