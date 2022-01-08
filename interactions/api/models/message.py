@@ -434,6 +434,7 @@ class Message(DictSerializerMixin):
 
     async def unpin(self) -> None:
         """Unpins the message from its channel"""
+
         await self._client.unpin_message(channel_id=int(self.channel_id), message_id=int(self.id))
 
     async def publish(self) -> "Message":
