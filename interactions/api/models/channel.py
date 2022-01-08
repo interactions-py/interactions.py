@@ -366,7 +366,7 @@ class Channel(DictSerializerMixin):
 
         :param message_id: The id of the message to publish
         :type message_id: int
-        :return: message object
+        :return: The message published
         :rtype: Message
         """
         from .message import Message
