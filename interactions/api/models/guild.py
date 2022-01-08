@@ -1095,7 +1095,7 @@ class Guild(DictSerializerMixin):
         Gets a list of banned users
 
         :return: List of banned users with reasons
-        :rtype: List[dict]
+        :rtype: List[User]
         """
 
         res = await self._client.get_guild_bans(int(self.id))
