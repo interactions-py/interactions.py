@@ -372,7 +372,7 @@ class Client:
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
 
-        The structure of a user context menu:
+        The structure of a message context menu:
 
         .. code-block:: python
 
