@@ -1046,6 +1046,7 @@ class Guild(DictSerializerMixin):
         """
         Gets all channels of the guild as list
 
+        :return: The channels of the guild.
         :rtype: List[Channel]
         """
         res = self._client.get_all_channels(int(self.id))
