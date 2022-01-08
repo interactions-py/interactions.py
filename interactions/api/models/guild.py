@@ -1056,6 +1056,7 @@ class Guild(DictSerializerMixin):
         """
         Gets all roles of the guild as list
 
+        :return: The roles of the guild.
         :rtype: List[Role]
         """
         res = self._client.get_all_roles(int(self.id))
