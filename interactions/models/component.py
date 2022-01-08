@@ -85,14 +85,10 @@ class SelectMenu(DictSerializerMixin):
         super().__init__(**kwargs)
         self.type = ComponentType.SELECT
         self.options = (
-            [
-                SelectOption(**option._json)
-                if not isinstance(option, dict)
-                else SelectOption(**option)
-                for option in self.options
-            ]
-            if self._json.get("options")
-            else None
+            SelectOption(**option)
+            if not isinstance(option, SelectOption)
+            else self._json.get("options")
+            for option in self.options
         )
         self._json.update({"type": self.type.value})
 

@@ -1,17 +1,16 @@
 import sys
 from asyncio import get_event_loop
-
-# from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
+from interactions.api.dispatch import Listener
 from interactions.api.models.misc import Snowflake
 
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.error import InteractionException, JSONException
+from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
@@ -189,14 +188,10 @@ class Client:
                 f"Command {data.name} was not found in the API, creating and adding to the cache."
             )
 
-            request = await self.http.create_application_command(
+            await self.http.create_application_command(
                 application_id=self.me.id, data=data._json, guild_id=data.guild_id
             )
-
-            if request.get("code"):
-                raise JSONException(request["code"])
-            else:
-                self.http.cache.interactions.add(Build(id=data.name, value=data))
+            self.http.cache.interactions.add(Build(id=data.name, value=data))
 
         if commands:
             log.debug("Commands were found, checking for sync.")
@@ -230,7 +225,7 @@ class Client:
                                     f"Command {result.name} found unsynced, editing in the API and updating the cache."
                                 )
                                 payload._json["name"] = payload_name
-                                request = await self.http.edit_application_command(
+                                await self.http.edit_application_command(
                                     application_id=self.me.id,
                                     data=payload._json,
                                     command_id=result.id,
@@ -239,9 +234,6 @@ class Client:
                                 self.http.cache.interactions.add(
                                     Build(id=payload.name, value=payload)
                                 )
-
-                                if request.get("code"):
-                                    raise JSONException(request["code"])
                                 break
                     else:
                         await create(payload)
@@ -261,15 +253,11 @@ class Client:
                     log.debug(
                         f"Command {command['name']} was found in the API but never cached, deleting from the API and cache."
                     )
-                    request = await self.http.delete_application_command(
+                    await self.http.delete_application_command(
                         application_id=self.me.id,
                         command_id=command["id"],
                         guild_id=command.get("guild_id"),
                     )
-
-                    if request:
-                        if request.get("code"):
-                            raise JSONException(request["code"])
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
@@ -640,15 +628,9 @@ class Client:
         if module not in self.extensions:
             log.error(f"Extension {name} has not been loaded before. Skipping.")
 
-        try:
-            teardown = getattr(module, "teardown")
-            teardown()
-        except AttributeError:
-            pass
-        else:
-            log.debug(f"Removed extension {name}.")
-            del sys.modules[_name]
-            del self.extensions[_name]
+        log.debug(f"Removed extension {name}.")
+        del sys.modules[_name]
+        del self.extensions[_name]
 
     def reload(self, name: str, package: Optional[str] = None) -> None:
         """
@@ -724,41 +706,46 @@ class Client:
 
 
 # TODO: Implement the rest of cog behaviour when possible.
-# class Extension:
-#     """
-#     A class that allows you to represent "extensions" of your code, or
-#     essentially cogs that can be ran independent of the root file in
-#     an object-oriented structure.
+class Extension:
+    """
+    A class that allows you to represent "extensions" of your code, or
+    essentially cogs that can be ran independent of the root file in
+    an object-oriented structure.
 
-#     The structure of an extension:
+    The structure of an extension:
 
-#     .. code-block:: python
+    .. code-block:: python
 
-#         class CoolCode(interactions.Extension):
-#             def __init__(self, client):
-#                 self.client = client
+        class CoolCode(interactions.Extension):
+            def __init__(self, client):
+                self.client = client
 
-#             @command(
-#                 type=interactions.ApplicationCommandType.USER,
-#                 name="User command in cog",
-#             )
-#             async def cog_user_cmd(self, ctx):
-#                 ...
+            @command(
+                type=interactions.ApplicationCommandType.USER,
+                name="User command in cog",
+            )
+            async def cog_user_cmd(self, ctx):
+                ...
 
-#         def setup(bot):
-#             CoolCode(bot)
-#     """
+        def setup(bot):
+            CoolCode(bot)
+    """
 
-#     client: Client
-#     commands: Optional[List[ApplicationCommand]]
-#     listeners: Optional[List[Listener]]
+    client: Client
+    commands: Optional[List[ApplicationCommand]]
+    listeners: Optional[List[Listener]]
 
-#     def __new__(cls, bot: Client) -> None:
-#         cls.client = bot
-#         cls.commands = []
+    def __new__(cls, bot: Client) -> None:
+        cls.client = bot
+        cls.commands = []
+        cls.listeners = []
 
-#         for _, content in cls.__dict__.items():
-#             content = content if isinstance(content.callback, partial) else None
-#             if isinstance(content, ApplicationCommand):
-#                 cls.commands.append(content)
-#                 bot.command(**content)
+        for _, content in cls.__dict__.items():
+            if not content.startswith("__") or content.startswith("_"):
+                if "on_" in content:
+                    cls.listeners.append(content)
+                else:
+                    cls.commands.append(content)
+
+        for _command in cls.commands:
+            cls.client.command(**_command)

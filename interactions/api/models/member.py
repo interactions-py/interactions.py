@@ -59,6 +59,8 @@ class Member(DictSerializerMixin):
             if self._json.get("premium_since")
             else None
         )
+        if not self.avatar and self.user:
+            self.avatar = self.user.avatar
 
     async def ban(
         self,

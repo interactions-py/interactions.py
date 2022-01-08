@@ -57,7 +57,6 @@ class Member(DictSerializerMixin):
         embeds=None,
         allowed_mentions=None,
     ) -> Message: ...
-
     async def modify(
         self,
         guild_id: int,

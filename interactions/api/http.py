@@ -203,6 +203,7 @@ class Request:
                     log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
                     data = await response.json(content_type=None)
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+
                     if "X-Ratelimit-Remaining" in response.headers.keys():
                         remaining = response.headers["X-Ratelimit-Remaining"]
 
@@ -216,6 +217,9 @@ class Request:
                             self.lock.set()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
+                    if isinstance(data, dict):
+                        if data.get("code"):
+                            raise HTTPException(data["code"])
                     elif response.status == 429:
                         retry_after = data["retry_after"]
 
@@ -428,7 +432,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
-        self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+        if request.get("id"):
+            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
 
         return request
 
@@ -532,7 +537,8 @@ class HTTPClient:
         request = await self._req.request(Route("GET", "/users/@me/guilds"))
 
         for guild in request:
-            self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
+            if guild.get("id"):
+                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
 
         return request
 
@@ -557,19 +563,20 @@ class HTTPClient:
 
     async def modify_guild(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
-    ) -> None:
+    ) -> dict:
         """
         Modifies a guild's attributes.
-
-        ..note::
-            This only sends the payload. You will have to check it when a higher-level function calls this.
 
         :param guild_id: Guild ID snowflake.
         :param payload: The parameters to change.
         :param reason: Reason to send to the audit log, if given.
+        :return: The modified guild object as a dictionary
+        :rtype: dict
         """
 
-        await self._req.request(Route("PATCH", f"/guilds/{guild_id}"), json=payload, reason=reason)
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}"), json=payload, reason=reason
+        )
 
     async def leave_guild(self, guild_id: int) -> None:
         """
@@ -858,7 +865,8 @@ class HTTPClient:
         )
 
         for channel in request:
-            self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
+            if channel.get("id"):
+                self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
 
         return request
 
@@ -873,7 +881,8 @@ class HTTPClient:
         )
 
         for role in request:
-            self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+            if role.get("id"):
+                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
 
         return request
 
@@ -890,7 +899,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
-        self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
+        if request.get("id"):
+            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
 
         return request
 
@@ -1264,7 +1274,8 @@ class HTTPClient:
         )
 
         for message in request:
-            self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+            if message.get("id"):
+                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
@@ -1285,7 +1296,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
-        self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
+        if request.get("id"):
+            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
 
         return request
 
@@ -1388,6 +1400,7 @@ class HTTPClient:
         return await self._req.request(
             Route("PUT", f"/channels/{channel_id}/permissions/{overwrite_id}"),
             json={"allow": allow, "deny": deny, "type": perm_type},
+            reason=reason,
         )
 
     async def delete_channel_permission(
@@ -1645,7 +1658,8 @@ class HTTPClient:
                 json=payload,
                 reason=reason,
             )
-            self.cache.channels.add(Item(id=request["id"], value=request))
+            if request.get("id"):
+                self.cache.channels.add(Item(id=request["id"], value=request))
             return request
 
         payload["type"] = thread_type
@@ -1653,7 +1667,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
-        self.cache.channels.add(Item(id=request["id"], value=request))
+        if request.get("id"):
+            self.cache.channels.add(Item(id=request["id"], value=request))
 
         return request
 
@@ -2410,13 +2425,16 @@ class HTTPClient:
             "name",
             "privacy_level",
             "scheduled_start_time",
+            "scheduled_end_time",
+            "entity_metadata",
             "description",
             "entity_type",
         )
         payload = {k: v for k, v in data.items() if k in valid_keys}
 
         return await self._req.request(
-            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=guild_id), json=payload
+            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=int(guild_id)),
+            json=payload,
         )
 
     async def get_scheduled_event(
@@ -2476,6 +2494,8 @@ class HTTPClient:
             "name",
             "privacy_level",
             "scheduled_start_time",
+            "scheduled_end_time",
+            "entity_metadata",
             "description",
             "entity_type",
         )

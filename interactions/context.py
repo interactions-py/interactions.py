@@ -165,7 +165,7 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = None,
         ephemeral: Optional[bool] = False,
     ) -> Message:
@@ -200,58 +200,12 @@ class CommandContext(Context):
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: List[dict] = [{"type": 1, "components": []}]
 
-        if (
-            isinstance(components, list)
-            and components
-            and all(isinstance(action_row, ActionRow) for action_row in components)
-        ):
-            _components = [
-                {
-                    "type": 1,
-                    "components": [
-                        (
-                            component._json
-                            if component._json.get("custom_id") or component._json.get("url")
-                            else []
-                        )
-                        for component in action_row.components
-                    ],
-                }
-                for action_row in components
-            ]
-        elif (
-            isinstance(components, list)
-            and components
-            and all(isinstance(component, (Button, SelectMenu)) for component in components)
-        ):
-            if isinstance(components[0], SelectMenu):
-                components[0]._json["options"] = [option._json for option in components[0].options]
-            _components = [
-                {
-                    "type": 1,
-                    "components": [
-                        (
-                            component._json
-                            if component._json.get("custom_id") or component._json.get("url")
-                            else []
-                        )
-                        for component in components
-                    ],
-                }
-            ]
-        elif (
-            isinstance(components, list)
-            and components
-            and all(isinstance(action_row, (list, ActionRow)) for action_row in components)
-        ):
-            _components = []
-            for action_row in components:
-                for component in (
-                    action_row if isinstance(action_row, list) else action_row.components
-                ):
-                    if isinstance(component, SelectMenu):
-                        component._json["options"] = [option._json for option in component.options]
-                _components.append(
+        # TODO: Break this obfuscation pattern down to a "builder" method.
+        if components:
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
                     {
                         "type": 1,
                         "components": [
@@ -260,31 +214,76 @@ class CommandContext(Context):
                                 if component._json.get("custom_id") or component._json.get("url")
                                 else []
                             )
-                            for component in (
-                                action_row
-                                if isinstance(action_row, list)
-                                else action_row.components
-                            )
+                            for component in action_row.components
                         ],
                     }
-                )
-        elif isinstance(components, ActionRow):
-            _components[0]["components"] = [
-                (
-                    component._json
-                    if component._json.get("custom_id") or component._json.get("url")
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                if isinstance(components[0], SelectMenu):
+                    components[0]._json["options"] = [
+                        option._json for option in components[0].options
+                    ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, (Button, SelectMenu)):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
-                for component in components.components
-            ]
-        elif isinstance(components, (Button, SelectMenu)):
-            _components[0]["components"] = (
-                [components._json]
-                if components._json.get("custom_id") or components._json.get("url")
-                else []
-            )
-        elif components is None:
-            _components = None
         else:
             _components = []
 

@@ -1,11 +1,25 @@
 import interactions
 
-bot = interactions.Client(token=open("bot.token").read(), log_level=-1)
+bot = interactions.Client(token=open("bot.token").read(), disable_sync=True)
 
 
 @bot.event
 async def on_ready():
     print("bot is now online.")
+
+
+@bot.command(name="guild-command", description="haha guild go brrr", scope=852402668294766612)
+async def guild_command(ctx: interactions.CommandContext):
+    embed = interactions.Embed(
+        title="Embed title",
+        author=interactions.EmbedAuthor(
+            name="author name",
+            url=interactions.EmbedImageStruct(
+                url="https://cdn.discordapp.com/avatars/242351388137488384/85f546d0b24092658b47f0778506cf35.webp?size=512"
+            ),
+        ),
+    )
+    await ctx.send("aloha senor.", embeds=embed)
 
 
 @bot.command(
@@ -35,5 +49,5 @@ async def component_res(ctx: interactions.ComponentContext):
     )
 
 
-# bot.load("simple_cog")
+bot.load("simple_cog")
 bot.start()
