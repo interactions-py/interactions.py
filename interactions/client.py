@@ -383,13 +383,18 @@ class Client:
         A decorator for registering a message context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
+
         The structure of a user context menu:
+
         .. code-block:: python
+
             @message_command(name="Context menu name")
             async def context_menu_name(ctx):
                 ...
+
         The ``scope`` kwarg field may also be used to designate the command in question
         applicable to a guild or set of guilds.
+
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
@@ -435,13 +440,18 @@ class Client:
         A decorator for registering a user context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
+
         The structure of a user context menu:
+
         .. code-block:: python
+
             @user_command(name="Context menu name")
             async def context_menu_name(ctx):
                 ...
+
         The ``scope`` kwarg field may also be used to designate the command in question
         applicable to a guild or set of guilds.
+
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
