@@ -380,6 +380,7 @@ class Channel(DictSerializerMixin):
         """
         Get all pinned messages from the channel.
         :return: A list of pinned message objects.
+        :rtype: List[Message]
         """
         from .message import Message
 
