@@ -376,7 +376,7 @@ class Channel(DictSerializerMixin):
         )
         return Message(**res, _client=self._client)
 
-    async def get_pinned_messages(self):
+    async def get_pinned_messages(self) -> List[Message]:
         """
         Get all pinned messages from the channel.
         :return: A list of pinned message objects.
