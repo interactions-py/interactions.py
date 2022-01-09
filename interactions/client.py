@@ -12,9 +12,9 @@ from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
+from .api.models.flags import Intents
 from .api.models.guild import Guild
 from .api.models.gw import Presence
-from .api.models.flags import Intents
 from .api.models.team import Application
 from .base import CustomFormatter, Data
 from .decor import command

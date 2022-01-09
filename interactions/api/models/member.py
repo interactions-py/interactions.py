@@ -1,8 +1,8 @@
 from datetime import datetime
 
+from .flags import Permissions
 from .misc import DictSerializerMixin
 from .user import User
-from .flags import Permissions
 
 
 class Member(DictSerializerMixin):

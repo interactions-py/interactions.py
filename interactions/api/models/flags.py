@@ -43,6 +43,7 @@ class Intents(IntFlag):
 
 class Permissions(IntFlag):
     """An integer flag bitshift object representing the different member permissions given by Discord."""
+
     CREATE_INSTANT_INVITE = 1 << 0
     KICK_MEMBERS = 1 << 1
     BAN_MEMBERS = 1 << 2
