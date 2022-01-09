@@ -747,3 +747,6 @@ class Embed(DictSerializerMixin):
 
         if self.author:
             self._json.update({"author": self.author._json})
+
+        if self.footer:
+            self._json.update({"footer": self.footer._json})
