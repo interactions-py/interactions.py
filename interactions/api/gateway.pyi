@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Union
 from .dispatch import Listener
 from .http import HTTPClient
 from .models.gw import Presence
-from .models.intents import Intents
+from .models.flags import Intents
 
 class Heartbeat(Thread):
     ws: Any
