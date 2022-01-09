@@ -2,6 +2,7 @@ from datetime import datetime
 
 from .misc import DictSerializerMixin
 from .user import User
+from .flags import Permissions
 
 
 class Member(DictSerializerMixin):
@@ -22,7 +23,7 @@ class Member(DictSerializerMixin):
     :ivar bool deaf: Whether the member is deafened.
     :ivar bool mute: Whether the member is muted.
     :ivar Optional[bool] pending?: Whether the member is pending to pass membership screening.
-    :ivar Optional[str] permissions?: Whether the member has permissions.
+    :ivar Optional[Permissions] permissions?: Whether the member has permissions.
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
@@ -54,5 +55,10 @@ class Member(DictSerializerMixin):
         self.premium_since = (
             datetime.fromisoformat(self._json.get("premium_since"))
             if self._json.get("premium_since")
+            else None
+        )
+        self.permissions = (
+            Permissions(int(self._json.get("permissions")))
+            if self._json.get("permissions")
             else None
         )
