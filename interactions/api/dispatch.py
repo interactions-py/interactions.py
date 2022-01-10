@@ -6,10 +6,6 @@ from ..base import CustomFormatter, Data
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("dispatch")
-stream: StreamHandler = StreamHandler()
-stream.setLevel(Data.LOGGER)
-stream.setFormatter(CustomFormatter())
-log.addHandler(stream)
 
 
 class Listener:

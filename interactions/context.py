@@ -15,10 +15,6 @@ from .models.misc import InteractionData
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("context")
-stream: StreamHandler = StreamHandler()
-stream.setLevel(Data.LOGGER)
-stream.setFormatter(CustomFormatter())
-log.addHandler(stream)
 
 
 class Context(DictSerializerMixin):

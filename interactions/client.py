@@ -1,10 +1,9 @@
 import sys
 from asyncio import get_event_loop
-
 # from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
-from logging import Logger, StreamHandler, basicConfig, getLogger
+from logging import Logger, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
@@ -16,7 +15,7 @@ from .api.models.guild import Guild
 from .api.models.gw import Presence
 from .api.models.intents import Intents
 from .api.models.team import Application
-from .base import CustomFormatter, Data
+from .base import Data
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType
@@ -25,10 +24,6 @@ from .models.component import Button, Component, Modal, SelectMenu
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
-stream: StreamHandler = StreamHandler()
-stream.setLevel(Data.LOGGER)
-stream.setFormatter(CustomFormatter())
-log.addHandler(stream)
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
