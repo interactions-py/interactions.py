@@ -1,7 +1,7 @@
 import sys
 from asyncio import get_event_loop, run_coroutine_threadsafe
 from json import dumps
-from logging import Logger, basicConfig, getLogger
+from logging import Logger, getLogger
 from random import random
 from threading import Event, Thread
 from typing import Any, List, Optional, Union
@@ -11,14 +11,13 @@ from orjson import loads
 
 from interactions.api.models.gw import Presence
 from interactions.enums import InteractionType, OptionType
+
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
 from .http import HTTPClient
 from .models.intents import Intents
-from ..base import Data
 
-basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("gateway")
 
 __all__ = ("Heartbeat", "WebSocket")

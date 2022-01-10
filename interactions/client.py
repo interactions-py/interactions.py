@@ -1,9 +1,10 @@
 import sys
 from asyncio import get_event_loop
+
 # from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
-from logging import Logger, basicConfig, getLogger
+from logging import Logger, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
@@ -15,14 +16,12 @@ from .api.models.guild import Guild
 from .api.models.gw import Presence
 from .api.models.intents import Intents
 from .api.models.team import Application
-from .base import Data
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, Modal, SelectMenu
 
-basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
@@ -45,7 +44,6 @@ class Client:
         token: str,
         intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
         disable_sync: Optional[bool] = False,
-        log_level: Optional[int] = Data.LOGGER,
         shard: Optional[List[int]] = None,
         presence: Optional[Presence] = None,
     ) -> None:
@@ -57,7 +55,6 @@ class Client:
         :param disable_sync?: Whether you want to disable automate synchronization or not.
         :type disable_sync: Optional[bool]
         :param log_level?: The logging level to set for the terminal. Defaults to what is set internally.
-        :type log_level: Optional[int]
         :param presence?: The presence of the application when connecting.
         :type presence: Optional[Presence]
         """
@@ -86,10 +83,6 @@ class Client:
             )
         else:
             self.automate_sync = True
-
-        log_names: list = ["client", "context", "dispatch", "gateway", "http", "mixin"]
-        for logger in log_names:
-            getLogger(logger).setLevel(log_level)
 
         if not self.me:
             data = self.loop.run_until_complete(self.http.get_current_bot_information())

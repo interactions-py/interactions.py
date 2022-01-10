@@ -1,10 +1,7 @@
 from asyncio import get_event_loop
-from logging import Logger, StreamHandler, basicConfig, getLogger
+from logging import Logger, getLogger
 from typing import Coroutine, Optional
 
-from ..base import CustomFormatter, Data
-
-basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("dispatch")
 
 
