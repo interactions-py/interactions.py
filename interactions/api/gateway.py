@@ -320,6 +320,8 @@ class WebSocket:
                                     )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = f"component_{context.data.custom_id}"
+                        if context.data._json.get("values"):
+                            _args.append(context.data.values)
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                         _name = f"autocomplete_{context.data.id}"
                         if context.data._json.get("options"):

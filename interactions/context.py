@@ -279,6 +279,10 @@ class CommandContext(Context):
                     for component in components.components
                 ]
             elif isinstance(components, (Button, SelectMenu)):
+                if isinstance(components, SelectMenu):
+                    components._json["options"] = [
+                        option._json for option in components.options
+                    ]
                 _components[0]["components"] = (
                     [components._json]
                     if components._json.get("custom_id") or components._json.get("url")
