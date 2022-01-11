@@ -414,7 +414,7 @@ class Client:
         .. code-block:: python
 
             @autocomplete("option_name")
-            async def autocomplete_choice_list(ctx):
+            async def autocomplete_choice_list(ctx, user_input: str = ""):
                 await ctx.populate([...])
 
         :param name: The name of the option to autocomplete.
