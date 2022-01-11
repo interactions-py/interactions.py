@@ -163,7 +163,7 @@ class Message(DictSerializerMixin):
 
     :ivar Snowflake id: ID of the message.
     :ivar Snowflake channel_id: ID of the channel the message was sent in
-    :ivar Optional[Snowflake] guild_id:? ID of the guild the message was sent in, if it exists.
+    :ivar Optional[Snowflake] guild_id?: ID of the guild the message was sent in, if it exists.
     :ivar User author: The author of the message.
     :ivar Optional[Member] member?: The member object associated with the author, if any.
     :ivar str content: Message contents.

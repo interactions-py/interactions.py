@@ -157,6 +157,8 @@ class Channel(DictSerializerMixin):
         "default_auto_archive_duration",
         "permissions",
         "_client",
+        # TODO: Document banner when Discord officially documents them.
+        "banner",
     )
 
     def __init__(self, **kwargs):
