@@ -188,10 +188,17 @@ class Client:
                 f"Command {data.name} was not found in the API, creating and adding to the cache."
             )
 
-            await self.http.create_application_command(
-                application_id=self.me.id, data=data._json, guild_id=data.guild_id
+            _created_command = ApplicationCommand(
+                **(
+                    await self.http.create_application_command(
+                        application_id=self.me.id, data=data._json, guild_id=data.guild_id
+                    )
+                )
             )
-            self.http.cache.interactions.add(Build(id=data.name, value=data))
+
+            self.http.cache.interactions.add(
+                Build(id=_created_command.name, value=_created_command)
+            )
 
         if commands:
             log.debug("Commands were found, checking for sync.")
