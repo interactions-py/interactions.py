@@ -1,15 +1,16 @@
 import sys
 from asyncio import get_event_loop
-
-# from functools import partial
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, StreamHandler, basicConfig, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
+from interactions.api.dispatch import Listener
+from interactions.api.models.misc import Snowflake
+
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.error import InteractionException, JSONException
+from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.flags import Intents
@@ -21,7 +22,7 @@ from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
-from .models.component import Button, Component, Modal, SelectMenu
+from .models.component import Button, Modal, SelectMenu
 
 basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("client")
@@ -158,7 +159,7 @@ class Client:
         """
         Synchronizes the command specified by checking through the
         currently registered application commands on the API and
-        modifying if there is a detected chagne in structure.
+        modifying if there is a detected change in structure.
 
         .. warning::
             This internal call does not need to be manually triggered,
@@ -187,14 +188,10 @@ class Client:
                 f"Command {data.name} was not found in the API, creating and adding to the cache."
             )
 
-            request = await self.http.create_application_command(
+            await self.http.create_application_command(
                 application_id=self.me.id, data=data._json, guild_id=data.guild_id
             )
-
-            if request.get("code"):
-                raise JSONException(request["code"])
-            else:
-                self.http.cache.interactions.add(Build(id=data.name, value=data))
+            self.http.cache.interactions.add(Build(id=data.name, value=data))
 
         if commands:
             log.debug("Commands were found, checking for sync.")
@@ -228,7 +225,7 @@ class Client:
                                     f"Command {result.name} found unsynced, editing in the API and updating the cache."
                                 )
                                 payload._json["name"] = payload_name
-                                request = await self.http.edit_application_command(
+                                await self.http.edit_application_command(
                                     application_id=self.me.id,
                                     data=payload._json,
                                     command_id=result.id,
@@ -237,9 +234,6 @@ class Client:
                                 self.http.cache.interactions.add(
                                     Build(id=payload.name, value=payload)
                                 )
-
-                                if request.get("code"):
-                                    raise JSONException(request["code"])
                                 break
                     else:
                         await create(payload)
@@ -259,15 +253,11 @@ class Client:
                     log.debug(
                         f"Command {command['name']} was found in the API but never cached, deleting from the API and cache."
                     )
-                    request = await self.http.delete_application_command(
+                    await self.http.delete_application_command(
                         application_id=self.me.id,
                         command_id=command["id"],
                         guild_id=command.get("guild_id"),
                     )
-
-                    if request:
-                        if request.get("code"):
-                            raise JSONException(request["code"])
 
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
         """
@@ -281,7 +271,7 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self.websocket.dispatch.register(coro, name=name)
+        self.websocket.dispatch.register(coro, name)
         return coro
 
     def command(
@@ -348,12 +338,11 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            if options:
-                if (len(coro.__code__.co_varnames) + 1) < len(options):
-                    raise InteractionException(
-                        11,
-                        message="You must have the same amount of arguments as the options of the command.",
-                    )
+            if options and (len(coro.__code__.co_varnames) + 1) < len(options):
+                raise InteractionException(
+                    11,
+                    message="You must have the same amount of arguments as the options of the command.",
+                )
 
             commands: List[ApplicationCommand] = command(
                 type=type,
@@ -367,11 +356,125 @@ class Client:
             if self.automate_sync:
                 [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
-            return self.event(coro, name=name)
+            return self.event(coro, name=f"command_{name}")
 
         return decorator
 
-    def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]:
+    def message_command(
+        self,
+        *,
+        name: Optional[str] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+        default_permission: Optional[bool] = None,
+    ) -> Callable[..., Any]:
+        """
+        A decorator for registering a message context menu to the Discord API,
+        as well as being able to listen for ``INTERACTION_CREATE`` dispatched
+        gateway events.
+
+        The structure of a message context menu:
+
+        .. code-block:: python
+
+            @message_command(name="Context menu name")
+            async def context_menu_name(ctx):
+                ...
+
+        The ``scope`` kwarg field may also be used to designate the command in question
+        applicable to a guild or set of guilds.
+
+        :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
+        :type name: Optional[str]
+        :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
+        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
+        :type default_permission: Optional[bool]
+        :return: A callable response.
+        :rtype: Callable[..., Any]
+        """
+
+        def decorator(coro: Coroutine) -> Callable[..., Any]:
+            if not name:
+                raise InteractionException(11, message="Your command must have a name.")
+
+            if not len(coro.__code__.co_varnames):
+                raise InteractionException(
+                    11,
+                    message="Your command needs at least one argument to return context.",
+                )
+
+            commands: List[ApplicationCommand] = command(
+                type=ApplicationCommandType.MESSAGE,
+                name=name,
+                scope=scope,
+                default_permission=default_permission,
+            )
+
+            if self.automate_sync:
+                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+
+            return self.event(coro, name=f"command_{name}")
+
+        return decorator
+
+    def user_command(
+        self,
+        *,
+        name: Optional[str] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+        default_permission: Optional[bool] = None,
+    ) -> Callable[..., Any]:
+        """
+        A decorator for registering a user context menu to the Discord API,
+        as well as being able to listen for ``INTERACTION_CREATE`` dispatched
+        gateway events.
+
+        The structure of a user context menu:
+
+        .. code-block:: python
+
+            @user_command(name="Context menu name")
+            async def context_menu_name(ctx):
+                ...
+
+        The ``scope`` kwarg field may also be used to designate the command in question
+        applicable to a guild or set of guilds.
+
+        :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
+        :type name: Optional[str]
+        :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
+        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
+        :type default_permission: Optional[bool]
+        :return: A callable response.
+        :rtype: Callable[..., Any]
+        """
+
+        def decorator(coro: Coroutine) -> Callable[..., Any]:
+            if not name:
+                raise InteractionException(11, message="Your command must have a name.")
+
+            if not len(coro.__code__.co_varnames):
+                raise InteractionException(
+                    11,
+                    message="Your command needs at least one argument to return context.",
+                )
+
+            commands: List[ApplicationCommand] = command(
+                type=ApplicationCommandType.USER,
+                name=name,
+                scope=scope,
+                default_permission=default_permission,
+            )
+
+            if self.automate_sync:
+                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+
+            return self.event(coro, name=f"command_{name}")
+
+        return decorator
+
+    def component(self, component: Union[str, Button, SelectMenu]) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving components.
@@ -380,6 +483,7 @@ class Client:
 
         .. code-block:: python
 
+            # Method 1
             @component(interactions.Button(
                 style=interactions.ButtonStyle.PRIMARY,
                 label="click me!",
@@ -388,24 +492,33 @@ class Client:
             async def button_response(ctx):
                 ...
 
+            # Method 2
+            @component("custom_id")
+            async def button_response(ctx):
+                ...
+
         The context of the component callback decorator inherits the same
         as of the command decorator.
 
         :param component: The component you wish to callback for.
-        :type component: Union[Button, SelectMenu]
+        :type component: Union[str, Button, SelectMenu]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
 
         def decorator(coro: Coroutine) -> Any:
             payload: str = (
-                _component(component).custom_id if isinstance(component, Component) else component
+                _component(component).custom_id
+                if isinstance(component, (Button, SelectMenu))
+                else component
             )
-            return self.event(coro, name=payload)
+            return self.event(coro, name=f"component_{payload}")
 
         return decorator
 
-    def autocomplete(self, name: str) -> Callable[..., Any]:
+    def autocomplete(
+        self, name: str, command: Union[ApplicationCommand, int]
+    ) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving autocompletion fields.
@@ -420,12 +533,17 @@ class Client:
 
         :param name: The name of the option to autocomplete.
         :type name: str
+        :param command: The command or commnd ID with the option.
+        :type command: Union[ApplicationCommand, int]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
+        _command: Union[Snowflake, int] = (
+            command.id if isinstance(command, ApplicationCommand) else command
+        )
 
         def decorator(coro: Coroutine) -> Any:
-            return self.event(coro, name=f"autocomplete_{name}")
+            return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
         return decorator
 
@@ -436,7 +554,7 @@ class Client:
 
         .. error::
             This feature is currently under experimental/**beta access**
-            to those whitelisted for tetsing. Currently using this will
+            to those whitelisted for testing. Currently using this will
             present you with an error with the modal not working.
 
         The structure for a modal callback:
@@ -510,15 +628,9 @@ class Client:
         if module not in self.extensions:
             log.error(f"Extension {name} has not been loaded before. Skipping.")
 
-        try:
-            teardown = getattr(module, "teardown")
-            teardown()
-        except AttributeError:
-            pass
-        else:
-            log.debug(f"Removed extension {name}.")
-            del sys.modules[_name]
-            del self.extensions[_name]
+        log.debug(f"Removed extension {name}.")
+        del sys.modules[_name]
+        del self.extensions[_name]
 
     def reload(self, name: str, package: Optional[str] = None) -> None:
         """
@@ -588,47 +700,52 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self.http.cache.guilds.add(Build(id=str(guild.id), value=guild))
+        self.http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
 
 
 # TODO: Implement the rest of cog behaviour when possible.
-# class Extension:
-#     """
-#     A class that allows you to represent "extensions" of your code, or
-#     essentially cogs that can be ran independent of the root file in
-#     an object-oriented structure.
+class Extension:
+    """
+    A class that allows you to represent "extensions" of your code, or
+    essentially cogs that can be ran independent of the root file in
+    an object-oriented structure.
 
-#     The structure of an extension:
+    The structure of an extension:
 
-#     .. code-block:: python
+    .. code-block:: python
 
-#         class CoolCode(interactions.Extension):
-#             def __init__(self, client):
-#                 self.client = client
+        class CoolCode(interactions.Extension):
+            def __init__(self, client):
+                self.client = client
 
-#             @command(
-#                 type=interactions.ApplicationCommandType.USER,
-#                 name="User command in cog",
-#             )
-#             async def cog_user_cmd(self, ctx):
-#                 ...
+            @command(
+                type=interactions.ApplicationCommandType.USER,
+                name="User command in cog",
+            )
+            async def cog_user_cmd(self, ctx):
+                ...
 
-#         def setup(bot):
-#             CoolCode(bot)
-#     """
+        def setup(bot):
+            CoolCode(bot)
+    """
 
-#     client: Client
-#     commands: Optional[List[ApplicationCommand]]
-#     listeners: Optional[List[Listener]]
+    client: Client
+    commands: Optional[List[ApplicationCommand]]
+    listeners: Optional[List[Listener]]
 
-#     def __new__(cls, bot: Client) -> None:
-#         cls.client = bot
-#         cls.commands = []
+    def __new__(cls, bot: Client) -> None:
+        cls.client = bot
+        cls.commands = []
+        cls.listeners = []
 
-#         for _, content in cls.__dict__.items():
-#             content = content if isinstance(content.callback, partial) else None
-#             if isinstance(content, ApplicationCommand):
-#                 cls.commands.append(content)
-#                 bot.command(**content)
+        for _, content in cls.__dict__.items():
+            if not content.startswith("__") or content.startswith("_"):
+                if "on_" in content:
+                    cls.listeners.append(content)
+                else:
+                    cls.commands.append(content)
+
+        for _command in cls.commands:
+            cls.client.command(**_command)

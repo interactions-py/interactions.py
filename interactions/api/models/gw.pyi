@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from .channel import Channel, ThreadMember
 from .member import Member
@@ -8,6 +8,8 @@ from .misc import ClientStatus, DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
+from .team import Application
+from ..http import HTTPClient
 
 class ChannelPins(DictSerializerMixin):
     _json: dict
@@ -16,10 +18,19 @@ class ChannelPins(DictSerializerMixin):
     last_pin_timestamp: Optional[datetime]
     def __init__(self, **kwargs): ...
 
+class EmbeddedActivity(DictSerializerMixin):
+    _json: dict
+    users: List[Snowflake]
+    guild_id: Snowflake
+    embedded_activity: PresenceActivity
+    channel_id: Snowflake
+    def __init__(self, **kwargs): ...
+
 class GuildBan(DictSerializerMixin):
     _json: dict
     guild_id: Snowflake
     user: User
+    _client: Optional[HTTPClient]
     def __init__(self, **kwargs): ...
 
 class GuildEmojis(DictSerializerMixin):
@@ -30,6 +41,12 @@ class GuildEmojis(DictSerializerMixin):
 
 class GuildIntegrations(DictSerializerMixin):
     _json: dict
+    guild_id: Snowflake
+    def __init__(self, **kwargs): ...
+
+class GuildJoinRequest(DictSerializerMixin):
+    _json: dict
+    user_id: Snowflake
     guild_id: Snowflake
     def __init__(self, **kwargs): ...
 
@@ -45,6 +62,7 @@ class GuildMember(DictSerializerMixin):
     deaf: Optional[bool]
     mute: Optional[bool]
     pending: Optional[bool]
+    _client: Optional[HTTPClient]
     def __init__(self, **kwargs): ...
 
 class GuildMembers(DictSerializerMixin):
@@ -54,9 +72,7 @@ class GuildMembers(DictSerializerMixin):
     chunk_index: int
     chunk_count: int
     not_found: Optional[list]
-    presences: Optional[
-        List["Presence"]
-    ]
+    presences: Optional[List["Presence"]]
     nonce: Optional[str]
     def __init__(self, **kwargs): ...
 
@@ -65,6 +81,7 @@ class GuildRole(DictSerializerMixin):
     guild_id: Snowflake
     role: Role
     role_id: Optional[Snowflake]
+    _client: Optional[HTTPClient]
     def __init__(self, **kwargs): ...
 
 class GuildStickers(DictSerializerMixin):
@@ -73,7 +90,26 @@ class GuildStickers(DictSerializerMixin):
     stickers: List[Sticker]
     def __init__(self, **kwargs): ...
 
-class Integration(DictSerializerMixin): ...
+class Integration(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    name: str
+    type: str
+    enabled: bool
+    syncing: bool
+    role_id: Snowflake
+    enable_emoticons: bool
+    expire_behavior: int
+    expire_grace_period: int
+    user: User
+    account: Any
+    synced_at: datetime
+    subscriber_count: int
+    revoked: bool
+    application: Application
+    guild_id: Snowflake
+
+    def __init__(self, **kwargs): ...
 
 class Presence(DictSerializerMixin):
     _json: dict
@@ -83,7 +119,7 @@ class Presence(DictSerializerMixin):
     activities: List[PresenceActivity]
     client_status: ClientStatus
 
-class Reaction(DictSerializerMixin):
+class MessageReaction(DictSerializerMixin):
     # There's no official data model for this, so this is pseudo for the most part here.
     _json: dict
     user_id: Optional[Snowflake]
@@ -94,7 +130,7 @@ class Reaction(DictSerializerMixin):
     emoji: Optional[Emoji]
     def __init__(self, **kwargs): ...
 
-class ReactionRemove(Reaction):
+class ReactionRemove(MessageReaction):
     # typehinting already subclassed
     def __init__(self, **kwargs): ...
 

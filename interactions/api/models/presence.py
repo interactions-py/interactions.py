@@ -81,7 +81,6 @@ class PresenceActivity(DictSerializerMixin):
 
     :ivar str name: The activity name
     :ivar str type: The activity type
-    :ivar str id: The activity ID.
     :ivar Optional[str] url?: stream url (if type is 1)
     :ivar Snowflake created_at: Unix timestamp of when the activity was created to the User's session
     :ivar Optional[PresenceTimestamp] timestamps?: Unix timestamps for start and/or end of the game
@@ -101,7 +100,6 @@ class PresenceActivity(DictSerializerMixin):
         "_json",
         "name",
         "type",
-        "id",
         "url",
         "created_at",
         "timestamps",
@@ -116,10 +114,13 @@ class PresenceActivity(DictSerializerMixin):
         "flags",
         "buttons",
         # TODO: document/investigate what these do.
+        "user",
         "users",
         "status",
         "client_status",
         "activities",
+        "sync_id",
+        "session_id",
     )
 
     def __init__(self, **kwargs):

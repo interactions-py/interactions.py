@@ -21,7 +21,7 @@ def command(
     A wrapper designed to interpret the client-facing API for
     how a command is to be created and used.
 
-    :return: A list of command paylods.
+    :return: A list of command payloads.
     :rtype: List[ApplicationCommand]
     """
     _type: int = 0
@@ -40,7 +40,7 @@ def command(
             isinstance(option, dict) and all(isinstance(value, str) for value in option)
             for option in options
         ):
-            _options = [option for option in options]
+            _options = list(options)
         elif isinstance(options, Option):
             _options = [options._json]
         else:
@@ -110,5 +110,4 @@ def component(component: Union[Button, SelectMenu]) -> Component:
     :return: A component.
     :rtype: Component
     """
-    payload: Component = Component(**component._json)
-    return payload
+    return Component(**component._json)

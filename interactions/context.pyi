@@ -35,6 +35,8 @@ class CommandContext(Context):
     channel_id: Snowflake
     responded: bool
     deferred: bool
+    locale: str
+    guild_locale: str
     def __init__(self, **kwargs) -> None: ...
     async def defer(self, ephemeral: Optional[bool] = None) -> None: ...
     async def send(
@@ -45,7 +47,9 @@ class CommandContext(Context):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[Component, List[Component]]] = None,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+        ] = None,
         ephemeral: Optional[bool] = False,
     ) -> Message: ...
     async def edit(
@@ -56,7 +60,9 @@ class CommandContext(Context):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[Component, List[Component]]] = None,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+        ] = None,
     ) -> Message: ...
     async def delete(self) -> None: ...
     async def popup(self, modal: Modal): ...

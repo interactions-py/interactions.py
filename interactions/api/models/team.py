@@ -53,7 +53,7 @@ class Team(DictSerializerMixin):
 
 class Application(DictSerializerMixin):
     """
-    A class object representing an appliation.
+    A class object representing an application.
 
     .. note::
         ``type`` and ``hook`` are currently undocumented in the API.

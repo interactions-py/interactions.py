@@ -106,7 +106,7 @@ class Padlock:
         self.keep_open = True
 
     def click(self) -> None:
-        """Re-closes the lock after the instiantiation and invocation ends."""
+        """Re-closes the lock after the instantiation and invocation ends."""
         self.keep_open = False
 
     def __enter__(self) -> Any:
@@ -193,9 +193,9 @@ class Request:
                 kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
                 kwargs["headers"]["Content-Type"] = "application/json"
 
-                if kwargs.get("reason"):
-                    kwargs["headers"]["X-Audit-Log-Reason"] = kwargs["reason"]
-                    del kwargs["reason"]
+                reason = kwargs.pop("reason", None)
+                if reason:
+                    kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
 
                 async with self.session.request(
                     route.method, route.__api__ + route.path, **kwargs
@@ -203,6 +203,7 @@ class Request:
                     log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
                     data = await response.json(content_type=None)
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+
                     if "X-Ratelimit-Remaining" in response.headers.keys():
                         remaining = response.headers["X-Ratelimit-Remaining"]
 
@@ -216,6 +217,9 @@ class Request:
                             self.lock.set()
                     if response.status in (300, 401, 403, 404):
                         raise HTTPException(response.status)
+                    if isinstance(data, dict):
+                        if data.get("code"):
+                            raise HTTPException(data["code"])
                     elif response.status == 429:
                         retry_after = data["retry_after"]
 
@@ -428,7 +432,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
-        self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+        if request.get("id"):
+            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
 
         return request
 
@@ -532,7 +537,8 @@ class HTTPClient:
         request = await self._req.request(Route("GET", "/users/@me/guilds"))
 
         for guild in request:
-            self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
+            if guild.get("id"):
+                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
 
         return request
 
@@ -557,19 +563,20 @@ class HTTPClient:
 
     async def modify_guild(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
-    ) -> None:
+    ) -> dict:
         """
         Modifies a guild's attributes.
-
-        ..note::
-            This only sends the payload. You will have to check it when a higher-level function calls this.
 
         :param guild_id: Guild ID snowflake.
         :param payload: The parameters to change.
         :param reason: Reason to send to the audit log, if given.
+        :return: The modified guild object as a dictionary
+        :rtype: dict
         """
 
-        await self._req.request(Route("PATCH", f"/guilds/{guild_id}"), json=payload, reason=reason)
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}"), json=payload, reason=reason
+        )
 
     async def leave_guild(self, guild_id: int) -> None:
         """
@@ -609,7 +616,7 @@ class HTTPClient:
 
     async def get_guild_widget_image(self, guild_id: int, style: Optional[str] = None) -> str:
         """
-        Get a url representing a png image widget for the guild.
+        Get an url representing a png image widget for the guild.
         ..note::
             See _<https://discord.com/developers/docs/resources/guild#get-guild-widget-image> for list of styles.
 
@@ -752,7 +759,7 @@ class HTTPClient:
         self, template_code: str, name: str, icon: Optional[str] = None
     ) -> Guild:
         """
-        Create a a new guild based on a template.
+        Create a new guild based on a template.
 
         ..note::
             This endpoint can only be used by bots in less than 10 guilds.
@@ -858,7 +865,8 @@ class HTTPClient:
         )
 
         for channel in request:
-            self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
+            if channel.get("id"):
+                self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
 
         return request
 
@@ -873,7 +881,8 @@ class HTTPClient:
         )
 
         for role in request:
-            self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+            if role.get("id"):
+                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
 
         return request
 
@@ -890,7 +899,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
-        self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
+        if request.get("id"):
+            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
 
         return request
 
@@ -987,9 +997,8 @@ class HTTPClient:
         """
 
         return await self._req.request(
-            Route(
-                "DELETE", "/guilds/{guild_id}/bans/{user_id}", guild_id=guild_id, user_id=user_id
-            ),
+            Route("DELETE", f"/guilds/{guild_id}/bans/{user_id}"),
+            json={},
             reason=reason,
         )
 
@@ -1119,7 +1128,7 @@ class HTTPClient:
 
     async def search_guild_members(self, guild_id: int, query: str, limit: int = 1) -> List[Member]:
         """
-        Search a guild for members who's username or nickname starts with provided string.
+        Search a guild for members whose username or nickname starts with provided string.
 
         :param guild_id: Guild ID snowflake.
         :param query: The string to search for
@@ -1175,7 +1184,9 @@ class HTTPClient:
             reason=reason,
         )
 
-    async def modify_member(self, user_id: int, guild_id: int, payload: dict):
+    async def modify_member(
+        self, user_id: int, guild_id: int, payload: dict, reason: Optional[str] = None
+    ):
         """
         Edits a member.
         This can nick them, change their roles, mute/deafen (and its contrary), and moving them across channels and/or disconnect them
@@ -1183,7 +1194,8 @@ class HTTPClient:
         :param user_id: Member ID snowflake.
         :param guild_id: Guild ID snowflake.
         :param payload: Payload representing parameters (nick, roles, mute, deaf, channel_id)
-        :return: ? (modified voice state? not sure)
+        :param reason: The reason for this action. Defaults to None.
+        :return: Modified member object.
         """
 
         return await self._req.request(
@@ -1191,6 +1203,7 @@ class HTTPClient:
                 "PATCH", "/guilds/{guild_id}/members/{user_id}", guild_id=guild_id, user_id=user_id
             ),
             json=payload,
+            reason=reason,
         )
 
     # Channel endpoint.
@@ -1261,7 +1274,8 @@ class HTTPClient:
         )
 
         for message in request:
-            self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+            if message.get("id"):
+                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
@@ -1282,7 +1296,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
-        self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
+        if request.get("id"):
+            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
 
         return request
 
@@ -1385,6 +1400,7 @@ class HTTPClient:
         return await self._req.request(
             Route("PUT", f"/channels/{channel_id}/permissions/{overwrite_id}"),
             json={"allow": allow, "deny": deny, "type": perm_type},
+            reason=reason,
         )
 
     async def delete_channel_permission(
@@ -1642,7 +1658,8 @@ class HTTPClient:
                 json=payload,
                 reason=reason,
             )
-            self.cache.channels.add(Item(id=request["id"], value=request))
+            if request.get("id"):
+                self.cache.channels.add(Item(id=request["id"], value=request))
             return request
 
         payload["type"] = thread_type
@@ -1650,7 +1667,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
-        self.cache.channels.add(Item(id=request["id"], value=request))
+        if request.get("id"):
+            self.cache.channels.add(Item(id=request["id"], value=request))
 
         return request
 
@@ -2330,7 +2348,7 @@ class HTTPClient:
             Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/@original")
         )
 
-    # Emoji endpoints, a subset of guild but it should get it's own thing...
+    # Emoji endpoints, a subset of guild but it should get its own thing...
 
     async def get_all_emoji(self, guild_id: int) -> List[Emoji]:
         """
@@ -2407,13 +2425,16 @@ class HTTPClient:
             "name",
             "privacy_level",
             "scheduled_start_time",
+            "scheduled_end_time",
+            "entity_metadata",
             "description",
             "entity_type",
         )
         payload = {k: v for k, v in data.items() if k in valid_keys}
 
         return await self._req.request(
-            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=guild_id), json=payload
+            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=int(guild_id)),
+            json=payload,
         )
 
     async def get_scheduled_event(
@@ -2473,6 +2494,8 @@ class HTTPClient:
             "name",
             "privacy_level",
             "scheduled_start_time",
+            "scheduled_end_time",
+            "entity_metadata",
             "description",
             "entity_type",
         )

@@ -62,11 +62,23 @@ What does that mean? Well, we'll show you:
     async def test(ctx):
         await ctx.send("Hello from discord-interactions!")
 
-    interactions.start()
-    dpy.run(token="...", bot=True)
+    loop = asyncio.get_event_loop()
+
+    task2 = loop.create_task(dpy.start(token="...", bot=True))
+    task1 = loop.create_task(interactions.ready())
+
+    gathered = asyncio.gather(task1, task2, loop=loop)
+    loop.run_until_complete(gathered)
 
 Both of these variables ``interactions`` and ``dpy`` will be able to run in the same established environment, and additionally
-will both function properly as their respective libraries intend them to. What about the models, though? That's a simple answer:
+will both function properly as their respective libraries intend them to. This implementation uses asyncio.gather to execute
+both starts simultaneously as asyncio tasks, and runs them under one singular loop.
+
+Compared to traditional startup commands, ``interactions.ready()`` and ``dpy.start()`` is used instead of
+the typical ``interactions.start()`` and ``dpy.run()`` methods because of synchronous/async functions.
+``asyncio.gather()`` works with coroutines, hence the transition.
+
+What about the models, though? That's a simple answer:
 
 .. code-block:: python
 

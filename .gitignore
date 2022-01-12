@@ -3,6 +3,7 @@
 *.egg-info/
 *.eggs/
 *.pyc
+.idea
 .cache/
 _build/
 build/
@@ -11,5 +12,5 @@ dist/
 .venv
 .vscode
 __pycache__
-
 *.token
+*.pypirc

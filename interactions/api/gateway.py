@@ -205,13 +205,11 @@ class WebSocket:
                 await self.heartbeat()
                 self.keep_alive.start()
 
-            if op == OpCodeType.HEARTBEAT:
-                if self.keep_alive:
-                    await self.heartbeat()
+            if op == OpCodeType.HEARTBEAT and self.keep_alive:
+                await self.heartbeat()
 
-            if op == OpCodeType.HEARTBEAT_ACK:
-                if self.keep_alive:
-                    log.debug("HEARTBEAT_ACK")
+            if op == OpCodeType.HEARTBEAT_ACK and self.keep_alive:
+                log.debug("HEARTBEAT_ACK")
 
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
@@ -226,15 +224,14 @@ class WebSocket:
                     self.session_id = None
                     self.sequence = None
                     self.closed = True
+        elif event == "READY":
+            self.session_id = data["session_id"]
+            self.sequence = stream["s"]
+            self.dispatch.dispatch("on_ready")
+            log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
         else:
-            if event == "READY":
-                self.session_id = data["session_id"]
-                self.sequence = stream["s"]
-                self.dispatch.dispatch("on_ready")
-                log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
-            else:
-                log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
-                self.handle_dispatch(event, data)
+            log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
+            self.handle_dispatch(event, data)
 
     def handle_dispatch(self, event: str, data: dict) -> None:
         """
@@ -246,7 +243,7 @@ class WebSocket:
         """
 
         def check_sub_command(option: dict) -> dict:
-            kwargs = dict()
+            kwargs: dict = {}
             if option["type"] == OptionType.SUB_COMMAND_GROUP:
                 kwargs["sub_command_group"] = option["name"]
                 if option.get("options"):
@@ -298,6 +295,8 @@ class WebSocket:
                         __import__(path),
                         _name,
                     )
+                    if "_create" in event.lower() or "_add" in event.lower():
+                        data["_client"] = self.http
                     self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
                 except AttributeError as error:  # noqa
                     log.fatal(f"You're missing a data model for the event {name}: {error}")
@@ -310,7 +309,7 @@ class WebSocket:
                     _args: list = [context]
                     _kwargs: dict = dict()
                     if data["type"] == InteractionType.APPLICATION_COMMAND:
-                        _name = context.data.name
+                        _name = f"command_{context.data.name}"
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
@@ -320,9 +319,9 @@ class WebSocket:
                                         )
                                     )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
-                        _name = context.data.custom_id
+                        _name = f"component_{context.data.custom_id}"
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                        _name = "autocomplete_"
+                        _name = f"autocomplete_{context.data.id}"
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
@@ -330,7 +329,7 @@ class WebSocket:
                                         option if isinstance(option, dict) else option._json
                                     )
                                     if add_name:
-                                        _name += add_name
+                                        _name += f"_{add_name}"
                                     if add_args:
                                         _args.append(add_args)
                     elif data["type"] == InteractionType.MODAL_SUBMIT:
@@ -366,10 +365,8 @@ class WebSocket:
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
 
-            context: object = getattr(__import__("interactions.context"), _context)
-
             data["client"] = self.http
-
+            context: object = getattr(__import__("interactions.context"), _context)
             return context(**data)
 
     async def send(self, data: Union[str, dict]) -> None:
