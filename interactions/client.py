@@ -13,9 +13,9 @@ from .api.cache import Item as Build
 from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
+from .api.models.flags import Intents
 from .api.models.guild import Guild
 from .api.models.gw import Presence
-from .api.models.intents import Intents
 from .api.models.team import Application
 from .decor import command
 from .decor import component as _component

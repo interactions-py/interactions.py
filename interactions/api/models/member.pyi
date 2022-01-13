@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Union
 from .misc import DictSerializerMixin
 from .role import Role
 from .user import User
+from .flags import Permissions
 from ..http import HTTPClient
 from .message import Message
 
@@ -21,7 +22,7 @@ class Member(DictSerializerMixin):
     mute: bool
     is_pending: Optional[bool]
     pending: Optional[bool]
-    permissions: Optional[str]
+    permissions: Optional[Permissions]
     communication_disabled_until: Optional[datetime.isoformat]
     hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...

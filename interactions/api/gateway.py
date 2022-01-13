@@ -16,7 +16,7 @@ from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
 from .http import HTTPClient
-from .models.intents import Intents
+from .models.flags import Intents
 
 log: Logger = getLogger("gateway")
 
