@@ -1,6 +1,6 @@
 from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
 from json import dumps
-from logging import Logger, getLogger
+from logging import Logger
 from sys import version_info
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote
@@ -28,9 +28,9 @@ from ..api.models import (
     User,
     WelcomeScreen,
 )
-from ..base import __version__
+from interactions.base import __version__, get_logger
 
-log: Logger = getLogger("http")
+log: Logger = get_logger("http")
 
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
 session: ClientSession = ClientSession()

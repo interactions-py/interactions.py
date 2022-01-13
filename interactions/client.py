@@ -2,7 +2,7 @@ import sys
 from asyncio import get_event_loop
 from importlib import import_module
 from importlib.util import resolve_name
-from logging import Logger, getLogger
+from logging import Logger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from interactions.api.dispatch import Listener
@@ -17,13 +17,14 @@ from .api.models.flags import Intents
 from .api.models.guild import Guild
 from .api.models.gw import Presence
 from .api.models.team import Application
+from .base import get_logger
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
-log: Logger = getLogger("client")
+log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
