@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Union
+from typing import ClassVar, List, Optional, Union
 
 from colorama import Fore, Style, init
 
@@ -23,13 +23,13 @@ class Data:
     :ivar LOGGERS List[str]: A list of all loggers registered from this library
     """
 
-    # LOG_LEVEL: ClassVar[int] = logging.WARNING
+    LOG_LEVEL: ClassVar[int] = logging.ERROR
     LOGGERS: List[str] = []
 
 
 def get_logger(
     logger: Optional[Union[logging.Logger, str]] = None,
-    handler: Optional[logging.Handler] = logging.NullHandler(),
+    handler: Optional[logging.Handler] = logging.StreamHandler(),
 ) -> logging.Logger:
     _logger = logging.getLogger(logger) if isinstance(logger, str) else logger
     _logger_name = logger if isinstance(logger, str) else logger.name
@@ -37,8 +37,9 @@ def get_logger(
         _logger.removeHandler(_logger.handlers[0])
     _handler = handler
     _handler.setFormatter(CustomFormatter)
-    # _handler.setLevel(Data.LOG_LEVEL)  # this is sort of useless
+    _handler.setLevel(Data.LOG_LEVEL)
     _logger.addHandler(handler)
+    _logger.propagate = True
 
     Data.LOGGERS.append(_logger_name)
     return _logger
