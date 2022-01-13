@@ -234,10 +234,12 @@ class Member(DictSerializerMixin):
             elif isinstance(components, list) and all(
                 isinstance(component, (Button, SelectMenu)) for component in components
             ):
-                if isinstance(components[0], SelectMenu):
-                    components[0]._json["options"] = [
-                        option._json for option in components[0].options
-                    ]
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
                 _components = [
                     {
                         "type": 1,
@@ -290,7 +292,17 @@ class Member(DictSerializerMixin):
                     )
                     for component in components.components
                 ]
-            elif isinstance(components, (Button, SelectMenu)):
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
                 _components[0]["components"] = (
                     [components._json]
                     if components._json.get("custom_id") or components._json.get("url")
