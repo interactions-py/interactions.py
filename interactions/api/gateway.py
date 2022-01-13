@@ -261,7 +261,7 @@ class WebSocket:
                 if option["type"] == OptionType.SUB_COMMAND_GROUP:
                     for group_option in option["options"]:
                         if group_option.get("options"):
-                            for sub_option in option["options"]:
+                            for sub_option in group_option["options"]:
                                 if sub_option.get("focused"):
                                     return sub_option["name"], sub_option["value"]
                 elif option["type"] == OptionType.SUB_COMMAND:
