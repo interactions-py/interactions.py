@@ -567,7 +567,7 @@ class Client:
         elif isinstance(command, str):
             _command_obj = self.http.cache.interactions.get(command)
             if not _command_obj:
-                self.synchronize()
+                self.loop.run_until_complete(self.synchronize())
                 _command_obj = self.http.cache.interactions.get(command)
                 if not _command_obj:
                     raise InteractionException(6, "The command does not exist")
