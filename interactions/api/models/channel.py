@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import Optional
+from typing import List, Optional, Union
 
+from ...models.component import ActionRow, Button, SelectMenu
 from .misc import DictSerializerMixin, Snowflake
 
 
@@ -188,7 +189,9 @@ class Channel(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds=None,
         allowed_mentions=None,
-        components=None,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+        ] = None,
     ):
         """
         Sends a message in the channel
@@ -202,7 +205,7 @@ class Channel(DictSerializerMixin):
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[Component, List[Component]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -215,22 +218,99 @@ class Channel(DictSerializerMixin):
         # _attachments = [] if attachments else None
         _embeds: list = []
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _components: list = [{"type": 1, "components": []}]
+        _components: List[dict] = [{"type": 1, "components": []}]
         if embeds:
             if isinstance(embeds, list):
                 _embeds = [embed._json for embed in embeds]
             else:
                 _embeds = [embeds._json]
 
-        if isinstance(components, ActionRow):
-            _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, Button):
-            _components[0]["components"] = [] if components is None else [components._json]
-        elif isinstance(components, SelectMenu):
-            components._json["options"] = [option._json for option in components.options]
-            _components[0]["components"] = [] if components is None else [components._json]
+        # TODO: Break this obfuscation pattern down to a "builder" method.
+        if components:
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in action_row.components
+                        ],
+                    }
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                if isinstance(components[0], SelectMenu):
+                    components[0]._json["options"] = [
+                        option._json for option in components[0].options
+                    ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, (Button, SelectMenu)):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
         else:
-            _components = [] if components is None else [components]
+            _components = []
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -378,7 +458,7 @@ class Channel(DictSerializerMixin):
         )
         return Message(**res, _client=self._client)
 
-    async def get_pinned_messages(self) -> List[Message]:
+    async def get_pinned_messages(self):
         """
         Get all pinned messages from the channel.
         :return: A list of pinned message objects.

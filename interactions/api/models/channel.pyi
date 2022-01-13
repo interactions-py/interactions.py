@@ -3,7 +3,7 @@ from enum import IntEnum
 from typing import List, Optional, Union
 
 from .message import Message, Embed, MessageInteraction
-from ...models.component import Component
+from ...models.component import ActionRow, Button, SelectMenu
 from .misc import DictSerializerMixin, Overwrite, Snowflake
 from .user import User
 from ..http import HTTPClient
@@ -65,7 +65,7 @@ class Channel(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[Component, List[Component]]] = None,
+        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] = None,
     ) -> Message: ...
     async def delete(self) -> None: ...
     async def modify(
