@@ -1,5 +1,7 @@
+import functools
+import inspect
 import sys
-from asyncio import get_event_loop
+from asyncio import get_event_loop, iscoroutinefunction
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, getLogger
@@ -722,25 +724,74 @@ class Extension:
             async def cog_user_cmd(self, ctx):
                 ...
 
-        def setup(bot):
-            CoolCode(bot)
+        def setup(client):
+            CoolCode(client)
     """
 
     client: Client
     commands: Optional[List[ApplicationCommand]]
     listeners: Optional[List[Listener]]
 
-    def __new__(cls, bot: Client) -> None:
-        cls.client = bot
-        cls.commands = []
-        cls.listeners = []
+    def __new__(cls, client: Client, *args, **kwargs) -> "Extension":
 
-        for _, content in cls.__dict__.items():
-            if not content.startswith("__") or content.startswith("_"):
-                if "on_" in content:
-                    cls.listeners.append(content)
-                else:
-                    cls.commands.append(content)
+        self = super().__new__(cls)
 
-        for _command in cls.commands:
-            cls.client.command(**_command)
+        self.client = client
+        self._commands = []
+        self._listeners = []
+        self._components = []
+
+        # This gets every coroutine in a way that we can easily change them
+        # cls
+        for name, func in inspect.getmembers(cls, predicate=iscoroutinefunction):
+            if not name.startswith("__") and not name.startswith("_"):  # Keep "hidden" methods
+                partial = functools.partial(
+                    func, self
+                )  # If you have a better solution, feel free to do it
+                partial.__name__ = func.__name__
+                partial.__code__ = func.__code__
+
+                if hasattr(func, "__listener_name__"):  # set by extension_listener
+                    partial = client.event(
+                        partial, name=func.__listener_name__
+                    )  # capture the return value for friendlier ext-ing
+                    self._listeners.append(partial)
+
+                if hasattr(func, "__command_data__"):  # Set by extension_command
+                    args, kwargs = func.__command_data__
+                    partial = client.command(*args, **kwargs)(partial)
+                    self._commands.append(partial)
+
+                if hasattr(func, "__component_data__"):
+                    args, kwargs = func.__component_data__
+                    partial = client.component(*args, **kwargs)
+                    self._components.append(partial)
+
+        return self
+
+
+@functools.wraps(command)
+def extension_command(*args, **kwargs):
+    def decorator(coro):
+        coro.__command_data__ = (args, kwargs)
+        return coro
+
+    return decorator
+
+
+def extension_listener(name=None):
+    def decorator(func):
+        func.__listener_name__ = name or func.__name__
+
+        return func
+
+    return decorator
+
+
+@functools.wraps(Client.component)
+def extension_component(*args, **kwargs):
+    def decorator(func):
+        func.__component_data__ = (args, kwargs)
+        return func
+
+    return decorator
