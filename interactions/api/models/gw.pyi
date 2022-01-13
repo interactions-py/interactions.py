@@ -160,3 +160,9 @@ class ThreadMembers(DictSerializerMixin):
     added_members: Optional[List[ThreadMember]]
     removed_member_ids: Optional[List[Snowflake]]
     def __init__(self, **kwargs): ...
+
+class Webhooks(DictSerializerMixin):
+    _json: dict
+    channel_id: Snowflake
+    guild_id: Snowflake
+    def __init__(self, **kwargs): ...

@@ -474,3 +474,19 @@ class ThreadMembers(DictSerializerMixin):
             if self._json.get("added_members")
             else None
         )
+
+
+class Webhooks(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``WEBHOOKS_UPDATE``.
+
+    :ivar Snowflake channel_id: The channel ID of the associated event.
+    :ivar Snowflake guild_id: The guild ID of the associated event.
+    """
+
+    __slots__ = ("_json", "channel_id", "guild_id")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
