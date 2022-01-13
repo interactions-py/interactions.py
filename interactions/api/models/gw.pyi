@@ -11,6 +11,16 @@ from .user import User
 from .team import Application
 from ..http import HTTPClient
 
+class ApplicationCommandPermissions(DictSerializerMixin):
+    _json: dict
+    application_id: Snowflake
+    guild_id: Snowflake
+    id: Snowflake
+    permissions: List[dict]
+
+    def __init__(self, **kwargs): ...
+
+
 class ChannelPins(DictSerializerMixin):
     _json: dict
     guild_id: Optional[Snowflake]

@@ -10,6 +10,29 @@ from .role import Role
 from .user import User
 
 
+class ApplicationCommandPermissions(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
+
+    ..note :: This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
+
+    :ivar Snowflake application_id: The application ID associated with the event.
+    :ivar Snowflake guild_id: The guild ID associated with the event.
+    :ivar Snowflake id: The ID of the command associated with the event. (?)
+    :ivar List[dict] permissions: The updated permissions of the associated command/event.
+    """
+
+    __slots__ = ("_json", "application_id", "guild_id", "id", "permissions")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.application_id = (
+            Snowflake(self.application_id) if self._json.get("application_id") else None
+        )
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+
+
 class ChannelPins(DictSerializerMixin):
     """
     A class object representing the gateway event ``CHANNEL_PINS_UPDATE``.
@@ -305,6 +328,9 @@ class Integration(DictSerializerMixin):
         "revoked",
         "application",
         "guild_id",
+        # TODO: Document these when Discord does.
+        "guild_hashes",
+        "application_id",
     )
 
     def __init__(self, **kwargs):
