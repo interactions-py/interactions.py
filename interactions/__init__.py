@@ -12,9 +12,9 @@ To see the documentation, please head over to the link here:
 Co-authored by DeltaXW.
 """
 from .api.models.channel import *  # noqa: F401 F403
+from .api.models.flags import *  # noqa: F401 F403
 from .api.models.guild import *  # noqa: F401 F403
 from .api.models.gw import *  # noqa: F401 F403
-from .api.models.intents import *  # noqa: F401 F403
 from .api.models.member import *  # noqa: F401 F403
 from .api.models.message import *  # noqa: F401 F403
 from .api.models.misc import *  # noqa: F401 F403

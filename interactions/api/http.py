@@ -1,6 +1,6 @@
 from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
 from json import dumps
-from logging import Logger, StreamHandler, basicConfig, getLogger
+from logging import Logger, getLogger
 from sys import version_info
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote
@@ -28,14 +28,9 @@ from ..api.models import (
     User,
     WelcomeScreen,
 )
-from ..base import CustomFormatter, Data, __version__
+from ..base import __version__
 
-basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("http")
-stream: StreamHandler = StreamHandler()
-stream.setLevel(Data.LOGGER)
-stream.setFormatter(CustomFormatter())
-log.addHandler(stream)
 
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
 session: ClientSession = ClientSession()
