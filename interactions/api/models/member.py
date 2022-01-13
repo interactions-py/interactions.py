@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-from ...models.component import ActionRow, Button, SelectMenu
 from .flags import Permissions
 from .misc import DictSerializerMixin
 from .role import Role
@@ -175,7 +174,7 @@ class Member(DictSerializerMixin):
         self,
         content: Optional[str] = None,
         *,
-        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+        components=None,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds=None,
@@ -197,6 +196,7 @@ class Member(DictSerializerMixin):
         :return: The sent message as an object.
         :rtype: Message
         """
+        from ...models.component import ActionRow, Button, SelectMenu
         from .channel import Channel
         from .message import Message
 
