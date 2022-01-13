@@ -1,8 +1,7 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import List, Optional
 
-from ...models.component import ActionRow, Button, SelectMenu
 from .misc import DictSerializerMixin, Snowflake
 
 
@@ -189,9 +188,7 @@ class Channel(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds=None,
         allowed_mentions=None,
-        components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
+        components=None,
     ):
         """
         Sends a message in the channel
