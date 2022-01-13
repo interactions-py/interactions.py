@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 
 class ApplicationCommandType(IntEnum):
@@ -141,3 +141,16 @@ class TextStyleType(IntEnum):
 
     SHORT = 1
     PARAGRAPH = 2
+
+
+# TODO: Move this to flags.py after # 420
+class StatusType(str, Enum):
+    """
+    A string enum representing Discord status icons that a user may have.
+    """
+
+    ONLINE = "online"
+    DND = "dnd"
+    IDLE = "idle"
+    INVISIBLE = "invisible"
+    OFFLINE = "offline"

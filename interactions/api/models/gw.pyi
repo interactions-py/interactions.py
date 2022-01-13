@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from .channel import Channel, ThreadMember
 from .member import Member
@@ -8,6 +8,7 @@ from .misc import ClientStatus, DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
+from .team import Application
 from ..http import HTTPClient
 
 class ChannelPins(DictSerializerMixin):
@@ -15,6 +16,14 @@ class ChannelPins(DictSerializerMixin):
     guild_id: Optional[Snowflake]
     channel_id: Snowflake
     last_pin_timestamp: Optional[datetime]
+    def __init__(self, **kwargs): ...
+
+class EmbeddedActivity(DictSerializerMixin):
+    _json: dict
+    users: List[Snowflake]
+    guild_id: Snowflake
+    embedded_activity: PresenceActivity
+    channel_id: Snowflake
     def __init__(self, **kwargs): ...
 
 class GuildBan(DictSerializerMixin):
@@ -32,6 +41,12 @@ class GuildEmojis(DictSerializerMixin):
 
 class GuildIntegrations(DictSerializerMixin):
     _json: dict
+    guild_id: Snowflake
+    def __init__(self, **kwargs): ...
+
+class GuildJoinRequest(DictSerializerMixin):
+    _json: dict
+    user_id: Snowflake
     guild_id: Snowflake
     def __init__(self, **kwargs): ...
 
@@ -75,7 +90,26 @@ class GuildStickers(DictSerializerMixin):
     stickers: List[Sticker]
     def __init__(self, **kwargs): ...
 
-class Integration(DictSerializerMixin): ...
+class Integration(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    name: str
+    type: str
+    enabled: bool
+    syncing: bool
+    role_id: Snowflake
+    enable_emoticons: bool
+    expire_behavior: int
+    expire_grace_period: int
+    user: User
+    account: Any
+    synced_at: datetime
+    subscriber_count: int
+    revoked: bool
+    application: Application
+    guild_id: Snowflake
+
+    def __init__(self, **kwargs): ...
 
 class Presence(DictSerializerMixin):
     _json: dict

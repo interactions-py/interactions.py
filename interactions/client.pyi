@@ -7,7 +7,7 @@ from .api.cache import Cache
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.guild import Guild
-from .api.models.intents import Intents
+from .api.models.flags import Intents
 from .api.models.team import Application
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option

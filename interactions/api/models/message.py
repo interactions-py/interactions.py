@@ -163,7 +163,7 @@ class Message(DictSerializerMixin):
 
     :ivar Snowflake id: ID of the message.
     :ivar Snowflake channel_id: ID of the channel the message was sent in
-    :ivar Optional[Snowflake] guild_id:? ID of the guild the message was sent in, if it exists.
+    :ivar Optional[Snowflake] guild_id?: ID of the guild the message was sent in, if it exists.
     :ivar User author: The author of the message.
     :ivar Optional[Member] member?: The member object associated with the author, if any.
     :ivar str content: Message contents.
@@ -694,7 +694,7 @@ class Embed(DictSerializerMixin):
     :ivar Optional[EmbedImageStruct] video?: Video information
     :ivar Optional[EmbedProvider] provider?: Provider information
     :ivar Optional[EmbedAuthor] author?: Author information
-    :ivar Optional[EmbedField] fields?: A list of fields denoting field information
+    :ivar Optional[List[EmbedField]] fields?: A list of fields denoting field information
     """
 
     __slots__ = (
@@ -754,7 +754,7 @@ class Embed(DictSerializerMixin):
         self.fields = (
             [
                 EmbedField(**field) if isinstance(field, dict) else field
-                for field in self._json["fields"][0]
+                for field in self._json["fields"]
             ]
             if self._json.get("fields")
             else None
@@ -768,7 +768,10 @@ class Embed(DictSerializerMixin):
         # on we'll be refactoring this anyhow. What the fuck is breaking
         # it?
         if self.fields:
-            self._json.update({"fields": [field._json for field in self.fields[0]]})
+            self._json.update({"fields": [field._json for field in self.fields]})
 
         if self.author:
             self._json.update({"author": self.author._json})
+
+        if self.footer:
+            self._json.update({"footer": self.footer._json})

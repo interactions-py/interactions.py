@@ -1,4 +1,4 @@
-from logging import Logger, StreamHandler, basicConfig, getLogger
+from logging import Logger, getLogger
 from typing import List, Optional, Union
 
 from .api.models.channel import Channel
@@ -7,18 +7,12 @@ from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
 from .api.models.misc import DictSerializerMixin, Snowflake
 from .api.models.user import User
-from .base import CustomFormatter, Data
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu
 from .models.misc import InteractionData
 
-basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("context")
-stream: StreamHandler = StreamHandler()
-stream.setLevel(Data.LOGGER)
-stream.setFormatter(CustomFormatter())
-log.addHandler(stream)
 
 
 class Context(DictSerializerMixin):

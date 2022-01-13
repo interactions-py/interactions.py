@@ -1,6 +1,6 @@
 from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
 from json import dumps
-from logging import Logger, StreamHandler, basicConfig, getLogger
+from logging import Logger, getLogger
 from sys import version_info
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote
@@ -28,14 +28,9 @@ from ..api.models import (
     User,
     WelcomeScreen,
 )
-from ..base import CustomFormatter, Data, __version__
+from ..base import __version__
 
-basicConfig(level=Data.LOGGER)
 log: Logger = getLogger("http")
-stream: StreamHandler = StreamHandler()
-stream.setLevel(Data.LOGGER)
-stream.setFormatter(CustomFormatter())
-log.addHandler(stream)
 
 __all__ = ("Route", "Padlock", "Request", "HTTPClient")
 session: ClientSession = ClientSession()
@@ -432,7 +427,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
-        self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+        if request.get("id"):
+            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
 
         return request
 
@@ -536,7 +532,8 @@ class HTTPClient:
         request = await self._req.request(Route("GET", "/users/@me/guilds"))
 
         for guild in request:
-            self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
+            if guild.get("id"):
+                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
 
         return request
 
@@ -863,7 +860,8 @@ class HTTPClient:
         )
 
         for channel in request:
-            self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
+            if channel.get("id"):
+                self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
 
         return request
 
@@ -878,7 +876,8 @@ class HTTPClient:
         )
 
         for role in request:
-            self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+            if role.get("id"):
+                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
 
         return request
 
@@ -895,7 +894,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
-        self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
+        if request.get("id"):
+            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
 
         return request
 
@@ -1269,7 +1269,8 @@ class HTTPClient:
         )
 
         for message in request:
-            self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+            if message.get("id"):
+                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
@@ -1290,7 +1291,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
-        self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
+        if request.get("id"):
+            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
 
         return request
 
@@ -1651,7 +1653,8 @@ class HTTPClient:
                 json=payload,
                 reason=reason,
             )
-            self.cache.channels.add(Item(id=request["id"], value=request))
+            if request.get("id"):
+                self.cache.channels.add(Item(id=request["id"], value=request))
             return request
 
         payload["type"] = thread_type
@@ -1659,7 +1662,8 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
-        self.cache.channels.add(Item(id=request["id"], value=request))
+        if request.get("id"):
+            self.cache.channels.add(Item(id=request["id"], value=request))
 
         return request
 
