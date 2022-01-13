@@ -159,6 +159,7 @@ class Channel(DictSerializerMixin):
         "_client",
         # TODO: Document banner when Discord officially documents them.
         "banner",
+        "guild_hashes",
     )
 
     def __init__(self, **kwargs):
