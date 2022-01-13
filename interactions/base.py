@@ -1,5 +1,5 @@
 import logging
-from typing import ClassVar
+from typing import Union, Optional, List
 
 from colorama import Fore, Style, init
 
@@ -18,9 +18,28 @@ __authors__ = {
 
 
 class Data:
-    """A class representing constants for the library."""
+    """A class representing constants for the library.
 
-    LOGGER: ClassVar[int] = logging.WARNING
+    :ivar LOGGERS List[str]: A list of all loggers registered from this library
+    """
+
+    # LOG_LEVEL: ClassVar[int] = logging.WARNING
+    LOGGERS: List[str] = []
+
+
+def get_logger(logger: Optional[Union[logging.Logger, str]] = None,
+               handler: Optional[logging.Handler] = logging.NullHandler()) -> logging.Logger:
+    _logger = logging.getLogger(logger) if isinstance(logger, str) else logger
+    _logger_name = logger if isinstance(logger, str) else logger.name
+    if len(_logger.handlers) > 1:
+        _logger.removeHandler(_logger.handlers[0])
+    _handler = handler
+    _handler.setFormatter(CustomFormatter)
+    # _handler.setLevel(Data.LOG_LEVEL)  # this is sort of useless
+    _logger.addHandler(handler)
+
+    Data.LOGGERS.append(_logger_name)
+    return _logger
 
 
 class CustomFormatter(logging.Formatter):
