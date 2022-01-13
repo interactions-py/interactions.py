@@ -220,14 +220,16 @@ class Client:
                                     f"Command {result.name} found unsynced, editing in the API and updating the cache."
                                 )
                                 payload._json["name"] = payload_name
-                                await self.http.edit_application_command(
-                                    application_id=self.me.id,
-                                    data=payload._json,
-                                    command_id=result.id,
-                                    guild_id=result._json.get("guild_id"),
+                                _updated = ApplicationCommand(
+                                    **await self.http.edit_application_command(
+                                        application_id=self.me.id,
+                                        data=payload._json,
+                                        command_id=result.id,
+                                        guild_id=result._json.get("guild_id"),
+                                    )
                                 )
                                 self.http.cache.interactions.add(
-                                    Build(id=payload.name, value=payload)
+                                    Build(id=_updated.name, value=_updated)
                                 )
                                 break
                     else:
