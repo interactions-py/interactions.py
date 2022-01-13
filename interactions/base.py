@@ -1,5 +1,5 @@
 import logging
-from typing import Union, Optional, List
+from typing import List, Optional, Union
 
 from colorama import Fore, Style, init
 
@@ -27,8 +27,10 @@ class Data:
     LOGGERS: List[str] = []
 
 
-def get_logger(logger: Optional[Union[logging.Logger, str]] = None,
-               handler: Optional[logging.Handler] = logging.NullHandler()) -> logging.Logger:
+def get_logger(
+    logger: Optional[Union[logging.Logger, str]] = None,
+    handler: Optional[logging.Handler] = logging.NullHandler(),
+) -> logging.Logger:
     _logger = logging.getLogger(logger) if isinstance(logger, str) else logger
     _logger_name = logger if isinstance(logger, str) else logger.name
     if len(_logger.handlers) > 1:
