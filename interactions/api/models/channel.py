@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import Callable, List, Optional
+from typing import List, Optional
 
 from .misc import DictSerializerMixin, Snowflake
 
@@ -495,24 +495,6 @@ class Channel(DictSerializerMixin):
         res = await self._client.get_pinned_messages(int(self.id))
         messages = [Message(**message, _client=self._client) for message in res]
         return messages
-
-    async def purge(
-        self,
-        amount: int,
-        check: Callable = None,
-    ) -> List:
-        """
-        Purge a give amount of messages from the channel.
-
-
-        :param amount: The amount of messages to purge from the channel
-        :return: A list of all deleted messages
-        :rtype: List[Message]
-        """
-
-        if not self._client:
-            raise AttributeError("HTTTPClient not found!")
-        _all = []  # noqa
 
 
 class Thread(Channel):
