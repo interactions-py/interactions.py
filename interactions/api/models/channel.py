@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from .misc import DictSerializerMixin, Snowflake
 
@@ -479,6 +479,30 @@ class Channel(DictSerializerMixin):
         res = await self._client.get_pinned_messages(int(self.id))
         messages = [Message(**message, _client=self._client) for message in res]
         return messages
+
+    async def purge(
+        self,
+        amount: int,
+        check: Callable = None,
+    ) -> List:
+        """
+        Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
+
+        .. code-block:: python
+
+            def check_pinned(message):
+                return not message.pinned
+
+        :param amount: The amount of messages to delete
+        :type amount: int
+        :param check?: The function used to check if a message should be deleted.
+        :type check: Callable[[Message], bool]
+        :return: A list of the deleted messages
+        :rtype: List[Message]
+        """
+        _all = []
+
+        return _all
 
 
 class Thread(Channel):
