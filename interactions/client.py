@@ -1,5 +1,5 @@
 import sys
-from asyncio import get_event_loop
+from asyncio import get_event_loop, ensure_future
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, getLogger
@@ -567,10 +567,12 @@ class Client:
         elif isinstance(command, str):
             _command_obj = self.http.cache.interactions.get(command)
             if not _command_obj:
-                self.loop.run_until_complete(self.synchronize())
+                _sync_task = ensure_future(self.synchronize(), loop=self.loop)
+                while not _sync_task.done():
+                    pass  # wait for sync to finish
                 _command_obj = self.http.cache.interactions.get(command)
                 if not _command_obj:
-                    raise InteractionException(6, "The command does not exist")
+                    raise InteractionException(6, message="The command does not exist")
             _command: Union[Snowflake, int] = int(_command_obj.id)
         else:
             _command: Union[Snowflake, int] = command
