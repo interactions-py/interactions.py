@@ -351,7 +351,10 @@ class Client:
             )
 
             if self.automate_sync:
-                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+                if self.loop.is_running():
+                    [self.loop.create_task(self.synchronize(command)) for command in commands]
+                else:
+                    [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -408,7 +411,10 @@ class Client:
             )
 
             if self.automate_sync:
-                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+                if self.loop.is_running():
+                    [self.loop.create_task(self.synchronize(command)) for command in commands]
+                else:
+                    [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -465,7 +471,10 @@ class Client:
             )
 
             if self.automate_sync:
-                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+                if self.loop.is_running():
+                    [self.loop.create_task(self.synchronize(command)) for command in commands]
+                else:
+                    [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
