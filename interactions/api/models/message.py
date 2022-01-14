@@ -289,6 +289,10 @@ class Message(DictSerializerMixin):
         return Channel(**res, _client=self._client)
 
     async def get_guild(self):
+        """
+        Gets the guild where the message was sent
+        :rtype: Guild
+        """
         from .guild import Guild
 
         res = await self._client.get_guild(guild_id=int(self.guild_id))
@@ -420,6 +424,27 @@ class Message(DictSerializerMixin):
 
         res = await self._client.create_message(
             channel_id=int(self.channel_id), payload=payload._json
+        )
+        return Message(**res, _client=self._client)
+
+    async def pin(self) -> None:
+        """Pins the message to its channel"""
+
+        await self._client.pin_message(channel_id=int(self.channel_id), message_id=int(self.id))
+
+    async def unpin(self) -> None:
+        """Unpins the message from its channel"""
+
+        await self._client.unpin_message(channel_id=int(self.channel_id), message_id=int(self.id))
+
+    async def publish(self) -> "Message":
+        """Publishes (API calls it crossposts) the message in its channel to any that is followed by.
+
+        :return: message object
+        :rtype: Message
+        """
+        res = await self._client.publish_message(
+            channel_id=int(self.channel_id), message_id=int(self.id)
         )
         return Message(**res, _client=self._client)
 
