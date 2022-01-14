@@ -491,11 +491,12 @@ class Channel(DictSerializerMixin):
         .. code-block:: python
 
             def check_pinned(message):
-                return not message.pinned
+                return not message.pinned  # This returns `True` only if the message is the message is not pinned
+            await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
 
         :param amount: The amount of messages to delete
         :type amount: int
-        :param check?: The function used to check if a message should be deleted.
+        :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
         :type check: Callable[[Message], bool]
         :return: A list of the deleted messages
         :rtype: List[Message]
