@@ -1,5 +1,5 @@
 import sys
-from asyncio import get_event_loop, ensure_future
+from asyncio import ensure_future, get_event_loop
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, getLogger
