@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from .misc import DictSerializerMixin, Snowflake
 
@@ -207,6 +207,8 @@ class Channel(DictSerializerMixin):
         :return: The sent message as an object.
         :rtype: Message
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
         from .message import Message
 
@@ -340,6 +342,8 @@ class Channel(DictSerializerMixin):
         """
         Deletes the channel.
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
         await self._client.delete_channel(channel_id=int(self.id))
 
     async def modify(
@@ -378,6 +382,8 @@ class Channel(DictSerializerMixin):
         :return: The modified channel as new object
         :rtype: Channel
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
         _name = self.name if not name else name
         _topic = self.topic if not topic else topic
         _bitrate = self.bitrate if not bitrate else bitrate
@@ -418,6 +424,8 @@ class Channel(DictSerializerMixin):
         :param member_id: The id of the member to add to the channel
         :type member_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
         if not self.thread_metadata:
             raise TypeError(
                 "The Channel you specified is not a thread!"
@@ -434,6 +442,8 @@ class Channel(DictSerializerMixin):
         :param message_id: The id of the message to pin
         :type message_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
 
         await self._client.pin_message(channel_id=int(self.id), message_id=message_id)
 
@@ -447,6 +457,8 @@ class Channel(DictSerializerMixin):
         :param message_id: The id of the message to unpin
         :type message_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
 
         await self._client.unpin_message(channel_id=int(self.id), message_id=message_id)
 
@@ -461,6 +473,8 @@ class Channel(DictSerializerMixin):
         :return: The message published
         :rtype: Message
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
         from .message import Message
 
         res = await self._client.publish_message(
@@ -474,11 +488,31 @@ class Channel(DictSerializerMixin):
         :return: A list of pinned message objects.
         :rtype: List[Message]
         """
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
         from .message import Message
 
         res = await self._client.get_pinned_messages(int(self.id))
         messages = [Message(**message, _client=self._client) for message in res]
         return messages
+
+    async def purge(
+        self,
+        amount: int,
+        check: Callable = None,
+    ) -> List:
+        """
+        Purge a give amount of messages from the channel.
+
+
+        :param amount: The amount of messages to purge from the channel
+        :return: A list of all deleted messages
+        :rtype: List[Message]
+        """
+
+        if not self._client:
+            raise AttributeError("HTTTPClient not found!")
+        _all = []  # noqa
 
 
 class Thread(Channel):

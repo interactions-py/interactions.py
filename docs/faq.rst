@@ -139,6 +139,26 @@ of discord.py bot developers frown upon doing, so this is at your own risk to co
 can take a page out of discord.js' book if you want to do this, since they've never heard of an external command handler framework
 before in their entire life.
 
+
+I'm getting "``AttributeError: HTTTPClient not found!``" when I try to execute helper methods!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Probably you are doing something like this:
+
+.. code-block:: python
+
+    channel = interactions.Channel(**await bot.http.get_channel(channel_id))
+    await channel.send("...")
+
+And the error occurs in the line where you try to send something. You can fix this easy by adding one argument:
+
+.. code-block:: python
+
+    channel = interactions.Channel(**await bot.http.get_channel(channel_id), _client=bot.http)
+    await channel.send("...")
+
+You have to add this extra argument for every object you instantiate by yourself if you want to use it's methods
+
+
 My question is not answered on here!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Please join our Discord server for any further support regarding our library and/or any integration code depending on it.
