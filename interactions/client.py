@@ -1,6 +1,8 @@
+import asyncio
 import functools
 import inspect
 import sys
+import types
 from asyncio import get_event_loop, iscoroutinefunction
 from importlib import import_module
 from importlib.util import resolve_name
@@ -354,7 +356,10 @@ class Client:
                 if self.loop.is_running():
                     [self.loop.create_task(self.synchronize(command)) for command in commands]
                 else:
-                    [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+                    [
+                        self.loop.run_until_complete(self.synchronize(command))
+                        for command in commands
+                    ]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -414,7 +419,10 @@ class Client:
                 if self.loop.is_running():
                     [self.loop.create_task(self.synchronize(command)) for command in commands]
                 else:
-                    [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+                    [
+                        self.loop.run_until_complete(self.synchronize(command))
+                        for command in commands
+                    ]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -474,7 +482,10 @@ class Client:
                 if self.loop.is_running():
                     [self.loop.create_task(self.synchronize(command)) for command in commands]
                 else:
-                    [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+                    [
+                        self.loop.run_until_complete(self.synchronize(command))
+                        for command in commands
+                    ]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -607,7 +618,9 @@ class Client:
         if _name in self.extensions:
             log.error(f"Extension {name} has already been loaded. Skipping.")
 
-        module = import_module(name, package)
+        module = import_module(
+            name, package
+        )  # should be a module, because Extensions just need to be __init__-ed
 
         try:
             setup = getattr(module, "setup")
@@ -628,15 +641,33 @@ class Client:
         :param package?: The package of the extension.
         :type package: Optional[str]
         """
-        _name: str = resolve_name(name, package)
-        module = self.extensions.get(_name)
+        try:
+            _name: str = resolve_name(name, package)
+        except AttributeError:
+            _name = name
 
-        if module not in self.extensions:
+        extension = self.extensions.get(_name)
+
+        if _name not in self.extensions:
             log.error(f"Extension {name} has not been loaded before. Skipping.")
+            return
+
+        try:
+            extension.teardown()  # made for Extension, usable by others
+        except AttributeError:
+            pass
+
+        if isinstance(extension, types.ModuleType):  # loaded as a module
+            for ext_name, ext in inspect.getmembers(
+                extension, lambda x: isinstance(x, type) and issubclass(x, Extension)
+            ):
+                self.remove(ext_name)
+
+            del sys.modules[_name]
+
+        del self.extensions[_name]
 
         log.debug(f"Removed extension {name}.")
-        del sys.modules[_name]
-        del self.extensions[_name]
 
     def reload(self, name: str, package: Optional[str] = None) -> None:
         """
@@ -648,11 +679,12 @@ class Client:
         :type package: Optional[str]
         """
         _name: str = resolve_name(name, package)
-        module = self.extensions.get(_name)
+        extension = self.extensions.get(_name)
 
-        if module is None:
+        if extension is None:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
-            self.extend(name, package)
+            self.load(name, package)
+            return
 
         self.remove(name, package)
         self.load(name, package)
@@ -738,45 +770,88 @@ class Extension:
     """
 
     client: Client
-    commands: Optional[List[ApplicationCommand]]
-    listeners: Optional[List[Listener]]
 
     def __new__(cls, client: Client, *args, **kwargs) -> "Extension":
 
         self = super().__new__(cls)
 
         self.client = client
-        self._commands = []
-        self._listeners = []
-        self._components = []
+        self._commands = {}
+        self._listeners = {}
+        self._components = {}
 
         # This gets every coroutine in a way that we can easily change them
         # cls
-        for name, func in inspect.getmembers(cls, predicate=iscoroutinefunction):
-            if not name.startswith("__") and not name.startswith("_"):  # Keep "hidden" methods
-                partial = functools.partial(
-                    func, self
-                )  # If you have a better solution, feel free to do it
-                partial.__name__ = func.__name__
-                partial.__code__ = func.__code__
+        for name, func in inspect.getmembers(self, predicate=iscoroutinefunction):
 
-                if hasattr(func, "__listener_name__"):  # set by extension_listener
-                    partial = client.event(
-                        partial, name=func.__listener_name__
-                    )  # capture the return value for friendlier ext-ing
-                    self._listeners.append(partial)
+            # TODO we can make these all share the same list, might make it easier to load/unload
+            if hasattr(func, "__listener_name__"):  # set by extension_listener
+                func = client.event(
+                    func, name=func.__listener_name__
+                )  # capture the return value for friendlier ext-ing
 
-                if hasattr(func, "__command_data__"):  # Set by extension_command
-                    args, kwargs = func.__command_data__
-                    partial = client.command(*args, **kwargs)(partial)
-                    self._commands.append(partial)
+                listeners = self._listeners.get(func.__listener_name__, [])
+                listeners.append(func)
+                self._listeners[func.__listener_name__] = listeners
 
-                if hasattr(func, "__component_data__"):
-                    args, kwargs = func.__component_data__
-                    partial = client.component(*args, **kwargs)
-                    self._components.append(partial)
+            if hasattr(func, "__command_data__"):  # Set by extension_command
+                args, kwargs = func.__command_data__
+                func = client.command(*args, **kwargs)(func)
+
+                cmd_name = f"command_{kwargs.get('name') or func.__name__}"
+
+                commands = self._commands.get(cmd_name, [])
+                commands.append(func)
+                self._commands[cmd_name] = commands
+
+            if hasattr(func, "__component_data__"):
+                args, kwargs = func.__component_data__
+                func = client.component(*args, **kwargs)(func)
+
+                component = kwargs.get("component") or args[0]
+                comp_name = (
+                    _component(component).custom_id
+                    if isinstance(component, (Button, SelectMenu))
+                    else component
+                )
+                comp_name = f"component_{comp_name}"
+
+                components = self._components.get(comp_name, [])
+                components.append(func)
+                self._components[comp_name] = components
+
+        client.extensions[cls.__name__] = self
 
         return self
+
+    def teardown(self):
+        for event, funcs in self._listeners.items():
+            for func in funcs:
+                self.client.websocket.dispatch.events[event].remove(func)
+
+        for component, funcs in self._components.items():
+            for func in funcs:
+                self.client.websocket.dispatch.events[component].remove(func)
+
+        for cmd, funcs in self._commands.items():
+            for func in funcs:
+                self.client.websocket.dispatch.events[cmd].remove(func)
+
+        clean_cmd_names = ["_".join(cmd.split("_")[1:]) for cmd in self._commands.keys()]
+        cmds = filter(
+            lambda x: x["name"] in clean_cmd_names,
+            self.client.http.cache.interactions.view,
+        )
+
+        if self.client.automate_sync:
+            [
+                self.client.loop.create_task(
+                    self.client.http.delete_application_command(
+                        cmd["application_id"], cmd["id"], cmd["guild_id"]
+                    )
+                )
+                for cmd in cmds
+            ]
 
 
 @functools.wraps(command)
@@ -797,7 +872,7 @@ def extension_listener(name=None):
     return decorator
 
 
-@functools.wraps(Client.component)
+# @functools.wraps(Client.component)
 def extension_component(*args, **kwargs):
     def decorator(func):
         func.__component_data__ = (args, kwargs)

@@ -65,7 +65,11 @@ class Client:
 
 class Extension:
     client: Client
+    _commands: dict
+    _listeners: dict
+    _components: dict
     def __new__(cls, client: Client, *args, **kwargs) -> Extension: ...
+    def teardown(self) -> None: ...
 
 def extension_command(
     *,
