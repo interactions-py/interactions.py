@@ -501,7 +501,55 @@ class Channel(DictSerializerMixin):
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        from .message import Message
+
         _all = []
+        while amount > 100:
+
+            messages = [
+                Message(**res)
+                for res in await self._client.get_channel_messages(
+                    channel_id=int(self.id),
+                    limit=100,
+                )
+            ]
+            for message in messages:
+                if check:
+                    check = check(message)
+                    if check:
+                        messages.remove(message)
+                        amount += 1
+
+            _all += messages
+            await self._client.delete_messages(
+                channel_id=int(self.id),
+                message_ids=[int(message.id) for message in messages],
+            )
+
+            amount -= 100
+
+        while amount > 0:
+            messages = [
+                Message(**res)
+                for res in await self._client.get_channel_messages(
+                    channel_id=int(self.id),
+                    limit=amount,
+                )
+            ]
+            amount -= amount
+            for message in messages:
+                if check:
+                    check = check(message)
+                    if check:
+                        messages.remove(message)
+                        amount += 1
+            _all += messages
+            await self._client.delete_messages(
+                channel_id=int(self.id),
+                message_ids=[int(message.id) for message in messages],
+            )
 
         return _all
 
