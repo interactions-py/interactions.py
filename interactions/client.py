@@ -1,4 +1,3 @@
-import asyncio
 import functools
 import inspect
 import sys
@@ -9,7 +8,6 @@ from importlib.util import resolve_name
 from logging import Logger, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from interactions.api.dispatch import Listener
 from interactions.api.models.misc import Snowflake
 
 from .api.cache import Cache
