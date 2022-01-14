@@ -10,13 +10,14 @@ from .role import Role
 from .user import User
 from .team import Application
 from ..http import HTTPClient
+from ...models.command import Permission
 
 class ApplicationCommandPermissions(DictSerializerMixin):
     _json: dict
     application_id: Snowflake
     guild_id: Snowflake
     id: Snowflake
-    permissions: List[dict]
+    permissions: List[Permission]
 
     def __init__(self, **kwargs): ...
 

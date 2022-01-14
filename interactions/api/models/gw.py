@@ -2,6 +2,7 @@ from datetime import datetime
 
 from interactions.api.models.channel import Channel, ThreadMember
 from interactions.api.models.presence import PresenceActivity
+from interactions.models.command import Permission
 
 from .member import Member
 from .message import Emoji, Sticker
@@ -19,7 +20,7 @@ class ApplicationCommandPermissions(DictSerializerMixin):
     :ivar Snowflake application_id: The application ID associated with the event.
     :ivar Snowflake guild_id: The guild ID associated with the event.
     :ivar Snowflake id: The ID of the command associated with the event. (?)
-    :ivar List[dict] permissions: The updated permissions of the associated command/event.
+    :ivar List[Permission] permissions: The updated permissions of the associated command/event.
     """
 
     __slots__ = ("_json", "application_id", "guild_id", "id", "permissions")
@@ -31,6 +32,14 @@ class ApplicationCommandPermissions(DictSerializerMixin):
         )
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.permissions = (
+            [
+                Permission(**_permission) if isinstance(_permission, dict) else _permission
+                for _permission in self._json.get("permissions")
+            ]
+            if self._json.get("permissions")
+            else None
+        )
 
 
 class ChannelPins(DictSerializerMixin):
