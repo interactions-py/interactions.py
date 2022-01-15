@@ -835,6 +835,17 @@ class Extension:
                 listeners.append(func)
                 self._listeners[auto_name] = listeners
 
+            if hasattr(func, "__modal_data__"):
+                args, kwargs = func.__modal_data__
+                func = client.modal(*args, **kwargs)(func)
+
+                modal = kwargs.get("modal") or args[0]
+                modal_name = f"modal_{modal.custom_id}"
+
+                listeners = self._listeners.get(modal_name, [])
+                listeners.append(func)
+                self._listeners[modal_name] = listeners
+
         client.extensions[cls.__name__] = self
 
         return self
@@ -896,6 +907,15 @@ def extension_component(*args, **kwargs):
 def extension_autocomplete(*args, **kwargs):
     def decorator(func):
         func.__autocomplete_data__ = (args, kwargs)
+        return func
+
+    return decorator
+
+
+@wraps(Client.modal)
+def extension_modal(*args, **kwargs):
+    def decorator(func):
+        func.__modal_data__ = (args, kwargs)
         return func
 
     return decorator
