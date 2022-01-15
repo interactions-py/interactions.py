@@ -269,6 +269,9 @@ class Client:
             command.get("name") for command in cached_commands if command.get("name")
         ]
 
+        print(cached_commands)
+        print(cached_command_names)
+
         if cached_commands:
             for command in commands:
                 if command["name"] not in cached_command_names:

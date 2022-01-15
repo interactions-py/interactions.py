@@ -1942,7 +1942,7 @@ class HTTPClient:
         application_id, command_id = int(application_id), int(command_id)
         r = (
             Route(
-                "POST",
+                "PATCH",
                 "/applications/{application_id}/commands/{command_id}",
                 application_id=application_id,
                 command_id=command_id,
@@ -1950,7 +1950,7 @@ class HTTPClient:
             if guild_id in (None, "None")
             else Route(
                 "PATCH",
-                "/applications/{application_id}/guilds/" "{guild_id}/commands/{command_id}",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
                 application_id=application_id,
                 command_id=command_id,
                 guild_id=guild_id,
