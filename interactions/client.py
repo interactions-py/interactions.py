@@ -776,7 +776,6 @@ class Extension:
         self.client = client
         self._commands = {}
         self._listeners = {}
-        self._components = {}
 
         # This gets every coroutine in a way that we can easily change them
         # cls
@@ -814,9 +813,9 @@ class Extension:
                 )
                 comp_name = f"component_{comp_name}"
 
-                components = self._components.get(comp_name, [])
-                components.append(func)
-                self._components[comp_name] = components
+                listeners = self._listeners.get(comp_name, [])
+                listeners.append(func)
+                self._listeners[comp_name] = listeners
 
         client.extensions[cls.__name__] = self
 
@@ -827,9 +826,6 @@ class Extension:
             for func in funcs:
                 self.client.websocket.dispatch.events[event].remove(func)
 
-        for component, funcs in self._components.items():
-            for func in funcs:
-                self.client.websocket.dispatch.events[component].remove(func)
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
