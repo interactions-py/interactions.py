@@ -517,8 +517,8 @@ class Channel(DictSerializerMixin):
             ]
             for message in messages:
                 if check:
-                    check = check(message)
-                    if check:
+                    _check = check(message)
+                    if not _check:
                         messages.remove(message)
                         amount += 1
 
@@ -541,8 +541,8 @@ class Channel(DictSerializerMixin):
             amount -= amount
             for message in messages:
                 if check:
-                    check = check(message)
-                    if check:
+                    _check = check(message)
+                    if not _check:
                         messages.remove(message)
                         amount += 1
             _all += messages
