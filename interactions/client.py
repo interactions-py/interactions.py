@@ -1,15 +1,14 @@
-import functools
-import inspect
 import sys
-import types
 from asyncio import get_event_loop, iscoroutinefunction
+from functools import wraps
+from types import ModuleType
 from importlib import import_module
 from importlib.util import resolve_name
+from inspect import getmembers
 from logging import Logger, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from interactions.api.models.misc import Snowflake
-
 from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException
@@ -655,8 +654,8 @@ class Client:
         except AttributeError:
             pass
 
-        if isinstance(extension, types.ModuleType):  # loaded as a module
-            for ext_name, ext in inspect.getmembers(
+        if isinstance(extension, ModuleType):  # loaded as a module
+            for ext_name, ext in getmembers(
                 extension, lambda x: isinstance(x, type) and issubclass(x, Extension)
             ):
                 self.remove(ext_name)
@@ -780,7 +779,7 @@ class Extension:
 
         # This gets every coroutine in a way that we can easily change them
         # cls
-        for name, func in inspect.getmembers(self, predicate=iscoroutinefunction):
+        for name, func in getmembers(self, predicate=iscoroutinefunction):
 
             # TODO we can make these all share the same list, might make it easier to load/unload
             if hasattr(func, "__listener_name__"):  # set by extension_listener
@@ -835,9 +834,9 @@ class Extension:
             for func in funcs:
                 self.client.websocket.dispatch.events[cmd].remove(func)
 
-        clean_cmd_names = ["_".join(cmd.split("_")[1:]) for cmd in self._commands.keys()]
+        clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
         cmds = filter(
-            lambda x: x["name"] in clean_cmd_names,
+            lambda cmd_data: cmd_data["name"] in clean_cmd_names,
             self.client.http.cache.interactions.view,
         )
 
@@ -852,7 +851,7 @@ class Extension:
             ]
 
 
-@functools.wraps(command)
+@wraps(command)
 def extension_command(*args, **kwargs):
     def decorator(coro):
         coro.__command_data__ = (args, kwargs)
@@ -870,7 +869,7 @@ def extension_listener(name=None):
     return decorator
 
 
-# @functools.wraps(Client.component)
+@wraps(Client.component)
 def extension_component(*args, **kwargs):
     def decorator(func):
         func.__component_data__ = (args, kwargs)
