@@ -576,8 +576,10 @@ class Client:
                 if not _command_obj:
                     raise InteractionException(6, message="The command does not exist")
             _command: Union[Snowflake, int] = int(_command_obj.id)
-        else:
+        elif isinstance(command, int):
             _command: Union[Snowflake, int] = command
+        else:
+              raise ValueError("You can only insert string, intergers and ApplicationCommands here!") # TODO: move to custom error formatter
 
         def decorator(coro: Coroutine) -> Any:
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
