@@ -626,6 +626,7 @@ class Client:
         except Exception as error:
             del sys.modules[name]
             log.error(f"Could not load {name}: {error}. Skipping.")
+            raise error
         else:
             log.debug(f"Loaded extension {name}.")
             self.extensions[_name] = module
@@ -817,6 +818,23 @@ class Extension:
                 listeners.append(func)
                 self._listeners[comp_name] = listeners
 
+            if hasattr(func, "__autocomplete_data__"):
+                args, kwargs = func.__autocomplete_data__
+                func = client.autocomplete(*args, **kwargs)(func)
+
+                name = kwargs.get("name") or args[0]
+                _command = kwargs.get("command") or args[1]
+
+                _command: Union[Snowflake, int] = (
+                    _command.id if isinstance(_command, ApplicationCommand) else _command
+                )
+
+                auto_name = f"autocomplete_{_command}_{name}"
+
+                listeners = self._listeners.get(auto_name, [])
+                listeners.append(func)
+                self._listeners[auto_name] = listeners
+
         client.extensions[cls.__name__] = self
 
         return self
@@ -825,7 +843,6 @@ class Extension:
         for event, funcs in self._listeners.items():
             for func in funcs:
                 self.client.websocket.dispatch.events[event].remove(func)
-
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
@@ -870,6 +887,15 @@ def extension_listener(name=None):
 def extension_component(*args, **kwargs):
     def decorator(func):
         func.__component_data__ = (args, kwargs)
+        return func
+
+    return decorator
+
+
+@wraps(Client.autocomplete)
+def extension_autocomplete(*args, **kwargs):
+    def decorator(func):
+        func.__autocomplete_data__ = (args, kwargs)
         return func
 
     return decorator
