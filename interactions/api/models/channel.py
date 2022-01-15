@@ -614,11 +614,34 @@ class Channel(DictSerializerMixin):
                 await self._client.delete_message(
                     channel_id=int(self.id),
                     message_id=int(messages[0].id),
+                    reason=reason,
                 )
 
         else:
-            ...
-
+            while amount > 0:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=100,
+                        before=_before,
+                    )
+                ]
+                for message in messages:
+                    if check:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                for message in messages:
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(message.id),
+                        reason=reason,
+                    )
+                amount -= 100
         return _all
 
 
