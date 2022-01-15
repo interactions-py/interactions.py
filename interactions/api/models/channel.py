@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta  # noqa
 from enum import IntEnum
 from typing import Callable, List, Optional
 
@@ -484,6 +484,8 @@ class Channel(DictSerializerMixin):
         self,
         amount: int,
         check: Callable = None,
+        before: Optional[int] = None,
+        reason: Optional[str] = None,
     ) -> List:
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
@@ -498,6 +500,10 @@ class Channel(DictSerializerMixin):
         :type amount: int
         :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
         :type check: Callable[[Message], bool]
+        :param before?: An id of a message to purge only messages before that message
+        :type before: Optional[int]
+        :param reason?: The reason of the deletes
+        :type reason: Optional[str]
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
@@ -505,6 +511,7 @@ class Channel(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from .message import Message
 
+        before = None if not before else before
         _all = []
         while amount > 100:
 
@@ -513,6 +520,7 @@ class Channel(DictSerializerMixin):
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id),
                     limit=100,
+                    before=before,
                 )
             ]
             for message in messages:
@@ -521,11 +529,13 @@ class Channel(DictSerializerMixin):
                     if not _check:
                         messages.remove(message)
                         amount += 1
+                        before = int(message.id)
 
             _all += messages
             await self._client.delete_messages(
                 channel_id=int(self.id),
                 message_ids=[int(message.id) for message in messages],
+                reason=reason,
             )
 
             amount -= 100
@@ -536,6 +546,7 @@ class Channel(DictSerializerMixin):
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id),
                     limit=amount,
+                    before=before,
                 )
             ]
             amount -= amount
@@ -545,10 +556,12 @@ class Channel(DictSerializerMixin):
                     if not _check:
                         messages.remove(message)
                         amount += 1
+                        before = int(message.id)
             _all += messages
             await self._client.delete_messages(
                 channel_id=int(self.id),
                 message_ids=[int(message.id) for message in messages],
+                reason=reason,
             )
         if amount == 1:
             messages = [
@@ -556,6 +569,7 @@ class Channel(DictSerializerMixin):
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id),
                     limit=amount,
+                    before=before,
                 )
             ]
             amount -= amount
@@ -565,10 +579,11 @@ class Channel(DictSerializerMixin):
                     if not _check:
                         messages.remove(message)
                         amount += 1
+                        before = (int(message.id),)
             _all += messages
             await self._client.delete_message(
                 channel_id=int(self.id),
-                message_id=messages[0]["id"],
+                message_id=int(messages[0].id),
             )
 
         return _all
