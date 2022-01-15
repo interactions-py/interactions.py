@@ -560,9 +560,6 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        _command: Union[Snowflake, int] = (
-            command.id if isinstance(command, ApplicationCommand) else command
-        )
 
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
