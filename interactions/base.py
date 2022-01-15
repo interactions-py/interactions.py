@@ -20,6 +20,7 @@ __authors__ = {
 class Data:
     """A class representing constants for the library.
 
+    :ivar LOG_LEVEL ClassVar[int]: The default level of logging as an integer
     :ivar LOGGERS List[str]: A list of all loggers registered from this library
     """
 
@@ -38,7 +39,7 @@ def get_logger(
     _handler = handler
     _handler.setFormatter(CustomFormatter)
     _handler.setLevel(Data.LOG_LEVEL)
-    _logger.addHandler(handler)
+    _logger.addHandler(_handler)
     _logger.propagate = True
 
     Data.LOGGERS.append(_logger_name)
