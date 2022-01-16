@@ -519,7 +519,7 @@ class Channel(DictSerializerMixin):
         _before = None if not before else before
         _all = []
         if bulk:
-            _allowed_time = pytz.UTC.localize(datetime.now() - timedelta(days=13))
+            _allowed_time = pytz.UTC.localize(datetime.now() - timedelta(days=14))
             _stop = False
             while amount > 100:
 
@@ -542,7 +542,11 @@ class Channel(DictSerializerMixin):
                             _stop = True
 
                 for message in messages:
-                    if check:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
@@ -579,7 +583,11 @@ class Channel(DictSerializerMixin):
                             _stop = True
                 amount -= amount
                 for message in messages:
-                    if check:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
@@ -604,12 +612,16 @@ class Channel(DictSerializerMixin):
                 ]
                 amount -= amount
                 for message in messages:
-                    if check:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
                             amount += 1
-                            _before = (int(message.id),)
+                            _before = int(message.id)
                 _all += messages
                 await self._client.delete_message(
                     channel_id=int(self.id),
@@ -623,25 +635,31 @@ class Channel(DictSerializerMixin):
                     Message(**res)
                     for res in await self._client.get_channel_messages(
                         channel_id=int(self.id),
-                        limit=100,
+                        limit=amount if amount <= 100 else 100,
                         before=_before,
                     )
                 ]
+                amount -= amount if amount <= 100 else 100
                 for message in messages:
-                    if check:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
                             amount += 1
                             _before = int(message.id)
                 _all += messages
-                for message in messages:
-                    await self._client.delete_message(
-                        channel_id=int(self.id),
-                        message_id=int(message.id),
-                        reason=reason,
-                    )
-                amount -= 100
+
+            for message in _all:
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(message.id),
+                    reason=reason,
+                )
+
         return _all
 
 
