@@ -140,7 +140,7 @@ can take a page out of discord.js' book if you want to do this, since they've ne
 before in their entire life.
 
 
-I'm getting "``AttributeError: HTTTPClient not found!``" when I try to execute helper methods!
+I'm getting "``AttributeError: HTTPClient not found!``" when I try to execute helper methods!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Probably you are doing something like this:
 
