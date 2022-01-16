@@ -345,14 +345,22 @@ class Message(DictSerializerMixin):
             raise AttributeError("HTTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
 
-        _content: str = "" if content is None else content
+        _content: str = self.content if content is None else content
         _tts: bool = True if bool(tts) else tts
         # _file = None if file is None else file
-        _embeds: list = (
-            []
-            if embeds is None
-            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
-        )
+
+        if embeds is None:
+            _embeds = self.embeds
+        else:
+            _embeds: list = (
+                []
+                if embeds is None
+                else (
+                    [embed._json for embed in embeds]
+                    if isinstance(embeds, list)
+                    else [embeds._json]
+                )
+            )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
         if components == []:
