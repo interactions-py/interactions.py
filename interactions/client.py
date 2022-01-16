@@ -265,7 +265,12 @@ class Client:
                 await create(payload)
 
         cached_commands: List[dict] = [command for command in self.http.cache.interactions.view]
-        cached_command_names = [command["name"] for command in cached_commands]
+        cached_command_names = [
+            command.get("name") for command in cached_commands if command.get("name")
+        ]
+
+        print(cached_commands)
+        print(cached_command_names)
 
         if cached_commands:
             for command in commands:
