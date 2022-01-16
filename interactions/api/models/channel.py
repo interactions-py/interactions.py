@@ -531,17 +531,13 @@ class Channel(DictSerializerMixin):
                         before=_before,
                     )
                 ]
-
-                while any(
-                    datetime.fromisoformat(str(message.timestamp)) < _allowed_time
-                    for message in messages
-                ):
-                    for message in messages:
-                        if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
-                            messages.remove(message)
-                            _stop = True
-
-                for message in messages:
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
+                messages2 = messages.copy()
+                for message in messages2:
                     if message.flags == (1 << 7):
                         messages.remove(message)
                         amount += 1
@@ -566,7 +562,10 @@ class Channel(DictSerializerMixin):
                         reason=reason,
                     )
                 else:
-                    continue
+                    if _stop:
+                        return _all
+                    else:
+                        continue
                 if _stop:
                     return _all
 
@@ -581,16 +580,14 @@ class Channel(DictSerializerMixin):
                         before=_before,
                     )
                 ]
-                while any(
-                    datetime.fromisoformat(str(message.timestamp)) < _allowed_time
-                    for message in messages
-                ):
-                    for message in messages:
-                        if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
-                            messages.remove(message)
-                            _stop = True
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
                 amount -= amount
-                for message in messages:
+                messages2 = messages.copy()
+                for message in messages2:
                     if message.flags == (1 << 7):
                         messages.remove(message)
                         amount += 1
@@ -615,7 +612,10 @@ class Channel(DictSerializerMixin):
                         reason=reason,
                     )
                 else:
-                    continue
+                    if _stop:
+                        return _all
+                    else:
+                        continue
                 if _stop:
                     return _all
             while amount == 1:
@@ -628,7 +628,8 @@ class Channel(DictSerializerMixin):
                     )
                 ]
                 amount -= 1
-                for message in messages:
+                messages2 = messages.copy()
+                for message in messages2:
                     if message.flags == (1 << 7):
                         messages.remove(message)
                         amount += 1
@@ -659,7 +660,8 @@ class Channel(DictSerializerMixin):
                     )
                 ]
                 amount -= amount if amount <= 100 else 100
-                for message in messages:
+                messages2 = messages.copy()
+                for message in messages2:
                     if message.flags == (1 << 7):
                         messages.remove(message)
                         amount += 1
