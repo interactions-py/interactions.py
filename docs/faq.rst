@@ -48,14 +48,14 @@ What does that mean? Well, we'll show you:
     import interactions
     from discord.ext import commands
 
-    interactions = interactions.Client(token="...")
+    client = interactions.Client(token="...")
     dpy = commands.Bot(prefix="/")
 
     @dpy.command()
     async def hello(ctx):
         await ctx.send("Hello from discord.py!")
 
-    @interactions.command(
+    @client.command(
         name="test",
         description="this is just a testing command."
     )
@@ -65,7 +65,7 @@ What does that mean? Well, we'll show you:
     loop = asyncio.get_event_loop()
 
     task2 = loop.create_task(dpy.start(token="...", bot=True))
-    task1 = loop.create_task(interactions.ready())
+    task1 = loop.create_task(client.ready())
 
     gathered = asyncio.gather(task1, task2, loop=loop)
     loop.run_until_complete(gathered)
@@ -89,7 +89,7 @@ What about the models, though? That's a simple answer:
     async def borrowing(ctx, member: Member):
         await ctx.send(f"Member ID: {member.id}")
 
-    @interactions.command(...)
+    @client.command(...)
     async def second_borrowing(ctx, member: discord.Member):
         await ctx.send(f"Member ID: {member.id}")
 
