@@ -640,7 +640,7 @@ class Channel(DictSerializerMixin):
                             amount += 1
                             _before = int(message.id)
                 _all += messages
-                if amount >= 1:
+                if len(messages) == 0:
                     continue
                 await self._client.delete_message(
                     channel_id=int(self.id),
