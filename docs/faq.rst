@@ -83,10 +83,10 @@ What about the models, though? That's a simple answer:
 .. code-block:: python
 
     import discord
-    from interactions.api.models.member import Member
+    import interactions
 
     @dpy.command()
-    async def borrowing(ctx, member: Member):
+    async def borrowing(ctx, member: interactions.Member):
         await ctx.send(f"Member ID: {member.id}")
 
     @client.command(...)
