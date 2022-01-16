@@ -208,7 +208,7 @@ class Channel(DictSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
         from .message import Message
 
@@ -343,7 +343,7 @@ class Channel(DictSerializerMixin):
         Deletes the channel.
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
         await self._client.delete_channel(channel_id=int(self.id))
 
     async def modify(
@@ -383,7 +383,7 @@ class Channel(DictSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
         _name = self.name if not name else name
         _topic = self.topic if not topic else topic
         _bitrate = self.bitrate if not bitrate else bitrate
@@ -425,7 +425,7 @@ class Channel(DictSerializerMixin):
         :type member_id: int
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
         if not self.thread_metadata:
             raise TypeError(
                 "The Channel you specified is not a thread!"
@@ -443,7 +443,7 @@ class Channel(DictSerializerMixin):
         :type message_id: int
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
 
         await self._client.pin_message(channel_id=int(self.id), message_id=message_id)
 
@@ -458,7 +458,7 @@ class Channel(DictSerializerMixin):
         :type message_id: int
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
 
         await self._client.unpin_message(channel_id=int(self.id), message_id=message_id)
 
@@ -474,7 +474,7 @@ class Channel(DictSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
         from .message import Message
 
         res = await self._client.publish_message(
@@ -489,7 +489,7 @@ class Channel(DictSerializerMixin):
         :rtype: List[Message]
         """
         if not self._client:
-            raise AttributeError("HTTTPClient not found!")
+            raise AttributeError("HTTPClient not found!")
         from .message import Message
 
         res = await self._client.get_pinned_messages(int(self.id))
