@@ -919,3 +919,23 @@ def extension_modal(*args, **kwargs):
         return func
 
     return decorator
+
+
+@wraps(Client.message_command)
+def extension_message_command(*args, **kwargs):
+    def decorator(func):
+        kwargs["type"] = ApplicationCommandType.MESSAGE
+        func.__command_data__ = (args, kwargs)
+        return func
+
+    return decorator
+
+
+@wraps(Client.user_command)
+def extension_user_command(*args, **kwargs):
+    def decorator(func):
+        kwargs["type"] = ApplicationCommandType.USER
+        func.__command_data__ = (args, kwargs)
+        return func
+
+    return decorator

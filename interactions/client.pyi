@@ -51,6 +51,20 @@ class Client:
         options: Optional[List[Option]] = None,
         default_permission: Optional[bool] = None,
     ) -> Callable[..., Any]: ...
+    def message_command(
+        self,
+        *,
+        name: Optional[str] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+        default_permission: Optional[bool] = None,
+    ) -> Callable[..., Any]: ...
+    def user_command(
+        self,
+        *,
+        name: Optional[str] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+        default_permission: Optional[bool] = None,
+    ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(self, name: str) -> Callable[..., Any]: ...
     def modal(self, modal: Modal) -> Callable[..., Any]: ...
@@ -84,3 +98,15 @@ def extension_autocomplete(
     name: str, command: Union[ApplicationCommand, int]
 ) -> Callable[..., Any]: ...
 def extension_modal(modal: Modal) -> Callable[..., Any]: ...
+def extension_message_command(
+    *,
+    name: Optional[str] = None,
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+    default_permission: Optional[bool] = None,
+) -> Callable[..., Any]: ...
+def extension_user_command(
+    *,
+    name: Optional[str] = None,
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+    default_permission: Optional[bool] = None,
+) -> Callable[..., Any]: ...
