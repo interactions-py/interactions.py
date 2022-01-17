@@ -464,6 +464,8 @@ class Guild(DictSerializerMixin):
         Searches for the member with specified id in the guild and returns the member as member object
         :param member_id: The id of the member to search for
         :type member_id: int
+        :return: The member searched for
+        :rtype: Member
         """
         res = await self._client.get_member(
             guild_id=int(self.id),
@@ -589,6 +591,8 @@ class Guild(DictSerializerMixin):
         :type nsfw: Optional[bool]
         :param reason: The reason for the creation
         :type reason: Optional[str]
+        :return: The created channel
+        :rtype: Channel
         """
 
         if type in [
@@ -723,6 +727,8 @@ class Guild(DictSerializerMixin):
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
         :type reason: Optional[str]
+        :return: The modified member
+        :rtype: Member
         """
 
         payload = {}
@@ -961,6 +967,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = None,
         channel_id: Optional[int] = None,
         description: Optional[str] = None,
+        status: Optional[EventStatus] = None,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -982,6 +989,8 @@ class Guild(DictSerializerMixin):
         :type channel_id: Optional[int]
         :param description?: The description of the scheduled event
         :type description: Optional[str]
+        :param status?: The status of the scheduled event
+        :type status: Optional[EventStatus]
         :return: The modified event
         :rtype: ScheduledEvents
         """
@@ -1011,6 +1020,8 @@ class Guild(DictSerializerMixin):
             payload["entity_metadata"] = entity_metadata
         if description:
             payload["description"] = description
+        if status:
+            payload["status"] = status
 
         res = await self._client.modify_scheduled_event(
             guild_id=self.id,
@@ -1030,6 +1041,67 @@ class Guild(DictSerializerMixin):
             guild_id=self.id,
             guild_scheduled_event_id=Snowflake(event_id),
         )
+
+    async def get_all_channels(self) -> List[Channel]:
+        """
+        Gets all channels of the guild as list
+
+        :return: The channels of the guild.
+        :rtype: List[Channel]
+        """
+        res = self._client.get_all_channels(int(self.id))
+        channels = [Channel(**channel, _client=self._client) for channel in res]
+        return channels
+
+    async def get_all_roles(self) -> List[Role]:
+        """
+        Gets all roles of the guild as list
+
+        :return: The roles of the guild.
+        :rtype: List[Role]
+        """
+        res = self._client.get_all_roles(int(self.id))
+        roles = [Role(**role, _client=self._client) for role in res]
+        return roles
+
+    async def modify_role_position(
+        self,
+        role_id: Union[Role, int],
+        position: int,
+        reason: Optional[str] = None,
+    ) -> List[Role]:
+        """
+        Modifies the position of a role in the guild
+
+        :param role_id: The id of the role to modify the position of
+        :type role_id: Union[Role, int]
+        :param position: The new position of the role
+        :type position: int
+        :param reason?: The reason for the modifying
+        :type reason: Optional[str]
+        :return: List of guild roles with updated hierarchy
+        :rtype: List[Role]
+        """
+
+        _role_id = role_id.id if isinstance(role_id, Role) else role_id
+        res = await self._client.modify_guild_role_position(
+            guild_id=int(self.id), position=position, role_id=_role_id, reason=reason
+        )
+        roles = [Role(**role, _client=self._client) for role in res]
+        return roles
+
+    async def get_bans(self) -> List[dict]:
+        """
+        Gets a list of banned users
+
+        :return: List of banned users with reasons
+        :rtype: List[dict]
+        """
+
+        res = await self._client.get_guild_bans(int(self.id))
+        for ban in res:
+            ban["user"] = User(**ban["user"])
+        return res
 
 
 class GuildPreview(DictSerializerMixin):

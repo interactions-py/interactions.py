@@ -143,6 +143,30 @@ class Client:
                 log.debug("Client is now ready.")
                 await self.login(self.token)
 
+    async def compare_sync(self, payload: dict, result: dict) -> bool:
+        """
+        This compares the payloads between the Client and the API such that
+        it can mitigate synchronisation API calls.
+        """
+
+        # This needs to be redone after discord updates their docs.
+
+        _res = True
+
+        for attrs in ["type", "guild_id", "name", "description", "options", "default_permission"]:
+            if attrs == "options" and payload["type"] != 1:
+                continue
+
+            if attrs == "guild_id":
+                if str(payload.get(attrs, None)) == result.get(attrs, None):
+                    continue
+
+            if payload.get(attrs, None) != result.get(attrs, (None if attrs != "options" else [])):
+                _res = False
+                return _res
+
+        return _res
+
     async def synchronize(self, payload: Optional[ApplicationCommand] = None) -> None:
         """
         Synchronizes the command specified by checking through the
@@ -212,10 +236,9 @@ class Client:
                         if payload.name == result.name:
                             payload_name: str = payload.name
 
-                            del result._json["name"]
-                            del payload._json["name"]
+                            _cmp = await self.compare_sync(payload._json, result._json)
 
-                            if result._json != payload._json:
+                            if not _cmp:
                                 log.debug(
                                     f"Command {result.name} found unsynced, editing in the API and updating the cache."
                                 )
@@ -242,7 +265,12 @@ class Client:
                 await create(payload)
 
         cached_commands: List[dict] = [command for command in self.http.cache.interactions.view]
-        cached_command_names = [command["name"] for command in cached_commands]
+        cached_command_names = [
+            command.get("name") for command in cached_commands if command.get("name")
+        ]
+
+        print(cached_commands)
+        print(cached_command_names)
 
         if cached_commands:
             for command in commands:

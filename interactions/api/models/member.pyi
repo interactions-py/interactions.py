@@ -7,6 +7,8 @@ from .user import User
 from .flags import Permissions
 from ..http import HTTPClient
 from .message import Message
+from ...models.component import ActionRow, Button, SelectMenu
+
 
 class Member(DictSerializerMixin):
 
@@ -53,6 +55,7 @@ class Member(DictSerializerMixin):
         self,
         content: Optional[str] = None,
         *,
+        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] = None,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds=None,

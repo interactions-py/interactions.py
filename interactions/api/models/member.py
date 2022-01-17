@@ -174,6 +174,7 @@ class Member(DictSerializerMixin):
         self,
         content: Optional[str] = None,
         *,
+        components=None,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds=None,
@@ -184,6 +185,8 @@ class Member(DictSerializerMixin):
 
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
+        :param components?: A component, or list of components for the message.
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
         :param embeds?: An embed, or list of embeds for the message.
@@ -193,6 +196,7 @@ class Member(DictSerializerMixin):
         :return: The sent message as an object.
         :rtype: Message
         """
+        from ...models.component import ActionRow, Button, SelectMenu
         from .channel import Channel
         from .message import Message
 
@@ -206,6 +210,106 @@ class Member(DictSerializerMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _components: List[dict] = [{"type": 1, "components": []}]
+
+        # TODO: Break this obfuscation pattern down to a "builder" method.
+        if components:
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in action_row.components
+                        ],
+                    }
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+        else:
+            _components = []
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -214,6 +318,7 @@ class Member(DictSerializerMixin):
             # file=file,
             # attachments=_attachments,
             embeds=_embeds,
+            components=_components,
             allowed_mentions=_allowed_mentions,
         )
 
@@ -252,6 +357,8 @@ class Member(DictSerializerMixin):
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
         :type reason: Optional[str]
+        :return: The modified member object
+        :rtype: Member
         """
 
         payload = {}
