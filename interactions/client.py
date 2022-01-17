@@ -577,7 +577,7 @@ class Client:
             _command: Union[Snowflake, int] = command
         else:
             raise ValueError(
-                "You can only insert string, intergers and ApplicationCommands here!"
+                "You can only insert strings, integers and ApplicationCommands here!"
             )  # TODO: move to custom error formatter
 
         def decorator(coro: Coroutine) -> Any:
