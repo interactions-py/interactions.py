@@ -192,7 +192,7 @@ class Channel(DictSerializerMixin):
         components=None,
     ):
         """
-        Sends a message in the channel
+        Sends a message in the channel.
 
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
@@ -356,7 +356,8 @@ class Channel(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
-        Edits the channel
+        Edits the channel.
+
         :param name?: The name of the channel, defaults to the current value of the channel
         :type name: str
         :param topic?: The topic of that channel, defaults to the current value of the channel
@@ -413,7 +414,7 @@ class Channel(DictSerializerMixin):
         member_id: int,
     ) -> None:
         """
-        This adds a member to the channel, if the channel is a thread
+        This adds a member to the channel, if the channel is a thread.
 
         :param member_id: The id of the member to add to the channel
         :type member_id: int
@@ -429,7 +430,7 @@ class Channel(DictSerializerMixin):
         message_id: int,
     ) -> None:
         """
-        Pins a message to the channel
+        Pins a message to the channel.
 
         :param message_id: The id of the message to pin
         :type message_id: int
@@ -442,7 +443,7 @@ class Channel(DictSerializerMixin):
         message_id: int,
     ) -> None:
         """
-        Unpins a message from the channel
+        Unpins a message from the channel.
 
         :param message_id: The id of the message to unpin
         :type message_id: int
@@ -471,6 +472,7 @@ class Channel(DictSerializerMixin):
     async def get_pinned_messages(self):
         """
         Get all pinned messages from the channel.
+
         :return: A list of pinned message objects.
         :rtype: List[Message]
         """
