@@ -1312,6 +1312,7 @@ class ScheduledEvents(DictSerializerMixin):
     :ivar Optional[User] creator?: The user that created the scheduled event.
     :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
     :ivar int status: The status of the scheduled event
+    :ivar Optional[str] image: The hash containing the image of an event, if applicable.
     """
 
     __slots__ = (
@@ -1331,6 +1332,7 @@ class ScheduledEvents(DictSerializerMixin):
         "creator",
         "user_count",
         "status",
+        "image",
     )
 
     def __init__(self, **kwargs):
