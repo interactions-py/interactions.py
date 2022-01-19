@@ -60,6 +60,7 @@ class Client:
         :type presence: Optional[Presence]
         """
         if isinstance(intents, list):
+            self.intents = Intents(0)
             for intent in intents:
                 self.intents |= intent
         else:
