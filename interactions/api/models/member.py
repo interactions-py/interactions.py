@@ -77,7 +77,8 @@ class Member(DictSerializerMixin):
         delete_message_days: Optional[int] = 0,
     ) -> None:
         """
-        Bans the member from a guild
+        Bans the member from a guild.
+
         :param guild_id: The id of the guild to ban the member from
         :type guild_id: int
         :param reason?: The reason of the ban
@@ -98,7 +99,8 @@ class Member(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Kicks the member from a guild
+        Kicks the member from a guild.
+
         :param guild_id: The id of the guild to kick the member from
         :type guild_id: int
         :param reason?: The reason for the kick
@@ -117,7 +119,8 @@ class Member(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method adds a role to a member
+        This method adds a role to a member.
+
         :param role: The role to add. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to add the roles to the member
@@ -147,7 +150,8 @@ class Member(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method removes a role from a member
+        This method removes a role from a member.
+
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to remove the roles of the member
@@ -181,7 +185,7 @@ class Member(DictSerializerMixin):
         allowed_mentions=None,
     ):
         """
-        Sends a DM to the member
+        Sends a DM to the member.
 
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
