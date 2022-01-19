@@ -269,8 +269,8 @@ class Client:
             command.get("name") for command in cached_commands if command.get("name")
         ]
 
-        print(cached_commands)
-        print(cached_command_names)
+        log.debug(f"Cached commands: {cached_commands}")
+        log.debug(f"Cached command names: {cached_command_names}")
 
         if cached_commands:
             for command in commands:
