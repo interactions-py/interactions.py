@@ -305,7 +305,8 @@ class Guild(DictSerializerMixin):
         delete_message_days: Optional[int] = 0,
     ) -> None:
         """
-        Bans a member from the guild
+        Bans a member from the guild.
+
         :param member_id: The id of the member to ban
         :type member_id: int
         :param reason?: The reason of the ban
@@ -326,7 +327,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Removes the ban of a user
+        Removes the ban of a user.
+
         :param user_id: The id of the user to remove the ban from
         :type user_id: int
         :param reason?: The reason for the removal of the ban
@@ -344,7 +346,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Kicks a member from the guild
+        Kicks a member from the guild.
+
         :param member_id: The id of the member to kick
         :type member_id: int
         :param reason?: The reason for the kick
@@ -363,7 +366,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method adds a role to a member
+        This method adds a role to a member.
+
         :param role: The role to add. Either ``Role`` object or role_id
         :type role Union[Role, int]
         :param member_id: The id of the member to add the roles to
@@ -393,7 +397,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method removes a or multiple role(s) from a member
+        This method removes a or multiple role(s) from a member.
+
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param member_id: The id of the member to remove the roles from
@@ -428,7 +433,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> Role:
         """
-        Creates a new role in the guild
+        Creates a new role in the guild.
+
         :param name: The name of the role
         :type name: str
         :param color?: RGB color value as integer, default ``0``
@@ -461,7 +467,8 @@ class Guild(DictSerializerMixin):
         member_id: int,
     ) -> Member:
         """
-        Searches for the member with specified id in the guild and returns the member as member object
+        Searches for the member with specified id in the guild and returns the member as member object.
+
         :param member_id: The id of the member to search for
         :type member_id: int
         :return: The member searched for
@@ -478,7 +485,8 @@ class Guild(DictSerializerMixin):
         channel_id: int,
     ) -> None:
         """
-        Deletes a channel from the guild
+        Deletes a channel from the guild.
+
         :param channel_id: The id of the channel to delete
         :type channel_id: int
         """
@@ -492,7 +500,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Deletes a role from the guild
+        Deletes a role from the guild.
+
         :param role_id: The id of the role to delete
         :type role_id: int
         :param reason?: The reason of the deletion
@@ -518,7 +527,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> Role:
         """
-        Edits a role in the guild
+        Edits a role in the guild.
+
         :param role_id: The id of the role to edit
         :type role_id: int
         :param name?: The name of the role, defaults to the current value of the role
@@ -570,7 +580,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> Channel:
         """
-        Creates a channel in the guild
+        Creates a channel in the guild.
+
         :param name: The name of the channel
         :type name: str
         :param type: The type of the channel
@@ -640,7 +651,8 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> Channel:
         """
-        Edits a channel of the guild
+        Edits a channel of the guild.
+
         :param channel_id: The id of the channel to modify
         :type channel_id: int
         :param name?: The name of the channel, defaults to the current value of the channel
@@ -759,7 +771,12 @@ class Guild(DictSerializerMixin):
         return Member(**res, _client=self._client)
 
     async def get_preview(self) -> "GuildPreview":
-        """Get the guild's preview."""
+        """
+        Get the guild's preview.
+
+        :return: the guild preview as object
+        :rtype: GuildPreview
+        """
         return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
@@ -1032,7 +1049,7 @@ class Guild(DictSerializerMixin):
 
     async def delete_scheduled_event(self, event_id: int) -> None:
         """
-        Deletes a scheduled event of the guild
+        Deletes a scheduled event of the guild.
 
         :param event_id: The id of the event to delete
         :type event_id: int
@@ -1044,7 +1061,7 @@ class Guild(DictSerializerMixin):
 
     async def get_all_channels(self) -> List[Channel]:
         """
-        Gets all channels of the guild as list
+        Gets all channels of the guild as list.
 
         :return: The channels of the guild.
         :rtype: List[Channel]
@@ -1055,7 +1072,7 @@ class Guild(DictSerializerMixin):
 
     async def get_all_roles(self) -> List[Role]:
         """
-        Gets all roles of the guild as list
+        Gets all roles of the guild as list.
 
         :return: The roles of the guild.
         :rtype: List[Role]
@@ -1071,7 +1088,7 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> List[Role]:
         """
-        Modifies the position of a role in the guild
+        Modifies the position of a role in the guild.
 
         :param role_id: The id of the role to modify the position of
         :type role_id: Union[Role, int]
@@ -1092,7 +1109,7 @@ class Guild(DictSerializerMixin):
 
     async def get_bans(self) -> List[dict]:
         """
-        Gets a list of banned users
+        Gets a list of banned users.
 
         :return: List of banned users with reasons
         :rtype: List[dict]
