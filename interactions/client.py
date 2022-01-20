@@ -3,7 +3,7 @@ from asyncio import get_event_loop
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, getLogger
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Union
 
 from .api.cache import Cache
 from .api.cache import Item as Build
@@ -20,6 +20,7 @@ from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
+from .models.misc import MISSING
 
 log: Logger = getLogger("client")
 _token: str = ""  # noqa
@@ -45,7 +46,7 @@ class Client:
         self,
         token: str,
         **kwargs,
-    ) -> None:
+    ) -> NoReturn:
         r"""
         Establishes a client connection to the Web API and Gateway.
 
@@ -93,11 +94,11 @@ class Client:
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
 
-    def start(self) -> None:
+    def start(self) -> NoReturn:
         """Starts the client session."""
         self._loop.run_until_complete(self._ready())
 
-    def __register_events(self) -> None:
+    def __register_events(self) -> NoReturn:
         """Registers all raw gateway events to the known events."""
         self._websocket.dispatch.register(self.__raw_socket_create)
         self._websocket.dispatch.register(self.__raw_channel_create, "on_channel_create")
@@ -130,7 +131,7 @@ class Client:
 
         return clean
 
-    async def __create_sync(self, data: dict) -> None:
+    async def __create_sync(self, data: dict) -> NoReturn:
         """
         Creates an application command during the synchronization process.
 
@@ -148,7 +149,9 @@ class Client:
         )
         self._http.cache.interactions.add(Build(id=command.name, value=command))
 
-    async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
+    async def __bulk_update_sync(
+        self, data: List[dict], delete: Optional[bool] = False
+    ) -> NoReturn:
         """
         Bulk updates a list of application commands during the synchronization process.
 
@@ -196,7 +199,7 @@ class Client:
                 application_id=self.me.id, data=[] if delete else global_commands
             )
 
-    async def _synchronize(self, payload: Optional[dict] = None) -> None:
+    async def _synchronize(self, payload: Optional[dict] = None) -> NoReturn:
         """
         Synchronizes a command from the client-facing API to the Web API.
 
@@ -233,7 +236,7 @@ class Client:
         await self.__bulk_update_sync(to_sync)
         await self.__bulk_update_sync(to_delete, delete=True)
 
-    async def _ready(self) -> None:
+    async def _ready(self) -> NoReturn:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
@@ -266,12 +269,12 @@ class Client:
                 log.debug("Client is now ready.")
                 await self._login()
 
-    async def _login(self) -> None:
+    async def _login(self) -> NoReturn:
         """Makes a login with the Discord API."""
         while not self._websocket.closed:
             await self._websocket.connect(self._token, self._shard, self._presence)
 
-    def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
+    def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
         Gateway.
@@ -290,11 +293,13 @@ class Client:
         self,
         *,
         type: Optional[Union[int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
-        default_permission: Optional[bool] = None,
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        options: Optional[
+            Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]
+        ] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
@@ -338,10 +343,10 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not name:
+            if name is MISSING:
                 raise InteractionException(11, message="Your command must have a name.")
 
-            if type == ApplicationCommandType.CHAT_INPUT and not description:
+            if type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
                 raise InteractionException(
                     11, message="Chat-input commands must have a description."
                 )
@@ -376,8 +381,8 @@ class Client:
         self,
         *,
         name: str,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -406,9 +411,6 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not name:
-                raise InteractionException(11, message="Your command must have a name.")
-
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
                     11,
@@ -433,8 +435,8 @@ class Client:
         self,
         *,
         name: str,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -463,9 +465,6 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not name:
-                raise InteractionException(11, message="Your command must have a name.")
-
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
                     11,

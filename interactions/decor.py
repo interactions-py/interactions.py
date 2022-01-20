@@ -1,21 +1,20 @@
 from typing import Any, Dict, List, Optional, Union
 
-from interactions.models.component import Button, SelectMenu
-
 from .api.models.guild import Guild
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
-from .models.component import Component
+from .models.component import Button, Component, SelectMenu
+from .models.misc import MISSING
 
 
 def command(
     *,
     type: Optional[Union[int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
-    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-    options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
-    default_permission: Optional[bool] = None,
+    name: Optional[str] = MISSING,
+    description: Optional[str] = MISSING,
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+    options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = MISSING,
+    default_permission: Optional[bool] = MISSING,
 ) -> List[ApplicationCommand]:
     """
     A wrapper designed to interpret the client-facing API for
@@ -30,7 +29,7 @@ def command(
     else:
         _type: int = ApplicationCommandType(type).value
 
-    _description: str = "" if description is None else description
+    _description: str = "" if description is MISSING else description
     _options: list = []
 
     if options:
@@ -46,7 +45,7 @@ def command(
         else:
             _options = [options]
 
-    _default_permission: bool = True if default_permission is None else default_permission
+    _default_permission: bool = True if default_permission is MISSING else default_permission
     _scope: list = []
 
     payloads: list = []
