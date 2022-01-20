@@ -97,7 +97,7 @@ class Channel(DictSerializerMixin):
         self,
         message_id: int,
     ) -> Message: ...
-    async def get_pinned_messages(self) -> List[Message]: ...
+    async def get_pinned_messages(self) -> List[Message]: ...lp
     async def purge(
         self,
         amount: int,
@@ -106,4 +106,5 @@ class Channel(DictSerializerMixin):
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
     ) -> List[Message]: ...
+
 class Thread(Channel): ...

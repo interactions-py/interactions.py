@@ -104,6 +104,8 @@ class Member(DictSerializerMixin):
         :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.create_guild_kick(
             guild_id=guild_id,
             user_id=int(self.user.id),
@@ -125,6 +127,8 @@ class Member(DictSerializerMixin):
         :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.add_member_role(
                 guild_id=guild_id,
@@ -155,6 +159,8 @@ class Member(DictSerializerMixin):
         :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.remove_member_role(
                 guild_id=guild_id,
@@ -196,6 +202,8 @@ class Member(DictSerializerMixin):
         :return: The sent message as an object.
         :rtype: Message
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
         from .channel import Channel
         from .message import Message
@@ -360,7 +368,8 @@ class Member(DictSerializerMixin):
         :return: The modified member object
         :rtype: Member
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         payload = {}
         if nick:
             payload["nick"] = nick
@@ -398,6 +407,8 @@ class Member(DictSerializerMixin):
         :param thread_id: The id of the thread to add the member to
         :type thread_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.add_member_to_thread(
             user_id=int(self.user.id),
             thread_id=thread_id,

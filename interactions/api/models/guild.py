@@ -292,11 +292,18 @@ class Guild(DictSerializerMixin):
             else None
         )
         if not self.members and self._client:
-            members = self._client.cache.self_guilds.values[str(self.id)].members
-            if all(isinstance(member, Member) for member in members):
-                self.members = members
+
+            if (
+                not len(self._client.cache.self_guilds.view) > 1
+                or not self._client.cache.self_guilds.values[str(self.id)].members
+            ):
+                pass
             else:
-                self.members = [Member(**member, _client=self._client) for member in members]
+                members = self._client.cache.self_guilds.values[str(self.id)].members
+                if all(isinstance(member, Member) for member in members):
+                    self.members = members
+                else:
+                    self.members = [Member(**member, _client=self._client) for member in members]
 
     async def ban(
         self,
@@ -313,6 +320,8 @@ class Guild(DictSerializerMixin):
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
         :type delete_message_days: Optional[int]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.create_guild_ban(
             guild_id=int(self.id),
             user_id=member_id,
@@ -332,6 +341,8 @@ class Guild(DictSerializerMixin):
         :param reason?: The reason for the removal of the ban
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.remove_guild_ban(
             guild_id=int(self.id),
             user_id=user_id,
@@ -350,6 +361,8 @@ class Guild(DictSerializerMixin):
         :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.create_guild_kick(
             guild_id=int(self.id),
             user_id=member_id,
@@ -371,6 +384,8 @@ class Guild(DictSerializerMixin):
         :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.add_member_role(
                 guild_id=int(self.id),
@@ -401,6 +416,8 @@ class Guild(DictSerializerMixin):
         :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.remove_member_role(
                 guild_id=int(self.id),
@@ -442,7 +459,8 @@ class Guild(DictSerializerMixin):
         :return: The created Role
         :rtype: Role
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         payload = Role(
             name=name,
             color=color,
@@ -467,6 +485,8 @@ class Guild(DictSerializerMixin):
         :return: The member searched for
         :rtype: Member
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         res = await self._client.get_member(
             guild_id=int(self.id),
             member_id=member_id,
@@ -482,6 +502,8 @@ class Guild(DictSerializerMixin):
         :param channel_id: The id of the channel to delete
         :type channel_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.delete_channel(
             channel_id=channel_id,
         )
@@ -498,7 +520,8 @@ class Guild(DictSerializerMixin):
         :param reason?: The reason of the deletion
         :type reason: Optional[str]
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.delete_guild_role(
             guild_id=int(self.id),
             role_id=role_id,
@@ -534,7 +557,8 @@ class Guild(DictSerializerMixin):
         :return: The modified role object
         :rtype: Role
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         roles = await self._client.get_all_roles(guild_id=int(self.id))
         for i in roles:
             if int(i["id"]) == role_id:
@@ -594,7 +618,8 @@ class Guild(DictSerializerMixin):
         :return: The created channel
         :rtype: Channel
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if type in [
             ChannelType.DM,
             ChannelType.DM.value,
@@ -664,6 +689,8 @@ class Guild(DictSerializerMixin):
         :return: The modified channel
         :rtype: Channel
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         ch = Channel(**await self._client.get_channel(channel_id=channel_id))
 
         _name = ch.name if not name else name
@@ -730,7 +757,8 @@ class Guild(DictSerializerMixin):
         :return: The modified member
         :rtype: Member
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         payload = {}
         if nick:
             payload["nick"] = nick
@@ -760,10 +788,14 @@ class Guild(DictSerializerMixin):
 
     async def get_preview(self) -> "GuildPreview":
         """Get the guild's preview."""
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
         """Removes the bot from the guild."""
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.leave_guild(guild_id=int(self.id))
 
     async def modify(
@@ -833,7 +865,8 @@ class Guild(DictSerializerMixin):
         :return: The modified guild
         :rtype: Guild
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if (
             suppress_join_notifications is None
             and suppress_premium_subscriptions is None
@@ -926,7 +959,8 @@ class Guild(DictSerializerMixin):
         :return: The created event
         :rtype: ScheduledEvents
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if entity_type != EntityType.EXTERNAL and not channel_id:
             raise ValueError(
                 "channel_id is required when entity_type is not external!"
@@ -994,7 +1028,8 @@ class Guild(DictSerializerMixin):
         :return: The modified event
         :rtype: ScheduledEvents
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if entity_type == EntityType.EXTERNAL and not entity_metadata:
             raise ValueError(
                 "entity_metadata is required for external events!"
@@ -1037,6 +1072,8 @@ class Guild(DictSerializerMixin):
         :param event_id: The id of the event to delete
         :type event_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.delete_scheduled_event(
             guild_id=self.id,
             guild_scheduled_event_id=Snowflake(event_id),
@@ -1049,6 +1086,8 @@ class Guild(DictSerializerMixin):
         :return: The channels of the guild.
         :rtype: List[Channel]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         res = self._client.get_all_channels(int(self.id))
         channels = [Channel(**channel, _client=self._client) for channel in res]
         return channels
@@ -1060,6 +1099,8 @@ class Guild(DictSerializerMixin):
         :return: The roles of the guild.
         :rtype: List[Role]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         res = self._client.get_all_roles(int(self.id))
         roles = [Role(**role, _client=self._client) for role in res]
         return roles
@@ -1082,7 +1123,8 @@ class Guild(DictSerializerMixin):
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         _role_id = role_id.id if isinstance(role_id, Role) else role_id
         res = await self._client.modify_guild_role_position(
             guild_id=int(self.id), position=position, role_id=_role_id, reason=reason
@@ -1097,7 +1139,8 @@ class Guild(DictSerializerMixin):
         :return: List of banned users with reasons
         :rtype: List[dict]
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         res = await self._client.get_guild_bans(int(self.id))
         for ban in res:
             ban["user"] = User(**ban["user"])
@@ -1312,6 +1355,7 @@ class ScheduledEvents(DictSerializerMixin):
     :ivar Optional[User] creator?: The user that created the scheduled event.
     :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
     :ivar int status: The status of the scheduled event
+    :ivar Optional[str] image: The hash containing the image of an event, if applicable.
     """
 
     __slots__ = (
@@ -1331,6 +1375,7 @@ class ScheduledEvents(DictSerializerMixin):
         "creator",
         "user_count",
         "status",
+        "image",
     )
 
     def __init__(self, **kwargs):
