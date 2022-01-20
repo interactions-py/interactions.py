@@ -340,4 +340,5 @@ class ScheduledEvents(DictSerializerMixin):
     creator: Optional[User]
     user_count: Optional[int]
     status: int
+    image: Optional[str]
     def __init__(self, **kwargs): ...

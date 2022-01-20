@@ -154,10 +154,10 @@ class WebSocket:
         :type presence: Optional[Presence]
         """
         self.http = HTTPClient(token)
-        self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
+        self.options["headers"] = {"User-Agent": self.http.req._headers["User-Agent"]}
         url = await self.http.get_gateway()
 
-        async with self.http._req.session.ws_connect(url, **self.options) as self.session:
+        async with self.http._req._session.ws_connect(url, **self.options) as self.session:
             while not self.closed:
                 stream = await self.recv()
 
@@ -266,7 +266,7 @@ class WebSocket:
                 if option["type"] == OptionType.SUB_COMMAND_GROUP:
                     for group_option in option["options"]:
                         if group_option.get("options"):
-                            for sub_option in option["options"]:
+                            for sub_option in group_option["options"]:
                                 if sub_option.get("focused"):
                                     return sub_option["name"], sub_option["value"]
                 elif option["type"] == OptionType.SUB_COMMAND:
@@ -319,6 +319,8 @@ class WebSocket:
                                     )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                         _name = f"component_{context.data.custom_id}"
+                        if context.data._json.get("values"):
+                            _args.append(context.data.values)
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                         _name = f"autocomplete_{context.data.id}"
                         if context.data._json.get("options"):

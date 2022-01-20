@@ -12,14 +12,18 @@ with open("README.rst", "r", encoding="UTF-8") as f:
 with open(path.join(HERE, PACKAGE_NAME, "base.py"), encoding="utf-8") as fp:
     VERSION = re.search('__version__ = "([^"]+)"', fp.read()).group(1)
 
-extras = {
-    "lint": ["black", "flake8", "isort"],
-    "readthedocs": ["sphinx", "karma-sphinx-theme"],
-}
-extras["lint"] += extras["readthedocs"]
-extras["dev"] = extras["lint"] + extras["readthedocs"]
 
-requirements = open("requirements.txt").read().split("\n")[:-1]
+def read_requirements(filename):
+    with open(filename, "r", encoding="utf-8") as fp:
+        return fp.read().strip().splitlines()
+
+
+extras = {
+    "lint": read_requirements("requirements-lint.txt"),
+    "readthedocs": read_requirements("requirements-docs.txt"),
+}
+extras["dev"] = extras["lint"] + extras["readthedocs"]
+requirements = read_requirements("requirements.txt")
 
 setup(
     name="discord-py-interactions",

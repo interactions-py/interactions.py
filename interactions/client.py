@@ -5,23 +5,22 @@ from importlib.util import resolve_name
 from logging import Logger, getLogger
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from interactions.api.dispatch import Listener
-from interactions.api.models.misc import Snowflake
-
 from .api.cache import Cache
 from .api.cache import Item as Build
+from .api.dispatch import Listener
 from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
-from .api.models.gw import Presence
+from .api.models.misc import Snowflake
 from .api.models.team import Application
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
+from .models.misc import MISSING
 
 log: Logger = getLogger("client")
 _token: str = ""  # noqa
@@ -32,79 +31,210 @@ class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
 
-    :ivar AbstractEventLoop loop: The main overall asynchronous coroutine loop in effect.
-    :ivar Listener listener: An instance of :class:`interactions.api.dispatch.Listener`.
-    :ivar Optional[Union[Intents, List[Intents]]] intents: The application's intents as :class:`interactions.api.models.Intents`.
-    :ivar HTTPClient http: An instance of :class:`interactions.api.http.Request`.
-    :ivar WebSocket websocket: An instance of :class:`interactions.api.gateway.WebSocket`.
-    :ivar str token: The application token.
+    :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
+    :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
+    :ivar WebSocket _websocket: An object-orientation of a websocket server connection to the Gateway.
+    :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
+    :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
+    :ivar Optional[Presence] _presence: The RPC-like presence shown on an application once connected.
+    :ivar str _token: The token of the application used for authentication when connecting.
+    :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
+    :ivar Application me: The application representation of the client.
     """
 
     def __init__(
         self,
         token: str,
-        intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
-        disable_sync: Optional[bool] = False,
-        shard: Optional[List[int]] = None,
-        presence: Optional[Presence] = None,
+        **kwargs,
     ) -> None:
-        """
+        r"""
+        Establishes a client connection to the Web API and Gateway.
+
         :param token: The token of the application for authentication and connection.
         :type token: str
-        :param intents?: The intents you wish to pass through the client. Defaults to :meth:`interactions.api.models.intents.Intents.DEFAULT` or ``513``.
-        :type intents: Optional[Union[Intents, List[Intents]]]
-        :param disable_sync?: Whether you want to disable automate synchronization or not.
-        :type disable_sync: Optional[bool]
-        :param log_level?: The logging level to set for the terminal. Defaults to what is set internally.
-        :param presence?: The presence of the application when connecting.
-        :type presence: Optional[Presence]
+        :param \**kwargs: Multiple key-word arguments able to be passed through.
+        :type \**kwargs: dict
         """
-        if isinstance(intents, list):
-            for intent in intents:
-                self.intents |= intent
-        else:
-            self.intents = intents
 
-        self.loop = get_event_loop()
-        self.http = HTTPClient(token)
-        self.websocket = WebSocket(intents=self.intents)
+        # Arguments
+        # ~~~~~~~~~
+        # token : str
+        #     The token of the application for authentication and connection.
+        # intents? : Optional[Intents]
+        #     Allows specific control of permissions the application has when connected.
+        #     In order to use multiple intents, the | operator is recommended.
+        #     Defaults to ``Intents.DEFAULT``.
+        # shards? : Optional[List[Tuple[int]]]
+        #     Dictates and controls the shards that the application connects under.
+        # presence? : Optional[Presence]
+        #     Sets an RPC-like presence on the application when connected to the Gateway.
+        # disable_sync? : Optional[bool]
+        #     Controls whether synchronization in the user-facing API should be automatic or not.
+
+        self._loop = get_event_loop()
+        self._http = HTTPClient(token=token)
+        self._intents = kwargs.get("intents", Intents.DEFAULT)
+        self._websocket = WebSocket(intents=self._intents)
+        self._shard = kwargs.get("shards", [])
+        self._presence = kwargs.get("presence")
+        self._token = token
+        self._extensions = {}
         self.me = None
-        self.token = token
-        self.http.token = token
-        self.shard = shard
-        self.presence = presence
-        self.extensions = {}
-        _token = token  # noqa: F841
-        _cache = self.http.cache  # noqa: F841
+        _token = self._token  # noqa: F841
+        _cache = self._http.cache  # noqa: F841
 
-        if disable_sync:
-            self.automate_sync = False
+        if kwargs.get("disable_sync"):
+            self._automate_sync = False
             log.warning(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
             )
         else:
-            self.automate_sync = True
+            self._automate_sync = True
 
-        if not self.me:
-            data = self.loop.run_until_complete(self.http.get_current_bot_information())
-            self.me = Application(**data)
-
-    async def login(self, token: str) -> None:
-        """
-        Makes a login with the Discord API.
-
-        :param token: The application token needed for authorization.
-        :type token: str
-        :return: None
-        """
-        while not self.websocket.closed:
-            await self.websocket.connect(token, self.shard, self.presence)
+        data = self._loop.run_until_complete(self._http.get_current_bot_information())
+        self.me = Application(**data)
 
     def start(self) -> None:
         """Starts the client session."""
-        self.loop.run_until_complete(self.ready())
+        self._loop.run_until_complete(self._ready())
 
-    async def ready(self) -> None:
+    def __register_events(self) -> None:
+        """Registers all raw gateway events to the known events."""
+        self._websocket.dispatch.register(self.__raw_socket_create)
+        self._websocket.dispatch.register(self.__raw_channel_create, "on_channel_create")
+        self._websocket.dispatch.register(self.__raw_message_create, "on_message_create")
+        self._websocket.dispatch.register(self.__raw_message_create, "on_message_update")
+        self._websocket.dispatch.register(self.__raw_guild_create, "on_guild_create")
+
+    async def __compare_sync(self, data: dict, pool: List[dict]) -> bool:
+        """
+        Compares an application command during the synchronization process.
+
+        :param data: The application command to compare.
+        :type data: dict
+        :param pool: The "pool" or list of commands to compare from.
+        :type pool: List[dict]
+        :return: Whether the command has changed or not.
+        :rtype: bool
+        """
+        attrs: List[str] = ["type", "name", "description", "options", "guild_id"]
+        log.info(f"Current attributes to compare: {', '.join(attrs)}.")
+        clean: bool = True
+
+        for command in pool:
+            if command["name"] == data["name"]:
+                for attr in attrs:
+                    if hasattr(data, attr) and command.get(attr) == data.get(attr):
+                        continue
+                    else:
+                        clean = False
+
+        return clean
+
+    async def __create_sync(self, data: dict) -> None:
+        """
+        Creates an application command during the synchronization process.
+
+        :param data: The application command to create.
+        :type data: dict
+        """
+        log.info(f"Creating command {data['name']}.")
+
+        command: ApplicationCommand = ApplicationCommand(
+            **(
+                await self._http.create_application_command(
+                    application_id=self.me.id, data=data, guild_id=data.get("guild_id")
+                )
+            )
+        )
+        self._http.cache.interactions.add(Build(id=command.name, value=command))
+
+    async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
+        """
+        Bulk updates a list of application commands during the synchronization process.
+
+        The theory behind this is that instead of sending individual ``PATCH``
+        requests to the Web API, we collect the commands needed and do a bulk
+        overwrite instead. This is to mitigate the amount of calls, and hopefully,
+        chances of hitting rate limits during the readying state.
+
+        :param data: The application commands to update.
+        :type data: List[dict]
+        :param delete?: Whether these commands are being deleted or not.
+        :type delete: Optional[bool]
+        """
+        guild_commands: dict = {}
+        global_commands: List[dict] = []
+
+        for command in data:
+            if command.get("guild_id"):
+                if guild_commands.get(command["guild_id"]):
+                    guild_commands[command["guild_id"]].append(command)
+                else:
+                    guild_commands[command["guild_id"]] = [command]
+            else:
+                global_commands.append(command)
+
+            self._http.cache.interactions.add(
+                Build(id=command["name"], value=ApplicationCommand(**command))
+            )
+
+        for guild, commands in guild_commands.items():
+            log.info(
+                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been {'deleted' if delete else 'synced'}."
+            )
+            await self._http.overwrite_application_command(
+                application_id=self.me.id,
+                data=[] if delete else commands,
+                guild_id=guild,
+            )
+
+        if global_commands:
+            log.info(
+                f"Global commands {', '.join(command['name'] for command in global_commands)} have been {'deleted' if delete else 'synced'}."
+            )
+            await self._http.overwrite_application_command(
+                application_id=self.me.id, data=[] if delete else global_commands
+            )
+
+    async def _synchronize(self, payload: Optional[dict] = None) -> None:
+        """
+        Synchronizes a command from the client-facing API to the Web API.
+
+        :ivar payload?: The application command to synchronize. Defaults to ``None`` where a global synchronization process begins.
+        :type payload: Optional[dict]
+        """
+        cache: Optional[List[dict]] = self._http.cache.interactions.view
+
+        if cache:
+            log.info("A command cache was detected, using for synchronization instead.")
+            commands: List[dict] = cache
+        else:
+            log.info("No command cache was found present, retrieving from Web API instead.")
+            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_command(
+                application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
+            )
+
+        names: List[str] = [command["name"] for command in commands] if commands else []
+        to_sync: list = []
+        to_delete: list = []
+
+        if payload:
+            log.info(f"Checking command {payload['name']}.")
+            if payload["name"] in names:
+                if not await self.__compare_sync(payload, commands):
+                    to_sync.append(payload)
+            else:
+                await self.__create_sync(payload)
+        else:
+            for command in commands:
+                if command not in cache:
+                    to_delete.append(command)
+
+        await self.__bulk_update_sync(to_sync)
+        await self.__bulk_update_sync(to_delete, delete=True)
+
+    async def _ready(self) -> None:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
@@ -125,189 +255,49 @@ class Client:
         """
         ready: bool = False
 
-        def register_events() -> None:
-            self.websocket.dispatch.register(self.raw_socket_create)
-            self.websocket.dispatch.register(self.raw_channel_create, "on_channel_create")
-            self.websocket.dispatch.register(self.raw_message_create, "on_message_create")
-            self.websocket.dispatch.register(self.raw_message_create, "on_message_update")
-            self.websocket.dispatch.register(self.raw_guild_create, "on_guild_create")
-
         try:
-            register_events()
-            await self.synchronize()
+            self.__register_events()
+            if self._automate_sync:
+                await self._synchronize()
             ready = True
         except Exception as error:
             log.critical(f"Could not prepare the client: {error}")
         finally:
             if ready:
                 log.debug("Client is now ready.")
-                await self.login(self.token)
+                await self._login()
 
-    async def compare_sync(self, payload: dict, result: dict) -> bool:
+    async def _login(self) -> None:
+        """Makes a login with the Discord API."""
+        while not self._websocket.closed:
+            await self._websocket.connect(self._token, self._shard, self._presence)
+
+    def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
         """
-        This compares the payloads between the Client and the API such that
-        it can mitigate synchronisation API calls.
-        """
-
-        # This needs to be redone after discord updates their docs.
-
-        _res = True
-
-        for attrs in ["type", "guild_id", "name", "description", "options", "default_permission"]:
-            if attrs == "options" and payload["type"] != 1:
-                continue
-
-            if attrs == "guild_id":
-                if str(payload.get(attrs, None)) == result.get(attrs, None):
-                    continue
-
-            if payload.get(attrs, None) != result.get(attrs, (None if attrs != "options" else [])):
-                _res = False
-                return _res
-
-        return _res
-
-    async def synchronize(self, payload: Optional[ApplicationCommand] = None) -> None:
-        """
-        Synchronizes the command specified by checking through the
-        currently registered application commands on the API and
-        modifying if there is a detected change in structure.
-
-        .. warning::
-            This internal call does not need to be manually triggered,
-            as it will automatically be done for you. Additionally,
-            this will not delete unused commands for you.
-
-        :param payload?: The payload/object of the command.
-        :type payload: Optional[ApplicationCommand]
-        """
-        _guild = None
-        if payload:
-            _guild = str(payload.guild_id)
-
-        commands: List[dict] = await self.http.get_application_command(
-            application_id=self.me.id, guild_id=_guild
-        )
-        command_names: List[str] = [command["name"] for command in commands]
-
-        async def create(data: ApplicationCommand) -> None:
-            """
-            Creates a new application command in the API if one does not exist for it.
-            :param data: The data of the command to create.
-            :type data: ApplicationCommand
-            """
-            log.debug(
-                f"Command {data.name} was not found in the API, creating and adding to the cache."
-            )
-
-            _created_command = ApplicationCommand(
-                **(
-                    await self.http.create_application_command(
-                        application_id=self.me.id, data=data._json, guild_id=data.guild_id
-                    )
-                )
-            )
-
-            self.http.cache.interactions.add(
-                Build(id=_created_command.name, value=_created_command)
-            )
-
-        if commands:
-            log.debug("Commands were found, checking for sync.")
-            for command in commands:
-                result: ApplicationCommand = ApplicationCommand(
-                    application_id=command.get("application_id"),
-                    id=command.get("id"),
-                    type=command.get("type"),
-                    guild_id=str(command["guild_id"]) if command.get("guild_id") else None,
-                    name=command.get("name"),
-                    description=command.get("description", ""),
-                    default_permission=command.get("default_permission", False),
-                    default_member_permissions=command.get("default_member_permissions", None),
-                    version=command.get("version"),
-                    name_localizations=command.get("name_localizations"),
-                    description_localizations=command.get("description_localizations"),
-                )
-
-                if payload:
-                    if payload.name in command_names:
-                        log.debug(f"Checking command {payload.name} for syncing.")
-
-                        if payload.name == result.name:
-                            payload_name: str = payload.name
-
-                            _cmp = await self.compare_sync(payload._json, result._json)
-
-                            if not _cmp:
-                                log.debug(
-                                    f"Command {result.name} found unsynced, editing in the API and updating the cache."
-                                )
-                                payload._json["name"] = payload_name
-                                _updated = ApplicationCommand(
-                                    **await self.http.edit_application_command(
-                                        application_id=self.me.id,
-                                        data=payload._json,
-                                        command_id=result.id,
-                                        guild_id=result._json.get("guild_id"),
-                                    )
-                                )
-                                self.http.cache.interactions.add(
-                                    Build(id=_updated.name, value=_updated)
-                                )
-                                break
-                    else:
-                        await create(payload)
-                else:
-                    log.debug(f"Adding command {result.name} to cache.")
-                    self.http.cache.interactions.add(Build(id=result.name, value=result))
-        else:
-            if payload:
-                await create(payload)
-
-        cached_commands: List[dict] = [command for command in self.http.cache.interactions.view]
-        cached_command_names = [
-            command.get("name") for command in cached_commands if command.get("name")
-        ]
-
-        print(cached_commands)
-        print(cached_command_names)
-
-        if cached_commands:
-            for command in commands:
-                if command["name"] not in cached_command_names:
-                    log.debug(
-                        f"Command {command['name']} was found in the API but never cached, deleting from the API and cache."
-                    )
-                    await self.http.delete_application_command(
-                        application_id=self.me.id,
-                        command_id=command["id"],
-                        guild_id=command.get("guild_id"),
-                    )
-
-    def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]:
-        """
-        A decorator for listening to dispatched events from the
-        gateway.
+        A decorator for listening to events dispatched from the
+        Gateway.
 
         :param coro: The coroutine of the event.
         :type coro: Coroutine
-        :param name?: The name of the event.
+        :param name(?): The name of the event.
         :type name: Optional[str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self.websocket.dispatch.register(coro, name)
+        self._websocket.dispatch.register(coro, name)
         return coro
 
     def command(
         self,
         *,
         type: Optional[Union[int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
-        default_permission: Optional[bool] = None,
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        options: Optional[
+            Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]
+        ] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
@@ -351,10 +341,10 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not name:
+            if name is MISSING:
                 raise InteractionException(11, message="Your command must have a name.")
 
-            if type == ApplicationCommandType.CHAT_INPUT and not description:
+            if type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
                 raise InteractionException(
                     11, message="Chat-input commands must have a description."
                 )
@@ -363,7 +353,7 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            if options and (len(coro.__code__.co_varnames) + 1) < len(options):
+            if options is not MISSING and len(coro.__code__.co_varnames) + 1 < len(options):
                 raise InteractionException(
                     11,
                     message="You must have the same amount of arguments as the options of the command.",
@@ -378,8 +368,8 @@ class Client:
                 default_permission=default_permission,
             )
 
-            if self.automate_sync:
-                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+            if self._automate_sync:
+                [self._loop.run_until_complete(self._synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -388,9 +378,9 @@ class Client:
     def message_command(
         self,
         *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
+        name: str,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -408,7 +398,7 @@ class Client:
         The ``scope`` kwarg field may also be used to designate the command in question
         applicable to a guild or set of guilds.
 
-        :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
+        :param name: The name of the application command.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
@@ -419,9 +409,6 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not name:
-                raise InteractionException(11, message="Your command must have a name.")
-
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
                     11,
@@ -435,8 +422,8 @@ class Client:
                 default_permission=default_permission,
             )
 
-            if self.automate_sync:
-                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+            if self._automate_sync:
+                [self._loop.run_until_complete(self._synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -445,9 +432,9 @@ class Client:
     def user_command(
         self,
         *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
+        name: str,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -465,7 +452,7 @@ class Client:
         The ``scope`` kwarg field may also be used to designate the command in question
         applicable to a guild or set of guilds.
 
-        :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
+        :param name: The name of the application command.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
@@ -476,9 +463,6 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not name:
-                raise InteractionException(11, message="Your command must have a name.")
-
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
                     11,
@@ -492,8 +476,8 @@ class Client:
                 default_permission=default_permission,
             )
 
-            if self.automate_sync:
-                [self.loop.run_until_complete(self.synchronize(command)) for command in commands]
+            if self._automate_sync:
+                [self._loop.run_until_complete(self._synchronize(command)) for command in commands]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -623,7 +607,7 @@ class Client:
         """
         _name: str = resolve_name(name, package)
 
-        if _name in self.extensions:
+        if _name in self._extensions:
             log.error(f"Extension {name} has already been loaded. Skipping.")
 
         module = import_module(name, package)
@@ -636,7 +620,7 @@ class Client:
             log.error(f"Could not load {name}: {error}. Skipping.")
         else:
             log.debug(f"Loaded extension {name}.")
-            self.extensions[_name] = module
+            self._extensions[_name] = module
 
     def remove(self, name: str, package: Optional[str] = None) -> None:
         """
@@ -648,14 +632,14 @@ class Client:
         :type package: Optional[str]
         """
         _name: str = resolve_name(name, package)
-        module = self.extensions.get(_name)
+        module = self._extensions.get(_name)
 
-        if module not in self.extensions:
+        if module not in self._extensions:
             log.error(f"Extension {name} has not been loaded before. Skipping.")
 
         log.debug(f"Removed extension {name}.")
         del sys.modules[_name]
-        del self.extensions[_name]
+        del self._extensions[_name]
 
     def reload(self, name: str, package: Optional[str] = None) -> None:
         """
@@ -667,7 +651,7 @@ class Client:
         :type package: Optional[str]
         """
         _name: str = resolve_name(name, package)
-        module = self.extensions.get(_name)
+        module = self._extensions.get(_name)
 
         if module is None:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
@@ -676,7 +660,7 @@ class Client:
         self.remove(name, package)
         self.load(name, package)
 
-    async def raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
+    async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
         and then returns the data purely based off of what it does in
@@ -690,7 +674,7 @@ class Client:
 
         return data
 
-    async def raw_channel_create(self, channel) -> dict:
+    async def __raw_channel_create(self, channel) -> dict:
         """
         This is an internal function that caches the channel creates when dispatched.
 
@@ -699,11 +683,11 @@ class Client:
         :return: The channel as a dictionary of raw data.
         :rtype: dict
         """
-        self.http.cache.channels.add(Build(id=channel.id, value=channel))
+        self._http.cache.channels.add(Build(id=channel.id, value=channel))
 
         return channel._json
 
-    async def raw_message_create(self, message) -> dict:
+    async def __raw_message_create(self, message) -> dict:
         """
         This is an internal function that caches the message creates when dispatched.
 
@@ -712,11 +696,11 @@ class Client:
         :return: The message as a dictionary of raw data.
         :rtype: dict
         """
-        self.http.cache.messages.add(Build(id=message.id, value=message))
+        self._http.cache.messages.add(Build(id=message.id, value=message))
 
         return message._json
 
-    async def raw_guild_create(self, guild) -> dict:
+    async def __raw_guild_create(self, guild) -> dict:
         """
         This is an internal function that caches the guild creates on ready.
 
@@ -725,7 +709,7 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self.http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
+        self._http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
 

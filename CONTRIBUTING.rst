@@ -10,7 +10,7 @@ the library off of pip:
 
 .. code-block:: bash
 
-    pip install -U discord-py-interactions
+    pip install -U discord-py-interactions[dev]
 
 Once you have the library installed in Python, you are able to instantiate and run a basic bot
 with a logging level that is set for debugging purposes. This is recommend in order to make it easier
