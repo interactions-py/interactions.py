@@ -47,24 +47,6 @@ def command(
             _options = [options]
 
     _default_permission: bool = True if default_permission is None else default_permission
-
-    # TODO: Implement permission building and syncing.
-    # _permissions: list = []
-
-    # if permissions:
-    #     if all(isinstance(permission, Permission) for permission in permissions):
-    #         _permissions = [permission._json for permission in permissions]
-    #     elif all(
-    #         isinstance(permission, dict)
-    #         and all(isinstance(value, str) for value in permission)
-    #         for permission in permissions
-    #     ):
-    #         _permissions = [permission for permission in permissions]
-    #     elif isinstance(permissions, Permission):
-    #         _permissions = [permissions._json]
-    #     else:
-    #         _permissions = [permissions]
-
     _scope: list = []
 
     payloads: list = []
@@ -88,7 +70,7 @@ def command(
                 options=_options,
                 default_permission=_default_permission,
             )
-            payloads.append(payload)
+            payloads.append(payload._json)
     else:
         payload: ApplicationCommand = ApplicationCommand(
             type=_type,
@@ -97,7 +79,7 @@ def command(
             options=_options,
             default_permission=_default_permission,
         )
-        payloads.append(payload)
+        payloads.append(payload._json)
 
     return payloads
 
