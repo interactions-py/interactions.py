@@ -597,7 +597,7 @@ class Client:
 
         return decorator
 
-    def load(self, name: str, package: Optional[str] = None) -> None:
+    def load(self, name: str, package: Optional[str] = None) -> NoReturn:
         """
         "Loads" an extension off of the current client by adding a new class
         which is imported from the library.
@@ -624,7 +624,7 @@ class Client:
             log.debug(f"Loaded extension {name}.")
             self._extensions[_name] = module
 
-    def remove(self, name: str, package: Optional[str] = None) -> None:
+    def remove(self, name: str, package: Optional[str] = None) -> NoReturn:
         """
         Removes an extension out of the current client from an import resolve.
 
@@ -643,7 +643,7 @@ class Client:
         del sys.modules[_name]
         del self._extensions[_name]
 
-    def reload(self, name: str, package: Optional[str] = None) -> None:
+    def reload(self, name: str, package: Optional[str] = None) -> NoReturn:
         """
         "Reloads" an extension off of current client from an import resolve.
 
