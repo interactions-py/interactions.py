@@ -33,7 +33,7 @@ class Client:
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
     :ivar WebSocket _websocket: An object-orientation of a websocket server connection to the Gateway.
-    :ivar Optional[Intents] _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
+    :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
     :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
     :ivar Optional[Presence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
