@@ -32,7 +32,7 @@ def command(
     _description: str = "" if description is MISSING else description
     _options: list = []
 
-    if options:
+    if options is not MISSING:
         if all(isinstance(option, Option) for option in options):
             _options = [option._json for option in options]
         elif all(
@@ -50,7 +50,7 @@ def command(
 
     payloads: list = []
 
-    if scope:
+    if scope is not MISSING:
         if isinstance(scope, list):
             if all(isinstance(guild, Guild) for guild in scope):
                 [_scope.append(guild.id) for guild in scope]

@@ -3,7 +3,7 @@ from asyncio import get_event_loop
 from importlib import import_module
 from importlib.util import resolve_name
 from logging import Logger, getLogger
-from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
 from .api.cache import Item as Build
@@ -46,7 +46,7 @@ class Client:
         self,
         token: str,
         **kwargs,
-    ) -> NoReturn:
+    ) -> None:
         r"""
         Establishes a client connection to the Web API and Gateway.
 
@@ -94,11 +94,11 @@ class Client:
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
 
-    def start(self) -> NoReturn:
+    def start(self) -> None:
         """Starts the client session."""
         self._loop.run_until_complete(self._ready())
 
-    def __register_events(self) -> NoReturn:
+    def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
         self._websocket.dispatch.register(self.__raw_socket_create)
         self._websocket.dispatch.register(self.__raw_channel_create, "on_channel_create")
@@ -131,7 +131,7 @@ class Client:
 
         return clean
 
-    async def __create_sync(self, data: dict) -> NoReturn:
+    async def __create_sync(self, data: dict) -> None:
         """
         Creates an application command during the synchronization process.
 
@@ -149,9 +149,7 @@ class Client:
         )
         self._http.cache.interactions.add(Build(id=command.name, value=command))
 
-    async def __bulk_update_sync(
-        self, data: List[dict], delete: Optional[bool] = False
-    ) -> NoReturn:
+    async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
         """
         Bulk updates a list of application commands during the synchronization process.
 
@@ -199,7 +197,7 @@ class Client:
                 application_id=self.me.id, data=[] if delete else global_commands
             )
 
-    async def _synchronize(self, payload: Optional[dict] = None) -> NoReturn:
+    async def _synchronize(self, payload: Optional[dict] = None) -> None:
         """
         Synchronizes a command from the client-facing API to the Web API.
 
@@ -236,7 +234,7 @@ class Client:
         await self.__bulk_update_sync(to_sync)
         await self.__bulk_update_sync(to_delete, delete=True)
 
-    async def _ready(self) -> NoReturn:
+    async def _ready(self) -> None:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
@@ -269,7 +267,7 @@ class Client:
                 log.debug("Client is now ready.")
                 await self._login()
 
-    async def _login(self) -> NoReturn:
+    async def _login(self) -> None:
         """Makes a login with the Discord API."""
         while not self._websocket.closed:
             await self._websocket.connect(self._token, self._shard, self._presence)
@@ -355,7 +353,7 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            if options and (len(coro.__code__.co_varnames) + 1) < len(options):
+            if options is not MISSING and len(coro.__code__.co_varnames) + 1 < len(options):
                 raise InteractionException(
                     11,
                     message="You must have the same amount of arguments as the options of the command.",
@@ -597,7 +595,7 @@ class Client:
 
         return decorator
 
-    def load(self, name: str, package: Optional[str] = None) -> NoReturn:
+    def load(self, name: str, package: Optional[str] = None) -> None:
         """
         "Loads" an extension off of the current client by adding a new class
         which is imported from the library.
@@ -624,7 +622,7 @@ class Client:
             log.debug(f"Loaded extension {name}.")
             self._extensions[_name] = module
 
-    def remove(self, name: str, package: Optional[str] = None) -> NoReturn:
+    def remove(self, name: str, package: Optional[str] = None) -> None:
         """
         Removes an extension out of the current client from an import resolve.
 
@@ -643,7 +641,7 @@ class Client:
         del sys.modules[_name]
         del self._extensions[_name]
 
-    def reload(self, name: str, package: Optional[str] = None) -> NoReturn:
+    def reload(self, name: str, package: Optional[str] = None) -> None:
         """
         "Reloads" an extension off of current client from an import resolve.
 

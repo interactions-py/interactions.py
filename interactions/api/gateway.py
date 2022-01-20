@@ -151,10 +151,10 @@ class WebSocket:
         :type presence: Optional[Presence]
         """
         self.http = HTTPClient(token)
-        self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
+        self.options["headers"] = {"User-Agent": self.http.req._headers["User-Agent"]}
         url = await self.http.get_gateway()
 
-        async with self.http._req.session.ws_connect(url, **self.options) as self.session:
+        async with self.http._req._session.ws_connect(url, **self.options) as self.session:
             while not self.closed:
                 stream = await self.recv()
 

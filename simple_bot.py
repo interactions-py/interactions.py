@@ -5,7 +5,7 @@ import interactions
 logging.basicConfig(level=logging.DEBUG)
 
 
-bot = interactions.Client(token=open("bot.token").read())
+bot = interactions.Client(token=open("bot.token").read(), disable_sync=True)
 
 
 @bot.event
