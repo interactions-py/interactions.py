@@ -807,9 +807,6 @@ class Guild(DictSerializerMixin):
         :rtype: GuildPreview
         """
 
-
-
-
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
