@@ -317,6 +317,7 @@ class CommandContext(Context):
             flags=_ephemeral,
         )
         self.message = payload
+        self.message._client = self.client
         _payload: dict = {"type": self.callback.value, "data": payload._json}
 
         async def func():
@@ -338,7 +339,7 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
                 else:
                     await self.client._post_followup(
                         data=payload._json,
@@ -509,12 +510,12 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
                 elif hasattr(self.message, "id") and self.message.id is not None:
                     res = await self.client.edit_message(
                         int(self.channel_id), int(self.message.id), payload=payload._json
                     )
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
                 else:
                     res = await self.client.edit_interaction_response(
                         token=self.token,
@@ -525,11 +526,12 @@ class CommandContext(Context):
                     if res["flags"] == 64:
                         log.warning("You can't edit hidden messages.")
                         self.message = payload
+                        self.message._client = self.client
                     else:
                         await self.client.edit_message(
                             int(self.channel_id), res["id"], payload=payload._json
                         )
-                        self.message = Message(**res)
+                        self.message = Message(**res, _client=self.client)
             else:
                 self.callback = (
                     InteractionCallbackType.UPDATE_MESSAGE
@@ -547,7 +549,7 @@ class CommandContext(Context):
                     await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
 
         await func()
         return payload

@@ -75,7 +75,8 @@ class Role(DictSerializerMixin):
         :param reason: The reason for the deletion
         :type reason: Optional[str]
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.delete_guild_role(
             guild_id=guild_id, role_id=int(self.id), reason=reason
         ),
@@ -109,7 +110,8 @@ class Role(DictSerializerMixin):
         :return: The modified role object
         :rtype: Role
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         _name = self.name if not name else name
         _color = self.color if not color else color
         _hoist = self.hoist if not hoist else hoist
@@ -143,7 +145,8 @@ class Role(DictSerializerMixin):
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         res = await self._client.modify_guild_role_position(
             guild_id=guild_id, position=position, role_id=int(self.id), reason=reason
         )
