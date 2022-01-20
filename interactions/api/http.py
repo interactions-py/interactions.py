@@ -157,7 +157,12 @@ class Request:
         ratelimit: Event = self.ratelimits.get(bucket)
 
         if ratelimit is None:
-            self.ratelimits[bucket] = Event()
+            self.ratelimits[bucket] = {"lock": Event(), "remaining": 0}
+        else:
+            if ratelimit.is_set():
+                log.warning("The requested HTTP endpoint is still locked, waiting for it to clear.")
+                ratelimit["lock"].wait(ratelimit["reset_after"])
+                ratelimit["lock"].clear()
 
         kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
         kwargs["headers"]["Content-Type"] = "application/json"
