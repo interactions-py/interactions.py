@@ -292,11 +292,18 @@ class Guild(DictSerializerMixin):
             else None
         )
         if not self.members and self._client:
-            members = self._client.cache.self_guilds.values[str(self.id)].members
-            if all(isinstance(member, Member) for member in members):
-                self.members = members
+
+            if (
+                not len(self._client.cache.self_guilds.view) > 1
+                or not self._client.cache.self_guilds.values[str(self.id)].members
+            ):
+                pass
             else:
-                self.members = [Member(**member, _client=self._client) for member in members]
+                members = self._client.cache.self_guilds.values[str(self.id)].members
+                if all(isinstance(member, Member) for member in members):
+                    self.members = members
+                else:
+                    self.members = [Member(**member, _client=self._client) for member in members]
 
     async def ban(
         self,
