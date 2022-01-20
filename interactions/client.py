@@ -185,7 +185,7 @@ class Client:
             await self._http.overwrite_application_command(
                 application_id=self.me.id,
                 data=[] if delete else commands,
-                guild_id=guild["guild_id"],
+                guild_id=guild,
             )
 
         if global_commands:
