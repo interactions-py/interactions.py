@@ -265,6 +265,15 @@ class Guild(DictSerializerMixin):
         self,
         event_id: int
     ) -> None: ...
+    async def get_all_channels(self) -> List[Channel]: ...
+    async def get_all_roles(self) -> List[Role]: ...
+    async def modify_role_position(
+        self,
+        role_id: Union[Role, int],
+        position: int,
+        reason: Optional[str] = None,
+    ) -> List[Role]: ...
+    async def get_bans(self) -> List[dict]: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
@@ -331,4 +340,5 @@ class ScheduledEvents(DictSerializerMixin):
     creator: Optional[User]
     user_count: Optional[int]
     status: int
+    image: Optional[str]
     def __init__(self, **kwargs): ...

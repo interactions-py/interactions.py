@@ -160,7 +160,7 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = None,
         allowed_mentions: Optional[MessageInteraction] = None,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
         ] = None,
         ephemeral: Optional[bool] = False,
     ) -> Message:
@@ -217,10 +217,12 @@ class CommandContext(Context):
             elif isinstance(components, list) and all(
                 isinstance(component, (Button, SelectMenu)) for component in components
             ):
-                if isinstance(components[0], SelectMenu):
-                    components[0]._json["options"] = [
-                        option._json for option in components[0].options
-                    ]
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
                 _components = [
                     {
                         "type": 1,
@@ -273,7 +275,17 @@ class CommandContext(Context):
                     )
                     for component in components.components
                 ]
-            elif isinstance(components, (Button, SelectMenu)):
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
                 _components[0]["components"] = (
                     [components._json]
                     if components._json.get("custom_id") or components._json.get("url")
@@ -306,6 +318,7 @@ class CommandContext(Context):
             flags=_ephemeral,
         )
         self.message = payload
+        self.message._client = self.client
         _payload: dict = {"type": self.callback.value, "data": payload._json}
 
         async def func():
@@ -327,7 +340,7 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
                 else:
                     await self.client._post_followup(
                         data=payload._json,
@@ -498,12 +511,12 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
                 elif hasattr(self.message, "id") and self.message.id is not None:
                     res = await self.client.edit_message(
                         int(self.channel_id), int(self.message.id), payload=payload._json
                     )
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
                 else:
                     res = await self.client.edit_interaction_response(
                         token=self.token,
@@ -514,11 +527,12 @@ class CommandContext(Context):
                     if res["flags"] == 64:
                         log.warning("You can't edit hidden messages.")
                         self.message = payload
+                        self.message._client = self.client
                     else:
                         await self.client.edit_message(
                             int(self.channel_id), res["id"], payload=payload._json
                         )
-                        self.message = Message(**res)
+                        self.message = Message(**res, _client=self.client)
             else:
                 self.callback = (
                     InteractionCallbackType.UPDATE_MESSAGE
@@ -536,7 +550,7 @@ class CommandContext(Context):
                     await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
-                    self.message = Message(**res)
+                    self.message = Message(**res, _client=self.client)
 
         await func()
         return payload

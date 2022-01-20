@@ -285,10 +285,18 @@ class Message(DictSerializerMixin):
         Gets the channel where the message was sent
         :rtype: Channel
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         res = await self._client.get_channel(channel_id=int(self.channel_id))
         return Channel(**res, _client=self._client)
 
     async def get_guild(self):
+        """
+        Gets the guild where the message was sent
+        :rtype: Guild
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         from .guild import Guild
 
         res = await self._client.get_guild(guild_id=int(self.guild_id))
@@ -300,6 +308,8 @@ class Message(DictSerializerMixin):
         :param reason: Optional reason to show up in the audit log. Defaults to `None`.
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.delete_message(
             message_id=int(self.id), channel_id=int(self.channel_id), reason=reason
         )
@@ -313,6 +323,7 @@ class Message(DictSerializerMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = None,
         allowed_mentions: Optional["MessageInteraction"] = None,
         message_reference: Optional["MessageReference"] = None,
+        components=None,
     ) -> "Message":
         """
         This method edits a message. Only available for messages sent by the bot.
@@ -325,20 +336,134 @@ class Message(DictSerializerMixin):
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
+        :param components?: A component, or list of components for the message. If `[]` the components will be removed
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :return: The edited message as an object.
         :rtype: Message
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        from ...models.component import ActionRow, Button, SelectMenu
 
-        _content: str = "" if content is None else content
+        _content: str = self.content if content is None else content
         _tts: bool = True if bool(tts) else tts
         # _file = None if file is None else file
-        _embeds: list = (
-            []
-            if embeds is None
-            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
-        )
+
+        if embeds is None:
+            _embeds = self.embeds
+        else:
+            _embeds: list = (
+                []
+                if embeds is None
+                else (
+                    [embed._json for embed in embeds]
+                    if isinstance(embeds, list)
+                    else [embeds._json]
+                )
+            )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _message_reference: dict = {} if message_reference is None else message_reference._json
+        if components == []:
+            _components = []
+        # TODO: Break this obfuscation pattern down to a "builder" method.
+        elif components is not None and components != []:
+            _components = []
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in action_row.components
+                        ],
+                    }
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+        else:
+            _components = self.components
 
         payload: Message = Message(
             content=_content,
@@ -347,10 +472,13 @@ class Message(DictSerializerMixin):
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
+            components=_components,
         )
 
         await self._client.edit_message(
-            channel_id=int(self.channel_id), message_id=int(self.id), payload=payload._json
+            channel_id=int(self.channel_id),
+            message_id=int(self.id),
+            payload=payload._json,
         )
         return payload
 
@@ -376,11 +504,12 @@ class Message(DictSerializerMixin):
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[Component, List[Component]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :return: The sent message as an object.
         :rtype: Message
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
 
         _content: str = "" if content is None else content
@@ -393,18 +522,107 @@ class Message(DictSerializerMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _components: list = [{"type": 1, "components": []}]
         _message_reference = MessageReference(message_id=int(self.id))._json
+        _components: List[dict] = [{"type": 1, "components": []}]
 
-        if isinstance(components, ActionRow):
-            _components[0]["components"] = [component._json for component in components.components]
-        elif isinstance(components, Button):
-            _components[0]["components"] = [] if components is None else [components._json]
-        elif isinstance(components, SelectMenu):
-            components._json["options"] = [option._json for option in components.options]
-            _components[0]["components"] = [] if components is None else [components._json]
+        # TODO: Break this obfuscation pattern down to a "builder" method.
+        if components:
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in action_row.components
+                        ],
+                    }
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
         else:
-            _components = [] if components is None else [components]
+            _components = []
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -420,6 +638,31 @@ class Message(DictSerializerMixin):
 
         res = await self._client.create_message(
             channel_id=int(self.channel_id), payload=payload._json
+        )
+        return Message(**res, _client=self._client)
+
+    async def pin(self) -> None:
+        """Pins the message to its channel"""
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        await self._client.pin_message(channel_id=int(self.channel_id), message_id=int(self.id))
+
+    async def unpin(self) -> None:
+        """Unpins the message from its channel"""
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        await self._client.unpin_message(channel_id=int(self.channel_id), message_id=int(self.id))
+
+    async def publish(self) -> "Message":
+        """Publishes (API calls it crossposts) the message in its channel to any that is followed by.
+
+        :return: message object
+        :rtype: Message
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        res = await self._client.publish_message(
+            channel_id=int(self.channel_id), message_id=int(self.id)
         )
         return Message(**res, _client=self._client)
 

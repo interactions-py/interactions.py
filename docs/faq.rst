@@ -48,14 +48,14 @@ What does that mean? Well, we'll show you:
     import interactions
     from discord.ext import commands
 
-    interactions = interactions.Client(token="...")
+    client = interactions.Client(token="...")
     dpy = commands.Bot(prefix="/")
 
     @dpy.command()
     async def hello(ctx):
         await ctx.send("Hello from discord.py!")
 
-    @interactions.command(
+    @client.command(
         name="test",
         description="this is just a testing command."
     )
@@ -65,7 +65,7 @@ What does that mean? Well, we'll show you:
     loop = asyncio.get_event_loop()
 
     task2 = loop.create_task(dpy.start(token="...", bot=True))
-    task1 = loop.create_task(interactions.ready())
+    task1 = loop.create_task(client.ready())
 
     gathered = asyncio.gather(task1, task2, loop=loop)
     loop.run_until_complete(gathered)
@@ -83,13 +83,13 @@ What about the models, though? That's a simple answer:
 .. code-block:: python
 
     import discord
-    from interactions.api.models.member import Member
+    import interactions
 
     @dpy.command()
-    async def borrowing(ctx, member: Member):
+    async def borrowing(ctx, member: interactions.Member):
         await ctx.send(f"Member ID: {member.id}")
 
-    @interactions.command(...)
+    @client.command(...)
     async def second_borrowing(ctx, member: discord.Member):
         await ctx.send(f"Member ID: {member.id}")
 
@@ -138,6 +138,26 @@ however, you'll have to program them in the ``on_message_create`` listener event
 of discord.py bot developers frown upon doing, so this is at your own risk to code your own command handlers into it. Luckily, you
 can take a page out of discord.js' book if you want to do this, since they've never heard of an external command handler framework
 before in their entire life.
+
+
+I'm getting "``AttributeError: HTTPClient not found!``" when I try to execute helper methods!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Probably you are doing something like this:
+
+.. code-block:: python
+
+    channel = interactions.Channel(**await bot.http.get_channel(channel_id))
+    await channel.send("...")
+
+And the error occurs in the line where you try to send something. You can fix this easy by adding one argument:
+
+.. code-block:: python
+
+    channel = interactions.Channel(**await bot.http.get_channel(channel_id), _client=bot.http)
+    await channel.send("...")
+
+You have to add this extra argument for every object you instantiate by yourself if you want to use it's methods
+
 
 My question is not answered on here!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
