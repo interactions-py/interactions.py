@@ -1,7 +1,8 @@
-from asyncio import AbstractEventLoop, Event, Lock, get_event_loop, sleep
+from asyncio import AbstractEventLoop, get_event_loop
 from json import dumps
 from logging import Logger, getLogger
 from sys import version_info
+from threading import Event
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote
 
@@ -32,8 +33,8 @@ from ..base import __version__
 
 log: Logger = getLogger("http")
 
-__all__ = ("Route", "Padlock", "Request", "HTTPClient")
-session: ClientSession = ClientSession()
+__all__ = ("Route", "Request", "HTTPClient")
+_session: ClientSession = ClientSession()
 
 
 class Route:
@@ -80,38 +81,6 @@ class Route:
         return f"{self.channel_id}:{self.guild_id}:{self.path}"
 
 
-class Padlock:
-    """
-    A class representing ratelimited sessions as a "locked" event.
-
-    :ivar Lock lock: The lock coroutine event.
-    :ivar bool keep_open: Whether the lock should stay open or not.
-    """
-
-    __slots__ = ("lock", "keep_open")
-    lock: Lock
-    keep_open: bool
-
-    def __init__(self, lock: Lock) -> None:
-        """
-        :param lock: The lock coroutine event.
-        :type lock: Lock
-        """
-        self.lock = lock
-        self.keep_open = True
-
-    def click(self) -> None:
-        """Re-closes the lock after the instantiation and invocation ends."""
-        self.keep_open = False
-
-    def __enter__(self) -> Any:
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        if self.keep_open:
-            self.lock.release()
-
-
 class Request:
     """
     A class representing how HTTP requests are sent/read.
@@ -124,13 +93,22 @@ class Request:
     :ivar Event lock: The ratelimit lock event.
     """
 
-    __slots__ = ("token", "loop", "ratelimits", "headers", "session", "lock")
+    __slots__ = (
+        "token",
+        "_loop",
+        "ratelimits",
+        "_headers",
+        "_session",
+        "_global_lock",
+        "_global_remaining",
+    )
     token: str
-    loop: AbstractEventLoop
+    _loop: AbstractEventLoop
     ratelimits: dict
-    headers: dict
-    session: ClientSession
-    lock: Event
+    _headers: dict
+    _session: ClientSession
+    _global_lock: Event
+    _global_remaining: float
 
     def __init__(self, token: str) -> None:
         """
@@ -138,23 +116,29 @@ class Request:
         :type token: str
         """
         self.token = token
-        self.loop = get_event_loop()
-        self.session = session
+        self._loop = get_event_loop()
         self.ratelimits = {}
-        self.headers = {
+        self._headers = {
             "Authorization": f"Bot {self.token}",
-            "User-Agent": f"DiscordBot (https://github.com/goverfl0w/discord-interactions {__version__} "
+            "User-Agent": f"DiscordBot (https://github.com/goverfl0w/interactions.py {__version__} "
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
-        self.lock = Event() if version_info >= (3, 10) else Event(loop=self.loop)
+        self._session = _session
+        self._global_lock = Event()
+        self._global_remaining = 0
 
-        self.lock.set()
-
-    def check_session(self) -> None:
+    def _check_session(self) -> None:
         """Ensures that we have a valid connection session."""
-        if self.session.closed:
-            self.session = ClientSession()
+        if self._session.closed:
+            self._session = ClientSession()
+
+    async def _check_lock(self) -> None:
+        """Checks the global lock for its current state."""
+        if self._global_lock.is_set():
+            log.warning("The HTTP client is still globally locked, waiting for it to clear.")
+            self._global_lock.wait(self._global_remaining)
+            self._global_lock.clear()
 
     async def request(self, route: Route, **kwargs) -> Optional[Any]:
         r"""
@@ -167,79 +151,63 @@ class Request:
         :return: The contents of the request if any.
         :rtype: Optional[Any]
         """
-        self.check_session()
+        self._check_session()
+        await self._check_lock()
+        bucket: str = route.bucket
+        ratelimit: Event = self.ratelimits.get(bucket)
 
-        bucket: Optional[str] = route.bucket
+        if ratelimit is None:
+            self.ratelimits[bucket] = {"lock": Event(), "remaining": 0}
+        else:
+            if ratelimit.is_set():
+                log.warning("The requested HTTP endpoint is still locked, waiting for it to clear.")
+                ratelimit["lock"].wait(ratelimit["reset_after"])
+                ratelimit["lock"].clear()
 
-        for _ in range(3):
-            ratelimit: Lock = self.ratelimits.get(bucket)
+        kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
+        kwargs["headers"]["Content-Type"] = "application/json"
 
-            if not self.lock.is_set():
-                log.warning("The request is still locked, waiting for it to clear.")
-                await self.lock.wait()
+        reason = kwargs.pop("reason", None)
+        if reason:
+            kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
 
-            if ratelimit is None:
-                self.ratelimits[bucket] = Lock()
-                continue
+        async with self._session.request(
+            route.method, route.__api__ + route.path, **kwargs
+        ) as response:
+            data = await response.json(content_type=None)
+            reset_after: str = response.headers.get("X-Ratelimit-Reset-After")
+            remaining: str = response.headers.get("X-Ratelimit-Remaining")
+            bucket: str = response.headers.get("X-Ratelimit-Bucket")
+            is_global: bool = (
+                True
+                if response.headers.get("X-Ratelimit-Global") or bool(data.get("global"))
+                else False
+            )
 
-            await ratelimit.acquire()
+            log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
+            log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
 
-            with Padlock(ratelimit) as lock:  # noqa: F841
-                kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
-                kwargs["headers"]["Content-Type"] = "application/json"
+            if data.get("errors"):
+                raise HTTPException(data["code"], message=data["message"])
+            elif remaining and not int(remaining):
+                if response.status != 429:
+                    if bucket:
+                        log.warning(
+                            f"The requested HTTP endpoint is currently ratelimited. Waiting for {reset_after} seconds."
+                        )
+                        self.ratelimits[bucket].wait(float(reset_after))
+                    else:
+                        log.warning(
+                            f"The HTTP client has reached the maximum amount of requests. Cooling down for {reset_after} seconds."
+                        )
+                        self._global_lock.wait(float(reset_after))
+                elif is_global:
+                    log.warning(
+                        f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
+                    )
+                    self._global_lock.wait(float(reset_after))
 
-                reason = kwargs.pop("reason", None)
-                if reason:
-                    kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
-
-                async with self.session.request(
-                    route.method, route.__api__ + route.path, **kwargs
-                ) as response:
-                    log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
-                    data = await response.json(content_type=None)
-                    log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
-
-                    if "X-Ratelimit-Remaining" in response.headers.keys():
-                        remaining = response.headers["X-Ratelimit-Remaining"]
-
-                        if not int(remaining) and response.status != 429:
-                            time_left = response.headers["X-Ratelimit-Reset-After"]
-                            self.lock.clear()
-                            log.warning(
-                                f"The HTTP request has reached the maximum threshold. Cooling down for {time_left} seconds."
-                            )
-                            await sleep(float(time_left))
-                            self.lock.set()
-                    if response.status in (300, 401, 403, 404):
-                        raise HTTPException(response.status)
-                    if isinstance(data, dict):
-                        if data.get("code"):
-                            raise HTTPException(data["code"])
-                    elif response.status == 429:
-                        retry_after = data["retry_after"]
-
-                        if "X-Ratelimit-Global" in response.headers.keys():
-                            self.lock.clear()
-                            log.warning(
-                                f"The HTTP request has encountered a global API ratelimit. Retrying in {retry_after} seconds."
-                            )
-                            await sleep(retry_after)
-                            self.lock.set()
-                        else:
-                            log.warning(
-                                f"A local ratelimit with the bucket has been encountered. Retrying in {retry_after} seconds."
-                            )
-                            await sleep(retry_after)
-                        continue
-                    return data
-
-        if response is not None:
-            if response.status >= 500:
-                raise HTTPException(
-                    response.status, message="The server had an error processing your request."
-                )
-
-            raise HTTPException(response.status)  # Unknown, unparsed
+            return data
 
     async def close(self) -> None:
         """Closes the current session."""
@@ -248,12 +216,15 @@ class Request:
 
 class HTTPClient:
     """
-    A WIP class that represents the http Client that handles all major endpoints to Discord API.
+    The user-facing client of the Web API for individual endpoints.
+
+    :ivar str token: The token of the application.
+    :ivar Request _req: The requesting interface for endpoints.
+    :ivar Cache cache: The referenced cache.
     """
 
     token: str
-    headers: dict
-    _req: Optional[Request]
+    _req: Request
     cache: Cache
 
     def __init__(self, token: str):
@@ -1942,7 +1913,7 @@ class HTTPClient:
         application_id, command_id = int(application_id), int(command_id)
         r = (
             Route(
-                "POST",
+                "PATCH",
                 "/applications/{application_id}/commands/{command_id}",
                 application_id=application_id,
                 command_id=command_id,
@@ -1950,7 +1921,7 @@ class HTTPClient:
             if guild_id in (None, "None")
             else Route(
                 "PATCH",
-                "/applications/{application_id}/guilds/" "{guild_id}/commands/{command_id}",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
                 application_id=application_id,
                 command_id=command_id,
                 guild_id=guild_id,

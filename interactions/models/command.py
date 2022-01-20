@@ -114,7 +114,7 @@ class Option(DictSerializerMixin):
                 self._json["options"] = [
                     option if isinstance(option, dict) else option._json for option in self.options
                 ]
-        if self._json.get("choices"):
+        if all(isinstance(choice, dict) for choice in self.choices):
             if isinstance(self._json.get("choices"), dict):
                 self._json["choices"] = list(self.choices)
             else:

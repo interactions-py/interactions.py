@@ -1,7 +1,9 @@
 from asyncio import AbstractEventLoop
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from types import ModuleType
+from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
 
-from interactions.api.models.gw import Presence
+from .api.models.gw import Presence
+from .models.misc import MISSING
 
 from .api.cache import Cache
 from .api.gateway import WebSocket
@@ -17,54 +19,55 @@ _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
 class Client:
-    loop: AbstractEventLoop
-    intents: Optional[Union[Intents, List[Intents]]]
-    http: HTTPClient
-    websocket: WebSocket
+    _loop: AbstractEventLoop
+    _http: HTTPClient
+    _websocket: WebSocket
+    _intents: Intents
+    _shard: Optional[List[Tuple[int]]]
+    _presence: Optional[Presence]
+    _token: str
+    _automate_sync: bool
+    _extensions: Optional[Dict[str, ModuleType]]
     me: Optional[Application]
-    token: str
-    automate_sync: Optional[bool]
-    shard: Optional[List[int]]
-    presence: Optional[Presence]
-    extensions: Optional[Any]
     def __init__(
         self,
         token: str,
-        intents: Optional[Union[Intents, List[Intents]]] = Intents.DEFAULT,
-        disable_sync: Optional[bool] = None,
-        log_level: Optional[int] = None,
-        shard: Optional[List[int]] = None,
-        presence: Optional[Presence] = None,
+        **kwargs,
     ) -> None: ...
-    async def login(self, token: str) -> None: ...
     def start(self) -> None: ...
-    async def ready(self) -> None: ...
-    async def compare_sync(self, payload: dict, result: dict) -> bool: ...
-    async def synchronize(self, payload: Optional[ApplicationCommand] = None) -> None: ...
+    def __register_events(self) -> None: ...
+    async def __compare_sync(self, data: dict) -> None: ...
+    async def __create_sync(self, data: dict) -> None: ...
+    async def __bulk_update_sync(
+        self, data: List[dict], delete: Optional[bool] = False
+    ) -> None: ...
+    async def _synchronize(self, payload: Optional[dict] = None) -> None: ...
+    async def _ready(self) -> None: ...
+    async def _login(self) -> None: ...
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]: ...
     def command(
         self,
         *,
         type: Optional[Union[str, int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        options: Optional[List[Option]] = None,
-        default_permission: Optional[bool] = None,
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        options: Optional[List[Option]] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
         *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
+        name: str,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
         *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
+        name: str,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(self, name: str, command: Union[ApplicationCommand, int, str]) -> Callable[..., Any]: ...
