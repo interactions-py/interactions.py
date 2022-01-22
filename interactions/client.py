@@ -278,12 +278,12 @@ class Client:
 
         :param coro: The coroutine of the event.
         :type coro: Coroutine
-        :param name(?): The name of the event.
+        :param name(?): The name of the event. If not given, this defaults to the coroutine's name.
         :type name: Optional[str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self._websocket.dispatch.register(coro, name)
+        self._websocket.dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
 
     def command(
