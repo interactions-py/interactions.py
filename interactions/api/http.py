@@ -283,6 +283,7 @@ class HTTPClient:
     async def get_bot_gateway(self) -> Tuple[int, str]:
         """
         This calls the BOT Gateway endpoint.
+
         :return: A tuple denoting (shard, gateway_url), url from API v9 and JSON encoding
         """
 
@@ -327,15 +328,16 @@ class HTTPClient:
         """
         An alias to `get_user`, but only gets the current bot user.
 
-        :return A partial User object of the current bot user in the form of a dictionary.
+        :return: A partial User object of the current bot user in the form of a dictionary.
         """
         return await self.get_user()
 
     async def get_user(self, user_id: Optional[int] = None) -> dict:
         """
         Gets a user object for a given user ID.
+
         :param user_id: A user snowflake ID. If omitted, this defaults to the current bot user.
-        :return A partial User object in the form of a dictionary.
+        :return: A partial User object in the form of a dictionary.
         """
 
         if user_id is None:
@@ -349,6 +351,7 @@ class HTTPClient:
     async def modify_self(self, payload: dict) -> dict:
         """
         Modify the bot user account settings.
+
         :param payload: The data to send.
         """
         return await self._req.request(Route("PATCH", "/users/@me"), json=payload)
@@ -369,6 +372,7 @@ class HTTPClient:
     async def create_dm(self, recipient_id: int) -> dict:
         """
         Creates a new DM channel with a user.
+
         :param recipient_id: User snowflake ID.
         :return: Returns a dictionary representing a DM Channel object.
         """
@@ -443,6 +447,7 @@ class HTTPClient:
     async def get_message(self, channel_id: int, message_id: int) -> Optional[dict]:
         """
         Get a specific message in the channel.
+
         :param channel_id: the channel this message belongs to
         :param message_id: the id of the message
         :return: message if it exists.
@@ -455,7 +460,8 @@ class HTTPClient:
         self, channel_id: int, message_id: int, reason: Optional[str] = None
     ) -> None:
         """
-        Deletes a message from a specified channel
+        Deletes a message from a specified channel.
+
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param reason: Optional reason to show up in the audit log. Defaults to `None`.
@@ -472,7 +478,8 @@ class HTTPClient:
         self, channel_id: int, message_ids: List[int], reason: Optional[str] = None
     ) -> None:
         """
-        Deletes messages from a specified channel
+        Deletes messages from a specified channel.
+
         :param channel_id: Channel snowflake ID.
         :param message_ids: An array of message snowflake IDs.
         :param reason: Optional reason to show up in the audit log. Defaults to `None`.
@@ -505,21 +512,26 @@ class HTTPClient:
         )
 
     async def pin_message(self, channel_id: int, message_id: int) -> None:
-        """Pin a message to a channel.
+        """
+        Pin a message to a channel.
+
         :param channel_id: Channel ID snowflake.
         :param message_id: Message ID snowflake.
         """
         return await self._req.request(Route("PUT", f"/channels/{channel_id}/pins/{message_id}"))
 
     async def unpin_message(self, channel_id: int, message_id: int) -> None:
-        """Unpin a message to a channel
+        """
+        Unpin a message to a channel.
+
         :param channel_id: Channel ID snowflake.
         :param message_id: Message ID snowflake.
         """
         return await self._req.request(Route("DELETE", f"/channels/{channel_id}/pins/{message_id}"))
 
     async def publish_message(self, channel_id: int, message_id: int) -> dict:
-        """Publishes (API calls it crossposts) a message in a News channel to any that is followed by.
+        """
+        Publishes (API calls it crossposts) a message in a News channel to any that is followed by.
 
         :param channel_id: Channel the message is in
         :param message_id: The id of the message to publish
@@ -548,6 +560,7 @@ class HTTPClient:
     async def get_guild(self, guild_id: int):
         """
         Requests an individual guild from the API.
+
         :param guild_id: The guild snowflake ID associated.
         :return: The guild object associated, if any.
         """
@@ -559,6 +572,7 @@ class HTTPClient:
     async def get_guild_preview(self, guild_id: int) -> GuildPreview:
         """
         Get a guild's preview.
+
         :param guild_id: Guild ID snowflake.
         :return: Guild Preview object associated with the snowflake
         """
@@ -603,6 +617,7 @@ class HTTPClient:
     async def get_guild_widget(self, guild_id: int) -> dict:
         """
         Returns the widget for the guild.
+
         :param guild_id: Guild ID snowflake.
         :return: Guild Widget contents as a dict: {"enabled":bool, "channel_id": str}
         """
@@ -620,6 +635,7 @@ class HTTPClient:
     async def get_guild_widget_image(self, guild_id: int, style: Optional[str] = None) -> str:
         """
         Get an url representing a png image widget for the guild.
+
         ..note::
             See _<https://discord.com/developers/docs/resources/guild#get-guild-widget-image> for list of styles.
 
@@ -643,6 +659,7 @@ class HTTPClient:
     async def get_guild_invites(self, guild_id: int) -> List[Invite]:
         """
         Retrieves a list of invite objects with their own metadata.
+
         :param guild_id: Guild ID snowflake.
         :return: A list of invite objects
         """
@@ -650,7 +667,8 @@ class HTTPClient:
 
     async def get_guild_welcome_screen(self, guild_id: int) -> WelcomeScreen:
         """
-        Retrieves from the API a welcome screen associated with the guild
+        Retrieves from the API a welcome screen associated with the guild.
+
         :param guild_id: Guild ID snowflake.
         :return: Welcome Screen object
         """
@@ -695,6 +713,7 @@ class HTTPClient:
     async def get_guild_integrations(self, guild_id: int) -> List[dict]:
         """
         Gets a list of integration objects associated with the Guild from the API.
+
         :param guild_id: Guild ID snowflake.
         :return: An array of integration objects
         """
@@ -703,6 +722,7 @@ class HTTPClient:
     async def delete_guild_integration(self, guild_id: int, integration_id: int) -> None:
         """
         Deletes an integration from the guild.
+
         :param guild_id: Guild ID snowflake.
         :param integration_id: Integration ID snowflake.
         """
@@ -876,6 +896,7 @@ class HTTPClient:
     async def get_all_roles(self, guild_id: int) -> List[dict]:
         """
         Gets all roles from a Guild.
+
         :param guild_id: Guild ID snowflake
         :return: An array of Role objects as dictionaries.
         """
@@ -894,6 +915,7 @@ class HTTPClient:
     ) -> Role:
         """
         Create a new role for the guild.
+
         :param guild_id: Guild ID snowflake.
         :param data: A dict containing metadata for the role.
         :param reason: The reason for this action, if given.
@@ -912,6 +934,7 @@ class HTTPClient:
     ) -> List[Role]:
         """
         Modify the position of a role in the guild.
+
         :param guild_id: Guild ID snowflake.
         :param role_id: Role ID snowflake.
         :param position: The new position of the associated role.
@@ -929,6 +952,7 @@ class HTTPClient:
     ) -> Role:
         """
         Modify a given role for the guild.
+
         :param guild_id: Guild ID snowflake.
         :param role_id: Role ID snowflake.
         :param data: A dict containing updated metadata for the role.
@@ -942,6 +966,7 @@ class HTTPClient:
     async def delete_guild_role(self, guild_id: int, role_id: int, reason: str = None) -> None:
         """
         Delete a guild role.
+
         :param guild_id: Guild ID snowflake.
         :param role_id: Role ID snowflake.
         :param reason: The reason for this action, if any.
@@ -977,6 +1002,7 @@ class HTTPClient:
     ) -> None:
         """
         Bans a person from the guild, and optionally deletes previous messages sent by them.
+
         :param guild_id: Guild ID snowflake
         :param user_id: User ID snowflake
         :param delete_message_days: Number of days to delete messages, from 0 to 7. Defaults to 0
@@ -994,6 +1020,7 @@ class HTTPClient:
     ) -> None:
         """
         Unbans someone using the API.
+
         :param guild_id: Guild ID snowflake
         :param user_id: User ID snowflake
         :param reason: Optional reason to unban.
@@ -1008,6 +1035,7 @@ class HTTPClient:
     async def get_guild_bans(self, guild_id: int) -> List[dict]:
         """
         Gets a list of banned users.
+
         :param guild_id: Guild ID snowflake.
         :return: A list of banned users.
         """
@@ -1016,6 +1044,7 @@ class HTTPClient:
     async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]:
         """
         Gets an object pertaining to the user, if it exists. Returns a 404 if it doesn't.
+
         :param guild_id: Guild ID snowflake
         :param user_id: User ID snowflake.
         :return: Ban object if it exists.
@@ -1068,6 +1097,7 @@ class HTTPClient:
     ) -> None:
         """
         A low level method of removing a member from a guild. This is different from banning them.
+
         :param guild_id: Guild ID snowflake.
         :param user_id: User ID snowflake.
         :param reason: Reason to send to audit log, if any.
@@ -1081,6 +1111,7 @@ class HTTPClient:
     ) -> dict:
         """
         Retrieves a dict from an API that results in how many members would be pruned given the amount of days.
+
         :param guild_id: Guild ID snowflake.
         :param days:  Number of days to count. Defaults to ``7``.
         :param include_roles: Role IDs to include, if given.
@@ -1099,6 +1130,7 @@ class HTTPClient:
     async def get_member(self, guild_id: int, member_id: int) -> Optional[Member]:
         """
         Uses the API to fetch a member from a guild.
+
         :param guild_id: Guild ID snowflake.
         :param member_id: Member ID snowflake.
         :return: A member object, if any.
@@ -1192,7 +1224,7 @@ class HTTPClient:
     ):
         """
         Edits a member.
-        This can nick them, change their roles, mute/deafen (and its contrary), and moving them across channels and/or disconnect them
+        This can nick them, change their roles, mute/deafen (and its contrary), and moving them across channels and/or disconnect them.
 
         :param user_id: Member ID snowflake.
         :param guild_id: Guild ID snowflake.
@@ -1213,7 +1245,8 @@ class HTTPClient:
 
     async def get_channel(self, channel_id: int) -> dict:
         """
-        Gets a channel by ID. If the channel is a thread, it also includes thread members (and other thread attributes)
+        Gets a channel by ID. If the channel is a thread, it also includes thread members (and other thread attributes).
+
         :param channel_id: Channel ID snowflake.
         :return: Dictionary of the channel object.
         """
@@ -1337,6 +1370,7 @@ class HTTPClient:
     ) -> Channel:
         """
         Update a channel's settings.
+
         :param channel_id: Channel ID snowflake.
         :param data: Data representing updated settings.
         :param reason: Reason, if any.
@@ -1349,6 +1383,7 @@ class HTTPClient:
     async def get_channel_invites(self, channel_id: int) -> List[Invite]:
         """
         Get the invites for the channel.
+
         :param channel_id: Channel ID snowflake.
         :return: List of invite objects
         """
@@ -1375,6 +1410,7 @@ class HTTPClient:
     async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
         """
         Delete an invite.
+
         :param invite_code: The code of the invite to delete
         :param reason: Reason to show in the audit log, if any.
         :return: The deleted invite object
@@ -1426,6 +1462,7 @@ class HTTPClient:
 
         ..note:
             By default, this lib doesn't use this endpoint, however, this is listed for third-party implementation.
+
         :param channel_id: Channel ID snowflake.
         """
         return await self._req.request(Route("POST", f"/channels/{channel_id}/typing"))
@@ -1433,6 +1470,7 @@ class HTTPClient:
     async def get_pinned_messages(self, channel_id: int) -> List[Message]:
         """
         Get all pinned messages from a channel.
+
         :param channel_id: Channel ID snowflake.
         :return: A list of pinned message objects.
         """
@@ -1511,6 +1549,7 @@ class HTTPClient:
     async def join_thread(self, thread_id: int) -> None:
         """
         Have the bot user join a thread.
+
         :param thread_id: The thread to join.
         """
         return await self._req.request(Route("PUT", f"/channels/{thread_id}/thread-members/@me"))
@@ -1518,6 +1557,7 @@ class HTTPClient:
     async def leave_thread(self, thread_id: int) -> None:
         """
         Have the bot user leave a thread.
+
         :param thread_id: The thread to leave.
         """
         return await self._req.request(Route("DELETE", f"/channels/{thread_id}/thread-members/@me"))
@@ -1525,6 +1565,7 @@ class HTTPClient:
     async def add_member_to_thread(self, thread_id: int, user_id: int) -> None:
         """
         Add another user to a thread.
+
         :param thread_id: The ID of the thread
         :param user_id: The ID of the user to add
         """
@@ -1535,6 +1576,7 @@ class HTTPClient:
     async def remove_member_from_thread(self, thread_id: int, user_id: int) -> None:
         """
         Remove another user from a thread.
+
         :param thread_id: The ID of the thread
         :param user_id: The ID of the user to remove
         """
@@ -1558,6 +1600,7 @@ class HTTPClient:
     async def list_thread_members(self, thread_id: int) -> List[dict]:
         """
         Get a list of members in the thread.
+
         :param thread_id: the id of the thread
         :return: a list of thread member objects
         """
@@ -1588,6 +1631,7 @@ class HTTPClient:
     ) -> List[dict]:
         """
         Get a list of archived private threads in a channel.
+
         :param channel_id: The channel to get threads from
         :param limit: Optional limit of threads to
         :param before: Get threads before this Thread snowflake ID
@@ -1607,6 +1651,7 @@ class HTTPClient:
     ) -> List[dict]:
         """
         Get a list of archived private threads in a channel that the bot has joined.
+
         :param channel_id: The channel to get threads from
         :param limit: Optional limit of threads to
         :param before: Get threads before this snowflake ID
@@ -1624,6 +1669,7 @@ class HTTPClient:
     async def list_active_threads(self, guild_id: int) -> List[dict]:
         """
         List active threads within a guild.
+
         :param guild_id: the guild id to get threads from
         :return: A list of active threads
         """
@@ -1680,6 +1726,7 @@ class HTTPClient:
     async def create_reaction(self, channel_id: int, message_id: int, emoji: str) -> None:
         """
         Create a reaction for a message.
+
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to use (format: `name:id`)
@@ -1697,6 +1744,7 @@ class HTTPClient:
     async def remove_self_reaction(self, channel_id: int, message_id: int, emoji: str) -> None:
         """
         Remove bot user's reaction from a message.
+
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to remove (format: `name:id`)
@@ -1715,7 +1763,7 @@ class HTTPClient:
         self, channel_id: int, message_id: int, emoji: str, user_id: int
     ) -> None:
         """
-        Remove user's reaction from a message
+        Remove user's reaction from a message.
 
         :param channel_id: The channel this is taking place in
         :param message_id: The message to remove the reaction on.
@@ -1754,6 +1802,7 @@ class HTTPClient:
     ) -> None:
         """
         Remove all reactions of a certain emoji from a message.
+
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to remove (format: `name:id`)
@@ -1773,6 +1822,7 @@ class HTTPClient:
     ) -> List[User]:
         """
         Gets the users who reacted to the emoji.
+
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to get (format: `name:id`)
@@ -1793,6 +1843,7 @@ class HTTPClient:
     async def get_sticker(self, sticker_id: int) -> dict:
         """
         Get a specific sticker.
+
         :param sticker_id: The id of the sticker
         :return: Sticker or None
         """
@@ -1801,6 +1852,7 @@ class HTTPClient:
     async def list_nitro_sticker_packs(self) -> list:
         """
         Gets the list of sticker packs available to Nitro subscribers.
+
         :return: List of sticker packs
         """
         return await self._req.request(Route("GET", "/sticker-packs"))
@@ -1808,6 +1860,7 @@ class HTTPClient:
     async def list_guild_stickers(self, guild_id: int) -> List[dict]:
         """
         Get the stickers for a guild.
+
         :param guild_id: The guild to get stickers from
         :return: List of Stickers or None
         """
@@ -1816,6 +1869,7 @@ class HTTPClient:
     async def get_guild_sticker(self, guild_id: int, sticker_id: int) -> dict:
         """
         Get a sticker from a guild.
+
         :param guild_id: The guild to get stickers from
         :param sticker_id: The sticker to get from the guild
         :return: Sticker or None
@@ -1827,6 +1881,7 @@ class HTTPClient:
     ):
         """
         Create a new sticker for the guild. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
+
         :param payload: the payload to send.
         :param guild_id: The guild to create sticker at.
         :param reason: The reason for this action.
@@ -1841,6 +1896,7 @@ class HTTPClient:
     ):
         """
         Modify the given sticker. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
+
         :param payload: the payload to send.
         :param guild_id: The guild of the target sticker.
         :param sticker_id:  The sticker to modify.
@@ -1856,6 +1912,7 @@ class HTTPClient:
     ) -> None:
         """
         Delete the given sticker. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
+
         :param guild_id: The guild of the target sticker.
         :param sticker_id:  The sticker to delete.
         :param reason: The reason for this action.
@@ -1873,7 +1930,8 @@ class HTTPClient:
         self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
     ) -> List[dict]:
         """
-        Get all application commands from an application
+        Get all application commands from an application.
+
         :param application_id: Application ID snowflake
         :param guild_id: Guild to get commands from, if specified. Defaults to global (None)
         :return: A list of Application commands.
@@ -2001,7 +2059,7 @@ class HTTPClient:
         self, application_id: int, guild_id: int, command_id: int, data: List[dict]
     ) -> dict:
         """
-        Edits permissions for an application command
+        Edits permissions for an application command.
 
         :param application_id: Application ID snowflake
         :param guild_id: Guild ID snowflake
@@ -2087,6 +2145,7 @@ class HTTPClient:
     ) -> dict:
         """
         Gets an existing interaction message.
+
         :param token: token
         :param application_id: Application ID snowflake.
         :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
@@ -2102,6 +2161,7 @@ class HTTPClient:
     ) -> dict:
         """
         Edits an existing interaction message, but token needs to be manually called.
+
         :param data: A dictionary containing the new response.
         :param token: the token of the interaction
         :param application_id: Application ID snowflake.
@@ -2119,6 +2179,7 @@ class HTTPClient:
     ) -> None:
         """
         Deletes an existing interaction message.
+
         :param token: the token of the interaction
         :param application_id: Application ID snowflake.
         :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
@@ -2134,6 +2195,7 @@ class HTTPClient:
     async def _post_followup(self, data: dict, token: str, application_id: str) -> None:
         """
         Send a followup to an interaction.
+
         :param data: the payload to send
         :param application_id: the id of the application
         :param token: the token of the interaction
@@ -2150,6 +2212,7 @@ class HTTPClient:
     async def create_webhook(self, channel_id: int, name: str, avatar: Any = None) -> dict:
         """
         Create a new webhook.
+
         :param channel_id: Channel ID snowflake.
         :param name: Name of the webhook (1-80 characters)
         :param avatar: The image for the default webhook avatar, if given.
@@ -2163,6 +2226,7 @@ class HTTPClient:
     async def get_channel_webhooks(self, channel_id: int) -> List[dict]:
         """
         Return a list of channel webhook objects.
+
         :param channel_id: Channel ID snowflake.
         :return:List of webhook objects
         """
@@ -2171,6 +2235,7 @@ class HTTPClient:
     async def get_guild_webhooks(self, guild_id: int) -> List[dict]:
         """
         Return a list of guild webhook objects.
+
         :param guild_id: Guild ID snowflake
 
         :return: List of webhook objects
@@ -2180,6 +2245,7 @@ class HTTPClient:
     async def get_webhook(self, webhook_id: int, webhook_token: str = None) -> dict:
         """
         Return the new webhook object for the given id.
+
         :param webhook_id: Webhook ID snowflake.
         :param webhook_token: Webhook Token, if given.
 
@@ -2199,6 +2265,7 @@ class HTTPClient:
     ) -> dict:
         """
         Modify a webhook.
+
         :param webhook_id: Webhook ID snowflake
         :param name: the default name of the webhook
         :param avatar: image for the default webhook avatar
@@ -2216,7 +2283,8 @@ class HTTPClient:
 
     async def delete_webhook(self, webhook_id: int, webhook_token: str = None):
         """
-        Delete a webhook
+        Delete a webhook.
+
         :param webhook_id: Webhook ID snowflake.
         :param webhook_token: The token for the webhook, if given.
         """
@@ -2365,6 +2433,7 @@ class HTTPClient:
     async def get_guild_emoji(self, guild_id: int, emoji_id: int) -> Emoji:
         """
         Gets an emote from a guild.
+
         :param guild_id: Guild ID snowflake.
         :param emoji_id: Emoji ID snowflake.
         :return: Emoji object
@@ -2376,6 +2445,7 @@ class HTTPClient:
     ) -> Emoji:
         """
         Creates an emoji.
+
         :param guild_id: Guild ID snowflake.
         :param data: Emoji parameters.
         :param reason: Optionally, give a reason.
@@ -2390,6 +2460,7 @@ class HTTPClient:
     ) -> Emoji:
         """
         Modifies an emoji.
+
         :param guild_id: Guild ID snowflake.
         :param emoji_id: Emoji ID snowflake
         :param data: Emoji parameters with updated attributes
@@ -2405,6 +2476,7 @@ class HTTPClient:
     ) -> None:
         """
         Deletes an emoji.
+
         :param guild_id: Guild ID snowflake.
         :param emoji_id: Emoji ID snowflake
         :param reason: Optionally, give a reason.
@@ -2418,6 +2490,7 @@ class HTTPClient:
     async def create_scheduled_event(self, guild_id: Snowflake, data: dict) -> dict:
         """
         Creates a scheduled event.
+
         :param guild_id: Guild ID snowflake.
         :param data: The dictionary containing the parameters and values to edit the associated event.
         :return A dictionary containing the new guild scheduled event object on success.
@@ -2445,6 +2518,7 @@ class HTTPClient:
     ) -> dict:
         """
         Gets a guild scheduled event.
+
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
         :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
@@ -2468,6 +2542,7 @@ class HTTPClient:
     async def get_scheduled_events(self, guild_id: Snowflake, with_user_count: bool) -> List[dict]:
         """
         Gets all guild scheduled events in a guild.
+
         :param guild_id: Guild ID snowflake.
         :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
         :return A List of a dictionary containing the guild scheduled event objects on success.
@@ -2486,6 +2561,7 @@ class HTTPClient:
     ) -> dict:
         """
         Modifies a scheduled event.
+
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
         :param data: The dictionary containing the parameters and values to edit the associated event.
@@ -2518,6 +2594,7 @@ class HTTPClient:
     ) -> None:
         """
         Deletes a guild scheduled event.
+
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
         :return Nothing on success.
@@ -2544,6 +2621,7 @@ class HTTPClient:
     ) -> dict:
         """
         Get the registered users of a scheduled event.
+
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event snowflake.
         :param limit: Limit of how many users to pull from the event. Defaults to 100.

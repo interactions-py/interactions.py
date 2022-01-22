@@ -282,7 +282,8 @@ class Message(DictSerializerMixin):
 
     async def get_channel(self) -> Channel:
         """
-        Gets the channel where the message was sent
+        Gets the channel where the message was sent.
+
         :rtype: Channel
         """
         if not self._client:
@@ -292,7 +293,8 @@ class Message(DictSerializerMixin):
 
     async def get_guild(self):
         """
-        Gets the guild where the message was sent
+        Gets the guild where the message was sent.
+
         :rtype: Guild
         """
         if not self._client:
@@ -305,6 +307,7 @@ class Message(DictSerializerMixin):
     async def delete(self, reason: Optional[str] = None) -> None:
         """
         Deletes the message.
+
         :param reason: Optional reason to show up in the audit log. Defaults to `None`.
         :type reason: Optional[str]
         """
