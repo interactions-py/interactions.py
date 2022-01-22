@@ -103,7 +103,6 @@ class Client:
         self._websocket.dispatch.register(self.__raw_socket_create)
         self._websocket.dispatch.register(self.__raw_channel_create, "on_channel_create")
         self._websocket.dispatch.register(self.__raw_message_create, "on_message_create")
-        self._websocket.dispatch.register(self.__raw_message_create, "on_message_update")
         self._websocket.dispatch.register(self.__raw_guild_create, "on_guild_create")
 
     async def __compare_sync(self, data: dict, pool: List[dict]) -> bool:

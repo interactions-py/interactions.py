@@ -1,8 +1,7 @@
-from asyncio import AbstractEventLoop, get_event_loop
+from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop
 from json import dumps
 from logging import Logger, getLogger
 from sys import version_info
-from threading import Event
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote
 
@@ -10,6 +9,7 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 import interactions.api.cache
+from interactions.models.misc import MISSING
 
 from ..api.cache import Cache, Item
 from ..api.error import HTTPException
@@ -81,16 +81,48 @@ class Route:
         return f"{self.channel_id}:{self.guild_id}:{self.path}"
 
 
+class Limiter:
+    """
+    A class representing a limitation for an HTTP request.
+
+    :ivar Lock lock: The "lock" or controller of the request.
+    :ivar List[str] hashes: The known hashes of the request.
+    :ivar float reset_after: The remaining time before the request can be ran.
+    """
+
+    lock: Lock
+    hashes: List[str]
+    reset_after: float
+
+    def __init__(self, *, lock: Lock, reset_after: Optional[float] = MISSING) -> None:
+        """
+        :param lock: The asynchronous lock to control limits for.
+        :type lock: Lock
+        :param reset_after: The remaining time to run the limited lock on. Defaults to ``0``.
+        :type reset_after: Optional[float]
+        """
+        self.lock = lock
+        self.reset_after = 0 if reset_after is MISSING else reset_after
+        self.hashes = []
+
+    async def __aenter__(self) -> "Limiter":
+        await self.lock.acquire()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        return self.lock.release()
+
+
 class Request:
     """
     A class representing how HTTP requests are sent/read.
 
     :ivar str token: The current application token.
-    :ivar AbstractEventLoop loop: The current coroutine event loop.
-    :ivar dict ratelimits: The current ratelimits from the Discord API.
-    :ivar dict headers: The current headers for an HTTP request.
-    :ivar ClientSession session: The current session for making requests.
-    :ivar Event lock: The ratelimit lock event.
+    :ivar AbstractEventLoop _loop: The current coroutine event loop.
+    :ivar Dict[Route, Limiter] ratelimits: The current per-route rate limiters from the API.
+    :ivar dict _headers: The current headers for an HTTP request.
+    :ivar ClientSession _session: The current session for making requests.
+    :ivar Limiter _global_lock: The global rate limiter.
     """
 
     __slots__ = (
@@ -100,15 +132,13 @@ class Request:
         "_headers",
         "_session",
         "_global_lock",
-        "_global_remaining",
     )
     token: str
     _loop: AbstractEventLoop
-    ratelimits: dict
+    ratelimits: Dict[Route, Limiter]
     _headers: dict
     _session: ClientSession
-    _global_lock: Event
-    _global_remaining: float
+    _global_lock: Limiter
 
     def __init__(self, token: str) -> None:
         """
@@ -116,7 +146,7 @@ class Request:
         :type token: str
         """
         self.token = token
-        self._loop = get_event_loop()
+        self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
         self.ratelimits = {}
         self._headers = {
             "Authorization": f"Bot {self.token}",
@@ -125,8 +155,7 @@ class Request:
             f"aiohttp/{http_version}",
         }
         self._session = _session
-        self._global_lock = Event()
-        self._global_remaining = 0
+        self._global_lock = Limiter(lock=Lock(loop=self._loop))
 
     def _check_session(self) -> None:
         """Ensures that we have a valid connection session."""
@@ -135,10 +164,10 @@ class Request:
 
     async def _check_lock(self) -> None:
         """Checks the global lock for its current state."""
-        if self._global_lock.is_set():
+        if self._global_lock.lock.locked():
             log.warning("The HTTP client is still globally locked, waiting for it to clear.")
-            self._global_lock.wait(self._global_remaining)
-            self._global_lock.clear()
+            await self._global_lock.lock.acquire()
+            self._global_lock.reset_after = 0
 
     async def request(self, route: Route, **kwargs) -> Optional[Any]:
         r"""
@@ -153,61 +182,69 @@ class Request:
         """
         self._check_session()
         await self._check_lock()
-        bucket: str = route.bucket
-        ratelimit: Event = self.ratelimits.get(bucket)
 
-        if ratelimit is None:
-            self.ratelimits[bucket] = {"lock": Event(), "remaining": 0}
+        # This is the per-route check. We check BEFORE the request is made
+        # to see if there's a rate limit for it. If there is, we'll call this
+        # later in the event loop and reset the remaining time. Otherwise,
+        # we'll set a "limiter" for it respective to that bucket. The hashes will
+        # be checked later.
+        if self.ratelimits.get(route):
+            bucket: Limiter = self.ratelimits.get(route)
+            if bucket.lock.locked():
+                log.warning(
+                    f"The current bucket is still under a rate limit. Calling later in {bucket.reset_after} seconds."
+                )
+                self._loop.call_later(bucket.reset_after, bucket.lock)
+            await bucket.lock.acquire()
+            bucket.reset_after = 0
         else:
-            if ratelimit.is_set():
-                log.warning("The requested HTTP endpoint is still locked, waiting for it to clear.")
-                ratelimit["lock"].wait(ratelimit["reset_after"])
-                ratelimit["lock"].clear()
+            self.ratelimits.update({route: Limiter(lock=Lock(loop=self._loop))})
 
-        kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
-        kwargs["headers"]["Content-Type"] = "application/json"
+        # We're controlling our HTTP request with the route as its own
+        # separate lock here. This way, we can control the request of the
+        # route as an asynchronous method. This way, if the event loop is to call on this later,
+        # this will temporarily block but still allow to process the original request
+        # we wanted to make.
+        async with self.ratelimits.get(route) as _lock:
+            kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
+            kwargs["headers"]["Content-Type"] = "application/json"
 
-        reason = kwargs.pop("reason", None)
-        if reason:
-            kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
+            reason = kwargs.pop("reason", None)
+            if reason:
+                kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
 
-        async with self._session.request(
-            route.method, route.__api__ + route.path, **kwargs
-        ) as response:
-            data = await response.json(content_type=None)
-            reset_after: str = response.headers.get("X-Ratelimit-Reset-After")
-            remaining: str = response.headers.get("X-Ratelimit-Remaining")
-            bucket: str = response.headers.get("X-Ratelimit-Bucket")
-            is_global: bool = (
-                True
-                if response.headers.get("X-Ratelimit-Global") or bool(data.get("global"))
-                else False
-            )
+            async with self._session.request(
+                route.method, route.__api__ + route.path, **kwargs
+            ) as response:
+                data = await response.json(content_type=None)
+                reset_after: str = response.headers.get("X-RateLimit-Reset-After")
+                remaining: str = response.headers.get("X-RateLimit-Remaining")
+                bucket: str = response.headers.get("X-RateLimit-Bucket")
+                is_global: bool = response.headers.get("X-RateLimit-Global", False)
 
-            log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
-            log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+                log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
+                log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
 
-            if data.get("errors"):
-                raise HTTPException(data["code"], message=data["message"])
-            elif remaining and not int(remaining):
-                if response.status != 429:
-                    if bucket:
+                if bucket not in _lock.hashes:
+                    _lock.hashes.append(bucket)
+
+                if isinstance(data, dict) and data.get("errors"):
+                    raise HTTPException(data["code"], message=data["message"])
+                elif remaining and not int(remaining):
+                    if response.status == 429:
                         log.warning(
-                            f"The requested HTTP endpoint is currently ratelimited. Waiting for {reset_after} seconds."
+                            f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
                         )
-                        self.ratelimits[bucket].wait(float(reset_after))
-                    else:
+                        _lock.reset_after = reset_after
+                        self._loop.call_later(_lock.reset_after, _lock.lock)
+                    elif is_global:
                         log.warning(
-                            f"The HTTP client has reached the maximum amount of requests. Cooling down for {reset_after} seconds."
+                            f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
                         )
-                        self._global_lock.wait(float(reset_after))
-                elif is_global:
-                    log.warning(
-                        f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
-                    )
-                    self._global_lock.wait(float(reset_after))
+                        self._global_lock.reset_after = reset_after
+                        self._loop.call_later(self._global_lock.reset_after, self._globl_lock.lock)
 
-            return data
+                return data
 
     async def close(self) -> None:
         """Closes the current session."""
