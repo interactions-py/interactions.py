@@ -103,7 +103,6 @@ class Client:
         self._websocket.dispatch.register(self.__raw_socket_create)
         self._websocket.dispatch.register(self.__raw_channel_create, "on_channel_create")
         self._websocket.dispatch.register(self.__raw_message_create, "on_message_create")
-        self._websocket.dispatch.register(self.__raw_message_create, "on_message_update")
         self._websocket.dispatch.register(self.__raw_guild_create, "on_guild_create")
 
     async def __compare_sync(self, data: dict, pool: List[dict]) -> bool:
@@ -279,12 +278,12 @@ class Client:
 
         :param coro: The coroutine of the event.
         :type coro: Coroutine
-        :param name(?): The name of the event.
+        :param name(?): The name of the event. If not given, this defaults to the coroutine's name.
         :type name: Optional[str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self._websocket.dispatch.register(coro, name)
+        self._websocket.dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
 
     def command(

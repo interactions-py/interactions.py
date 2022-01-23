@@ -69,7 +69,8 @@ class Role(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Deletes the role from the guild
+        Deletes the role from the guild.
+
         :param guild_id: The id of the guild to delete the role from
         :type guild_id: int
         :param reason: The reason for the deletion
@@ -94,7 +95,8 @@ class Role(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> "Role":
         """
-        Edits the role in a guild
+        Edits the role in a guild.
+
         :param guild_id: The id of the guild to edit the role on
         :type guild_id: int
         :param name?: The name of the role, defaults to the current value of the role
@@ -134,7 +136,7 @@ class Role(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> List["Role"]:
         """
-        Modifies the position of a role in the guild
+        Modifies the position of a role in the guild.
 
         :param guild_id: The id of the guild to modify the role position on
         :type guild_id: int
