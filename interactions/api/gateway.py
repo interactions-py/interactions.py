@@ -27,6 +27,7 @@ __all__ = ("Heartbeat", "WebSocket")
 class Heartbeat(Thread):
     """
     A class representing a consistent heartbeat connection with the gateway.
+
     :ivar WebSocket ws: The WebSocket class to infer on.
     :ivar Union[int, float] interval: The heartbeat interval determined by the gateway.
     :ivar Event event: The multi-threading event.
@@ -73,6 +74,7 @@ class Heartbeat(Thread):
 class WebSocket:
     """
     A class representing a websocket connection with the gateway.
+
     :ivar Intents intents: An instance of :class:`interactions.api.models.Intents`.
     :ivar AbstractEventLoop loop: The coroutine event loop established on.
     :ivar Request req: An instance of :class:`interactions.api.http.Request`.
@@ -144,6 +146,7 @@ class WebSocket:
     ) -> None:
         """
         Establishes a connection to the gateway.
+
         :param token: The token to use for identifying.
         :type token: str
         :param shard?: The shard ID to identify under.
@@ -173,6 +176,7 @@ class WebSocket:
     ) -> None:
         """
         Handles the connection to the gateway.
+
         :param stream: The data stream from the gateway.
         :type stream: dict
         :param shard?: The shard ID to identify under.
@@ -231,6 +235,7 @@ class WebSocket:
     def handle_dispatch(self, event: str, data: dict) -> None:
         """
         Handles the dispatched event data from a gateway event.
+
         :param event: The name of the event.
         :type event: str
         :param data: The data of the event.
@@ -345,6 +350,7 @@ class WebSocket:
         """
         Takes raw data given back from the gateway
         and gives "context" based off of what it is.
+
         :param data: The data from the gateway.
         :type data: dict
         :return: The context object.
@@ -376,6 +382,7 @@ class WebSocket:
     ) -> None:
         """
         Sends an ``IDENTIFY`` packet to the gateway.
+
         :param shard?: The shard ID to identify under.
         :type shard: Optional[int]
         :param presence?: The presence to change the bot to on identify.
