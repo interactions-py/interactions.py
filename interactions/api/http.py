@@ -1,3 +1,5 @@
+import asyncio
+import traceback
 from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop
 from json import dumps
 from logging import Logger, getLogger
@@ -80,6 +82,19 @@ class Route:
         """
         return f"{self.channel_id}:{self.guild_id}:{self.path}"
 
+    @property
+    def hashbucket(self) -> str:
+        """
+        Returns the route's full bucket, reproducible for paeudo-hashing.
+        This contains both bucket properties, but also the METHOD attribute.
+        Note, that this does NOT contain the hash.
+
+        :return: The route bucket.
+        :rtype: str
+        """
+
+        return f"{self.method}::{self.bucket}"
+
 
 class Limiter:
     """
@@ -135,7 +150,7 @@ class Request:
     )
     token: str
     _loop: AbstractEventLoop
-    ratelimits: Dict[Route, Limiter]
+    ratelimits: Dict[str, Limiter]  # hashbucket: Limiter
     _headers: dict
     _session: ClientSession
     _global_lock: Limiter
@@ -180,71 +195,101 @@ class Request:
         :return: The contents of the request if any.
         :rtype: Optional[Any]
         """
-        self._check_session()
-        await self._check_lock()
 
-        # This is the per-route check. We check BEFORE the request is made
-        # to see if there's a rate limit for it. If there is, we'll call this
-        # later in the event loop and reset the remaining time. Otherwise,
-        # we'll set a "limiter" for it respective to that bucket. The hashes will
-        # be checked later.
-        if self.ratelimits.get(route):
-            bucket: Limiter = self.ratelimits.get(route)
+        kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
+        kwargs["headers"]["Content-Type"] = "application/json"
+
+        reason = kwargs.pop("reason", None)
+        if reason:
+            kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
+
+        # Huge credit and thanks to LordOfPolls for the lock/retry logic.
+
+        # This section generates the bucket through the hashbucket attr,
+        # which essentially contains path, method, and major params.
+
+        if self.ratelimits.get(route.hashbucket):
+            bucket: Limiter = self.ratelimits.get(route.hashbucket)
             if bucket.lock.locked():
                 log.warning(
                     f"The current bucket is still under a rate limit. Calling later in {bucket.reset_after} seconds."
                 )
-                self._loop.call_later(bucket.reset_after, bucket.lock)
-            await bucket.lock.acquire()
+                self._loop.call_later(bucket.reset_after, bucket.lock.release)
             bucket.reset_after = 0
         else:
-            self.ratelimits.update({route: Limiter(lock=Lock(loop=self._loop))})
+            self.ratelimits.update({route.hashbucket: Limiter(lock=Lock(loop=self._loop))})
+            bucket: Limiter = self.ratelimits.get(route.hashbucket)
 
-        # We're controlling our HTTP request with the route as its own
-        # separate lock here. This way, we can control the request of the
-        # route as an asynchronous method. This way, if the event loop is to call on this later,
-        # this will temporarily block but still allow to process the original request
-        # we wanted to make.
-        async with self.ratelimits.get(route) as _lock:
-            kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
-            kwargs["headers"]["Content-Type"] = "application/json"
+        await bucket.lock.acquire()
 
-            reason = kwargs.pop("reason", None)
-            if reason:
-                kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
+        # Implement retry logic. The common seems to be 5, so this is hardcoded, for the most part.
 
-            async with self._session.request(
-                route.method, route.__api__ + route.path, **kwargs
-            ) as response:
-                data = await response.json(content_type=None)
-                reset_after: str = response.headers.get("X-RateLimit-Reset-After")
-                remaining: str = response.headers.get("X-RateLimit-Remaining")
-                bucket: str = response.headers.get("X-RateLimit-Bucket")
-                is_global: bool = response.headers.get("X-RateLimit-Global", False)
+        for tries in range(5):  # 3, 5? 5 seems to be common
+            try:
+                self._check_session()
+                await self._check_lock()
 
-                log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
-                log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+                async with self._session.request(
+                    route.method, route.__api__ + route.path, **kwargs
+                ) as response:
 
-                if bucket not in _lock.hashes:
-                    _lock.hashes.append(bucket)
+                    data = await response.json(content_type=None)
+                    reset_after: float = float(
+                        response.headers.get("X-RateLimit-Reset-After", "0.0")
+                    )
+                    remaining: str = response.headers.get("X-RateLimit-Remaining")
+                    _bucket: str = response.headers.get("X-RateLimit-Bucket")
+                    is_global: bool = response.headers.get("X-RateLimit-Global", False)
 
-                if isinstance(data, dict) and data.get("errors"):
-                    raise HTTPException(data["code"], message=data["message"])
-                elif remaining and not int(remaining):
-                    if response.status == 429:
-                        log.warning(
-                            f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
-                        )
-                        _lock.reset_after = reset_after
-                        self._loop.call_later(_lock.reset_after, _lock.lock)
-                    elif is_global:
-                        log.warning(
-                            f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
-                        )
-                        self._global_lock.reset_after = reset_after
-                        self._loop.call_later(self._global_lock.reset_after, self._globl_lock.lock)
+                    log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
 
-                return data
+                    if _bucket not in bucket.hashes:
+                        bucket.hashes.append(_bucket)
+
+                    if isinstance(data, dict) and data.get("errors"):
+                        raise HTTPException(data["code"], message=data["message"])
+                    elif remaining and not int(remaining):
+                        if response.status == 429:
+                            log.warning(
+                                f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
+                            )
+                            bucket.reset_after = reset_after
+                            await asyncio.sleep(bucket.reset_after)
+                            continue
+                        elif is_global:
+                            log.warning(
+                                f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
+                            )
+                            self._global_lock.reset_after = reset_after
+                            self._loop.call_later(
+                                self._global_lock.reset_after, self._global_lock.lock.release
+                            )
+
+                    log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+                    return data
+
+            # These account for general/specific exceptions. (Windows...)
+            except OSError as e:
+                if tries < 4 and e.errno in (54, 10054):
+                    await asyncio.sleep(2 * tries + 1)
+                    continue
+                try:
+                    bucket.lock.release()
+                except RuntimeError:
+                    pass
+                raise
+
+            # For generic exceptions we give a traceback for debug reasons.
+            except Exception as e:
+                try:
+                    bucket.lock.release()
+                except RuntimeError:
+                    pass
+                log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
+                break
+
+        if bucket.lock.locked():
+            bucket.lock.release()
 
     async def close(self) -> None:
         """Closes the current session."""
