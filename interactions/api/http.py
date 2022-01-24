@@ -134,7 +134,7 @@ class Request:
 
     :ivar str token: The current application token.
     :ivar AbstractEventLoop _loop: The current coroutine event loop.
-    :ivar Dict[Route, Limiter] ratelimits: The current per-route rate limiters from the API.
+    :ivar Dict[str, Limiter] ratelimits: The current per-route rate limiters from the API.
     :ivar dict _headers: The current headers for an HTTP request.
     :ivar ClientSession _session: The current session for making requests.
     :ivar Limiter _global_lock: The global rate limiter.
@@ -247,6 +247,11 @@ class Request:
                         bucket.hashes.append(_bucket)
 
                     if isinstance(data, dict) and data.get("errors"):
+                        log.debug(
+                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
+                        )
+                        # This "redundant" debug line is for debug use and tracing back the error codes.
+
                         raise HTTPException(data["code"], message=data["message"])
                     elif remaining and not int(remaining):
                         if response.status == 429:
