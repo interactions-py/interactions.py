@@ -8,7 +8,7 @@ between versions to guide towards easy migration between one another.
 ~~~~~~~~~~~~~~~
 
 The biggest major change between these two versions is the way ``HTTPClient`` and modelled API schema objects are used.
-In ``4.0.2``, a new ``_state`` attribute is added in model objects in order to use helper methods. This will not be needed
+In ``4.0.2``, a new ``_client`` attribute is added in model objects in order to use helper methods. This will not be needed
 if you're working with dispatched events from the Gateway, however, manually generating your own model object for use
 will need it appended as a key-word argument. The example below shows this change:
 
