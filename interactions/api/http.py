@@ -72,28 +72,32 @@ class Route:
         self.channel_id = kwargs.get("channel_id")
         self.guild_id = kwargs.get("guild_id")
 
-    @property
-    def bucket(self) -> str:
+    def get_bucket(self, shared_bucket: Optional[str] = None) -> str:
         """
-        Returns the route's bucket.
+        Returns the route's bucket. If shared_bucket is None, returns the path with major parameters.
+        Otherwise, it relies on Discord's given bucket.
+
+        :param shared_bucket: The bucket that Discord provides, if available.
+        :type shared_bucket: Optional[str]
 
         :return: The route bucket.
         :rtype: str
         """
-        return f"{self.channel_id}:{self.guild_id}:{self.path}"
+        return (
+            f"{self.channel_id}:{self.guild_id}:{self.path}"
+            if shared_bucket is None
+            else f"{self.channel_id}:{self.guild_id}:{shared_bucket}"
+        )
 
     @property
-    def hashbucket(self) -> str:
+    def endpoint(self) -> str:
         """
-        Returns the route's full bucket, reproducible for paeudo-hashing.
-        This contains both bucket properties, but also the METHOD attribute.
-        Note, that this does NOT contain the hash.
+        Returns the route's endpoint.
 
-        :return: The route bucket.
+        :return: The route endpoint.
         :rtype: str
         """
-
-        return f"{self.method}::{self.bucket}"
+        return f"{self.method}:{self.path}"
 
 
 class Limiter:
@@ -101,12 +105,10 @@ class Limiter:
     A class representing a limitation for an HTTP request.
 
     :ivar Lock lock: The "lock" or controller of the request.
-    :ivar List[str] hashes: The known hashes of the request.
     :ivar float reset_after: The remaining time before the request can be ran.
     """
 
     lock: Lock
-    hashes: List[str]
     reset_after: float
 
     def __init__(self, *, lock: Lock, reset_after: Optional[float] = MISSING) -> None:
@@ -118,7 +120,6 @@ class Limiter:
         """
         self.lock = lock
         self.reset_after = 0 if reset_after is MISSING else reset_after
-        self.hashes = []
 
     async def __aenter__(self) -> "Limiter":
         await self.lock.acquire()
@@ -135,6 +136,7 @@ class Request:
     :ivar str token: The current application token.
     :ivar AbstractEventLoop _loop: The current coroutine event loop.
     :ivar Dict[str, Limiter] ratelimits: The current per-route rate limiters from the API.
+    :ivar Dict[str, str] buckets: The current endpoint to shared_bucket cache from the API.
     :ivar dict _headers: The current headers for an HTTP request.
     :ivar ClientSession _session: The current session for making requests.
     :ivar Limiter _global_lock: The global rate limiter.
@@ -144,13 +146,15 @@ class Request:
         "token",
         "_loop",
         "ratelimits",
+        "buckets",
         "_headers",
         "_session",
         "_global_lock",
     )
     token: str
     _loop: AbstractEventLoop
-    ratelimits: Dict[str, Limiter]  # hashbucket: Limiter
+    ratelimits: Dict[str, Limiter]  # bucket: Limiter
+    buckets: Dict[str, str]  # endpoint: shared_bucket
     _headers: dict
     _session: ClientSession
     _global_lock: Limiter
@@ -163,6 +167,7 @@ class Request:
         self.token = token
         self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
         self.ratelimits = {}
+        self.buckets = {}
         self._headers = {
             "Authorization": f"Bot {self.token}",
             "User-Agent": f"DiscordBot (https://github.com/goverfl0w/interactions.py {__version__} "
@@ -205,22 +210,25 @@ class Request:
 
         # Huge credit and thanks to LordOfPolls for the lock/retry logic.
 
-        # This section generates the bucket through the hashbucket attr,
-        # which essentially contains path, method, and major params.
+        bucket = route.get_bucket(
+            self.buckets.get(route.endpoint)
+        )  # string returning path OR prioritised hash bucket metadata.
 
-        if self.ratelimits.get(route.hashbucket):
-            bucket: Limiter = self.ratelimits.get(route.hashbucket)
-            if bucket.lock.locked():
+        # The idea is that its regulated by the priority of Discord's bucket header and not just self-computation.
+
+        if self.ratelimits.get(bucket):
+            _limiter: Limiter = self.ratelimits.get(bucket)
+            if _limiter.lock.locked():
                 log.warning(
-                    f"The current bucket is still under a rate limit. Calling later in {bucket.reset_after} seconds."
+                    f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
                 )
-                self._loop.call_later(bucket.reset_after, bucket.lock.release)
-            bucket.reset_after = 0
+                self._loop.call_later(_limiter.reset_after, _limiter.lock.release)
+            _limiter.reset_after = 0
         else:
-            self.ratelimits.update({route.hashbucket: Limiter(lock=Lock(loop=self._loop))})
-            bucket: Limiter = self.ratelimits.get(route.hashbucket)
+            self.ratelimits.update({bucket: Limiter(lock=Lock(loop=self._loop))})
+            _limiter: Limiter = self.ratelimits.get(bucket)
 
-        await bucket.lock.acquire()
+        await _limiter.lock.acquire()  # _limiter is the per shared bucket/route endpoint
 
         # Implement retry logic. The common seems to be 5, so this is hardcoded, for the most part.
 
@@ -243,8 +251,9 @@ class Request:
 
                     log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
 
-                    if _bucket not in bucket.hashes:
-                        bucket.hashes.append(_bucket)
+                    if _bucket is not None:
+                        self.buckets[route.endpoint] = _bucket
+                        # real-time replacement/update/add if needed.
 
                     if isinstance(data, dict) and data.get("errors"):
                         log.debug(
@@ -258,8 +267,8 @@ class Request:
                             log.warning(
                                 f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
                             )
-                            bucket.reset_after = reset_after
-                            await asyncio.sleep(bucket.reset_after)
+                            _limiter.reset_after = reset_after
+                            await asyncio.sleep(_limiter.reset_after)
                             continue
                         elif is_global:
                             log.warning(
@@ -279,7 +288,7 @@ class Request:
                     await asyncio.sleep(2 * tries + 1)
                     continue
                 try:
-                    bucket.lock.release()
+                    _limiter.lock.release()
                 except RuntimeError:
                     pass
                 raise
@@ -287,14 +296,14 @@ class Request:
             # For generic exceptions we give a traceback for debug reasons.
             except Exception as e:
                 try:
-                    bucket.lock.release()
+                    _limiter.lock.release()
                 except RuntimeError:
                     pass
                 log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
                 break
 
-        if bucket.lock.locked():
-            bucket.lock.release()
+        if _limiter.lock.locked():
+            _limiter.lock.release()
 
     async def close(self) -> None:
         """Closes the current session."""
