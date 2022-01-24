@@ -182,9 +182,10 @@ class CommandContext(Context):
         :return: The sent message as an object.
         :rtype: Message
         """
-        if content is None and self.message:
+        if content is None and self.message and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
             _content = self.message.content
-        _content: str = "" if content is None else content
+	else:
+	    _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
