@@ -49,13 +49,13 @@ def get_logger(
 class CustomFormatter(logging.Formatter):
     """A class that allows for customized logged outputs from the library."""
 
-    format: str = "%(levelname)s:%(name)s:(ln.%(lineno)d):%(message)s"
+    format_str: str = "%(levelname)s:%(name)s:(ln.%(lineno)d):%(message)s"
     formats: dict = {
-        logging.DEBUG: Fore.CYAN + format + Fore.RESET,
-        logging.INFO: Fore.GREEN + format + Fore.RESET,
-        logging.WARNING: Fore.YELLOW + format + Fore.RESET,
-        logging.ERROR: Fore.RED + format + Fore.RESET,
-        logging.CRITICAL: Style.BRIGHT + Fore.RED + format + Fore.RESET + Style.NORMAL,
+        logging.DEBUG: Fore.CYAN + format_str + Fore.RESET,
+        logging.INFO: Fore.GREEN + format_str + Fore.RESET,
+        logging.WARNING: Fore.YELLOW + format_str + Fore.RESET,
+        logging.ERROR: Fore.RED + format_str + Fore.RESET,
+        logging.CRITICAL: Style.BRIGHT + Fore.RED + format_str + Fore.RESET + Style.NORMAL,
     }
 
     def __init__(self):
