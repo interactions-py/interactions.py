@@ -184,8 +184,8 @@ class CommandContext(Context):
         """
         if content is None and self.message and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
             _content = self.message.content
-	else:
-	    _content: str = "" if content is None else content
+		else:
+            _content: str = "" if content is None else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
