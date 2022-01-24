@@ -56,20 +56,20 @@ setup(
     ],
 )
 
-for library in deprecated:
-    setup(
-        name=library,
-        version="4.0.2-deprecated",
-        author="goverfl0w",
-        author_email="james.discord.interactions@gmail.com",
-        description="Easy, simple, scalable and modular: a Python API wrapper for interactions.",
-        extras_require=extras,
-        install_requires=["interactions"],
-        license="GPL-3.0 License",
-        long_description="This pip package is no longer being used for supporting updates for Discord interactions in Python. Please use the interactions pip package instead.",
-        long_description_content_type="text/markdown",
-        url="https://github.com/interactions-py/library",
-        packages=find_packages(),
-        python_requires=">=3.8.6",
-        classifiers=["Topic :: Internet"],
-    )
+# for library in deprecated:
+#     setup(
+#         name=library,
+#         version="4.0.2-deprecated",
+#         author="goverfl0w",
+#         author_email="james.discord.interactions@gmail.com",
+#         description="Easy, simple, scalable and modular: a Python API wrapper for interactions.",
+#         extras_require=extras,
+#         install_requires=["interactions"],
+#         license="GPL-3.0 License",
+#         long_description="This pip package is no longer being used for supporting updates for Discord interactions in Python. Please use the interactions pip package instead.",
+#         long_description_content_type="text/markdown",
+#         url="https://github.com/interactions-py/library",
+#         packages=find_packages(),
+#         python_requires=">=3.8.6",
+#         classifiers=["Topic :: Internet"],
+#     )
