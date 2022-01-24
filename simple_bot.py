@@ -1,6 +1,11 @@
+import logging
+
 import interactions
 
-bot = interactions.Client(token=open("bot.token").read(), log_level=-1)
+logging.basicConfig(level=logging.DEBUG)
+
+
+bot = interactions.Client(token=open("bot.token").read(), disable_sync=True)
 
 
 @bot.event
@@ -8,13 +13,18 @@ async def on_ready():
     print("bot is now online.")
 
 
+@bot.event
+async def on_message_create(message: interactions.Message):
+    await bot._http.send_message(channel_id=852402668294766615, content=message.content)
+
+
 @bot.command(
-    name="global-command",
-    description="ever wanted a global command? well, here it is!",
+    type=interactions.ApplicationCommandType.MESSAGE,
+    name="simple testing command",
+    scope=852402668294766612,
 )
-async def basic_command(ctx):
-    await ctx.send("Global commands are back in action, baby!")
+async def simple_testing_command(ctx):
+    await ctx.send("Hello world!")
 
 
-# bot.load("simple_cog")
 bot.start()

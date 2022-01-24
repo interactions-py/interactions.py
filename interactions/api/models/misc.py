@@ -4,10 +4,13 @@
 # TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 import datetime
-import logging
+from logging import Logger
+from math import floor
 from typing import Union
 
-log = logging.getLogger("mixin")
+from interactions.base import get_logger
+
+log: Logger = get_logger("mixin")
 
 
 class DictSerializerMixin(object):
@@ -143,16 +146,16 @@ class Snowflake(object):
     @property
     def epoch(self) -> float:
         """
-        This is the "Timestamp" field of the snowflake.
+        This is the Timestamp field of the snowflake.
 
         :return: A float containing the seconds since Discord Epoch.
         """
-        return ((int(self._snowflake) >> 22) + 1420070400000) / 1000
+        return floor(((int(self._snowflake) >> 22) + 1420070400000) / 1000)
 
     @property
     def timestamp(self) -> datetime.datetime:
         """
-        The Datetime object variation of the the "Timestamp" field of the snowflake.
+        The Datetime object variation of the Timestamp field of the snowflake.
 
         :return: The converted Datetime object from the Epoch. This respects UTC.
         """
@@ -202,7 +205,7 @@ class Format:
     def stylize(cls, format: str, **kwargs) -> str:
         r"""
         This takes a format style from the object and
-        converts it into a useable string for ease.
+        converts it into a usable string for ease.
 
         :param format: The format string to use.
         :type format: str
@@ -214,5 +217,5 @@ class Format:
         new: str = f""  # noqa: F541
         for kwarg in kwargs:
             if format == kwarg:
-                new = new % format
+                new %= format
         return new

@@ -85,7 +85,12 @@ class SelectMenu(DictSerializerMixin):
         super().__init__(**kwargs)
         self.type = ComponentType.SELECT
         self.options = (
-            [SelectOption(**option._json) for option in self.options]
+            [
+                SelectOption(**option._json)
+                if isinstance(option, SelectOption)
+                else SelectOption(**option)
+                for option in self.options
+            ]
             if self._json.get("options")
             else None
         )
@@ -109,7 +114,7 @@ class Button(DictSerializerMixin):
     :ivar ComponentType type: The type of button. Always defaults to ``2``.
     :ivar ButtonStyle style: The style of the button.
     :ivar str label: The label of the button.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the laebl of the button.
+    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the button.
     :ivar Optional[str] custom_id?: The customized "ID" of the button.
     :ivar Optional[str] url?: The URL route/path of the button.
     :ivar Optional[bool] disabled?: Whether the button is unable to be used.
@@ -192,7 +197,14 @@ class Component(DictSerializerMixin):
         self.type = ComponentType(self.type)
         self.style = ButtonStyle(self.style) if self._json.get("style") else None
         self.options = (
-            [SelectMenu(**option) for option in self.options] if self._json.get("options") else None
+            [
+                SelectOption(**option._json)
+                if isinstance(option, SelectOption)
+                else SelectOption(**option)
+                for option in self.options
+            ]
+            if self._json.get("options")
+            else None
         )
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]
@@ -327,7 +339,7 @@ class ActionRow(DictSerializerMixin):
         self.type = ComponentType.ACTION_ROW
         for component in self.components:
             if isinstance(component, SelectMenu):
-                component._json["options"] = [option._json for option in component.options]
+                component._json["options"] = [option._json for option in component._json["options"]]
         self.components = (
             [Component(**component._json) for component in self.components]
             if self._json.get("components")

@@ -1,7 +1,7 @@
 import sys
 from asyncio import get_event_loop, run_coroutine_threadsafe
 from json import dumps
-from logging import Logger, StreamHandler, basicConfig, getLogger
+from logging import Logger
 from random import random
 from threading import Event, Thread
 from typing import Any, List, Optional, Union
@@ -10,21 +10,16 @@ from orjson import dumps as ordumps
 from orjson import loads
 
 from interactions.api.models.gw import Presence
+from interactions.base import get_logger
 from interactions.enums import InteractionType, OptionType
 
-from ..base import CustomFormatter, Data
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
 from .http import HTTPClient
-from .models.intents import Intents
+from .models.flags import Intents
 
-basicConfig(level=Data.LOGGER)
-log: Logger = getLogger("gateway")
-stream: StreamHandler = StreamHandler()
-stream.setLevel(Data.LOGGER)
-stream.setFormatter(CustomFormatter())
-log.addHandler(stream)
+log: Logger = get_logger("gateway")
 
 __all__ = ("Heartbeat", "WebSocket")
 
@@ -32,6 +27,7 @@ __all__ = ("Heartbeat", "WebSocket")
 class Heartbeat(Thread):
     """
     A class representing a consistent heartbeat connection with the gateway.
+
     :ivar WebSocket ws: The WebSocket class to infer on.
     :ivar Union[int, float] interval: The heartbeat interval determined by the gateway.
     :ivar Event event: The multi-threading event.
@@ -78,6 +74,7 @@ class Heartbeat(Thread):
 class WebSocket:
     """
     A class representing a websocket connection with the gateway.
+
     :ivar Intents intents: An instance of :class:`interactions.api.models.Intents`.
     :ivar AbstractEventLoop loop: The coroutine event loop established on.
     :ivar Request req: An instance of :class:`interactions.api.http.Request`.
@@ -149,6 +146,7 @@ class WebSocket:
     ) -> None:
         """
         Establishes a connection to the gateway.
+
         :param token: The token to use for identifying.
         :type token: str
         :param shard?: The shard ID to identify under.
@@ -157,10 +155,10 @@ class WebSocket:
         :type presence: Optional[Presence]
         """
         self.http = HTTPClient(token)
-        self.options["headers"] = {"User-Agent": self.http.req.headers["User-Agent"]}
+        self.options["headers"] = {"User-Agent": self.http.req._headers["User-Agent"]}
         url = await self.http.get_gateway()
 
-        async with self.http._req.session.ws_connect(url, **self.options) as self.session:
+        async with self.http._req._session.ws_connect(url, **self.options) as self.session:
             while not self.closed:
                 stream = await self.recv()
 
@@ -178,6 +176,7 @@ class WebSocket:
     ) -> None:
         """
         Handles the connection to the gateway.
+
         :param stream: The data stream from the gateway.
         :type stream: dict
         :param shard?: The shard ID to identify under.
@@ -205,13 +204,11 @@ class WebSocket:
                 await self.heartbeat()
                 self.keep_alive.start()
 
-            if op == OpCodeType.HEARTBEAT:
-                if self.keep_alive:
-                    await self.heartbeat()
+            if op == OpCodeType.HEARTBEAT and self.keep_alive:
+                await self.heartbeat()
 
-            if op == OpCodeType.HEARTBEAT_ACK:
-                if self.keep_alive:
-                    log.debug("HEARTBEAT_ACK")
+            if op == OpCodeType.HEARTBEAT_ACK and self.keep_alive:
+                log.debug("HEARTBEAT_ACK")
 
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
@@ -226,19 +223,19 @@ class WebSocket:
                     self.session_id = None
                     self.sequence = None
                     self.closed = True
+        elif event == "READY":
+            self.session_id = data["session_id"]
+            self.sequence = stream["s"]
+            self.dispatch.dispatch("on_ready")
+            log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
         else:
-            if event == "READY":
-                self.session_id = data["session_id"]
-                self.sequence = stream["s"]
-                self.dispatch.dispatch("on_ready")
-                log.debug(f"READY (SES_ID: {self.session_id}, SEQ_ID: {self.sequence})")
-            else:
-                log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
-                self.handle_dispatch(event, data)
+            log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
+            self.handle_dispatch(event, data)
 
     def handle_dispatch(self, event: str, data: dict) -> None:
         """
         Handles the dispatched event data from a gateway event.
+
         :param event: The name of the event.
         :type event: str
         :param data: The data of the event.
@@ -246,7 +243,7 @@ class WebSocket:
         """
 
         def check_sub_command(option: dict) -> dict:
-            kwargs = dict()
+            kwargs: dict = {}
             if option["type"] == OptionType.SUB_COMMAND_GROUP:
                 kwargs["sub_command_group"] = option["name"]
                 if option.get("options"):
@@ -270,7 +267,7 @@ class WebSocket:
                 if option["type"] == OptionType.SUB_COMMAND_GROUP:
                     for group_option in option["options"]:
                         if group_option.get("options"):
-                            for sub_option in option["options"]:
+                            for sub_option in group_option["options"]:
                                 if sub_option.get("focused"):
                                     return sub_option["name"], sub_option["value"]
                 elif option["type"] == OptionType.SUB_COMMAND:
@@ -298,6 +295,8 @@ class WebSocket:
                         __import__(path),
                         _name,
                     )
+                    if "_create" in event.lower() or "_add" in event.lower():
+                        data["_client"] = self.http
                     self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
                 except AttributeError as error:  # noqa
                     log.fatal(f"You're missing a data model for the event {name}: {error}")
@@ -310,7 +309,7 @@ class WebSocket:
                     _args: list = [context]
                     _kwargs: dict = dict()
                     if data["type"] == InteractionType.APPLICATION_COMMAND:
-                        _name = context.data.name
+                        _name = f"command_{context.data.name}"
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
@@ -320,9 +319,11 @@ class WebSocket:
                                         )
                                     )
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
-                        _name = context.data.custom_id
+                        _name = f"component_{context.data.custom_id}"
+                        if context.data._json.get("values"):
+                            _args.append(context.data.values)
                     elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                        _name = "autocomplete_"
+                        _name = f"autocomplete_{context.data.id}"
                         if context.data._json.get("options"):
                             if context.data.options:
                                 for option in context.data.options:
@@ -330,7 +331,7 @@ class WebSocket:
                                         option if isinstance(option, dict) else option._json
                                     )
                                     if add_name:
-                                        _name += add_name
+                                        _name += f"_{add_name}"
                                     if add_args:
                                         _args.append(add_args)
                     elif data["type"] == InteractionType.MODAL_SUBMIT:
@@ -349,6 +350,7 @@ class WebSocket:
         """
         Takes raw data given back from the gateway
         and gives "context" based off of what it is.
+
         :param data: The data from the gateway.
         :type data: dict
         :return: The context object.
@@ -366,10 +368,8 @@ class WebSocket:
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
 
-            context: object = getattr(__import__("interactions.context"), _context)
-
             data["client"] = self.http
-
+            context: object = getattr(__import__("interactions.context"), _context)
             return context(**data)
 
     async def send(self, data: Union[str, dict]) -> None:
@@ -382,6 +382,7 @@ class WebSocket:
     ) -> None:
         """
         Sends an ``IDENTIFY`` packet to the gateway.
+
         :param shard?: The shard ID to identify under.
         :type shard: Optional[int]
         :param presence?: The presence to change the bot to on identify.

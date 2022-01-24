@@ -53,7 +53,7 @@ class Team(DictSerializerMixin):
 
 class Application(DictSerializerMixin):
     """
-    A class object representing an appliation.
+    A class object representing an application.
 
     .. note::
         ``type`` and ``hook`` are currently undocumented in the API.
@@ -101,6 +101,8 @@ class Application(DictSerializerMixin):
         "type",
         "hook",
         "tags",  # TODO: document/investigate what it does.
+        "install_params",
+        "custom_install_url",
     )
 
     def __init__(self, **kwargs):

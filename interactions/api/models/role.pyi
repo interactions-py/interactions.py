@@ -1,6 +1,7 @@
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from .misc import DictSerializerMixin, Snowflake
+from ..http import HTTPClient
 
 class RoleTags(DictSerializerMixin):
     _json: dict
@@ -11,6 +12,7 @@ class RoleTags(DictSerializerMixin):
 
 class Role(DictSerializerMixin):
     _json: dict
+    _client: HTTPClient
     id: Snowflake
     name: str
     color: int
@@ -23,3 +25,26 @@ class Role(DictSerializerMixin):
     mentionable: bool
     tags: Optional[RoleTags]
     def __init__(self, **kwargs): ...
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def modify(
+        self,
+        guild_id: int,
+        name: Optional[str] = None,
+        # permissions,
+        color: Optional[int] = None,
+        hoist: Optional[bool] = None,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = None,
+        reason: Optional[str] = None,
+    ) -> "Role": ...
+    async def modify_position(
+        self,
+        guild_id: int,
+        position: int,
+        reason: Optional[str] = None,
+    ) -> List["Role"]: ...

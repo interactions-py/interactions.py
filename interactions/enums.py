@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 
 class ApplicationCommandType(IntEnum):
@@ -99,7 +99,7 @@ class PermissionType(IntEnum):
 
 class ComponentType(IntEnum):
     """
-    An numerable object representing the types of a component.
+    An enumerable object representing the types of a component.
 
     :ivar ACTION_ROW: 1
     :ivar BUTTON: 2
@@ -141,3 +141,16 @@ class TextStyleType(IntEnum):
 
     SHORT = 1
     PARAGRAPH = 2
+
+
+# TODO: Move this to flags.py after # 420
+class StatusType(str, Enum):
+    """
+    A string enum representing Discord status icons that a user may have.
+    """
+
+    ONLINE = "online"
+    DND = "dnd"
+    IDLE = "idle"
+    INVISIBLE = "invisible"
+    OFFLINE = "offline"

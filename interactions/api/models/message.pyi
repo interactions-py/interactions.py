@@ -7,6 +7,10 @@ from .misc import DictSerializerMixin, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
+from ..http import HTTPClient
+from ...models.component import ActionRow, Button, SelectMenu
+from .guild import Guild
+
 
 class MessageActivity(DictSerializerMixin):
     _json: dict
@@ -51,6 +55,7 @@ class ChannelMention(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Message(DictSerializerMixin):
+    _client: HTTPClient
     _json: dict
     id: Snowflake
     channel_id: Snowflake
@@ -86,6 +91,34 @@ class Message(DictSerializerMixin):
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
     def __init__(self, **kwargs): ...
+    async def delete(self, reason: Optional[str] = None) -> None: ...
+    async def edit(
+        self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = None,
+        # file: Optional[FileIO] = None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = None,
+        allowed_mentions: Optional["MessageInteraction"] = None,
+        message_reference: Optional["MessageReference"] = None,
+        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] = None,
+    ) -> "Message": ...
+
+    async def reply(self,
+        content: Optional[str] = None,
+        *,
+        tts: Optional[bool] = False,
+        # attachments: Optional[List[Any]] = None
+        embeds: Optional[Union["Embed", List["Embed"]]] = None,
+        allowed_mentions: Optional["MessageInteraction"] = None,
+        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]=None,
+    ) -> "Message": ...
+    async def get_channel(self) -> Channel: ...
+    async def get_guild(self) -> Guild: ...
+    async def pin(self) -> None: ...
+    async def unpin(self) -> None: ...
+    async def publish(self) -> "Message": ...
+
 
 class Emoji(DictSerializerMixin):
     _json: dict
