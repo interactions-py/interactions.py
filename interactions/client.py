@@ -601,8 +601,10 @@ class Client:
 
         return decorator
 
-    def load(self, name: str, package: Optional[str] = None) -> None:
-        """
+    def load(
+        self, name: str, package: Optional[str] = None, *args, **kwargs
+    ) -> Optional["Extension"]:
+        r"""
         "Loads" an extension off of the current client by adding a new class
         which is imported from the library.
 
@@ -610,6 +612,12 @@ class Client:
         :type name: str
         :param package?: The package of the extension.
         :type package: Optional[str]
+        :param \*args?: Optional arguments to pass to the extension
+        :type \**args: tuple
+        :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
+        :type \**kwargs: dict
+        :return: The loaded extension.
+        :rtype: Optional[interactions.client.Extension]
         """
         _name: str = resolve_name(name, package)
 
@@ -622,7 +630,7 @@ class Client:
 
         try:
             setup = getattr(module, "setup")
-            setup(self)
+            extension = setup(self, *args, **kwargs)
         except Exception as error:
             del sys.modules[name]
             log.error(f"Could not load {name}: {error}. Skipping.")
@@ -630,6 +638,7 @@ class Client:
         else:
             log.debug(f"Loaded extension {name}.")
             self.extensions[_name] = module
+            return extension
 
     def remove(self, name: str, package: Optional[str] = None) -> None:
         """
@@ -668,14 +677,22 @@ class Client:
 
         log.debug(f"Removed extension {name}.")
 
-    def reload(self, name: str, package: Optional[str] = None) -> None:
-        """
+    def reload(
+        self, name: str, package: Optional[str] = None, *args, **kwargs
+    ) -> Optional["Extension"]:
+        r"""
         "Reloads" an extension off of current client from an import resolve.
 
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
         :type package: Optional[str]
+        :param \*args?: Optional arguments to pass to the extension
+        :type \**args: tuple
+        :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
+        :type \**kwargs: dict
+        :return: The reloaded extension.
+        :rtype: Optional[interactions.client.Extension]
         """
         _name: str = resolve_name(name, package)
         extension = self.extensions.get(_name)
@@ -686,7 +703,7 @@ class Client:
             return
 
         self.remove(name, package)
-        self.load(name, package)
+        return self.load(name, package)
 
     async def raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
