@@ -219,9 +219,12 @@ class Request:
         if self.ratelimits.get(bucket):
             _limiter: Limiter = self.ratelimits.get(bucket)
             if _limiter.lock.locked():
-                log.warning(
-                    f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
-                )
+                if (
+                    _limiter.reset_after != 0
+                ):  # Just saying 0 seconds isn't helpful, so this is suppressed.
+                    log.warning(
+                        f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
+                    )
                 self._loop.call_later(_limiter.reset_after, _limiter.lock.release)
             _limiter.reset_after = 0
         else:
