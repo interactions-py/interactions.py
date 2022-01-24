@@ -603,7 +603,7 @@ class Client:
 
     def load(
         self, name: str, package: Optional[str] = None, *args, **kwargs
-    ) -> Union["Extension", None]:
+    ) -> Optional["Extension"]:
         r"""
         "Loads" an extension off of the current client by adding a new class
         which is imported from the library.
@@ -617,7 +617,7 @@ class Client:
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
         :type \**kwargs: dict
         :return: The loaded extension.
-        :rtype: interactions.client.Extension
+        :rtype: Optional[interactions.client.Extension]
         """
         _name: str = resolve_name(name, package)
 
@@ -679,7 +679,7 @@ class Client:
 
     def reload(
         self, name: str, package: Optional[str] = None, *args, **kwargs
-    ) -> Union["Extension", None]:
+    ) -> Optional["Extension"]:
         r"""
         "Reloads" an extension off of current client from an import resolve.
 
@@ -692,7 +692,7 @@ class Client:
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
         :type \**kwargs: dict
         :return: The reloaded extension.
-        :rtype: interactions.client.Extension
+        :rtype: Optional[interactions.client.Extension]
         """
         _name: str = resolve_name(name, package)
         extension = self.extensions.get(_name)
