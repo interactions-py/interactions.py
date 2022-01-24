@@ -175,7 +175,9 @@ class Request:
             f"aiohttp/{http_version}",
         }
         self._session = _session
-        self._global_lock = Limiter(lock=Lock(loop=self._loop))
+        self._global_lock = (
+            Limiter(lock=Lock(loop=self._loop)) if version_info < (3, 10) else Limiter(lock=Lock())
+        )
 
     def _check_session(self) -> None:
         """Ensures that we have a valid connection session."""
@@ -228,7 +230,11 @@ class Request:
                 self._loop.call_later(_limiter.reset_after, _limiter.lock.release)
             _limiter.reset_after = 0
         else:
-            self.ratelimits.update({bucket: Limiter(lock=Lock(loop=self._loop))})
+            self.ratelimits[bucket] = (
+                Limiter(lock=Lock(loop=self._loop))
+                if version_info < (3, 10)
+                else Limiter(lock=Lock())
+            )
             _limiter: Limiter = self.ratelimits.get(bucket)
 
         await _limiter.lock.acquire()  # _limiter is the per shared bucket/route endpoint
