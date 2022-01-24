@@ -101,6 +101,8 @@ class Application(DictSerializerMixin):
         "type",
         "hook",
         "tags",  # TODO: document/investigate what it does.
+        "install_params",
+        "custom_install_url",
     )
 
     def __init__(self, **kwargs):
