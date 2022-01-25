@@ -185,7 +185,7 @@ class Channel(DictSerializerMixin):
         self,
         content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds=MISSING,
         allowed_mentions=MISSING,
@@ -213,7 +213,7 @@ class Channel(DictSerializerMixin):
         from .message import Message
 
         _content: str = "" if content is MISSING else content
-        _tts: bool = False if tts is None else tts
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions

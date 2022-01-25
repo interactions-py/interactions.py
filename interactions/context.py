@@ -155,7 +155,7 @@ class CommandContext(Context):
         self,
         content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
@@ -191,7 +191,7 @@ class CommandContext(Context):
             _content = self.message.content
         else:
             _content: str = "" if content is MISSING else content
-        _tts: bool = False if tts is None else tts
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
         if (
@@ -386,7 +386,7 @@ class CommandContext(Context):
         self,
         content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # file: Optional[FileIO] = None,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
