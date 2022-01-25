@@ -2,14 +2,14 @@ from enum import Enum
 
 class ErrorType(str, Enum): ...
 
-class IncorrectAlphanumericError(Exception):
+class IncorrectAlphanumeric(Exception):
     def __init__(self): ...
 
-class MissingNumericError(Exception):
+class MissingNumeric(Exception):
     def __init__(self): ...
 
-class TooManyAuthorsError(Exception):
+class TooManyAuthors(Exception):
     def __init__(self): ...
 
-class UnknownServiceError(Exception):
+class UnknownService(Exception):
     def __init__(self): ...

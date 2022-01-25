@@ -1,8 +1,8 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from setuptools import setup
 
-from .error import UnknownServiceError
+from .error import UnknownService
 from .version import Version
 
 
@@ -96,7 +96,7 @@ class Base:
             self.__objects.update(model)
         return self.__objects.get(name)
 
-    def remove_service(self, name: str) -> bool:
+    def remove_service(self, name: str) -> Union[Exception, bool]:
         """
         Removes a service from the 3rd party in the event that it is no
         longer needed to be referred to for data.
@@ -105,13 +105,14 @@ class Base:
         :type name: str
         :return: If the service has been removed or not.
         :rtype: bool
+        :raises UnknownService: An unknown service in the base.
         """
         _check: bool = self._check_service(name)
 
         if _check:
             del self.__objects[name]
         else:
-            raise UnknownServiceError
+            raise UnknownService
         return _check
 
     @property

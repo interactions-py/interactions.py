@@ -2,9 +2,9 @@ from enum import Enum
 from hashlib import _Hash as MD5Hash
 from hashlib import md5
 from string import ascii_lowercase
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from .error import IncorrectAlphanumericError, TooManyAuthorsError
+from .error import IncorrectAlphanumeric, TooManyAuthors
 
 
 class VersionAlphanumericType(str, Enum):
@@ -126,13 +126,14 @@ class Version:
         return self._patch
 
     @property
-    def author(self) -> Optional[VersionAuthor]:
+    def author(self) -> Optional[Union[Exception, VersionAuthor]]:
         """
         Returns the author of the version.
         If multiple authors exist, it will choose the only one that is not a co-author.
 
         :return: The author of the version, if one exists.
         :rtype: Optional[VersionAuthor]
+        :raises TooManyAuthors: Too many main authors were found.
         """
         _author: str = ""
         if len(self._authors) == 1:
@@ -143,7 +144,7 @@ class Version:
                 if author.co_author:
                     amount += 1
                 elif amount > 1:
-                    raise TooManyAuthorsError
+                    raise TooManyAuthors
                 else:
                     _author = author
                     continue
@@ -170,7 +171,7 @@ class Version:
         return bool(self.__alphanum)
 
     @classmethod
-    def extend_version(cls, **kwargs) -> str:
+    def extend_version(cls, **kwargs) -> Union[Exception, str]:
         r"""
         Allows the version to be extended upon with an alphanumeric format.
 
@@ -178,6 +179,7 @@ class Version:
         :type \**kwargs: Dict[VersionAlphanumericType, int]
         :return: The new version with the alphanumeric.
         :rtype: str
+        :raises IncorrectAlphanumeric: The alphanumeric version was incorrectly formatted.
         """
         if "-" not in cls.__version:
             identifiers: tuple = (
@@ -192,7 +194,7 @@ class Version:
                     cls.__version = f"{cls.__version}-{key}.{value}"
                     cls.__alphanum = {"type": key, "identifier": int(value)}
                 elif key in identifiers or amount > 1:
-                    raise IncorrectAlphanumericError
+                    raise IncorrectAlphanumeric
                 else:
                     continue
 
