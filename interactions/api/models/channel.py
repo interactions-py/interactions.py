@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional
 
-from .misc import DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Snowflake
 
 
 class ChannelType(IntEnum):
@@ -183,13 +183,13 @@ class Channel(DictSerializerMixin):
 
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=None,
-        allowed_mentions=None,
-        components=None,
+        embeds=MISSING,
+        allowed_mentions=MISSING,
+        components=MISSING,
     ):
         """
         Sends a message in the channel.
@@ -212,21 +212,24 @@ class Channel(DictSerializerMixin):
         from ...models.component import ActionRow, Button, SelectMenu
         from .message import Message
 
-        _content: str = "" if content is None else content
+        _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        _embeds: list = []
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _components: List[dict] = [{"type": 1, "components": []}]
-        if embeds:
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        if not embeds or embeds is MISSING:
+            _embeds: list = []
+        else:
             if isinstance(embeds, list):
                 _embeds = [embed._json for embed in embeds]
             else:
                 _embeds = [embeds._json]
 
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components:
+        if not components or components is MISSING:
+            _components = []
+        else:
+            _components: List[dict] = [{"type": 1, "components": []}]
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -321,8 +324,6 @@ class Channel(DictSerializerMixin):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
-        else:
-            _components = []
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -348,15 +349,15 @@ class Channel(DictSerializerMixin):
 
     async def modify(
         self,
-        name: Optional[str] = None,
-        topic: Optional[str] = None,
-        bitrate: Optional[int] = None,
-        user_limit: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = None,
-        position: Optional[int] = None,
+        name: Optional[str] = MISSING,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
         # permission_overwrites,
-        parent_id: Optional[int] = None,
-        nsfw: Optional[bool] = False,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel":
         """
@@ -385,16 +386,16 @@ class Channel(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        _name = self.name if not name else name
-        _topic = self.topic if not topic else topic
-        _bitrate = self.bitrate if not bitrate else bitrate
-        _user_limit = self.user_limit if not user_limit else user_limit
+        _name = self.name if name is MISSING else name
+        _topic = self.topic if topic is MISSING else topic
+        _bitrate = self.bitrate if bitrate is MISSING else bitrate
+        _user_limit = self.user_limit if user_limit is MISSING else user_limit
         _rate_limit_per_user = (
-            self.rate_limit_per_user if not rate_limit_per_user else rate_limit_per_user
+            self.rate_limit_per_user if rate_limit_per_user is MISSING else rate_limit_per_user
         )
-        _position = self.position if not position else position
-        _parent_id = self.parent_id if not parent_id else parent_id
-        _nsfw = self.nsfw if not nsfw else nsfw
+        _position = self.position if position is MISSING else position
+        _parent_id = self.parent_id if parent_id is MISSING else parent_id
+        _nsfw = self.nsfw if nsfw is MISSING else nsfw
         _type = self.type
 
         payload = Channel(

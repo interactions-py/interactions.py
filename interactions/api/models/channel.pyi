@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
-from .misc import DictSerializerMixin, Overwrite, Snowflake
+from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
 from .user import User
 from ..http import HTTPClient
 
@@ -59,26 +59,28 @@ class Channel(DictSerializerMixin):
     def __init__(self, **kwargs): ...
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+        ] = MISSING,
     ) -> Message: ...
     async def delete(self) -> None: ...
     async def modify(
         self,
-        name: Optional[str] = None,
-        topic: Optional[str] = None,
-        bitrate: Optional[int] = None,
-        user_limit: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = None,
-        position: Optional[int] = None,
+        name: Optional[str] = MISSING,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
         # permission_overwrites,
-        parent_id: Optional[int] = None,
-        nsfw: Optional[bool] = False,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel": ...
     async def add_member(
