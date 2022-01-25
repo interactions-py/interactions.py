@@ -216,18 +216,11 @@ class Member(DictSerializerMixin):
         _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        if not embeds or embeds is MISSING:
-            _embeds = []
-        else:
-            _embeds: list = (
-                []
-                if embeds is MISSING
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
+        _embeds: list = (
+            []
+            if not embeds or embeds is MISSING
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
 
         if not components or components is MISSING:

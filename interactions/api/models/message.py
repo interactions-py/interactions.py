@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
-from .misc import DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Snowflake
 from .team import Application
 from .user import User
 
@@ -319,14 +319,14 @@ class Message(DictSerializerMixin):
 
     async def edit(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # file: Optional[FileIO] = None,
-        embeds: Optional[Union["Embed", List["Embed"]]] = None,
-        allowed_mentions: Optional["MessageInteraction"] = None,
-        message_reference: Optional["MessageReference"] = None,
-        components=None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        message_reference: Optional["MessageReference"] = MISSING,
+        components=MISSING,
     ) -> "Message":
         """
         This method edits a message. Only available for messages sent by the bot.
@@ -348,29 +348,31 @@ class Message(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
 
-        _content: str = self.content if content is None else content
-        _tts: bool = True if bool(tts) else tts
+        _content: str = self.content if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
 
-        if embeds is None:
+        if embeds is MISSING:
             _embeds = self.embeds
         else:
             _embeds: list = (
                 []
-                if embeds is None
+                if not embeds
                 else (
                     [embed._json for embed in embeds]
                     if isinstance(embeds, list)
                     else [embeds._json]
                 )
             )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _message_reference: dict = {} if message_reference is None else message_reference._json
-        if components == []:
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _message_reference: dict = {} if message_reference is MISSING else message_reference._json
+        if not components:
             _components = []
+        elif components is MISSING:
+            _components = self.components
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        elif components is not None and components != []:
-            _components = []
+        else:
+            _components: list = [{"type": 1, "components": []}]
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -465,8 +467,6 @@ class Message(DictSerializerMixin):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
-        else:
-            _components = self.components
 
         payload: Message = Message(
             content=_content,
@@ -487,13 +487,13 @@ class Message(DictSerializerMixin):
 
     async def reply(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None
-        embeds: Optional[Union["Embed", List["Embed"]]] = None,
-        allowed_mentions: Optional["MessageInteraction"] = None,
-        components=None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        components=MISSING,
     ) -> "Message":
         """
         Sends a new message replying to the old.
@@ -515,21 +515,23 @@ class Message(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
 
-        _content: str = "" if content is None else content
-        _tts: bool = True if bool(tts) else tts
+        _content: str = "" if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
         _embeds: list = (
             []
-            if embeds is None
+            if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference = MessageReference(message_id=int(self.id))._json
-        _components: List[dict] = [{"type": 1, "components": []}]
 
+        if not components or components is MISSING:
+            _components = []
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components:
+        else:
+            _components: List[dict] = [{"type": 1, "components": []}]
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -624,8 +626,6 @@ class Message(DictSerializerMixin):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
-        else:
-            _components = []
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(

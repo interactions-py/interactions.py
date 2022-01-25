@@ -203,7 +203,7 @@ class CommandContext(Context):
         else:
             _embeds: list = (
                 []
-                if embeds is MISSING
+                if not embeds or embeds is MISSING
                 else (
                     [embed._json for embed in embeds]
                     if isinstance(embeds, list)
@@ -413,7 +413,7 @@ class CommandContext(Context):
         else:
             _embeds: list = (
                 []
-                if embeds is MISSING
+                if not embeds
                 else (
                     [embed._json for embed in embeds]
                     if isinstance(embeds, list)
