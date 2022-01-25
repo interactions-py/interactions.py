@@ -123,6 +123,8 @@ class Option(DictSerializerMixin):
                         choice if isinstance(choice, dict) else choice._json
                         for choice in self.choices
                     ]
+            elif all(isinstance(choice, Choice) for choice in self.choices):
+                self._json["choices"] = [choice._json for choice in self.choices]
 
 
 class Permission(DictSerializerMixin):
