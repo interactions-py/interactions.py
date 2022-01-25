@@ -59,7 +59,6 @@ class Base:
         """
         self.version = version
         self.name = name
-        self.version = version
         self.link = link
         self.description = description
         self.long_description = long_description
