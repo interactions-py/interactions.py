@@ -103,8 +103,8 @@ class Channel(DictSerializerMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable[[Message], bool] = None,
-        before: Optional[int] = None,
+        check: Callable[[Message], bool] = MISSING,
+        before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
     ) -> List[Message]: ...

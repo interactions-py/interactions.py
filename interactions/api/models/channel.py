@@ -504,8 +504,8 @@ class Channel(DictSerializerMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable = None,
-        before: Optional[int] = None,
+        check: Callable = MISSING,
+        before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
     ) -> List:
@@ -532,7 +532,7 @@ class Channel(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from .message import Message
 
-        _before = None if not before else before
+        _before = None if before is MISSING else before
         _all = []
         if bulk:
             _allowed_time = pytz.UTC.localize(datetime.now() - timedelta(days=14))
@@ -558,7 +558,7 @@ class Channel(DictSerializerMixin):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
-                    elif check:
+                    elif check is not MISSING:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
@@ -608,7 +608,7 @@ class Channel(DictSerializerMixin):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
-                    elif check:
+                    elif check is not MISSING:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
@@ -650,7 +650,7 @@ class Channel(DictSerializerMixin):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
-                    elif check:
+                    elif check is not MISSING:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
@@ -682,7 +682,7 @@ class Channel(DictSerializerMixin):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
-                    elif check:
+                    elif check is not MISSING:
                         _check = check(message)
                         if not _check:
                             messages.remove(message)
