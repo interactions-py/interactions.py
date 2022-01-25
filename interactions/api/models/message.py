@@ -272,7 +272,12 @@ class Message(DictSerializerMixin):
             else None
         )
         self.embeds = (
-            [Embed(**embed) for embed in self.embeds] if self._json.get("embeds") else None
+            [
+                Embed(**embed) if isinstance(embed, dict) else Embed(**embed._json)
+                for embed in self.embeds
+            ]
+            if self._json.get("embeds")
+            else None
         )
         self.activity = MessageActivity(**self.activity) if self._json.get("activity") else None
         self.application = (
