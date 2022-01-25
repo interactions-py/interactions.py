@@ -100,6 +100,10 @@ class Channel(DictSerializerMixin):
         message_id: int,
     ) -> Message: ...
     async def get_pinned_messages(self) -> List[Message]: ...
+    async def get_message(
+            self,
+            message_id: int,
+    ) -> Message: ...
     async def purge(
         self,
         amount: int,

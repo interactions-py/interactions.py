@@ -246,7 +246,15 @@ class Message(DictSerializerMixin):
             else datetime.utcnow()
         )
         self.author = User(**self._json.get("author")) if self._json.get("author") else None
-        self.member = Member(**self._json.get("member")) if self._json.get("member") else None
+        self.member = (
+            Member(
+                **self._json.get("member"),
+                _client=self._client,
+                user=self.author._json,
+            )
+            if self._json.get("member")
+            else None
+        )
         self.type = MessageType(self.type) if self._json.get("type") else None
         self.edited_timestamp = (
             datetime.fromisoformat(self._json.get("edited_timestamp"))

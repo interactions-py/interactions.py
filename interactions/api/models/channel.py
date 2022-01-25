@@ -501,6 +501,24 @@ class Channel(DictSerializerMixin):
         messages = [Message(**message, _client=self._client) for message in res]
         return messages
 
+    async def get_message(
+        self,
+        message_id: int,
+    ):
+        """
+        Gets a message sent in that channel.
+
+        :return: The message as object
+        :rtype: Message
+        """
+        res = await self._client.get_message(
+            channel_id=int(self.id),
+            message_id=message_id,
+        )
+        from .message import Message
+
+        return Message(**res, _client=self._client)
+
     async def purge(
         self,
         amount: int,

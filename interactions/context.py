@@ -688,6 +688,30 @@ class CommandContext(Context):
             data=payload,
         )
 
+    async def get_channel(self) -> Channel:
+        """
+        This gets the channel the command was invoked in.
+
+        :return: The channel as object
+        :rtype: Channel
+        """
+
+        res = await self.client.get_channel(int(self.channel_id))
+        self.channel = Channel(**res, _client=self.client)
+        return self.channel
+
+    async def get_guild(self) -> Guild:
+        """
+        This gets the guild the command was invoked in.
+
+        :return: The guild as object
+        :rtype: Guild
+        """
+
+        res = await self.client.get_guild(int(self.guild_id))
+        self.guild = Guild(**res, _client=self.client)
+        return self.guild
+
 
 class ComponentContext(CommandContext):
     """
