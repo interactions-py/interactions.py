@@ -1,11 +1,49 @@
 from asyncio import AbstractEventLoop
 from threading import Event, Thread
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, List, Tuple
+
+from aiohttp import ClientWebSocketResponse
+from .models.team import Application
+from .models.guild import UnavailableGuild
+
+from .models.user import User
+
+from ..models.misc import MISSING
 
 from .dispatch import Listener
 from .http import HTTPClient
 from .models.gw import Presence
 from .models.flags import Intents
+
+class WebSocketClient:
+    _loop: AbstractEventLoop
+    _dispatch: Listener
+    _http: HTTPClient
+    _client: Optional[ClientWebSocketResponse]
+    _closed: bool
+    _options: Dict[str, Union[int, bool]]
+    _intents: Intents
+    __heartbeater: Event
+    session_id: Optional[int]
+    sequence: Optional[str]
+    ready: Optional[Dict[str, Union[int, User, UnavailableGuild, str, List[int], Application]]]
+    def __init__(
+        self,
+        intents: Intents,
+        session_id: Optional[int] = MISSING,
+        sequence: Optional[int] = MISSING,
+    ) -> None: ...
+    async def _establish_connection(self) -> None: ...
+    @property
+    async def _received_packet_stream(self) -> Optional[Dict[str, Any]]: ...
+    async def _send_packet(self, data: Dict[str, Any]) -> None: ...
+    async def __identify_packet(
+        self, shard: Optional[List[int]] = MISSING, presence: Optional[Presence] = MISSING
+    ) -> None: ...
+    @property
+    async def __resume_packet(self) -> None: ...
+    @property
+    async def __heartbeat_packet(self) -> None: ...
 
 class Heartbeat(Thread):
     ws: Any
