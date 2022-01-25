@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from .misc import DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Snowflake
 
 
 class RoleTags(DictSerializerMixin):
@@ -85,13 +85,13 @@ class Role(DictSerializerMixin):
     async def modify(
         self,
         guild_id: int,
-        name: Optional[str] = None,
+        name: Optional[str] = MISSING,
         # permissions,
-        color: Optional[int] = None,
-        hoist: Optional[bool] = None,
+        color: Optional[int] = MISSING,
+        hoist: Optional[bool] = MISSING,
         # icon,
         # unicode_emoji,
-        mentionable: Optional[bool] = None,
+        mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Role":
         """
@@ -114,10 +114,10 @@ class Role(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        _name = self.name if not name else name
-        _color = self.color if not color else color
-        _hoist = self.hoist if not hoist else hoist
-        _mentionable = self.mentionable if mentionable is None else mentionable
+        _name = self.name if name is MISSING else name
+        _color = self.color if color is MISSING else color
+        _hoist = self.hoist if hoist is MISSING else hoist
+        _mentionable = self.mentionable if mentionable is MISSING else mentionable
 
         payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
 
