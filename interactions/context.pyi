@@ -10,7 +10,7 @@ from .api.models.user import User
 from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Component, Modal, SelectMenu
-from .models.misc import InteractionData
+from .models.misc import InteractionData, MISSING
 
 class Context(DictSerializerMixin):
     message: Optional[Message]
@@ -41,28 +41,28 @@ class CommandContext(Context):
     async def defer(self, ephemeral: Optional[bool] = None) -> None: ...
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
-        ephemeral: Optional[bool] = False,
+        ] = MISSING,
+        ephemeral: Optional[bool] = MISSING,
     ) -> Message: ...
     async def edit(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
+        ] = MISSING,
     ) -> Message: ...
     async def delete(self) -> None: ...
     async def popup(self, modal: Modal): ...
