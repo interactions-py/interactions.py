@@ -3,7 +3,8 @@ try:
 except ImportError:
     from json import dumps, loads
 
-from asyncio import Event, create_task, get_event_loop, get_running_loop, new_event_loop, wait_for
+# from asyncio import Event, create_task, get_event_loop, get_running_loop, new_event_loop, wait_for
+from asyncio import Event, get_event_loop, get_running_loop, new_event_loop
 from logging import Logger
 from sys import platform, version_info
 from typing import Any, Dict, List, Optional, Tuple
@@ -20,8 +21,6 @@ from .http import HTTPClient
 from .models.flags import Intents
 
 log: Logger = get_logger("gateway")
-
-__all__ = "WebSocketClient"
 
 
 class WebSocketClient:
@@ -40,6 +39,8 @@ class WebSocketClient:
         "__morgued",
         "session_id",
         "sequence",
+        "ready",
+        "_heartbeat_delay",
     )
 
     def __init__(
@@ -75,17 +76,19 @@ class WebSocketClient:
         }
         self._intents = intents
         self.__heartbeater = Event(loop=self._loop if version_info < (3, 10) else None)
-        self.__morgued = Event(loop=self._loop if version_info < (3, 10) else None)
+        # self.__morgued = Event(loop=self._loop if version_info < (3, 10) else None)
+
         self.session_id = None if session_id is MISSING else session_id
         self.sequence = None if sequence is MISSING else sequence
         self.ready = None
+        self._heartbeat_delay: Optional[float] = None  # Stores heartbeat header metadata
 
     async def _establish_connection(
         self, shard: Optional[List[Tuple[int]]] = MISSING, presence: Optional[Presence] = MISSING
     ) -> None:
         """Establishes a client connection with the Gateway."""
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
-        url: str = await self._http.get_bot_gateway()
+        (_shard, url) = await self._http.get_bot_gateway()
 
         async with self._http._req._session.ws_connect(url, **self._options) as self._client:
             while not self._closed:
@@ -118,14 +121,23 @@ class WebSocketClient:
                 else:
                     await self.__resume_packet
                 await self.__heartbeat_packet
-                self.__heartbeater.set()
-                create_task(self.__heartbeater)
-                wait_for(self.__morgued, timeout=data["heartbeat_interval"], loop=self._loop)
+
+                self._heartbeat_delay = data["heartbeat_interval"]
+
+                # the heartbeater's event is cleared by default. since it already sent a packet.....
+
+                # self.__heartbeater._heartbeat.set()
+                await self._loop.call_later(
+                    self._heartbeat_delay, self.__heartbeater.set()
+                )  # todo: make this sync.
+                # create_task(self.__heartbeater)
+                # wait_for(self.__morgued, timeout=data["heartbeat_interval"], loop=self._loop)
             if op == OpCodeType.HEARTBEAT and self.__heartbeater.is_set():
                 await self.__heartbeat_packet
             if op == OpCodeType.HEARTBEAT_ACK and self.__heartbeater.is_set():
                 log.debug("HEARTBEAT_ACK")
-            if op in (OpCodeType.INVALID_SESSION, OpCodeType.RECONNECT):
+                self.__heartbeater.clear()
+            if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
                 if not data or op == OpCodeType.RECONNECT:
                     try:
@@ -194,9 +206,9 @@ class WebSocketClient:
             },
         }
 
-        if shard is not MISSING:
+        if shard is not MISSING or None:
             payload["d"]["shard"] = shard
-        if presence is not MISSING:
+        if isinstance(presence, Presence):
             payload["d"]["presence"] = presence._json
 
         log.debug(f"IDENTIFYING: {payload}")

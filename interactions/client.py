@@ -9,7 +9,7 @@ from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.dispatch import Listener
 from .api.error import InteractionException
-from .api.gateway import WebSocket
+from .api.gateway import WebSocketClient
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
@@ -34,7 +34,7 @@ class Client:
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
-    :ivar WebSocket _websocket: An object-orientation of a websocket server connection to the Gateway.
+    :ivar WebSocketClient _websocket: An object-orientation of a websocket server connection to the Gateway.
     :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
     :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
     :ivar Optional[Presence] _presence: The RPC-like presence shown on an application once connected.
@@ -75,7 +75,7 @@ class Client:
         self._loop = get_event_loop()
         self._http = HTTPClient(token=token)
         self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WebSocket(intents=self._intents)
+        self._websocket = WebSocketClient(token=token, intents=self._intents)
         self._shard = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token
@@ -101,10 +101,10 @@ class Client:
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
-        self._websocket.dispatch.register(self.__raw_socket_create)
-        self._websocket.dispatch.register(self.__raw_channel_create, "on_channel_create")
-        self._websocket.dispatch.register(self.__raw_message_create, "on_message_create")
-        self._websocket.dispatch.register(self.__raw_guild_create, "on_guild_create")
+        self._websocket._dispatch.register(self.__raw_socket_create)
+        self._websocket._dispatch.register(self.__raw_channel_create, "on_channel_create")
+        self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
+        self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
 
     async def __compare_sync(self, data: dict, pool: List[dict]) -> bool:
         """
@@ -269,8 +269,8 @@ class Client:
 
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
-        while not self._websocket.closed:
-            await self._websocket.connect(self._token, self._shard, self._presence)
+        while not self._websocket._closed:
+            await self._websocket._establish_connection(self._shard, self._presence)
 
     def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
         """
@@ -284,7 +284,7 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self._websocket.dispatch.register(coro, name if name is not MISSING else coro.__name__)
+        self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
 
     def command(

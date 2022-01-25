@@ -6,7 +6,7 @@ from .api.models.gw import Presence
 from .models.misc import MISSING
 
 from .api.cache import Cache
-from .api.gateway import WebSocket
+from .api.gateway import WebSocketClient
 from .api.http import HTTPClient
 from .api.models.guild import Guild
 from .api.models.flags import Intents
@@ -21,7 +21,7 @@ _cache: Optional[Cache] = None
 class Client:
     _loop: AbstractEventLoop
     _http: HTTPClient
-    _websocket: WebSocket
+    _websocket: WebSocketClient
     _intents: Intents
     _shard: Optional[List[Tuple[int]]]
     _presence: Optional[Presence]
