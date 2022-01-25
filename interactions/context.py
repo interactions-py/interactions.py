@@ -194,6 +194,7 @@ class CommandContext(Context):
         _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
+
         if (
             embeds is MISSING
             and self.message
@@ -211,6 +212,7 @@ class CommandContext(Context):
                 )
             )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+
         _components: List[dict] = [{"type": 1, "components": []}]
 
         # TODO: Break this obfuscation pattern down to a "builder" method.
@@ -309,12 +311,14 @@ class CommandContext(Context):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
+
         elif (
             components is MISSING
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
             _components = self.message.components
+
         else:
             _components = []
 
