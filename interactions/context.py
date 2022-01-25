@@ -194,18 +194,11 @@ class CommandContext(Context):
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        if embeds is None and self.message:
-            _embeds = self.message.embeds
-        else:
-            _embeds: list = (
-                []
-                if embeds is None
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
+        _embeds: list = (
+            []
+            if embeds is None
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
         _components: List[dict] = [{"type": 1, "components": []}]
 
@@ -305,8 +298,6 @@ class CommandContext(Context):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
-        elif components is None and self.message:
-            _components = self.message.components
         else:
             _components = []
 
