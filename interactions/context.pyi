@@ -5,12 +5,12 @@ from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
-from .api.models.misc import DictSerializerMixin, Snowflake
+from .api.models.misc import DictSerializerMixin, Snowflake, MISSING
 from .api.models.user import User
 from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Component, Modal, SelectMenu
-from .models.misc import InteractionData, MISSING
+from .models.misc import InteractionData
 
 class Context(DictSerializerMixin):
     message: Optional[Message]

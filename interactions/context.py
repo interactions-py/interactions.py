@@ -5,13 +5,13 @@ from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
-from .api.models.misc import DictSerializerMixin, Snowflake
+from .api.models.misc import MISSING, DictSerializerMixin, Snowflake
 from .api.models.user import User
 from .base import get_logger
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu
-from .models.misc import InteractionData, MISSING
+from .models.misc import InteractionData
 
 log: Logger = get_logger("context")
 
@@ -194,7 +194,11 @@ class CommandContext(Context):
         _tts: bool = False if tts is None else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        if embeds is MISSING and self.message and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
+        if (
+            embeds is MISSING
+            and self.message
+            and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ):
             _embeds = self.message.embeds
         else:
             _embeds: list = (

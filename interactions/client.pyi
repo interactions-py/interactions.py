@@ -3,7 +3,7 @@ from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
 
 from .api.models.gw import Presence
-from .models.misc import MISSING
+from .api.models.misc import MISSING
 
 from .api.cache import Cache
 from .api.gateway import WebSocket

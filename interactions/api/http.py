@@ -11,8 +11,8 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 import interactions.api.cache
+from interactions.api.models.misc import MISSING
 from interactions.base import __version__, get_logger
-from interactions.models.misc import MISSING
 
 from ..api.cache import Cache, Item
 from ..api.error import HTTPException
