@@ -1,6 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import IntEnum
-from typing import List, Optional
+from typing import Callable, List, Optional
+
+import pytz
 
 from .misc import MISSING, DictSerializerMixin, Snowflake
 
@@ -498,6 +500,204 @@ class Channel(DictSerializerMixin):
         res = await self._client.get_pinned_messages(int(self.id))
         messages = [Message(**message, _client=self._client) for message in res]
         return messages
+
+    async def purge(
+        self,
+        amount: int,
+        check: Callable = None,
+        before: Optional[int] = None,
+        reason: Optional[str] = None,
+        bulk: Optional[bool] = True,
+    ) -> List:
+        """
+        Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
+        .. code-block:: python
+            def check_pinned(message):
+                return not message.pinned  # This returns `True` only if the message is the message is not pinned
+            await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
+        :param amount: The amount of messages to delete
+        :type amount: int
+        :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
+        :type check: Callable[[Message], bool]
+        :param before?: An id of a message to purge only messages before that message
+        :type before: Optional[int]
+        :param bulk?: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
+        :param bulk: Optional[bool]
+        :param reason?: The reason of the deletes
+        :type reason: Optional[str]
+        :return: A list of the deleted messages
+        :rtype: List[Message]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        from .message import Message
+
+        _before = None if not before else before
+        _all = []
+        if bulk:
+            _allowed_time = pytz.UTC.localize(datetime.now() - timedelta(days=14))
+            _stop = False
+            while amount > 100:
+
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=100,
+                        before=_before,
+                    )
+                ]
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) > 1:
+                    await self._client.delete_messages(
+                        channel_id=int(self.id),
+                        message_ids=[int(message.id) for message in messages],
+                        reason=reason,
+                    )
+                elif len(messages) == 1:
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(messages[0].id),
+                        reason=reason,
+                    )
+                else:
+                    if _stop:
+                        return _all
+                    else:
+                        continue
+                if _stop:
+                    return _all
+
+                amount -= 100
+
+            while amount > 1:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount,
+                        before=_before,
+                    )
+                ]
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
+                amount -= amount
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) > 1:
+                    await self._client.delete_messages(
+                        channel_id=int(self.id),
+                        message_ids=[int(message.id) for message in messages],
+                        reason=reason,
+                    )
+                elif len(messages) == 1:
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(messages[0].id),
+                        reason=reason,
+                    )
+                else:
+                    if _stop:
+                        return _all
+                    else:
+                        continue
+                if _stop:
+                    return _all
+            while amount == 1:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount,
+                        before=_before,
+                    )
+                ]
+                amount -= 1
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) == 0:
+                    continue
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(messages[0].id),
+                    reason=reason,
+                )
+
+        else:
+            while amount > 0:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount if amount <= 100 else 100,
+                        before=_before,
+                    )
+                ]
+                amount -= amount if amount <= 100 else 100
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+
+            for message in _all:
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(message.id),
+                    reason=reason,
+                )
+
+        return _all
 
 
 class Thread(Channel):

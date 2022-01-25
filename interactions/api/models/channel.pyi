@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Callable
 
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
@@ -100,6 +100,14 @@ class Channel(DictSerializerMixin):
         message_id: int,
     ) -> Message: ...
     async def get_pinned_messages(self) -> List[Message]: ...
+    async def purge(
+        self,
+        amount: int,
+        check: Callable[[Message], bool] = None,
+        before: Optional[int] = None,
+        reason: Optional[str] = None,
+        bulk: Optional[bool] = True,
+    ) -> List[Message]: ...
 
 
 class Thread(Channel): ...
