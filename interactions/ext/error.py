@@ -14,28 +14,28 @@ class ErrorType(str, Enum):
     UNKNOWN_SERVICE = "The service specified does not exist."
 
 
-class IncorrectAlphanumericError(Exception):
+class IncorrectAlphanumeric(Exception):
     """An exception raised whenever a ``Version`` object has an incorrect alphanumeric formatting."""
 
     def __init__(self):
         super().__init__(ErrorType.INCORRECT_ALPHANUMERIC_VERSION)
 
 
-class MissingNumericError(Exception):
+class MissingNumeric(Exception):
     """An exception raised whenever a ``Version`` object has an incorrect numerical formatting."""
 
     def __init__(self):
         super().__init__(ErrorType.MISSING_NUMERIC_VERSION)
 
 
-class TooManyAuthorsError(Exception):
+class TooManyAuthors(Exception):
     """An exception raised whenever a ``VersionAuthor`` object have too many "main" authors."""
 
     def __init__(self):
         super().__init__(ErrorType.TOO_MANY_AUTHORS)
 
 
-class UnknownServiceError(Exception):
+class UnknownService(Exception):
     """An exception raised whenever a ``Base`` object cannot find a service."""
 
     def __init__(self):
