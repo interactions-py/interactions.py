@@ -11,6 +11,7 @@ class ErrorType(str, Enum):
     TOO_MANY_AUTHORS = (
         "A version can only have one main author. The rest of the authors must be co-authors."
     )
+    UNKNOWN_SERVICE = "The service specified does not exist."
 
 
 class IncorrectAlphanumericError(Exception):
@@ -32,3 +33,10 @@ class TooManyAuthorsError(Exception):
 
     def __init__(self):
         super().__init__(ErrorType.TOO_MANY_AUTHORS)
+
+
+class UnknownServiceError(Exception):
+    """An exception raised whenever a ``Base`` object cannot find a service."""
+
+    def __init__(self):
+        super().__init__(ErrorType.UNKNOWN_SERVICE)

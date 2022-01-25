@@ -10,3 +10,6 @@ class MissingNumericError(Exception):
 
 class TooManyAuthorsError(Exception):
     def __init__(self): ...
+
+class UnknownServiceError(Exception):
+    def __init__(self): ...

@@ -107,6 +107,9 @@ class Version:
     def __repr__(self) -> str:
         return self.__version
 
+    def __str__(self) -> str:
+        return self.__repr__()
+
     @property
     def major(self) -> int:
         """Returns the major version."""
