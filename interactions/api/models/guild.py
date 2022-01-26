@@ -1196,6 +1196,28 @@ class Guild(DictSerializerMixin):
         roles = [Role(**role, _client=self._client) for role in res]
         return roles
 
+    async def get_role(
+        self,
+        role_id: int,
+    ) -> Role:
+        """
+        Gets a role of the guild.
+
+        :param role_id: The id of the role to get
+        :type role_id: int
+        :return: The role as object
+        :rtype: Role
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        for i in roles:
+            if int(i["id"]) == role_id:
+                role = Role(**i)
+                break
+        return role
+
     async def modify_role_position(
         self,
         role_id: Union[Role, int],
