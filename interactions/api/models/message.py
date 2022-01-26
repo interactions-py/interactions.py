@@ -682,6 +682,42 @@ class Message(DictSerializerMixin):
         )
         return Message(**res, _client=self._client)
 
+    async def create_thread(
+        self,
+        name: str,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Creates a thread from the message.
+
+        :param name: The name of the thread
+        :type name: str
+        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param invitable?: Boolean to display if the Thread is open to join or private.
+        :type invitable: Optional[bool]
+        :param reason?: An optional reason for the audit log
+        :type reason: Optional[str]
+        :return: The created thread
+        :rtype: Channel
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
+        _invitable = None if invitable is MISSING else invitable
+        res = await self._client.create_thread(
+            channel_id=int(self.channel_id),
+            message_id=int(self.id),
+            name=name,
+            reason=reason,
+            invitable=_invitable,
+            auto_archive_duration=_auto_archive_duration,
+        )
+        return Channel(**res, _client=self._client)
+
 
 class Emoji(DictSerializerMixin):
     """

@@ -8,7 +8,18 @@ from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
 from .user import User
 from ..http import HTTPClient
 
-class ChannelType(IntEnum): ...
+class ChannelType(IntEnum):
+    GUILD_TEXT = 0
+    DM = 1
+    GUILD_VOICE = 2
+    GROUP_DM = 3
+    GUILD_CATEGORY = 4
+    GUILD_NEWS = 5
+    GUILD_STORE = 6
+    GUILD_NEWS_THREAD = 10
+    GUILD_PUBLIC_THREAD = 11
+    GUILD_PRIVATE_THREAD = 12
+    GUILD_STAGE_VOICE = 13
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict
@@ -112,6 +123,14 @@ class Channel(DictSerializerMixin):
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
     ) -> List[Message]: ...
-
+    async def create_thread(
+        self,
+        name: str,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Channel": ...
 
 class Thread(Channel): ...
