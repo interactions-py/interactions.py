@@ -33,10 +33,10 @@ setup(
     description="Easy, simple, scalable and modular: a Python API wrapper for interactions.",
     extras_require=extras,
     install_requires=requirements,
-    license="MIT License",
+    license="GPL-3.0 License",
     long_description=README,
     long_description_content_type="text/x-rst",
-    url="https://github.com/goverfl0w/discord-interactions",
+    url="https://github.com/interactions-py/library",
     packages=find_packages(),
     python_requires=">=3.8.6",
     classifiers=[

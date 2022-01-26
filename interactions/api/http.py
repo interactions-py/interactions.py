@@ -2,7 +2,7 @@ import asyncio
 import traceback
 from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop
 from json import dumps
-from logging import Logger, getLogger
+from logging import Logger
 from sys import version_info
 from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
 from urllib.parse import quote
@@ -11,6 +11,7 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 import interactions.api.cache
+from interactions.base import __version__, get_logger
 from interactions.models.misc import MISSING
 
 from ..api.cache import Cache, Item
@@ -31,9 +32,8 @@ from ..api.models import (
     User,
     WelcomeScreen,
 )
-from ..base import __version__
 
-log: Logger = getLogger("http")
+log: Logger = get_logger("http")
 
 __all__ = ("Route", "Request", "HTTPClient")
 _session: ClientSession = ClientSession()
@@ -175,7 +175,9 @@ class Request:
             f"aiohttp/{http_version}",
         }
         self._session = _session
-        self._global_lock = Limiter(lock=Lock(loop=self._loop))
+        self._global_lock = (
+            Limiter(lock=Lock(loop=self._loop)) if version_info < (3, 10) else Limiter(lock=Lock())
+        )
 
     def _check_session(self) -> None:
         """Ensures that we have a valid connection session."""
@@ -228,7 +230,11 @@ class Request:
                 self._loop.call_later(_limiter.reset_after, _limiter.lock.release)
             _limiter.reset_after = 0
         else:
-            self.ratelimits.update({bucket: Limiter(lock=Lock(loop=self._loop))})
+            self.ratelimits[bucket] = (
+                Limiter(lock=Lock(loop=self._loop))
+                if version_info < (3, 10)
+                else Limiter(lock=Lock())
+            )
             _limiter: Limiter = self.ratelimits.get(bucket)
 
         await _limiter.lock.acquire()  # _limiter is the per shared bucket/route endpoint

@@ -38,7 +38,7 @@ The short answer is: **yes.**
 
 However, the term "work" is loosely structured here. Imagine it like taping a hole in the wall instead of repairing the wall.
 We're essentially "plastering" support for discord.py instead of doing the surgery on its internal organs to make it work well
-with our library. As it currently stands, **discord-interactions and discord.py** are API wrappers. You will be able to run code
+with our library. As it currently stands, **interactions.py and discord.py** are API wrappers. You will be able to run code
 *alongside* one another, and you will be able to plug in some classes, but the data conversion **must be exact.**
 
 What does that mean? Well, we'll show you:
@@ -99,7 +99,7 @@ it breaking, hence the "plastering" that is going on here.
 
 Where should we go with discord.py being gone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The most *biased* answer would be to, of course, *use discord-interactions.* We already offer a lot of the integral API wrapper
+The most *biased* answer would be to, of course, *use interactions.py.* We already offer a lot of the integral API wrapper
 aspects as discord.py does, however, we only specialize in interactions. Which means things such as these won't be supported
 officially by us (but might be available as 3rd parties):
 
