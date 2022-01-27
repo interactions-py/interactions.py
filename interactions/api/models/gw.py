@@ -15,7 +15,7 @@ class ApplicationCommandPermissions(DictSerializerMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
 
-    ..note :: This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
+    .. note:: This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
 
     :ivar Snowflake application_id: The application ID associated with the event.
     :ivar Snowflake guild_id: The guild ID associated with the event.
