@@ -129,6 +129,8 @@ class Message(DictSerializerMixin):
         invitable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
+    @classmethod
+    async def get_from_url(cls, url: str) -> "Message": ...
 
 
 class Emoji(DictSerializerMixin):

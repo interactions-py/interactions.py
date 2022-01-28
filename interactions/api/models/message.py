@@ -718,6 +718,24 @@ class Message(DictSerializerMixin):
         )
         return Channel(**res, _client=self._client)
 
+    @classmethod
+    async def get_from_url(cls, url: str) -> "Message":
+        """
+        Gets a Message based from its url.
+
+        :param url: The full url of the message
+        :type url: str
+        """
+        # dm: "https://ptb.discord.com/channels/@me/832253886567677982/935603452128669756"
+        # guild: "https://ptb.discord.com/channels/864926749699866634/867122987114692638/935596300068597772"
+
+        if "channels/" not in url:
+            raise ValueError("You provided an invalid URL!")  # TODO: custom error formatter
+        _url = url.split("channels/")[1]
+        print(_url.split("/"))
+        await cls._client.get_message()
+        print(cls)
+
 
 class Emoji(DictSerializerMixin):
     """
