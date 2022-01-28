@@ -130,7 +130,11 @@ class Message(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> Channel: ...
     @classmethod
-    async def get_from_url(cls, url: str) -> "Message": ...
+    async def get_from_url(
+        cls,
+        url: str,
+        client: HTTPClient,
+    ) -> "Message": ...
 
 
 class Emoji(DictSerializerMixin):
