@@ -190,7 +190,9 @@ class Member(DictSerializerMixin):
                 "ActionRow",  # noqa
                 "Button",  # noqa
                 "SelectMenu",  # noqa
-                List["ActionRow"], List["Button"], List["SelectMenu"],  # noqa
+                List["ActionRow"],  # noqa
+		List["Button"],  # noqa
+		List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
