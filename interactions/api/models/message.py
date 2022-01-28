@@ -337,8 +337,8 @@ class Message(DictSerializerMixin):
                 "Button",  # noqa
                 "SelectMenu",  # noqa
                 List["ActionRow"],  # noqa
-		List["Button"],  # noqa
-		List["SelectMenu"],  # noqa
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
     ) -> "Message":
@@ -513,8 +513,8 @@ class Message(DictSerializerMixin):
                 "Button",  # noqa
                 "SelectMenu",  # noqa
                 List["ActionRow"],  # noqa
-		List["Button"],  # noqa
-		List["SelectMenu"],  # noqa
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
     ) -> "Message":
