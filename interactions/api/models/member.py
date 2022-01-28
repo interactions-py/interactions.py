@@ -184,11 +184,11 @@ class Member(DictSerializerMixin):
         self,
         content: Optional[str] = MISSING,
         *,
-        components=MISSING,
+        components: Optional = MISSING,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=MISSING,
-        allowed_mentions=MISSING,
+        embeds: Optional = MISSING,
+        allowed_mentions: Optional = MISSING,
     ):
         """
         Sends a DM to the member.

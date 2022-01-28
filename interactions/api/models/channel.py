@@ -187,9 +187,9 @@ class Channel(DictSerializerMixin):
         *,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=MISSING,
-        allowed_mentions=MISSING,
-        components=MISSING,
+        embeds: Optional = MISSING,
+        allowed_mentions: Optional = MISSING,
+        components: Optional = MISSING,
     ):
         """
         Sends a message in the channel.
