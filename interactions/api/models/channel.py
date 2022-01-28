@@ -194,7 +194,7 @@ class Channel(DictSerializerMixin):
                 "ActionRow",  # noqa
                 "Button",  # noqa
                 "SelectMenu",  # noqa
-                List[Union["ActionRow", "Button", "SelectMenu"]],  # noqa
+                List["ActionRow"], List["Button"], List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
     ):
@@ -210,7 +210,7 @@ class Channel(DictSerializerMixin):
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
         :rtype: Message
         """
