@@ -60,7 +60,7 @@ class Member(DictSerializerMixin):
         ] = MISSING,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Embed] = MISSING,
+        embeds: Optional[Union[Embed, List["Embed"]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
     ) -> Message: ...
     async def modify(

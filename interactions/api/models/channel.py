@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from .misc import MISSING, DictSerializerMixin, Snowflake
 
@@ -187,9 +187,16 @@ class Channel(DictSerializerMixin):
         *,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional = MISSING,
-        allowed_mentions: Optional = MISSING,
-        components: Optional = MISSING,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
+        components: Optional[
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List[Union["ActionRow", "Button", "SelectMenu"]],  # noqa
+            ]
+        ] = MISSING,
     ):
         """
         Sends a message in the channel.

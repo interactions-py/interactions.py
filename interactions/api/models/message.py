@@ -331,7 +331,14 @@ class Message(DictSerializerMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional["MessageReference"] = MISSING,
-        components=MISSING,
+        components: Optional[
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List[Union["ActionRow", "Button", "SelectMenu"]],  # noqa
+            ]
+        ] = MISSING,  # noqa
     ) -> "Message":
         """
         This method edits a message. Only available for messages sent by the bot.
