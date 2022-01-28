@@ -336,7 +336,7 @@ class Message(DictSerializerMixin):
                 "ActionRow",  # noqa
                 "Button",  # noqa
                 "SelectMenu",  # noqa
-                List[Union["ActionRow", "Button", "SelectMenu"]],  # noqa
+                List["ActionRow"], List["Button"], List["SelectMenu"],  # noqa
             ]
         ] = MISSING,  # noqa
     ) -> "Message":
@@ -352,7 +352,7 @@ class Message(DictSerializerMixin):
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The edited message as an object.
         :rtype: Message
         """
@@ -505,7 +505,14 @@ class Message(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
-        components=MISSING,
+        components: Optional[
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List["ActionRow"], List["Button"], List["SelectMenu"],  # noqa
+            ]
+        ] = MISSING,  # noqa
     ) -> "Message":
         """
         Sends a new message replying to the old.
@@ -519,7 +526,7 @@ class Message(DictSerializerMixin):
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
         :rtype: Message
         """
