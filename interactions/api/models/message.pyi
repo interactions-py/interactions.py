@@ -102,7 +102,7 @@ class Message(DictSerializerMixin):
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional["MessageReference"] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
     ) -> "Message": ...
 
@@ -114,7 +114,7 @@ class Message(DictSerializerMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
     ) -> "Message": ...
     async def get_channel(self) -> Channel: ...
