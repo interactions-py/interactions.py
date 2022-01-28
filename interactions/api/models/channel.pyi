@@ -66,7 +66,14 @@ class Channel(DictSerializerMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+		List[Button],
+		List[SelectMenu],
+            ]
         ] = MISSING,
     ) -> Message: ...
     async def delete(self) -> None: ...
