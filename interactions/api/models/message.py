@@ -336,9 +336,11 @@ class Message(DictSerializerMixin):
                 "ActionRow",  # noqa
                 "Button",  # noqa
                 "SelectMenu",  # noqa
-                List["ActionRow"], List["Button"], List["SelectMenu"],  # noqa
+                List["ActionRow"],  # noqa
+		List["Button"],  # noqa
+		List["SelectMenu"],  # noqa
             ]
-        ] = MISSING,  # noqa
+        ] = MISSING,
     ) -> "Message":
         """
         This method edits a message. Only available for messages sent by the bot.
@@ -510,9 +512,11 @@ class Message(DictSerializerMixin):
                 "ActionRow",  # noqa
                 "Button",  # noqa
                 "SelectMenu",  # noqa
-                List["ActionRow"], List["Button"], List["SelectMenu"],  # noqa
+                List["ActionRow"],  # noqa
+		List["Button"],  # noqa
+		List["SelectMenu"],  # noqa
             ]
-        ] = MISSING,  # noqa
+        ] = MISSING,
     ) -> "Message":
         """
         Sends a new message replying to the old.
