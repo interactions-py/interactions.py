@@ -190,7 +190,7 @@ class Member(DictSerializerMixin):
                 "ActionRow",  # noqa
                 "Button",  # noqa
                 "SelectMenu",  # noqa
-                List[Union["ActionRow", "Button", "SelectMenu"]],  # noqa
+                List["ActionRow"], List["Button"], List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
@@ -204,7 +204,7 @@ class Member(DictSerializerMixin):
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
         :param embeds?: An embed, or list of embeds for the message.
