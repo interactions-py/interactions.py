@@ -56,7 +56,14 @@ class Member(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+		List[Button],
+		List[SelectMenu],
+            ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
