@@ -11,7 +11,7 @@ from .api.dispatch import Listener
 from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
-from .api.models.flags import Intents
+from .api.models.flags import Intents, AppFlags
 from .api.models.guild import Guild
 from .api.models.misc import Snowflake
 from .api.models.team import Application
@@ -41,6 +41,7 @@ class Client:
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
     :ivar Application me: The application representation of the client.
+    :ivar AppFlags application_flags: The application representation of the client's flags.
     """
 
     def __init__(
@@ -91,9 +92,11 @@ class Client:
             )
         else:
             self._automate_sync = True
-
+        
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
+        self.application_flags = AppFlags(data["flags"])
         self.me = Application(**data)
+        
 
     def start(self) -> None:
         """Starts the client session."""
@@ -259,6 +262,12 @@ class Client:
             self.__register_events()
             if self._automate_sync:
                 await self._synchronize()
+            if self.intents.GUILD_PRESENCES and not self.application_flags.GATEWAY_PRESENCE:
+                raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
+            if self.intents.GUILD_MEMBERS and not self.application_flags.GATEWAY_GUILD_MEMBERS:
+                raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
+            if self.intents.GUILD_MESSAGES and not self.application_flags.GATEWAY_MESSAGE_CONTENT:
+                log.critical("Client not authorised for MESSAGE_CONTENT intent")
             ready = True
         except Exception as error:
             log.critical(f"Could not prepare the client: {error}")
