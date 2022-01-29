@@ -257,7 +257,7 @@ class Client:
         ready: bool = False
 
         try:
-            if self._intents.GUILD_PRESENCES and not (self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENC_LIMITED):
+            if self._intents.GUILD_PRESENCES and not (self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENCE_LIMITED):
                 raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
             if self._intents.GUILD_MEMBERS and not (self.me.flags.GATEWAY_GUILD_MEMBERS or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED):
                 raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
