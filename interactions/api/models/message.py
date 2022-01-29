@@ -754,7 +754,6 @@ class Message(DictSerializerMixin):
             channel_id=_channel_id,
             message_id=_message_id,
         )
-        cls(**_message, _client=client)
         return cls(**_message, _client=client)
 
 
