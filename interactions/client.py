@@ -640,6 +640,7 @@ class Client:
 
         if _name in self._extensions:
             log.error(f"Extension {name} has already been loaded. Skipping.")
+            return
 
         module = import_module(
             name, package
