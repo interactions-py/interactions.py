@@ -690,6 +690,7 @@ class Client:
 
             del sys.modules[_name]
 
+        del sys.modules[_name]
         del self._extensions[_name]
 
         log.debug(f"Removed extension {name}.")
