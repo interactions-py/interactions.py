@@ -92,18 +92,19 @@ class UserFlags(IntFlag):
     
     STAFF = 1
     PARTNER = 1 << 1
-    HYPESQUAD_EVENTS = 1 << 2
-    BUG_HUNTER = 1 << 3
-    HYPESQUAD_BRAVERY = 1 << 6
-    HYPESQUAD_BRILLIANCE = 1 << 7
-    HYPESQUAD_BALANCE = 1 << 8
-    EARLY_SUPPORTER = 1 << 9
-    TEAM_USER = 1 << 10
+    HYPESQUAD = 1 << 2
+    BUG_HUNTER_LEVEL_1 = 1 << 3
+    HYPESQUAD_HOUSE_1 = 1 << 6
+    HYPESQUAD_HOUSE_2 = 1 << 7
+    HYPESQUAD_HOUSE_3 = 1 << 8
+    PREMIUM_EARLY_SUPPORTER = 1 << 9
+    TEAM_PSEUDO_USER = 1 << 10
     SYSTEM = 1 << 12
     BUG_HUNTER_LEVEL_2 = 1 << 14
     VERIFIED_BOT = 1 << 16
     VERIFIED_DEVELOPER = 1 << 17
     DISCORD_CERTIFIED_MODERATOR = 1 << 18
+    BOT_HTTP_INTERACTIONS = 1 << 19
 
 class AppFlags(IntFlag):
     """An integer flag bitshift object representing the different application flags given by Discord."""
