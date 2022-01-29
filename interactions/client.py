@@ -617,7 +617,7 @@ class Client:
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
         :type \**kwargs: dict
         :return: The loaded extension.
-        :rtype: Optional[interactions.client.Extension]
+        :rtype: Optional[Extension]
         """
         _name: str = resolve_name(name, package)
 
@@ -692,7 +692,7 @@ class Client:
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
         :type \**kwargs: dict
         :return: The reloaded extension.
-        :rtype: Optional[interactions.client.Extension]
+        :rtype: Optional[Extension]
         """
         _name: str = resolve_name(name, package)
         extension = self.extensions.get(_name)
@@ -703,7 +703,7 @@ class Client:
             return
 
         self.remove(name, package)
-        return self.load(name, package)
+        return self.load(name, package, *args, **kwargs)
 
     async def raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
