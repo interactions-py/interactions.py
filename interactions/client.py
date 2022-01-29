@@ -91,9 +91,10 @@ class Client:
             )
         else:
             self._automate_sync = True
-
+        
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
+        
 
     def start(self) -> None:
         """Starts the client session."""
@@ -256,6 +257,12 @@ class Client:
         ready: bool = False
 
         try:
+            if self._intents.GUILD_PRESENCES and not (self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENCE_LIMITED):
+                raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
+            if self._intents.GUILD_MEMBERS and not (self.me.flags.GATEWAY_GUILD_MEMBERS or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED):
+                raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
+            if self._intents.GUILD_MESSAGES and not (self.me.flags.GATEWAY_MESSAGE_CONTENT or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED):
+                log.critical("Client not authorised for MESSAGE_CONTENT intent")
             self.__register_events()
             if self._automate_sync:
                 await self._synchronize()
