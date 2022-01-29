@@ -101,7 +101,7 @@ class Message(DictSerializerMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = None,
         allowed_mentions: Optional["MessageInteraction"] = None,
         message_reference: Optional["MessageReference"] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu]] = None,
+        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] = None,
     ) -> "Message": ...
 
     async def reply(self,
@@ -111,10 +111,13 @@ class Message(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None
         embeds: Optional[Union["Embed", List["Embed"]]] = None,
         allowed_mentions: Optional["MessageInteraction"] = None,
-        components=None,
+        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]=None,
     ) -> "Message": ...
     async def get_channel(self) -> Channel: ...
     async def get_guild(self) -> Guild: ...
+    async def pin(self) -> None: ...
+    async def unpin(self) -> None: ...
+    async def publish(self) -> "Message": ...
 
 
 class Emoji(DictSerializerMixin):

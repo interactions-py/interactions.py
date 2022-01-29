@@ -85,10 +85,14 @@ class SelectMenu(DictSerializerMixin):
         super().__init__(**kwargs)
         self.type = ComponentType.SELECT
         self.options = (
-            SelectOption(**option)
-            if not isinstance(option, SelectOption)
-            else self._json.get("options")
-            for option in self.options
+            [
+                SelectOption(**option._json)
+                if isinstance(option, SelectOption)
+                else SelectOption(**option)
+                for option in self.options
+            ]
+            if self._json.get("options")
+            else None
         )
         self._json.update({"type": self.type.value})
 
@@ -335,7 +339,7 @@ class ActionRow(DictSerializerMixin):
         self.type = ComponentType.ACTION_ROW
         for component in self.components:
             if isinstance(component, SelectMenu):
-                component._json["options"] = [option._json for option in component.options]
+                component._json["options"] = [option._json for option in component._json["options"]]
         self.components = (
             [Component(**component._json) for component in self.components]
             if self._json.get("components")

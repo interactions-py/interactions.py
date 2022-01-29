@@ -77,7 +77,8 @@ class Member(DictSerializerMixin):
         delete_message_days: Optional[int] = 0,
     ) -> None:
         """
-        Bans the member from a guild
+        Bans the member from a guild.
+
         :param guild_id: The id of the guild to ban the member from
         :type guild_id: int
         :param reason?: The reason of the ban
@@ -98,12 +99,15 @@ class Member(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Kicks the member from a guild
+        Kicks the member from a guild.
+
         :param guild_id: The id of the guild to kick the member from
         :type guild_id: int
         :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.create_guild_kick(
             guild_id=guild_id,
             user_id=int(self.user.id),
@@ -117,7 +121,8 @@ class Member(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method adds a role to a member
+        This method adds a role to a member.
+
         :param role: The role to add. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to add the roles to the member
@@ -125,6 +130,8 @@ class Member(DictSerializerMixin):
         :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.add_member_role(
                 guild_id=guild_id,
@@ -147,7 +154,8 @@ class Member(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method removes a role from a member
+        This method removes a role from a member.
+
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to remove the roles of the member
@@ -155,6 +163,8 @@ class Member(DictSerializerMixin):
         :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.remove_member_role(
                 guild_id=guild_id,
@@ -174,16 +184,19 @@ class Member(DictSerializerMixin):
         self,
         content: Optional[str] = None,
         *,
+        components=None,
         tts: Optional[bool] = False,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds=None,
         allowed_mentions=None,
     ):
         """
-        Sends a DM to the member
+        Sends a DM to the member.
 
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
+        :param components?: A component, or list of components for the message.
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
         :param embeds?: An embed, or list of embeds for the message.
@@ -193,6 +206,9 @@ class Member(DictSerializerMixin):
         :return: The sent message as an object.
         :rtype: Message
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        from ...models.component import ActionRow, Button, SelectMenu
         from .channel import Channel
         from .message import Message
 
@@ -206,6 +222,106 @@ class Member(DictSerializerMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _components: List[dict] = [{"type": 1, "components": []}]
+
+        # TODO: Break this obfuscation pattern down to a "builder" method.
+        if components:
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in action_row.components
+                        ],
+                    }
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+        else:
+            _components = []
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -214,6 +330,7 @@ class Member(DictSerializerMixin):
             # file=file,
             # attachments=_attachments,
             embeds=_embeds,
+            components=_components,
             allowed_mentions=_allowed_mentions,
         )
 
@@ -252,8 +369,11 @@ class Member(DictSerializerMixin):
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
         :type reason: Optional[str]
+        :return: The modified member object
+        :rtype: Member
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         payload = {}
         if nick:
             payload["nick"] = nick
@@ -291,6 +411,8 @@ class Member(DictSerializerMixin):
         :param thread_id: The id of the thread to add the member to
         :type thread_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.add_member_to_thread(
             user_id=int(self.user.id),
             thread_id=thread_id,
