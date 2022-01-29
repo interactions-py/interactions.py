@@ -107,8 +107,8 @@ class Message(DictSerializerMixin):
                 Button,
                 SelectMenu,
                 List[ActionRow],
-		List[Button],
-		List[SelectMenu],
+                List[Button],
+                List[SelectMenu],
             ]
         ] = MISSING,
     ) -> "Message": ...
@@ -126,8 +126,8 @@ class Message(DictSerializerMixin):
                 Button,
                 SelectMenu,
                 List[ActionRow],
-		List[Button],
-		List[SelectMenu],
+                List[Button],
+                List[SelectMenu],
             ]
         ] = MISSING,
     ) -> "Message": ...
