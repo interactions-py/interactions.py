@@ -703,7 +703,6 @@ class Guild(DictSerializerMixin):
                 "Please use `create_thread` for creating threads!"
             )  # TODO: move to custom error formatter
 
-
         payload = {"name": name, "type": type}
 
         if topic is not MISSING:

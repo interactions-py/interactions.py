@@ -1,5 +1,5 @@
-from .misc import DictSerializerMixin, Snowflake
 from .flags import UserFlags
+from .misc import DictSerializerMixin, Snowflake
 
 
 class User(DictSerializerMixin):
@@ -45,15 +45,11 @@ class User(DictSerializerMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
-        
+
         self.public_flags = (
             UserFlags(int(self._json.get("public_flags")))
             if self._json.get("public_flags")
             else None
         )
-        
-        self.flags = (
-            UserFlags(int(self._json.get("flags")))
-            if self._json.get("flags")
-            else None
-        )
+
+        self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None

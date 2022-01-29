@@ -1,10 +1,8 @@
 from datetime import datetime, timedelta
 from enum import IntEnum
-
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 import pytz
-
 
 from .misc import MISSING, DictSerializerMixin, Snowflake
 
