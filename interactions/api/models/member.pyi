@@ -6,7 +6,7 @@ from .role import Role
 from .user import User
 from .flags import Permissions
 from ..http import HTTPClient
-from .message import Message
+from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
 
 
@@ -56,12 +56,19 @@ class Member(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=MISSING,
-        allowed_mentions=MISSING,
+        embeds: Optional[Union[Embed, List["Embed"]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
     ) -> Message: ...
     async def modify(
         self,

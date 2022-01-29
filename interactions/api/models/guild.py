@@ -693,6 +693,7 @@ class Guild(DictSerializerMixin):
             raise ValueError(
                 "ChannelType must not be a direct-message when creating Guild Channels!"  # TODO: move to custom error formatter
             )
+
         if type in [
             ChannelType.GUILD_NEWS_THREAD,
             ChannelType.GUILD_PUBLIC_THREAD,
@@ -701,6 +702,7 @@ class Guild(DictSerializerMixin):
             raise ValueError(
                 "Please use `create_thread` for creating threads!"
             )  # TODO: move to custom error formatter
+
 
         payload = {"name": name, "type": type}
 

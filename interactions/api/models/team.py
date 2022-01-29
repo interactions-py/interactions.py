@@ -1,6 +1,7 @@
 from .channel import ThreadMember
 from .misc import DictSerializerMixin, Snowflake
 from .user import User
+from .flags import AppFlags
 
 
 class TeamMember(DictSerializerMixin):
@@ -75,7 +76,7 @@ class Application(DictSerializerMixin):
     :ivar Optional[int] primary_sku_id?: Game SKU ID, if this app is a game sold on Discord
     :ivar Optional[str] slug?: URL slug that links to the store page, if this app is a game sold on Discord
     :ivar Optional[str] cover_image?: The app's default rich presence invite cover image
-    :ivar Optional[int] flags?: The application's public flags
+    :ivar Optional[AppFlags] flags?: The application's public flags
     """
 
     __slots__ = (
@@ -115,3 +116,4 @@ class Application(DictSerializerMixin):
         )
         self.owner = User(**self.owner) if self._json.get("owner") else None
         self.team = Team(**self.team) if self._json.get("team") else None
+        self.flags = AppFlags(self.flags) if self._json.get("flags") else None

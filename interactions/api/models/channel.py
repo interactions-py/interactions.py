@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 from enum import IntEnum
+
 from typing import Callable, List, Optional
 
 import pytz
+
 
 from .misc import MISSING, DictSerializerMixin, Snowflake
 
@@ -189,9 +191,18 @@ class Channel(DictSerializerMixin):
         *,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=MISSING,
-        allowed_mentions=MISSING,
-        components=MISSING,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
+        components: Optional[
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List["ActionRow"],  # noqa
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
+            ]
+        ] = MISSING,
     ):
         """
         Sends a message in the channel.
@@ -205,7 +216,7 @@ class Channel(DictSerializerMixin):
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
         :rtype: Message
         """

@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
+from .channel import Channel
 from .flags import Permissions
 from .misc import MISSING, DictSerializerMixin
 from .role import Role
@@ -184,11 +185,20 @@ class Member(DictSerializerMixin):
         self,
         content: Optional[str] = MISSING,
         *,
-        components=MISSING,
+        components: Optional[
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List["ActionRow"],  # noqa
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
+            ]
+        ] = MISSING,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=MISSING,
-        allowed_mentions=MISSING,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
     ):
         """
         Sends a DM to the member.
@@ -196,7 +206,7 @@ class Member(DictSerializerMixin):
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
         :param embeds?: An embed, or list of embeds for the message.
@@ -209,7 +219,6 @@ class Member(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
-        from .channel import Channel
         from .message import Message
 
         _content: str = "" if content is MISSING else content
