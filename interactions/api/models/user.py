@@ -1,5 +1,5 @@
 from .misc import DictSerializerMixin, Snowflake
-from .flags import UserFlags, AppFlags
+from .flags import UserFlags
 
 
 class User(DictSerializerMixin):
