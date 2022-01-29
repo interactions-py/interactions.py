@@ -880,7 +880,7 @@ class Extension:
                 listeners.append(func)
                 self._listeners[modal_name] = listeners
 
-        client.extensions[cls.__name__] = self
+        client._extensions[cls.__name__] = self
 
         return self
 
