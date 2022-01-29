@@ -5,7 +5,7 @@ from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
-from .api.models.misc import DictSerializerMixin, Snowflake
+from .api.models.misc import MISSING, DictSerializerMixin, Snowflake
 from .api.models.user import User
 from .base import get_logger
 from .enums import InteractionCallbackType, InteractionType
@@ -153,15 +153,15 @@ class CommandContext(Context):
 
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
+        ] = MISSING,
         ephemeral: Optional[bool] = False,
     ) -> Message:
         """
@@ -184,26 +184,39 @@ class CommandContext(Context):
         :rtype: Message
         """
         if (
-            content is None
+            content is MISSING
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
             _content = self.message.content
         else:
-            _content: str = "" if content is None else content
-        _tts: bool = False if tts is None else tts
+            _content: str = "" if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        _embeds: list = (
-            []
-            if embeds is None
-            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
-        )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+
+        if (
+            embeds is MISSING
+            and self.message
+            and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ):
+            _embeds = self.message.embeds
+        else:
+            _embeds: list = (
+                []
+                if not embeds or embeds is MISSING
+                else (
+                    [embed._json for embed in embeds]
+                    if isinstance(embeds, list)
+                    else [embeds._json]
+                )
+            )
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+
         _components: List[dict] = [{"type": 1, "components": []}]
 
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components:
+        if components is not MISSING:
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -298,6 +311,14 @@ class CommandContext(Context):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
+
+        elif (
+            components is MISSING
+            and self.message
+            and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ):
+            _components = self.message.components
+
         else:
             _components = []
 
@@ -367,16 +388,16 @@ class CommandContext(Context):
 
     async def edit(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = None,
+        tts: Optional[bool] = MISSING,
         # file: Optional[FileIO] = None,
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
-        message_reference: Optional[MessageReference] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
+        ] = MISSING,
     ) -> Message:
         """
         This allows the invocation state described in the "context"
@@ -387,28 +408,28 @@ class CommandContext(Context):
         :return: The edited message as an object.
         :rtype: Message
         """
-        _content: str = self.message.content if content is None else content
-        _tts: bool = False if tts is None else tts
+        _content: str = self.message.content if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
 
-        if embeds is None:
+        if embeds is MISSING:
             _embeds = self.message.embeds
         else:
             _embeds: list = (
                 []
-                if embeds is None
+                if not embeds
                 else (
                     [embed._json for embed in embeds]
                     if isinstance(embeds, list)
                     else [embeds._json]
                 )
             )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _message_reference: dict = {} if message_reference is None else message_reference._json
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
-        if components is None:
+        if components is MISSING:
             _components = self.message.components
-        elif components == []:
+        elif not components:
             _components = []
         else:
             _components: list = [{"type": 1, "components": []}]

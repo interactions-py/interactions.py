@@ -5,8 +5,8 @@ from enum import IntEnum
 from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import DictSerializerMixin, Snowflake
-from .presence import PresenceUpdate
+from .misc import DictSerializerMixin, MISSING, Snowflake
+from .presence import PresenceActivity
 from .role import Role
 from .user import User
 from ..http import HTTPClient
@@ -79,7 +79,7 @@ class Guild(DictSerializerMixin):
     members: Optional[List[Member]]
     channels: Optional[List[Channel]]
     threads: Optional[List[Thread]]  # threads, because of their metadata
-    presences: Optional[List[PresenceUpdate]]
+    presences: Optional[List[PresenceActivity]]
     max_presences: Optional[int]
     max_members: Optional[int]
     vanity_url_code: Optional[str]
@@ -163,79 +163,79 @@ class Guild(DictSerializerMixin):
     async def modify_role(
         self,
         role_id: int,
-        name: Optional[str] = None,
+        name: Optional[str] = MISSING,
         # permissions,
-        color: Optional[int] = None,
-        hoist: Optional[bool] = None,
+        color: Optional[int] = MISSING,
+        hoist: Optional[bool] = MISSING,
         # icon,
         # unicode_emoji,
-        mentionable: Optional[bool] = None,
+        mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role: ...
     async def create_channel(
         self,
         name: str,
         type: ChannelType,
-        topic: Optional[str] = None,
-        bitrate: Optional[int] = None,
-        user_limit: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = 0,
-        position: Optional[int] = None,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
         # permission_overwrites,
-        parent_id: Optional[int] = None,
-        nsfw: Optional[bool] = False,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def modify_channel(
         self,
         channel_id: int,
-        name: Optional[str] = None,
-        topic: Optional[str] = None,
-        bitrate: Optional[int] = None,
-        user_limit: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = None,
-        position: Optional[int] = None,
+        name: Optional[str] = MISSING,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
         # permission_overwrites,
-        parent_id: Optional[int] = None,
-        nsfw: Optional[bool] = False,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def modify_member(
         self,
         member_id: int,
-        nick: Optional[str] = None,
-        roles: Optional[List[int]] = None,
-        mute: Optional[bool] = None,
-        deaf: Optional[bool] = None,
-        channel_id: Optional[int] = None,
-        communication_disabled_until: Optional[datetime.isoformat] = None,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[int]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
     ) -> Member: ...
     async def get_preview(self) -> GuildPreview: ...
     async def leave(self) -> None: ...
     async def modify(
         self,
-        name: Optional[str] = None,
-        verification_level: Optional[VerificationLevel] = None,
-        default_message_notifications: Optional[DefaultMessageNotificationLevel] = None,
-        explicit_content_filter: Optional[ExplicitContentFilterLevel] = None,
-        afk_channel_id: Optional[int] = None,
-        afk_timeout: Optional[int] = None,
+        name: Optional[str] = MISSING,
+        verification_level: Optional[VerificationLevel] = MISSING,
+        default_message_notifications: Optional[DefaultMessageNotificationLevel] = MISSING,
+        explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
+        afk_channel_id: Optional[int] = MISSING,
+        afk_timeout: Optional[int] = MISSING,
         # icon, TODO: implement images
-        owner_id: Optional[int] = None,
+        owner_id: Optional[int] = MISSING,
         # splash, TODO: implement images
         # discovery_splash, TODO: implement images
         # banner, TODO: implement images
-        system_channel_id: Optional[int] = None,
-        suppress_join_notifications: Optional[bool] = None,
-        suppress_premium_subscriptions: Optional[bool] = None,
-        suppress_guild_reminder_notifications: Optional[bool] = None,
-        suppress_join_notification_replies: Optional[bool] = None,
-        rules_channel_id: Optional[int] = None,
-        public_updates_channel_id: Optional[int] = None,
-        preferred_locale: Optional[str] = None,
-        description: Optional[str] = None,
-        premium_progress_bar_enabled: Optional[bool] = None,
+        system_channel_id: Optional[int] = MISSING,
+        suppress_join_notifications: Optional[bool] = MISSING,
+        suppress_premium_subscriptions: Optional[bool] = MISSING,
+        suppress_guild_reminder_notifications: Optional[bool] = MISSING,
+        suppress_join_notification_replies: Optional[bool] = MISSING,
+        rules_channel_id: Optional[int] = MISSING,
+        public_updates_channel_id: Optional[int] = MISSING,
+        preferred_locale: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        premium_progress_bar_enabled: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Guild": ...
     async def create_scheduled_event(
@@ -243,22 +243,22 @@ class Guild(DictSerializerMixin):
         name: str,
         entity_type: EntityType,
         scheduled_start_time: datetime.isoformat,
-        scheduled_end_time: Optional[datetime.isoformat] = None,
-        entity_metadata: Optional["EventMetadata"] = None,
-        channel_id: Optional[int] = None,
-        description: Optional[str] = None,
+        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
+        entity_metadata: Optional["EventMetadata"] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        description: Optional[str] = MISSING,
         # privacy_level, TODO: implement when more levels available
         ) -> "ScheduledEvents": ...
     async def modify_scheduled_event(
         self,
         event_id: int,
-        name: Optional[str] = None,
-        entity_type: Optional[EntityType] = None,
-        scheduled_start_time: Optional[datetime.isoformat] = None,
-        scheduled_end_time: Optional[datetime.isoformat] = None,
-        entity_metadata: Optional["EventMetadata"] = None,
-        channel_id: Optional[int] = None,
-        description: Optional[str] = None,
+        name: Optional[str] = MISSING,
+        entity_type: Optional[EntityType] = MISSING,
+        scheduled_start_time: Optional[datetime.isoformat] = MISSING,
+        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
+        entity_metadata: Optional["EventMetadata"] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        description: Optional[str] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents": ...
     async def delete_scheduled_event(

@@ -13,7 +13,7 @@ from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
-from .api.models.misc import Snowflake
+from .api.models.misc import MISSING, Snowflake
 from .api.models.team import Application
 from .base import get_logger
 from .decor import command
@@ -21,7 +21,6 @@ from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
-from .models.misc import MISSING
 
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
