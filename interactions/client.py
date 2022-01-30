@@ -15,7 +15,7 @@ from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
-from .api.models.misc import Snowflake
+from .api.models.misc import MISSING, Snowflake
 from .api.models.team import Application
 from .base import get_logger
 from .decor import command
@@ -23,7 +23,6 @@ from .decor import component as _component
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
-from .models.misc import MISSING
 
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
@@ -93,9 +92,10 @@ class Client:
             )
         else:
             self._automate_sync = True
-
+        
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
+        
 
     def start(self) -> None:
         """Starts the client session."""
@@ -258,6 +258,12 @@ class Client:
         ready: bool = False
 
         try:
+            if self._intents.GUILD_PRESENCES and not (self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENCE_LIMITED):
+                raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
+            if self._intents.GUILD_MEMBERS and not (self.me.flags.GATEWAY_GUILD_MEMBERS or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED):
+                raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
+            if self._intents.GUILD_MESSAGES and not (self.me.flags.GATEWAY_MESSAGE_CONTENT or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED):
+                log.critical("Client not authorised for MESSAGE_CONTENT intent")
             self.__register_events()
             if self._automate_sync:
                 await self._synchronize()

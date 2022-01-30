@@ -11,8 +11,8 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 import interactions.api.cache
+from interactions.api.models.misc import MISSING
 from interactions.base import __version__, get_logger
-from interactions.models.misc import MISSING
 
 from ..api.cache import Cache, Item
 from ..api.error import HTTPException
@@ -170,7 +170,7 @@ class Request:
         self.buckets = {}
         self._headers = {
             "Authorization": f"Bot {self.token}",
-            "User-Agent": f"DiscordBot (https://github.com/goverfl0w/interactions.py {__version__} "
+            "User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }

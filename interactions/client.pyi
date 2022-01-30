@@ -2,6 +2,9 @@ from asyncio import AbstractEventLoop
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
 
+from .api.models.gw import Presence
+from .api.models.misc import MISSING
+
 from .api.cache import Cache
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
