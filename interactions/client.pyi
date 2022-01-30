@@ -27,7 +27,7 @@ class Client:
     _presence: Optional[Presence]
     _token: str
     _automate_sync: bool
-    _extensions: Optional[Dict[str, ModuleType]]
+    _extensions: Optional[Dict[str, Union[ModuleType, Extension]]]
     me: Optional[Application]
     def __init__(
         self,

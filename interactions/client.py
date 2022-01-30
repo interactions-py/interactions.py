@@ -4,15 +4,12 @@ from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
 from inspect import getmembers
-from logging import Logger, getLogger
+from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from interactions.api.models.misc import Snowflake
-
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.dispatch import Listener
 from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
@@ -691,7 +688,6 @@ class Client:
 
             del sys.modules[_name]
 
-        del sys.modules[_name]
         del self._extensions[_name]
 
         log.debug(f"Removed extension {name}.")
@@ -889,22 +885,22 @@ class Extension:
     def teardown(self):
         for event, funcs in self._listeners.items():
             for func in funcs:
-                self.client.websocket.dispatch.events[event].remove(func)
+                self.client._websocket.dispatch.events[event].remove(func)
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
-                self.client.websocket.dispatch.events[cmd].remove(func)
+                self.client._websocket.dispatch.events[cmd].remove(func)
 
         clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
         cmds = filter(
             lambda cmd_data: cmd_data["name"] in clean_cmd_names,
-            self.client.http.cache.interactions.view,
+            self.client._http.cache.interactions.view,
         )
 
-        if self.client.automate_sync:
+        if self.client._automate_sync:
             [
-                self.client.loop.create_task(
-                    self.client.http.delete_application_command(
+                self.client._loop.create_task(
+                    self.client._http.delete_application_command(
                         cmd["application_id"], cmd["id"], cmd["guild_id"]
                     )
                 )
