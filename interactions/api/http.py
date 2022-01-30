@@ -170,7 +170,7 @@ class Request:
         self.buckets = {}
         self._headers = {
             "Authorization": f"Bot {self.token}",
-            "User-Agent": f"DiscordBot (https://github.com/goverfl0w/interactions.py {__version__} "
+            "User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
