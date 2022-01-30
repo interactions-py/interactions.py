@@ -2,18 +2,17 @@ from asyncio import AbstractEventLoop
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
 
-from .api.models.gw import Presence
-from .models.misc import MISSING
-
 from .api.cache import Cache
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
-from .api.models.guild import Guild
 from .api.models.flags import Intents
+from .api.models.guild import Guild
+from .api.models.gw import Presence
 from .api.models.team import Application
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
+from .models.misc import MISSING
 
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
