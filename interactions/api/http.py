@@ -128,6 +128,15 @@ class Limiter:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         return self.lock.release()
 
+    def release_lock(self):
+        # Releases the lock if its locked, overriding the traditional release() method.
+        # Useful for per-route, not needed? for globals.
+
+        # See #428.
+
+        if self.lock.locked():
+            self.lock.release()
+
 
 class Request:
     """
@@ -218,10 +227,6 @@ class Request:
 
         # The idea is that its regulated by the priority of Discord's bucket header and not just self-computation.
 
-        def release_lock(lock):
-            if lock.locked():
-                lock.release()
-
         if self.ratelimits.get(bucket):
             _limiter: Limiter = self.ratelimits.get(bucket)
             if _limiter.lock.locked():
@@ -231,7 +236,7 @@ class Request:
                     log.warning(
                         f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
                     )
-                self._loop.call_later(_limiter.reset_after, release_lock, _limiter.lock)
+                self._loop.call_later(_limiter.reset_after, _limiter.release_lock)
             _limiter.reset_after = 0
         else:
             self.ratelimits[bucket] = (
@@ -293,8 +298,9 @@ class Request:
                             )
 
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
-                    if _limiter.lock.locked():
-                        _limiter.lock.release()
+
+                    _limiter.release_lock()  # checks if its locked, then releases upon success.
+
                     return data
 
             # These account for general/specific exceptions. (Windows...)
@@ -316,9 +322,6 @@ class Request:
                     pass
                 log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
                 break
-
-        if _limiter.lock.locked():
-            _limiter.lock.release()
 
     async def close(self) -> None:
         """Closes the current session."""

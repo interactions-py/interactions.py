@@ -1,7 +1,7 @@
 from .channel import ThreadMember
+from .flags import AppFlags
 from .misc import DictSerializerMixin, Snowflake
 from .user import User
-from .flags import AppFlags
 
 
 class TeamMember(DictSerializerMixin):

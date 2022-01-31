@@ -86,10 +86,10 @@ class Permissions(IntFlag):
     START_EMBEDDED_ACTIVITIES = 1 << 39
     MODERATE_MEMBERS = 1 << 40
 
-    
+
 class UserFlags(IntFlag):
     """An integer flag bitshift object representing the different user flags given by Discord."""
-    
+
     STAFF = 1
     PARTNER = 1 << 1
     HYPESQUAD = 1 << 2
@@ -106,9 +106,10 @@ class UserFlags(IntFlag):
     DISCORD_CERTIFIED_MODERATOR = 1 << 18
     BOT_HTTP_INTERACTIONS = 1 << 19
 
+
 class AppFlags(IntFlag):
     """An integer flag bitshift object representing the different application flags given by Discord."""
-    
+
     GATEWAY_PRESENCE = 1 << 12
     GATEWAY_PRESENCE_LIMITED = 1 << 13
     GATEWAY_GUILD_MEMBERS = 1 << 14
@@ -117,4 +118,3 @@ class AppFlags(IntFlag):
     EMBEDDED = 1 << 17
     GATEWAY_MESSAGE_CONTENT = 1 << 18
     GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
-        
