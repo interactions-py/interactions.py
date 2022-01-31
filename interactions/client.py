@@ -270,7 +270,7 @@ class Client:
                     self.me.flags.GATEWAY_MESSAGE_CONTENT
                     or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED
                 ):
-                    log.critical("Client not authorised for MESSAGE_CONTENT intent") 
+                    log.critical("Client not authorised for MESSAGE_CONTENT intent")
             self.__register_events()
             if self._automate_sync:
                 await self._synchronize()
