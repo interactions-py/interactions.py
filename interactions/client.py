@@ -255,19 +255,22 @@ class Client:
         ready: bool = False
 
         try:
-            if self._intents.GUILD_PRESENCES and not (
-                self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENCE_LIMITED
-            ):
-                raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
-            if self._intents.GUILD_MEMBERS and not (
-                self.me.flags.GATEWAY_GUILD_MEMBERS or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED
-            ):
-                raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
-            if self._intents.GUILD_MESSAGES and not (
-                self.me.flags.GATEWAY_MESSAGE_CONTENT
-                or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED
-            ):
-                log.critical("Client not authorised for MESSAGE_CONTENT intent")
+            if self.me.flags is not None:
+                # This can be None.
+                if self._intents.GUILD_PRESENCES and not (
+                    self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENCE_LIMITED
+                ):
+                    raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
+                if self._intents.GUILD_MEMBERS and not (
+                    self.me.flags.GATEWAY_GUILD_MEMBERS
+                    or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED
+                ):
+                    raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
+                if self._intents.GUILD_MESSAGES and not (
+                    self.me.flags.GATEWAY_MESSAGE_CONTENT
+                    or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED
+                ):
+                    log.critical("Client not authorised for MESSAGE_CONTENT intent") 
             self.__register_events()
             if self._automate_sync:
                 await self._synchronize()
