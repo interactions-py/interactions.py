@@ -63,6 +63,8 @@ You will be prompted to a new page. Select your guild, click ``Authorise`` and y
 
 Now you can go on with running your bot and creating your first commands!
 
+
+
 Running the Bot
 ***************
 
@@ -72,24 +74,44 @@ fellow bot developers. Please note that **a Discord bot should not be your first
 learning how to code**. There are plenty of other projects to consider first before this, as a
 Discord bot is not exactly beginner-friendly.
 
-This code block below shows a simple bot being created:
+
+First, let's run the bot:
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
-    :linenos:
 
     import interactions
 
-    bot = interactions.Client(token="...")
+    bot = interactions.Client(token="your_secret_bot_token")
 
-    @bot.command(
-        name="test",
-        description="this is just a test command.",
-        scope=1234567890
-    )
-    async def test(ctx):
-        await ctx.send("Hello world!")
 
     bot.start()
+
+And that's it! Your bot should now turn online in discord!
+
+Let's take a look now at what is happening hhere:
+
+* ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please look at our section on how to :ref:`install <quickstart:Installing>` here.
+* ``bot = interactions.Client(token="your_secret_bot_token")`` -- This is the ``bot`` variable that defines our bot. This basically instantiates the :ref:`application client <client:Bot Client>`, which requires a ``token`` keyword-argument to be passed. You have to put in your (previously mentioned) secret token here.
+* ``bot.start()`` -- Finally, this is what tells our library to turn your bot from offline to online.
+
+
+Now, let's create our first slash command:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client(token="your_secret_bot_token")
+
+
+    bot.start()
+
+
+
+
+
 
 There's quite a lot of things that are going on here, so let's break it down step-by-step:
 
@@ -99,7 +121,6 @@ There's quite a lot of things that are going on here, so let's break it down ste
 * ``async def test(ctx):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``bot.start()`` -- Finally, this is what tells our library to turn your bot from offline to online.
 
-.. image:: _static/client_token.png
 
 Context menus
 *************
@@ -114,7 +135,6 @@ In order to create a menu-based command, all you need to do is simply add this o
 your ``@command`` decorator:
 
 .. code-block:: python
-    :linenos:
 
     @bot.command(
         type=interactions.ApplicationCommandType.USER,
@@ -143,7 +163,6 @@ simple but quite powerful when put into practice This code block below shows a s
 implementation of a component:
 
 .. code-block:: python
-    :linenos:
 
     button = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
