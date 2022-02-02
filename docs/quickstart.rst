@@ -259,7 +259,7 @@ implementation of a component:
     )
 
     @bot.command(
-        name="buttom_test",
+        name="button_test",
         description="This is the first command I made!",
         scope=the_id_of_your_guild,
     )
