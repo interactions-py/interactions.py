@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
+from .channel import Channel
 from .flags import Permissions
-from .misc import DictSerializerMixin
+from .misc import MISSING, DictSerializerMixin
 from .role import Role
 from .user import User
 
@@ -77,7 +78,8 @@ class Member(DictSerializerMixin):
         delete_message_days: Optional[int] = 0,
     ) -> None:
         """
-        Bans the member from a guild
+        Bans the member from a guild.
+
         :param guild_id: The id of the guild to ban the member from
         :type guild_id: int
         :param reason?: The reason of the ban
@@ -98,12 +100,15 @@ class Member(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
-        Kicks the member from a guild
+        Kicks the member from a guild.
+
         :param guild_id: The id of the guild to kick the member from
         :type guild_id: int
         :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.create_guild_kick(
             guild_id=guild_id,
             user_id=int(self.user.id),
@@ -117,7 +122,8 @@ class Member(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method adds a role to a member
+        This method adds a role to a member.
+
         :param role: The role to add. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to add the roles to the member
@@ -125,6 +131,8 @@ class Member(DictSerializerMixin):
         :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.add_member_role(
                 guild_id=guild_id,
@@ -147,7 +155,8 @@ class Member(DictSerializerMixin):
         reason: Optional[str],
     ) -> None:
         """
-        This method removes a role from a member
+        This method removes a role from a member.
+
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to remove the roles of the member
@@ -155,6 +164,8 @@ class Member(DictSerializerMixin):
         :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
             await self._client.remove_member_role(
                 guild_id=guild_id,
@@ -172,18 +183,30 @@ class Member(DictSerializerMixin):
 
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        components: Optional[
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List["ActionRow"],  # noqa
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
+            ]
+        ] = MISSING,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=None,
-        allowed_mentions=None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
     ):
         """
-        Sends a DM to the member
+        Sends a DM to the member.
 
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
+        :param components?: A component, or list of components for the message.
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
         :param embeds?: An embed, or list of embeds for the message.
@@ -193,19 +216,121 @@ class Member(DictSerializerMixin):
         :return: The sent message as an object.
         :rtype: Message
         """
-        from .channel import Channel
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        from ...models.component import ActionRow, Button, SelectMenu
         from .message import Message
 
-        _content: str = "" if content is None else content
-        _tts: bool = False if tts is None else tts
+        _content: str = "" if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
         _embeds: list = (
             []
-            if embeds is None
+            if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+
+        if not components or components is MISSING:
+            _components = []
+        # TODO: Break this obfuscation pattern down to a "builder" method.
+        else:
+            _components: List[dict] = [{"type": 1, "components": []}]
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in action_row.components
+                        ],
+                    }
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -214,6 +339,7 @@ class Member(DictSerializerMixin):
             # file=file,
             # attachments=_attachments,
             embeds=_embeds,
+            components=_components,
             allowed_mentions=_allowed_mentions,
         )
 
@@ -225,12 +351,12 @@ class Member(DictSerializerMixin):
     async def modify(
         self,
         guild_id: int,
-        nick: Optional[str] = None,
-        roles: Optional[List[int]] = None,
-        mute: Optional[bool] = None,
-        deaf: Optional[bool] = None,
-        channel_id: Optional[int] = None,
-        communication_disabled_until: Optional[datetime.isoformat] = None,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[int]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
     ) -> "Member":
         """
@@ -252,25 +378,28 @@ class Member(DictSerializerMixin):
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
         :type reason: Optional[str]
+        :return: The modified member object
+        :rtype: Member
         """
-
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         payload = {}
-        if nick:
+        if nick is not MISSING:
             payload["nick"] = nick
 
-        if roles:
+        if roles is not MISSING:
             payload["roles"] = roles
 
-        if channel_id:
+        if channel_id is not MISSING:
             payload["channel_id"] = channel_id
 
-        if mute:
+        if mute is not MISSING:
             payload["mute"] = mute
 
-        if deaf:
+        if deaf is not MISSING:
             payload["deaf"] = deaf
 
-        if communication_disabled_until:
+        if communication_disabled_until is not MISSING:
             payload["communication_disabled_until"] = communication_disabled_until
 
         res = await self._client.modify_member(
@@ -291,6 +420,8 @@ class Member(DictSerializerMixin):
         :param thread_id: The id of the thread to add the member to
         :type thread_id: int
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
         await self._client.add_member_to_thread(
             user_id=int(self.user.id),
             thread_id=thread_id,

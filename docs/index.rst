@@ -1,7 +1,7 @@
 .. image:: _static/banner.png
 
-discord-interactions
-====================
+interactions.py
+===============
 Ever since December 2019, this open-source project has become the culmination of dedication and research towards figuring out the best way to bring **interactions from Discord to you:** we are an easy, simple, scalable and modular library for Discord interactions.
 
 - Tired of using numerous module dependencies for slash commands and buttons?
@@ -51,6 +51,7 @@ Please look at our pages below to find out where to go.
    quickstart.rst
    api.rst
    faq.rst
+   migration.rst
 
 How can I contribute?
 *********************
@@ -87,7 +88,7 @@ Advanced Search
 * :ref:`modindex`
 * :ref:`search`
 
-.. _contribution requirements: https://github.com/goverfl0w/discord-interactions/blob/stable/CONTRIBUTING.md
-.. _MIT License: https://github.com/goverfl0w/discord-interactions/blob/stable/LICENSE
-.. _Pull Requests: https://github.com/goverfl0w/discord-interactions/pulls
-.. _Issues: https://github.com/goverfl0w/discord-interactions/issues
+.. _contribution requirements: https://github.com/interactions-py/library/blob/stable/CONTRIBUTING.md
+.. _MIT License: https://github.com/interactions-py/library/blob/stable/LICENSE
+.. _Pull Requests: https://github.com/interactions-py/library/pulls
+.. _Issues: https://github.com/interactions-py/library/issues

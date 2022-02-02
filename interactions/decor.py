@@ -1,21 +1,20 @@
 from typing import Any, Dict, List, Optional, Union
 
-from interactions.models.component import Button, SelectMenu
-
 from .api.models.guild import Guild
+from .api.models.misc import MISSING
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
-from .models.component import Component
+from .models.component import Button, Component, SelectMenu
 
 
 def command(
     *,
     type: Optional[Union[int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
-    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-    options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
-    default_permission: Optional[bool] = None,
+    name: Optional[str] = MISSING,
+    description: Optional[str] = MISSING,
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+    options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = MISSING,
+    default_permission: Optional[bool] = MISSING,
 ) -> List[ApplicationCommand]:
     """
     A wrapper designed to interpret the client-facing API for
@@ -30,10 +29,10 @@ def command(
     else:
         _type: int = ApplicationCommandType(type).value
 
-    _description: str = "" if description is None else description
+    _description: str = "" if description is MISSING else description
     _options: list = []
 
-    if options:
+    if options is not MISSING:
         if all(isinstance(option, Option) for option in options):
             _options = [option._json for option in options]
         elif all(
@@ -46,30 +45,12 @@ def command(
         else:
             _options = [options]
 
-    _default_permission: bool = True if default_permission is None else default_permission
-
-    # TODO: Implement permission building and syncing.
-    # _permissions: list = []
-
-    # if permissions:
-    #     if all(isinstance(permission, Permission) for permission in permissions):
-    #         _permissions = [permission._json for permission in permissions]
-    #     elif all(
-    #         isinstance(permission, dict)
-    #         and all(isinstance(value, str) for value in permission)
-    #         for permission in permissions
-    #     ):
-    #         _permissions = [permission for permission in permissions]
-    #     elif isinstance(permissions, Permission):
-    #         _permissions = [permissions._json]
-    #     else:
-    #         _permissions = [permissions]
-
+    _default_permission: bool = True if default_permission is MISSING else default_permission
     _scope: list = []
 
     payloads: list = []
 
-    if scope:
+    if scope is not MISSING:
         if isinstance(scope, list):
             if all(isinstance(guild, Guild) for guild in scope):
                 [_scope.append(guild.id) for guild in scope]
@@ -88,7 +69,7 @@ def command(
                 options=_options,
                 default_permission=_default_permission,
             )
-            payloads.append(payload)
+            payloads.append(payload._json)
     else:
         payload: ApplicationCommand = ApplicationCommand(
             type=_type,
@@ -97,7 +78,7 @@ def command(
             options=_options,
             default_permission=_default_permission,
         )
-        payloads.append(payload)
+        payloads.append(payload._json)
 
     return payloads
 

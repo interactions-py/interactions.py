@@ -1,6 +1,6 @@
-====================
-discord-interactions
-====================
+===============
+interactions.py
+===============
 
 **Easy, simple, scalable and modular: a Python API wrapper for interactions.**
 
@@ -101,7 +101,7 @@ I think I'm all ready!
 Feel free to begin making `Pull Requests`_ and `Issues`_ on our GitHub!
 
 .. _quickstart guide: https://discord-interactions.rtfd.io/en/latest/quickstart.html
-.. _contribution requirements: https://github.com/goverfl0w/discord-interactions/blob/stable/CONTRIBUTING.rst
-.. _MIT License: https://github.com/goverfl0w/discord-interactions/blob/stable/LICENSE
-.. _Pull Requests: https://github.com/goverfl0w/discord-interactions/pulls
-.. _Issues: https://github.com/goverfl0w/discord-interactions/issues
+.. _contribution requirements: https://github.com/interactions-py/library/blob/stable/CONTRIBUTING.rst
+.. _MIT License: https://github.com/goverfl0w/interactions-py/library/blob/stable/LICENSE
+.. _Pull Requests: https://github.com/interactions-py/library/pulls
+.. _Issues: https://github.com/interactions-py/library/issues

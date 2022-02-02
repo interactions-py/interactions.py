@@ -1,8 +1,10 @@
 from asyncio import get_event_loop
-from logging import Logger, getLogger
+from logging import Logger
 from typing import Coroutine, Optional
 
-log: Logger = getLogger("dispatch")
+from interactions.base import get_logger
+
+log: Logger = get_logger("dispatch")
 
 
 class Listener:

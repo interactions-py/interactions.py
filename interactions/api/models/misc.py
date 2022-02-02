@@ -4,11 +4,13 @@
 # TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 import datetime
-import logging
+from logging import Logger
 from math import floor
 from typing import Union
 
-log = logging.getLogger("mixin")
+from interactions.base import get_logger
+
+log: Logger = get_logger("mixin")
 
 
 class DictSerializerMixin(object):
@@ -217,3 +219,9 @@ class Format:
             if format == kwarg:
                 new %= format
         return new
+
+
+class MISSING:
+    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
+
+    ...

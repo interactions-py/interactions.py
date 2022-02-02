@@ -121,6 +121,7 @@ class PresenceActivity(DictSerializerMixin):
         "activities",
         "sync_id",
         "session_id",
+        "id",
     )
 
     def __init__(self, **kwargs):
