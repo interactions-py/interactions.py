@@ -9,17 +9,17 @@ from .user import User
 from ..http import HTTPClient
 
 class ChannelType(IntEnum):
-    GUILD_TEXT = 0
-    DM = 1
-    GUILD_VOICE = 2
-    GROUP_DM = 3
-    GUILD_CATEGORY = 4
-    GUILD_NEWS = 5
-    GUILD_STORE = 6
-    GUILD_NEWS_THREAD = 10
-    GUILD_PUBLIC_THREAD = 11
-    GUILD_PRIVATE_THREAD = 12
-    GUILD_STAGE_VOICE = 13
+    GUILD_TEXT: int
+    DM: int
+    GUILD_VOICE: int
+    GROUP_DM = int
+    GUILD_CATEGORY: int
+    GUILD_NEWS: int
+    GUILD_STORE: int
+    GUILD_NEWS_THREAD: int
+    GUILD_PUBLIC_THREAD: int
+    GUILD_PRIVATE_THREAD: int
+    GUILD_STAGE_VOICE: int
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict

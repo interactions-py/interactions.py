@@ -1,8 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Callable, List, Optional, Union
-
-import pytz
 
 from .misc import MISSING, DictSerializerMixin, Snowflake
 
@@ -562,7 +560,7 @@ class Channel(DictSerializerMixin):
         _before = None if before is MISSING else before
         _all = []
         if bulk:
-            _allowed_time = pytz.UTC.localize(datetime.now() - timedelta(days=14))
+            _allowed_time = datetime.now(tz=timezone.utc) - timedelta(days=14)
             _stop = False
             while amount > 100:
 
