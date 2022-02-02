@@ -1,13 +1,15 @@
 import sys
-from asyncio import get_event_loop
+from asyncio import get_event_loop, iscoroutinefunction
+from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
+from inspect import getmembers
 from logging import Logger
+from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.dispatch import Listener
 from .api.error import InteractionException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
@@ -384,7 +386,13 @@ class Client:
             )
 
             if self._automate_sync:
-                [self._loop.run_until_complete(self._synchronize(command)) for command in commands]
+                if self._loop.is_running():
+                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                else:
+                    [
+                        self._loop.run_until_complete(self._synchronize(command))
+                        for command in commands
+                    ]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -438,7 +446,13 @@ class Client:
             )
 
             if self._automate_sync:
-                [self._loop.run_until_complete(self._synchronize(command)) for command in commands]
+                if self._loop.is_running():
+                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                else:
+                    [
+                        self._loop.run_until_complete(self._synchronize(command))
+                        for command in commands
+                    ]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -492,7 +506,13 @@ class Client:
             )
 
             if self._automate_sync:
-                [self._loop.run_until_complete(self._synchronize(command)) for command in commands]
+                if self._loop.is_running():
+                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                else:
+                    [
+                        self._loop.run_until_complete(self._synchronize(command))
+                        for command in commands
+                    ]
 
             return self.event(coro, name=f"command_{name}")
 
@@ -610,8 +630,10 @@ class Client:
 
         return decorator
 
-    def load(self, name: str, package: Optional[str] = None) -> None:
-        """
+    def load(
+        self, name: str, package: Optional[str] = None, *args, **kwargs
+    ) -> Optional["Extension"]:
+        r"""
         "Loads" an extension off of the current client by adding a new class
         which is imported from the library.
 
@@ -619,23 +641,34 @@ class Client:
         :type name: str
         :param package?: The package of the extension.
         :type package: Optional[str]
+        :param \*args?: Optional arguments to pass to the extension
+        :type \**args: tuple
+        :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
+        :type \**kwargs: dict
+        :return: The loaded extension.
+        :rtype: Optional[Extension]
         """
         _name: str = resolve_name(name, package)
 
         if _name in self._extensions:
             log.error(f"Extension {name} has already been loaded. Skipping.")
+            return
 
-        module = import_module(name, package)
+        module = import_module(
+            name, package
+        )  # should be a module, because Extensions just need to be __init__-ed
 
         try:
             setup = getattr(module, "setup")
-            setup(self)
+            extension = setup(self, *args, **kwargs)
         except Exception as error:
             del sys.modules[name]
             log.error(f"Could not load {name}: {error}. Skipping.")
+            raise error
         else:
             log.debug(f"Loaded extension {name}.")
             self._extensions[_name] = module
+            return extension
 
     def remove(self, name: str, package: Optional[str] = None) -> None:
         """
@@ -646,34 +679,61 @@ class Client:
         :param package?: The package of the extension.
         :type package: Optional[str]
         """
-        _name: str = resolve_name(name, package)
-        module = self._extensions.get(_name)
+        try:
+            _name: str = resolve_name(name, package)
+        except AttributeError:
+            _name = name
 
-        if module not in self._extensions:
+        extension = self._extensions.get(_name)
+
+        if _name not in self._extensions:
             log.error(f"Extension {name} has not been loaded before. Skipping.")
+            return
 
-        log.debug(f"Removed extension {name}.")
-        del sys.modules[_name]
+        try:
+            extension.teardown()  # made for Extension, usable by others
+        except AttributeError:
+            pass
+
+        if isinstance(extension, ModuleType):  # loaded as a module
+            for ext_name, ext in getmembers(
+                extension, lambda x: isinstance(x, type) and issubclass(x, Extension)
+            ):
+                self.remove(ext_name)
+
+            del sys.modules[_name]
+
         del self._extensions[_name]
 
-    def reload(self, name: str, package: Optional[str] = None) -> None:
-        """
+        log.debug(f"Removed extension {name}.")
+
+    def reload(
+        self, name: str, package: Optional[str] = None, *args, **kwargs
+    ) -> Optional["Extension"]:
+        r"""
         "Reloads" an extension off of current client from an import resolve.
 
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
         :type package: Optional[str]
+        :param \*args?: Optional arguments to pass to the extension
+        :type \**args: tuple
+        :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
+        :type \**kwargs: dict
+        :return: The reloaded extension.
+        :rtype: Optional[Extension]
         """
         _name: str = resolve_name(name, package)
-        module = self._extensions.get(_name)
+        extension = self._extensions.get(_name)
 
-        if module is None:
+        if extension is None:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
-            self.extend(name, package)
+            self.load(name, package)
+            return
 
         self.remove(name, package)
-        self.load(name, package)
+        return self.load(name, package, *args, **kwargs)
 
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
@@ -751,25 +811,178 @@ class Extension:
             async def cog_user_cmd(self, ctx):
                 ...
 
-        def setup(bot):
-            CoolCode(bot)
+        def setup(client):
+            CoolCode(client)
     """
 
     client: Client
-    commands: Optional[List[ApplicationCommand]]
-    listeners: Optional[List[Listener]]
 
-    def __new__(cls, bot: Client) -> None:
-        cls.client = bot
-        cls.commands = []
-        cls.listeners = []
+    def __new__(cls, client: Client, *args, **kwargs) -> "Extension":
 
-        for _, content in cls.__dict__.items():
-            if not content.startswith("__") or content.startswith("_"):
-                if "on_" in content:
-                    cls.listeners.append(content)
-                else:
-                    cls.commands.append(content)
+        self = super().__new__(cls)
 
-        for _command in cls.commands:
-            cls.client.command(**_command)
+        self.client = client
+        self._commands = {}
+        self._listeners = {}
+
+        # This gets every coroutine in a way that we can easily change them
+        # cls
+        for name, func in getmembers(self, predicate=iscoroutinefunction):
+
+            # TODO we can make these all share the same list, might make it easier to load/unload
+            if hasattr(func, "__listener_name__"):  # set by extension_listener
+                func = client.event(
+                    func, name=func.__listener_name__
+                )  # capture the return value for friendlier ext-ing
+
+                listeners = self._listeners.get(func.__listener_name__, [])
+                listeners.append(func)
+                self._listeners[func.__listener_name__] = listeners
+
+            if hasattr(func, "__command_data__"):  # Set by extension_command
+                args, kwargs = func.__command_data__
+                func = client.command(*args, **kwargs)(func)
+
+                cmd_name = f"command_{kwargs.get('name') or func.__name__}"
+
+                commands = self._commands.get(cmd_name, [])
+                commands.append(func)
+                self._commands[cmd_name] = commands
+
+            if hasattr(func, "__component_data__"):
+                args, kwargs = func.__component_data__
+                func = client.component(*args, **kwargs)(func)
+
+                component = kwargs.get("component") or args[0]
+                comp_name = (
+                    _component(component).custom_id
+                    if isinstance(component, (Button, SelectMenu))
+                    else component
+                )
+                comp_name = f"component_{comp_name}"
+
+                listeners = self._listeners.get(comp_name, [])
+                listeners.append(func)
+                self._listeners[comp_name] = listeners
+
+            if hasattr(func, "__autocomplete_data__"):
+                args, kwargs = func.__autocomplete_data__
+                func = client.autocomplete(*args, **kwargs)(func)
+
+                name = kwargs.get("name") or args[0]
+                _command = kwargs.get("command") or args[1]
+
+                _command: Union[Snowflake, int] = (
+                    _command.id if isinstance(_command, ApplicationCommand) else _command
+                )
+
+                auto_name = f"autocomplete_{_command}_{name}"
+
+                listeners = self._listeners.get(auto_name, [])
+                listeners.append(func)
+                self._listeners[auto_name] = listeners
+
+            if hasattr(func, "__modal_data__"):
+                args, kwargs = func.__modal_data__
+                func = client.modal(*args, **kwargs)(func)
+
+                modal = kwargs.get("modal") or args[0]
+                modal_name = f"modal_{modal.custom_id}"
+
+                listeners = self._listeners.get(modal_name, [])
+                listeners.append(func)
+                self._listeners[modal_name] = listeners
+
+        client._extensions[cls.__name__] = self
+
+        return self
+
+    def teardown(self):
+        for event, funcs in self._listeners.items():
+            for func in funcs:
+                self.client._websocket.dispatch.events[event].remove(func)
+
+        for cmd, funcs in self._commands.items():
+            for func in funcs:
+                self.client._websocket.dispatch.events[cmd].remove(func)
+
+        clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
+        cmds = filter(
+            lambda cmd_data: cmd_data["name"] in clean_cmd_names,
+            self.client._http.cache.interactions.view,
+        )
+
+        if self.client._automate_sync:
+            [
+                self.client._loop.create_task(
+                    self.client._http.delete_application_command(
+                        cmd["application_id"], cmd["id"], cmd["guild_id"]
+                    )
+                )
+                for cmd in cmds
+            ]
+
+
+@wraps(command)
+def extension_command(*args, **kwargs):
+    def decorator(coro):
+        coro.__command_data__ = (args, kwargs)
+        return coro
+
+    return decorator
+
+
+def extension_listener(name=None):
+    def decorator(func):
+        func.__listener_name__ = name or func.__name__
+
+        return func
+
+    return decorator
+
+
+@wraps(Client.component)
+def extension_component(*args, **kwargs):
+    def decorator(func):
+        func.__component_data__ = (args, kwargs)
+        return func
+
+    return decorator
+
+
+@wraps(Client.autocomplete)
+def extension_autocomplete(*args, **kwargs):
+    def decorator(func):
+        func.__autocomplete_data__ = (args, kwargs)
+        return func
+
+    return decorator
+
+
+@wraps(Client.modal)
+def extension_modal(*args, **kwargs):
+    def decorator(func):
+        func.__modal_data__ = (args, kwargs)
+        return func
+
+    return decorator
+
+
+@wraps(Client.message_command)
+def extension_message_command(*args, **kwargs):
+    def decorator(func):
+        kwargs["type"] = ApplicationCommandType.MESSAGE
+        func.__command_data__ = (args, kwargs)
+        return func
+
+    return decorator
+
+
+@wraps(Client.user_command)
+def extension_user_command(*args, **kwargs):
+    def decorator(func):
+        kwargs["type"] = ApplicationCommandType.USER
+        func.__command_data__ = (args, kwargs)
+        return func
+
+    return decorator
