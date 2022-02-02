@@ -118,6 +118,8 @@ Now, let's create our first slash command:
 Now, let's look what the new parts of the code are doing:
 
 * ``@bot.command()`` -- This is something known as a *decorator* in Python. This decorator is in charge and responsible of making sure that the Discord API is told about the slash/sub command that you wish to create, and sends an HTTP request correspondingly. Any changes to the information contained in this decorator will be synchronously updated with the API automatically for you. The ``scope`` field shown here is optional, which represents a guild command if you wish to have a command appear in only specific servers that bot is in. This can be a guild object or the ID.
+* ``name`` -- This is the name of your command.
+* ``description`` -- This is the description of your command.
 * ``async def my_first_command(ctx: interactions.CommandContext):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``await ctx.send("Hi there!")`` -- This sends the response to your command.
 
@@ -130,6 +132,37 @@ Now, let's look what the new parts of the code are doing:
 .. image:: _static/copy_guild_id.png
 
 
+Next, let's create an Option
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:ref:`Options <Model/Design:Application Command Models>` are extra arguments of a command, filled in by the user executing the command.
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client(token="your_secret_bot_token")
+
+    @bot.command(
+        name="say_something",
+        description="say something!",
+        scope=the_id_of_your_guild,
+        options = [
+            interactions.Option(
+                name="text",
+                description="What you want to say",
+                type=interactions.OptionType.STRING,
+                required=True,
+            ),
+        ],
+    )
+    async def my_first_command(ctx: interactions.CommandContext, text: str):
+        await ctx.send(f"You said '{text}'!")
+
+    bot.start()
+
+
+.. note:: The limit for options per command is 25.
 
 Context menus
 *************
@@ -242,6 +275,6 @@ method will always support ``ActionRow``-less sending: you only need to declare
 rows whenever you need or want to. This field will also support raw arrays and
 tables, if you so wish to choose to not use our class objects instead.
 
-.. _Client: https://discord-interactions.rtfd.io/en/unstable/client.html
-.. _find these component types: https://discord-interactions.readthedocs.io/en/unstable/models.component.html
+.. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
+.. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
 .. _discord applications page: https://discord.com/developers/applications
