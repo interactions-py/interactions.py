@@ -164,6 +164,51 @@ Next, let's create an Option
 
 .. note:: The limit for options per command is 25.
 
+Do you want to create subcommands? Here's how to do it:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    @bot.command(
+        name="base_command",
+        description="This description isn't seen in UI (yet?)",
+        scope=guild_id,
+        options= [
+            interactions.Option(
+                name="command_name",
+                description="A descriptive description",
+                type=interactions.OptionType.SUB_COMMAND,
+                options=[
+                    interactions.Option(
+                        name="option",
+                        description="A descriptive description",
+                        type=interactions.OptionType.INTEGER,
+                        required=False,
+                    ),
+            interactions.Option(
+                name="second_command",
+                description="A descriptive description",
+                type=interactions.OptionType.SUB_COMMAND,
+                options=[
+                    interactions.Option(
+                        name="second_option",
+                        description="A descriptive description",
+                        type=interactions.OptionType.STRING,
+                        required=True,
+                    ),
+                ],
+            ),
+        ],
+    )
+    async def cmd(ctx: interactions.CommandContext, sub_command: str, second_option: str, option: int = None):
+        if sub_command == "command_name":
+          await ctx.send(f"You selected the command_name sub command and put in {option}")
+        elif sub_command == "second_command":
+          await ctx.send(f"You selected the second_command sub command and put in {second_option}")
+
+.. note:: You can add a SUB_COMMAND_GROUP in between the base and command.
+
+
 Special type of commands: Context menus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -194,7 +239,7 @@ your ``@command`` decorator:
 
 
 Creating and sending Components
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*******************************
 
 Being able to run your own commands is very useful for a lot of automation-related purposes
 as a bot developer, however, we also have something that we're able to introduce for both
@@ -250,22 +295,21 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
 5 per message that you send. This code block below shows how:
 
 .. code-block:: python
-    :linenos:
 
     button = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
         label="hello world!",
         custom_id="hello"
     )
-    menu = interactions.SelectMenu(
-        options=[
-            interactions.SelectOption(label="Option one", value="o-one"),
-            interactions.SelectOption(label="Option two", value="o-two"),
-            interactions.SelectOption(label="Option three", value="o-three")
-        ]
+    button2 = interactions.Button(
+        style=interactions.ButtonStyle.DANGER,
+        label="bye bye!",
+        custom_id="bye!"
     )
+
+
     row = interactions.ActionRow(
-        components=[button, menu]
+        components=[button1, button2]
     )
 
     @bot.command(...)
