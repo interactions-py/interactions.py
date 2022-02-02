@@ -199,7 +199,7 @@ class Channel(DictSerializerMixin):
                 List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
-    ):
+    ) -> "Message":  # noqa
         """
         Sends a message in the channel.
 
@@ -476,7 +476,7 @@ class Channel(DictSerializerMixin):
     async def publish_message(
         self,
         message_id: int,
-    ):
+    ) -> "Message":  # noqa
         """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
         :param message_id: The id of the message to publish
@@ -493,7 +493,7 @@ class Channel(DictSerializerMixin):
         )
         return Message(**res, _client=self._client)
 
-    async def get_pinned_messages(self):
+    async def get_pinned_messages(self) -> List["Message"]:  # noqa
         """
         Get all pinned messages from the channel.
 
@@ -511,7 +511,7 @@ class Channel(DictSerializerMixin):
     async def get_message(
         self,
         message_id: int,
-    ):
+    ) -> "Message":  # noqa
         """
         Gets a message sent in that channel.
 
@@ -533,7 +533,7 @@ class Channel(DictSerializerMixin):
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
-    ) -> List:
+    ) -> List["Message"]:  # noqa
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
         .. code-block:: python
