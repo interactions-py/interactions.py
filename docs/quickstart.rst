@@ -123,7 +123,7 @@ Now, let's look what the new parts of the code are doing:
 * ``async def my_first_command(ctx: interactions.CommandContext):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``await ctx.send("Hi there!")`` -- This sends the response to your command.
 
-.. note:: Difference between global and guild slash commands:
+.. important:: Difference between global and guild slash commands:
 
     * guild slash commands are instantly available in the guild with the given id. In order to copy your guild ID you have to enable the developer mode in discord and then right-click on the guild. This is also shown in the pictures beyond.
     * global commands are created by *not* including the ``scope`` argument into the ``@bot.command`` decorator. They will appear in all guilds your Bot is in. This process can take up to one hour to be completed on all guilds.
@@ -135,7 +135,7 @@ Now, let's look what the new parts of the code are doing:
 Next, let's create an Option
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:ref:`Options <Model/Design:Application Command Models>` are extra arguments of a command, filled in by the user executing the command.
+:ref:`Options <models.command:Application Command Models>` are extra arguments of a command, filled in by the user executing the command.
 
 .. code-block:: python
 
@@ -164,8 +164,8 @@ Next, let's create an Option
 
 .. note:: The limit for options per command is 25.
 
-Context menus
-*************
+Special type of commands: Context menus
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 While, granted that application commands are way more intuitive and easier to work with as both
 a bot developer and user from a UX approach, some may not want to always type the same command
@@ -192,8 +192,9 @@ your ``@command`` decorator:
     - You cannot have a description.
     - The ``name`` filter follows a different regex pattern.
 
-Components
-**********
+
+Creating and sending Components
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Being able to run your own commands is very useful for a lot of automation-related purposes
 as a bot developer, however, we also have something that we're able to introduce for both
@@ -213,17 +214,18 @@ implementation of a component:
     )
 
     @bot.command(
-        name="test",
-        description="this is just a test command.",
-        scope=1234567890
+        name="buttom_test",
+        description="This is the first command I made!",
+        scope=the_id_of_your_guild,
     )
-    async def test(ctx):
+    async def button_test(ctx):
         await ctx.send("testing", components=button)
 
-    @bot.component(button)
+    @bot.component("hello"")
     async def button_response(ctx):
-        print("someone clicked the button! :O")
+        await ctx.send("You clicked the Button :O", ephemeral=True)
 
+    bot.start()
 
 This is a design that we ended up choosing to simplify responding
 to buttons when someone presses on one, and to allow bot developers
