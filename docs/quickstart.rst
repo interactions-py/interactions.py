@@ -21,7 +21,7 @@ Go to the `discord applications page`_ for that. After you logged in, you will s
 
 Click the ``New Application`` button, enter a name and then click ``create``.
 
-.. note:: The name you choose is going to be your Bot's name.
+.. note:: The name you choose is going to be your Bots name.
 
 You will be redirected to a new page. On the left you will see this:
 
@@ -45,9 +45,24 @@ And that's it! You created your Bot!
 
 Invite the Bot to your guild
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Now you have a Bot, but you can't create commands because it isn't in any guilds. So, let's invite it to your guild!
 
-Minimal Bot
-***********
+.. image:: _static/OAuth2_left.png
+
+Click on ``OAuth2``, then on ``URL Generator``.
+
+You have to enable the ``bot`` and ``application.commands`` scope, to allow your bot to create slash commands.
+
+.. image:: _static/scopes_OAuth2.png
+
+After setting that up, a ``BOT PERMISSIONS`` field will appear. You can choose permissions you want to have your bot there.
+
+When you are done with choosing the permissions, go to the bottom of the page, copy the the url and open it in a new window.
+
+You will be prompted to a new page. Select your guild, click ``Authorise`` and your Bot should show up in your guild.
+
+Running the Bot
+***************
 
 Bots can be a little confusing to create. That's why we've decided to try and make the process
 as streamlined as humanly possible, in order for it to be friendlier to understand for our
