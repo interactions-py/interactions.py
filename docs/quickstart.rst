@@ -61,6 +61,8 @@ When you are done with choosing the permissions, go to the bottom of the page, c
 
 You will be prompted to a new page. Select your guild, click ``Authorise`` and your Bot should show up in your guild.
 
+Now you can go on with running your bot and creating your first commands!
+
 Running the Bot
 ***************
 
