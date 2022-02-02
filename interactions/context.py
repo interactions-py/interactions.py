@@ -350,6 +350,7 @@ class CommandContext(Context):
         _payload: dict = {"type": self.callback.value, "data": payload._json}
 
         async def func():
+            msg = None
             if (
                 self.responded
                 or self.deferred
@@ -381,10 +382,20 @@ class CommandContext(Context):
                     application_id=int(self.id),
                     data=_payload,
                 )
+                __newdata = await self.client.edit_interaction_response(
+                    data={},
+                    token=self.token,
+                    application_id=str(self.application_id),
+                )
+                if not __newdata.get("code"):
+                    # if sending message fails somehow
+                    msg = Message(**__newdata, _client=self.client)
+                    self.message = msg
                 self.responded = True
 
-        await func()
-        return payload
+            return msg if msg else payload
+
+        return await func()
 
     async def edit(
         self,
