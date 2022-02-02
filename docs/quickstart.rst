@@ -3,12 +3,48 @@ Quickstart
 
 Installing
 **********
-
 **discord-interactions** is a :ref:`Python library <index:discord-interactions>` for the Discord Artificial Programming Interface. (API)
 A library in Python has to be installed through the `pip` file. Run this in your terminal/command line
 in order to install our library:
 
 ``pip install -U discord-py-interactions``
+
+Creating a Bot
+**************
+
+Before you can run your Bot, you have to create it first. If you did it already, make sure you :ref:`invited <quickstart:Invite the Bot to your guild>` your Bot properly.
+
+In order to create your Bot, you need to create an application first.
+Go to the `discord applications page`_ for that. After you logged in, you will see this at the top:
+
+.. image:: _static/create_application.png
+
+Click the ``New Application`` button, enter a name and then click ``create``.
+
+.. note:: The name you choose is going to be your Bot's name.
+
+You will be redirected to a new page. On the left you will see this:
+
+.. image:: _static/applications_left.png
+
+Click on ``Bot``. You again will be redirected to another page, looking like this:
+
+.. image:: _static.build_a_bot.png
+
+Click on ``Add Bot`` and then on ``Yes, do it!``.
+
+And that's it! You created your Bot!
+
+.. warning:: You will see a field called ``TOKEN``. This is the access token, used to run your bot.
+    You will need this later to start your Bot.
+
+    **Do NOT give this to other persons! They can get full control over your Bot with your token and execute what they want!**
+
+    If you revealed your token, you should **immediately** go to your Bots application page and click the ``Regenerate`` Button under your token. This will delete the old token, so your bot can't be run with it anymore.
+
+
+Invite the Bot to your guild
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Minimal Bot
 ***********
@@ -163,3 +199,4 @@ tables, if you so wish to choose to not use our class objects instead.
 
 .. _Client: https://discord-interactions.rtfd.io/en/unstable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/unstable/models.component.html
+.. _discord applications page: https://discord.com/developers/applications
