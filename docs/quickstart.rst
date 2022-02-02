@@ -299,12 +299,13 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
     button = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
         label="hello world!",
-        custom_id="hello"
+        custom_id="hello",
     )
+
     button2 = interactions.Button(
         style=interactions.ButtonStyle.DANGER,
         label="bye bye!",
-        custom_id="bye!"
+        custom_id="bye!",
     )
 
 
