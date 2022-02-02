@@ -65,8 +65,8 @@ Now you can go on with running your bot and creating your first commands!
 
 
 
-Running the Bot
-***************
+Running the Bot and creating commands
+*************************************
 
 Bots can be a little confusing to create. That's why we've decided to try and make the process
 as streamlined as humanly possible, in order for it to be friendlier to understand for our
@@ -138,7 +138,7 @@ While, granted that application commands are way more intuitive and easier to wo
 a bot developer and user from a UX approach, some may not want to always type the same command
 over and over again to repeat a repetitive task. Introducing: **context menus.** Also
 known as "user" and "message" respectively, this simple switch in command structure allows you to
-quickly empower your bot with the ability to make right-click actions with menial efort.
+quickly empower your bot with the ability to make right-click actions with menial effort.
 
 In order to create a menu-based command, all you need to do is simply add this one line into
 your ``@command`` decorator:
@@ -153,11 +153,11 @@ your ``@command`` decorator:
     async def test(ctx):
         await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
-The structure of a menu command differs significantly from that of a regular one:
+.. important:: The structure of a menu command differs significantly from that of a regular one:
 
-- You cannot have any options or choices.
-- You cannot have a description.
-- The ``name`` filter follows a different regex pattern.
+    - You cannot have any options or choices.
+    - You cannot have a description.
+    - The ``name`` filter follows a different regex pattern.
 
 Components
 **********
