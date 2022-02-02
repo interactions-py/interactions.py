@@ -89,7 +89,7 @@ First, let's run the bot:
 
 And that's it! Your bot should now turn online in discord!
 
-Let's take a look now at what is happening hhere:
+Let's take a look now at what is happening here:
 
 * ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please look at our section on how to :ref:`install <quickstart:Installing>` here.
 * ``bot = interactions.Client(token="your_secret_bot_token")`` -- This is the ``bot`` variable that defines our bot. This basically instantiates the :ref:`application client <client:Bot Client>`, which requires a ``token`` keyword-argument to be passed. You have to put in your (previously mentioned) secret token here.
@@ -105,21 +105,30 @@ Now, let's create our first slash command:
 
     bot = interactions.Client(token="your_secret_bot_token")
 
+    @bot.command(
+        name="my_first_command",
+        description="This is the first command I made!",
+        scope=the_id_of_your_guild,
+    )
+    async def my_first_command(ctx: interactions.CommandContext):
+        await ctx.send("Hi there!")
 
     bot.start()
 
+Now, let's look what the new parts of the code are doing:
 
-
-
-
-
-There's quite a lot of things that are going on here, so let's break it down step-by-step:
-
-* ``import interactions`` -- This is the import line. If this returns a ``ModuleNotFoundError``, please look at our section on how to :ref:`install <quickstart:Installing>` here.
-* ``bot = interactions.Client(token="...")`` -- This is the ``bot`` variable that defines our bot. This basically instantiates the :ref:`application client <client:Bot Client>`, which requires a ``token`` keyword-argument to be passed. In order to get a token, please look at the image given below.
 * ``@bot.command()`` -- This is something known as a *decorator* in Python. This decorator is in charge and responsible of making sure that the Discord API is told about the slash/sub command that you wish to create, and sends an HTTP request correspondingly. Any changes to the information contained in this decorator will be synchronously updated with the API automatically for you. The ``scope`` field shown here is optional, which represents a guild command if you wish to have a command appear in only specific servers that bot is in. This can be a guild object or the ID.
-* ``async def test(ctx):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
-* ``bot.start()`` -- Finally, this is what tells our library to turn your bot from offline to online.
+* ``async def my_first_command(ctx: interactions.CommandContext):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
+* ``await ctx.send("Hi there!")`` -- This sends the response to your command.
+
+.. note:: Difference between global and guild slash commands:
+
+    * guild slash commands are instantly available in the guild with the given id. In order to copy your guild ID you have to enable the developer mode in discord and then right-click on the guild. This is also shown in the pictures beyond.
+    * global commands are created by *not* including the ``scope`` argument into the ``@bot.command`` decorator. They will appear in all guilds your Bot is in. This process can take up to one hour to be completed on all guilds.
+
+.. image:: _static/dev_mode_discord.png
+.. image:: _static/copy_guild_id.png
+
 
 
 Context menus
