@@ -2,6 +2,7 @@ from typing import Any, List, Optional
 
 from .misc import DictSerializerMixin, Snowflake
 from .user import User
+from .flags import AppFlags
 
 class TeamMember(DictSerializerMixin):
     _json: dict
@@ -39,7 +40,7 @@ class Application(DictSerializerMixin):
     primary_sku_id: Optional[Snowflake]
     slug: Optional[str]
     cover_image: Optional[str]
-    flags: Optional[int]
+    flags: Optional[AppFlags]
     type: Optional[Any]
     hook: Optional[Any]
     def __init__(self, **kwargs): ...

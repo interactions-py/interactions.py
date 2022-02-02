@@ -11,8 +11,8 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 import interactions.api.cache
+from interactions.api.models.misc import MISSING
 from interactions.base import __version__, get_logger
-from interactions.models.misc import MISSING
 
 from ..api.cache import Cache, Item
 from ..api.error import HTTPException
@@ -128,6 +128,15 @@ class Limiter:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         return self.lock.release()
 
+    def release_lock(self):
+        # Releases the lock if its locked, overriding the traditional release() method.
+        # Useful for per-route, not needed? for globals.
+
+        # See #428.
+
+        if self.lock.locked():
+            self.lock.release()
+
 
 class Request:
     """
@@ -170,7 +179,7 @@ class Request:
         self.buckets = {}
         self._headers = {
             "Authorization": f"Bot {self.token}",
-            "User-Agent": f"DiscordBot (https://github.com/goverfl0w/interactions.py {__version__} "
+            "User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
@@ -227,7 +236,7 @@ class Request:
                     log.warning(
                         f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
                     )
-                self._loop.call_later(_limiter.reset_after, _limiter.lock.release)
+                self._loop.call_later(_limiter.reset_after, _limiter.release_lock)
             _limiter.reset_after = 0
         else:
             self.ratelimits[bucket] = (
@@ -289,6 +298,9 @@ class Request:
                             )
 
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+
+                    _limiter.release_lock()  # checks if its locked, then releases upon success.
+
                     return data
 
             # These account for general/specific exceptions. (Windows...)
@@ -310,9 +322,6 @@ class Request:
                     pass
                 log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
                 break
-
-        if _limiter.lock.locked():
-            _limiter.lock.release()
 
     async def close(self) -> None:
         """Closes the current session."""
