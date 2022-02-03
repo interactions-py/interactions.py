@@ -368,6 +368,9 @@ class Message(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
+        if self.flags == 64:
+            raise Exception("You cannot edit a hidden message!")
+
         from ...models.component import ActionRow, Button, SelectMenu
 
         _content: str = self.content if content is MISSING else content
@@ -745,6 +748,8 @@ class Message(DictSerializerMixin):
         :type url: str
         :param client: The HTTPClient of your bot. Set ``client=botvar._http``
         :type client: HTTPClient
+        :return: The message the URL points to
+        :rtype: Message
         """
 
         if "channels/" not in url:

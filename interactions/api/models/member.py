@@ -50,7 +50,11 @@ class Member(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user = User(**self.user) if self._json.get("user") else None
+        self.user = (
+            self.user
+            if isinstance(self.user, User)
+            else (User(**self.user) if self._json.get("user") else None)
+        )
         self.joined_at = (
             datetime.fromisoformat(self._json.get("joined_at"))
             if self._json.get("joined_at")
