@@ -10,7 +10,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.error import InteractionException
+from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.flags import Intents
@@ -216,6 +216,12 @@ class Client:
                 application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
             )
 
+        if isinstance(commands, dict):
+            if commands.get("code"):  # Error exists.
+                raise JSONException(commands["code"], message=commands["message"] + " |")
+                # TODO: redo error handling.
+
+        print(commands)
         names: List[str] = [command["name"] for command in commands] if commands else []
         to_sync: list = []
         to_delete: list = []
