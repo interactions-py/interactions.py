@@ -221,7 +221,6 @@ class Client:
                 raise JSONException(commands["code"], message=commands["message"] + " |")
                 # TODO: redo error handling.
 
-        print(commands)
         names: List[str] = [command["name"] for command in commands] if commands else []
         to_sync: list = []
         to_delete: list = []
