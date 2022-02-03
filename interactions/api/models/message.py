@@ -745,6 +745,8 @@ class Message(DictSerializerMixin):
         :type url: str
         :param client: The HTTPClient of your bot. Set ``client=botvar._http``
         :type client: HTTPClient
+        :return: The message the URL points to
+        :rtype: Message
         """
 
         if "channels/" not in url:
