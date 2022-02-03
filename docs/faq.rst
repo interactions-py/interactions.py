@@ -153,7 +153,7 @@ And the error occurs in the line where you try to send something. You can fix th
 
 .. code-block:: python
 
-    channel = interactions.Channel(**await bot.http.get_channel(channel_id), _client=bot.http)
+    channel = interactions.Channel(**await bot.http.get_channel(channel_id), _client=bot._http)
     await channel.send("...")
 
 You have to add this extra argument for every object you instantiate by yourself if you want to use it's methods

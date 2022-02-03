@@ -172,6 +172,16 @@ class Guild(DictSerializerMixin):
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role: ...
+    async def create_thread(
+        self,
+        name: str,
+        channel_id: int,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
     async def create_channel(
         self,
         name: str,
@@ -267,6 +277,10 @@ class Guild(DictSerializerMixin):
     ) -> None: ...
     async def get_all_channels(self) -> List[Channel]: ...
     async def get_all_roles(self) -> List[Role]: ...
+    async def get_role(
+        self,
+        role_id: int,
+    ) -> Role: ...
     async def modify_role_position(
         self,
         role_id: Union[Role, int],
