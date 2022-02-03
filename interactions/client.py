@@ -1,5 +1,5 @@
 import sys
-from asyncio import get_event_loop, iscoroutinefunction
+from asyncio import ensure_future, get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -561,7 +561,7 @@ class Client:
         return decorator
 
     def autocomplete(
-        self, name: str, command: Union[ApplicationCommand, int]
+        self, name: str, command: Union[ApplicationCommand, int, str]
     ) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
@@ -577,14 +577,30 @@ class Client:
 
         :param name: The name of the option to autocomplete.
         :type name: str
-        :param command: The command or commnd ID with the option.
-        :type command: Union[ApplicationCommand, int]
+        :param command: The command, command ID, or command name with the option.
+        :type command: Union[ApplicationCommand, int, str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        _command: Union[Snowflake, int] = (
-            command.id if isinstance(command, ApplicationCommand) else command
-        )
+
+        if isinstance(command, ApplicationCommand):
+            _command: Union[Snowflake, int] = command.id
+        elif isinstance(command, str):
+            _command_obj = self.http.cache.interactions.get(command)
+            if not _command_obj:
+                _sync_task = ensure_future(self.synchronize(), loop=self.loop)
+                while not _sync_task.done():
+                    pass  # wait for sync to finish
+                _command_obj = self.http.cache.interactions.get(command)
+                if not _command_obj:
+                    raise InteractionException(6, message="The command does not exist")
+            _command: Union[Snowflake, int] = int(_command_obj.id)
+        elif isinstance(command, int):
+            _command: Union[Snowflake, int] = command
+        else:
+            raise ValueError(
+                "You can only insert strings, integers and ApplicationCommands here!"
+            )  # TODO: move to custom error formatter
 
         def decorator(coro: Coroutine) -> Any:
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
