@@ -120,11 +120,16 @@ class CommandContext(Context):
         if self._json.get("data").get("target_id"):
             self.target = str(self.data.target_id)
 
-            if str(self.data.target_id) in self.data.resolved.users:
-                self.target = self.data.resolved.users[self.target]
-            elif str(self.data.target_id) in self.data.resolved.members:
-                self.target = self.data.resolved.members[self.target]
-            else:
+            if self.data.type == 2:
+                if (
+                    self._json.get("guild_id")
+                    and str(self.data.target_id) in self.data.resolved.members
+                ):
+                    # member id would have potential to exist, and therefore have target def priority.
+                    self.target = self.data.resolved.members[self.target]
+                else:
+                    self.target = self.data.resolved.users[self.target]
+            elif self.data.type == 3:
                 self.target = self.data.resolved.messages[self.target]
 
         self.responded = False

@@ -561,7 +561,7 @@ class Client:
         return decorator
 
     def autocomplete(
-        self, name: str, command: Union[ApplicationCommand, int, str]
+        self, name: str, command: Union[ApplicationCommand, int, str, Snowflake]
     ) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
@@ -578,7 +578,7 @@ class Client:
         :param name: The name of the option to autocomplete.
         :type name: str
         :param command: The command, command ID, or command name with the option.
-        :type command: Union[ApplicationCommand, int, str]
+        :type command: Union[ApplicationCommand, int, str, Snowflake]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -595,8 +595,8 @@ class Client:
                 if not _command_obj:
                     raise InteractionException(6, message="The command does not exist")
             _command: Union[Snowflake, int] = int(_command_obj.id)
-        elif isinstance(command, int):
-            _command: Union[Snowflake, int] = command
+        elif isinstance(command, int) or isinstance(command, Snowflake):
+            _command: Union[Snowflake, int] = int(command)
         else:
             raise ValueError(
                 "You can only insert strings, integers and ApplicationCommands here!"
