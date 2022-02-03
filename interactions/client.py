@@ -259,20 +259,26 @@ class Client:
         try:
             if self.me.flags is not None:
                 # This can be None.
-                if self._intents.GUILD_PRESENCES and not (
-                    self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENCE_LIMITED
+                if self._intents.GUILD_PRESENCES in self._intents and not (
+                    self.me.flags.GATEWAY_PRESENCE in self.me.flags
+                    or self.me.flags.GATEWAY_PRESENCE_LIMITED in self.me.flags
                 ):
-                    raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
-                if self._intents.GUILD_MEMBERS and not (
-                    self.me.flags.GATEWAY_GUILD_MEMBERS
-                    or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED
+                    raise RuntimeError("Client not authorised for the GUILD_PRESENCES intent.")
+                if self._intents.GUILD_MEMBERS in self._intents and not (
+                    self.me.flags.GATEWAY_GUILD_MEMBERS in self.me.flags
+                    or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED in self.me.flags
                 ):
-                    raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
-                if self._intents.GUILD_MESSAGES and not (
-                    self.me.flags.GATEWAY_MESSAGE_CONTENT
-                    or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED
+                    raise RuntimeError("Client not authorised for the GUILD_MEMBERS intent.")
+                if self._intents.GUILD_MESSAGES in self._intents and not (
+                    self.me.flags.GATEWAY_MESSAGE_CONTENT in self.me.flags
+                    or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED in self.me.flags
                 ):
-                    log.critical("Client not authorised for MESSAGE_CONTENT intent")
+                    log.critical("Client not authorised for the MESSAGE_CONTENT intent.")
+            else:
+                # This is when a bot has no intents period.
+                if self._intents.value != Intents.DEFAULT.value:
+                    raise RuntimeError("Client not authorised for any privileged intents.")
+
             self.__register_events()
             if self._automate_sync:
                 await self._synchronize()
