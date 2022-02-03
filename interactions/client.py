@@ -20,7 +20,7 @@ from .api.models.team import Application
 from .base import get_logger
 from .decor import command
 from .decor import component as _component
-from .enums import ApplicationCommandType
+from .enums import ApplicationCommandType, OptionType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -361,6 +361,8 @@ class Client:
             if name is MISSING:
                 raise InteractionException(11, message="Your command must have a name.")
 
+            # for _ in name:  # detect uppercase
+
             if type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
                 raise InteractionException(
                     11, message="Chat-input commands must have a description."
@@ -378,10 +380,13 @@ class Client:
                     )
                 _option: Option
                 for _option in options:
-                    if not _option._json.get("description"):
+                    if not _option._json.get("description") and _option not in (
+                        OptionType.SUB_COMMAND,
+                        OptionType.SUB_COMMAND_GROUP,
+                    ):
                         raise InteractionException(
                             11,
-                            message="A description is required for Options"
+                            message="A description is required for Options that are not sub-commands",
                         )
 
             commands: List[ApplicationCommand] = command(
