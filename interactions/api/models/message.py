@@ -360,6 +360,9 @@ class Message(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
+        if self.flags == 64:
+            raise Exception("You cannot edit a hidden message!")
+
         from ...models.component import ActionRow, Button, SelectMenu
 
         _content: str = self.content if content is MISSING else content
