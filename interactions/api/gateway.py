@@ -6,7 +6,7 @@ except ImportError:
     from json import dumps, loads
 
 # from asyncio import Event, create_task, get_event_loop, get_running_loop, new_event_loop, wait_for
-from asyncio import get_event_loop, get_running_loop, new_event_loop
+from asyncio import Event, get_event_loop, get_running_loop, new_event_loop
 from logging import Logger
 from sys import platform, version_info
 from typing import Any, Dict, List, Optional, Tuple
@@ -82,9 +82,9 @@ class WebSocketClient:
             "compress": 0,
         }
         self._intents = intents
-        # self.__heartbeater = Event(loop=self._loop if version_info < (3, 10) else None)
+        self.__heartbeater: Event = Event(loop=self._loop if version_info < (3, 10) else None)
         # self.__morgued = Event(loop=self._loop if version_info < (3, 10) else None)
-        self.__heartbeater = True  # event waits are painful, cba, using boolean instead.
+        # self.__heartbeater = True  # event waits are painful, cba, using boolean instead.
         self.url = None
 
         self.session_id = None if session_id is MISSING else session_id
@@ -101,9 +101,9 @@ class WebSocketClient:
     async def __heartbeat_manager(self):
         """Manages the heartbeat loop."""
         while True:
-            if self.__heartbeater:
+            if self.__heartbeater.is_set():
                 await self.__heartbeat_packet
-                self.__heartbeater = False
+                self.__heartbeater.clear()
                 await asyncio.sleep(self._heartbeat_delay / 1000)
             else:
                 log.debug("Heartbeat ACK not recieved, reconnecting to Gateway...")
@@ -116,6 +116,7 @@ class WebSocketClient:
 
         if self._closed:
             self._closed = False  # it's closed via the first failure. needs reopening for second.
+        self._client = None  # discard.
 
         async with self._http._req._session.ws_connect(self.url, **self._options) as self._client:
             while not self._closed:
@@ -175,6 +176,7 @@ class WebSocketClient:
 
             if op == OpCodeType.HELLO:
                 self._heartbeat_delay = data["heartbeat_interval"]
+                self.__heartbeater.set()
                 self.__task = asyncio.ensure_future(self.__heartbeat_manager())
                 # The task will reinstate the client if the bool's false
 
@@ -196,7 +198,8 @@ class WebSocketClient:
                 await self.__heartbeat_packet
             if op == OpCodeType.HEARTBEAT_ACK:
                 log.debug("HEARTBEAT_ACK")
-                self.__heartbeater = True
+                # self.__heartbeater = True
+                self.__heartbeater.set()
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
                 if not data or op == OpCodeType.RECONNECT:
@@ -212,8 +215,9 @@ class WebSocketClient:
             self._dispatch.dispatch("on_ready")
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
         else:
-            log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
-            # log.debug(f"{event}: {data}")
+            # log.debug(f"{event}: {dumps(data, indent=4, sort_keys=True)}")
+            # above is omitted because of orjson's args and cross-compatibility.
+            log.debug(f"{event}: {data}")
             self.handle_dispatch(event, data)
 
     def handle_dispatch(self, event: str, data: dict) -> None:
