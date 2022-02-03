@@ -123,6 +123,9 @@ Now, let's look what the new parts of the code are doing:
 * ``async def my_first_command(ctx: interactions.CommandContext):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``await ctx.send("Hi there!")`` -- This sends the response to your command.
 
+.. note:: ``name`` and ``description`` are required.
+
+
 .. important:: Difference between global and guild slash commands:
 
     * guild slash commands are instantly available in the guild with the given id. In order to copy your guild ID you have to enable the developer mode in discord and then right-click on the guild. This is also shown in the pictures beyond.
