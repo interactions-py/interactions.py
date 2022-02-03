@@ -389,7 +389,7 @@ class Client:
                     )
                 _option: Option
                 for _option in options:
-                    if not _option._json.get("description") and _option not in (
+                    if not _option._json.get("description") and _option.type not in (
                         OptionType.SUB_COMMAND,
                         OptionType.SUB_COMMAND_GROUP,
                     ):
