@@ -85,3 +85,36 @@ class Permissions(IntFlag):
     SEND_MESSAGES_IN_THREADS = 1 << 38
     START_EMBEDDED_ACTIVITIES = 1 << 39
     MODERATE_MEMBERS = 1 << 40
+
+
+class UserFlags(IntFlag):
+    """An integer flag bitshift object representing the different user flags given by Discord."""
+
+    STAFF = 1
+    PARTNER = 1 << 1
+    HYPESQUAD = 1 << 2
+    BUG_HUNTER_LEVEL_1 = 1 << 3
+    HYPESQUAD_HOUSE_1 = 1 << 6
+    HYPESQUAD_HOUSE_2 = 1 << 7
+    HYPESQUAD_HOUSE_3 = 1 << 8
+    PREMIUM_EARLY_SUPPORTER = 1 << 9
+    TEAM_PSEUDO_USER = 1 << 10
+    SYSTEM = 1 << 12
+    BUG_HUNTER_LEVEL_2 = 1 << 14
+    VERIFIED_BOT = 1 << 16
+    VERIFIED_DEVELOPER = 1 << 17
+    DISCORD_CERTIFIED_MODERATOR = 1 << 18
+    BOT_HTTP_INTERACTIONS = 1 << 19
+
+
+class AppFlags(IntFlag):
+    """An integer flag bitshift object representing the different application flags given by Discord."""
+
+    GATEWAY_PRESENCE = 1 << 12
+    GATEWAY_PRESENCE_LIMITED = 1 << 13
+    GATEWAY_GUILD_MEMBERS = 1 << 14
+    GATEWAY_GUILD_MEMBERS_LIMITED = 1 << 15
+    VERIFICATION_PENDING_GUILD_LIMIT = 1 << 16
+    EMBEDDED = 1 << 17
+    GATEWAY_MESSAGE_CONTENT = 1 << 18
+    GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19

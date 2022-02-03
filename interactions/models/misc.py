@@ -40,9 +40,11 @@ class InteractionResolvedData(DictSerializerMixin):
             self.users = {}
         if self._json.get("members"):
             [
-                self.members.update({member: Member(**self.members[member])})
+                self.members.update(
+                    {member: Member(**self.members[member], user=self.users[member])}
+                )
                 for member in self._json.get("members")
-            ]
+            ]  # members have User, user may not have Member. /shrug
         else:
             self.members = {}
         if self._json.get("roles"):
