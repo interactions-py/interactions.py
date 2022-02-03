@@ -361,13 +361,12 @@ class Client:
             if name is MISSING:
                 raise InteractionException(11, message="Your command must have a name.")
 
-            __name_is_upper: bool = False
             for _ in name:
                 if _.isupper():
-                  raise InteractionException(
-                      11,
-                      message="Your command name must not contain uppercase characters (Discord limitation)"
-                  )
+                    raise InteractionException(
+                        11,
+                        message="Your command name must not contain uppercase characters (Discord limitation)",
+                    )
 
             if type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
                 raise InteractionException(
