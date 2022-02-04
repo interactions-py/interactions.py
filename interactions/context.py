@@ -165,7 +165,7 @@ class CommandContext(Context):
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         ephemeral: Optional[bool] = False,
     ) -> Message:
@@ -412,7 +412,7 @@ class CommandContext(Context):
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
     ) -> Message:
         """
@@ -707,6 +707,30 @@ class CommandContext(Context):
             application_id=int(self.id),
             data=payload,
         )
+
+    async def get_channel(self) -> Channel:
+        """
+        This gets the channel the command was invoked in.
+
+        :return: The channel as object
+        :rtype: Channel
+        """
+
+        res = await self.client.get_channel(int(self.channel_id))
+        self.channel = Channel(**res, _client=self.client)
+        return self.channel
+
+    async def get_guild(self) -> Guild:
+        """
+        This gets the guild the command was invoked in.
+
+        :return: The guild as object
+        :rtype: Guild
+        """
+
+        res = await self.client.get_guild(int(self.guild_id))
+        self.guild = Guild(**res, _client=self.client)
+        return self.guild
 
 
 class ComponentContext(CommandContext):

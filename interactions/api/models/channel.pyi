@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Callable
 
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
@@ -8,7 +8,18 @@ from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
 from .user import User
 from ..http import HTTPClient
 
-class ChannelType(IntEnum): ...
+class ChannelType(IntEnum):
+    GUILD_TEXT: int
+    DM: int
+    GUILD_VOICE: int
+    GROUP_DM = int
+    GUILD_CATEGORY: int
+    GUILD_NEWS: int
+    GUILD_STORE: int
+    GUILD_NEWS_THREAD: int
+    GUILD_PUBLIC_THREAD: int
+    GUILD_PRIVATE_THREAD: int
+    GUILD_STAGE_VOICE: int
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict
@@ -107,6 +118,26 @@ class Channel(DictSerializerMixin):
         message_id: int,
     ) -> Message: ...
     async def get_pinned_messages(self) -> List[Message]: ...
-
+    async def get_message(
+            self,
+            message_id: int,
+    ) -> Message: ...
+    async def purge(
+        self,
+        amount: int,
+        check: Callable[[Message], bool] = MISSING,
+        before: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+        bulk: Optional[bool] = True,
+    ) -> List[Message]: ...
+    async def create_thread(
+        self,
+        name: str,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Channel": ...
 
 class Thread(Channel): ...
