@@ -216,12 +216,20 @@ class Client:
                 application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
             )
 
+        # TODO: redo error handling.
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
                 raise JSONException(commands["code"], message=commands["message"] + " |")
                 # TODO: redo error handling.
+        elif isinstance(commands, list):
+            for command in commands:
+                if command.get("code"):
+                    # Error exists.
+                    raise JSONException(commands["code"], message=commands["message"] + " |")
 
-        names: List[str] = [command["name"] for command in commands] if commands else []
+        names: List[str] = (
+            [command["name"] for command in commands if command.get("name")] if commands else []
+        )
         to_sync: list = []
         to_delete: list = []
 
