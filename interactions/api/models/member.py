@@ -18,6 +18,7 @@ class Member(DictSerializerMixin):
         to speak.
 
     :ivar User user: The user of the guild.
+    :ivar int id: The id of the user.
     :ivar str nick: The nickname of the member.
     :ivar Optional[str] avatar?: The hash containing the user's guild avatar, if applicable.
     :ivar List[Role] roles: The list of roles of the member.
@@ -33,6 +34,7 @@ class Member(DictSerializerMixin):
     __slots__ = (
         "_json",
         "user",
+        "id",
         "nick",
         "avatar",
         "roles",
@@ -55,6 +57,7 @@ class Member(DictSerializerMixin):
             if isinstance(self.user, User)
             else (User(**self.user) if self._json.get("user") else None)
         )
+        self.id = self.user.id if self.user else None
         self.joined_at = (
             datetime.fromisoformat(self._json.get("joined_at"))
             if self._json.get("joined_at")

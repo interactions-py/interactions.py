@@ -9,12 +9,12 @@ from ..http import HTTPClient
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
 
-
 class Member(DictSerializerMixin):
 
     _json: dict
     _client: HTTPClient
     user: Optional[User]
+    id: Optional[int]
     nick: Optional[str]
     avatar: Optional[str]
     roles: List[Role]
