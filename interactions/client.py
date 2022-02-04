@@ -225,7 +225,7 @@ class Client:
             for command in commands:
                 if command.get("code"):
                     # Error exists.
-                    raise JSONException(commands["code"], message=commands["message"] + " |")
+                    raise JSONException(command["code"], message=command["message"] + " |")
 
         names: List[str] = (
             [command["name"] for command in commands if command.get("name")] if commands else []
