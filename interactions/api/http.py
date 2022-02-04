@@ -2586,7 +2586,7 @@ class HTTPClient:
         payload = {k: v for k, v in data.items() if k in valid_keys}
 
         return await self._req.request(
-            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=int(guild_id)),
+            Route("POST", "/guilds/{guild_id}/scheduled-events", guild_id=int(guild_id)),
             json=payload,
         )
 
