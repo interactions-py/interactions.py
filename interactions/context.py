@@ -27,8 +27,8 @@ class Context(DictSerializerMixin):
     :ivar Optional[Message] message?: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Channel channel: The channel data model.
-    :ivar Guild guild: The guild data model.
+    :ivar Union[Channel, MISSING] channel: The channel data model.
+    :ivar Union[Guild, None, MISSING] guild: The guild data model.
     """
 
     __slots__ = ("message", "member", "author", "user", "channel", "guild", "client")
@@ -44,9 +44,21 @@ class Context(DictSerializerMixin):
         self.author = self.member
         self.user = User(**self.user) if self._json.get("user") else None
 
-        # TODO: The below attributes are always None because they aren't by API return.
-        self.channel = Channel(**self.channel) if self._json.get("channel") else None
-        self.guild = Guild(**self.guild) if self._json.get("guild") else None
+        if guild := self._json.get("guild"):
+            self.guild = Guild(**guild)
+        elif self.guild_id is None:
+            self.guild = None
+        elif guild := self.client.cache.guilds.get(self.guild_id):
+            self.guild = guild
+        else:
+            self.guild = MISSING
+
+        if channel := self._json.get("channel"):
+            self.channel = Channel(**channel)
+        elif channel := self.client.cache.channels.get(self.channel_id):
+            self.channel = channel
+        else:
+            self.channel = MISSING
 
 
 class CommandContext(Context):
