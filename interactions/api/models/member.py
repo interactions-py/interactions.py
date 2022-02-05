@@ -34,7 +34,6 @@ class Member(DictSerializerMixin):
     __slots__ = (
         "_json",
         "user",
-        "id",
         "nick",
         "avatar",
         "roles",
@@ -57,7 +56,6 @@ class Member(DictSerializerMixin):
             if isinstance(self.user, User)
             else (User(**self.user) if self._json.get("user") else None)
         )
-        self.id = self.user.id if self.user else None
         self.joined_at = (
             datetime.fromisoformat(self._json.get("joined_at"))
             if self._json.get("joined_at")
@@ -77,6 +75,10 @@ class Member(DictSerializerMixin):
 
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
+    
+    @property
+    def id(self):
+        return self.user.id if self.user else None
 
     async def ban(
         self,
