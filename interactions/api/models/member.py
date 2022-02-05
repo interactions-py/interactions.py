@@ -72,6 +72,13 @@ class Member(DictSerializerMixin):
             else None
         )
 
+        self.roles = ([
+            role_id
+            if isinstance(role_id, int)
+            else int(role_id)
+            for role_id in self.roles
+        ])
+
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
 
