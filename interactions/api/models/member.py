@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel
 from .flags import Permissions
-from .misc import MISSING, DictSerializerMixin
+from .misc import MISSING, DictSerializerMixin, Snowflake
 from .role import Role
 from .user import User
 
@@ -18,7 +18,6 @@ class Member(DictSerializerMixin):
         to speak.
 
     :ivar User user: The user of the guild.
-    :ivar int id: The id of the user.
     :ivar str nick: The nickname of the member.
     :ivar Optional[str] avatar?: The hash containing the user's guild avatar, if applicable.
     :ivar List[Role] roles: The list of roles of the member.
@@ -77,7 +76,13 @@ class Member(DictSerializerMixin):
             self.avatar = self.user.avatar
     
     @property
-    def id(self):
+    def id(self) -> Snowflake:
+        """
+        Returns the ID of the user.
+        
+        :return: The ID of the user
+        :rtype: Snowflake
+        """
         return self.user.id if self.user else None
 
     async def ban(
