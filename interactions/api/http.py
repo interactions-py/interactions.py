@@ -1994,7 +1994,7 @@ class HTTPClient:
 
     # TODO: Merge single and batch variants ?
 
-    async def get_application_commands(
+    async def get_application_command(
         self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
     ) -> List[dict]:
         """
