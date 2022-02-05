@@ -211,7 +211,7 @@ class Client:
             commands: List[dict] = cache
         else:
             log.info("No command cache was found present, retrieving from Web API instead.")
-            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_command(
+            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_commands(
                 application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
             )
 
