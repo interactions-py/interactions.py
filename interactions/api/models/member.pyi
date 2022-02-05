@@ -28,6 +28,8 @@ class Member(DictSerializerMixin):
     communication_disabled_until: Optional[datetime.isoformat]
     hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
+    @property
+    def mention(self) -> str: ...
     async def ban(
         self,
         guild_id: int,

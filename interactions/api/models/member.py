@@ -82,6 +82,18 @@ class Member(DictSerializerMixin):
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
 
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given member.
+
+        :return: The string of the mentioned member.
+        :rtype: str
+        """
+        if self.nick:
+            return f"<@!{self.user.id}>"
+        return f"<@{self.user.id}>"
+
     async def ban(
         self,
         guild_id: int,
