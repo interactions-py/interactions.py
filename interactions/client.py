@@ -8,6 +8,7 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
+import interactions
 from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
@@ -590,7 +591,7 @@ class Client:
 
         .. code-block:: python
 
-            @autocomplete("option_name")
+            @autocomplete("option_name", "command_name")
             async def autocomplete_choice_list(ctx, user_input: str = ""):
                 await ctx.populate([...])
 
@@ -605,14 +606,19 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj = self.http.cache.interactions.get(command)
-            if not _command_obj:
-                _sync_task = ensure_future(self.synchronize(), loop=self.loop)
-                while not _sync_task.done():
-                    pass  # wait for sync to finish
-                _command_obj = self.http.cache.interactions.get(command)
-                if not _command_obj:
-                    raise InteractionException(6, message="The command does not exist")
+            _command_obj = self._http.cache.interactions.get(command)
+            if not _command_obj or not _command_obj.id:
+                # _sync_task = ensure_future(self._http.get_application_command(self.me.id), loop=self._loop)
+                # _sync_task.print_stack(limit=10)
+                # while not _sync_task.done():
+                #     pass  # wait for sync to finish
+                _application_commands = self._loop.run_until_complete(self._http.get_application_command(self.me.id))
+                for _command in _application_commands:
+                    if _command["name"] == command:
+                        _command_obj = interactions.ApplicationCommand(**_command)
+                if not _command_obj or not _command_obj.id:
+                    raise InteractionException(6, message="The command does not exist. Make sure to define" +
+                                                          " your autocomplete callback after your commands")
             _command: Union[Snowflake, int] = int(_command_obj.id)
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
