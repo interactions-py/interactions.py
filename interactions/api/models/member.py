@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..cache import Item
 from .channel import Channel

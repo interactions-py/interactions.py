@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Callable, List, Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
 from ..cache import Item
 from .misc import MISSING, DictSerializerMixin, Snowflake
