@@ -182,7 +182,9 @@ class Channel(DictSerializerMixin):
         )
 
     @classmethod
-    async def fetch(cls, channel_id: int, *, cache: bool = True, http: "HTTPClient") -> "Channel":
+    async def fetch(
+        cls, channel_id: int, *, cache: bool = True, http: "HTTPClient"  # noqa
+    ) -> "Channel":
         """
         Fetches a channel from the cache or the Discord API.
 

@@ -55,7 +55,7 @@ class User(DictSerializerMixin):
         self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
 
     @classmethod
-    async def fetch(cls, user_id: int, *, cache: bool = True, http: "HTTPClient") -> "User":
+    async def fetch(cls, user_id: int, *, cache: bool = True, http: "HTTPClient") -> "User":  # noqa
         """
         Fetches a user from the cache or the Discord API.
 
