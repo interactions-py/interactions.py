@@ -592,7 +592,11 @@ class Client:
 
             @autocomplete("option_name", "command_name")
             async def autocomplete_choice_list(ctx, user_input: str = ""):
-                await ctx.populate([...])
+                await ctx.populate([
+                    interactions.Choice(...),
+                    interactions.Choice(...),
+                    ...
+                ])
 
         :param name: The name of the option to autocomplete.
         :type name: str
