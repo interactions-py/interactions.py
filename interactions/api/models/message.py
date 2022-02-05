@@ -246,7 +246,15 @@ class Message(DictSerializerMixin):
             else datetime.utcnow()
         )
         self.author = User(**self._json.get("author")) if self._json.get("author") else None
-        self.member = Member(**self._json.get("member")) if self._json.get("member") else None
+        self.member = (
+            Member(
+                **self._json.get("member"),
+                _client=self._client,
+                user=self.author._json,
+            )
+            if self._json.get("member")
+            else None
+        )
         self.type = MessageType(self.type) if self._json.get("type") else None
         self.edited_timestamp = (
             datetime.fromisoformat(self._json.get("edited_timestamp"))
@@ -694,6 +702,64 @@ class Message(DictSerializerMixin):
             channel_id=int(self.channel_id), message_id=int(self.id)
         )
         return Message(**res, _client=self._client)
+
+    async def create_thread(
+        self,
+        name: str,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Creates a thread from the message.
+
+        :param name: The name of the thread
+        :type name: str
+        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param invitable?: Boolean to display if the Thread is open to join or private.
+        :type invitable: Optional[bool]
+        :param reason?: An optional reason for the audit log
+        :type reason: Optional[str]
+        :return: The created thread
+        :rtype: Channel
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
+        _invitable = None if invitable is MISSING else invitable
+        res = await self._client.create_thread(
+            channel_id=int(self.channel_id),
+            message_id=int(self.id),
+            name=name,
+            reason=reason,
+            invitable=_invitable,
+            auto_archive_duration=_auto_archive_duration,
+        )
+        return Channel(**res, _client=self._client)
+
+    @classmethod
+    async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,
+        """
+        Gets a Message based from its url.
+
+        :param url: The full url of the message
+        :type url: str
+        :param client: The HTTPClient of your bot. Set ``client=botvar._http``
+        :type client: HTTPClient
+        :return: The message the URL points to
+        :rtype: Message
+        """
+
+        if "channels/" not in url:
+            raise ValueError("You provided an invalid URL!")  # TODO: custom error formatter
+        _, _channel_id, _message_id = url.split("channels/")[1].split("/")
+        _message = await client.get_message(
+            channel_id=_channel_id,
+            message_id=_message_id,
+        )
+        return cls(**_message, _client=client)
 
 
 class Emoji(DictSerializerMixin):

@@ -304,6 +304,11 @@ class Guild(DictSerializerMixin):
                     self.members = members
                 else:
                     self.members = [Member(**member, _client=self._client) for member in members]
+        self.roles = (
+            [Role(**role, _client=self._client) for role in self.roles]
+            if self._json.get("roles")
+            else None
+        )
 
     async def ban(
         self,
@@ -587,6 +592,61 @@ class Guild(DictSerializerMixin):
         )
         return Role(**res, _client=self._client)
 
+    async def create_thread(
+        self,
+        name: str,
+        channel_id: int,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Creates a thread in the specified channel.
+
+        :param name: The name of the thread
+        :type name: str
+        :param channel_id: The id of the channel to create the thread in
+        :type channel_id: int
+        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param type?: The type of thread, defaults to public. ignored if creating thread from a message
+        :type type: Optional[ChannelType]
+        :param invitable?: Boolean to display if the Thread is open to join or private.
+        :type invitable: Optional[bool]
+        :param message_id?: An optional message to create a thread from.
+        :type message_id: Optional[int]
+        :param reason?: An optional reason for the audit log
+        :type reason: Optional[str]
+        :return: The created thread
+        :rtype: Channel
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        if type not in [
+            ChannelType.GUILD_NEWS_THREAD,
+            ChannelType.GUILD_PUBLIC_THREAD,
+            ChannelType.GUILD_PRIVATE_THREAD,
+        ]:
+            raise AttributeError("type must be a thread type!")
+
+        _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
+        _invitable = None if invitable is MISSING else invitable
+        _message_id = None if message_id is MISSING else message_id
+        res = await self._client.create_thread(
+            channel_id=int(self.id),
+            thread_type=type.value,
+            name=name,
+            auto_archive_duration=_auto_archive_duration,
+            invitable=_invitable,
+            message_id=_message_id,
+            reason=reason,
+        )
+
+        return Channel(**res, _client=self._client)
+
     async def create_channel(
         self,
         name: str,
@@ -638,6 +698,15 @@ class Guild(DictSerializerMixin):
             raise ValueError(
                 "ChannelType must not be a direct-message when creating Guild Channels!"  # TODO: move to custom error formatter
             )
+
+        if type in [
+            ChannelType.GUILD_NEWS_THREAD,
+            ChannelType.GUILD_PUBLIC_THREAD,
+            ChannelType.GUILD_PRIVATE_THREAD,
+        ]:
+            raise ValueError(
+                "Please use `create_thread` for creating threads!"
+            )  # TODO: move to custom error formatter
 
         payload = {"name": name, "type": type}
 
@@ -996,6 +1065,10 @@ class Guild(DictSerializerMixin):
             raise ValueError(
                 "entity_metadata is required for external events!"
             )  # TODO: replace with custom error formatter
+        if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
+            raise ValueError(
+                "External events require an end time!"
+            )  # TODO: replace with custom error formatter
 
         payload = {
             "name": name,
@@ -1007,7 +1080,7 @@ class Guild(DictSerializerMixin):
         if scheduled_end_time is not MISSING:
             payload["scheduled_end_time"] = scheduled_end_time
         if entity_metadata is not MISSING:
-            payload["entity_metadata"] = entity_metadata
+            payload["entity_metadata"] = entity_metadata._json
         if channel_id is not MISSING:
             payload["channel_id"] = channel_id
         if description is not MISSING:
@@ -1080,7 +1153,7 @@ class Guild(DictSerializerMixin):
         if scheduled_end_time is not MISSING:
             payload["scheduled_end_time"] = scheduled_end_time
         if entity_metadata is not MISSING:
-            payload["entity_metadata"] = entity_metadata
+            payload["entity_metadata"] = entity_metadata._json
         if description is not MISSING:
             payload["description"] = description
         if status is not MISSING:
@@ -1132,6 +1205,28 @@ class Guild(DictSerializerMixin):
         res = self._client.get_all_roles(int(self.id))
         roles = [Role(**role, _client=self._client) for role in res]
         return roles
+
+    async def get_role(
+        self,
+        role_id: int,
+    ) -> Role:
+        """
+        Gets a role of the guild.
+
+        :param role_id: The id of the role to get
+        :type role_id: int
+        :return: The role as object
+        :rtype: Role
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        for i in roles:
+            if int(i["id"]) == role_id:
+                role = Role(**i)
+                break
+        return role
 
     async def modify_role_position(
         self,
