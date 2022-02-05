@@ -1,5 +1,11 @@
+from typing import TYPE_CHECKING
+
+from ..cache import Item
 from .flags import UserFlags
 from .misc import DictSerializerMixin, Snowflake
+
+if TYPE_CHECKING:
+    from ..http import HTTPClient
 
 
 class User(DictSerializerMixin):
@@ -55,7 +61,7 @@ class User(DictSerializerMixin):
         self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
 
     @classmethod
-    async def fetch(cls, user_id: int, *, cache: bool = True, http: "HTTPClient") -> "User":  # noqa
+    async def fetch(cls, user_id: int, *, cache: bool = True, http: "HTTPClient") -> "User":
         """
         Fetches a user from the cache or the Discord API.
 
@@ -74,4 +80,11 @@ class User(DictSerializerMixin):
         if not data:
             return
         data = data if isinstance(data, dict) else data._json
-        return cls(**data)
+        # TODO: uncomment the following line when methods are implemented for User
+        # data["_client"] = http
+        model = cls(**data)
+        if http.cache.users.get(str(user_id)):
+            http.cache.users.update(Item(str(user_id), model))
+        else:
+            http.cache.users.add(Item(str(user_id), model))
+        return model

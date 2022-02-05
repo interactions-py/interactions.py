@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import List, Optional, TYPE_CHECKING, Union
 
+from ..cache import Item
 from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
@@ -10,6 +11,9 @@ from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
+
+if TYPE_CHECKING:
+    from ..http import HTTPClient
 
 
 class VerificationLevel(IntEnum):
@@ -311,9 +315,7 @@ class Guild(DictSerializerMixin):
         )
 
     @classmethod
-    async def fetch(
-        cls, guild_id: int, *, cache: bool = True, http: "HTTPClient"  # noqa
-    ) -> "Guild":
+    async def fetch(cls, guild_id: int, *, cache: bool = True, http: "HTTPClient") -> "Guild":
         """
         Fetches a guild from the cache or the Discord API.
 
@@ -332,7 +334,13 @@ class Guild(DictSerializerMixin):
         if not data:
             return
         data = data if isinstance(data, dict) else data._json
-        return cls(**data, _client=http)
+        data["_client"] = http
+        model = cls(**data)
+        if http.cache.guilds.get(str(guild_id)):
+            http.cache.guilds.update(Item(str(guild_id), model))
+        else:
+            http.cache.guilds.add(Item(str(guild_id), model))
+        return model
 
     async def ban(
         self,

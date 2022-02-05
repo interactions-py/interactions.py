@@ -421,7 +421,6 @@ class HTTPClient:
             user_id = "@me"
 
         request = await self._req.request(Route("GET", f"/users/{user_id}"))
-        self.cache.users.add(Item(id=user_id, value=User(**request)))
 
         return request
 
@@ -532,8 +531,6 @@ class HTTPClient:
         request = await self._req.request(
             Route("GET", f"/channels/{channel_id}/messages/{message_id}")
         )
-        if request and request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
 
         return request
 
@@ -646,7 +643,6 @@ class HTTPClient:
         :return: The guild object associated, if any.
         """
         request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
-        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request)))
 
         return request
 
@@ -1224,7 +1220,6 @@ class HTTPClient:
                 member_id=member_id,
             )
         )
-        self.cache.members.add(Item(id=str(member_id), value=Member(**request)))
 
         return request
 
@@ -1335,7 +1330,6 @@ class HTTPClient:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request)))
 
         return request
 

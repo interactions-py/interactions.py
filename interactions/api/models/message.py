@@ -1,12 +1,16 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import List, Optional, TYPE_CHECKING, Union
 
+from ..cache import Item
 from .channel import Channel, ChannelType
 from .member import Member
 from .misc import MISSING, DictSerializerMixin, Snowflake
 from .team import Application
 from .user import User
+
+if TYPE_CHECKING:
+    from ..http import HTTPClient
 
 
 class MessageType(IntEnum):
@@ -295,7 +299,7 @@ class Message(DictSerializerMixin):
 
     @classmethod
     async def fetch(
-        cls, channel_id: int, message_id: int, *, cache: bool = True, http: "HTTPClient"  # noqa
+        cls, channel_id: int, message_id: int, *, cache: bool = True, http: "HTTPClient"
     ) -> "Message":
         """
         Fetches a message from the cache or the Discord API.
@@ -317,7 +321,13 @@ class Message(DictSerializerMixin):
         if not data:
             return
         data = data if isinstance(data, dict) else data._json
-        return cls(**data, _client=http)
+        data["_client"] = http
+        model = cls(**data)
+        if http.cache.messages.get(str(message_id)):
+            http.cache.messages.update(Item(str(message_id), model))
+        else:
+            http.cache.messages.add(Item(str(message_id), model))
+        return model
 
     async def get_channel(self) -> Channel:
         """

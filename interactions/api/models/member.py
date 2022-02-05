@@ -1,11 +1,15 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import List, Optional, TYPE_CHECKING, Union
 
+from ..cache import Item
 from .channel import Channel
 from .flags import Permissions
 from .misc import MISSING, DictSerializerMixin, Snowflake
 from .role import Role
 from .user import User
+
+if TYPE_CHECKING:
+    from ..http import HTTPClient
 
 
 class Member(DictSerializerMixin):
@@ -77,7 +81,7 @@ class Member(DictSerializerMixin):
 
     @classmethod
     async def fetch(
-        cls, guild_id: int, member_id: int, *, cache: bool = True, http: "HTTPClient"  # noqa
+        cls, guild_id: int, member_id: int, *, cache: bool = True, http: "HTTPClient"
     ) -> "Member":
         """
         Fetches a member from the cache or the Discord API.
@@ -99,7 +103,13 @@ class Member(DictSerializerMixin):
         if not data:
             return
         data = data if isinstance(data, dict) else data._json
-        return cls(**data, _client=http)
+        data["_client"] = http
+        model = cls(**data)
+        if http.cache.members.get(str(member_id)):
+            http.cache.members.update(Item(str(member_id), model))
+        else:
+            http.cache.members.add(Item(str(member_id), model))
+        return model
 
     @property
     def id(self) -> Snowflake:

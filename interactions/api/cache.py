@@ -75,7 +75,7 @@ class Storage:
         if item.id in self.values.keys():
             self.values[item.id] = item.value
             return self.values[
-                id
+                item.id
             ]  # fetches from cache to see if its saved properly, instead of returning input.
 
     @property
