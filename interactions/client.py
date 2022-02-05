@@ -606,16 +606,17 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj = self._http.cache.interactions.get(command)
+            _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
             if not _command_obj or not _command_obj.id:
-                # _sync_task = ensure_future(self._http.get_application_command(self.me.id), loop=self._loop)
-                # _sync_task.print_stack(limit=10)
-                # while not _sync_task.done():
-                #     pass  # wait for sync to finish
-                _application_commands = self._loop.run_until_complete(self._http.get_application_command(self.me.id))
-                for _command in _application_commands:
-                    if _command["name"] == command:
-                        _command_obj = interactions.ApplicationCommand(**_command)
+                _application_commands = self._loop.run_until_complete(self._http.get_application_command(
+                        application_id=self.me.id,
+                        guild_id=_command_obj.guild_id
+                    )
+                )
+                __command: Dict
+                for __command in _application_commands:
+                    if __command["name"] == command:
+                        _command_obj = ApplicationCommand(**__command)
                 if not _command_obj or not _command_obj.id:
                     raise InteractionException(6, message="The command does not exist. Make sure to define" +
                                                           " your autocomplete callback after your commands")
