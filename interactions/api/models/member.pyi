@@ -1,14 +1,13 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from .misc import DictSerializerMixin, MISSING
+from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .user import User
 from .flags import Permissions
 from ..http import HTTPClient
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
-
 
 class Member(DictSerializerMixin):
 
@@ -30,6 +29,7 @@ class Member(DictSerializerMixin):
     def __init__(self, **kwargs): ...
     @property
     def mention(self) -> str: ...
+    def id(self) -> Snowflake: ...
     async def ban(
         self,
         guild_id: int,

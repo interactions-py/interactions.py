@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel
 from .flags import Permissions
-from .misc import MISSING, DictSerializerMixin
+from .misc import MISSING, DictSerializerMixin, Snowflake
 from .role import Role
 from .user import User
 
@@ -78,6 +78,16 @@ class Member(DictSerializerMixin):
 
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
+    
+    @property
+    def id(self) -> Snowflake:
+        """
+        Returns the ID of the user.
+        
+        :return: The ID of the user
+        :rtype: Snowflake
+        """
+        return self.user.id if self.user else None
 
     @property
     def mention(self) -> str:
