@@ -14,7 +14,6 @@ class Member(DictSerializerMixin):
     _json: dict
     _client: HTTPClient
     user: Optional[User]
-    id: Optional[int]
     nick: Optional[str]
     avatar: Optional[str]
     roles: List[Role]
@@ -28,6 +27,8 @@ class Member(DictSerializerMixin):
     communication_disabled_until: Optional[datetime.isoformat]
     hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
+    @property
+    def id(self): ...
     async def ban(
         self,
         guild_id: int,
