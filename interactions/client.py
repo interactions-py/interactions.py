@@ -1,5 +1,5 @@
 import sys
-from asyncio import ensure_future, get_event_loop, iscoroutinefunction
+from asyncio import get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -8,7 +8,6 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-import interactions
 from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
@@ -608,9 +607,9 @@ class Client:
         elif isinstance(command, str):
             _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
             if not _command_obj or not _command_obj.id:
-                _application_commands = self._loop.run_until_complete(self._http.get_application_command(
-                        application_id=self.me.id,
-                        guild_id=_command_obj.guild_id
+                _application_commands = self._loop.run_until_complete(
+                    self._http.get_application_command(
+                        application_id=self.me.id, guild_id=_command_obj.guild_id
                     )
                 )
                 __command: Dict
@@ -618,8 +617,11 @@ class Client:
                     if __command["name"] == command:
                         _command_obj = ApplicationCommand(**__command)
                 if not _command_obj or not _command_obj.id:
-                    raise InteractionException(6, message="The command does not exist. Make sure to define" +
-                                                          " your autocomplete callback after your commands")
+                    raise InteractionException(
+                        6,
+                        message="The command does not exist. Make sure to define"
+                        + " your autocomplete callback after your commands",
+                    )
             _command: Union[Snowflake, int] = int(_command_obj.id)
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)

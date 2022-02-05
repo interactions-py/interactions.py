@@ -671,8 +671,7 @@ class CommandContext(Context):
                     _choices = [choices._json]
                 else:
                     raise InteractionException(
-                        6,
-                        message="Autocomplete choice items must be of type Choice"
+                        6, message="Autocomplete choice items must be of type Choice"
                     )
 
                 await self.client.create_interaction_response(
