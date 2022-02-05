@@ -297,6 +297,20 @@ class Message(DictSerializerMixin):
     async def fetch(
         cls, channel_id: int, message_id: int, *, cache: bool = True, http: "HTTPClient"
     ) -> "Message":
+        """
+        Fetches a message from the cache or the Discord API.
+
+        :param channel_id: The ID of the message's channel.
+        :type channel_id: int
+        :param message_id: The ID of the message to fetch.
+        :type message_id: int
+        :param cache?: Whether to get from cache.
+        :type cache: bool
+        :param http: The HTTPClient to use to fetch the channel.
+        :type http: HTTPClient
+        :return: The channel.
+        :rtype: Channel
+        """
         data = (
             http.cache.messages.get(str(message_id)) if cache else None
         ) or await http.get_message(channel_id, message_id)

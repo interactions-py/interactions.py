@@ -307,6 +307,18 @@ class Guild(DictSerializerMixin):
 
     @classmethod
     async def fetch(cls, guild_id: int, *, cache: bool = True, http: "HTTPClient") -> "Guild":
+        """
+        Fetches a guild from the cache or the Discord API.
+
+        :param guild_id: The ID of the guild to fetch.
+        :type guild_id: int
+        :param cache?: Whether to get from cache.
+        :type cache: bool
+        :param http: The HTTPClient to use to fetch the member.
+        :type http: HTTPClient
+        :return: The guild.
+        :rtype: Guild
+        """
         data = (http.cache.guilds.get(str(guild_id)) if cache else None) or await http.get_guild(
             guild_id
         )

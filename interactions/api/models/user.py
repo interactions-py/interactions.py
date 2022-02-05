@@ -56,6 +56,18 @@ class User(DictSerializerMixin):
 
     @classmethod
     async def fetch(cls, user_id: int, *, cache: bool = True, http: "HTTPClient") -> "User":
+        """
+        Fetches a user from the cache or the Discord API.
+
+        :param user_id: The ID of the user to fetch.
+        :type user_id: int
+        :param cache?: Whether to get from cache.
+        :type cache: bool
+        :param http: The HTTPClient to use to fetch the channel.
+        :type http: HTTPClient
+        :return: The channel.
+        :rtype: Channel
+        """
         data = (http.cache.users.get(str(user_id)) if cache else None) or await http.get_user(
             user_id
         )
