@@ -3,7 +3,7 @@ name: Report Bug
 about: Create an Issue to report a bug with/about the library.
 title: "[BUG] "
 labels: bug
-assignees: goverfl0w
+assignees: goverfl0w, DeltaXWizard, EdVraz
 
 ---
 
