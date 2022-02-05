@@ -69,7 +69,7 @@ class User(DictSerializerMixin):
         :type user_id: int
         :param cache?: Whether to get from cache.
         :type cache: bool
-        :param http: The HTTPClient to use to fetch the channel.
+        :param http: The HTTPClient to use to fetch the user.
         :type http: HTTPClient
         :return: The channel.
         :rtype: Channel

@@ -310,7 +310,7 @@ class Message(DictSerializerMixin):
         :type message_id: int
         :param cache?: Whether to get from cache.
         :type cache: bool
-        :param http: The HTTPClient to use to fetch the channel.
+        :param http: The HTTPClient to use to fetch the message.
         :type http: HTTPClient
         :return: The channel.
         :rtype: Channel

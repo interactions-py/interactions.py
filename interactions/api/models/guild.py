@@ -323,7 +323,7 @@ class Guild(DictSerializerMixin):
         :type guild_id: int
         :param cache?: Whether to get from cache.
         :type cache: bool
-        :param http: The HTTPClient to use to fetch the member.
+        :param http: The HTTPClient to use to fetch the guild.
         :type http: HTTPClient
         :return: The guild.
         :rtype: Guild

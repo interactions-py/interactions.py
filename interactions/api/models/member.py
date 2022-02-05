@@ -92,7 +92,7 @@ class Member(DictSerializerMixin):
         :type member_id: int
         :param cache?: Whether to get from cache.
         :type cache: bool
-        :param http: The HTTPClient to use to fetch the channel.
+        :param http: The HTTPClient to use to fetch the member.
         :type http: HTTPClient
         :return: The member.
         :rtype: Member

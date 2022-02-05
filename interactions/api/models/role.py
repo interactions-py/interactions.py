@@ -1,6 +1,10 @@
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional, Union
 
+from ..cache import Item
 from .misc import MISSING, DictSerializerMixin, Snowflake
+
+if TYPE_CHECKING:
+    from ..http import HTTPClient
 
 
 class RoleTags(DictSerializerMixin):
@@ -62,6 +66,69 @@ class Role(DictSerializerMixin):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.tags = RoleTags(**self.tags) if self._json.get("tags") else None
+
+    @classmethod
+    async def fetch(
+        cls,
+        guild_id: int,
+        role_ids: Union[int, List[int]],
+        *,
+        cache: bool = True,
+        http: "HTTPClient"
+    ) -> "Role":
+        """
+        Fetches a role or roles from the cache or the Discord API.
+
+        :param guild_id: The ID of the role's guild.
+        :type guild_id: int
+        :param role_id: The ID of the role to fetch.
+        :type role_id: int
+        :param cache?: Whether to get from cache.
+        :type cache: bool
+        :param http: The HTTPClient to use to fetch the role(s).
+        :type http: HTTPClient
+        :return: The role(s).
+        :rtype: Guild
+        """
+        if isinstance(role_ids, int):
+            data = http.cache.roles.get(str(role_ids)) if cache else None
+            if not data:
+                roles = await http.get_all_roles(guild_id)
+                for role in roles:
+                    if int(role["id"]) == role_ids:
+                        data = role
+                        break
+            if not data:
+                return
+            data = data if isinstance(data, dict) else data._json
+            data["_client"] = http
+            model = cls(**data)
+            if http.cache.roles.get(str(guild_id)):
+                http.cache.roles.update(Item(str(guild_id), model))
+            else:
+                http.cache.roles.add(Item(str(guild_id), model))
+            return model
+        elif isinstance(role_ids, list):
+            roles = []
+            for role_id in role_ids:
+                data = http.cache.roles.get(str(role_id)) if cache else None
+                if not data:
+                    roles_ = await http.get_all_roles(guild_id)
+                    for role in roles_:
+                        if int(role["id"]) == role_id:
+                            data = role
+                            break
+                if not data:
+                    continue
+                data = data if isinstance(data, dict) else data._json
+                data["_client"] = http
+                model = cls(**data)
+                if http.cache.roles.get(str(guild_id)):
+                    http.cache.roles.update(Item(str(guild_id), model))
+                else:
+                    http.cache.roles.add(Item(str(guild_id), model))
+                roles.append(model)
+            return roles
 
     async def delete(
         self,
