@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from .misc import DictSerializerMixin, MISSING
+from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .user import User
 from .flags import Permissions
@@ -28,7 +28,7 @@ class Member(DictSerializerMixin):
     hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
     @property
-    def id(self): ...
+    def id(self) -> Snowflake: ...
     async def ban(
         self,
         guild_id: int,
