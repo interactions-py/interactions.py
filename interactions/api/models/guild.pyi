@@ -108,6 +108,8 @@ class Guild(DictSerializerMixin):
     lazy: Any
     application_command_counts: Any
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def fetch(cls, guild_id: int, *, cache: bool = True, http: HTTPClient) -> "Guild": ...
     async def ban(
         self,
         member_id: int,

@@ -11,7 +11,6 @@ from ..http import HTTPClient
 from ...models.component import ActionRow, Button, SelectMenu
 from .guild import Guild
 
-
 class MessageActivity(DictSerializerMixin):
     _json: dict
     type: int
@@ -91,6 +90,10 @@ class Message(DictSerializerMixin):
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def fetch(
+        cls, channel_id: int, message_id: int, *, cache: bool = True, http: "HTTPClient"
+    ) -> "Message": ...
     async def delete(self, reason: Optional[str] = None) -> None: ...
     async def edit(
         self,
@@ -112,8 +115,8 @@ class Message(DictSerializerMixin):
             ]
         ] = MISSING,
     ) -> "Message": ...
-
-    async def reply(self,
+    async def reply(
+        self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
@@ -149,7 +152,6 @@ class Message(DictSerializerMixin):
         url: str,
         client: HTTPClient,
     ) -> "Message": ...
-
 
 class Emoji(DictSerializerMixin):
     _json: dict

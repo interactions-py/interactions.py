@@ -9,7 +9,6 @@ from ..http import HTTPClient
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
 
-
 class Member(DictSerializerMixin):
 
     _json: dict
@@ -28,6 +27,10 @@ class Member(DictSerializerMixin):
     communication_disabled_until: Optional[datetime.isoformat]
     hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def fetch(
+        cls, guild_id: int, member_id: int, *, cache: bool = True, http: HTTPClient
+    ) -> "Member": ...
     async def ban(
         self,
         guild_id: int,

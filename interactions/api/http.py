@@ -529,9 +529,13 @@ class HTTPClient:
         :param message_id: the id of the message
         :return: message if it exists.
         """
-        return await self._req.request(
+        request = await self._req.request(
             Route("GET", f"/channels/{channel_id}/messages/{message_id}")
         )
+        if request and request.get("id"):
+            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+
+        return request
 
     async def delete_message(
         self, channel_id: int, message_id: int, reason: Optional[str] = None
@@ -1212,7 +1216,7 @@ class HTTPClient:
         :param member_id: Member ID snowflake.
         :return: A member object, if any.
         """
-        return await self._req.request(
+        request = await self._req.request(
             Route(
                 "GET",
                 "/guilds/{guild_id}/members/{member_id}",
@@ -1220,6 +1224,9 @@ class HTTPClient:
                 member_id=member_id,
             )
         )
+        self.cache.members.add(Item(id=str(member_id), value=Member(**request)))
+
+        return request
 
     async def get_list_of_members(
         self, guild_id: int, limit: int = 1, after: Optional[int] = None

@@ -305,6 +305,16 @@ class Guild(DictSerializerMixin):
                 else:
                     self.members = [Member(**member, _client=self._client) for member in members]
 
+    @classmethod
+    async def fetch(cls, guild_id: int, *, cache: bool = True, http: "HTTPClient") -> "Guild":
+        data = (http.cache.guilds.get(str(guild_id)) if cache else None) or await http.get_guild(
+            guild_id
+        )
+        if not data:
+            return
+        data = data if isinstance(data, dict) else data._json
+        return cls(**data, _client=http)
+
     async def ban(
         self,
         member_id: int,

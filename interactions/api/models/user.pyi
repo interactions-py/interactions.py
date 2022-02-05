@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .misc import DictSerializerMixin, Snowflake
-from .flags import UserFlags, AppFlags
+from .flags import UserFlags
 
 class User(DictSerializerMixin):
     _json: dict
@@ -21,3 +21,5 @@ class User(DictSerializerMixin):
     premium_type: Optional[int]
     public_flags: Optional[UserFlags]
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def fetch(cls, user_id: int, *, cache: bool = True, http: "HTTPClient") -> "User": ...

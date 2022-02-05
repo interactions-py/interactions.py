@@ -1,6 +1,18 @@
 from asyncio import AbstractEventLoop
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Coroutine,
+    Dict,
+    List,
+    NoReturn,
+    Optional,
+    Tuple,
+    Union,
+    Type,
+    TypeVar,
+)
 
 from .api.models.gw import Presence
 from .api.models.misc import MISSING
@@ -19,6 +31,7 @@ from .models.misc import MISSING
 
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
+_T = TypeVar("_T")
 
 class Client:
     _loop: AbstractEventLoop
@@ -46,6 +59,7 @@ class Client:
     async def _synchronize(self, payload: Optional[dict] = None) -> None: ...
     async def _ready(self) -> None: ...
     async def _login(self) -> None: ...
+    async def get(self, type: Type[_T], cache: bool = True, **kwargs) -> _T: ...
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]: ...
     def command(
         self,
@@ -86,7 +100,9 @@ class Client:
         default_permission: Optional[bool] = None,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
-    def autocomplete(self, name: str, command: Union[ApplicationCommand, int, str]) -> Callable[..., Any]: ...
+    def autocomplete(
+        self, name: str, command: Union[ApplicationCommand, int, str]
+    ) -> Callable[..., Any]: ...
     def modal(self, modal: Modal) -> Callable[..., Any]: ...
     def load(
         self, name: str, package: Optional[str] = None, *args, **kwargs

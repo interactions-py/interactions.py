@@ -6,7 +6,7 @@ from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Union, Type, TypeVar
 
 from .api.cache import Cache
 from .api.cache import Item as Build
@@ -27,6 +27,7 @@ from .models.component import Button, Modal, SelectMenu
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
+_T = TypeVar("_T")
 
 
 class Client:
@@ -299,6 +300,24 @@ class Client:
         """Makes a login with the Discord API."""
         while not self._websocket.closed:
             await self._websocket.connect(self._token, self._shard, self._presence)
+
+    async def get(self, type: Type[_T], cache: bool = True, **kwargs) -> _T:
+        r"""
+        A helper function to get a model from the cache or the API.
+
+        :param type: The type of model to get. e.g. ``interactions.User``, ``interactions.Guild``, etc.
+        :type type: Type
+        :param cache: Whether to use the cache or not. Defaults to ``True``.
+        :type cache: bool
+        :param \**kwargs: The arguments to pass to the model's ``fetch`` classmethod.
+        :type \**kwargs: dict
+        :return: The model.
+        :rtype: _T
+        """
+        if not callable(getattr(type, "fetch")):
+            raise ValueError(f"{type.__name__} does not have a fetch classmethod.")
+
+        return await type.fetch(http=self._http, cache=cache, **kwargs)
 
     def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
         """

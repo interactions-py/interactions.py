@@ -53,3 +53,13 @@ class User(DictSerializerMixin):
         )
 
         self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
+
+    @classmethod
+    async def fetch(cls, user_id: int, *, cache: bool = True, http: "HTTPClient") -> "User":
+        data = (http.cache.users.get(str(user_id)) if cache else None) or await http.get_user(
+            user_id
+        )
+        if not data:
+            return
+        data = data if isinstance(data, dict) else data._json
+        return cls(**data)

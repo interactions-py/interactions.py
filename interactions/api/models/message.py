@@ -293,6 +293,18 @@ class Message(DictSerializerMixin):
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
 
+    @classmethod
+    async def fetch(
+        cls, channel_id: int, message_id: int, *, cache: bool = True, http: "HTTPClient"
+    ) -> "Message":
+        data = (
+            http.cache.messages.get(str(message_id)) if cache else None
+        ) or await http.get_message(channel_id, message_id)
+        if not data:
+            return
+        data = data if isinstance(data, dict) else data._json
+        return cls(**data, _client=http)
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.

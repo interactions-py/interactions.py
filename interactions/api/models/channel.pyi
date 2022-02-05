@@ -68,6 +68,8 @@ class Channel(DictSerializerMixin):
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def fetch(cls, channel_id: int, *, cache: bool = True, http: HTTPClient) -> "Channel": ...
     async def send(
         self,
         content: Optional[str] = MISSING,
@@ -106,8 +108,8 @@ class Channel(DictSerializerMixin):
         member_id: int,
     ) -> None: ...
     async def pin_message(
-            self,
-            message_id: int,
+        self,
+        message_id: int,
     ) -> None: ...
     async def unpin_message(
         self,
@@ -119,8 +121,8 @@ class Channel(DictSerializerMixin):
     ) -> Message: ...
     async def get_pinned_messages(self) -> List[Message]: ...
     async def get_message(
-            self,
-            message_id: int,
+        self,
+        message_id: int,
     ) -> Message: ...
     async def purge(
         self,

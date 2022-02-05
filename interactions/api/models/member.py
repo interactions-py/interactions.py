@@ -75,6 +75,18 @@ class Member(DictSerializerMixin):
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
 
+    @classmethod
+    async def fetch(
+        cls, guild_id: int, member_id: int, *, cache: bool = True, http: "HTTPClient"
+    ) -> "Member":
+        data = (http.cache.members.get(str(member_id)) if cache else None) or await http.get_member(
+            guild_id, member_id
+        )
+        if not data:
+            return
+        data = data if isinstance(data, dict) else data._json
+        return cls(**data, _client=http)
+
     async def ban(
         self,
         guild_id: int,

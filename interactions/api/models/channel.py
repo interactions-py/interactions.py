@@ -181,6 +181,26 @@ class Channel(DictSerializerMixin):
             else None
         )
 
+    @classmethod
+    async def fetch(cls, channel_id: int, *, cache: bool = True, http: "HTTPClient") -> "Channel":
+        """
+        Fetches a channel from the cache or the Discord API.
+
+        :param channel_id: The ID of the channel to fetch.
+        :type channel_id: int
+        :param http: The HTTPClient to use to fetch the channel.
+        :type http: HTTPClient
+        :return: The channel.
+        :rtype: Channel
+        """
+        data = (
+            http.cache.channels.get(str(channel_id)) if cache else None
+        ) or await http.get_channel(channel_id)
+        if not data:
+            return
+        data = data if isinstance(data, dict) else data._json
+        return cls(**data, _client=http)
+
     async def send(
         self,
         content: Optional[str] = MISSING,
