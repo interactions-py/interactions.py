@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from .misc import DictSerializerMixin, MISSING
+from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .user import User
 from .flags import Permissions
@@ -31,6 +31,8 @@ class Member(DictSerializerMixin):
     async def fetch(
         cls, guild_id: int, member_id: int, *, cache: bool = True, http: HTTPClient
     ) -> "Member": ...
+    @property
+    def id(self) -> Snowflake: ...
     async def ban(
         self,
         guild_id: int,

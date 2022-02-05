@@ -304,6 +304,11 @@ class Guild(DictSerializerMixin):
                     self.members = members
                 else:
                     self.members = [Member(**member, _client=self._client) for member in members]
+        self.roles = (
+            [Role(**role, _client=self._client) for role in self.roles]
+            if self._json.get("roles")
+            else None
+        )
 
     @classmethod
     async def fetch(
@@ -1084,6 +1089,10 @@ class Guild(DictSerializerMixin):
             raise ValueError(
                 "entity_metadata is required for external events!"
             )  # TODO: replace with custom error formatter
+        if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
+            raise ValueError(
+                "External events require an end time!"
+            )  # TODO: replace with custom error formatter
 
         payload = {
             "name": name,
@@ -1095,7 +1104,7 @@ class Guild(DictSerializerMixin):
         if scheduled_end_time is not MISSING:
             payload["scheduled_end_time"] = scheduled_end_time
         if entity_metadata is not MISSING:
-            payload["entity_metadata"] = entity_metadata
+            payload["entity_metadata"] = entity_metadata._json
         if channel_id is not MISSING:
             payload["channel_id"] = channel_id
         if description is not MISSING:
@@ -1168,7 +1177,7 @@ class Guild(DictSerializerMixin):
         if scheduled_end_time is not MISSING:
             payload["scheduled_end_time"] = scheduled_end_time
         if entity_metadata is not MISSING:
-            payload["entity_metadata"] = entity_metadata
+            payload["entity_metadata"] = entity_metadata._json
         if description is not MISSING:
             payload["description"] = description
         if status is not MISSING:
