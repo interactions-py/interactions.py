@@ -304,6 +304,11 @@ class Guild(DictSerializerMixin):
                     self.members = members
                 else:
                     self.members = [Member(**member, _client=self._client) for member in members]
+        self.roles = (
+            [Role(**role, _client=self._client) for role in self.roles]
+            if self._json.get("roles")
+            else None
+        )
 
     async def ban(
         self,
