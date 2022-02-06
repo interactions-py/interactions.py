@@ -103,6 +103,46 @@ class Channel(DictSerializerMixin):
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel": ...
+    async def set_name(
+        self,
+        name: str,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_topic(
+        self,
+        topic: str,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_bitrate(
+        self,
+        bitrate: int,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_user_limit(
+        self,
+        user_limit: int,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_rate_limit_per_user(
+        self,
+        rate_limit_per_user: int,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_position(
+        self,
+        position: int,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_parent_id(
+        self,
+        parent_id: int,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_nsfw(
+        self,
+        nsfw: bool,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
     async def add_member(
         self,
         member_id: int,
