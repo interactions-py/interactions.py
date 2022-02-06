@@ -424,7 +424,9 @@ class Client:
                         if getattr(_option, "autocomplete", False) and getattr(
                             _option, "choices", False
                         ):
-                            log.warning("Autocomplete may not be set to true if choices are present.")
+                            log.warning(
+                                "Autocomplete may not be set to true if choices are present."
+                            )
                         if not getattr(_option, "description", False):
                             raise InteractionException(
                                 11,
