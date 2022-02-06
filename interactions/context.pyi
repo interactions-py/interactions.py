@@ -17,8 +17,8 @@ class Context(DictSerializerMixin):
     author: Member
     member: Member
     user: User
-    channel: Union[Channel, MISSING]
-    guild: Union[Guild, None, MISSING]
+    channel: Optional[Channel]
+    guild: Optional[Guild]
     client: HTTPClient
     def __init__(self, **kwargs) -> None: ...
 

@@ -27,8 +27,8 @@ class Context(DictSerializerMixin):
     :ivar Optional[Message] message?: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Union[Channel, MISSING] channel: The channel data model.
-    :ivar Union[Guild, None, MISSING] guild: The guild data model.
+    :ivar Optional[Channel] channel: The channel data model.
+    :ivar Optional[Guild] guild: The guild data model.
     """
 
     __slots__ = ("message", "member", "author", "user", "channel", "guild", "client")
