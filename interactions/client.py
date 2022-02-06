@@ -10,7 +10,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.error import InteractionException
+from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.flags import Intents
@@ -212,11 +212,24 @@ class Client:
             commands: List[dict] = cache
         else:
             log.info("No command cache was found present, retrieving from Web API instead.")
-            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_command(
+            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_commands(
                 application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
             )
 
-        names: List[str] = [command["name"] for command in commands] if commands else []
+        # TODO: redo error handling.
+        if isinstance(commands, dict):
+            if commands.get("code"):  # Error exists.
+                raise JSONException(commands["code"], message=commands["message"] + " |")
+                # TODO: redo error handling.
+        elif isinstance(commands, list):
+            for command in commands:
+                if command.get("code"):
+                    # Error exists.
+                    raise JSONException(command["code"], message=command["message"] + " |")
+
+        names: List[str] = (
+            [command["name"] for command in commands if command.get("name")] if commands else []
+        )
         to_sync: list = []
         to_delete: list = []
 
@@ -259,20 +272,26 @@ class Client:
         try:
             if self.me.flags is not None:
                 # This can be None.
-                if self._intents.GUILD_PRESENCES and not (
-                    self.me.flags.GATEWAY_PRESENCE or self.me.flags.GATEWAY_PRESENCE_LIMITED
+                if self._intents.GUILD_PRESENCES in self._intents and not (
+                    self.me.flags.GATEWAY_PRESENCE in self.me.flags
+                    or self.me.flags.GATEWAY_PRESENCE_LIMITED in self.me.flags
                 ):
-                    raise RuntimeError("Client not authorised for GUILD_PRESENCES intent")
-                if self._intents.GUILD_MEMBERS and not (
-                    self.me.flags.GATEWAY_GUILD_MEMBERS
-                    or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED
+                    raise RuntimeError("Client not authorised for the GUILD_PRESENCES intent.")
+                if self._intents.GUILD_MEMBERS in self._intents and not (
+                    self.me.flags.GATEWAY_GUILD_MEMBERS in self.me.flags
+                    or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED in self.me.flags
                 ):
-                    raise RuntimeError("Client not authorised for GUILD_MEMBERS intent")
-                if self._intents.GUILD_MESSAGES and not (
-                    self.me.flags.GATEWAY_MESSAGE_CONTENT
-                    or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED
+                    raise RuntimeError("Client not authorised for the GUILD_MEMBERS intent.")
+                if self._intents.GUILD_MESSAGES in self._intents and not (
+                    self.me.flags.GATEWAY_MESSAGE_CONTENT in self.me.flags
+                    or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED in self.me.flags
                 ):
-                    log.critical("Client not authorised for MESSAGE_CONTENT intent")
+                    log.critical("Client not authorised for the MESSAGE_CONTENT intent.")
+            else:
+                # This is when a bot has no intents period.
+                if self._intents.value != Intents.DEFAULT.value:
+                    raise RuntimeError("Client not authorised for any privileged intents.")
+
             self.__register_events()
             if self._automate_sync:
                 await self._synchronize()

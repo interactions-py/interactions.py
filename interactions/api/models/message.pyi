@@ -136,6 +136,19 @@ class Message(DictSerializerMixin):
     async def pin(self) -> None: ...
     async def unpin(self) -> None: ...
     async def publish(self) -> "Message": ...
+    async def create_thread(
+        self,
+        name: str,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
+    @classmethod
+    async def get_from_url(
+        cls,
+        url: str,
+        client: HTTPClient,
+    ) -> "Message": ...
 
 
 class Emoji(DictSerializerMixin):

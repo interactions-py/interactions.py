@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import Callable, List, Optional, Union
 
 from .misc import MISSING, DictSerializerMixin, Snowflake
 
@@ -199,7 +199,7 @@ class Channel(DictSerializerMixin):
                 List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
-    ):
+    ) -> "Message":  # noqa
         """
         Sends a message in the channel.
 
@@ -476,7 +476,7 @@ class Channel(DictSerializerMixin):
     async def publish_message(
         self,
         message_id: int,
-    ):
+    ) -> "Message":  # noqa
         """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
         :param message_id: The id of the message to publish
@@ -493,7 +493,7 @@ class Channel(DictSerializerMixin):
         )
         return Message(**res, _client=self._client)
 
-    async def get_pinned_messages(self):
+    async def get_pinned_messages(self) -> List["Message"]:  # noqa
         """
         Get all pinned messages from the channel.
 
@@ -507,6 +507,274 @@ class Channel(DictSerializerMixin):
         res = await self._client.get_pinned_messages(int(self.id))
         messages = [Message(**message, _client=self._client) for message in res]
         return messages
+
+    async def get_message(
+        self,
+        message_id: int,
+    ) -> "Message":  # noqa
+        """
+        Gets a message sent in that channel.
+
+        :return: The message as object
+        :rtype: Message
+        """
+        res = await self._client.get_message(
+            channel_id=int(self.id),
+            message_id=message_id,
+        )
+        from .message import Message
+
+        return Message(**res, _client=self._client)
+
+    async def purge(
+        self,
+        amount: int,
+        check: Callable = MISSING,
+        before: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+        bulk: Optional[bool] = True,
+    ) -> List["Message"]:  # noqa
+        """
+        Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
+        .. code-block:: python
+            def check_pinned(message):
+                return not message.pinned  # This returns `True` only if the message is the message is not pinned
+            await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
+        :param amount: The amount of messages to delete
+        :type amount: int
+        :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
+        :type check: Callable[[Message], bool]
+        :param before?: An id of a message to purge only messages before that message
+        :type before: Optional[int]
+        :param bulk?: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
+        :param bulk: Optional[bool]
+        :param reason?: The reason of the deletes
+        :type reason: Optional[str]
+        :return: A list of the deleted messages
+        :rtype: List[Message]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        from .message import Message
+
+        _before = None if before is MISSING else before
+        _all = []
+        if bulk:
+            _allowed_time = datetime.now(tz=timezone.utc) - timedelta(days=14)
+            _stop = False
+            while amount > 100:
+
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=100,
+                        before=_before,
+                    )
+                ]
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) > 1:
+                    await self._client.delete_messages(
+                        channel_id=int(self.id),
+                        message_ids=[int(message.id) for message in messages],
+                        reason=reason,
+                    )
+                elif len(messages) == 1:
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(messages[0].id),
+                        reason=reason,
+                    )
+                else:
+                    if _stop:
+                        return _all
+                    else:
+                        continue
+                if _stop:
+                    return _all
+
+                amount -= 100
+
+            while amount > 1:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount,
+                        before=_before,
+                    )
+                ]
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
+                amount -= amount
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) > 1:
+                    await self._client.delete_messages(
+                        channel_id=int(self.id),
+                        message_ids=[int(message.id) for message in messages],
+                        reason=reason,
+                    )
+                elif len(messages) == 1:
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(messages[0].id),
+                        reason=reason,
+                    )
+                else:
+                    if _stop:
+                        return _all
+                    else:
+                        continue
+                if _stop:
+                    return _all
+            while amount == 1:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount,
+                        before=_before,
+                    )
+                ]
+                amount -= 1
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) == 0:
+                    continue
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(messages[0].id),
+                    reason=reason,
+                )
+
+        else:
+            while amount > 0:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount if amount <= 100 else 100,
+                        before=_before,
+                    )
+                ]
+                amount -= amount if amount <= 100 else 100
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+
+            for message in _all:
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(message.id),
+                    reason=reason,
+                )
+
+        return _all
+
+    async def create_thread(
+        self,
+        name: str,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Creates a thread in the Channel.
+
+        :param name: The name of the thread
+        :type name: str
+        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param type?: The type of thread, defaults to public. ignored if creating thread from a message
+        :type type: Optional[ChannelType]
+        :param invitable?: Boolean to display if the Thread is open to join or private.
+        :type invitable: Optional[bool]
+        :param message_id?: An optional message to create a thread from.
+        :type message_id: Optional[int]
+        :param reason?: An optional reason for the audit log
+        :type reason: Optional[str]
+        :return: The created thread
+        :rtype: Channel
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        if type not in [
+            ChannelType.GUILD_NEWS_THREAD,
+            ChannelType.GUILD_PUBLIC_THREAD,
+            ChannelType.GUILD_PRIVATE_THREAD,
+        ]:
+            raise AttributeError("type must be a thread type!")
+
+        _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
+        _invitable = None if invitable is MISSING else invitable
+        _message_id = None if message_id is MISSING else message_id
+        res = await self._client.create_thread(
+            channel_id=int(self.id),
+            thread_type=type.value,
+            name=name,
+            auto_archive_duration=_auto_archive_duration,
+            invitable=_invitable,
+            message_id=_message_id,
+            reason=reason,
+        )
+
+        return Channel(**res, _client=self._client)
 
 
 class Thread(Channel):
