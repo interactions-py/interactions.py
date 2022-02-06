@@ -42,7 +42,7 @@ class Storage:
 
     def add(self, item: Item) -> OrderedDict:
         """
-        Adds or opdates a new item to the storage.
+        Adds or updates a new item to the storage.
 
         :param item: The item to add or update.
         :type item: Item
