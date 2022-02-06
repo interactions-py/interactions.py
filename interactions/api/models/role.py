@@ -73,7 +73,7 @@ class Role(DictSerializerMixin):
         guild_id: int,
         role_ids: Optional[Union[int, List[int]]] = None,
         *,
-        cache: bool = True,
+        cache: Optional[bool] = True,
         http: "HTTPClient"
     ) -> "Role":
         """

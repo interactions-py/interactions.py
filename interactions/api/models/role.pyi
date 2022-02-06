@@ -1,4 +1,4 @@
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Union
 
 from .misc import DictSerializerMixin, MISSING, Snowflake
 from ..http import HTTPClient
@@ -25,6 +25,15 @@ class Role(DictSerializerMixin):
     mentionable: bool
     tags: Optional[RoleTags]
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def fetch(
+        cls,
+        guild_id: int,
+        role_ids: Optional[Union[int, List[int]]] = None,
+        *,
+        cache: Optional[bool] = True,
+        http: "HTTPClient"
+    ) -> "Role": ...
     async def delete(
         self,
         guild_id: int,

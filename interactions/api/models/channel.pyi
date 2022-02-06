@@ -69,7 +69,9 @@ class Channel(DictSerializerMixin):
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
     @classmethod
-    async def fetch(cls, channel_id: int, *, cache: bool = True, http: HTTPClient) -> "Channel": ...
+    async def fetch(
+        cls, channel_id: int, *, cache: Optional[bool] = True, http: HTTPClient
+    ) -> "Channel": ...
     async def send(
         self,
         content: Optional[str] = MISSING,
