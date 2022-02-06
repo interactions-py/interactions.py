@@ -603,14 +603,11 @@ class Client:
                 break
         else:
             _command_obj = None
-        if (
-            not _command_obj or
-            (hasattr(_command_obj, "id") and not _command_obj.id)
-        ):
+        if not _command_obj or (hasattr(_command_obj, "id") and not _command_obj.id):
             raise InteractionException(
                 6,
                 message="The command does not exist. Make sure to define"
-                        + " your autocomplete callback after your commands",
+                + " your autocomplete callback after your commands",
             )
         else:
             return _command_obj
@@ -650,8 +647,10 @@ class Client:
                 if getattr(_command_obj, "guild_id", None) or self._automate_sync:
                     _application_commands = self._loop.run_until_complete(
                         self._http.get_application_command(
-                            application_id=self.me.id, guild_id=None if not hasattr(_command_obj, "guild_id")
-                            else _command_obj.guild_id
+                            application_id=self.me.id,
+                            guild_id=None
+                            if not hasattr(_command_obj, "guild_id")
+                            else _command_obj.guild_id,
                         )
                     )
                     _command_obj = self._find_command(_application_commands, command)
