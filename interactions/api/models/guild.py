@@ -336,10 +336,7 @@ class Guild(DictSerializerMixin):
         data = data if isinstance(data, dict) else data._json
         data["_client"] = http
         model = cls(**data)
-        if http.cache.guilds.get(str(guild_id)):
-            http.cache.guilds.update(Item(str(guild_id), model))
-        else:
-            http.cache.guilds.add(Item(str(guild_id), model))
+        http.cache.guilds.add(Item(str(guild_id), model))
         return model
 
     async def ban(
@@ -515,7 +512,9 @@ class Guild(DictSerializerMixin):
             reason=reason,
             data=payload._json,
         )
-        return Role(**res, _client=self._client)
+        model = Role(**res, _client=self._client)
+        self._client.cache.roles.add(Item(str(self.id), model))
+        return model
 
     async def get_member(
         self,
@@ -535,7 +534,9 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id),
             member_id=member_id,
         )
-        return Member(**res, _client=self._client)
+        model = Member(**res, _client=self._client)
+        self._client.cache.members.add(Item(str(self.id), model))
+        return model
 
     async def delete_channel(
         self,
@@ -622,12 +623,13 @@ class Guild(DictSerializerMixin):
             data=payload._json,
             reason=reason,
         )
-        return Role(**res, _client=self._client)
+        model = Role(**res, _client=self._client)
+        self._client.cache.roles.add(Item(str(self.id), model))
+        return model
 
     async def create_thread(
         self,
         name: str,
-        channel_id: int,
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
@@ -639,8 +641,6 @@ class Guild(DictSerializerMixin):
 
         :param name: The name of the thread
         :type name: str
-        :param channel_id: The id of the channel to create the thread in
-        :type channel_id: int
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
         :type auto_archive_duration: Optional[int]
@@ -763,7 +763,9 @@ class Guild(DictSerializerMixin):
             payload=payload,
         )
 
-        return Channel(**res, _client=self._client)
+        model = Channel(**res, _client=self._client)
+        self._client.cache.channels.add(Item(str(self.id), model))
+        return model
 
     async def modify_channel(
         self,
@@ -838,7 +840,9 @@ class Guild(DictSerializerMixin):
             reason=reason,
             data=payload._json,
         )
-        return Channel(**res, _client=self._client)
+        model = Channel(**res, _client=self._client)
+        self._client.cache.channels.add(Item(str(channel_id), model))
+        return model
 
     async def modify_member(
         self,
@@ -900,7 +904,9 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Member(**res, _client=self._client)
+        model = Member(**res, _client=self._client)
+        self._client.cache.members.add(Item(str(member_id), model))
+        return model
 
     async def get_preview(self) -> "GuildPreview":
 
@@ -1054,7 +1060,9 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Guild(**res, _client=self._client)
+        model = Guild(**res, _client=self._client)
+        self._client.cache.guilds.add(Item(str(model.id), model))
+        return model
 
     async def create_scheduled_event(
         self,
@@ -1223,6 +1231,8 @@ class Guild(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         res = self._client.get_all_channels(int(self.id))
         channels = [Channel(**channel, _client=self._client) for channel in res]
+        for channel in channels:
+            self._client.cache.channels.add(Item(str(channel.id), channel))
         return channels
 
     async def get_all_roles(self) -> List[Role]:
@@ -1236,6 +1246,8 @@ class Guild(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         res = self._client.get_all_roles(int(self.id))
         roles = [Role(**role, _client=self._client) for role in res]
+        for role in roles:
+            self._client.cache.roles.add(Item(str(role.id), role))
         return roles
 
     async def get_role(
@@ -1253,12 +1265,8 @@ class Guild(DictSerializerMixin):
 
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        roles = await self._client.get_all_roles(guild_id=int(self.id))
-        for i in roles:
-            if int(i["id"]) == role_id:
-                role = Role(**i)
-                break
-        return role
+
+        return await Role.fetch(guild_id=self.id, role_ids=role_id, http=self._client)
 
     async def modify_role_position(
         self,
@@ -1285,6 +1293,8 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id), position=position, role_id=_role_id, reason=reason
         )
         roles = [Role(**role, _client=self._client) for role in res]
+        for role in roles:
+            self._client.cache.roles.add(Item(str(role.id), role))
         return roles
 
     async def get_bans(self) -> List[dict]:

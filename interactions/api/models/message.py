@@ -323,10 +323,7 @@ class Message(DictSerializerMixin):
         data = data if isinstance(data, dict) else data._json
         data["_client"] = http
         model = cls(**data)
-        if http.cache.messages.get(str(message_id)):
-            http.cache.messages.update(Item(str(message_id), model))
-        else:
-            http.cache.messages.add(Item(str(message_id), model))
+        http.cache.messages.add(Item(str(message_id), model))
         return model
 
     async def get_channel(self) -> Channel:
@@ -338,7 +335,9 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_channel(channel_id=int(self.channel_id))
-        return Channel(**res, _client=self._client)
+        model = Channel(**res, _client=self._client)
+        self._client.cache.channels.add(Item(str(self.channel_id), model))
+        return model
 
     async def get_guild(self):
         """
@@ -351,7 +350,9 @@ class Message(DictSerializerMixin):
         from .guild import Guild
 
         res = await self._client.get_guild(guild_id=int(self.guild_id))
-        return Guild(**res, _client=self._client)
+        model = Guild(**res, _client=self._client)
+        self._client.cache.guilds.add(Item(str(self.guild_id), model))
+        return model
 
     async def delete(self, reason: Optional[str] = None) -> None:
         """
@@ -544,6 +545,7 @@ class Message(DictSerializerMixin):
             message_id=int(self.id),
             payload=payload._json,
         )
+        self._client.messages.add(Item(str(payload.id), payload))
         return payload
 
     async def reply(
@@ -712,7 +714,8 @@ class Message(DictSerializerMixin):
         res = await self._client.create_message(
             channel_id=int(self.channel_id), payload=payload._json
         )
-        return Message(**res, _client=self._client)
+        model = Message(**res, _client=self._client)
+        self._client.messages.add(Item(str(model.id), model))
 
     async def pin(self) -> None:
         """Pins the message to its channel"""
@@ -737,7 +740,9 @@ class Message(DictSerializerMixin):
         res = await self._client.publish_message(
             channel_id=int(self.channel_id), message_id=int(self.id)
         )
-        return Message(**res, _client=self._client)
+        model = Message(**res, _client=self._client)
+        self._client.messages.add(Item(str(model.id), model))
+        return model
 
     async def create_thread(
         self,

@@ -631,7 +631,7 @@ class HTTPClient:
 
         for guild in request:
             if guild.get("id"):
-                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
+                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild, _client=self)))
 
         return request
 
@@ -966,7 +966,9 @@ class HTTPClient:
 
         for channel in request:
             if channel.get("id"):
-                self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
+                self.cache.channels.add(
+                    Item(id=channel["id"], value=Channel(**channel, _client=self))
+                )
 
         return request
 
@@ -983,7 +985,7 @@ class HTTPClient:
 
         for role in request:
             if role.get("id"):
-                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+                self.cache.roles.add(Item(id=role["id"], value=Role(**role, _client=self)))
 
         return request
 
@@ -1002,7 +1004,7 @@ class HTTPClient:
             Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
         if request.get("id"):
-            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
+            self.cache.roles.add(Item(id=request["id"], value=Role(**request, _client=self)))
 
         return request
 
@@ -1165,7 +1167,7 @@ class HTTPClient:
             },
         )
 
-        self.cache.members.add(Item(id=str(user_id), value=Member(**request)))
+        self.cache.members.add(Item(id=str(user_id), value=Member(**request, _client=self)))
 
         return request
 
@@ -1389,7 +1391,9 @@ class HTTPClient:
 
         for message in request:
             if message.get("id"):
-                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+                self.cache.messages.add(
+                    Item(id=message["id"], value=Message(**message, _client=self))
+                )
 
         return request
 
@@ -1411,7 +1415,7 @@ class HTTPClient:
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
+            self.cache.channels.add(Item(id=request["id"], value=Channel(**request, _client=self)))
 
         return request
 
@@ -1764,7 +1768,7 @@ class HTTPClient:
         reason: Optional[str] = None,
     ) -> dict:
         """
-        From a given channel, create a Thread with an optional message to start with..
+        From a given channel, create a Thread with an optional message to start with.
 
         :param channel_id: The ID of the channel to create this thread in
         :param name: The name of the thread

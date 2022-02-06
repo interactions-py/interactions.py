@@ -105,10 +105,7 @@ class Member(DictSerializerMixin):
         data = data if isinstance(data, dict) else data._json
         data["_client"] = http
         model = cls(**data)
-        if http.cache.members.get(str(member_id)):
-            http.cache.members.update(Item(str(member_id), model))
-        else:
-            http.cache.members.add(Item(str(member_id), model))
+        http.cache.members.add(Item(str(member_id), model))
         return model
 
     @property
@@ -458,7 +455,8 @@ class Member(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Member(**res, _client=self._client)
+        model = Member(**res, _client=self._client)
+        self._client.cache.members.add(Item(str(model.id), model))
 
     async def add_to_thread(
         self,

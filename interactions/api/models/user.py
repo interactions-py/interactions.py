@@ -83,8 +83,5 @@ class User(DictSerializerMixin):
         # TODO: uncomment the following line when methods are implemented for User
         # data["_client"] = http
         model = cls(**data)
-        if http.cache.users.get(str(user_id)):
-            http.cache.users.update(Item(str(user_id), model))
-        else:
-            http.cache.users.add(Item(str(user_id), model))
+        http.cache.users.add(Item(str(user_id), model))
         return model

@@ -71,7 +71,7 @@ class Role(DictSerializerMixin):
     async def fetch(
         cls,
         guild_id: int,
-        role_ids: Union[int, List[int]],
+        role_ids: Optional[Union[int, List[int]]] = None,
         *,
         cache: bool = True,
         http: "HTTPClient"
@@ -81,8 +81,8 @@ class Role(DictSerializerMixin):
 
         :param guild_id: The ID of the role's guild.
         :type guild_id: int
-        :param role_id: The ID of the role to fetch.
-        :type role_id: int
+        :param role_ids?: The ID of the role to fetch.
+        :type role_ids: int
         :param cache?: Whether to get from cache.
         :type cache: bool
         :param http: The HTTPClient to use to fetch the role(s).
@@ -103,10 +103,7 @@ class Role(DictSerializerMixin):
             data = data if isinstance(data, dict) else data._json
             data["_client"] = http
             model = cls(**data)
-            if http.cache.roles.get(str(guild_id)):
-                http.cache.roles.update(Item(str(guild_id), model))
-            else:
-                http.cache.roles.add(Item(str(guild_id), model))
+            http.cache.roles.add(Item(str(role_ids), model))
             return model
         elif isinstance(role_ids, list):
             roles = []
@@ -123,12 +120,17 @@ class Role(DictSerializerMixin):
                 data = data if isinstance(data, dict) else data._json
                 data["_client"] = http
                 model = cls(**data)
-                if http.cache.roles.get(str(guild_id)):
-                    http.cache.roles.update(Item(str(guild_id), model))
-                else:
-                    http.cache.roles.add(Item(str(guild_id), model))
+                http.cache.roles.add(Item(str(role_id), model))
                 roles.append(model)
             return roles
+        else:
+            roles = [
+                cls(**role, _client=http)
+                for role in await http.get_all_roles(guild_id)
+                if role.get("id")
+            ]
+            for role in roles:
+                http.cache.roles.add(Item(str(role.id), role))
 
     async def delete(
         self,
@@ -194,7 +196,9 @@ class Role(DictSerializerMixin):
             data=payload._json,
             reason=reason,
         )
-        return Role(**res, _client=self._client)
+        model = Role(**res, _client=self._client)
+        self._client.cache.roles.add(Item(str(self.id), model))
+        return model
 
     async def modify_position(
         self,
@@ -220,4 +224,6 @@ class Role(DictSerializerMixin):
             guild_id=guild_id, position=position, role_id=int(self.id), reason=reason
         )
         roles = [Role(**role, _client=self._client) for role in res]
+        for role in roles:
+            self._client.cache.roles.add(Item(str(role.id), role))
         return roles

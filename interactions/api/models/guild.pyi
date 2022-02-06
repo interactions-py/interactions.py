@@ -12,13 +12,9 @@ from .user import User
 from ..http import HTTPClient
 
 class VerificationLevel(IntEnum): ...
-
 class ExplicitContentFilterLevel(IntEnum): ...
-
 class DefaultMessageNotificationLevel(IntEnum): ...
-
 class EntityType(IntEnum): ...
-
 class EventStatus(IntEnum): ...
 
 class WelcomeChannels(DictSerializerMixin):
@@ -177,7 +173,6 @@ class Guild(DictSerializerMixin):
     async def create_thread(
         self,
         name: str,
-        channel_id: int,
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
@@ -260,7 +255,7 @@ class Guild(DictSerializerMixin):
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
         # privacy_level, TODO: implement when more levels available
-        ) -> "ScheduledEvents": ...
+    ) -> "ScheduledEvents": ...
     async def modify_scheduled_event(
         self,
         event_id: int,
@@ -273,10 +268,7 @@ class Guild(DictSerializerMixin):
         description: Optional[str] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents": ...
-    async def delete_scheduled_event(
-        self,
-        event_id: int
-    ) -> None: ...
+    async def delete_scheduled_event(self, event_id: int) -> None: ...
     async def get_all_channels(self) -> List[Channel]: ...
     async def get_all_roles(self) -> List[Role]: ...
     async def get_role(

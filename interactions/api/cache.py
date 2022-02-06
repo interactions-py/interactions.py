@@ -42,14 +42,17 @@ class Storage:
 
     def add(self, item: Item) -> OrderedDict:
         """
-        Adds a new item to the storage.
+        Adds or opdates a new item to the storage.
 
-        :param item: The item to add.
+        :param item: The item to add or update.
         :type item: Item
         :return: The new storage.
         :rtype: OrderedDict
         """
-        self.values.update({item.id: item.value})
+        if item.id not in self.values.keys():
+            self.values.update({item.id: item.value})
+        else:
+            self.values[item.id] = item.value
         return self.values
 
     def get(self, id: str) -> Optional[Item]:

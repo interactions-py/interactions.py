@@ -207,10 +207,7 @@ class Channel(DictSerializerMixin):
         data = data if isinstance(data, dict) else data._json
         data["_client"] = http
         model = cls(**data)
-        if http.cache.channels.get(str(channel_id)):
-            http.cache.channels.update(Item(str(channel_id), model))
-        else:
-            http.cache.channels.add(Item(str(channel_id), model))
+        http.cache.channels.add(Item(str(channel_id), model))
         return model
 
     async def send(
@@ -378,7 +375,9 @@ class Channel(DictSerializerMixin):
         )
 
         res = await self._client.create_message(channel_id=int(self.id), payload=payload._json)
-        return Message(**res, _client=self._client)
+        model = Message(**res, _client=self._client)
+        self._client.cache.messages.add(Item(str(model.id), model))
+        return model
 
     async def delete(self) -> None:
         """
@@ -455,7 +454,9 @@ class Channel(DictSerializerMixin):
             reason=reason,
             data=payload._json,
         )
-        return Channel(**res, _client=self._client)
+        model = Channel(**res, _client=self._client)
+        self._client.cache.channels.add(Item(str(model.id), model))
+        return model
 
     async def add_member(
         self,
@@ -523,7 +524,9 @@ class Channel(DictSerializerMixin):
         res = await self._client.publish_message(
             channel_id=int(self.id), message_id=int(message_id)
         )
-        return Message(**res, _client=self._client)
+        model = Message(**res, _client=self._client)
+        self._client.cache.messages.add(Item(str(model.id), model))
+        return model
 
     async def get_pinned_messages(self) -> List["Message"]:  # noqa
         """
@@ -556,7 +559,9 @@ class Channel(DictSerializerMixin):
         )
         from .message import Message
 
-        return Message(**res, _client=self._client)
+        model = Message(**res, _client=self._client)
+        self._client.cache.messages.add(Item(str(model.id), model))
+        return model
 
     async def purge(
         self,
