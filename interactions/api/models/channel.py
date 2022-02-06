@@ -339,7 +339,12 @@ class Channel(DictSerializerMixin):
         )
         return Channel(**res, _client=self._client)
 
-    async def set_name(self, name: str, reason: Optional[str] = None) -> "Channel":
+    async def set_name(
+        self,
+        name: str,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
         """
         Sets the name of the channel.
 
@@ -353,7 +358,12 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(name=name, reason=reason)
 
-    async def set_topic(self, topic: str, reason: Optional[str] = None) -> "Channel":
+    async def set_topic(
+        self,
+        topic: str,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
         """
         Sets the topic of the channel.
 
@@ -367,7 +377,12 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(topic=topic, reason=reason)
 
-    async def set_bitrate(self, bitrate: int, reason: Optional[str] = None) -> "Channel":
+    async def set_bitrate(
+        self,
+        bitrate: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
         """
         Sets the bitrate of the channel.
 
@@ -384,7 +399,12 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(bitrate=bitrate, reason=reason)
 
-    async def set_user_limit(self, user_limit: int, reason: Optional[str] = None) -> "Channel":
+    async def set_user_limit(
+        self,
+        user_limit: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
         """
         Sets the user_limit of the channel.
 
@@ -402,7 +422,10 @@ class Channel(DictSerializerMixin):
         return await self.modify(user_limit=user_limit, reason=reason)
 
     async def set_rate_limit_per_user(
-        self, rate_limit_per_user: int, reason: Optional[str] = None
+        self,
+        rate_limit_per_user: int,
+        *,
+        reason: Optional[str] = None,
     ) -> "Channel":
         """
         Sets the position of the channel.
@@ -417,7 +440,12 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(rate_limit_per_user=rate_limit_per_user, reason=reason)
 
-    async def set_position(self, position: int, reason: Optional[str] = None) -> "Channel":
+    async def set_position(
+        self,
+        position: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
         """
         Sets the position of the channel.
 
@@ -431,7 +459,12 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(position=position, reason=reason)
 
-    async def set_parent_id(self, parent_id: int, reason: Optional[str] = None) -> "Channel":
+    async def set_parent_id(
+        self,
+        parent_id: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
         """
         Sets the parent_id of the channel.
 
@@ -445,7 +478,12 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(parent_id=parent_id, reason=reason)
 
-    async def set_nsfw(self, nsfw: bool, reason: Optional[str] = None) -> "Channel":
+    async def set_nsfw(
+        self,
+        nsfw: bool,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
         """
         Sets the nsfw-flag of the channel.
 

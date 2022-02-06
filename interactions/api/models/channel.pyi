@@ -106,41 +106,49 @@ class Channel(DictSerializerMixin):
     async def set_name(
         self,
         name: str,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def set_topic(
         self,
         topic: str,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def set_bitrate(
         self,
         bitrate: int,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def set_user_limit(
         self,
         user_limit: int,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def set_rate_limit_per_user(
         self,
         rate_limit_per_user: int,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def set_position(
         self,
         position: int,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def set_parent_id(
         self,
         parent_id: int,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def set_nsfw(
         self,
         nsfw: bool,
+        *,
         reason: Optional[str] = None
     ) -> "Channel": ...
     async def add_member(
@@ -148,8 +156,8 @@ class Channel(DictSerializerMixin):
         member_id: int,
     ) -> None: ...
     async def pin_message(
-            self,
-            message_id: int,
+        self,
+        message_id: int,
     ) -> None: ...
     async def unpin_message(
         self,
@@ -161,8 +169,8 @@ class Channel(DictSerializerMixin):
     ) -> Message: ...
     async def get_pinned_messages(self) -> List[Message]: ...
     async def get_message(
-            self,
-            message_id: int,
+        self,
+        message_id: int,
     ) -> Message: ...
     async def purge(
         self,
