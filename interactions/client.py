@@ -380,6 +380,11 @@ class Client:
             if name is MISSING:
                 raise InteractionException(11, message="Your command must have a name.")
 
+            elif len(name) > 32:
+                raise InteractionException(11, message="Command name must not be more than 32 characters.")
+            elif len(description) > 100:
+                raise InteractionException(11, message="Command description must be less than 100 characters")
+
             for _ in name:
                 if _.isupper():
                     raise InteractionException(
@@ -402,15 +407,34 @@ class Client:
                         11,
                         message="You must have the same amount of arguments as the options of the command.",
                     )
+                if isinstance(options, List) and len(options) > 25:
+                    raise InteractionException(11, message="You cannot have more than 25 options in a command")
                 _option: Option
                 for _option in options:
-                    if not _option._json.get("description") and _option.type not in (
+                    if _option.type not in (
                         OptionType.SUB_COMMAND,
                         OptionType.SUB_COMMAND_GROUP,
                     ):
+                        if getattr(_option, "autocomplete", False) and getattr(_option, "choices", False):
+                            raise InteractionException(
+                                11,
+                                message="Autocomplete may not be set to true if choices are present"
+                            )
+                        if not getattr(_option, "description", False):
+                            raise InteractionException(
+                                11,
+                                message="A description is required for Options that are not sub-commands",
+                            )
+                        if len(_option.description) > 100:
+                            raise InteractionException(
+                                11,
+                                message="Command option descriptions must be less than 100 characters"
+                            )
+
+                    if len(_option.name) > 32:
                         raise InteractionException(
                             11,
-                            message="A description is required for Options that are not sub-commands",
+                            message="Command option name must be less than 32 characters"
                         )
 
             commands: List[ApplicationCommand] = command(
