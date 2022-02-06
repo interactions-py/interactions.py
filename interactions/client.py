@@ -580,7 +580,7 @@ class Client:
         return decorator
 
     def autocomplete(
-        self, name: str, command: Union[ApplicationCommand, int, str, Snowflake]
+        self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
     ) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
