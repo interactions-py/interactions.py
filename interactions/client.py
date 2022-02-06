@@ -81,6 +81,7 @@ class Client:
         self._presence = kwargs.get("presence")
         self._token = token
         self._extensions = {}
+        self._scopes = set([])
         self.me = None
         _token = self._token  # noqa: F841
         _cache = self._http.cache  # noqa: F841
@@ -413,6 +414,12 @@ class Client:
                         for command in commands
                     ]
 
+            if scope:
+                if isinstance(scope, List):
+                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
+                else:
+                    self._scopes.add(scope if isinstance(scope, int) else scope.id)
+
             return self.event(coro, name=f"command_{name}")
 
         return decorator
@@ -579,6 +586,35 @@ class Client:
 
         return decorator
 
+    @staticmethod
+    def _find_command(commands: List, command: str) -> ApplicationCommand:
+        """
+        Iterates over commands and returns an ApplicationCommand if it matches the name from command
+
+        :ivar commands: The list of dicts to iterate through
+        :type commands: List[ApplicationCommand]
+        :ivar command: The name of the command to match:
+        :type command: str
+        """
+        _command: Dict
+        for _command in commands:
+            if _command["name"] == command:
+                _command_obj = ApplicationCommand(**_command)
+                break
+        else:
+            _command_obj = None
+        if (
+            not _command_obj or
+            (hasattr(_command_obj, "id") and not _command_obj.id)
+        ):
+            raise InteractionException(
+                6,
+                message="The command does not exist. Make sure to define"
+                        + " your autocomplete callback after your commands",
+            )
+        else:
+            return _command_obj
+
     def autocomplete(
         self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
     ) -> Callable[..., Any]:
@@ -590,7 +626,7 @@ class Client:
 
         .. code-block:: python
 
-            @autocomplete("option_name", "command_name")
+            @autocomplete(command="command_name", name="option_name")
             async def autocomplete_choice_list(ctx, user_input: str = ""):
                 await ctx.populate([
                     interactions.Choice(...),
@@ -598,10 +634,10 @@ class Client:
                     ...
                 ])
 
-        :param name: The name of the option to autocomplete.
-        :type name: str
         :param command: The command, command ID, or command name with the option.
         :type command: Union[ApplicationCommand, int, str, Snowflake]
+        :param name: The name of the option to autocomplete.
+        :type name: str
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -611,21 +647,23 @@ class Client:
         elif isinstance(command, str):
             _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
             if not _command_obj or not _command_obj.id:
-                _application_commands = self._loop.run_until_complete(
-                    self._http.get_application_command(
-                        application_id=self.me.id, guild_id=_command_obj.guild_id
+                if getattr(_command_obj, "guild_id", None) or self._automate_sync:
+                    _application_commands = self._loop.run_until_complete(
+                        self._http.get_application_command(
+                            application_id=self.me.id, guild_id=None if not hasattr(_command_obj, "guild_id")
+                            else _command_obj.guild_id
+                        )
                     )
-                )
-                __command: Dict
-                for __command in _application_commands:
-                    if __command["name"] == command:
-                        _command_obj = ApplicationCommand(**__command)
-                if not _command_obj or not _command_obj.id:
-                    raise InteractionException(
-                        6,
-                        message="The command does not exist. Make sure to define"
-                        + " your autocomplete callback after your commands",
-                    )
+                    _command_obj = self._find_command(_application_commands, command)
+                else:
+                    for _scope in self._scopes:
+                        _application_commands = self._loop.run_until_complete(
+                            self._http.get_application_command(
+                                application_id=self.me.id, guild_id=_scope
+                            )
+                        )
+                        _command_obj = self._find_command(_application_commands, command)
+
             _command: Union[Snowflake, int] = int(_command_obj.id)
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
