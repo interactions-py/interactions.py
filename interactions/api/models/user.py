@@ -53,3 +53,13 @@ class User(DictSerializerMixin):
         )
 
         self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
+
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given user.
+
+        :return: The string of the mentioned user.
+        :rtype: str
+        """
+        return f"<@{self.id}>"
