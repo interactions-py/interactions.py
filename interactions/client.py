@@ -587,7 +587,7 @@ class Client:
         return decorator
 
     @staticmethod
-    def _find_command(commands: List, command: str) -> ApplicationCommand:
+    def _find_command(commands: List[ApplicationCommand], command: str) -> ApplicationCommand:
         """
         Iterates over commands and returns an ApplicationCommand if it matches the name from command
 
