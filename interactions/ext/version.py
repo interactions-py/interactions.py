@@ -1,10 +1,11 @@
+import hashlib
 from enum import Enum
-from hashlib import _Hash as MD5Hash
-from hashlib import md5
 from string import ascii_lowercase
 from typing import List, Optional, Union
 
 from .error import IncorrectAlphanumeric, TooManyAuthors
+
+MD5Hash = hashlib._hashlib.HASH
 
 
 class VersionAlphanumericType(str, Enum):
@@ -49,7 +50,7 @@ class VersionAuthor:
         self._co_author = shared
         self.active = active
         self.email = email
-        self._hash = md5(self)
+        self._hash = hashlib.md5(self)
 
     def __hash__(self) -> MD5Hash:
         return self._hash

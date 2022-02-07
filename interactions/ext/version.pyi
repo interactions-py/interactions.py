@@ -1,6 +1,8 @@
+import hashlib
 from enum import Enum
 from typing import Dict, List, Optional, Union
-from hashlib import _Hash as MD5Hash
+
+MD5Hash = hashlib._hashlib.HASH
 
 class VersionAlphanumericType(str, Enum): ...
 
