@@ -440,8 +440,10 @@ class CommandContext(Context):
         _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
 
-        if embeds is MISSING:
+        if embeds is MISSING and self.message.embeds is not None:
             _embeds = self.message.embeds
+        elif embeds is MISSING and self.message.embeds is None:
+            pass  # Don't edit the embed if not present to not remove it from the message
         else:
             _embeds: list = (
                 []
@@ -455,8 +457,10 @@ class CommandContext(Context):
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
-        if components is MISSING:
+        if components is MISSING and self.message.components is not None:
             _components = self.message.components
+        elif components is MISSING and self.message.components is None:
+            pass
         elif not components:
             _components = []
         else:
