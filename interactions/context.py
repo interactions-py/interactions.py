@@ -772,8 +772,8 @@ class ComponentContext(CommandContext):
         self.deferred = False  # remind components they not have been deferred
         self.custom_id = self.data.custom_id
         for action_row in self.message.components:
-            for component in action_row['components']:
-                if component['custom_id'] == self.custom_id and component['type'] == 2:
+            for component in action_row["components"]:
+                if component["custom_id"] == self.custom_id and component["type"] == 2:
                     self.label = component.get("label")
 
     async def defer(
