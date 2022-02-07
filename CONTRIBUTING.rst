@@ -20,9 +20,11 @@ error may be produced:
 .. code-block:: python
 
     import interactions
-    from logging import DEBUG
-
-    bot = interactions.Client(token="...", log_level=DEBUG) # you can also use -1.
+    from logging import basicConfig, DEBUG
+    
+    basicConfig(level=DEBUG)
+    
+    bot = interactions.Client(token="...")
 
     bot.start()
 
