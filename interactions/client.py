@@ -587,12 +587,12 @@ class Client:
         return decorator
 
     @staticmethod
-    def _find_command(commands: List[ApplicationCommand], command: str) -> ApplicationCommand:
+    def _find_command(commands: List[Dict], command: str) -> ApplicationCommand:
         """
         Iterates over commands and returns an ApplicationCommand if it matches the name from command
 
         :ivar commands: The list of dicts to iterate through
-        :type commands: List[ApplicationCommand]
+        :type commands: List[Dict]
         :ivar command: The name of the command to match:
         :type command: str
         :return: An ApplicationCommand model
