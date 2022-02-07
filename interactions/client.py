@@ -595,6 +595,8 @@ class Client:
         :type commands: List[ApplicationCommand]
         :ivar command: The name of the command to match:
         :type command: str
+        :return: An ApplicationCommand model
+        :rtype: ApplicationCommand
         """
         _command: Dict
         for _command in commands:
