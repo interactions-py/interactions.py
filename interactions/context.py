@@ -753,6 +753,8 @@ class ComponentContext(CommandContext):
         "type",
         "data",
         "target",
+        "custom_id",
+        "label",
         "version",
         "token",
         "guild_id",
@@ -768,6 +770,11 @@ class ComponentContext(CommandContext):
         super().__init__(**kwargs)
         self.responded = False  # remind components that it was not responded to.
         self.deferred = False  # remind components they not have been deferred
+        self.custom_id = self.data.custom_id
+        for action_row in self.message.components:
+            for component in action_row['components']:
+                if component['custom_id'] == self.custom_id and component['type'] == 2:
+                    self.label = component.get("label")
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
