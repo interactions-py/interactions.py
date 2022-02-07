@@ -212,16 +212,24 @@ class Client:
             commands: List[dict] = cache
         else:
             log.info("No command cache was found present, retrieving from Web API instead.")
-            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_command(
+            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_commands(
                 application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
             )
 
+        # TODO: redo error handling.
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
                 raise JSONException(commands["code"], message=commands["message"] + " |")
                 # TODO: redo error handling.
+        elif isinstance(commands, list):
+            for command in commands:
+                if command.get("code"):
+                    # Error exists.
+                    raise JSONException(command["code"], message=command["message"] + " |")
 
-        names: List[str] = [command["name"] for command in commands] if commands else []
+        names: List[str] = (
+            [command["name"] for command in commands if command.get("name")] if commands else []
+        )
         to_sync: list = []
         to_delete: list = []
 

@@ -1202,6 +1202,35 @@ class HTTPClient:
 
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/prune"), params=payload)
 
+    async def get_guild_auditlog(
+        self,
+        guild_id: int,
+        user_id: Optional[int] = None,
+        action_type: Optional[int] = None,
+        before: Optional[int] = None,
+        limit: int = 50,
+    ) -> dict:
+        """
+        Returns an audit log object for the guild. Requires the 'VIEW_AUDIT_LOG' permission.
+        :param guild_id: Guild ID snowflake.
+        :param user_id: User ID snowflake. filter the log for actions made by a user.
+        :param action_type: the type ID of audit log event.
+        :param before: filter the log before a certain entry id.
+        :param limit: how many entries are returned (default 50, minimum 1, maximum 100)
+        """
+
+        payload = {"limit": limit}
+        if user_id:
+            payload["user_id"] = user_id
+        if action_type:
+            payload["action_type"] = action_type
+        if before:
+            payload["before"] = before
+
+        return await self._req.request(
+            Route("GET", f"/guilds/{guild_id}/audit-logs"), params=payload
+        )
+
     # Guild (Member) endpoint
 
     async def get_member(self, guild_id: int, member_id: int) -> Optional[Member]:
@@ -2003,7 +2032,7 @@ class HTTPClient:
 
     # TODO: Merge single and batch variants ?
 
-    async def get_application_command(
+    async def get_application_commands(
         self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
     ) -> List[dict]:
         """
@@ -2586,7 +2615,7 @@ class HTTPClient:
         payload = {k: v for k, v in data.items() if k in valid_keys}
 
         return await self._req.request(
-            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=int(guild_id)),
+            Route("POST", "/guilds/{guild_id}/scheduled-events", guild_id=int(guild_id)),
             json=payload,
         )
 

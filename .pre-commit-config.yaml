@@ -51,3 +51,5 @@ repos:
         name: isort Formatting
         language: python
         types: [file, python]
+ci:
+  autoupdate_branch: "unstable"
