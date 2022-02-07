@@ -10,6 +10,17 @@ from .role import Role
 from .user import User
 from .team import Application
 from ..http import HTTPClient
+from ...models.command import Permission
+
+class ApplicationCommandPermissions(DictSerializerMixin):
+    _json: dict
+    application_id: Snowflake
+    guild_id: Snowflake
+    id: Snowflake
+    permissions: List[Permission]
+
+    def __init__(self, **kwargs): ...
+
 
 class ChannelPins(DictSerializerMixin):
     _json: dict
@@ -149,4 +160,10 @@ class ThreadMembers(DictSerializerMixin):
     member_count: int
     added_members: Optional[List[ThreadMember]]
     removed_member_ids: Optional[List[Snowflake]]
+    def __init__(self, **kwargs): ...
+
+class Webhooks(DictSerializerMixin):
+    _json: dict
+    channel_id: Snowflake
+    guild_id: Snowflake
     def __init__(self, **kwargs): ...

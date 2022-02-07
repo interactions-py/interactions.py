@@ -68,6 +68,8 @@ class Channel(DictSerializerMixin):
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
+    @property
+    def mention(self) -> str: ...
     async def send(
         self,
         content: Optional[str] = MISSING,

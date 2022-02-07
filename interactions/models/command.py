@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from ..api.models.channel import ChannelType
 from ..api.models.misc import DictSerializerMixin, Snowflake
@@ -176,8 +176,8 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar Optional[List[Option]] options?: The "options"/arguments of the application command.
     :ivar Optional[bool] default_permission?: The default permission accessibility state of the application command.
     :ivar int version: The Application Command version autoincrement identifier.
-    :ivar Any default_member_permissions: The default member permission state of the application command.
-    :ivar Any dm_permission: The application permissions if executed in a Direct Message.
+    :ivar str default_member_permissions: The default member permission state of the application command.
+    :ivar boolean dm_permission: The application permissions if executed in a Direct Message.
     """
 
     __slots__ = (
@@ -210,8 +210,8 @@ class ApplicationCommand(DictSerializerMixin):
     version: int
 
     # TODO: post-v4: Investigate these once documented by Discord.
-    default_member_permissions: Optional[Any]
-    dm_permission: Optional[Any]
+    default_member_permissions: str
+    dm_permission: bool
 
     # TODO: post-v4: Document once Discord does.
     name_localizations: Optional[Dict[str, str]]
