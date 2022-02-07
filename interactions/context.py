@@ -781,6 +781,17 @@ class ComponentContext(CommandContext):
         self.responded = False  # remind components that it was not responded to.
         self.deferred = False  # remind components they not have been deferred
 
+    @property
+    def custom_id(self):
+        return self.data.custom_id
+
+    @property
+    def label(self):
+        for action_row in self.message.components:
+            for component in action_row["components"]:
+                if component["custom_id"] == self.custom_id and component["type"] == 2:
+                    return component.get("label")
+
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
     ) -> None:
