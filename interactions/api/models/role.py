@@ -63,6 +63,16 @@ class Role(DictSerializerMixin):
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.tags = RoleTags(**self.tags) if self._json.get("tags") else None
 
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given role.
+
+        :return: The string of the mentioned role.
+        :rtype: str
+        """
+        return f"<@&{self.id}>"
+
     async def delete(
         self,
         guild_id: int,

@@ -72,6 +72,10 @@ class Member(DictSerializerMixin):
             else None
         )
 
+        self.roles = [
+            role_id if isinstance(role_id, int) else int(role_id) for role_id in self.roles
+        ]
+
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
 
@@ -84,6 +88,18 @@ class Member(DictSerializerMixin):
         :rtype: Snowflake
         """
         return self.user.id if self.user else None
+
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given member.
+
+        :return: The string of the mentioned member.
+        :rtype: str
+        """
+        if self.nick:
+            return f"<@!{self.user.id}>"
+        return f"<@{self.user.id}>"
 
     async def ban(
         self,

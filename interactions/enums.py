@@ -91,10 +91,12 @@ class PermissionType(IntEnum):
 
     :ivar ROLE: 1
     :ivar USER: 2
+    :ivar CHANNEL: 3
     """
 
     ROLE = 1
     USER = 2
+    CHANNEL = 3
 
 
 class ComponentType(IntEnum):
