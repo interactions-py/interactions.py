@@ -389,7 +389,7 @@ class CommandContext(Context):
                     self.message = Message(**res, _client=self.client)
                 else:
                     await self.client._post_followup(
-                        data=payload,
+                        data=payload._json,
                         token=self.token,
                         application_id=str(self.application_id),
                     )
