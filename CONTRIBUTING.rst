@@ -32,8 +32,28 @@ the `Code of Conduct`_ from their documentation.
 Where to start
 --------------
 Our contributions start with an **Issue**. The issue should explain what the problem you're having is.
-Issues are our way and methodology of tracking bugs that may be occuring with this library. In order
-to create create in relevance to the issue, you start a **Pull Request**. Linking the issue in this
+Issues are our way and methodology of tracking bugs that may be occuring with this library. Every contributor
+must start with an Issue, as this helps numerous contributors and developers on various teams keep track of
+requests, bugs and miscellaneous details.
+
+Issue specifications
+********************
+Whenever there is an Issue created, they must follow the according criterion:
+
+- An Issue must not be a duplicate of an existing one.
+- A bug Issue must have all fields filled out.
+- A request Issue must have support from a pre-determined amount of users.
+- A miscellanous Issue must:
+    - Target a third-party repository if it is an issue correlated between the two.
+    - Specify external issues that tie into library installation or performance.
+
+Failure to comply to these factors will result in the Issue being closed with a comment and/or label.
+Some Issues may be closed by the discretion of varying development teams for reasons that exclude
+these factors.
+
+Pull Request specifications
+***************************
+In order to create create in relevance to the issue, you start a **Pull Request**. Linking the issue in this
 (known as a PR) allows us to easily identify what bugs have been correlated with the code requesting
 to be changed in the source, and allow other developers to contribute where needed.
 
@@ -41,12 +61,12 @@ When a PR is made, you **must** be targeting the ``unstable`` branch. This is ou
 that we use whenever we're working on any bugfixing, breaking changes and/or overall new features. Our
 development workflow for changes is from this branch to ``stable``, and then from there to a release.
 
-Pull Request specifications
-***************************
-A pull request should adhere to these following requirements:
+A pull request must additionally adhere to these following requirements:
 
-- Each git commit made on your forked project should use `conventional commits`_.
-- The pull request should always be up-to-date with ``unstable``.
+- Each git commit made on your fork must use `conventional commits`_.
+- The pull request must be up-to-date with ``unstable`` before requesting a review.
+- A ``pre-commit`` commit must exist and pass *all* checks before requesting a review.
+- A review must be requested from at least one developer. Please target ``@interactions-py/core`` for this.
 
 Recognizing contributors
 ------------------------
