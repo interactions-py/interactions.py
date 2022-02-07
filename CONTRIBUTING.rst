@@ -21,9 +21,9 @@ error may be produced:
 
     import interactions
     from logging import basicConfig, DEBUG
-    
+
     basicConfig(level=DEBUG)
-    
+
     bot = interactions.Client(token="...")
 
     bot.start()
@@ -73,9 +73,10 @@ A pull request must additionally adhere to these following requirements:
 Recognizing contributors
 ------------------------
 When a PR is successfully merged into one of the development branches, the GitHub user will automatically
-be added to the contributor list of the repository. Additionally, we also provide a role in our support
-server for contributors. (You will be notified if you are eligible for this.) The git commit history on a
-file will also subsequently be updated by GitHub to include your user signature.
+be added to the contributor list of the repository. Additionally, at the discretion of the core development
+team, it is possible to earn a role in our support server for contributors. (You will be notified if you are
+eligible for this.) The git commit history on a file will also subsequently be updated by GitHub to include
+your user signature.
 
 .. _Code of Conduct: https://github.com/discord/discord-api-docs/blob/master/CODE_OF_CONDUCT.md
 .. _conventional commits: https://www.conventionalcommits.org/en/v1.0.0/
