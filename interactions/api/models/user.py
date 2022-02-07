@@ -87,3 +87,13 @@ class User(DictSerializerMixin):
         model = cls(**data)
         http.cache.users.add(Item(str(user_id), model))
         return model
+
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given user.
+
+        :return: The string of the mentioned user.
+        :rtype: str
+        """
+        return f"<@{self.id}>"

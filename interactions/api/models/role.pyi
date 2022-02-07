@@ -34,6 +34,8 @@ class Role(DictSerializerMixin):
         cache: Optional[bool] = True,
         http: "HTTPClient"
     ) -> "Role": ...
+    @property
+    def mention(self) -> str: ...
     async def delete(
         self,
         guild_id: int,

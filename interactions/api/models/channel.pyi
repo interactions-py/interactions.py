@@ -72,6 +72,8 @@ class Channel(DictSerializerMixin):
     async def fetch(
         cls, channel_id: int, *, cache: Optional[bool] = True, http: HTTPClient
     ) -> "Channel": ...
+    @property
+    def mention(self) -> str: ...
     async def send(
         self,
         content: Optional[str] = MISSING,

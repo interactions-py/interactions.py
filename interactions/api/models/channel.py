@@ -212,6 +212,16 @@ class Channel(DictSerializerMixin):
         http.cache.channels.add(Item(str(channel_id), model))
         return model
 
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given channel.
+
+        :return: The string of the mentioned channel.
+        :rtype: str
+        """
+        return f"<#{self.id}>"
+
     async def send(
         self,
         content: Optional[str] = MISSING,

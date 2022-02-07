@@ -132,6 +132,16 @@ class Role(DictSerializerMixin):
             for role in roles:
                 http.cache.roles.add(Item(str(role.id), role))
 
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given role.
+
+        :return: The string of the mentioned role.
+        :rtype: str
+        """
+        return f"<@&{self.id}>"
+
     async def delete(
         self,
         guild_id: int,
