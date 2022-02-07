@@ -11,15 +11,32 @@ from .role import Role
 from .user import User
 from ..http import HTTPClient
 
-class VerificationLevel(IntEnum): ...
+class VerificationLevel(IntEnum):
+    NONE: int
+    LOW: int
+    MEDIUM: int
+    HIGH: int
+    VERY_HIGH: int
 
-class ExplicitContentFilterLevel(IntEnum): ...
+class ExplicitContentFilterLevel(IntEnum):
+    DISABLED: int
+    MEMBERS_WITHOUT_ROLES: int
+    ALL_MEMBERS: int
 
-class DefaultMessageNotificationLevel(IntEnum): ...
+class DefaultMessageNotificationLevel(IntEnum):
+    ALL_MESSAGES: int
+    ONLY_MENTIONS: int
 
-class EntityType(IntEnum): ...
+class EntityType(IntEnum):
+    STAGE_INSTANCE: int
+    VOICE: int
+    EXTERNAL: int
 
-class EventStatus(IntEnum): ...
+class EventStatus(IntEnum):
+    SCHEDULED: int
+    ACTIVE: int
+    COMPLETED: int
+    CANCELED: int
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -254,6 +271,7 @@ class Guild(DictSerializerMixin):
         premium_progress_bar_enabled: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Guild": ...
+
     async def create_scheduled_event(
         self,
         name: str,

@@ -1042,6 +1042,120 @@ class Guild(DictSerializerMixin):
         )
         return Guild(**res, _client=self._client)
 
+    async def set_name(
+        self,
+        name: str,
+        *,
+        reason: Optional[str],
+    ):
+        """
+        Sets the name of the guild.
+
+        :param name: The new name of the guild
+        :type name: str
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(name=name, reason=reason)
+
+    async def set_verification_level(
+        self,
+        verification_level: VerificationLevel,
+        *,
+        reason: Optional[str],
+    ):
+        """
+        Sets the verification level of the guild.
+
+        :param verification_level: The new verification level of the guild
+        :type verification_level: VerificationLevel
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(verification_level=verification_level, reason=reason)
+
+    async def set_default_message_notifications(
+        self,
+        default_message_notifications: DefaultMessageNotificationLevel,
+        *,
+        reason: Optional[str],
+    ):
+        """
+        Sets the default message notifications level of the guild.
+
+        :param default_message_notifications: The new default message notification level of the guild
+        :type default_message_notifications: DefaultMessageNotificationLevel
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(
+            default_message_notifications=default_message_notifications, reason=reason
+        )
+
+    async def set_explicit_content_filter(
+        self,
+        explicit_content_filter: ExplicitContentFilterLevel,
+        *,
+        reason: Optional[str],
+    ):
+        """
+        Sets the explicit content filter level of the guild.
+
+        :param explicit_content_filter: The new explicit content filter level of the guild
+        :type explicit_content_filter: ExplicitContentFilterLevel
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(explicit_content_filter=explicit_content_filter, reason=reason)
+
+    async def set_afk_channel_id(
+        self,
+        afk_channel_id: int,
+        *,
+        reason: Optional[str],
+    ):
+        """
+        Sets the afk channel id of the guild.
+
+        :param afk_channel_id: The new name of the guild
+        :type afk_channel_id: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(afk_channel_id=afk_channel_id, reason=reason)
+
+    async def afk_timeout(
+        self,
+        afk_timeout: int,
+        *,
+        reason: Optional[str],
+    ):
+        """
+        Sets the afk timeout of the guild.
+
+        :param afk_timeout: The new afk timeout of the guild
+        :type afk_timeout: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(afk_timeout=afk_timeout, reason=reason)
+
+    async def system_channel_id(
+        self,
+        system_channel_id: int,
+        *,
+        reason: Optional[str],
+    ):
+        """
+        Sets the system channel id of the guild.
+
+        :param system_channel_id: The new system channel id of the guild
+        :type system_channel_id: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(system_channel_id=system_channel_id, reason=reason)
+
     async def create_scheduled_event(
         self,
         name: str,

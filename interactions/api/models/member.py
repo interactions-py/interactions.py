@@ -343,6 +343,16 @@ class Member(DictSerializerMixin):
         )
         return Member(**res, _client=self._client)
 
+    """
+    nick: Optional[str] = MISSING,
+    roles: Optional[List[int]] = MISSING,
+    mute: Optional[bool] = MISSING,
+    deaf: Optional[bool] = MISSING,  # invert this
+    channel_id: Optional[int] = MISSING,
+    communication_disabled_until: Optional[datetime.isoformat] = MISSING,
+    reason: Optional[str] = None,
+    """
+
     async def add_to_thread(
         self,
         thread_id: int,
