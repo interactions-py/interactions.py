@@ -1047,7 +1047,7 @@ class Guild(DictSerializerMixin):
         name: str,
         *,
         reason: Optional[str],
-    ):
+    ) -> "Guild":
         """
         Sets the name of the guild.
 
@@ -1063,7 +1063,7 @@ class Guild(DictSerializerMixin):
         verification_level: VerificationLevel,
         *,
         reason: Optional[str],
-    ):
+    ) -> "Guild":
         """
         Sets the verification level of the guild.
 
@@ -1079,7 +1079,7 @@ class Guild(DictSerializerMixin):
         default_message_notifications: DefaultMessageNotificationLevel,
         *,
         reason: Optional[str],
-    ):
+    ) -> "Guild":
         """
         Sets the default message notifications level of the guild.
 
@@ -1097,7 +1097,7 @@ class Guild(DictSerializerMixin):
         explicit_content_filter: ExplicitContentFilterLevel,
         *,
         reason: Optional[str],
-    ):
+    ) -> "Guild":
         """
         Sets the explicit content filter level of the guild.
 
@@ -1108,14 +1108,14 @@ class Guild(DictSerializerMixin):
         """
         return await self.modify(explicit_content_filter=explicit_content_filter, reason=reason)
 
-    async def set_afk_channel_id(
+    async def set_afk_channel(
         self,
         afk_channel_id: int,
         *,
         reason: Optional[str],
-    ):
+    ) -> "Guild":
         """
-        Sets the afk channel id of the guild.
+        Sets the afk channel of the guild.
 
         :param afk_channel_id: The new name of the guild
         :type afk_channel_id: int
@@ -1129,7 +1129,7 @@ class Guild(DictSerializerMixin):
         afk_timeout: int,
         *,
         reason: Optional[str],
-    ):
+    ) -> "Guild":
         """
         Sets the afk timeout of the guild.
 
@@ -1140,14 +1140,14 @@ class Guild(DictSerializerMixin):
         """
         return await self.modify(afk_timeout=afk_timeout, reason=reason)
 
-    async def system_channel_id(
+    async def set_system_channel(
         self,
         system_channel_id: int,
         *,
         reason: Optional[str],
-    ):
+    ) -> "Guild":
         """
-        Sets the system channel id of the guild.
+        Sets the system channel of the guild.
 
         :param system_channel_id: The new system channel id of the guild
         :type system_channel_id: int
@@ -1155,6 +1155,88 @@ class Guild(DictSerializerMixin):
         :type reason: Optional[str]
         """
         return await self.modify(system_channel_id=system_channel_id, reason=reason)
+
+    async def set_rules_channel(
+        self,
+        rules_channel_id: int,
+        *,
+        reason: Optional[str],
+    ) -> "Guild":
+        """
+        Sets the rules channel of the guild.
+
+        :param rules_channel_id: The new rules channel id of the guild
+        :type rules_channel_id: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(rules_channel_id=rules_channel_id, reason=reason)
+
+    async def set_public_updates_channel(
+        self,
+        public_updates_channel_id: int,
+        *,
+        reason: Optional[str],
+    ) -> "Guild":
+        """
+        Sets the public updates channel of the guild.
+
+        :param public_updates_channel_id: The new public updates channel id of the guild
+        :type public_updates_channel_id: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(public_updates_channel_id=public_updates_channel_id, reason=reason)
+
+    async def set_preferred_locale(
+        self,
+        preferred_locale: str,
+        *,
+        reason: Optional[str],
+    ) -> "Guild":
+        """
+        Sets the preferred locale of the guild.
+
+        :param preferred_locale: The new preferredlocale of the guild
+        :type preferred_locale: str
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(preferred_locale=preferred_locale, reason=reason)
+
+    async def set_description(
+        self,
+        description: str,
+        *,
+        reason: Optional[str],
+    ) -> "Guild":
+        """
+        Sets the description of the guild.
+
+        :param description: The new description of the guild
+        :type description: str
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(description=description, reason=reason)
+
+    async def set_premium_progress_bar_enabled(
+        self,
+        premium_progress_bar_enabled: bool,
+        *,
+        reason: Optional[str],
+    ) -> "Guild":
+        """
+        Sets the visibility of the premium progress bar of the guild.
+
+        :param premium_progress_bar_enabled: Whether the bar is enabled or not
+        :type premium_progress_bar_enabled: bool
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(
+            premium_progress_bar_enabled=premium_progress_bar_enabled, reason=reason
+        )
 
     async def create_scheduled_event(
         self,
