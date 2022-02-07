@@ -32,7 +32,7 @@ class Role(DictSerializerMixin):
         role_ids: Optional[Union[int, List[int]]] = None,
         *,
         cache: Optional[bool] = True,
-        http: "HTTPClient"
+        http: "HTTPClient",
     ) -> "Role": ...
     @property
     def mention(self) -> str: ...

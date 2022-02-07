@@ -74,7 +74,7 @@ class Role(DictSerializerMixin):
         role_ids: Optional[Union[int, List[int]]] = None,
         *,
         cache: Optional[bool] = True,
-        http: "HTTPClient"
+        http: "HTTPClient",
     ) -> "Role":
         """
         Fetches a role or roles from the cache or the Discord API.
