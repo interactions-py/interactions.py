@@ -217,17 +217,12 @@ class CommandContext(Context):
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
-            _embeds = self.message.embeds
-        else:
-            _embeds: list = (
-                []
-                if not embeds or embeds is MISSING
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
+            embeds = self.message.embeds
+        _embeds: list = (
+            []
+            if not embeds or embeds is MISSING
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
 
         _components: List[dict] = [{"type": 1, "components": []}]
@@ -334,7 +329,10 @@ class CommandContext(Context):
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
-            _components = self.message.components
+            if isinstance(self.message.components, list):
+                _components = [component._json for component in self.message.components]
+            else:
+                _components = [self.message.components._json]
 
         else:
             _components = []
@@ -448,17 +446,16 @@ class CommandContext(Context):
 
         if self.message.embeds is not None or embeds is not MISSING:
             if embeds is MISSING:
-                _embeds = self.message.embeds
-            else:
-                _embeds: list = (
-                    []
-                    if not embeds
-                    else (
-                        [embed._json for embed in embeds]
-                        if isinstance(embeds, list)
-                        else [embeds._json]
-                    )
+                embeds = self.message.embeds
+            _embeds: list = (
+                []
+                if not embeds
+                else (
+                    [embed._json for embed in embeds]
+                    if isinstance(embeds, list)
+                    else [embeds._json]
                 )
+            )
             payload["embeds"] = _embeds
 
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
@@ -468,9 +465,11 @@ class CommandContext(Context):
         payload["message_reference"] = _message_reference
 
         if self.message.components is not None or components is not MISSING:
-
             if components is MISSING:
-                _components = self.message.components
+                if isinstance(self.message.components, list):
+                    _components = [component._json for component in self.message.components]
+                else:
+                    _components = [self.message.components._json]
             elif not components:
                 _components = []
             else:
