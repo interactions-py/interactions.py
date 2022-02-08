@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-from interactions.api.models.channel import Channel, ThreadMember
-from interactions.api.models.presence import PresenceActivity
-from interactions.models.command import Permission
-
+from ...models.command import Permission
+from ...models.component import ActionRow, Button, SelectMenu
+from .channel import Channel, ThreadMember
 from .member import Member
-from .message import Emoji, Sticker
+from .message import Embed, Emoji, Message, MessageInteraction, Sticker
 from .misc import MISSING, ClientStatus, DictSerializerMixin, Snowflake
+from .presence import PresenceActivity
 from .role import Role
 from .user import User
 
@@ -336,19 +336,19 @@ class GuildMember(DictSerializerMixin):
         *,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
-    ):
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+    ) -> Message:
         """
         Sends a DM to the member.
 
@@ -367,8 +367,6 @@ class GuildMember(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...models.component import ActionRow, Button, SelectMenu
-        from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -499,7 +497,6 @@ class GuildMember(DictSerializerMixin):
 
     async def modify(
         self,
-        guild_id: int,
         nick: Optional[str] = MISSING,
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
@@ -507,12 +504,10 @@ class GuildMember(DictSerializerMixin):
         channel_id: Optional[int] = MISSING,
         communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Member":
+    ) -> "GuildMember":
         """
         Modifies the member of a guild.
 
-        :param guild_id: The id of the guild to modify the member on
-        :type guild_id: int
         :param nick?: The nickname of the member
         :type nick: Optional[str]
         :param roles?: A list of all role ids the member has
@@ -553,11 +548,11 @@ class GuildMember(DictSerializerMixin):
 
         res = await self._client.modify_member(
             user_id=int(self.user.id),
-            guild_id=guild_id,
+            guild_id=int(self.guild_id),
             payload=payload,
             reason=reason,
         )
-        return Member(**res, _client=self._client)
+        return GuildMember(**res, _client=self._client, guild_id=self.guild_id)
 
     async def add_to_thread(
         self,
@@ -605,7 +600,9 @@ class GuildMembers(DictSerializerMixin):
         super().__init__(**kwargs)
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.members = (
-            [Member(**member) for member in self.members] if self._json.get("members") else None
+            [GuildMember(**member, guild_id=self.guild_id) for member in self.members]
+            if self._json.get("members")
+            else None
         )
         self.presences = (
             [PresenceActivity(**presence) for presence in self.presences]
