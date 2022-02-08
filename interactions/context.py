@@ -439,15 +439,15 @@ class CommandContext(Context):
 
         payload = {}
 
-        if self.message.content is not None:
+        if self.message.content is not None or content is not MISSING:
             _content: str = self.message.content if content is MISSING else content
             payload["content"] = _content
         _tts: bool = False if tts is MISSING else tts
         payload["tts"] = _tts
         # _file = None if file is None else file
 
-        if self.message.embeds is not None:
-            if embeds is MISSING and self.message.embeds is not None:
+        if self.message.embeds is not None or embeds is not MISSING:
+            if embeds is MISSING:
                 _embeds = self.message.embeds
             else:
                 _embeds: list = (
@@ -467,7 +467,7 @@ class CommandContext(Context):
         payload["allowed_mnentions"] = _allowed_mentions
         payload["message_reference"] = _message_reference
 
-        if self.message.components is not None:
+        if self.message.components is not None or components is not MISSING:
 
             if components is MISSING:
                 _components = self.message.components
