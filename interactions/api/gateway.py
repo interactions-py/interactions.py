@@ -295,7 +295,9 @@ class WebSocket:
                         __import__(path),
                         _name,
                     )
-                    if "_create" in event.lower() or "_add" in event.lower():
+                    if any(
+                        name in event.lower() for name in ("_create", "_add", "_update", "_join")
+                    ):
                         data["_client"] = self.http
                     self.dispatch.dispatch(f"on_{name}", obj(**data))  # noqa
                 except AttributeError as error:  # noqa
