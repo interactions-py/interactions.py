@@ -626,7 +626,7 @@ class Client:
 
         return decorator
 
-    def modal(self, modal: Modal) -> Callable[..., Any]:
+    def modal(self, modal: Union[Modal, str]) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving modals.
@@ -654,14 +654,15 @@ class Client:
         The context of the modal callback decorator inherits the same
         as of the component decorator.
 
-        :param modal: The modal you wish to callback for.
-        :type modal: Modal
+        :param modal: The modal or custom_id of modal you wish to callback for.
+        :type modal: Union[Modal, str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
 
         def decorator(coro: Coroutine) -> Any:
-            return self.event(coro, name=f"modal_{modal.custom_id}")
+            payload: str = modal.custom_id if isinstance(modal, Modal) else modal
+            return self.event(coro, name=f"modal_{payload}")
 
         return decorator
 
