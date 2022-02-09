@@ -238,7 +238,7 @@ your ``@command`` decorator:
         await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
 
-.. important:: 
+.. important::
     The structure of a menu command differs significantly from that of a regular one:
 
 
