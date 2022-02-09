@@ -237,7 +237,10 @@ your ``@command`` decorator:
     async def test(ctx):
         await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
-.. important:: The structure of a menu command differs significantly from that of a regular one:
+
+.. important:: 
+    The structure of a menu command differs significantly from that of a regular one:
+
 
     - You cannot have any options or choices.
     - You cannot have a description.
