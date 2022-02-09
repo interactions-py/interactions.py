@@ -78,12 +78,12 @@ class Member(DictSerializerMixin):
 
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
-    
+
     @property
     def id(self) -> Snowflake:
         """
         Returns the ID of the user.
-        
+
         :return: The ID of the user
         :rtype: Snowflake
         """
