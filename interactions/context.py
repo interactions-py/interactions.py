@@ -614,7 +614,7 @@ class CommandContext(ContextMixin):
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},
         )
 
-    async def send(self, content: str = MISSING, **kwargs):
+    async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
 
         if not self.deferred:
@@ -784,7 +784,7 @@ class ComponentContext(ContextMixin):
 
         return payload
 
-    async def send(self, content: str = MISSING, **kwargs):
+    async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
 
         if not self.deferred:
@@ -858,11 +858,11 @@ class ComponentContext(ContextMixin):
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},
         )
     @property
-    def custom_id(self):
+    def custom_id(self) -> Optional[str]:
         return self.data.custom_id
 
     @property
-    def label(self):
+    def label(self) -> Optional[str]:
         for action_row in self.message.components:
             for component in action_row["components"]:
                 if component["custom_id"] == self.custom_id and component["type"] == 2:
