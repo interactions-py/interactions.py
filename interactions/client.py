@@ -605,12 +605,12 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj = self.http.cache.interactions.get(command)
+            _command_obj = self._http.cache.interactions.get(command)
             if not _command_obj:
                 _sync_task = ensure_future(self.synchronize(), loop=self.loop)
                 while not _sync_task.done():
                     pass  # wait for sync to finish
-                _command_obj = self.http.cache.interactions.get(command)
+                _command_obj = self._http.cache.interactions.get(command)
                 if not _command_obj:
                     raise InteractionException(6, message="The command does not exist")
             _command: Union[Snowflake, int] = int(_command_obj.id)
