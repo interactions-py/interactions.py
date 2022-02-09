@@ -97,9 +97,7 @@ class Member(DictSerializerMixin):
         :return: The string of the mentioned member.
         :rtype: str
         """
-        if self.nick:
-            return f"<@!{self.user.id}>"
-        return f"<@{self.user.id}>"
+        return f"<@!{self.user.id}>" if self.nick else f"<@{self.user.id}>"
 
     async def ban(
         self,
