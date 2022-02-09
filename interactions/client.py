@@ -1,5 +1,5 @@
 import sys
-from asyncio import ensure_future, get_event_loop, iscoroutinefunction
+from asyncio import get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -20,7 +20,7 @@ from .api.models.team import Application
 from .base import get_logger
 from .decor import command
 from .decor import component as _component
-from .enums import ApplicationCommandType
+from .enums import ApplicationCommandType, OptionType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -81,6 +81,7 @@ class Client:
         self._presence = kwargs.get("presence")
         self._token = token
         self._extensions = {}
+        self._scopes = set([])
         self.me = None
         _token = self._token  # noqa: F841
         _cache = self._http.cache  # noqa: F841
@@ -380,6 +381,22 @@ class Client:
             if name is MISSING:
                 raise InteractionException(11, message="Your command must have a name.")
 
+            elif len(name) > 32:
+                raise InteractionException(
+                    11, message="Command names must be less than 32 characters."
+                )
+            elif len(description) > 100:
+                raise InteractionException(
+                    11, message="Command descriptions must be less than 100 characters."
+                )
+
+            for _ in name:
+                if _.isupper():
+                    raise InteractionException(
+                        11,
+                        message="Your command name must not contain uppercase characters (Discord limitation)",
+                    )
+
             if type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
                 raise InteractionException(
                     11, message="Chat-input commands must have a description."
@@ -389,11 +406,43 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            if options is not MISSING and len(coro.__code__.co_varnames) + 1 < len(options):
-                raise InteractionException(
-                    11,
-                    message="You must have the same amount of arguments as the options of the command.",
-                )
+            if options is not MISSING:
+                if len(coro.__code__.co_varnames) + 1 < len(options):
+                    raise InteractionException(
+                        11,
+                        message="You must have the same amount of arguments as the options of the command.",
+                    )
+                if isinstance(options, List) and len(options) > 25:
+                    raise InteractionException(
+                        11, message="Your command must have less than 25 options."
+                    )
+                _option: Option
+                for _option in options:
+                    if _option.type not in (
+                        OptionType.SUB_COMMAND,
+                        OptionType.SUB_COMMAND_GROUP,
+                    ):
+                        if getattr(_option, "autocomplete", False) and getattr(
+                            _option, "choices", False
+                        ):
+                            log.warning(
+                                "Autocomplete may not be set to true if choices are present."
+                            )
+                        if not getattr(_option, "description", False):
+                            raise InteractionException(
+                                11,
+                                message="A description is required for Options that are not sub-commands.",
+                            )
+                        if len(_option.description) > 100:
+                            raise InteractionException(
+                                11,
+                                message="Command option descriptions must be less than 100 characters.",
+                            )
+
+                    if len(_option.name) > 32:
+                        raise InteractionException(
+                            11, message="Command option names must be less than 32 characters."
+                        )
 
             commands: List[ApplicationCommand] = command(
                 type=type,
@@ -412,6 +461,12 @@ class Client:
                         self._loop.run_until_complete(self._synchronize(command))
                         for command in commands
                     ]
+
+            if scope:
+                if isinstance(scope, List):
+                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
+                else:
+                    self._scopes.add(scope if isinstance(scope, int) else scope.id)
 
             return self.event(coro, name=f"command_{name}")
 
@@ -579,8 +634,36 @@ class Client:
 
         return decorator
 
+    @staticmethod
+    def _find_command(commands: List[Dict], command: str) -> ApplicationCommand:
+        """
+        Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
+
+        :ivar commands: The list of dicts to iterate through
+        :type commands: List[Dict]
+        :ivar command: The name of the command to match:
+        :type command: str
+        :return: An ApplicationCommand model
+        :rtype: ApplicationCommand
+        """
+        _command: Dict
+        for _command in commands:
+            if _command["name"] == command:
+                _command_obj = ApplicationCommand(**_command)
+                break
+        else:
+            _command_obj = None
+        if not _command_obj or (hasattr(_command_obj, "id") and not _command_obj.id):
+            raise InteractionException(
+                6,
+                message="The command does not exist. Make sure to define"
+                + " your autocomplete callback after your commands",
+            )
+        else:
+            return _command_obj
+
     def autocomplete(
-        self, name: str, command: Union[ApplicationCommand, int, str, Snowflake]
+        self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
     ) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
@@ -590,14 +673,18 @@ class Client:
 
         .. code-block:: python
 
-            @autocomplete("option_name")
+            @autocomplete(command="command_name", name="option_name")
             async def autocomplete_choice_list(ctx, user_input: str = ""):
-                await ctx.populate([...])
+                await ctx.populate([
+                    interactions.Choice(...),
+                    interactions.Choice(...),
+                    ...
+                ])
 
-        :param name: The name of the option to autocomplete.
-        :type name: str
         :param command: The command, command ID, or command name with the option.
         :type command: Union[ApplicationCommand, int, str, Snowflake]
+        :param name: The name of the option to autocomplete.
+        :type name: str
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -605,14 +692,26 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj = self.http.cache.interactions.get(command)
-            if not _command_obj:
-                _sync_task = ensure_future(self.synchronize(), loop=self.loop)
-                while not _sync_task.done():
-                    pass  # wait for sync to finish
-                _command_obj = self.http.cache.interactions.get(command)
-                if not _command_obj:
-                    raise InteractionException(6, message="The command does not exist")
+            _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
+            if not _command_obj or not _command_obj.id:
+                if getattr(_command_obj, "guild_id", None) or self._automate_sync:
+                    _application_commands = self._loop.run_until_complete(
+                        self._http.get_application_commands(
+                            application_id=self.me.id,
+                            guild_id=None
+                            if not hasattr(_command_obj, "guild_id")
+                            else _command_obj.guild_id,
+                        )
+                    )
+                    _command_obj = self._find_command(_application_commands, command)
+                else:
+                    for _scope in self._scopes:
+                        _application_commands = self._loop.run_until_complete(
+                            self._http.get_application_commands(
+                                application_id=self.me.id, guild_id=_scope
+                            )
+                        )
+                        _command_obj = self._find_command(_application_commands, command)
             _command: Union[Snowflake, int] = int(_command_obj.id)
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
@@ -626,7 +725,7 @@ class Client:
 
         return decorator
 
-    def modal(self, modal: Modal) -> Callable[..., Any]:
+    def modal(self, modal: Union[Modal, str]) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving modals.
@@ -654,14 +753,15 @@ class Client:
         The context of the modal callback decorator inherits the same
         as of the component decorator.
 
-        :param modal: The modal you wish to callback for.
-        :type modal: Modal
+        :param modal: The modal or custom_id of modal you wish to callback for.
+        :type modal: Union[Modal, str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
 
         def decorator(coro: Coroutine) -> Any:
-            return self.event(coro, name=f"modal_{modal.custom_id}")
+            payload: str = modal.custom_id if isinstance(modal, Modal) else modal
+            return self.event(coro, name=f"modal_{payload}")
 
         return decorator
 

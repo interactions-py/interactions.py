@@ -36,6 +36,7 @@ class Attachment(DictSerializerMixin):
     proxy_url: str
     height: Optional[int]
     width: Optional[int]
+    ephemeral: Optional[bool]
     def __init__(self, **kwargs): ...
 
 class MessageInteraction(DictSerializerMixin):
