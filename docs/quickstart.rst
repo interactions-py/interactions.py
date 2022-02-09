@@ -287,8 +287,8 @@ What kinds of components are there?
 
 As a bot developer, this may be fairly important for you to want to know.
 Different components provide difference user experiences, interactions
-and results. Currently you can choose between two components that Discord
-provides: a ``Button`` and ``SelectMenu``. You're able to `find these component
+and results. Currently you can choose between three components that Discord
+provides: a ``Button``, ``SelectMenu`` and ``TextInput``. You're able to `find these component
 types`_ here.
 
 How do I send components in a row?
@@ -325,6 +325,18 @@ By default, the ``components`` keyword-argument field in the context sending
 method will always support ``ActionRow``-less sending: you only need to declare
 rows whenever you need or want to. This field will also support raw arrays and
 tables, if you so wish to choose to not use our class objects instead.
+
+.. important:: You cannot use ``TextInput`` with the above shown method.
+    Look :ref:`here <quickstart:Creating a TextInput>` how to create and send them.
+
+
+Creating a TextInput
+^^^^^^^^^^^^^^^^^^^^
+
+
+Modals
+******
+
 
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
