@@ -339,8 +339,12 @@ class WebSocket:
                         if hasattr(context.data, "components"):
                             if context.data.components:
                                 for component in context.data.components:
-                                    for _value in component.components:
-                                        _args.append(_value["value"])
+                                    if hasattr(component, "components"):
+                                        for _value in component.components:
+                                            _args.append(_value["value"])
+                                    else:
+                                        for value in component["components"]:
+                                            _args.append(value["value"])
 
                     self.dispatch.dispatch(_name, *_args, **_kwargs)
 

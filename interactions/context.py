@@ -160,7 +160,10 @@ class CommandContext(Context):
         _ephemeral: int = (1 << 6) if ephemeral else 0
         if self.type == InteractionType.MESSAGE_COMPONENT:
             self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        elif self.type == InteractionType.APPLICATION_COMMAND:
+        elif (
+            self.type == InteractionType.APPLICATION_COMMAND
+            or self.type == InteractionType.MODAL_SUBMIT
+        ):
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
@@ -344,6 +347,7 @@ class CommandContext(Context):
             self.callback = (
                 InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
                 if self.type == InteractionType.APPLICATION_COMMAND
+                or self.type == InteractionType.MODAL_SUBMIT
                 else InteractionCallbackType.UPDATE_MESSAGE
             )
 
@@ -375,6 +379,7 @@ class CommandContext(Context):
             ):
                 if (
                     self.type == InteractionType.APPLICATION_COMMAND
+                    or self.type == InteractionType.MODAL_SUBMIT
                     and self.deferred
                     or self.type == InteractionType.MESSAGE_COMPONENT
                     and self.deferred
@@ -729,6 +734,7 @@ class CommandContext(Context):
             application_id=int(self.id),
             data=payload,
         )
+        self.responded = True
 
     async def get_channel(self) -> Channel:
         """
