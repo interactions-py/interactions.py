@@ -1,18 +1,29 @@
-from typing import Any, Dict, List, Optional, Union
+from logging import Logger
+from typing import Any, List, Optional, Union
 
-from .api.http import HTTPClient
-from .api.models.channel import Channel
-from .api.models.guild import Guild
-from .api.models.member import Member
-from .api.models.message import Embed, Message, MessageInteraction, MessageReference
-from .api.models.misc import DictSerializerMixin, Snowflake, MISSING
-from .api.models.user import User
-from .enums import ComponentType, InteractionCallbackType, InteractionType
-from .models.command import Choice
-from .models.component import ActionRow, Button, Component, Modal, SelectMenu
-from .models.misc import InteractionData
+from .api import HTTPClient
+from .api.models.channel import Channel as Channel
+from .api.models.guild import Guild as Guild
+from .api.models.member import Member as Member
+from .api.models.message import Embed as Embed
+from .api.models.message import Message as Message
+from .api.models.message import MessageInteraction as MessageInteraction
+from .api.models.message import MessageReference as MessageReference
+from .api.models.misc import MISSING as MISSING
+from .api.models.misc import DictSerializerMixin as DictSerializerMixin
+from .api.models.misc import Snowflake as Snowflake
+from .api.models.user import User as User
+from .base import get_logger as get_logger
+from .enums import InteractionCallbackType as InteractionCallbackType
+from .enums import InteractionType as InteractionType
+from .models.command import Choice as Choice
+from .models.component import ActionRow as ActionRow
+from .models.component import Button as Button
+from .models.component import Modal as Modal
+from .models.component import SelectMenu as SelectMenu
+from .models.misc import InteractionData as InteractionData
 
-class Context(DictSerializerMixin):
+class ContextMixin(DictSerializerMixin):
     message: Optional[Message]
     author: Member
     member: Member
@@ -20,58 +31,59 @@ class Context(DictSerializerMixin):
     channel: Optional[Channel]
     guild: Optional[Guild]
     client: HTTPClient
-    def __init__(self, **kwargs) -> None: ...
-
-class CommandContext(Context):
     id: Snowflake
     application_id: Snowflake
     type: InteractionType
     callback: Optional[InteractionCallbackType]
     data: InteractionData
-    target: Optional[Union[Message, Member, User]]
     version: int
     token: str
     guild_id: Snowflake
     channel_id: Snowflake
     responded: bool
     deferred: bool
-    locale: str
-    guild_locale: str
     def __init__(self, **kwargs) -> None: ...
-    async def defer(self, ephemeral: Optional[bool] = None) -> None: ...
+    async def get_channel(self) -> Channel: ...
+    async def get_guild(self) -> Guild: ...
     async def send(
         self,
-        content: Optional[str] = MISSING,
+        content: Optional[str] = ...,
         *,
-        tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        tts: Optional[bool] = ...,
+        embeds: Optional[Union[Embed, List[Embed]]] = ...,
+        allowed_mentions: Optional[MessageInteraction] = ...,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
-        ] = MISSING,
-        ephemeral: Optional[bool] = MISSING,
+        ] = ...,
+        ephemeral: Optional[bool] = ...
     ) -> Message: ...
     async def edit(
         self,
-        content: Optional[str] = MISSING,
+        content: Optional[str] = ...,
         *,
-        tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        tts: Optional[bool] = ...,
+        embeds: Optional[Union[Embed, List[Embed]]] = ...,
+        allowed_mentions: Optional[MessageInteraction] = ...,
+        message_reference: Optional[MessageReference] = ...,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
-        ] = MISSING,
+        ] = ...
     ) -> Message: ...
-    async def delete(self) -> None: ...
-    async def popup(self, modal: Modal): ...
-    async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]: ...
-    async def get_channel(self) -> Channel: ...
-    async def get_guild(self) -> Guild: ...
+    async def popup(self, modal: Modal) -> None: ...
 
-class ComponentContext(CommandContext):
+class CommandContext(ContextMixin):
+    target: Optional[Union[Message, Member, User]]
     def __init__(self, **kwargs) -> None: ...
-    def defer(
-        self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
+    async def edit(self, content: Optional[str] = ..., **kwargs) -> Message: ...
+    async def defer(self, ephemeral: Optional[bool] = ...) -> None: ...
+    async def send(self, content: str = ..., **kwargs): ...
+    async def delete(self) -> None: ...
+    async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]: ...
+
+class ComponentContext(ContextMixin):
+    def __init__(self, **kwargs) -> None: ...
+    async def edit(self, content: Optional[str] = ..., **kwargs) -> Message: ...
+    async def send(self, content: str = ..., **kwargs): ...
+    async def defer(
+        self, ephemeral: Optional[bool] = ..., edit_origin: Optional[bool] = ...
     ) -> None: ...
