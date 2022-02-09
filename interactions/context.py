@@ -268,9 +268,7 @@ class ContextMixin(DictSerializerMixin):
                     else []
                 )
 
-        elif (self.message
-            and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        ):
+        elif self.message and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
             if isinstance(self.message.components, list):
                 _components = [component._json for component in self.message.components]
             else:
@@ -293,7 +291,6 @@ class ContextMixin(DictSerializerMixin):
             flags=_ephemeral,
         )
         payload._client = self.client
-
 
     async def edit(
         self,
@@ -857,6 +854,7 @@ class ComponentContext(ContextMixin):
             application_id=int(self.id),
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},
         )
+
     @property
     def custom_id(self) -> Optional[str]:
         return self.data.custom_id
