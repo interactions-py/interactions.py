@@ -648,7 +648,7 @@ class Client:
             if not _command_obj or not _command_obj.id:
                 if getattr(_command_obj, "guild_id", None) or self._automate_sync:
                     _application_commands = self._loop.run_until_complete(
-                        self._http.get_application_command(
+                        self._http.get_application_commands(
                             application_id=self.me.id,
                             guild_id=None
                             if not hasattr(_command_obj, "guild_id")
@@ -659,7 +659,7 @@ class Client:
                 else:
                     for _scope in self._scopes:
                         _application_commands = self._loop.run_until_complete(
-                            self._http.get_application_command(
+                            self._http.get_application_commands(
                                 application_id=self.me.id, guild_id=_scope
                             )
                         )
