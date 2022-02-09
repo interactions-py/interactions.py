@@ -36,7 +36,8 @@ Click on ``Add Bot`` and then on ``Yes, do it!``.
 
 And that's it! You created your Bot!
 
-.. warning:: You will see a field called ``TOKEN``. This is the access token, used to run your bot.
+.. warning::
+    You will see a field called ``TOKEN``. This is the access token, used to run your bot.
     You will need this later to start your Bot.
 
     **Do NOT give this to other persons! They can get full control over your Bot with your token and execute what they want!**
