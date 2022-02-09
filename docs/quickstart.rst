@@ -170,7 +170,7 @@ Next, let's create an Option
 .. note:: The limit for options per command is 25.
 
 Do you want to create subcommands? Here's how to do it:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
