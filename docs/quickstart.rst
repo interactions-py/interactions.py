@@ -167,7 +167,8 @@ Next, let's create an Option
     bot.start()
 
 
-.. note:: The limit for options per command is 25.
+.. note::
+    The limit for options per command is 25.
 
 Do you want to create subcommands? Here's how to do it:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
