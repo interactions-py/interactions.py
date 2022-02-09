@@ -125,16 +125,17 @@ class Base:
         """
         return self.__objects
 
-    def build(self) -> None:
-        """Builds the base 3rd party the same way as ``setup`` from ``setuptools``."""
-        setup(
-            name=self.name,
-            version=str(self.version),
-            description=self.description,
-            long_description="" if self.long_description is None else self.long_description,
-            author=self.version.author,
-            author_email=self.version.author.email,
-            url=self.link,
-            packages=[] if self._dependencies is None else self._dependencies,
-            install_requires=[] if self._requirements is None else self._requirements,
-        )
+
+def build(base: Base) -> None:
+    """Builds the base 3rd party the same way as ``setup`` from ``setuptools``."""
+    setup(
+        name=base.name,
+        version=str(base.version),
+        description=base.description,
+        long_description="" if base.long_description is None else base.long_description,
+        author=base.version.author,
+        author_email=base.version.author.email,
+        url=base.link,
+        packages=[] if base._dependencies is None else base._dependencies,
+        install_requires=[] if base._requirements is None else base._requirements,
+    )
