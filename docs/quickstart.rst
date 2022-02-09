@@ -179,7 +179,7 @@ Nested commands: subcommands
         name="base_command",
         description="This description isn't seen in UI (yet?)",
         scope=guild_id,
-        options= [
+        options=[
             interactions.Option(
                 name="command_name",
                 description="A descriptive description",
