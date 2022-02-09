@@ -16,6 +16,6 @@ jobs:
           key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.8"]
         os: [macOS-latest, ubuntu-latest, windows-latest]
 on: [pull_request, push]
