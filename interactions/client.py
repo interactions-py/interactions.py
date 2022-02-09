@@ -20,7 +20,7 @@ from .api.models.team import Application
 from .base import get_logger
 from .decor import command
 from .decor import component as _component
-from .enums import ApplicationCommandType
+from .enums import ApplicationCommandType, OptionType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -380,6 +380,22 @@ class Client:
             if name is MISSING:
                 raise InteractionException(11, message="Your command must have a name.")
 
+            elif len(name) > 32:
+                raise InteractionException(
+                    11, message="Command names must be less than 32 characters."
+                )
+            elif len(description) > 100:
+                raise InteractionException(
+                    11, message="Command descriptions must be less than 100 characters."
+                )
+
+            for _ in name:
+                if _.isupper():
+                    raise InteractionException(
+                        11,
+                        message="Your command name must not contain uppercase characters (Discord limitation)",
+                    )
+
             if type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
                 raise InteractionException(
                     11, message="Chat-input commands must have a description."
@@ -389,11 +405,43 @@ class Client:
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
-            if options is not MISSING and len(coro.__code__.co_varnames) + 1 < len(options):
-                raise InteractionException(
-                    11,
-                    message="You must have the same amount of arguments as the options of the command.",
-                )
+            if options is not MISSING:
+                if len(coro.__code__.co_varnames) + 1 < len(options):
+                    raise InteractionException(
+                        11,
+                        message="You must have the same amount of arguments as the options of the command.",
+                    )
+                if isinstance(options, List) and len(options) > 25:
+                    raise InteractionException(
+                        11, message="Your command must have less than 25 options."
+                    )
+                _option: Option
+                for _option in options:
+                    if _option.type not in (
+                        OptionType.SUB_COMMAND,
+                        OptionType.SUB_COMMAND_GROUP,
+                    ):
+                        if getattr(_option, "autocomplete", False) and getattr(
+                            _option, "choices", False
+                        ):
+                            log.warning(
+                                "Autocomplete may not be set to true if choices are present."
+                            )
+                        if not getattr(_option, "description", False):
+                            raise InteractionException(
+                                11,
+                                message="A description is required for Options that are not sub-commands.",
+                            )
+                        if len(_option.description) > 100:
+                            raise InteractionException(
+                                11,
+                                message="Command option descriptions must be less than 100 characters.",
+                            )
+
+                    if len(_option.name) > 32:
+                        raise InteractionException(
+                            11, message="Command option names must be less than 32 characters."
+                        )
 
             commands: List[ApplicationCommand] = command(
                 type=type,
