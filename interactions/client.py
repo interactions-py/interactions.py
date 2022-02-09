@@ -1,5 +1,5 @@
 import sys
-from asyncio import ensure_future, get_event_loop, iscoroutinefunction
+from asyncio import get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -81,6 +81,7 @@ class Client:
         self._presence = kwargs.get("presence")
         self._token = token
         self._extensions = {}
+        self._scopes = set([])
         self.me = None
         _token = self._token  # noqa: F841
         _cache = self._http.cache  # noqa: F841
@@ -461,6 +462,12 @@ class Client:
                         for command in commands
                     ]
 
+            if scope:
+                if isinstance(scope, List):
+                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
+                else:
+                    self._scopes.add(scope if isinstance(scope, int) else scope.id)
+
             return self.event(coro, name=f"command_{name}")
 
         return decorator
@@ -627,8 +634,36 @@ class Client:
 
         return decorator
 
+    @staticmethod
+    def _find_command(commands: List[Dict], command: str) -> ApplicationCommand:
+        """
+        Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
+
+        :ivar commands: The list of dicts to iterate through
+        :type commands: List[Dict]
+        :ivar command: The name of the command to match:
+        :type command: str
+        :return: An ApplicationCommand model
+        :rtype: ApplicationCommand
+        """
+        _command: Dict
+        for _command in commands:
+            if _command["name"] == command:
+                _command_obj = ApplicationCommand(**_command)
+                break
+        else:
+            _command_obj = None
+        if not _command_obj or (hasattr(_command_obj, "id") and not _command_obj.id):
+            raise InteractionException(
+                6,
+                message="The command does not exist. Make sure to define"
+                + " your autocomplete callback after your commands",
+            )
+        else:
+            return _command_obj
+
     def autocomplete(
-        self, name: str, command: Union[ApplicationCommand, int, str, Snowflake]
+        self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
     ) -> Callable[..., Any]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
@@ -638,14 +673,18 @@ class Client:
 
         .. code-block:: python
 
-            @autocomplete("option_name")
+            @autocomplete(command="command_name", name="option_name")
             async def autocomplete_choice_list(ctx, user_input: str = ""):
-                await ctx.populate([...])
+                await ctx.populate([
+                    interactions.Choice(...),
+                    interactions.Choice(...),
+                    ...
+                ])
 
-        :param name: The name of the option to autocomplete.
-        :type name: str
         :param command: The command, command ID, or command name with the option.
         :type command: Union[ApplicationCommand, int, str, Snowflake]
+        :param name: The name of the option to autocomplete.
+        :type name: str
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -653,14 +692,26 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj = self._http.cache.interactions.get(command)
-            if not _command_obj:
-                _sync_task = ensure_future(self.synchronize(), loop=self.loop)
-                while not _sync_task.done():
-                    pass  # wait for sync to finish
-                _command_obj = self._http.cache.interactions.get(command)
-                if not _command_obj:
-                    raise InteractionException(6, message="The command does not exist")
+            _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
+            if not _command_obj or not _command_obj.id:
+                if getattr(_command_obj, "guild_id", None) or self._automate_sync:
+                    _application_commands = self._loop.run_until_complete(
+                        self._http.get_application_commands(
+                            application_id=self.me.id,
+                            guild_id=None
+                            if not hasattr(_command_obj, "guild_id")
+                            else _command_obj.guild_id,
+                        )
+                    )
+                    _command_obj = self._find_command(_application_commands, command)
+                else:
+                    for _scope in self._scopes:
+                        _application_commands = self._loop.run_until_complete(
+                            self._http.get_application_commands(
+                                application_id=self.me.id, guild_id=_scope
+                            )
+                        )
+                        _command_obj = self._find_command(_application_commands, command)
             _command: Union[Snowflake, int] = int(_command_obj.id)
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)

@@ -1,6 +1,7 @@
 from logging import Logger
 from typing import List, Optional, Union
 
+from .api import InteractionException
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -693,7 +694,9 @@ class CommandContext(Context):
                 elif isinstance(choices, Choice):
                     _choices = [choices._json]
                 else:
-                    _choices = [choices]
+                    raise InteractionException(
+                        6, message="Autocomplete choice items must be of type Choice"
+                    )
 
                 await self.client.create_interaction_response(
                     token=self.token,
