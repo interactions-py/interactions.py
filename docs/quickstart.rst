@@ -332,11 +332,36 @@ tables, if you so wish to choose to not use our class objects instead.
 
 Creating a TextInput
 ^^^^^^^^^^^^^^^^^^^^
+You want to get a Text from a user? You can use ``TextInput``s for that.
+
+.. code-block:: python
+
+        interactions.TextInput(
+            style=interactions.TextStyleType.SHORT,
+            label="Let's get straight to it: what's 1 + 1?",
+            custom_id="text_input_response",
+            min_length=2,
+            max_length=3,
+        )
+
+But how to send it? You can't use ``ctx.send`` for it. Take a look at :ref:`Modals <quickstart:Modals>` for that.
 
 
 Modals
 ******
+Modals are a new way to interact with a user. Currently only a ``TextInput`` component type is supported. You can have up to three ``TextInput``s in a Modal.
 
+.. code-block:: python
+
+        interactions.Modal(
+            title="Application Form",
+            custom_id="mod_app_form",
+            components=[interactions.TextInput(...)],
+        )
+
+with the ``TextInput`` example from above we get:
+
+.. image::
 
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
