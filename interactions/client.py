@@ -637,7 +637,7 @@ class Client:
     @staticmethod
     def _find_command(commands: List[Dict], command: str) -> ApplicationCommand:
         """
-        Iterates over `commands` and returns an :class: ``ApplicationCommand`` if it matches the name from `command`
+        Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
 
         :ivar commands: The list of dicts to iterate through
         :type commands: List[Dict]
