@@ -21,12 +21,12 @@ from aiohttp import WSMessage
 
 from ..api.models.gw import Presence
 from ..base import get_logger
-from ..models.misc import MISSING
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
 from .http import HTTPClient
 from .models.flags import Intents
+from .models.misc import MISSING
 
 log: Logger = get_logger("gateway")
 
