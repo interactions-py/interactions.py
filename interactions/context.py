@@ -28,8 +28,8 @@ class Context(DictSerializerMixin):
     :ivar Optional[Message] message?: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Channel channel: The channel data model.
-    :ivar Guild guild: The guild data model.
+    :ivar Optional[Channel] channel: The channel data model.
+    :ivar Optional[Guild] guild: The guild data model.
     """
 
     __slots__ = ("message", "member", "author", "user", "channel", "guild", "client")
@@ -45,9 +45,21 @@ class Context(DictSerializerMixin):
         self.author = self.member
         self.user = User(**self.user) if self._json.get("user") else None
 
-        # TODO: The below attributes are always None because they aren't by API return.
-        self.channel = Channel(**self.channel) if self._json.get("channel") else None
-        self.guild = Guild(**self.guild) if self._json.get("guild") else None
+        if guild := self._json.get("guild"):
+            self.guild = Guild(**guild)
+        elif self.guild_id is None:
+            self.guild = None
+        elif guild := self.client.cache.guilds.get(self.guild_id):
+            self.guild = guild
+        else:
+            self.guild = MISSING
+
+        if channel := self._json.get("channel"):
+            self.channel = Channel(**channel)
+        elif channel := self.client.cache.channels.get(self.channel_id):
+            self.channel = channel
+        else:
+            self.channel = MISSING
 
 
 class CommandContext(Context):
@@ -206,17 +218,12 @@ class CommandContext(Context):
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
-            _embeds = self.message.embeds
-        else:
-            _embeds: list = (
-                []
-                if not embeds or embeds is MISSING
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
+            embeds = self.message.embeds
+        _embeds: list = (
+            []
+            if not embeds or embeds is MISSING
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
 
         _components: List[dict] = [{"type": 1, "components": []}]
@@ -323,7 +330,10 @@ class CommandContext(Context):
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
-            _components = self.message.components
+            if isinstance(self.message.components, list):
+                _components = [component._json for component in self.message.components]
+            else:
+                _components = [self.message.components._json]
 
         else:
             _components = []
@@ -425,13 +435,19 @@ class CommandContext(Context):
         :return: The edited message as an object.
         :rtype: Message
         """
-        _content: str = self.message.content if content is MISSING else content
+
+        payload = {}
+
+        if self.message.content is not None or content is not MISSING:
+            _content: str = self.message.content if content is MISSING else content
+            payload["content"] = _content
         _tts: bool = False if tts is MISSING else tts
+        payload["tts"] = _tts
         # _file = None if file is None else file
 
-        if embeds is MISSING:
-            _embeds = self.message.embeds
-        else:
+        if self.message.embeds is not None or embeds is not MISSING:
+            if embeds is MISSING:
+                embeds = self.message.embeds
             _embeds: list = (
                 []
                 if not embeds
@@ -441,71 +457,30 @@ class CommandContext(Context):
                     else [embeds._json]
                 )
             )
+            payload["embeds"] = _embeds
+
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
-        if components is MISSING:
-            _components = self.message.components
-        elif not components:
-            _components = []
-        else:
-            _components: list = [{"type": 1, "components": []}]
-            if (
-                isinstance(components, list)
-                and components
-                and all(isinstance(action_row, ActionRow) for action_row in components)
-            ):
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in action_row.components
-                        ],
-                    }
-                    for action_row in components
-                ]
-            elif (
-                isinstance(components, list)
-                and components
-                and all(isinstance(component, (Button, SelectMenu)) for component in components)
-            ):
-                if isinstance(components[0], SelectMenu):
-                    components[0]._json["options"] = [
-                        option._json for option in components[0].options
-                    ]
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in components
-                        ],
-                    }
-                ]
-            elif (
-                isinstance(components, list)
-                and components
-                and all(isinstance(action_row, (list, ActionRow)) for action_row in components)
-            ):
+        payload["allowed_mnentions"] = _allowed_mentions
+        payload["message_reference"] = _message_reference
+
+        if self.message.components is not None or components is not MISSING:
+            if components is MISSING:
+                if isinstance(self.message.components, list):
+                    _components = [component._json for component in self.message.components]
+                else:
+                    _components = [self.message.components._json]
+            elif not components:
                 _components = []
-                for action_row in components:
-                    for component in (
-                        action_row if isinstance(action_row, list) else action_row.components
-                    ):
-                        if isinstance(component, SelectMenu):
-                            component._json["options"] = [
-                                option._json for option in component.options
-                            ]
-                    _components.append(
+            else:
+                _components: list = [{"type": 1, "components": []}]
+                if (
+                    isinstance(components, list)
+                    and components
+                    and all(isinstance(action_row, ActionRow) for action_row in components)
+                ):
+                    _components = [
                         {
                             "type": 1,
                             "components": [
@@ -515,51 +490,95 @@ class CommandContext(Context):
                                     or component._json.get("url")
                                     else []
                                 )
-                                for component in (
-                                    action_row
-                                    if isinstance(action_row, list)
-                                    else action_row.components
-                                )
+                                for component in action_row.components
                             ],
                         }
-                    )
-            elif isinstance(components, ActionRow):
-                _components[0]["components"] = [
-                    (
-                        component._json
-                        if component._json.get("custom_id") or component._json.get("url")
+                        for action_row in components
+                    ]
+                elif (
+                    isinstance(components, list)
+                    and components
+                    and all(isinstance(component, (Button, SelectMenu)) for component in components)
+                ):
+                    if isinstance(components[0], SelectMenu):
+                        components[0]._json["options"] = [
+                            option._json for option in components[0].options
+                        ]
+                    _components = [
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in components
+                            ],
+                        }
+                    ]
+                elif (
+                    isinstance(components, list)
+                    and components
+                    and all(isinstance(action_row, (list, ActionRow)) for action_row in components)
+                ):
+                    _components = []
+                    for action_row in components:
+                        for component in (
+                            action_row if isinstance(action_row, list) else action_row.components
+                        ):
+                            if isinstance(component, SelectMenu):
+                                component._json["options"] = [
+                                    option._json for option in component.options
+                                ]
+                        _components.append(
+                            {
+                                "type": 1,
+                                "components": [
+                                    (
+                                        component._json
+                                        if component._json.get("custom_id")
+                                        or component._json.get("url")
+                                        else []
+                                    )
+                                    for component in (
+                                        action_row
+                                        if isinstance(action_row, list)
+                                        else action_row.components
+                                    )
+                                ],
+                            }
+                        )
+                elif isinstance(components, ActionRow):
+                    _components[0]["components"] = [
+                        (
+                            component._json
+                            if component._json.get("custom_id") or component._json.get("url")
+                            else []
+                        )
+                        for component in components.components
+                    ]
+                elif isinstance(components, (Button, SelectMenu)):
+                    _components[0]["components"] = (
+                        [components._json]
+                        if components._json.get("custom_id") or components._json.get("url")
                         else []
                     )
-                    for component in components.components
-                ]
-            elif isinstance(components, (Button, SelectMenu)):
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
-            else:
-                _components = []
+                else:
+                    _components = []
 
-        payload: Message = Message(
-            content=_content,
-            tts=_tts,
-            # file=file,
-            embeds=_embeds,
-            allowed_mentions=_allowed_mentions,
-            message_reference=_message_reference,
-            components=_components,
-        )
+            payload["components"] = _components
 
         async def func():
             if not self.deferred and self.type == InteractionType.MESSAGE_COMPONENT:
                 self.callback = InteractionCallbackType.UPDATE_MESSAGE
                 await self.client.create_interaction_response(
-                    data={"type": self.callback.value, "data": payload._json},
+                    data={"type": self.callback.value, "data": payload},
                     token=self.token,
                     application_id=int(self.id),
                 )
-                self.message = payload
+                self.message = Message(**payload, _client=self.client)
                 self.responded = True
             elif self.deferred:
                 if (
@@ -567,7 +586,7 @@ class CommandContext(Context):
                     and self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
                 ):
                     await self.client._post_followup(
-                        data=payload._json,
+                        data=payload,
                         token=self.token,
                         application_id=str(self.application_id),
                     )
@@ -576,7 +595,7 @@ class CommandContext(Context):
                     and self.type == InteractionType.MESSAGE_COMPONENT
                 ):
                     res = await self.client.edit_interaction_response(
-                        data=payload._json,
+                        data=payload,
                         token=self.token,
                         application_id=str(self.application_id),
                     )
@@ -584,14 +603,14 @@ class CommandContext(Context):
                     self.message = Message(**res, _client=self.client)
                 elif hasattr(self.message, "id") and self.message.id is not None:
                     res = await self.client.edit_message(
-                        int(self.channel_id), int(self.message.id), payload=payload._json
+                        int(self.channel_id), int(self.message.id), payload=payload
                     )
                     self.message = Message(**res, _client=self.client)
                 else:
                     res = await self.client.edit_interaction_response(
                         token=self.token,
                         application_id=str(self.id),
-                        data={"type": self.callback.value, "data": payload._json},
+                        data={"type": self.callback.value, "data": payload},
                         message_id=self.message.id if self.message else "@original",
                     )
                     if res["flags"] == 64:
@@ -600,7 +619,7 @@ class CommandContext(Context):
                         self.message._client = self.client
                     else:
                         await self.client.edit_message(
-                            int(self.channel_id), res["id"], payload=payload._json
+                            int(self.channel_id), res["id"], payload=payload
                         )
                         self.message = Message(**res, _client=self.client)
             else:
@@ -771,6 +790,17 @@ class ComponentContext(CommandContext):
         super().__init__(**kwargs)
         self.responded = False  # remind components that it was not responded to.
         self.deferred = False  # remind components they not have been deferred
+
+    @property
+    def custom_id(self):
+        return self.data.custom_id
+
+    @property
+    def label(self):
+        for action_row in self.message.components:
+            for component in action_row["components"]:
+                if component["custom_id"] == self.custom_id and component["type"] == 2:
+                    return component.get("label")
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
