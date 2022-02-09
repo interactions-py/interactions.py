@@ -211,7 +211,8 @@ Do you want to create subcommands? Here's how to do it:
         elif sub_command == "second_command":
           await ctx.send(f"You selected the second_command sub command and put in {second_option}")
 
-.. note:: You can add a SUB_COMMAND_GROUP in between the base and command.
+.. note::
+    You can add a SUB_COMMAND_GROUP in between the base and command.
 
 
 Special type of commands: Context menus
