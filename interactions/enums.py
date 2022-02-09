@@ -71,6 +71,7 @@ class OptionType(IntEnum):
     :ivar ROLE: 8
     :ivar MENTIONABLE: 9
     :ivar NUMBER: 10
+    :ivar ATTACHMENT: 11
     """
 
     SUB_COMMAND = 1
@@ -83,6 +84,7 @@ class OptionType(IntEnum):
     ROLE = 8
     MENTIONABLE = 9
     NUMBER = 10
+    ATTACHMENT = 11
 
 
 class PermissionType(IntEnum):
@@ -91,10 +93,12 @@ class PermissionType(IntEnum):
 
     :ivar ROLE: 1
     :ivar USER: 2
+    :ivar CHANNEL: 3
     """
 
     ROLE = 1
     USER = 2
+    CHANNEL = 3
 
 
 class ComponentType(IntEnum):

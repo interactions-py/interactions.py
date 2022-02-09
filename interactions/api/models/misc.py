@@ -219,3 +219,9 @@ class Format:
             if format == kwarg:
                 new %= format
         return new
+
+
+class MISSING:
+    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
+
+    ...

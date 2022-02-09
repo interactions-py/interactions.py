@@ -5,7 +5,7 @@ from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
-from .api.models.misc import DictSerializerMixin, Snowflake
+from .api.models.misc import DictSerializerMixin, Snowflake, MISSING
 from .api.models.user import User
 from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
@@ -17,8 +17,8 @@ class Context(DictSerializerMixin):
     author: Member
     member: Member
     user: User
-    channel: Channel
-    guild: Guild
+    channel: Optional[Channel]
+    guild: Optional[Guild]
     client: HTTPClient
     def __init__(self, **kwargs) -> None: ...
 
@@ -41,32 +41,34 @@ class CommandContext(Context):
     async def defer(self, ephemeral: Optional[bool] = None) -> None: ...
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
-        ephemeral: Optional[bool] = False,
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = MISSING,
+        ephemeral: Optional[bool] = MISSING,
     ) -> Message: ...
     async def edit(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = MISSING,
     ) -> Message: ...
     async def delete(self) -> None: ...
     async def popup(self, modal: Modal): ...
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]: ...
+    async def get_channel(self) -> Channel: ...
+    async def get_guild(self) -> Guild: ...
 
 class ComponentContext(CommandContext):
     def __init__(self, **kwargs) -> None: ...

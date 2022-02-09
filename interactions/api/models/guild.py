@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -324,6 +324,11 @@ class Guild(DictSerializerMixin):
                     self.members = members
                 else:
                     self.members = [Member(**member, _client=self._client) for member in members]
+        self.roles = (
+            [Role(**role, _client=self._client) for role in self.roles]
+            if self._json.get("roles")
+            else None
+        )
 
     async def ban(
         self,
@@ -396,7 +401,7 @@ class Guild(DictSerializerMixin):
         self,
         role: Union[Role, int],
         member_id: int,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method adds a role to a member.
@@ -429,7 +434,7 @@ class Guild(DictSerializerMixin):
         self,
         role: Union[Role, int],
         member_id: int,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method removes a or multiple role(s) from a member.
@@ -532,9 +537,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.delete_channel(
-            channel_id=channel_id,
-        )
+        await self._client.delete_channel(channel_id=channel_id)
 
     async def delete_role(
         self,
@@ -560,13 +563,13 @@ class Guild(DictSerializerMixin):
     async def modify_role(
         self,
         role_id: int,
-        name: Optional[str] = None,
+        name: Optional[str] = MISSING,
         # permissions,
-        color: Optional[int] = None,
-        hoist: Optional[bool] = None,
+        color: Optional[int] = MISSING,
+        hoist: Optional[bool] = MISSING,
         # icon,
         # unicode_emoji,
-        mentionable: Optional[bool] = None,
+        mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role:
         """
@@ -594,10 +597,10 @@ class Guild(DictSerializerMixin):
             if int(i["id"]) == role_id:
                 role = Role(**i)
                 break
-        _name = role.name if not name else name
-        _color = role.color if not color else color
-        _hoist = role.hoist if not hoist else hoist
-        _mentionable = role.mentionable if mentionable is None else mentionable
+        _name = role.name if name is MISSING else name
+        _color = role.color if color is MISSING else color
+        _hoist = role.hoist if hoist is MISSING else hoist
+        _mentionable = role.mentionable if mentionable is MISSING else mentionable
 
         payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
 
@@ -609,18 +612,73 @@ class Guild(DictSerializerMixin):
         )
         return Role(**res, _client=self._client)
 
+    async def create_thread(
+        self,
+        name: str,
+        channel_id: int,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel:
+        """
+        Creates a thread in the specified channel.
+
+        :param name: The name of the thread
+        :type name: str
+        :param channel_id: The id of the channel to create the thread in
+        :type channel_id: int
+        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param type?: The type of thread, defaults to public. ignored if creating thread from a message
+        :type type: Optional[ChannelType]
+        :param invitable?: Boolean to display if the Thread is open to join or private.
+        :type invitable: Optional[bool]
+        :param message_id?: An optional message to create a thread from.
+        :type message_id: Optional[int]
+        :param reason?: An optional reason for the audit log
+        :type reason: Optional[str]
+        :return: The created thread
+        :rtype: Channel
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        if type not in [
+            ChannelType.GUILD_NEWS_THREAD,
+            ChannelType.GUILD_PUBLIC_THREAD,
+            ChannelType.GUILD_PRIVATE_THREAD,
+        ]:
+            raise AttributeError("type must be a thread type!")
+
+        _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
+        _invitable = None if invitable is MISSING else invitable
+        _message_id = None if message_id is MISSING else message_id
+        res = await self._client.create_thread(
+            channel_id=int(self.id),
+            thread_type=type.value,
+            name=name,
+            auto_archive_duration=_auto_archive_duration,
+            invitable=_invitable,
+            message_id=_message_id,
+            reason=reason,
+        )
+
+        return Channel(**res, _client=self._client)
+
     async def create_channel(
         self,
         name: str,
         type: ChannelType,
-        topic: Optional[str] = None,
-        bitrate: Optional[int] = None,
-        user_limit: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = 0,
-        position: Optional[int] = None,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
         # permission_overwrites,
-        parent_id: Optional[int] = None,
-        nsfw: Optional[bool] = False,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:
         """
@@ -661,22 +719,36 @@ class Guild(DictSerializerMixin):
                 "ChannelType must not be a direct-message when creating Guild Channels!"  # TODO: move to custom error formatter
             )
 
-        payload = Channel(
-            name=name,
-            type=type,
-            topic=topic,
-            bitrate=bitrate,
-            user_limit=user_limit,
-            rate_limit_per_user=rate_limit_per_user,
-            position=position,
-            parent_id=parent_id,
-            nsfw=nsfw,
-        )
+        if type in [
+            ChannelType.GUILD_NEWS_THREAD,
+            ChannelType.GUILD_PUBLIC_THREAD,
+            ChannelType.GUILD_PRIVATE_THREAD,
+        ]:
+            raise ValueError(
+                "Please use `create_thread` for creating threads!"
+            )  # TODO: move to custom error formatter
+
+        payload = {"name": name, "type": type}
+
+        if topic is not MISSING:
+            payload["topic"] = topic
+        if bitrate is not MISSING:
+            payload["bitrate"] = bitrate
+        if user_limit is not MISSING:
+            payload["user_limit"] = user_limit
+        if rate_limit_per_user is not MISSING:
+            payload["rate_limit_per_user"] = rate_limit_per_user
+        if position is not MISSING:
+            payload["position"] = position
+        if parent_id is not MISSING:
+            payload["parent_id"] = parent_id
+        if nsfw is not MISSING:
+            payload["nsfw"] = nsfw
 
         res = await self._client.create_channel(
             guild_id=int(self.id),
             reason=reason,
-            payload=payload._json,
+            payload=payload,
         )
 
         return Channel(**res, _client=self._client)
@@ -684,15 +756,15 @@ class Guild(DictSerializerMixin):
     async def modify_channel(
         self,
         channel_id: int,
-        name: Optional[str] = None,
-        topic: Optional[str] = None,
-        bitrate: Optional[int] = None,
-        user_limit: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = None,
-        position: Optional[int] = None,
+        name: Optional[str] = MISSING,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
         # permission_overwrites,
-        parent_id: Optional[int] = None,
-        nsfw: Optional[bool] = False,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:
         """
@@ -725,16 +797,16 @@ class Guild(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         ch = Channel(**await self._client.get_channel(channel_id=channel_id))
 
-        _name = ch.name if not name else name
-        _topic = ch.topic if not topic else topic
-        _bitrate = ch.bitrate if not bitrate else bitrate
-        _user_limit = ch.user_limit if not user_limit else user_limit
+        _name = ch.name if name is MISSING else name
+        _topic = ch.topic if topic is MISSING else topic
+        _bitrate = ch.bitrate if bitrate is MISSING else bitrate
+        _user_limit = ch.user_limit if user_limit is MISSING else user_limit
         _rate_limit_per_user = (
-            ch.rate_limit_per_user if not rate_limit_per_user else rate_limit_per_user
+            ch.rate_limit_per_user if rate_limit_per_user is MISSING else rate_limit_per_user
         )
-        _position = ch.position if not position else position
-        _parent_id = ch.parent_id if not parent_id else parent_id
-        _nsfw = ch.nsfw if not nsfw else nsfw
+        _position = ch.position if position is MISSING else position
+        _parent_id = ch.parent_id if parent_id is MISSING else parent_id
+        _nsfw = ch.nsfw if nsfw is MISSING else nsfw
         _type = ch.type
 
         payload = Channel(
@@ -759,12 +831,12 @@ class Guild(DictSerializerMixin):
     async def modify_member(
         self,
         member_id: int,
-        nick: Optional[str] = None,
-        roles: Optional[List[int]] = None,
-        mute: Optional[bool] = None,
-        deaf: Optional[bool] = None,
-        channel_id: Optional[int] = None,
-        communication_disabled_until: Optional[datetime.isoformat] = None,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[int]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
     ) -> Member:
         """
@@ -792,22 +864,22 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         payload = {}
-        if nick:
+        if nick is not MISSING:
             payload["nick"] = nick
 
-        if roles:
+        if roles is not MISSING:
             payload["roles"] = roles
 
-        if channel_id:
+        if channel_id is not MISSING:
             payload["channel_id"] = channel_id
 
-        if mute:
+        if mute is not MISSING:
             payload["mute"] = mute
 
-        if deaf:
+        if deaf is not MISSING:
             payload["deaf"] = deaf
 
-        if communication_disabled_until:
+        if communication_disabled_until is not MISSING:
             payload["communication_disabled_until"] = communication_disabled_until
 
         res = await self._client.modify_member(
@@ -840,27 +912,27 @@ class Guild(DictSerializerMixin):
 
     async def modify(
         self,
-        name: Optional[str] = None,
-        verification_level: Optional[VerificationLevel] = None,
-        default_message_notifications: Optional[DefaultMessageNotificationLevel] = None,
-        explicit_content_filter: Optional[ExplicitContentFilterLevel] = None,
-        afk_channel_id: Optional[int] = None,
-        afk_timeout: Optional[int] = None,
+        name: Optional[str] = MISSING,
+        verification_level: Optional[VerificationLevel] = MISSING,
+        default_message_notifications: Optional[DefaultMessageNotificationLevel] = MISSING,
+        explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
+        afk_channel_id: Optional[int] = MISSING,
+        afk_timeout: Optional[int] = MISSING,
         # icon, TODO: implement images
-        owner_id: Optional[int] = None,
+        owner_id: Optional[int] = MISSING,
         # splash, TODO: implement images
         # discovery_splash, TODO: implement images
         # banner, TODO: implement images
-        system_channel_id: Optional[int] = None,
-        suppress_join_notifications: Optional[bool] = None,
-        suppress_premium_subscriptions: Optional[bool] = None,
-        suppress_guild_reminder_notifications: Optional[bool] = None,
-        suppress_join_notification_replies: Optional[bool] = None,
-        rules_channel_id: Optional[int] = None,
-        public_updates_channel_id: Optional[int] = None,
-        preferred_locale: Optional[str] = None,
-        description: Optional[str] = None,
-        premium_progress_bar_enabled: Optional[bool] = None,
+        system_channel_id: Optional[int] = MISSING,
+        suppress_join_notifications: Optional[bool] = MISSING,
+        suppress_premium_subscriptions: Optional[bool] = MISSING,
+        suppress_guild_reminder_notifications: Optional[bool] = MISSING,
+        suppress_join_notification_replies: Optional[bool] = MISSING,
+        rules_channel_id: Optional[int] = MISSING,
+        public_updates_channel_id: Optional[int] = MISSING,
+        preferred_locale: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        premium_progress_bar_enabled: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Guild":
         """
@@ -908,20 +980,24 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if (
-            suppress_join_notifications is None
-            and suppress_premium_subscriptions is None
-            and suppress_guild_reminder_notifications is None
-            and suppress_join_notification_replies is None
+            suppress_join_notifications is MISSING
+            and suppress_premium_subscriptions is MISSING
+            and suppress_guild_reminder_notifications is MISSING
+            and suppress_join_notification_replies is MISSING
         ):
             system_channel_flags = None
         else:
-            _suppress_join_notifications = (1 << 0) if suppress_join_notifications else 0
-            _suppress_premium_subscriptions = (1 << 1) if suppress_premium_subscriptions else 0
+            _suppress_join_notifications = (
+                (1 << 0) if suppress_join_notifications is not MISSING else 0
+            )
+            _suppress_premium_subscriptions = (
+                (1 << 1) if suppress_premium_subscriptions is not MISSING else 0
+            )
             _suppress_guild_reminder_notifications = (
-                (1 << 2) if suppress_guild_reminder_notifications else 0
+                (1 << 2) if suppress_guild_reminder_notifications is not MISSING else 0
             )
             _suppress_join_notification_replies = (
-                (1 << 3) if suppress_join_notification_replies else 0
+                (1 << 3) if suppress_join_notification_replies is not MISSING else 0
             )
             system_channel_flags = (
                 _suppress_join_notifications
@@ -932,33 +1008,33 @@ class Guild(DictSerializerMixin):
 
         payload = {}
 
-        if name:
+        if name is not MISSING:
             payload["name"] = name
-        if verification_level:
+        if verification_level is not MISSING:
             payload["verification_level"] = verification_level.value
-        if default_message_notifications:
+        if default_message_notifications is not MISSING:
             payload["default_message_notifications"] = default_message_notifications.value
-        if explicit_content_filter:
+        if explicit_content_filter is not MISSING:
             payload["explicit_content_filter"] = explicit_content_filter.value
-        if afk_channel_id:
+        if afk_channel_id is not MISSING:
             payload["afk_channel_id"] = afk_channel_id
-        if afk_timeout:
+        if afk_timeout is not MISSING:
             payload["afk_timeout"] = afk_timeout
-        if owner_id:
+        if owner_id is not MISSING:
             payload["owner_id"] = owner_id
-        if system_channel_id:
+        if system_channel_id is not MISSING:
             payload["system_channel_id"] = system_channel_id
-        if system_channel_flags:
+        if system_channel_flags is not MISSING:
             payload["system_channel_flags"] = system_channel_flags
-        if rules_channel_id:
+        if rules_channel_id is not MISSING:
             payload["rules_channel_id"] = rules_channel_id
-        if public_updates_channel_id:
+        if public_updates_channel_id is not MISSING:
             payload["public_updates_channel_id"] = rules_channel_id
-        if preferred_locale:
+        if preferred_locale is not MISSING:
             payload["preferred_locale"] = preferred_locale
-        if description:
+        if description is not MISSING:
             payload["description"] = description
-        if premium_progress_bar_enabled:
+        if premium_progress_bar_enabled is not MISSING:
             payload["premium_progress_bar_enabled"] = premium_progress_bar_enabled
 
         res = await self._client.modify_guild(
@@ -973,10 +1049,10 @@ class Guild(DictSerializerMixin):
         name: str,
         entity_type: EntityType,
         scheduled_start_time: datetime.isoformat,
-        scheduled_end_time: Optional[datetime.isoformat] = None,
-        entity_metadata: Optional["EventMetadata"] = None,
-        channel_id: Optional[int] = None,
-        description: Optional[str] = None,
+        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
+        entity_metadata: Optional["EventMetadata"] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        description: Optional[str] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -1001,28 +1077,33 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        if entity_type != EntityType.EXTERNAL and not channel_id:
+        if entity_type != EntityType.EXTERNAL and channel_id is MISSING:
             raise ValueError(
                 "channel_id is required when entity_type is not external!"
             )  # TODO: replace with custom error formatter
-        if entity_type == EntityType.EXTERNAL and not entity_metadata:
+        if entity_type == EntityType.EXTERNAL and entity_metadata is MISSING:
             raise ValueError(
                 "entity_metadata is required for external events!"
             )  # TODO: replace with custom error formatter
+        if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
+            raise ValueError(
+                "External events require an end time!"
+            )  # TODO: replace with custom error formatter
 
-        payload = {}
+        payload = {
+            "name": name,
+            "entity_type": entity_type.value,
+            "scheduled_start_time": scheduled_start_time,
+            "privacy_level": 2,
+        }
 
-        payload["name"] = name
-        payload["entity_type"] = entity_type.value
-        payload["scheduled_start_time"] = scheduled_start_time
-        payload["privacy_level"] = 2
-        if scheduled_end_time:
+        if scheduled_end_time is not MISSING:
             payload["scheduled_end_time"] = scheduled_end_time
-        if entity_metadata:
-            payload["entity_metadata"] = entity_metadata
-        if channel_id:
+        if entity_metadata is not MISSING:
+            payload["entity_metadata"] = entity_metadata._json
+        if channel_id is not MISSING:
             payload["channel_id"] = channel_id
-        if description:
+        if description is not MISSING:
             payload["description"] = description
 
         res = await self._client.create_scheduled_event(
@@ -1034,14 +1115,14 @@ class Guild(DictSerializerMixin):
     async def modify_scheduled_event(
         self,
         event_id: int,
-        name: Optional[str] = None,
-        entity_type: Optional[EntityType] = None,
-        scheduled_start_time: Optional[datetime.isoformat] = None,
-        scheduled_end_time: Optional[datetime.isoformat] = None,
-        entity_metadata: Optional["EventMetadata"] = None,
-        channel_id: Optional[int] = None,
-        description: Optional[str] = None,
-        status: Optional[EventStatus] = None,
+        name: Optional[str] = MISSING,
+        entity_type: Optional[EntityType] = MISSING,
+        scheduled_start_time: Optional[datetime.isoformat] = MISSING,
+        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
+        entity_metadata: Optional["EventMetadata"] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        description: Optional[str] = MISSING,
+        status: Optional[EventStatus] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -1070,32 +1151,32 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        if entity_type == EntityType.EXTERNAL and not entity_metadata:
+        if entity_type == EntityType.EXTERNAL and entity_metadata is MISSING:
             raise ValueError(
                 "entity_metadata is required for external events!"
             )  # TODO: replace with custom error formatter
-        if entity_type == EntityType.EXTERNAL and not scheduled_end_time:
+        if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
             raise ValueError(
                 "External events require an end time!"
             )  # TODO: replace with custom error formatter
 
         payload = {}
-        if name:
+        if name is not MISSING:
             payload["name"] = name
-        if channel_id:
+        if channel_id is not MISSING:
             payload["channel_id"] = channel_id
-        if scheduled_start_time:
+        if scheduled_start_time is not MISSING:
             payload["scheduled_start_time"] = scheduled_start_time
-        if entity_type:
+        if entity_type is not MISSING:
             payload["entity_type"] = entity_type.value
             payload["channel_id"] = None
-        if scheduled_end_time:
+        if scheduled_end_time is not MISSING:
             payload["scheduled_end_time"] = scheduled_end_time
-        if entity_metadata:
-            payload["entity_metadata"] = entity_metadata
-        if description:
+        if entity_metadata is not MISSING:
+            payload["entity_metadata"] = entity_metadata._json
+        if description is not MISSING:
             payload["description"] = description
-        if status:
+        if status is not MISSING:
             payload["status"] = status
 
         res = await self._client.modify_scheduled_event(
@@ -1144,6 +1225,28 @@ class Guild(DictSerializerMixin):
         res = self._client.get_all_roles(int(self.id))
         roles = [Role(**role, _client=self._client) for role in res]
         return roles
+
+    async def get_role(
+        self,
+        role_id: int,
+    ) -> Role:
+        """
+        Gets a role of the guild.
+
+        :param role_id: The id of the role to get
+        :type role_id: int
+        :return: The role as object
+        :rtype: Role
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        for i in roles:
+            if int(i["id"]) == role_id:
+                role = Role(**i)
+                break
+        return role
 
     async def modify_role_position(
         self,

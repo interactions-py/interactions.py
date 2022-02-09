@@ -1,6 +1,6 @@
 from typing import Any, Optional, List
 
-from .misc import DictSerializerMixin, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake
 from ..http import HTTPClient
 
 class RoleTags(DictSerializerMixin):
@@ -25,6 +25,8 @@ class Role(DictSerializerMixin):
     mentionable: bool
     tags: Optional[RoleTags]
     def __init__(self, **kwargs): ...
+    @property
+    def mention(self) -> str: ...
     async def delete(
         self,
         guild_id: int,
@@ -33,13 +35,13 @@ class Role(DictSerializerMixin):
     async def modify(
         self,
         guild_id: int,
-        name: Optional[str] = None,
+        name: Optional[str] = MISSING,
         # permissions,
-        color: Optional[int] = None,
-        hoist: Optional[bool] = None,
+        color: Optional[int] = MISSING,
+        hoist: Optional[bool] = MISSING,
         # icon,
         # unicode_emoji,
-        mentionable: Optional[bool] = None,
+        mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Role": ...
     async def modify_position(

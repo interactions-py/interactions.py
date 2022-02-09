@@ -3,17 +3,19 @@ from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
 
 from .api.models.gw import Presence
-from .models.misc import MISSING
+from .api.models.misc import MISSING
 
 from .api.cache import Cache
 from .api.gateway import WebSocketClient
 from .api.http import HTTPClient
-from .api.models.guild import Guild
 from .api.models.flags import Intents
+from .api.models.guild import Guild
+from .api.models.gw import Presence
 from .api.models.team import Application
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
+from .models.misc import MISSING
 
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
@@ -27,7 +29,7 @@ class Client:
     _presence: Optional[Presence]
     _token: str
     _automate_sync: bool
-    _extensions: Optional[Dict[str, ModuleType]]
+    _extensions: Optional[Dict[str, Union[ModuleType, Extension]]]
     me: Optional[Application]
     def __init__(
         self,
@@ -69,12 +71,30 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
+    def message_command(
+        self,
+        *,
+        name: Optional[str] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+        default_permission: Optional[bool] = None,
+    ) -> Callable[..., Any]: ...
+    def user_command(
+        self,
+        *,
+        name: Optional[str] = None,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+        default_permission: Optional[bool] = None,
+    ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
-    def autocomplete(self, name: str) -> Callable[..., Any]: ...
+    def autocomplete(self, name: str, command: Union[ApplicationCommand, int, str]) -> Callable[..., Any]: ...
     def modal(self, modal: Modal) -> Callable[..., Any]: ...
-    def load(self, name: str, package: Optional[str] = None) -> None: ...
+    def load(
+        self, name: str, package: Optional[str] = None, *args, **kwargs
+    ) -> Optional["Extension"]: ...
     def remove(self, name: str, package: Optional[str] = None) -> None: ...
-    def reload(self, name: str, package: Optional[str] = None) -> None: ...
+    def reload(
+        self, name: str, package: Optional[str] = None, *args, **kwargs
+    ) -> Optional["Extension"]: ...
     async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
     async def raw_channel_create(self, message) -> dict: ...
     async def raw_message_create(self, message) -> dict: ...
@@ -82,4 +102,35 @@ class Client:
 
 class Extension:
     client: Client
-    def __new__(cls, bot: Client) -> None: ...
+    _commands: dict
+    _listeners: dict
+    def __new__(cls, client: Client, *args, **kwargs) -> Extension: ...
+    def teardown(self) -> None: ...
+
+def extension_command(
+    *,
+    type: Optional[Union[int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+    options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
+    default_permission: Optional[bool] = None,
+): ...
+def extension_listener(name=None) -> Callable[..., Any]: ...
+def extension_component(component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
+def extension_autocomplete(
+    name: str, command: Union[ApplicationCommand, int]
+) -> Callable[..., Any]: ...
+def extension_modal(modal: Modal) -> Callable[..., Any]: ...
+def extension_message_command(
+    *,
+    name: Optional[str] = None,
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+    default_permission: Optional[bool] = None,
+) -> Callable[..., Any]: ...
+def extension_user_command(
+    *,
+    name: Optional[str] = None,
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
+    default_permission: Optional[bool] = None,
+) -> Callable[..., Any]: ...

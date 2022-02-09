@@ -3,7 +3,7 @@ name: Request Feature
 about: Create an Issue to suggest or propose implementing something(s).
 title: "[REQUEST] "
 labels: documentation, enhancement
-assignees: goverfl0w
+assignees: goverfl0w, DeltaXWizard, EdVraz
 
 ---
 

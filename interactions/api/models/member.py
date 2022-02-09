@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
+from .channel import Channel
 from .flags import Permissions
-from .misc import DictSerializerMixin
+from .misc import MISSING, DictSerializerMixin, Snowflake
 from .role import Role
 from .user import User
 
@@ -49,7 +50,11 @@ class Member(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user = User(**self.user) if self._json.get("user") else None
+        self.user = (
+            self.user
+            if isinstance(self.user, User)
+            else (User(**self.user) if self._json.get("user") else None)
+        )
         self.joined_at = (
             datetime.fromisoformat(self._json.get("joined_at"))
             if self._json.get("joined_at")
@@ -67,8 +72,34 @@ class Member(DictSerializerMixin):
             else None
         )
 
+        self.roles = [
+            role_id if isinstance(role_id, int) else int(role_id) for role_id in self.roles
+        ]
+
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
+
+    @property
+    def id(self) -> Snowflake:
+        """
+        Returns the ID of the user.
+
+        :return: The ID of the user
+        :rtype: Snowflake
+        """
+        return self.user.id if self.user else None
+
+    @property
+    def mention(self) -> str:
+        """
+        Returns a string that allows you to mention the given member.
+
+        :return: The string of the mentioned member.
+        :rtype: str
+        """
+        if self.nick:
+            return f"<@!{self.user.id}>"
+        return f"<@{self.user.id}>"
 
     async def ban(
         self,
@@ -182,13 +213,22 @@ class Member(DictSerializerMixin):
 
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        components=None,
-        tts: Optional[bool] = False,
+        components: Optional[
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List["ActionRow"],  # noqa
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
+            ]
+        ] = MISSING,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds=None,
-        allowed_mentions=None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
     ):
         """
         Sends a DM to the member.
@@ -196,7 +236,7 @@ class Member(DictSerializerMixin):
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
         :param embeds?: An embed, or list of embeds for the message.
@@ -209,23 +249,24 @@ class Member(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         from ...models.component import ActionRow, Button, SelectMenu
-        from .channel import Channel
         from .message import Message
 
-        _content: str = "" if content is None else content
-        _tts: bool = False if tts is None else tts
+        _content: str = "" if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
         _embeds: list = (
             []
-            if embeds is None
+            if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _components: List[dict] = [{"type": 1, "components": []}]
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
 
+        if not components or components is MISSING:
+            _components = []
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components:
+        else:
+            _components: List[dict] = [{"type": 1, "components": []}]
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -320,8 +361,6 @@ class Member(DictSerializerMixin):
                     if components._json.get("custom_id") or components._json.get("url")
                     else []
                 )
-        else:
-            _components = []
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -342,12 +381,12 @@ class Member(DictSerializerMixin):
     async def modify(
         self,
         guild_id: int,
-        nick: Optional[str] = None,
-        roles: Optional[List[int]] = None,
-        mute: Optional[bool] = None,
-        deaf: Optional[bool] = None,
-        channel_id: Optional[int] = None,
-        communication_disabled_until: Optional[datetime.isoformat] = None,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[int]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
     ) -> "Member":
         """
@@ -375,22 +414,22 @@ class Member(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         payload = {}
-        if nick:
+        if nick is not MISSING:
             payload["nick"] = nick
 
-        if roles:
+        if roles is not MISSING:
             payload["roles"] = roles
 
-        if channel_id:
+        if channel_id is not MISSING:
             payload["channel_id"] = channel_id
 
-        if mute:
+        if mute is not MISSING:
             payload["mute"] = mute
 
-        if deaf:
+        if deaf is not MISSING:
             payload["deaf"] = deaf
 
-        if communication_disabled_until:
+        if communication_disabled_until is not MISSING:
             payload["communication_disabled_until"] = communication_disabled_until
 
         res = await self._client.modify_member(
