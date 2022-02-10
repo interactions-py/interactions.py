@@ -472,14 +472,45 @@ class Client:
 
         return decorator
 
-    """
     def sub_command(
         self,
         *,
-        base: str,
-        sub_command_groups: Optional[List] = [],
-    ):
-    """
+        base: Optional[Dict[str, str]] = MISSING,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        sub_commands: List[Dict[str, str]] = MISSING,
+        sub_command_groups: Optional[List[Dict[str, str]]] = MISSING,
+        options: Optional[Dict[Dict[str, str], List[Option]]] = MISSING,
+    ) -> Callable[..., Any]:
+        def decorator(coro: Coroutine) -> Callable[..., Any]:
+
+            _base_name = MISSING
+            _base_description = MISSING
+
+            if base is MISSING:
+                raise InteractionException(
+                    11,
+                    message="A base is required for subcommands!",
+                )
+            elif len(base) != 1:
+                raise InteractionException(
+                    11,
+                    message="You must specify exactly one subcommand base!",
+                )
+            else:
+                for i in base:
+                    _base_name, _base_description = i, base[i]
+
+            commands: List[ApplicationCommand] = command(  # noqa
+                type=ApplicationCommandType.CHAT_INPUT,
+                name=_base_name,
+                description=_base_description,
+                scope=scope,
+                # options=options,
+            )
+
+            return self.event(coro, name=f"command_{_base_name}")
+
+        return decorator
 
     def message_command(
         self,

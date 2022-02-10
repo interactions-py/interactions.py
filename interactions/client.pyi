@@ -58,6 +58,14 @@ class Client:
         options: Optional[List[Option]] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
+    def sub_command(
+        self,
+        *,
+        base: dict,
+        sub_commands: List[dict],
+        sub_command_groups: Optional[List[dict]] = MISSING,
+        options: Optional[Dict[list]] = MISSING,
+    ) -> Callable[..., Any]: ...
     def message_command(
         self,
         *,
@@ -71,20 +79,6 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-    ) -> Callable[..., Any]: ...
-    def message_command(
-        self,
-        *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
-    ) -> Callable[..., Any]: ...
-    def user_command(
-        self,
-        *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(self, name: str, command: Union[ApplicationCommand, int, str]) -> Callable[..., Any]: ...
