@@ -45,7 +45,7 @@ class _Heartbeat:
         :param loop: The event loop to base the asynchronous manager.
         :type loop: AbstractEventLoop
         """
-        self.event = Event(loop=loop)
+        self.event = Event(loop=loop) if version_info < (3, 10) else Event()
         self.delay = 0.0
 
 
