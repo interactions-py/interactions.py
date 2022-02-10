@@ -385,22 +385,26 @@ class Client:
                 raise InteractionException(
                     11, message="Command names must be less than 32 characters."
                 )
-            elif len(description) > 100:
+            elif type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
+                raise InteractionException(
+                    11, message="Chat-input commands must have a description."
+                )
+            elif type != ApplicationCommandType.CHAT_INPUT and description is not MISSING:
+                raise InteractionException(
+                    11, message="Only chat-input commands can have a description."
+                )
+
+            elif description is not MISSING and len(description) > 100:
                 raise InteractionException(
                     11, message="Command descriptions must be less than 100 characters."
                 )
 
             for _ in name:
-                if _.isupper():
+                if _.isupper() and type == ApplicationCommandType.CHAT_INPUT:
                     raise InteractionException(
                         11,
-                        message="Your command name must not contain uppercase characters (Discord limitation)",
+                        message="Your chat-input command name must not contain uppercase characters (Discord limitation)",
                     )
-
-            if type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
-                raise InteractionException(
-                    11, message="Chat-input commands must have a description."
-                )
 
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
@@ -462,7 +466,7 @@ class Client:
                         for command in commands
                     ]
 
-            if scope:
+            if scope is not MISSING:
                 if isinstance(scope, List):
                     [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
                 else:
