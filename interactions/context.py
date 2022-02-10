@@ -472,10 +472,7 @@ class CommandContext(Context):
 
         if self.message.components is not None or components is not MISSING:
             if components is MISSING:
-                if isinstance(self.message.components, list):
-                    _components = [component._json for component in self.message.components]
-                else:
-                    _components = [self.message.components._json]
+                _components = self.message.components
             elif not components:
                 _components = []
             else:
