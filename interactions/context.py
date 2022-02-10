@@ -290,7 +290,9 @@ class ContextMixin(DictSerializerMixin):
             components=_components,
             flags=_ephemeral,
         )
-        payload._client = self.client
+        self.message = payload
+        self.message._client = self.client
+        return payload
 
     async def edit(
         self,
@@ -341,7 +343,7 @@ class ContextMixin(DictSerializerMixin):
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
-        payload["allowed_mnentions"] = _allowed_mentions
+        payload["allowed_mentions"] = _allowed_mentions
         payload["message_reference"] = _message_reference
 
         if self.message.components is not None or components is not MISSING:
@@ -449,6 +451,10 @@ class ContextMixin(DictSerializerMixin):
 
             payload["components"] = _components
 
+        payload = Message(**payload)
+        self.message = payload
+        self.message._client = self.client
+
         return payload
 
     async def popup(self, modal: Modal) -> None:
@@ -476,6 +482,7 @@ class ContextMixin(DictSerializerMixin):
         )
         self.responded = True
 
+        return payload
 
 class CommandContext(ContextMixin):
     """
