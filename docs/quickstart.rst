@@ -36,7 +36,8 @@ Click on ``Add Bot`` and then on ``Yes, do it!``.
 
 And that's it! You created your Bot!
 
-.. warning:: You will see a field called ``TOKEN``. This is the access token, used to run your bot.
+.. warning::
+    You will see a field called ``TOKEN``. This is the access token, used to run your bot.
     You will need this later to start your Bot.
 
     **Do NOT give this to other persons! They can get full control over your Bot with your token and execute what they want!**
@@ -166,10 +167,11 @@ Next, let's create an Option
     bot.start()
 
 
-.. note:: The limit for options per command is 25.
+.. note::
+    The limit for options per command is 25.
 
-Do you want to create subcommands? Here's how to do it:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nested commands: subcommands
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -177,7 +179,7 @@ Do you want to create subcommands? Here's how to do it:
         name="base_command",
         description="This description isn't seen in UI (yet?)",
         scope=guild_id,
-        options= [
+        options=[
             interactions.Option(
                 name="command_name",
                 description="A descriptive description",
@@ -210,7 +212,8 @@ Do you want to create subcommands? Here's how to do it:
         elif sub_command == "second_command":
           await ctx.send(f"You selected the second_command sub command and put in {second_option}")
 
-.. note:: You can add a SUB_COMMAND_GROUP in between the base and command.
+.. note::
+    You can add a SUB_COMMAND_GROUP in between the base and command.
 
 
 Special type of commands: Context menus
@@ -235,7 +238,10 @@ your ``@command`` decorator:
     async def test(ctx):
         await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
-.. important:: The structure of a menu command differs significantly from that of a regular one:
+
+.. important::
+    The structure of a menu command differs significantly from that of a regular one:
+
 
     - You cannot have any options or choices.
     - You cannot have a description.
