@@ -366,6 +366,17 @@ with the ``TextInput`` example from above we get:
 
 .. image:: _static/modal_popup.png
 
+Responding to a Modal interaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    @bot.modal("mod_app_form")
+    async def modal_response(ctx, response: str):
+        await ctx.send(f"You wrote: {response}", ephemeral=True)
+
+You can respond to a modal the same way as you would respond to a normal ``chat-input`` command, except your function has an extra argument for the text what was put into the modal.
+
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
 .. _discord applications page: https://discord.com/developers/applications
