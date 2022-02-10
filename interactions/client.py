@@ -472,6 +472,15 @@ class Client:
 
         return decorator
 
+    """
+    def sub_command(
+        self,
+        *,
+        base: str,
+        sub_command_groups: Optional[List] = [],
+    ):
+    """
+
     def message_command(
         self,
         *,
