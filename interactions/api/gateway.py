@@ -84,6 +84,7 @@ class WebSocketClient:
         "__task",
         "session_id",
         "sequence",
+        "ready",
     )
 
     def __init__(
