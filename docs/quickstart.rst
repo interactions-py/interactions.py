@@ -340,7 +340,7 @@ You want to get a Text from a user? You can use ``TextInput``s for that.
             style=interactions.TextStyleType.SHORT,
             label="Let's get straight to it: what's 1 + 1?",
             custom_id="text_input_response",
-            min_length=2,
+            min_length=1,
             max_length=3,
         )
 
@@ -349,19 +349,22 @@ But how to send it? You can't use ``ctx.send`` for it. Take a look at :ref:`Moda
 
 Modals
 ******
-Modals are a new way to interact with a user. Currently only a ``TextInput`` component type is supported. You can have up to three ``TextInput``s in a Modal.
+Modals are a new way to interact with a user. Currently only a ``TextInput`` component is supported. You can have up to three ``TextInput``s in a Modal.
 
 .. code-block:: python
 
-        interactions.Modal(
+    async def my_cool_modal_command(ctx):
+        modal = interactions.Modal(
             title="Application Form",
             custom_id="mod_app_form",
             components=[interactions.TextInput(...)],
         )
 
+        await ctx.popup(modal)
+
 with the ``TextInput`` example from above we get:
 
-.. image::
+.. image:: _static/modal_popup.png
 
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
