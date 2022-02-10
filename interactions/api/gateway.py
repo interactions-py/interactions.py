@@ -168,8 +168,8 @@ class WebSocketClient:
                     continue
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
                     raise GatewayException(self._client.close_code)
-                else:
-                    self._establish_connection()
+                elif self._client.close_code is not None:
+                    await self._establish_connection()
 
                 await self._handle_connection(stream, shard, presence)
 
