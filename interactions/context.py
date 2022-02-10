@@ -484,6 +484,7 @@ class ContextMixin(DictSerializerMixin):
 
         return payload
 
+
 class CommandContext(ContextMixin):
     """
     A derivation of :class:`interactions.context.Context`
