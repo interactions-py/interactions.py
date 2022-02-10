@@ -242,11 +242,9 @@ your ``@command`` decorator:
 .. important::
     The structure of a menu command differs significantly from that of a regular one:
 
-
     - You cannot have any options or choices.
     - You cannot have a description.
     - The ``name`` filter follows a different regex pattern.
-
 
 Creating and sending Components
 *******************************
@@ -332,6 +330,7 @@ method will always support ``ActionRow``-less sending: you only need to declare
 rows whenever you need or want to. This field will also support raw arrays and
 tables, if you so wish to choose to not use our class objects instead.
 
+
 .. important:: You cannot use ``TextInput`` with the above shown method.
     Look :ref:`here <quickstart:Creating a TextInput>` how to create and send them.
 
@@ -382,6 +381,7 @@ Responding to a Modal interaction
         await ctx.send(f"You wrote: {response}", ephemeral=True)
 
 You can respond to a modal the same way as you would respond to a normal ``chat-input`` command, except your function has an extra argument for the text what was put into the modal.
+
 
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
