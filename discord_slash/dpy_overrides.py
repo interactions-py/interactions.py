@@ -67,7 +67,7 @@ def send_files(
     if message_reference:
         payload["message_reference"] = message_reference
 
-    form.append({"name": "payload_json", "value": utils.to_json(payload)})
+    form.append({"name": "payload_json", "value": utils._to_json(payload)})
     if len(files) == 1:
         file = files[0]
         form.append(
