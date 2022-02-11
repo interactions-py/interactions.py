@@ -126,7 +126,7 @@ class WebSocket:
         self.closed = False
         self.http = None
         self.options: dict = {
-            "max_msg_size": 1024 ** 2,
+            "max_msg_size": 1024**2,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
@@ -339,8 +339,12 @@ class WebSocket:
                         if hasattr(context.data, "components"):
                             if context.data.components:
                                 for component in context.data.components:
-                                    for _value in component.components:
-                                        _args.append(_value["value"])
+                                    if hasattr(component, "components"):
+                                        for _value in component.components:
+                                            _args.append(_value["value"])
+                                    else:
+                                        for value in component["components"]:
+                                            _args.append(value["value"])
 
                     self.dispatch.dispatch(_name, *_args, **_kwargs)
 

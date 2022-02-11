@@ -15,7 +15,7 @@ from typing import (
 )
 
 from .api.models.gw import Presence
-from .api.models.misc import MISSING
+from .api.models.misc import MISSING, Snowflake
 
 from .api.cache import Cache
 from .api.gateway import WebSocket
@@ -41,6 +41,7 @@ class Client:
     _shard: Optional[List[Tuple[int]]]
     _presence: Optional[Presence]
     _token: str
+    _scopes: set[List[Union[int, Snowflake]]]
     _automate_sync: bool
     _extensions: Optional[Dict[str, Union[ModuleType, Extension]]]
     me: Optional[Application]
@@ -104,6 +105,8 @@ class Client:
         self, name: str, command: Union[ApplicationCommand, int, str]
     ) -> Callable[..., Any]: ...
     def modal(self, modal: Modal) -> Callable[..., Any]: ...
+    def autocomplete(self, name: str, command: Union[ApplicationCommand, int, str]) -> Callable[..., Any]: ...
+    def modal(self, modal: Union[Modal, str]) -> Callable[..., Any]: ...
     def load(
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]: ...
@@ -115,6 +118,9 @@ class Client:
     async def raw_channel_create(self, message) -> dict: ...
     async def raw_message_create(self, message) -> dict: ...
     async def raw_guild_create(self, guild) -> dict: ...
+
+    @staticmethod
+    def _find_command(commands: List[Dict], command: str) -> ApplicationCommand: ...
 
 class Extension:
     client: Client
