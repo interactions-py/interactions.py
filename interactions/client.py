@@ -6,7 +6,7 @@ from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from .api.cache import Cache
 from .api.cache import Item as Build
@@ -472,43 +472,54 @@ class Client:
 
         return decorator
 
-    def sub_command(
+    def subcommand(
         self,
         *,
-        base: Optional[Dict[str, str]] = MISSING,
+        command: Optional[Tuple[str]] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        sub_commands: List[Dict[str, str]] = MISSING,
-        sub_command_groups: Optional[List[Dict[str, str]]] = MISSING,
-        options: Optional[Dict[Dict[str, str], List[Option]]] = MISSING,
+        sub_commands: Optional[Union[List[Tuple[str]], List[List[Tuple[str]]]]] = MISSING,
+        sub_command_groups: Optional[List[Tuple[str]]] = MISSING,
+        options: Optional[Dict[Tuple[str], List[Option]]] = MISSING,
     ) -> Callable[..., Any]:
+        """ """
+
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
-            _base_name = MISSING
-            _base_description = MISSING
-
-            if base is MISSING:
+            _option_names: List[str]
+            # loop through this to check if all option args are set in coro
+            if command is MISSING:
                 raise InteractionException(
                     11,
-                    message="A base is required for subcommands!",
+                    message="A command is required for subcommands!",
                 )
-            elif len(base) != 1:
+            elif len(command) != 2:
                 raise InteractionException(
                     11,
-                    message="You must specify exactly one subcommand base!",
+                    message="You must specify one command name and one command description!",
                 )
-            else:
-                for i in base:
-                    _base_name, _base_description = i, base[i]
 
-            commands: List[ApplicationCommand] = command(  # noqa
-                type=ApplicationCommandType.CHAT_INPUT,
-                name=_base_name,
-                description=_base_description,
-                scope=scope,
-                # options=options,
-            )
+            _command_name, _command_description = command[0], command[1]
+            print(_command_name, _command_description)
 
-            return self.event(coro, name=f"command_{_base_name}")
+            if len(_command_name) > 32:
+                raise InteractionException(
+                    11, message="Command names must be less than 32 characters."
+                )
+            elif len(_command_description) > 100:
+                raise InteractionException(
+                    11, message="Command descriptions must be less than 100 characters."
+                )
+
+            for _ in _command_name:
+                if _.isupper():
+                    raise InteractionException(
+                        11,
+                        message="Your command name must not contain uppercase characters (Discord limitation)",
+                    )
+
+            # if sub_command_groups is not MISSING and not len(coro.__code__.co_varnames) = 3
+
+            return self.event(coro, name=f"command_{_command_name}")
 
         return decorator
 
