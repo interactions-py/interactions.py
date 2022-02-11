@@ -390,7 +390,8 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res, _client=self.client)
+                    msg = Message(**res, _client=self.client)
+                    self.message = msg
                 else:
                     await self.client._post_followup(
                         data=payload._json,
@@ -644,7 +645,7 @@ class CommandContext(Context):
                     self.message = Message(**res, _client=self.client)
 
         await func()
-        return payload
+        return self.message
 
     async def delete(self) -> None:
         """
