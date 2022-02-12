@@ -484,7 +484,10 @@ class Client:
         ] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
-        """ """
+        """
+        Hi, I am a placeholder for your soon added dosctring. Thanks for wasting your time by reading me.
+
+        """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
