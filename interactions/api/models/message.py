@@ -237,7 +237,7 @@ class Message(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
@@ -267,9 +267,7 @@ class Message(DictSerializerMixin):
             else datetime.utcnow()
         )
         self.mentions = (
-            [User(**mention) for mention in self.mentions]
-            if self._json.get("mentions")
-            else None
+            [User(**mention) for mention in self.mentions] if self._json.get("mentions") else None
         )
         self.mention_channels = (
             [ChannelMention(**mention) for mention in self.mention_channels]
