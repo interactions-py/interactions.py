@@ -5,7 +5,6 @@ from importlib import import_module
 from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
-from pprint import pprint
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
@@ -525,7 +524,8 @@ class Client:
             ):
                 raise InteractionException(
                     11,
-                    message="You need an argument for 'context', 'sub_command_group' and 'sub_command' in your function",
+                    message="You need an argument for 'context', 'sub_command_group' and "
+                    "'sub_command' in your function",
                 )
 
             elif (
@@ -547,8 +547,7 @@ class Client:
             _group_options: List[dict] = []
             _sub_cmds: List[dict] = []
 
-            _option_names: List[str]
-            # TODO: loop through this to check if all option args are set in coro
+            _option_names: List[str] = []
 
             if sub_command_groups is not MISSING:
 
@@ -571,7 +570,8 @@ class Client:
                         if _.isupper():
                             raise InteractionException(
                                 11,
-                                message="Your subcommand group names must not contain uppercase characters (Discord limitation)",
+                                message="Your subcommand group names must not contain uppercase "
+                                "characters (Discord limitation)",
                             )
 
                     option = Option(
@@ -604,7 +604,8 @@ class Client:
                             if _.isupper():
                                 raise InteractionException(
                                     11,
-                                    message="Your subcommand names must not contain uppercase characters (Discord limitation)",
+                                    message="Your subcommand names must not contain uppercase "
+                                    "characters (Discord limitation)",
                                 )
                         option = Option(
                             name=_name,
@@ -629,7 +630,8 @@ class Client:
                         if _.isupper():
                             raise InteractionException(
                                 11,
-                                message="Your subcommand names must not contain uppercase characters (Discord limitation)",
+                                message="Your subcommand names must not contain uppercase "
+                                "characters (Discord limitation)",
                             )
                     option = Option(
                         name=_name,
@@ -662,13 +664,35 @@ class Client:
                     11, message="You can only have up to 25 subcommands per command!"
                 )
 
-            # TODO: add options
-
             _command_options.extend(_group_options)
             _command_options.extend(_sub_cmds)
 
             if options:
-                ...
+                for option in options:
+                    for opt in _command_options:
+                        if isinstance(option, tuple):
+                            if opt["type"] == 2 and opt["name"] == option[0]:
+                                for _ in opt["options"]:
+                                    if _["name"] == option[1]:
+                                        _["options"] = options[option]
+                                        _option_names.extend(
+                                            [_option.name for _option in options[option]]
+                                        )
+                                        break
+                            break
+                        else:
+                            if opt["type"] == 1 and opt["name"] == option:
+                                opt["options"] = options[option]
+                                _option_names.extend([_option.name for _option in options[option]])
+                                break
+
+            if len(coro.__code__.co_varnames) - 3 < len(set(_option_names)):
+                raise InteractionException(
+                    11,
+                    message="The amount of option names does not match the amount of "
+                    "arguments in your function. You must have one argument for every existing option name.",
+                )
+
             for option in _command_options:
                 if option["type"] == 2:
                     for opt in option["options"]:
@@ -682,8 +706,6 @@ class Client:
                 Option(**option) if isinstance(option, dict) else option
                 for option in _command_options
             ]
-
-            pprint(_command_options, width=1, sort_dicts=False)
 
             commands: List[ApplicationCommand] = command(
                 type=ApplicationCommandType.CHAT_INPUT,
