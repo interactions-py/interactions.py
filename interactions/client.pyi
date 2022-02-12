@@ -58,13 +58,14 @@ class Client:
         options: Optional[List[Option]] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
-    def sub_command(
+    def subcommand(
         self,
         *,
-        base: dict,
-        sub_commands: List[dict],
-        sub_command_groups: Optional[List[dict]] = MISSING,
-        options: Optional[Dict[list]] = MISSING,
+        command: Optional[Tuple[str, str]] = MISSING,
+        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
+        sub_command_groups: Optional[List[Tuple[str, str]]] = MISSING,
+        sub_commands: Optional[Union[List[Tuple[str, str]], List[List[Tuple[str, str]]]]] = MISSING,
+        options: Optional[Dict[str, List[Option]]] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,

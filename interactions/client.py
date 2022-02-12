@@ -5,6 +5,7 @@ from importlib import import_module
 from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
+from pprint import pprint
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
@@ -475,18 +476,16 @@ class Client:
     def subcommand(
         self,
         *,
-        command: Optional[Tuple[str]] = MISSING,
+        command: Optional[Tuple[str, str]] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        sub_commands: Optional[Union[List[Tuple[str]], List[List[Tuple[str]]]]] = MISSING,
-        sub_command_groups: Optional[List[Tuple[str]]] = MISSING,
-        options: Optional[Dict[Tuple[str], List[Option]]] = MISSING,
+        sub_command_groups: Optional[List[Tuple[str, str]]] = MISSING,
+        sub_commands: Optional[Union[List[Tuple[str, str]], List[List[Tuple[str, str]]]]] = MISSING,
+        options: Optional[Dict[str, List[Option]]] = MISSING,
     ) -> Callable[..., Any]:
         """ """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
-            _option_names: List[str]
-            # loop through this to check if all option args are set in coro
             if command is MISSING:
                 raise InteractionException(
                     11,
@@ -499,7 +498,6 @@ class Client:
                 )
 
             _command_name, _command_description = command[0], command[1]
-            print(_command_name, _command_description)
 
             if len(_command_name) > 32:
                 raise InteractionException(
@@ -517,7 +515,157 @@ class Client:
                         message="Your command name must not contain uppercase characters (Discord limitation)",
                     )
 
-            # if sub_command_groups is not MISSING and not len(coro.__code__.co_varnames) = 3
+            if (
+                sub_command_groups is not MISSING
+                and not len(coro.__code__.co_varnames)
+                or len(coro.__code__.co_varnames) < 3
+            ):
+                raise InteractionException(
+                    11,
+                    message="You need an argument for 'context', 'sub_command_group' and 'sub_command' in your function",
+                )
+
+            elif (
+                sub_command_groups is MISSING
+                and not len(coro.__code__.co_varnames)
+                or len(coro.__code__.co_varnames) < 2
+            ):
+                raise InteractionException(
+                    11,
+                    message="You need an argument for 'context' and 'sub_command' in your function",
+                )
+
+            if sub_commands is MISSING:
+                raise InteractionException(
+                    11, message="You have to specify at least one subcommand!"
+                )
+
+            _command_options: List[dict] = []
+            _group_options: List[dict] = []
+            _sub_cmds: List[dict] = []
+
+            _option_names: List[str]
+            # TODO: loop through this to check if all option args are set in coro
+
+            if sub_command_groups is not MISSING:
+
+                _type = OptionType.SUB_COMMAND_GROUP
+
+                for group in sub_command_groups:
+                    _name, _desc = group[0], group[1]
+
+                    if len(_name) > 32:
+                        raise InteractionException(
+                            11, message="subcommand group names must be less than 32 characters."
+                        )
+                    elif len(_desc) > 100:
+                        raise InteractionException(
+                            11,
+                            message="subcommand group descriptions must be less than 100 characters.",
+                        )
+
+                    for _ in _name:
+                        if _.isupper():
+                            raise InteractionException(
+                                11,
+                                message="Your subcommand group names must not contain uppercase characters (Discord limitation)",
+                            )
+
+                    option = Option(
+                        name=_name,
+                        description=_desc,
+                        type=_type,
+                        options=[],
+                    )
+                    _group_options.append(option._json)
+
+            for sub in sub_commands:
+                _type = OptionType.SUB_COMMAND
+                if isinstance(sub, list):
+                    i = sub_commands.index(sub)
+                    _options: List[dict] = []
+                    _group_name = sub_command_groups[i][0]
+                    _group = [i for i in _group_options if i.get("name") == _group_name][0]
+                    for _name, _desc in sub:
+                        if len(_name) > 32:
+                            raise InteractionException(
+                                11, message="subcommand names must be less than 32 characters."
+                            )
+                        elif len(_desc) > 100:
+                            raise InteractionException(
+                                11,
+                                message="subcommand descriptions must be less than 100 characters.",
+                            )
+
+                        for _ in _name:
+                            if _.isupper():
+                                raise InteractionException(
+                                    11,
+                                    message="Your subcommand names must not contain uppercase characters (Discord limitation)",
+                                )
+                        option = Option(
+                            name=_name,
+                            description=_desc,
+                            type=_type,
+                            options=[],
+                        )
+                        _options.append(option._json)
+                    _group["options"] = _options
+                else:
+                    _name, _desc = sub[0], sub[1]
+                    if len(_name) > 32:
+                        raise InteractionException(
+                            11, message="subcommand names must be less than 32 characters."
+                        )
+                    elif len(_desc) > 100:
+                        raise InteractionException(
+                            11, message="subcommand descriptions must be less than 100 characters."
+                        )
+
+                    for _ in _name:
+                        if _.isupper():
+                            raise InteractionException(
+                                11,
+                                message="Your subcommand names must not contain uppercase characters (Discord limitation)",
+                            )
+                    option = Option(
+                        name=_name,
+                        description=_desc,
+                        type=_type,
+                        options=[],
+                    )
+                    _sub_cmds.append(option._json)
+
+            if _group_options:
+
+                if len(sub_command_groups) > 25:
+                    raise InteractionException(
+                        11, message="You can only have up to 25 subcommand_groups per command!"
+                    )
+                for _group in _group_options:
+                    if not _group["options"]:
+                        pprint(_group, width=1, sort_dicts=False)
+                        raise InteractionException(
+                            11,
+                            message="Every sub_command_group has to contain at least one subcommand!",
+                        )
+                    elif len(_group["options"]) > 25:
+                        raise InteractionException(
+                            11,
+                            message="A subcommand_group must not contain more than 25 subcommands!",
+                        )
+
+            if len(_sub_cmds) > 25:
+                raise InteractionException(
+                    11, message="You can only have up to 25 subcommands per command!"
+                )
+
+            # TODO: add options
+
+            _command_options.extend(_group_options)
+            _command_options.extend(_sub_cmds)
+
+            pprint(_command_options, width=1, sort_dicts=False)
 
             return self.event(coro, name=f"command_{_command_name}")
 
