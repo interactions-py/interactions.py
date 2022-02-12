@@ -176,7 +176,7 @@ class Message(DictSerializerMixin):
     :ivar Optional[datetime] edited_timestamp?: Timestamp denoting when the message was edited, if any.
     :ivar bool tts: Status dictating if this was a TTS message or not.
     :ivar bool mention_everyone: Status dictating of this message mentions everyone
-    :ivar Optional[List[Union[Member, User]]] mentions?: Array of user objects with an additional partial member field.
+    :ivar Optional[List[User]] mentions?: Array of user objects with an additional partial member field.
     :ivar Optional[List[str]] mention_roles?: Array of roles mentioned in this message
     :ivar Optional[List[ChannelMention]] mention_channels?: Channels mentioned in this message, if any.
     :ivar List[Attachment] attachments: An array of attachments
@@ -237,7 +237,7 @@ class Message(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
+        
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
@@ -265,6 +265,11 @@ class Message(DictSerializerMixin):
             datetime.fromisoformat(self._json.get("edited_timestamp"))
             if self._json.get("edited_timestamp")
             else datetime.utcnow()
+        )
+        self.mentions = (
+            [User(**mention) for mention in self.mentions]
+            if self._json.get("mentions")
+            else None
         )
         self.mention_channels = (
             [ChannelMention(**mention) for mention in self.mention_channels]
