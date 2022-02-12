@@ -1,4 +1,5 @@
 from typing import Optional
+
 from .flags import UserFlags
 from .misc import DictSerializerMixin, Snowflake
 
@@ -64,7 +65,7 @@ class User(DictSerializerMixin):
         :rtype: str
         """
         return f"<@{self.id}>"
-    
+
     def avatar_url(self, animated: Optional[bool] = True) -> str:
         """
         Returns the URL of the user's avatar
@@ -77,7 +78,7 @@ class User(DictSerializerMixin):
         url = "https://cdn.discordapp.com/"
         if self.avatar:
             url += f"avatars/{int(self.id)}/{self.avatar}"
-            url += ".gif" if animated and self.avatar.startswith('a_') else ".png"
+            url += ".gif" if animated and self.avatar.startswith("a_") else ".png"
         else:
             url += f"embed/avatars/{int(self.discriminator) % 5}.png"
         return url
