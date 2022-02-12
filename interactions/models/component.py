@@ -86,15 +86,14 @@ class SelectMenu(DictSerializerMixin):
         self.type = ComponentType.SELECT
         self.options = (
             [
-                SelectOption(**option._json)
-                if isinstance(option, SelectOption)
-                else SelectOption(**option)
+                option if isinstance(option, SelectOption) else SelectOption(**option)
                 for option in self.options
             ]
             if self._json.get("options")
             else None
         )
         self._json.update({"type": self.type.value})
+        self._json.update({"options": [option._json for option in self.options]})
 
 
 class Button(DictSerializerMixin):
