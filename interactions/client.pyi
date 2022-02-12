@@ -1,8 +1,7 @@
 from asyncio import AbstractEventLoop
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union, Set
 
-from .api.models.gw import Presence
 from .api.models.misc import MISSING, Snowflake
 
 from .api.cache import Cache
@@ -15,7 +14,6 @@ from .api.models.team import Application
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
-from .models.misc import MISSING
 
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
@@ -28,7 +26,7 @@ class Client:
     _shard: Optional[List[Tuple[int]]]
     _presence: Optional[Presence]
     _token: str
-    _scopes: set[List[Union[int, Snowflake]]]
+    _scopes: Set[Union[int, Snowflake, List[int], List[Snowflake]]]
     _automate_sync: bool
     _extensions: Optional[Dict[str, Union[ModuleType, Extension]]]
     me: Optional[Application]
@@ -61,11 +59,12 @@ class Client:
     def subcommand(
         self,
         *,
-        command: Optional[Tuple[str, str]] = MISSING,
+        base: Optional[Tuple[str, str]] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         sub_command_groups: Optional[List[Tuple[str, str]]] = MISSING,
         sub_commands: Optional[Union[List[Tuple[str, str]], List[List[Tuple[str, str]]]]] = MISSING,
-        options: Optional[Dict[str, List[Option]]] = MISSING,
+        options: Optional[Union[Dict[str, List[Option]], Dict[Tuple[str, str], List[Option]]]],
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,

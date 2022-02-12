@@ -476,28 +476,31 @@ class Client:
     def subcommand(
         self,
         *,
-        command: Optional[Tuple[str, str]] = MISSING,
+        base: Optional[Tuple[str, str]] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         sub_command_groups: Optional[List[Tuple[str, str]]] = MISSING,
         sub_commands: Optional[Union[List[Tuple[str, str]], List[List[Tuple[str, str]]]]] = MISSING,
-        options: Optional[Dict[str, List[Option]]] = MISSING,
+        options: Optional[
+            Union[Dict[str, List[Option]], Dict[Tuple[str, str], List[Option]]]
+        ] = MISSING,
+        default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """ """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
-            if command is MISSING:
+            if base is MISSING:
                 raise InteractionException(
                     11,
                     message="A command is required for subcommands!",
                 )
-            elif len(command) != 2:
+            elif len(base) != 2:
                 raise InteractionException(
                     11,
                     message="You must specify one command name and one command description!",
                 )
 
-            _command_name, _command_description = command[0], command[1]
+            _command_name, _command_description = base[0], base[1]
 
             if len(_command_name) > 32:
                 raise InteractionException(
@@ -644,7 +647,6 @@ class Client:
                     )
                 for _group in _group_options:
                     if not _group["options"]:
-                        pprint(_group, width=1, sort_dicts=False)
                         raise InteractionException(
                             11,
                             message="Every sub_command_group has to contain at least one subcommand!",
@@ -665,7 +667,47 @@ class Client:
             _command_options.extend(_group_options)
             _command_options.extend(_sub_cmds)
 
+            if options:
+                ...
+            for option in _command_options:
+                if option["type"] == 2:
+                    for opt in option["options"]:
+                        opt["options"] = [
+                            Option(**_) if isinstance(_, dict) else _ for _ in opt["options"]
+                        ]
+                option["options"] = [
+                    Option(**_) if isinstance(_, dict) else _ for _ in option["options"]
+                ]
+            _command_options = [
+                Option(**option) if isinstance(option, dict) else option
+                for option in _command_options
+            ]
+
             pprint(_command_options, width=1, sort_dicts=False)
+
+            commands: List[ApplicationCommand] = command(
+                type=ApplicationCommandType.CHAT_INPUT,
+                name=_command_name,
+                description=_command_description,
+                scope=scope,
+                options=_command_options,
+                default_permission=default_permission,
+            )
+
+            if self._automate_sync:
+                if self._loop.is_running():
+                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                else:
+                    [
+                        self._loop.run_until_complete(self._synchronize(command))
+                        for command in commands
+                    ]
+
+            if scope is not MISSING:
+                if isinstance(scope, List):
+                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
+                else:
+                    self._scopes.add(scope if isinstance(scope, int) else scope.id)
 
             return self.event(coro, name=f"command_{_command_name}")
 
