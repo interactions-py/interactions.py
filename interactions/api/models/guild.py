@@ -291,19 +291,17 @@ class Guild(DictSerializerMixin):
             if self._json.get("members")
             else None
         )
-        if not self.members and self._client:
-
-            if (
-                not len(self._client.cache.self_guilds.view) > 1
-                or not self._client.cache.self_guilds.values[str(self.id)].members
-            ):
-                pass
+        if (
+            not self.members
+            and self._client
+            and len(self._client.cache.self_guilds.view) > 1
+            and self._client.cache.self_guilds.values[str(self.id)].members
+        ):
+            members = self._client.cache.self_guilds.values[str(self.id)].members
+            if all(isinstance(member, Member) for member in members):
+                self.members = members
             else:
-                members = self._client.cache.self_guilds.values[str(self.id)].members
-                if all(isinstance(member, Member) for member in members):
-                    self.members = members
-                else:
-                    self.members = [Member(**member, _client=self._client) for member in members]
+                self.members = [Member(**member, _client=self._client) for member in members]
         self.roles = (
             [Role(**role, _client=self._client) for role in self.roles]
             if self._json.get("roles")
@@ -1190,8 +1188,7 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         res = self._client.get_all_channels(int(self.id))
-        channels = [Channel(**channel, _client=self._client) for channel in res]
-        return channels
+        return [Channel(**channel, _client=self._client) for channel in res]
 
     async def get_all_roles(self) -> List[Role]:
         """
@@ -1203,8 +1200,7 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         res = self._client.get_all_roles(int(self.id))
-        roles = [Role(**role, _client=self._client) for role in res]
-        return roles
+        return [Role(**role, _client=self._client) for role in res]
 
     async def get_role(
         self,
@@ -1252,8 +1248,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.modify_guild_role_position(
             guild_id=int(self.id), position=position, role_id=_role_id, reason=reason
         )
-        roles = [Role(**role, _client=self._client) for role in res]
-        return roles
+        return [Role(**role, _client=self._client) for role in res]
 
     async def get_bans(self) -> List[dict]:
         """
