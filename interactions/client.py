@@ -442,6 +442,11 @@ class Client:
                                 11,
                                 message="Command option descriptions must be less than 100 characters.",
                             )
+                        if _option.name.lower() != _option.name:
+                            raise InteractionException(
+                                11,
+                                message="Command option names must be lowercase.",
+                            )
 
                     if len(_option.name) > 32:
                         raise InteractionException(
