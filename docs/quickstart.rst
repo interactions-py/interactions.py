@@ -242,11 +242,9 @@ your ``@command`` decorator:
 .. important::
     The structure of a menu command differs significantly from that of a regular one:
 
-
     - You cannot have any options or choices.
     - You cannot have a description.
     - The ``name`` filter follows a different regex pattern.
-
 
 Creating and sending Components
 *******************************
@@ -293,8 +291,8 @@ What kinds of components are there?
 
 As a bot developer, this may be fairly important for you to want to know.
 Different components provide difference user experiences, interactions
-and results. Currently you can choose between two components that Discord
-provides: a ``Button`` and ``SelectMenu``. You're able to `find these component
+and results. Currently you can choose between three components that Discord
+provides: a ``Button``, ``SelectMenu`` and ``TextInput``. You're able to `find these component
 types`_ here.
 
 How do I send components in a row?
@@ -331,6 +329,59 @@ By default, the ``components`` keyword-argument field in the context sending
 method will always support ``ActionRow``-less sending: you only need to declare
 rows whenever you need or want to. This field will also support raw arrays and
 tables, if you so wish to choose to not use our class objects instead.
+
+
+.. important:: You cannot use ``TextInput`` with the above shown method.
+    Look :ref:`here <quickstart:Creating a TextInput>` how to create and send them.
+
+
+Creating a TextInput
+^^^^^^^^^^^^^^^^^^^^
+You want to get a Text from a user? You can use ``TextInput``s for that.
+
+.. code-block:: python
+
+        interactions.TextInput(
+            style=interactions.TextStyleType.SHORT,
+            label="Let's get straight to it: what's 1 + 1?",
+            custom_id="text_input_response",
+            min_length=1,
+            max_length=3,
+        )
+
+But how to send it? You can't use ``ctx.send`` for it. Take a look at :ref:`Modals <quickstart:Modals>` for that.
+
+
+Modals
+******
+Modals are a new way to interact with a user. Currently only a ``TextInput`` component is supported. You can have up to three ``TextInput``s in a Modal.
+
+.. code-block:: python
+
+    async def my_cool_modal_command(ctx):
+        modal = interactions.Modal(
+            title="Application Form",
+            custom_id="mod_app_form",
+            components=[interactions.TextInput(...)],
+        )
+
+        await ctx.popup(modal)
+
+with the ``TextInput`` example from above we get:
+
+.. image:: _static/modal_popup.png
+
+Responding to a Modal interaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    @bot.modal("mod_app_form")
+    async def modal_response(ctx, response: str):
+        await ctx.send(f"You wrote: {response}", ephemeral=True)
+
+You can respond to a modal the same way as you would respond to a normal ``chat-input`` command, except your function has an extra argument for the text what was put into the modal.
+
 
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
