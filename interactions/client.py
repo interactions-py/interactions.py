@@ -220,13 +220,13 @@ class Client:
         # TODO: redo error handling.
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
-                raise JSONException(commands["code"], message=commands["message"] + " |")
+                raise JSONException(commands["code"], message=f'{commands["message"]} |')
                 # TODO: redo error handling.
         elif isinstance(commands, list):
             for command in commands:
                 if command.get("code"):
                     # Error exists.
-                    raise JSONException(command["code"], message=command["message"] + " |")
+                    raise JSONException(command["code"], message=f'{command["message"]} |')
 
         names: List[str] = (
             [command["name"] for command in commands if command.get("name")] if commands else []
@@ -242,10 +242,7 @@ class Client:
             else:
                 await self.__create_sync(payload)
         else:
-            for command in commands:
-                if command not in cache:
-                    to_delete.append(command)
-
+            to_delete.extend(command for command in commands if command not in cache)
         await self.__bulk_update_sync(to_sync)
         await self.__bulk_update_sync(to_delete, delete=True)
 
@@ -288,10 +285,8 @@ class Client:
                     or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED in self.me.flags
                 ):
                     log.critical("Client not authorised for the MESSAGE_CONTENT intent.")
-            else:
-                # This is when a bot has no intents period.
-                if self._intents.value != Intents.DEFAULT.value:
-                    raise RuntimeError("Client not authorised for any privileged intents.")
+            elif self._intents.value != Intents.DEFAULT.value:
+                raise RuntimeError("Client not authorised for any privileged intents.")
 
             self.__register_events()
             if self._automate_sync:
@@ -651,12 +646,15 @@ class Client:
         :rtype: ApplicationCommand
         """
         _command: Dict
-        for _command in commands:
-            if _command["name"] == command:
-                _command_obj = ApplicationCommand(**_command)
-                break
-        else:
-            _command_obj = None
+        _command_obj = next(
+            (
+                ApplicationCommand(**_command)
+                for _command in commands
+                if _command["name"] == command
+            ),
+            None,
+        )
+
         if not _command_obj or (hasattr(_command_obj, "id") and not _command_obj.id):
             raise InteractionException(
                 6,
@@ -803,7 +801,7 @@ class Client:
         except Exception as error:
             del sys.modules[name]
             log.error(f"Could not load {name}: {error}. Skipping.")
-            raise error
+            raise error from error
         else:
             log.debug(f"Loaded extension {name}.")
             self._extensions[_name] = module
