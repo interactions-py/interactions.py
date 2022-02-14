@@ -355,7 +355,7 @@ class HTTPClient:
         url: Any = await self._req.request(
             Route("GET", "/gateway")
         )  # typehinting Any because pycharm yells
-        return url["url"] + "?v=9&encoding=json"
+        return f'{url["url"]}?v=9&encoding=json'
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
         """
@@ -365,7 +365,7 @@ class HTTPClient:
         """
 
         data: Any = await self._req.request(Route("GET", "/gateway/bot"))
-        return data["shards"], data["url"] + "?v=9&encoding=json"
+        return data["shards"], f'{data["url"]}?v=9&encoding=json'
 
     async def login(self) -> Optional[dict]:
         """

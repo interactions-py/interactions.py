@@ -14,15 +14,13 @@ from typing import (
     TypeVar,
 )
 
-from .api.models.gw import Presence
-from .api.models.misc import MISSING, Snowflake
-
 from .api.cache import Cache
 from .api.gateway import WebSocket
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
 from .api.models.gw import Presence
+from .api.models.misc import MISSING, Snowflake
 from .api.models.team import Application
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
@@ -104,8 +102,6 @@ class Client:
     def autocomplete(
         self, name: str, command: Union[ApplicationCommand, int, str]
     ) -> Callable[..., Any]: ...
-    def modal(self, modal: Modal) -> Callable[..., Any]: ...
-    def autocomplete(self, name: str, command: Union[ApplicationCommand, int, str]) -> Callable[..., Any]: ...
     def modal(self, modal: Union[Modal, str]) -> Callable[..., Any]: ...
     def load(
         self, name: str, package: Optional[str] = None, *args, **kwargs
@@ -114,11 +110,11 @@ class Client:
     def reload(
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]: ...
+    def get_extension(self, name: str) -> Union[ModuleType, "Extension"]: ...
     async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
     async def raw_channel_create(self, message) -> dict: ...
     async def raw_message_create(self, message) -> dict: ...
     async def raw_guild_create(self, guild) -> dict: ...
-
     @staticmethod
     def _find_command(commands: List[Dict], command: str) -> ApplicationCommand: ...
 

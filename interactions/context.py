@@ -160,10 +160,10 @@ class CommandContext(Context):
         _ephemeral: int = (1 << 6) if ephemeral else 0
         if self.type == InteractionType.MESSAGE_COMPONENT:
             self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        elif (
-            self.type == InteractionType.APPLICATION_COMMAND
-            or self.type == InteractionType.MODAL_SUBMIT
-        ):
+        elif self.type in [
+            InteractionType.APPLICATION_COMMAND,
+            InteractionType.MODAL_SUBMIT,
+        ]:
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
@@ -390,7 +390,8 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res, _client=self.client)
+                    msg = Message(**res, _client=self.client)
+                    self.message = msg
                 else:
                     await self.client._post_followup(
                         data=payload._json,
@@ -414,7 +415,7 @@ class CommandContext(Context):
                     self.message = msg
                 self.responded = True
 
-            return msg if msg else payload
+            return msg or payload
 
         return await func()
 
@@ -644,7 +645,7 @@ class CommandContext(Context):
                     self.message = Message(**res, _client=self.client)
 
         await func()
-        return payload
+        return self.message
 
     async def delete(self) -> None:
         """

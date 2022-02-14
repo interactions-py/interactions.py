@@ -295,19 +295,17 @@ class Guild(DictSerializerMixin):
             if self._json.get("members")
             else None
         )
-        if not self.members and self._client:
-
-            if (
-                not len(self._client.cache.self_guilds.view) > 1
-                or not self._client.cache.self_guilds.values[str(self.id)].members
-            ):
-                pass
+        if (
+            not self.members
+            and self._client
+            and len(self._client.cache.self_guilds.view) > 1
+            and self._client.cache.self_guilds.values[str(self.id)].members
+        ):
+            members = self._client.cache.self_guilds.values[str(self.id)].members
+            if all(isinstance(member, Member) for member in members):
+                self.members = members
             else:
-                members = self._client.cache.self_guilds.values[str(self.id)].members
-                if all(isinstance(member, Member) for member in members):
-                    self.members = members
-                else:
-                    self.members = [Member(**member, _client=self._client) for member in members]
+                self.members = [Member(**member, _client=self._client) for member in members]
         self.roles = (
             [Role(**role, _client=self._client) for role in self.roles]
             if self._json.get("roles")
