@@ -872,6 +872,9 @@ class Client:
         self.remove(name, package)
         return self.load(name, package, *args, **kwargs)
 
+    def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
+        return self._extensions.get(name)
+
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
