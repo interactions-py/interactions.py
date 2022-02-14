@@ -1,4 +1,4 @@
-from enum import IntFlag, StrEnum
+from enum import IntFlag, Enum
 
 
 class Intents(IntFlag):
@@ -120,9 +120,9 @@ class AppFlags(IntFlag):
     GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
 
 
-class StatusType(StrEnum):
+class StatusType(str, Enum):
     """
-    A string enum representing Discord status icons that a user may have.
+    An enumerable object representing Discord status icons that a user may have.
     """
 
     ONLINE = "online"
