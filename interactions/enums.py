@@ -1,4 +1,4 @@
-from enum import IntEnum, StrEnum
+from enum import IntEnum, Enum
 
 
 class ApplicationCommandType(IntEnum):
