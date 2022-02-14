@@ -1,4 +1,4 @@
-from enum import IntEnum, StrEnum
+from enum import IntEnum, Enum
 
 
 class ApplicationCommandType(IntEnum):
@@ -147,9 +147,9 @@ class TextStyleType(IntEnum):
     PARAGRAPH = 2
 
 
-class Locale(StrEnum):
+class Locale(str, Enum):
     """
-    A string enum representing Discord locales
+    An enumerable object representing Discord locales.
     """
 
     ENGLISH_US = "en_US"
