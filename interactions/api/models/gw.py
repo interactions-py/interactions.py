@@ -577,7 +577,7 @@ class GuildMembers(DictSerializerMixin):
     A class object representing the gateway event ``GUILD_MEMBERS_CHUNK``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar List[Member] members: The members of the event.
+    :ivar List[GuildMember] members: The members of the event.
     :ivar int chunk_index: The current chunk index of the event.
     :ivar int chunk_count: The total chunk count of the event.
     :ivar list not_found: A list of not found members in the event if an invalid request was made.
