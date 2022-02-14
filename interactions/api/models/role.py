@@ -162,5 +162,4 @@ class Role(DictSerializerMixin):
         res = await self._client.modify_guild_role_position(
             guild_id=guild_id, position=position, role_id=int(self.id), reason=reason
         )
-        roles = [Role(**role, _client=self._client) for role in res]
-        return roles
+        return [Role(**role, _client=self._client) for role in res]
