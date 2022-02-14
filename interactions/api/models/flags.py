@@ -1,4 +1,4 @@
-from enum import IntFlag
+from enum import IntFlag, StrEnum
 
 
 class Intents(IntFlag):
@@ -118,3 +118,15 @@ class AppFlags(IntFlag):
     EMBEDDED = 1 << 17
     GATEWAY_MESSAGE_CONTENT = 1 << 18
     GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
+
+
+class StatusType(StrEnum):
+    """
+    A string enum representing Discord status icons that a user may have.
+    """
+
+    ONLINE = "online"
+    DND = "dnd"
+    IDLE = "idle"
+    INVISIBLE = "invisible"
+    OFFLINE = "offline"
