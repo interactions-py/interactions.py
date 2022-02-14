@@ -1,5 +1,3 @@
-from typing import Optional
-
 from .flags import UserFlags
 from .misc import DictSerializerMixin, Snowflake
 
