@@ -66,19 +66,18 @@ class User(DictSerializerMixin):
         """
         return f"<@{self.id}>"
 
-    def avatar_url(self, animated: Optional[bool] = True) -> str:
+    @property
+    def avatar_url(self) -> str:
         """
         Returns the URL of the user's avatar
 
-        :param animated: If available, return the animated version of the avatar.
-        :type animated: Optional[bool]
         :return: URL of the user's avatar.
         :rtype: str
         """
         url = "https://cdn.discordapp.com/"
         if self.avatar:
             url += f"avatars/{int(self.id)}/{self.avatar}"
-            url += ".gif" if animated and self.avatar.startswith("a_") else ".png"
+            url += ".gif" if self.avatar.startswith("a_") else ".png"
         else:
             url += f"embed/avatars/{int(self.discriminator) % 5}.png"
         return url
