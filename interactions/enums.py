@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, StrEnum
 
 
 class ApplicationCommandType(IntEnum):
@@ -158,3 +158,19 @@ class StatusType(str, Enum):
     IDLE = "idle"
     INVISIBLE = "invisible"
     OFFLINE = "offline"
+
+
+class Locale(StrEnum):
+    """
+    A string enum representing Discord locales
+    """
+
+    ENGLISH_US = "en_US"
+    ENGLISH_GB = "en_GB"
+    BULGARIAN = "bg"
+    CHINESE_CHINA = "zh-CN"
+    CHINESE_TAIWAN = "zh-TW"
+    CROATIAN = "hr"
+    CZECH = "cs"
+    DANISH = "da"
+    DUTCH = "nl"
