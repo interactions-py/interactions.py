@@ -1,5 +1,4 @@
 from enum import Enum
-from hashlib import _Hash as MD5Hash
 from hashlib import md5
 from string import ascii_lowercase
 from typing import List, Optional, Union
@@ -51,11 +50,11 @@ class VersionAuthor:
         self.email = email
         self._hash = md5(self.__str__())
 
-    def __hash__(self) -> MD5Hash:
+    def __hash__(self):
         return self._hash
 
     def __str__(self) -> str:
-        return f"{self.name}{' <' + self.email + '>' if self.email else ''}"
+        return f'{self.name}{f" <{self.email}>" if self.email else ""}'
 
     @property
     def is_co_author(self) -> bool:

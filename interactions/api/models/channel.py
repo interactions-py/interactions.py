@@ -238,11 +238,10 @@ class Channel(DictSerializerMixin):
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         if not embeds or embeds is MISSING:
             _embeds: list = []
+        elif isinstance(embeds, list):
+            _embeds = [embed._json for embed in embeds]
         else:
-            if isinstance(embeds, list):
-                _embeds = [embed._json for embed in embeds]
-            else:
-                _embeds = [embeds._json]
+            _embeds = [embeds._json]
 
         # TODO: Break this obfuscation pattern down to a "builder" method.
         if not components or components is MISSING:
@@ -298,7 +297,8 @@ class Channel(DictSerializerMixin):
                     ):
                         if isinstance(component, SelectMenu):
                             component._json["options"] = [
-                                option._json for option in component.options
+                                option._json if not isinstance(option, dict) else option
+                                for option in component.options
                             ]
                     _components.append(
                         {
@@ -515,8 +515,7 @@ class Channel(DictSerializerMixin):
         from .message import Message
 
         res = await self._client.get_pinned_messages(int(self.id))
-        messages = [Message(**message, _client=self._client) for message in res]
-        return messages
+        return [Message(**message, _client=self._client) for message in res]
 
     async def get_message(
         self,
@@ -612,11 +611,10 @@ class Channel(DictSerializerMixin):
                         message_id=int(messages[0].id),
                         reason=reason,
                     )
+                elif _stop:
+                    return _all
                 else:
-                    if _stop:
-                        return _all
-                    else:
-                        continue
+                    continue
                 if _stop:
                     return _all
 
@@ -662,11 +660,10 @@ class Channel(DictSerializerMixin):
                         message_id=int(messages[0].id),
                         reason=reason,
                     )
+                elif _stop:
+                    return _all
                 else:
-                    if _stop:
-                        return _all
-                    else:
-                        continue
+                    continue
                 if _stop:
                     return _all
             while amount == 1:
@@ -692,7 +689,7 @@ class Channel(DictSerializerMixin):
                             amount += 1
                             _before = int(message.id)
                 _all += messages
-                if len(messages) == 0:
+                if not messages:
                     continue
                 await self._client.delete_message(
                     channel_id=int(self.id),
@@ -706,11 +703,12 @@ class Channel(DictSerializerMixin):
                     Message(**res)
                     for res in await self._client.get_channel_messages(
                         channel_id=int(self.id),
-                        limit=amount if amount <= 100 else 100,
+                        limit=min(amount, 100),
                         before=_before,
                     )
                 ]
-                amount -= amount if amount <= 100 else 100
+
+                amount -= min(amount, 100)
                 messages2 = messages.copy()
                 for message in messages2:
                     if message.flags == (1 << 7):

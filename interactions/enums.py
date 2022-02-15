@@ -147,14 +147,38 @@ class TextStyleType(IntEnum):
     PARAGRAPH = 2
 
 
-# TODO: Move this to flags.py after # 420
-class StatusType(str, Enum):
+class Locale(str, Enum):
     """
-    A string enum representing Discord status icons that a user may have.
+    An enumerable object representing Discord locales.
     """
 
-    ONLINE = "online"
-    DND = "dnd"
-    IDLE = "idle"
-    INVISIBLE = "invisible"
-    OFFLINE = "offline"
+    ENGLISH_US = "en_US"
+    ENGLISH_GB = "en_GB"
+    BULGARIAN = "bg"
+    CHINESE_CHINA = "zh-CN"
+    CHINESE_TAIWAN = "zh-TW"
+    CROATIAN = "hr"
+    CZECH = "cs"
+    DANISH = "da"
+    DUTCH = "nl"
+    FINNISH = "fi"
+    FRENCH = "fr"
+    GERMAN = "de"
+    GREEK = "el"
+    HINDI = "hi"
+    HUNGARIAN = "hu"
+    ITALIAN = "it"
+    JAPANESE = "ja"
+    KOREAN = "ko"
+    LITHUANIAN = "lt"
+    NORWEGIAN = "no"
+    POLISH = "pl"
+    PORTUGUESE_BRAZIL = "pt-BR"
+    ROMANIAN = "ro"
+    RUSSIAN = "ru"
+    SPANISH_SPAIN = "es-ES"
+    SWEDISH = "sv-SE"
+    THAI = "th"
+    TURKISH = "tr"
+    UKRAINIAN = "uk"
+    VIETNAMESE = "vi"

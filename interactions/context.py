@@ -1,6 +1,7 @@
 from logging import Logger
 from typing import List, Optional, Union
 
+from .api import InteractionException
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -172,7 +173,8 @@ class ContextMixin(DictSerializerMixin):
         _components: List[dict] = [{"type": 1, "components": []}]
 
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components is not MISSING:
+        if components is not MISSING and components:
+            # components could be not missing but an empty list
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -222,7 +224,8 @@ class ContextMixin(DictSerializerMixin):
                     ):
                         if isinstance(component, SelectMenu):
                             component._json["options"] = [
-                                option._json for option in component.options
+                                option._json if not isinstance(option, dict) else option
+                                for option in component.options
                             ]
                     _components.append(
                         {
@@ -348,10 +351,7 @@ class ContextMixin(DictSerializerMixin):
 
         if self.message.components is not None or components is not MISSING:
             if components is MISSING:
-                if isinstance(self.message.components, list):
-                    _components = [component._json for component in self.message.components]
-                else:
-                    _components = [self.message.components._json]
+                _components = self.message.components
             elif not components:
                 _components = []
             else:
@@ -383,7 +383,8 @@ class ContextMixin(DictSerializerMixin):
                 ):
                     if isinstance(components[0], SelectMenu):
                         components[0]._json["options"] = [
-                            option._json for option in components[0].options
+                            option._json if not isinstance(option, dict) else option
+                            for option in components[0].options
                         ]
                     _components = [
                         {
@@ -411,7 +412,8 @@ class ContextMixin(DictSerializerMixin):
                         ):
                             if isinstance(component, SelectMenu):
                                 component._json["options"] = [
-                                    option._json for option in component.options
+                                    option._json if not isinstance(option, dict) else option
+                                    for option in component.options
                                 ]
                         _components.append(
                             {
@@ -440,7 +442,17 @@ class ContextMixin(DictSerializerMixin):
                         )
                         for component in components.components
                     ]
-                elif isinstance(components, (Button, SelectMenu)):
+                elif isinstance(components, Button):
+                    _components[0]["components"] = (
+                        [components._json]
+                        if components._json.get("custom_id") or components._json.get("url")
+                        else []
+                    )
+                elif isinstance(components, SelectMenu):
+                    components._json["options"] = [
+                        options._json if not isinstance(options, dict) else options
+                        for options in components._json["options"]
+                    ]
                     _components[0]["components"] = (
                         [components._json]
                         if components._json.get("custom_id") or components._json.get("url")
@@ -598,7 +610,7 @@ class CommandContext(ContextMixin):
                     int(self.channel_id), res["id"], payload=payload._json
                 )
                 self.message = Message(**res, _client=self.client)
-
+        
         return payload
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
@@ -707,7 +719,9 @@ class CommandContext(ContextMixin):
                 elif isinstance(choices, Choice):
                     _choices = [choices._json]
                 else:
-                    _choices = [choices]
+                    raise InteractionException(
+                        6, message="Autocomplete choice items must be of type Choice"
+                    )
 
                 await self.client.create_interaction_response(
                     token=self.token,

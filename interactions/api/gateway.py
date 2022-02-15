@@ -126,7 +126,7 @@ class WebSocket:
         self.closed = False
         self.http = None
         self.options: dict = {
-            "max_msg_size": 1024 ** 2,
+            "max_msg_size": 1024**2,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
@@ -242,6 +242,30 @@ class WebSocket:
         :type data: dict
         """
 
+        def option_type_lookup(_type: int) -> dict:
+            if _type == OptionType.USER.value:
+                __resolved = (
+                    context.data.resolved.members
+                    if context.guild_id
+                    else context.data.resolved.users
+                )
+            elif _type == OptionType.CHANNEL.value:
+                __resolved = context.data.resolved.channels
+            elif _type == OptionType.ROLE.value:
+                __resolved = context.data.resolved.roles
+            elif _type == OptionType.ATTACHMENT.value:
+                __resolved = context.data.resolved.attachments
+            elif _type == OptionType.MENTIONABLE.value:
+                __resolved = {
+                    **(
+                        context.data.resolved.members
+                        if context.guild_id
+                        else context.data.resolved.users
+                    ),
+                    **context.data.resolved.roles,
+                }
+            return __resolved
+
         def check_sub_command(option: dict) -> dict:
             kwargs: dict = {}
             if option["type"] == OptionType.SUB_COMMAND_GROUP:
@@ -258,7 +282,11 @@ class WebSocket:
                     for sub_option in option["options"]:
                         kwargs[sub_option["name"]] = sub_option["value"]
             else:
-                kwargs[option["name"]] = option["value"]
+                if option["type"] in [6, 7, 8, 9, 11]:
+                    _resolved = option_type_lookup(option["type"])
+                    kwargs[option["name"]] = _resolved[option["value"]]
+                else:
+                    kwargs[option["name"]] = option["value"]
 
             return kwargs
 
