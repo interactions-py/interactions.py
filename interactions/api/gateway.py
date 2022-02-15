@@ -133,13 +133,24 @@ class WebSocketClient:
     async def __heartbeat_manager(self) -> None:
         """Manages the heartbeat loop."""
         while True:
+            # yes, i'm aware that this is a shoddy way of checking for the closed/closing
+            # state of the client. but, it's also one of the only convenient ways i can think
+            # of doing this to indicate that we should bother with a reconnection.
+            # in theory, the close_code method will be caught on for an actual problem.
+            # we just want to reconnect, not determine the position of the fucking stars.
+            if self._client.closed or self._client._closing:
+                self._closed = True
+                await self._establish_connection()
             if self.__heartbeater.event.is_set():
                 await self.__heartbeat_packet
                 self.__heartbeater.event.clear()
                 await sleep(self.__heartbeater.delay / 1000)
             else:
-                log.debug("Heartbeat ACK not recieved, reconnecting to Gateway...")
+                log.debug("Heartbeat ACK not received, reconnecting to Gateway...")
                 await self._client.close()
+                # because we're reconnecting, we should clear the heartbeater again
+                # in order to tell our manager "we're restarting."
+                self.__heartbeater.event.clear()
                 await self._establish_connection()
                 break
 
@@ -164,6 +175,10 @@ class WebSocketClient:
             while not self._closed:
                 stream = await self.__receive_packet_stream
 
+                # the only reason the stream can become None is if we've failed to load
+                # serialised JSON from the packet stream. it's our way of throwing data
+                # compressed or ztf data that we can't handle. Throwing an exception or
+                # returning MISSING instead would be moot, so we'll just continue along.
                 if stream is None:
                     continue
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
@@ -213,6 +228,10 @@ class WebSocketClient:
                     await self.__identify_packet(shard, presence)
                 else:
                     await self.__resume_packet
+
+            # theoretically, upon the heartbeater being set, the client should be able to identify
+            # the heartbeat request. this ends up staying daemonic and there are no blocking
+            # conditions.
             if op == OpCodeType.HEARTBEAT:
                 await self.__heartbeat_packet
             if op == OpCodeType.HEARTBEAT_ACK:
