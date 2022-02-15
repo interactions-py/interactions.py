@@ -610,7 +610,7 @@ class CommandContext(ContextMixin):
                     int(self.channel_id), res["id"], payload=payload._json
                 )
                 self.message = Message(**res, _client=self.client)
-        
+
         return payload
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
