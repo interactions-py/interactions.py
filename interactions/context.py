@@ -1,6 +1,7 @@
 from logging import Logger
 from typing import List, Optional, Union
 
+from .api import InteractionException
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
@@ -159,10 +160,10 @@ class CommandContext(Context):
         _ephemeral: int = (1 << 6) if ephemeral else 0
         if self.type == InteractionType.MESSAGE_COMPONENT:
             self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        elif (
-            self.type == InteractionType.APPLICATION_COMMAND
-            or self.type == InteractionType.MODAL_SUBMIT
-        ):
+        elif self.type in [
+            InteractionType.APPLICATION_COMMAND,
+            InteractionType.MODAL_SUBMIT,
+        ]:
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
@@ -389,7 +390,8 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res, _client=self.client)
+                    msg = Message(**res, _client=self.client)
+                    self.message = msg
                 else:
                     await self.client._post_followup(
                         data=payload._json,
@@ -413,7 +415,7 @@ class CommandContext(Context):
                     self.message = msg
                 self.responded = True
 
-            return msg if msg else payload
+            return msg or payload
 
         return await func()
 
@@ -471,10 +473,7 @@ class CommandContext(Context):
 
         if self.message.components is not None or components is not MISSING:
             if components is MISSING:
-                if isinstance(self.message.components, list):
-                    _components = [component._json for component in self.message.components]
-                else:
-                    _components = [self.message.components._json]
+                _components = self.message.components
             elif not components:
                 _components = []
             else:
@@ -646,7 +645,7 @@ class CommandContext(Context):
                     self.message = Message(**res, _client=self.client)
 
         await func()
-        return payload
+        return self.message
 
     async def delete(self) -> None:
         """
@@ -693,7 +692,9 @@ class CommandContext(Context):
                 elif isinstance(choices, Choice):
                     _choices = [choices._json]
                 else:
-                    _choices = [choices]
+                    raise InteractionException(
+                        6, message="Autocomplete choice items must be of type Choice"
+                    )
 
                 await self.client.create_interaction_response(
                     token=self.token,

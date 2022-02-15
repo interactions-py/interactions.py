@@ -159,6 +159,12 @@ And the error occurs in the line where you try to send something. You can fix th
 You have to add this extra argument for every object you instantiate by yourself if you want to use it's methods
 
 
+Context and Messages don't have the ``Channel`` and ``Guild`` attributes! Why?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+At the moment the Discord API does *not* include them into their responses.
+You can get those object via the ``get_channel()`` and ``get_guild()`` methods of the Context and Message model.
+
+
 My question is not answered on here!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Please join our Discord server for any further support regarding our library and/or any integration code depending on it.

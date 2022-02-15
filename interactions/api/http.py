@@ -66,7 +66,7 @@ class Route:
         :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
         """
-        self.__api__ = "https://discord.com/api/v9"
+        self.__api__ = "https://discord.com/api/v10"
         self.method = method
         self.path = path.format(**kwargs)
         self.channel_id = kwargs.get("channel_id")
@@ -358,7 +358,7 @@ class HTTPClient:
         url: Any = await self._req.request(
             Route("GET", "/gateway")
         )  # typehinting Any because pycharm yells
-        return url["url"] + "?v=9&encoding=json"
+        return f'{url["url"]}?v=9&encoding=json'
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
         """
@@ -368,7 +368,7 @@ class HTTPClient:
         """
 
         data: Any = await self._req.request(Route("GET", "/gateway/bot"))
-        return data["shards"], data["url"] + "?v=9&encoding=json"
+        return data["shards"], f'{data["url"]}?v=9&encoding=json'
 
     async def login(self) -> Optional[dict]:
         """
