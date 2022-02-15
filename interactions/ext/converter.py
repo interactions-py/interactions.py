@@ -5,6 +5,9 @@ class Converter:
     """
     A class representing the "conversion" or consistent mapping between
     two objects' attributes.
+
+    :ivar object _obj1: The first object to be converted.
+    :ivar object _obj2: The second object to be converted.
     """
 
     __slots__ = ("_obj1", "_obj2")
@@ -67,7 +70,7 @@ class Converter:
         return self._obj1
 
     @property
-    def diff(self) -> List[dict]:
+    def difference(self) -> List[dict]:
         """
         Gets a list of keys and values that the models don't share in common.
 
@@ -75,3 +78,13 @@ class Converter:
         :rtype: List[dict]
         """
         return [{key: val} for key, val in self._obj2 if key not in self._obj1]
+
+    @property
+    def missing(self) -> List[dict]:
+        """
+        Gets a list of keys and values missing from the "referenced" or first model.
+
+        :return: A list of dictionaries
+        :rtype: List[dict]
+        """
+        return [{key: val} for key, val in self._obj1 if key not in self._obj2]
