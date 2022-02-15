@@ -232,7 +232,8 @@ class CommandContext(Context):
         _components: List[dict] = [{"type": 1, "components": []}]
 
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components is not MISSING:
+        if components is not MISSING and components:
+            # components could be not missing but an empty list
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -282,7 +283,8 @@ class CommandContext(Context):
                     ):
                         if isinstance(component, SelectMenu):
                             component._json["options"] = [
-                                option._json for option in component.options
+                                option._json if not isinstance(option, dict) else option
+                                for option in component.options
                             ]
                     _components.append(
                         {
@@ -505,7 +507,8 @@ class CommandContext(Context):
                 ):
                     if isinstance(components[0], SelectMenu):
                         components[0]._json["options"] = [
-                            option._json for option in components[0].options
+                            option._json if not isinstance(option, dict) else option
+                            for option in components[0].options
                         ]
                     _components = [
                         {
@@ -533,7 +536,8 @@ class CommandContext(Context):
                         ):
                             if isinstance(component, SelectMenu):
                                 component._json["options"] = [
-                                    option._json for option in component.options
+                                    option._json if not isinstance(option, dict) else option
+                                    for option in component.options
                                 ]
                         _components.append(
                             {
@@ -562,7 +566,17 @@ class CommandContext(Context):
                         )
                         for component in components.components
                     ]
-                elif isinstance(components, (Button, SelectMenu)):
+                elif isinstance(components, Button):
+                    _components[0]["components"] = (
+                        [components._json]
+                        if components._json.get("custom_id") or components._json.get("url")
+                        else []
+                    )
+                elif isinstance(components, SelectMenu):
+                    components._json["options"] = [
+                        options._json if not isinstance(options, dict) else options
+                        for options in components._json["options"]
+                    ]
                     _components[0]["components"] = (
                         [components._json]
                         if components._json.get("custom_id") or components._json.get("url")
