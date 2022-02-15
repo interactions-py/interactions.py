@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from ..api.error import InteractionException
 from ..api.models.message import Emoji
 from ..api.models.misc import DictSerializerMixin
 from ..enums import ButtonStyle, ComponentType, TextStyleType
@@ -365,3 +366,110 @@ class ActionRow(DictSerializerMixin):
         self._json.update({"type": self.type.value})
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]
+
+
+def _build_components(components) -> List[dict]:
+    def __check_action_row():
+
+        if isinstance(components, list) and all(
+            isinstance(action_row, (list, ActionRow)) for action_row in components
+        ):
+            _components = []
+            for action_row in components:
+                for component in (
+                    action_row if isinstance(action_row, list) else action_row.components
+                ):
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            option._json if not isinstance(option, dict) else option
+                            for option in component.options
+                        ]
+                _components.append(
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in (
+                                action_row
+                                if isinstance(action_row, list)
+                                else action_row.components
+                            )
+                        ],
+                    }
+                )
+            return _components
+
+        elif isinstance(components, ActionRow):
+            _components: List[dict] = [{"type": 1, "components": []}]
+            _components[0]["components"] = [
+                (
+                    component._json
+                    if component._json.get("custom_id") or component._json.get("url")
+                    else []
+                )
+                for component in components.components
+            ]
+            return _components
+        else:
+            return False
+
+    def __check_components():
+        if isinstance(components, list) and all(
+            isinstance(component, (Button, SelectMenu)) for component in components
+        ):
+            for component in components:
+                if isinstance(component, SelectMenu):
+                    component._json["options"] = [
+                        options._json if not isinstance(options, dict) else options
+                        for options in component._json["options"]
+                    ]
+            _components = [
+                {
+                    "type": 1,
+                    "components": [
+                        (
+                            component._json
+                            if component._json.get("custom_id") or component._json.get("url")
+                            else []
+                        )
+                        for component in components
+                    ],
+                }
+            ]
+            return _components
+
+        elif isinstance(components, Button):
+            _components: List[dict] = [{"type": 1, "components": []}]
+            _components[0]["components"] = (
+                [components._json]
+                if components._json.get("custom_id") or components._json.get("url")
+                else []
+            )
+            return __check_components()
+        elif isinstance(components, SelectMenu):
+            _components: List[dict] = [{"type": 1, "components": []}]
+            components._json["options"] = [
+                options._json if not isinstance(options, dict) else options
+                for options in components._json["options"]
+            ]
+            _components[0]["components"] = (
+                [components._json]
+                if components._json.get("custom_id") or components._json.get("url")
+                else []
+            )
+            return _components
+        else:
+            raise InteractionException(
+                11, message="The specified components are invalid and could not be created!"
+            )
+
+    _components = __check_action_row()
+
+    if _components:
+        return _components
+    else:
+        return __check_components()
