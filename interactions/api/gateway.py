@@ -113,7 +113,7 @@ class WebSocketClient:
         self._client = None
         self._closed = False
         self._options = {
-            "max_msg_size": 1024 ** 2,
+            "max_msg_size": 1024**2,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
