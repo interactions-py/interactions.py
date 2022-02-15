@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 from ..api.models.channel import Channel
 from ..api.models.member import Member
-from ..api.models.message import Message
+from ..api.models.message import Attachment, Message
 from ..api.models.misc import DictSerializerMixin, Snowflake
 from ..api.models.role import Role
 from ..api.models.user import User
@@ -19,14 +19,16 @@ class InteractionResolvedData(DictSerializerMixin):
     :ivar Dict[str, Role] roles: The resolved roles data.
     :ivar Dict[str, Channel] channels: The resolved channels data.
     :ivar Dict[str, Message] messages: The resolved messages data.
+    :ivar Dict[str, Attachment] attachments: The resolved attachments data.
     """
 
-    __slots__ = ("_json", "users", "members", "roles", "channels", "messages")
+    __slots__ = ("_json", "users", "members", "roles", "channels", "messages", "attachments")
     users: Dict[str, User]
     members: Dict[str, Member]
     roles: Dict[str, Role]
     channels: Dict[str, Channel]
     messages: Dict[str, Message]
+    attachments: Dict[str, Attachment]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -68,6 +70,13 @@ class InteractionResolvedData(DictSerializerMixin):
             ]
         else:
             self.messages = {}
+        if self._json.get("attachments"):
+            [
+                self.attachments.update({attachment: Attachment(**self.attachments[attachment])})
+                for attachment in self._json.get("attachments")
+            ]
+        else:
+            self.attachments = {}
 
 
 class InteractionData(DictSerializerMixin):

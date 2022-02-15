@@ -36,6 +36,7 @@ class Attachment(DictSerializerMixin):
     proxy_url: str
     height: Optional[int]
     width: Optional[int]
+    ephemeral: Optional[bool]
     def __init__(self, **kwargs): ...
 
 class MessageInteraction(DictSerializerMixin):
@@ -113,7 +114,8 @@ class Message(DictSerializerMixin):
         ] = MISSING,
     ) -> "Message": ...
 
-    async def reply(self,
+    async def reply(
+            self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,

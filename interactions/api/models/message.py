@@ -89,6 +89,9 @@ class Attachment(DictSerializerMixin):
         which requires it to be a media file with viewabiltity as a photo,
         animated photo, GIF and/or video.
 
+        If `ephemeral` is given, the attachments will automatically be removed after a set period of time.
+        In the case of regular messages, they're available as long as the message associated with the attachment exists.
+
     :ivar int id: The ID of the attachment.
     :ivar str filename: The name of the attachment file.
     :ivar Optional[str] description?: The description of the file.
@@ -98,6 +101,7 @@ class Attachment(DictSerializerMixin):
     :ivar str proxy_url: The proxied/cached CDN URL of the attachment file.
     :ivar Optional[int] height?: The height of the attachment file.
     :ivar Optional[int] width?: The width of the attachment file.
+    :ivar Optional[bool] ephemeral: Whether the attachment is ephemeral.
     """
 
     __slots__ = (
@@ -110,6 +114,7 @@ class Attachment(DictSerializerMixin):
         "proxy_url",
         "height",
         "width",
+        "ephemeral",
     )
 
     def __init__(self, **kwargs):
@@ -615,7 +620,8 @@ class Message(DictSerializerMixin):
                     ):
                         if isinstance(component, SelectMenu):
                             component._json["options"] = [
-                                option._json for option in component.options
+                                option._json if not isinstance(option, dict) else option
+                                for option in component.options
                             ]
                     _components.append(
                         {

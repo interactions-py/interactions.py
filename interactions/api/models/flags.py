@@ -1,4 +1,4 @@
-from enum import IntFlag
+from enum import Enum, IntFlag
 
 
 class Intents(IntFlag):
@@ -19,9 +19,10 @@ class Intents(IntFlag):
     DIRECT_MESSAGES = 1 << 12
     DIRECT_MESSAGE_REACTIONS = 1 << 13
     DIRECT_MESSAGE_TYPING = 1 << 14
+    GUILD_MESSAGE_CONTENT = 1 << 15
     GUILD_SCHEDULED_EVENTS = 1 << 16
 
-    PRIVILEGED = GUILD_PRESENCES | GUILD_MEMBERS
+    PRIVILEGED = GUILD_PRESENCES | GUILD_MEMBERS | GUILD_MESSAGE_CONTENT
     DEFAULT = (
         GUILDS
         | GUILD_BANS
@@ -118,3 +119,15 @@ class AppFlags(IntFlag):
     EMBEDDED = 1 << 17
     GATEWAY_MESSAGE_CONTENT = 1 << 18
     GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
+
+
+class StatusType(str, Enum):
+    """
+    An enumerable object representing Discord status icons that a user may have.
+    """
+
+    ONLINE = "online"
+    DND = "dnd"
+    IDLE = "idle"
+    INVISIBLE = "invisible"
+    OFFLINE = "offline"

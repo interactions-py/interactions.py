@@ -22,4 +22,4 @@ jobs:
         twine upload dist/*
 on:
   release:
-    types: [created]
+    types: [released]
