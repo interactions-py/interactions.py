@@ -348,7 +348,10 @@ class ActionRow(DictSerializerMixin):
         self.type = ComponentType.ACTION_ROW
         for component in self.components:
             if isinstance(component, SelectMenu):
-                component._json["options"] = [option._json for option in component._json["options"]]
+                component._json["options"] = [
+                    option._json if isinstance(option, SelectOption) else option
+                    for option in component._json["options"]
+                ]
         self.components = (
             [Component(**component._json) for component in self.components]
             if self._json.get("components")
