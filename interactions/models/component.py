@@ -449,7 +449,7 @@ def _build_components(components) -> List[dict]:
                 if components._json.get("custom_id") or components._json.get("url")
                 else []
             )
-            return __check_components()
+            return _components
         elif isinstance(components, SelectMenu):
             _components: List[dict] = [{"type": 1, "components": []}]
             components._json["options"] = [
