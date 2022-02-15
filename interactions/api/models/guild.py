@@ -1187,7 +1187,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = self._client.get_all_channels(int(self.id))
+        res = await self._client.get_all_channels(int(self.id))
         return [Channel(**channel, _client=self._client) for channel in res]
 
     async def get_all_roles(self) -> List[Role]:
@@ -1199,7 +1199,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = self._client.get_all_roles(int(self.id))
+        res = await self._client.get_all_roles(int(self.id))
         return [Role(**role, _client=self._client) for role in res]
 
     async def get_role(
