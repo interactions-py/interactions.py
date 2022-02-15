@@ -30,7 +30,7 @@ You will be redirected to a new page. On the left you will see this:
 
 Click on ``Bot``. You again will be redirected to another page, looking like this:
 
-.. image:: _static.build_a_bot.png
+.. image:: _static/build_a_bot.png
 
 Click on ``Add Bot`` and then on ``Yes, do it!``.
 
