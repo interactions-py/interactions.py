@@ -11,7 +11,7 @@ from asyncio import (
     get_event_loop,
     get_running_loop,
     new_event_loop,
-    sleep,
+    wait,
 )
 from logging import Logger
 from sys import platform, version_info
@@ -144,7 +144,7 @@ class WebSocketClient:
             if self.__heartbeater.event.is_set():
                 await self.__heartbeat_packet
                 self.__heartbeater.event.clear()
-                await sleep(self.__heartbeater.delay / 1000)
+                await wait(self.__heartbeater.delay / 1000)
             else:
                 log.debug("Heartbeat ACK not received, reconnecting to Gateway...")
                 await self._client.close()
