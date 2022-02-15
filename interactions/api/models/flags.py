@@ -1,4 +1,4 @@
-from enum import IntFlag, Enum
+from enum import Enum, IntFlag
 
 
 class Intents(IntFlag):
