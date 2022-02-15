@@ -66,7 +66,7 @@ class Route:
         :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
         """
-        self.__api__ = "https://discord.com/api/v9"
+        self.__api__ = "https://discord.com/api/v10"
         self.method = method
         self.path = path.format(**kwargs)
         self.channel_id = kwargs.get("channel_id")
