@@ -464,7 +464,7 @@ class Client:
         elif command.description is not MISSING and len(command.description) > 100:
             raise InteractionException(11, message="Descriptions must be less than 100 characters.")
 
-        if command.options is not MISSING:
+        if command.options and command.options is not MISSING:
             if len(command.options) > 25:
                 raise InteractionException(
                     11, message="Your command must have less than 25 options."
@@ -544,8 +544,7 @@ class Client:
                 options=options,
                 default_permission=default_permission,
             )
-
-            self.__check_command(command=commands[0], coro=coro)
+            self.__check_command(command=ApplicationCommand(**commands[0]), coro=coro)
 
             if self._automate_sync:
                 if self._loop.is_running():
@@ -607,7 +606,7 @@ class Client:
                 scope=scope,
                 default_permission=default_permission,
             )
-            self.__check_command(commands[0], coro)
+            self.__check_command(ApplicationCommand(**commands[0]), coro)
 
             if self._automate_sync:
                 if self._loop.is_running():
@@ -664,7 +663,7 @@ class Client:
                 default_permission=default_permission,
             )
 
-            self.__check_command(commands[0], coro)
+            self.__check_command(ApplicationCommand(**commands[0]), coro)
 
             if self._automate_sync:
                 if self._loop.is_running():
