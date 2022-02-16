@@ -658,7 +658,8 @@ class Message(DictSerializerMixin):
                     ):
                         if isinstance(component, SelectMenu):
                             component._json["options"] = [
-                                option._json for option in component.options
+                                option._json if not isinstance(option, dict) else option
+                                for option in component.options
                             ]
                     _components.append(
                         {

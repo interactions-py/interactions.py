@@ -84,20 +84,6 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
-    def message_command(
-        self,
-        *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
-    ) -> Callable[..., Any]: ...
-    def user_command(
-        self,
-        *,
-        name: Optional[str] = None,
-        scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-        default_permission: Optional[bool] = None,
-    ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
         self, name: str, command: Union[ApplicationCommand, int, str]

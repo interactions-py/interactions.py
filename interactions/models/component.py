@@ -159,6 +159,10 @@ class Component(DictSerializerMixin):
     :ivar Optional[int] min_values?: The minimum "options"/values to choose from the component.
     :ivar Optional[int] max_values?: The maximum "options"/values to choose from the component.
     :ivar Optional[List[Component]] components?: A list of components nested in the component.
+    :ivar Optional[int] min_length?: The minimum input length to choose from the component.
+    :ivar Optional[int] max_length?: The maximum input length to choose from the component.
+    :ivar Optional[bool] required?: Whether this component is required to be filled.
+    :ivar Optional[str] value?: The pre-filled value of the component.
     """
 
     __slots__ = (
@@ -175,7 +179,10 @@ class Component(DictSerializerMixin):
         "min_values",
         "max_values",
         "components",
-        "value",  # TODO: post-v4: document this
+        "min_length",
+        "max_length",
+        "required",
+        "value",
     )
     type: ComponentType
     custom_id: Optional[str]
@@ -189,6 +196,9 @@ class Component(DictSerializerMixin):
     min_values: Optional[int]
     max_values: Optional[int]
     components: Optional[List["Component"]]
+    min_length: Optional[int]
+    max_length: Optional[int]
+    required: Optional[bool]
     value: Optional[str]
 
     def __init__(self, **kwargs) -> None:
@@ -338,7 +348,10 @@ class ActionRow(DictSerializerMixin):
         self.type = ComponentType.ACTION_ROW
         for component in self.components:
             if isinstance(component, SelectMenu):
-                component._json["options"] = [option._json for option in component._json["options"]]
+                component._json["options"] = [
+                    option._json if isinstance(option, SelectOption) else option
+                    for option in component._json["options"]
+                ]
         self.components = (
             [Component(**component._json) for component in self.components]
             if self._json.get("components")

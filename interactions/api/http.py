@@ -1,6 +1,6 @@
 import asyncio
 import traceback
-from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop
+from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
 from json import dumps
 from logging import Logger
 from sys import version_info
@@ -66,7 +66,7 @@ class Route:
         :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
         """
-        self.__api__ = "https://discord.com/api/v9"
+        self.__api__ = "https://discord.com/api/v10"
         self.method = method
         self.path = path.format(**kwargs)
         self.channel_id = kwargs.get("channel_id")
@@ -174,7 +174,10 @@ class Request:
         :type token: str
         """
         self.token = token
-        self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
+        try:
+            self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
+        except RuntimeError:
+            self._loop = new_event_loop()
         self.ratelimits = {}
         self.buckets = {}
         self._headers = {
