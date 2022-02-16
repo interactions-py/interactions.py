@@ -324,11 +324,12 @@ class Client:
         self,
         command: ApplicationCommand,
         coro: Coroutine,
-        regex: str = r"^[\w-]{1,32}$",
+        regex: str = r"^[a-z]|[0-9]|(?:[._]|[a-z0-9]|[.-]+){1,32}$",
     ) -> None:
         """
         Checks if a command is valid.
         """
+        reg = re.compile(regex)
         _options_names: List[str] = []
         _sub_groups_present: bool = False
         _sub_cmds_present: bool = False
@@ -344,10 +345,10 @@ class Client:
                 log.debug(
                     f"checking sub command group '{_sub_group.name}' of command '{command.name}'"
                 )
-            if not re.fullmatch(regex, _sub_group.name):
+            if re.fullmatch(reg, _sub_group.name):
                 raise InteractionException(
                     11,
-                    message=f"The sub command group name does not match the regex for valid names ('{regex}')",
+                    message=f"The sub command group name does not match the reg for valid names ('{regex}')",
                 )
             elif _sub_group.description is MISSING:
                 raise InteractionException(11, message="A description is required.")
@@ -373,10 +374,10 @@ class Client:
                 )
             else:
                 log.debug(f"checking sub command '{_sub_command.name}' of command '{command.name}'")
-            if not re.fullmatch(regex, _sub_command.name):
+            if re.fullmatch(reg, _sub_command.name):
                 raise InteractionException(
                     11,
-                    message=f"The sub command name does not match the regex for valid names ('{regex}')",
+                    message=f"The sub command name does not match the reg for valid names ('{reg}')",
                 )
             elif _sub_command.description is MISSING:
                 raise InteractionException(11, message="A description is required.")
@@ -402,10 +403,10 @@ class Client:
             else:
                 _options_names.append(_option.name)
                 log.debug(f"checking option '{_option.name}' of command '{command.name}'")
-            if not re.fullmatch(regex, _option.name):
+            if re.fullmatch(reg, _option.name):
                 raise InteractionException(
                     11,
-                    message=f"The option name does not match the regex for valid names ('{regex}')",
+                    message=f"The option name does not match the reg for valid names ('{regex}')",
                 )
             if _option.description is MISSING:
                 raise InteractionException(
@@ -446,11 +447,11 @@ class Client:
             log.debug(f"checking command: {command.name}")
 
         if (
-            not re.fullmatch(regex, command.name)
+            not re.fullmatch(reg, command.name)
             and command.type == ApplicationCommandType.CHAT_INPUT
         ):
             raise InteractionException(
-                11, message=f"Your command does not match the regex for valid names ('{regex}')"
+                11, message=f"Your command does not match the reg for valid names ('{regex}')"
             )
         elif command.type == ApplicationCommandType.CHAT_INPUT and command.description is MISSING:
             raise InteractionException(11, message="A description is required.")
