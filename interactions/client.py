@@ -335,12 +335,14 @@ class Client:
         _sub_cmds_present: bool = False
 
         def __check_sub_group(_sub_group: Option):
+            nonlocal _sub_groups_present
+            _sub_groups_present = True
             if _sub_group.name is MISSING:
                 raise InteractionException(11, message="Sub command groups must have a name.")
-            else:
-                log.debug(
-                    f"checking sub command group '{_sub_group.name}' of command '{command.name}'"
-                )
+            __indent = 4
+            log.debug(
+                f"{' ' * __indent}checking sub command group '{_sub_group.name}' of command '{command.name}'"
+            )
             if not re.fullmatch(reg, _sub_group.name):
                 raise InteractionException(
                     11,
@@ -362,14 +364,20 @@ class Client:
                 __check_sub_command(_sub_command, _sub_group)
 
         def __check_sub_command(_sub_command: Option, _sub_group: Option = MISSING):
+            nonlocal _sub_cmds_present  #
+            _sub_cmds_present = True
             if _sub_command.name is MISSING:
                 raise InteractionException(11, message="sub commands must have a name!")
             if _sub_group is not MISSING:
+                __indent = 8
                 log.debug(
-                    f"checking sub command '{_sub_command.name}' of group '{_sub_group.name}'"
+                    f"{' ' * __indent}checking sub command '{_sub_command.name}' of group '{_sub_group.name}'"
                 )
             else:
-                log.debug(f"checking sub command '{_sub_command.name}' of command '{command.name}'")
+                __indent = 4
+                log.debug(
+                    f"{' ' * __indent}checking sub command '{_sub_command.name}' of command '{command.name}'"
+                )
             if not re.fullmatch(reg, _sub_command.name):
                 raise InteractionException(
                     11,
@@ -392,15 +400,22 @@ class Client:
                 del _sub_opt_names
 
         def __check_options(_option: Option, _names: list, _sub_command: Option = MISSING):
+            nonlocal _options_names
             if getattr(_option, "autocomplete", False) and getattr(_option, "choices", False):
                 log.warning("Autocomplete may not be set to true if choices are present.")
             if _option.name is MISSING:
                 raise InteractionException(11, message="Options must have a name.")
             if _sub_command is not MISSING:
-                log.debug(f"checking option '{_option.name}' of sub command '{_sub_command.name}'")
+                __indent = 8 if not _sub_groups_present else 12
+                log.debug(
+                    f"{' ' * __indent}checking option '{_option.name}' of sub command '{_sub_command.name}'"
+                )
             else:
-                _options_names.append(_option.name)
-                log.debug(f"checking option '{_option.name}' of command '{command.name}'")
+                __indent = 4
+                log.debug(
+                    f"{' ' * __indent}checking option '{_option.name}' of command '{command.name}'"
+                )
+            _options_names.append(_option.name)
             if not re.fullmatch(reg, _option.name):
                 raise InteractionException(
                     11,
@@ -423,7 +438,8 @@ class Client:
             _names.append(_option.name)
 
         def __check_coro():
-            log.debug(f"Checking coroutine: '{coro.__name__}'")
+            __indent = 4
+            log.debug(f"{' ' * __indent}Checking coroutine: '{coro.__name__}'")
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
