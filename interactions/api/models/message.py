@@ -1095,85 +1095,83 @@ class Embed(DictSerializerMixin):
         if self.footer:
             self._json.update({"footer": self.footer._json})
 
-    
-    
-    def add_field(self, name : str = None, value : str = None, inline : bool = True):
-        
+    def add_field(self, name: str = None, value: str = None, inline: bool = True):
 
-        if self.fields is None: self.fields = []
-            
-        self.fields.append(EmbedField(name = name , value = value, inline = inline))
+        if self.fields is None:
+            self.fields = []
+
+        self.fields.append(EmbedField(name=name, value=value, inline=inline))
         self._json.update({"fields": [field._json for field in self.fields]})
-       
-        
+
     def clear_fields(self):
-        
+
         self.fields = []
         self._json.update({"fields": [field._json for field in self.fields]})
-  
-        
-    def insert_field_at(self, index : int,  name : str = None, value : str = None, inline : bool = True):
-        
+
+    def insert_field_at(self, index: int, name: str = None, value: str = None, inline: bool = True):
+
         try:
-            self.fields.insert(index, EmbedField(name = name, value = value, inline = inline))
-        
+            self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+
         except AttributeError:
-            self.fields  = ([EmbedField(name = name, value = value, inline = inline)])
-            
+            self.fields = [EmbedField(name=name, value=value, inline=inline)]
+
         self._json.update({"fields": [field._json for field in self.fields]})
 
- 
-    def set_field_at(self, index : int = None, name : str = None, value : str = None, inline : bool = True):
-        
+    def set_field_at(
+        self, index: int = None, name: str = None, value: str = None, inline: bool = True
+    ):
+
         try:
-            self.fields[index] = EmbedField(name = name, value = value, inline = inline)
+            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
             self._json.update({"fields": [field._json for field in self.fields]})
-            
+
         except AttributeError:
             raise AttributeError("No fields found in Embed")
-        
+
         except IndexError:
             raise IndexError("No fields at this index")
-        
-                
+
     def remove_field(self, index):
-        
+
         try:
             self.fields.pop(index)
             self._json.update({"fields": [field._json for field in self.fields]})
-            
+
         except AttributeError:
             raise AttributeError("No fields found in Embed")
-        
+
         except IndexError:
             raise IndexError("Field not Found at index")
-   
-        
+
     def remove_author(self):
-        
+
         try:
             del self.author
             self._json.update({"author": None})
         except AttributeError:
             pass
-     
-        
-    def set_author(self, name : str, url : str = None, icon_url : str = None, proxy_icon_url : str = None):
-        
-        self.author = EmbedAuthor(name = name, url = url, icon_url = icon_url, proxy_icon_url = proxy_icon_url)
+
+    def set_author(
+        self, name: str, url: str = None, icon_url: str = None, proxy_icon_url: str = None
+    ):
+
+        self.author = EmbedAuthor(
+            name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
+        )
         self._json.update({"author": self.author._json})
-        
-    def set_footer(self, text : str, icon_url : str = None, proxy_icon_url : str = None):
-        
-        self.footer = EmbedFooter(text = text, icon_url = icon_url, proxy_icon_url = proxy_icon_url )
+
+    def set_footer(self, text: str, icon_url: str = None, proxy_icon_url: str = None):
+
+        self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
         self._json.update({"footer": self.footer._json})
 
-    def set_image(self, url : str, proxy_url : str = None, height : int = None, width : str = None):
-        
-        self.image = EmbedImageStruct(url = url, proxy_url = proxy_url, height = height, width = width)
+    def set_image(self, url: str, proxy_url: str = None, height: int = None, width: str = None):
+
+        self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
         self._json.update({"image": self.image._json})
-                  
-    def set_thumbnail(self, url : str, proxy_url : str = None, height : int = None, width : str = None):
-        
-        self.thumbnail = EmbedImageStruct(url = url, proxy_url = proxy_url, height = height, width = width)
-        self._json.update({"thumbnail": self.thumbnail._json})     
+
+    def set_thumbnail(self, url: str, proxy_url: str = None, height: int = None, width: str = None):
+
+        self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        self._json.update({"thumbnail": self.thumbnail._json})
