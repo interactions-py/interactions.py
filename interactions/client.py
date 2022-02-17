@@ -423,10 +423,13 @@ class Client:
             _names.append(_option.name)
 
         def __check_coro():
+            log.debug(f"Checking coroutine: '{coro.__name__}'")
             if not len(coro.__code__.co_varnames):
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
+            elif "kwargs" in coro.__code__.co_varnames:
+                return
             elif _sub_cmds_present and len(coro.__code__.co_varnames) < 2:
                 raise InteractionException(
                     11, message="Your command needs one argument for the sub_command."
@@ -439,6 +442,10 @@ class Client:
             add: int = 1 + abs(_sub_cmds_present) + abs(_sub_groups_present)
 
             if len(coro.__code__.co_varnames) + add < len(set(_options_names)):
+                log.debug(
+                    "Coroutine is missing arguments for options:"
+                    f" {[_arg for _arg in _options_names if _arg not in coro.__code__.co_varnames]}"
+                )
                 raise InteractionException(
                     11, message="You need one argument for every option name in your command!"
                 )
