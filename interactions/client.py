@@ -346,7 +346,7 @@ class Client:
                     11,
                     message=f"The sub command group name does not match the regex for valid names ('{regex}')",
                 )
-            elif _sub_group.description is MISSING:
+            elif _sub_group.description is MISSING and not _sub_group.description:
                 raise InteractionException(11, message="A description is required.")
             elif len(_sub_group.description) > 100:
                 raise InteractionException(
@@ -375,7 +375,7 @@ class Client:
                     11,
                     message=f"The sub command name does not match the regex for valid names ('{reg}')",
                 )
-            elif _sub_command.description is MISSING:
+            elif _sub_command.description is MISSING or not _sub_command.description:
                 raise InteractionException(11, message="A description is required.")
             elif len(_sub_command.description) > 100:
                 raise InteractionException(
@@ -406,7 +406,7 @@ class Client:
                     11,
                     message=f"The option name does not match the regex for valid names ('{regex}')",
                 )
-            if _option.description is MISSING:
+            if _option.description is MISSING or not _option.description:
                 raise InteractionException(
                     11,
                     message="A description is required.",
@@ -456,10 +456,16 @@ class Client:
             raise InteractionException(
                 11, message=f"Your command does not match the regex for valid names ('{regex}')"
             )
-        elif command.type == ApplicationCommandType.CHAT_INPUT and command.description is MISSING:
+        elif (
+            command.type == ApplicationCommandType.CHAT_INPUT
+            and command.description is MISSING
+            or not command.description
+        ):
             raise InteractionException(11, message="A description is required.")
         elif (
-            command.type != ApplicationCommandType.CHAT_INPUT and command.description is not MISSING
+            command.type != ApplicationCommandType.CHAT_INPUT
+            and command.description is not MISSING
+            and command.description
         ):
             raise InteractionException(
                 11, message="Only chat-input commands can have a description."
