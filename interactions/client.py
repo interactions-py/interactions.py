@@ -364,7 +364,7 @@ class Client:
                 __check_sub_command(_sub_command, _sub_group)
 
         def __check_sub_command(_sub_command: Option, _sub_group: Option = MISSING):
-            nonlocal _sub_cmds_present  #
+            nonlocal _sub_cmds_present
             _sub_cmds_present = True
             if _sub_command.name is MISSING:
                 raise InteractionException(11, message="sub commands must have a name!")
