@@ -386,10 +386,12 @@ class Client:
                     raise InteractionException(
                         11, message="Your sub command must have less than 25 options."
                     )
+                _sub_opt_names = []
                 for _opt in _sub_command.options:
-                    __check_options(_opt, _sub_command)
+                    __check_options(_opt, _sub_opt_names, _sub_command)
+                del _sub_opt_names
 
-        def __check_options(_option: Option, _sub_command: Option = MISSING):
+        def __check_options(_option: Option, _names: list, _sub_command: Option = MISSING):
             if getattr(_option, "autocomplete", False) and getattr(_option, "choices", False):
                 log.warning("Autocomplete may not be set to true if choices are present.")
             if _option.name is MISSING:
@@ -414,6 +416,11 @@ class Client:
                     11,
                     message="Descriptions must be less than 100 characters.",
                 )
+            if _option.name in _names:
+                raise InteractionException(
+                    11, message="You must not have two options with the same name in a command!"
+                )
+            _names.append(_option.name)
 
         def __check_coro():
             if not len(coro.__code__.co_varnames):
@@ -472,6 +479,7 @@ class Client:
                     11, message="Only CHAT_INPUT commands can have options/sub-commands!"
                 )
 
+            _opt_names = []
             for _option in command.options:
                 if _option.type == OptionType.SUB_COMMAND_GROUP:
                     __check_sub_group(_option)
@@ -480,7 +488,8 @@ class Client:
                     __check_sub_command(_option)
 
                 else:
-                    __check_options(_option)
+                    __check_options(_option, _opt_names)
+            del _opt_names
 
         __check_coro()
 
