@@ -361,7 +361,7 @@ class Client:
                     11, message="A sub command group cannot contain more than 25 sub commands!"
                 )
             for _sub_command in _sub_group.options:
-                __check_sub_command(_sub_command, _sub_group)
+                __check_sub_command(Option(**_sub_command), _sub_group)
 
         def __check_sub_command(_sub_command: Option, _sub_group: Option = MISSING):
             nonlocal _sub_cmds_present
@@ -396,7 +396,7 @@ class Client:
                     )
                 _sub_opt_names = []
                 for _opt in _sub_command.options:
-                    __check_options(_opt, _sub_opt_names, _sub_command)
+                    __check_options(Option(**_opt), _sub_opt_names, _sub_command)
                 del _sub_opt_names
 
         def __check_options(_option: Option, _names: list, _sub_command: Option = MISSING):
@@ -457,7 +457,7 @@ class Client:
                 )
             add: int = 1 + abs(_sub_cmds_present) + abs(_sub_groups_present)
 
-            if len(coro.__code__.co_varnames) + add < len(set(_options_names)):
+            if len(coro.__code__.co_varnames) - add < len(set(_options_names)):
                 log.debug(
                     "Coroutine is missing arguments for options:"
                     f" {[_arg for _arg in _options_names if _arg not in coro.__code__.co_varnames]}"
