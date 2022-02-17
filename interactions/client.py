@@ -335,10 +335,6 @@ class Client:
         _sub_cmds_present: bool = False
 
         def __check_sub_group(_sub_group: Option):
-            if command.type != ApplicationCommandType.CHAT_INPUT:
-                raise InteractionException(
-                    11, message="Only CHAT_INPUT commands can have subcommands!"
-                )
             if _sub_group.name is MISSING:
                 raise InteractionException(11, message="Sub command groups must have a name.")
             else:
@@ -348,7 +344,7 @@ class Client:
             if re.fullmatch(reg, _sub_group.name):
                 raise InteractionException(
                     11,
-                    message=f"The sub command group name does not match the reg for valid names ('{regex}')",
+                    message=f"The sub command group name does not match the regex for valid names ('{regex}')",
                 )
             elif _sub_group.description is MISSING:
                 raise InteractionException(11, message="A description is required.")
@@ -377,7 +373,7 @@ class Client:
             if re.fullmatch(reg, _sub_command.name):
                 raise InteractionException(
                     11,
-                    message=f"The sub command name does not match the reg for valid names ('{reg}')",
+                    message=f"The sub command name does not match the regex for valid names ('{reg}')",
                 )
             elif _sub_command.description is MISSING:
                 raise InteractionException(11, message="A description is required.")
@@ -406,7 +402,7 @@ class Client:
             if re.fullmatch(reg, _option.name):
                 raise InteractionException(
                     11,
-                    message=f"The option name does not match the reg for valid names ('{regex}')",
+                    message=f"The option name does not match the regex for valid names ('{regex}')",
                 )
             if _option.description is MISSING:
                 raise InteractionException(
@@ -451,7 +447,7 @@ class Client:
             and command.type == ApplicationCommandType.CHAT_INPUT
         ):
             raise InteractionException(
-                11, message=f"Your command does not match the reg for valid names ('{regex}')"
+                11, message=f"Your command does not match the regex for valid names ('{regex}')"
             )
         elif command.type == ApplicationCommandType.CHAT_INPUT and command.description is MISSING:
             raise InteractionException(11, message="A description is required.")
@@ -470,6 +466,12 @@ class Client:
                 raise InteractionException(
                     11, message="Your command must have less than 25 options."
                 )
+
+            if command.type != ApplicationCommandType.CHAT_INPUT:
+                raise InteractionException(
+                    11, message="Only CHAT_INPUT commands can have options/sub-commands!"
+                )
+
             for _option in command.options:
                 if _option.type == OptionType.SUB_COMMAND_GROUP:
                     __check_sub_group(_option)
