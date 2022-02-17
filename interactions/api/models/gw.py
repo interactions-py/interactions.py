@@ -154,6 +154,8 @@ class GuildJoinRequest(DictSerializerMixin):
     :ivar Snowflake guild_id: The guild ID of the event.
     """
 
+    __slots__ = ("_json", "user_id", "guild_id")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None

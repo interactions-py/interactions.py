@@ -160,10 +160,10 @@ class CommandContext(Context):
         _ephemeral: int = (1 << 6) if ephemeral else 0
         if self.type == InteractionType.MESSAGE_COMPONENT:
             self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        elif (
-            self.type == InteractionType.APPLICATION_COMMAND
-            or self.type == InteractionType.MODAL_SUBMIT
-        ):
+        elif self.type in [
+            InteractionType.APPLICATION_COMMAND,
+            InteractionType.MODAL_SUBMIT,
+        ]:
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
@@ -232,7 +232,8 @@ class CommandContext(Context):
         _components: List[dict] = [{"type": 1, "components": []}]
 
         # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components is not MISSING:
+        if components is not MISSING and components:
+            # components could be not missing but an empty list
             if isinstance(components, list) and all(
                 isinstance(action_row, ActionRow) for action_row in components
             ):
@@ -282,7 +283,8 @@ class CommandContext(Context):
                     ):
                         if isinstance(component, SelectMenu):
                             component._json["options"] = [
-                                option._json for option in component.options
+                                option._json if not isinstance(option, dict) else option
+                                for option in component.options
                             ]
                     _components.append(
                         {
@@ -390,7 +392,8 @@ class CommandContext(Context):
                         application_id=str(self.application_id),
                     )
                     self.responded = True
-                    self.message = Message(**res, _client=self.client)
+                    msg = Message(**res, _client=self.client)
+                    self.message = msg
                 else:
                     await self.client._post_followup(
                         data=payload._json,
@@ -414,7 +417,7 @@ class CommandContext(Context):
                     self.message = msg
                 self.responded = True
 
-            return msg if msg else payload
+            return msg or payload
 
         return await func()
 
@@ -504,7 +507,8 @@ class CommandContext(Context):
                 ):
                     if isinstance(components[0], SelectMenu):
                         components[0]._json["options"] = [
-                            option._json for option in components[0].options
+                            option._json if not isinstance(option, dict) else option
+                            for option in components[0].options
                         ]
                     _components = [
                         {
@@ -532,7 +536,8 @@ class CommandContext(Context):
                         ):
                             if isinstance(component, SelectMenu):
                                 component._json["options"] = [
-                                    option._json for option in component.options
+                                    option._json if not isinstance(option, dict) else option
+                                    for option in component.options
                                 ]
                         _components.append(
                             {
@@ -561,7 +566,17 @@ class CommandContext(Context):
                         )
                         for component in components.components
                     ]
-                elif isinstance(components, (Button, SelectMenu)):
+                elif isinstance(components, Button):
+                    _components[0]["components"] = (
+                        [components._json]
+                        if components._json.get("custom_id") or components._json.get("url")
+                        else []
+                    )
+                elif isinstance(components, SelectMenu):
+                    components._json["options"] = [
+                        options._json if not isinstance(options, dict) else options
+                        for options in components._json["options"]
+                    ]
                     _components[0]["components"] = (
                         [components._json]
                         if components._json.get("custom_id") or components._json.get("url")
@@ -644,7 +659,7 @@ class CommandContext(Context):
                     self.message = Message(**res, _client=self.client)
 
         await func()
-        return payload
+        return self.message
 
     async def delete(self) -> None:
         """

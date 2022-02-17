@@ -2,7 +2,14 @@ from enum import Enum
 
 
 class ErrorType(str, Enum):
-    """An enumerable object representing the type of error responses raised."""
+    """
+    An enumerable object representing the type of error responses raised.
+
+    :ivar str INCORRECT_ALPHANUMERIC_VERSION: You cannot have more than one alphanumeric identifier, or identifier with a missing value.
+    :ivar str MISSING_NUMERIC_VERSION: You cannot have a missing numerical value.
+    :ivar str TOO_MANY_AUTHORS: A version can only have one main author. The rest of the authors must be co-authors.
+    :ivar str UNKNOWN_SERVICE: The service specified does not exist.
+    """
 
     INCORRECT_ALPHANUMERIC_VERSION = (
         "You cannot have more than one alphanumeric identifier, or identifier with a missing value."
