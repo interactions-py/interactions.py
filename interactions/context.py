@@ -82,15 +82,15 @@ class CommandContext(Context):
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
-    :ivar str name: The name of the command in the interaction.
-    :ivar Optional[str] description?: The description of the command in the interaction.
-    :ivar Optional[List[Option]] options?: The options of the command in the interaction, if any.
-    :ivar InteractionData data: The application command data.
+    :ivar InteractionData data?: The application command data.
+    :ivar Optional[Union[Message, Member, User]] target: The target selected if this interaction is invoked as a context menu.
     :ivar str token: The token of the interaction response.
-    :ivar Snowflake channel_id: The ID of the current channel.
-    :ivar Snowflake guild_id: The ID of the current guild.
+    :ivar Snowflake guild_id?: The ID of the current guild.
+    :ivar Snowflake channel_id?: The ID of the current channel.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
+    :ivar str locale?: The selected language of the user invoking the interaction.
+    :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     """
 
     __slots__ = (
@@ -113,7 +113,6 @@ class CommandContext(Context):
         "channel_id",
         "responded",
         "deferred",
-        #
         "locale",
         "guild_locale",
     )
