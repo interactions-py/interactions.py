@@ -470,7 +470,7 @@ class Client:
             raise InteractionException(11, message="Your command must have a name.")
 
         else:
-            log.debug(f"checking command: {command.name}")
+            log.debug(f"checking command '{command.name}':")
 
         if (
             not re.fullmatch(reg, command.name)
