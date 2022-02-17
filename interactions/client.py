@@ -341,7 +341,7 @@ class Client:
                 log.debug(
                     f"checking sub command group '{_sub_group.name}' of command '{command.name}'"
                 )
-            if re.fullmatch(reg, _sub_group.name):
+            if not re.fullmatch(reg, _sub_group.name):
                 raise InteractionException(
                     11,
                     message=f"The sub command group name does not match the regex for valid names ('{regex}')",
@@ -370,7 +370,7 @@ class Client:
                 )
             else:
                 log.debug(f"checking sub command '{_sub_command.name}' of command '{command.name}'")
-            if re.fullmatch(reg, _sub_command.name):
+            if not re.fullmatch(reg, _sub_command.name):
                 raise InteractionException(
                     11,
                     message=f"The sub command name does not match the regex for valid names ('{reg}')",
@@ -399,7 +399,7 @@ class Client:
             else:
                 _options_names.append(_option.name)
                 log.debug(f"checking option '{_option.name}' of command '{command.name}'")
-            if re.fullmatch(reg, _option.name):
+            if not re.fullmatch(reg, _option.name):
                 raise InteractionException(
                     11,
                     message=f"The option name does not match the regex for valid names ('{regex}')",
