@@ -50,7 +50,7 @@ class Client:
         self,
         command: ApplicationCommand,
         coro: Coroutine,
-        regex: str = "^[\w-]{1,32}$",
+        regex: str = r"^[a-z0-9_-]{1,32}$",
     )-> None: ...
     def command(
         self,
