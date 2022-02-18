@@ -47,7 +47,7 @@ body:
     attributes:
       label: What you saw.
       description: Please tell us what you found when you actually ran this.
-      placeholder: Instead, I received this traceback error given from my Python terminal:
+      placeholder: Instead, I received this traceback error given from my Python terminal.
       value: |
         Instead, I received this traceback error given from my Python terminal:
         ```
