@@ -31,7 +31,7 @@ body:
         1. Import the module in Python.
         2. Create a client variable for the library.
         3. Try creating a slash command.
-        4. See the traceback error given in the terminal or logger file. 
+        4. See the traceback error given in the terminal or logger file.
     validations:
       required: true
   - type: textarea
