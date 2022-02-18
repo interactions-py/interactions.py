@@ -526,6 +526,8 @@ class CommandContext(ContextMixin):
     :ivar Snowflake guild_id: The ID of the current guild.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
+    :ivar str locale?: The selected language of the user invoking the interaction.
+    :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     """
 
     __slots__ = (
@@ -737,7 +739,7 @@ class CommandContext(ContextMixin):
         return await func()
 
 
-class ComponentContext(ContextMixin):
+class ComponentContext(_Context):
     """
     A derivation of :class:`interactions.context.CommandContext`
     designed specifically for component data.
