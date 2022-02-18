@@ -28,7 +28,7 @@ class WebSocketClient:
     _loop: AbstractEventLoop
     _dispatch: Listener
     _http: HTTPClient
-    _client: ClientWebSocketResponse
+    _client: Optional[ClientWebSocketResponse]
     _closed: bool
     _options: dict
     _intents: Intents
@@ -36,7 +36,7 @@ class WebSocketClient:
     __heartbeater: _Heartbeat
     __shard: Optional[List[Tuple[int]]]
     __presence: Optional[Presence]
-    __task: Task
+    __task: Optional[Task]
     session_id: int
     sequence: str
     def __init__(
@@ -46,12 +46,11 @@ class WebSocketClient:
         session_id: Optional[int] = MISSING,
         sequence: Optional[int] = MISSING,
     ) -> None: ...
-    @property
-    async def __heartbeat_manager(self) -> None: ...
+    async def _manage_heartbeat(self) -> None: ...
+    async def __restart(self): ...
     async def _establish_connection(
         self, shard: Optional[List[Tuple[int]]] = MISSING, presence: Optional[Presence] = MISSING
     ) -> None: ...
-    async def __close(self): ...
     async def _handle_connection(
         self,
         stream: Dict[str, Any],
@@ -61,13 +60,11 @@ class WebSocketClient:
     @property
     async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]: ...
     async def _send_packet(self, data: Dict[str, Any]) -> None: ...
-    async def __identify_packet(
+    async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[Presence] = None
     ) -> None: ...
-    @property
-    async def __resume_packet(self) -> None: ...
-    @property
-    async def __heartbeat_packet(self) -> None: ...
+    async def __resume(self) -> None: ...
+    async def __heartbeat(self) -> None: ...
     @property
     def shard(self) -> None: ...
     @property

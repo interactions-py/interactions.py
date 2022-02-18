@@ -45,7 +45,10 @@ class _Heartbeat:
         :param loop: The event loop to base the asynchronous manager.
         :type loop: AbstractEventLoop
         """
-        self.event = Event(loop=loop) if version_info < (3, 10) else Event()
+        try:
+            self.event = Event(loop=loop) if version_info < (3, 10) else Event()
+        except TypeError:
+            pass
         self.delay = 0.0
 
 
@@ -129,30 +132,31 @@ class WebSocketClient:
         self.sequence = None if sequence is MISSING else sequence
         self.ready = None
 
-    @property
-    async def __heartbeat_manager(self) -> None:
+    async def _manage_heartbeat(self) -> None:
         """Manages the heartbeat loop."""
         while True:
-            # yes, i'm aware that this is a shoddy way of checking for the closed/closing
-            # state of the client. but, it's also one of the only convenient ways i can think
-            # of doing this to indicate that we should bother with a reconnection.
-            # in theory, the close_code method will be caught on for an actual problem.
-            # we just want to reconnect, not determine the position of the fucking stars.
-            if self._client.closed or self._client._closing:
-                self._closed = True
-                await self._establish_connection()
+            if self._closed:
+                await self.__restart()
             if self.__heartbeater.event.is_set():
-                await self.__heartbeat_packet
+                await self.__heartbeat()
                 self.__heartbeater.event.clear()
                 await sleep(self.__heartbeater.delay / 1000)
             else:
-                log.debug("Heartbeat ACK not received, reconnecting to Gateway...")
-                await self._client.close()
-                # because we're reconnecting, we should clear the heartbeater again
-                # in order to tell our manager "we're restarting."
-                self.__heartbeater.event.clear()
-                await self._establish_connection()
+                log.debug("HEARTBEAT_ACK missing, reconnecting...")
+                await self.__restart()
                 break
+
+    async def __restart(self):
+        """Restart the client's connection and heartbeat with the Gateway."""
+        if self.__task:
+            self.__task = Task()
+            self.__task.cancel()
+        await self._client.close()
+        self.__heartbeater.event.clear()
+        self._closed = False
+        self._client = None
+        self.__heartbeater.delay = 0.0
+        await self._establish_connection()
 
     async def _establish_connection(
         self, shard: Optional[List[Tuple[int]]] = MISSING, presence: Optional[Presence] = MISSING
@@ -165,20 +169,13 @@ class WebSocketClient:
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[Presence]
         """
-        self._client = None
-        self._closed = False
-        self.__heartbeater.delay = 0.0
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
         url = await self._http.get_gateway()
 
         async with self._http._req._session.ws_connect(url, **self._options) as self._client:
+            self._closed = self._client.closed
             while not self._closed:
                 stream = await self.__receive_packet_stream
-
-                # the only reason the stream can become None is if we've failed to load
-                # serialised JSON from the packet stream. it's our way of throwing data
-                # compressed or ztf data that we can't handle. Throwing an exception or
-                # returning MISSING instead would be moot, so we'll just continue along.
                 if stream is None:
                     continue
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
@@ -187,14 +184,6 @@ class WebSocketClient:
                     await self._establish_connection()
 
                 await self._handle_connection(stream, shard, presence)
-
-    async def __close(self):
-        """Closes the client's connection and heartbeat with the Gateway."""
-        if self.__task:
-            self.__task: Task()
-            self.__task.cancel()
-        await self._client.close()
-        await self._establish_connection()
 
     async def _handle_connection(
         self,
@@ -222,18 +211,15 @@ class WebSocketClient:
             if op == OpCodeType.HELLO:
                 self.__heartbeater.delay = data["heartbeat_interval"]
                 self.__heartbeater.event.set()
-                self.__task = ensure_future(self.__heartbeat_manager)
+                self.__task = ensure_future(self._manage_heartbeat())
 
                 if not self.session_id:
-                    await self.__identify_packet(shard, presence)
+                    await self.__identify(shard, presence)
                 else:
-                    await self.__resume_packet
+                    await self.__resume()
 
-            # theoretically, upon the heartbeater being set, the client should be able to identify
-            # the heartbeat request. this ends up staying daemonic and there are no blocking
-            # conditions.
             if op == OpCodeType.HEARTBEAT:
-                await self.__heartbeat_packet
+                await self.__heartbeat()
             if op == OpCodeType.HEARTBEAT_ACK:
                 log.debug("HEARTBEAT_ACK")
                 self.__heartbeater.event.set()
@@ -243,7 +229,7 @@ class WebSocketClient:
                     self.session_id = None
                     self.sequence = None
                     self._closed = True
-                await self.__close()
+                await self.__restart()
         elif event == "READY":
             self._ready = data
             self.session_id = data["session_id"]
@@ -276,7 +262,7 @@ class WebSocketClient:
         await self._client.send_str(packet)
         log.debug(packet)
 
-    async def __identify_packet(
+    async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[Presence] = None
     ) -> None:
         """
@@ -311,8 +297,7 @@ class WebSocketClient:
         await self._send_packet(payload)
         log.debug("IDENTIFY")
 
-    @property
-    async def __resume_packet(self) -> None:
+    async def __resume(self) -> None:
         """Sends a ``RESUME`` packet to the gateway."""
         payload: dict = {
             "op": OpCodeType.RESUME,
@@ -322,8 +307,7 @@ class WebSocketClient:
         await self._send_packet(payload)
         log.debug("RESUME")
 
-    @property
-    async def __heartbeat_packet(self) -> None:
+    async def __heartbeat(self) -> None:
         """Sends a ``HEARTBEAT`` packet to the gateway."""
         payload: dict = {"op": OpCodeType.HEARTBEAT, "d": self.sequence}
         await self._send_packet(payload)
