@@ -10,10 +10,10 @@ body:
   - type: markdown
     id: thanks
     attributes:
-    value: |
-      Thank you for taking the time to fill out this bug report!
-      We rely on users to tell us things that we might not find on our own,
-      and your help is greatly valued by the team and others contributing.
+      value: |
+        Thank you for taking the time to fill out this bug report!
+        We rely on users to tell us things that we might not find on our own,
+        and your help is greatly valued by the team and others contributing.
   - type: textarea
     id: process
     attributes:
