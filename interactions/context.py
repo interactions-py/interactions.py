@@ -17,7 +17,7 @@ from .models.misc import InteractionData
 log: Logger = get_logger("context")
 
 
-class ContextMixin(DictSerializerMixin):
+class _Context(DictSerializerMixin):
     """
     The base class of "context" for dispatched event data
     from the gateway. The premise of having this class is so

@@ -22,7 +22,7 @@ from .models.component import Modal as Modal
 from .models.component import SelectMenu as SelectMenu
 from .models.misc import InteractionData as InteractionData
 
-class ContextMixin(DictSerializerMixin):
+class _Context(DictSerializerMixin):
     message: Optional[Message]
     author: Member
     member: Member
@@ -70,7 +70,7 @@ class ContextMixin(DictSerializerMixin):
     ) -> Message: ...
     async def popup(self, modal: Modal) -> None: ...
 
-class CommandContext(ContextMixin):
+class CommandContext(_Context):
     target: Optional[Union[Message, Member, User]]
     def __init__(self, **kwargs) -> None: ...
     async def send(
@@ -101,7 +101,7 @@ class CommandContext(ContextMixin):
     async def delete(self) -> None: ...
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]: ...
 
-class ComponentContext(ContextMixin):
+class ComponentContext(_Context):
     def __init__(self, **kwargs) -> None: ...
     async def send(
         self,
