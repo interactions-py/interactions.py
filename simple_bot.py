@@ -13,4 +13,9 @@ async def on_ready():
     print("bot is now online.")
 
 
+@bot.command(name="intent", description="h")
+async def intent(ctx):
+    await ctx.send("hola")
+
+
 bot.start()

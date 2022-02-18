@@ -15,12 +15,14 @@ from asyncio import (
 )
 from logging import Logger
 from sys import platform, version_info
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import WSMessage
 
 from ..api.models.gw import Presence
 from ..base import get_logger
+from ..enums import InteractionType, OptionType
+from ..models.command import Option
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
@@ -174,8 +176,10 @@ class WebSocketClient:
 
         async with self._http._req._session.ws_connect(url, **self._options) as self._client:
             self._closed = self._client.closed
+
             while not self._closed:
                 stream = await self.__receive_packet_stream
+
                 if stream is None:
                     continue
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
@@ -217,7 +221,6 @@ class WebSocketClient:
                     await self.__identify(shard, presence)
                 else:
                     await self.__resume()
-
             if op == OpCodeType.HEARTBEAT:
                 await self.__heartbeat()
             if op == OpCodeType.HEARTBEAT_ACK:
@@ -225,10 +228,12 @@ class WebSocketClient:
                 self.__heartbeater.event.set()
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
+
                 if data and op != OpCodeType.RECONNECT:
                     self.session_id = None
                     self.sequence = None
                     self._closed = True
+
                 await self.__restart()
         elif event == "READY":
             self._ready = data
@@ -238,7 +243,160 @@ class WebSocketClient:
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
         else:
             log.debug(f"{event}: {data}")
-            # self.handle_dispatch(event, data)
+            self._dispatch_event(event, data)
+
+    def _dispatch_event(self, event: str, data: dict) -> None:
+        """
+        Dispatches an event from the Gateway.
+
+        :param event: The name of the event.
+        :type event: str
+        :param data: The data for the event.
+        :type data: dict
+        """
+        path: str = "interactions"
+        path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
+
+        if event == "TYING_START":
+            return
+        if event != "INTERACTION_CREATE":
+            name: str = event.lower()
+            try:
+                _event_path: list = [section.capitalize() for section in name.split("_")]
+                _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
+                __obj: object = getattr(__import__(path), _name)
+
+                if name in {"_create", "_add"}:
+                    data["_client"] = self._http
+
+                self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
+            except AttributeError as error:
+                log.fatal(f"An error occured dispatching {name}: {error}")
+        else:
+            if not data.get("type"):
+                log.warning(
+                    "Context is being created for the interaction, but no type is specified. Skipping..."
+                )
+            else:
+                _context = self.__contextualize(data)
+                _name: str
+                __args: list = [_context]
+                __kwargs: dict = {}
+
+                if data["type"] == InteractionType.APPLICATION_COMMAND:
+                    _name = f"command_{_context.data.name}"
+
+                    if _context.data._json.get("options"):
+                        for option in _context.data.options:
+                            __kwargs.update(self.__sub_command_context(option))
+                            __kwargs.update(self.__option_type_context(_context, option["type"]))
+
+                    self._dispatch.dispatch("on_command", _context)
+                elif data["type"] == InteractionType.MESSAGE_COMPONENT:
+                    _name = f"component_{_context.data.custom_id}"
+                    self._dispatch.dispatch("on_component", _context)
+                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
+                    _name = f"autocomplete_{_context.data.id}"
+                    self._dispatch.dispatch("on_autocomplete", _context)
+                elif data["type"] == InteractionType.MODAL_SUBMIT:
+                    _name = f"modal_{_context.data.custom_id}"
+                    self._dispatch.dispatch("on_modal", _context)
+
+            self._dispatch.dispatch(_name, *__args, **__kwargs)
+            self._dispatch.dispatch("on_interaction", _context)
+            self._dispatch.dispatch("on_interaction_create", _context)
+
+        self._dispatch.dispatch("raw_socket_create", data)
+
+    def __contextualize(self, data: dict) -> object:
+        """
+        Takes raw data given back from the Gateway
+        and gives "context" based off of what it is.
+
+        :param data: The data from the Gateway.
+        :type data: dict
+        :return: The context object.
+        :rtype: object
+        """
+        if data["type"] != InteractionType.PING:
+            _context: str = ""
+
+            if data["type"] in (
+                InteractionType.APPLICATION_COMMAND,
+                InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE,
+                InteractionType.MODAL_SUBMIT,
+            ):
+                _context = "CommandContext"
+            elif data["type"] == InteractionType.MESSAGE_COMPONENT:
+                _context = "ComponentContext"
+
+            data["client"] = self._http
+            context: object = getattr(__import__("interactions.context"), _context)
+            return context(**data)
+
+    def __sub_command_context(self, data: Union[dict, Option]) -> Union[Tuple[str], dict]:
+        """
+        Checks if an application command schema has sub commands
+        needed for argument collection.
+
+        :param data: The data structure of the option.
+        :type data: Union[dict, Option]
+        :return: A dictionary of the collected options, if any.
+        :rtype: Union[Tuple[str], dict]
+        """
+        __kwargs: dict = {}
+        _data: dict = data._json if isinstance(data, Option) else data
+        if _data["type"] == OptionType.SUB_COMMAND:
+            __kwargs["sub_command"] = _data["name"]
+            if _data.get("options"):
+                for option in _data["options"]:
+                    if option.get("focused"):
+                        return (option["name"], option["value"])
+                    else:
+                        __kwargs[option["name"]] = option["value"]
+        elif _data["type"] == OptionType.SUB_COMMAND_GROUP:
+            __kwargs["sub_command_group"] = _data["name"]
+            if _data.get("options"):
+                for group in _data["options"]:
+                    for option in group:
+                        if option.get("focused"):
+                            return (option["name"], option["value"])
+                        else:
+                            __kwargs[option["name"]] = option["value"]
+        return __kwargs
+
+    def __option_type_context(self, context: object, type: int) -> dict:
+        """
+        Looks up the type of option respective to the existing
+        option types.
+
+        :param context: The context to refer types from.
+        :type context: object
+        :param type: The option type.
+        :type type: int
+        :return: The option type context.
+        :rtype: dict
+        """
+        if type == OptionType.USER.value:
+            _resolved = (
+                context.data.resolved.members if context.guild_id else context.data.resolved.users
+            )
+        elif type == OptionType.CHANNEL.value:
+            _resolved = context.data.resolved.channels
+        elif type == OptionType.ROLE.value:
+            _resolved = context.data.resolved.roles
+        elif type == OptionType.ATTACHMENT.value:
+            _resolved = context.data.resolved.attachments
+        elif type == OptionType.MENTIONABLE.value:
+            _resolved = {
+                **(
+                    context.data.resolved.members
+                    if context.guild_id
+                    else context.data.resolved.users
+                ),
+                **context.data.resolved.roles,
+            }
+        return _resolved
 
     @property
     async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]:
