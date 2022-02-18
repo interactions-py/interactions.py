@@ -64,12 +64,11 @@ body:
     id: version
     attributes:
       label: What version of the library did you use?
-      multiple: true
+      multiple: false
       options:
-        - Latest PyPI release
-        - `stable` branch
-        - `unstable` branch
-        - `unstable` with a 3rd party library.
+        - release
+        - stable
+        - unstable
     validations:
       required: true
   - type: checkboxes
