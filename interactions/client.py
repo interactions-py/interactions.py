@@ -1,3 +1,4 @@
+import re
 import sys
 from asyncio import get_event_loop, iscoroutinefunction
 from functools import wraps
@@ -319,6 +320,208 @@ class Client:
         self._websocket.dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
 
+    def __check_command(
+        self,
+        command: ApplicationCommand,
+        coro: Coroutine,
+        regex: str = r"^[a-z0-9_-]{1,32}$",
+    ) -> None:
+        """
+        Checks if a command is valid.
+        """
+        reg = re.compile(regex)
+        _options_names: List[str] = []
+        _sub_groups_present: bool = False
+        _sub_cmds_present: bool = False
+
+        def __check_sub_group(_sub_group: Option):
+            nonlocal _sub_groups_present
+            _sub_groups_present = True
+            if _sub_group.name is MISSING:
+                raise InteractionException(11, message="Sub command groups must have a name.")
+            __indent = 4
+            log.debug(
+                f"{' ' * __indent}checking sub command group '{_sub_group.name}' of command '{command.name}'"
+            )
+            if not re.fullmatch(reg, _sub_group.name):
+                raise InteractionException(
+                    11,
+                    message=f"The sub command group name does not match the regex for valid names ('{regex}')",
+                )
+            elif _sub_group.description is MISSING and not _sub_group.description:
+                raise InteractionException(11, message="A description is required.")
+            elif len(_sub_group.description) > 100:
+                raise InteractionException(
+                    11, message="Descriptions must be less than 100 characters."
+                )
+            if not _sub_group.options:
+                raise InteractionException(11, message="sub command groups must have subcommands!")
+            if len(_sub_group.options) > 25:
+                raise InteractionException(
+                    11, message="A sub command group cannot contain more than 25 sub commands!"
+                )
+            for _sub_command in _sub_group.options:
+                __check_sub_command(Option(**_sub_command), _sub_group)
+
+        def __check_sub_command(_sub_command: Option, _sub_group: Option = MISSING):
+            nonlocal _sub_cmds_present
+            _sub_cmds_present = True
+            if _sub_command.name is MISSING:
+                raise InteractionException(11, message="sub commands must have a name!")
+            if _sub_group is not MISSING:
+                __indent = 8
+                log.debug(
+                    f"{' ' * __indent}checking sub command '{_sub_command.name}' of group '{_sub_group.name}'"
+                )
+            else:
+                __indent = 4
+                log.debug(
+                    f"{' ' * __indent}checking sub command '{_sub_command.name}' of command '{command.name}'"
+                )
+            if not re.fullmatch(reg, _sub_command.name):
+                raise InteractionException(
+                    11,
+                    message=f"The sub command name does not match the regex for valid names ('{reg}')",
+                )
+            elif _sub_command.description is MISSING or not _sub_command.description:
+                raise InteractionException(11, message="A description is required.")
+            elif len(_sub_command.description) > 100:
+                raise InteractionException(
+                    11, message="Descriptions must be less than 100 characters."
+                )
+            if _sub_command.options is not MISSING:
+                if len(_sub_command.options) > 25:
+                    raise InteractionException(
+                        11, message="Your sub command must have less than 25 options."
+                    )
+                _sub_opt_names = []
+                for _opt in _sub_command.options:
+                    __check_options(Option(**_opt), _sub_opt_names, _sub_command)
+                del _sub_opt_names
+
+        def __check_options(_option: Option, _names: list, _sub_command: Option = MISSING):
+            nonlocal _options_names
+            if getattr(_option, "autocomplete", False) and getattr(_option, "choices", False):
+                log.warning("Autocomplete may not be set to true if choices are present.")
+            if _option.name is MISSING:
+                raise InteractionException(11, message="Options must have a name.")
+            if _sub_command is not MISSING:
+                __indent = 8 if not _sub_groups_present else 12
+                log.debug(
+                    f"{' ' * __indent}checking option '{_option.name}' of sub command '{_sub_command.name}'"
+                )
+            else:
+                __indent = 4
+                log.debug(
+                    f"{' ' * __indent}checking option '{_option.name}' of command '{command.name}'"
+                )
+            _options_names.append(_option.name)
+            if not re.fullmatch(reg, _option.name):
+                raise InteractionException(
+                    11,
+                    message=f"The option name does not match the regex for valid names ('{regex}')",
+                )
+            if _option.description is MISSING or not _option.description:
+                raise InteractionException(
+                    11,
+                    message="A description is required.",
+                )
+            elif len(_option.description) > 100:
+                raise InteractionException(
+                    11,
+                    message="Descriptions must be less than 100 characters.",
+                )
+            if _option.name in _names:
+                raise InteractionException(
+                    11, message="You must not have two options with the same name in a command!"
+                )
+            _names.append(_option.name)
+
+        def __check_coro():
+            __indent = 4
+            log.debug(f"{' ' * __indent}Checking coroutine: '{coro.__name__}'")
+            if not len(coro.__code__.co_varnames):
+                raise InteractionException(
+                    11, message="Your command needs at least one argument to return context."
+                )
+            elif "kwargs" in coro.__code__.co_varnames:
+                return
+            elif _sub_cmds_present and len(coro.__code__.co_varnames) < 2:
+                raise InteractionException(
+                    11, message="Your command needs one argument for the sub_command."
+                )
+            elif _sub_groups_present and len(coro.__code__.co_varnames) < 3:
+                raise InteractionException(
+                    11,
+                    message="Your command needs one argument for the sub_command and one for the sub_command_group.",
+                )
+            add: int = 1 + abs(_sub_cmds_present) + abs(_sub_groups_present)
+
+            if len(coro.__code__.co_varnames) - add < len(set(_options_names)):
+                log.debug(
+                    "Coroutine is missing arguments for options:"
+                    f" {[_arg for _arg in _options_names if _arg not in coro.__code__.co_varnames]}"
+                )
+                raise InteractionException(
+                    11, message="You need one argument for every option name in your command!"
+                )
+
+        if command.name is MISSING:
+            raise InteractionException(11, message="Your command must have a name.")
+
+        else:
+            log.debug(f"checking command '{command.name}':")
+
+        if (
+            not re.fullmatch(reg, command.name)
+            and command.type == ApplicationCommandType.CHAT_INPUT
+        ):
+            raise InteractionException(
+                11, message=f"Your command does not match the regex for valid names ('{regex}')"
+            )
+        elif (
+            command.type == ApplicationCommandType.CHAT_INPUT
+            and command.description is MISSING
+            or not command.description
+        ):
+            raise InteractionException(11, message="A description is required.")
+        elif (
+            command.type != ApplicationCommandType.CHAT_INPUT
+            and command.description is not MISSING
+            and command.description
+        ):
+            raise InteractionException(
+                11, message="Only chat-input commands can have a description."
+            )
+
+        elif command.description is not MISSING and len(command.description) > 100:
+            raise InteractionException(11, message="Descriptions must be less than 100 characters.")
+
+        if command.options and command.options is not MISSING:
+            if len(command.options) > 25:
+                raise InteractionException(
+                    11, message="Your command must have less than 25 options."
+                )
+
+            if command.type != ApplicationCommandType.CHAT_INPUT:
+                raise InteractionException(
+                    11, message="Only CHAT_INPUT commands can have options/sub-commands!"
+                )
+
+            _opt_names = []
+            for _option in command.options:
+                if _option.type == OptionType.SUB_COMMAND_GROUP:
+                    __check_sub_group(_option)
+
+                elif _option.type == OptionType.SUB_COMMAND:
+                    __check_sub_command(_option)
+
+                else:
+                    __check_options(_option, _opt_names)
+            del _opt_names
+
+        __check_coro()
+
     def command(
         self,
         *,
@@ -373,75 +576,6 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if name is MISSING:
-                raise InteractionException(11, message="Your command must have a name.")
-
-            elif len(name) > 32:
-                raise InteractionException(
-                    11, message="Command names must be less than 32 characters."
-                )
-            elif type == ApplicationCommandType.CHAT_INPUT and description is MISSING:
-                raise InteractionException(
-                    11, message="Chat-input commands must have a description."
-                )
-            elif type != ApplicationCommandType.CHAT_INPUT and description is not MISSING:
-                raise InteractionException(
-                    11, message="Only chat-input commands can have a description."
-                )
-
-            elif description is not MISSING and len(description) > 100:
-                raise InteractionException(
-                    11, message="Command descriptions must be less than 100 characters."
-                )
-
-            for _ in name:
-                if _.isupper() and type == ApplicationCommandType.CHAT_INPUT:
-                    raise InteractionException(
-                        11,
-                        message="Your chat-input command name must not contain uppercase characters (Discord limitation)",
-                    )
-
-            if not len(coro.__code__.co_varnames):
-                raise InteractionException(
-                    11, message="Your command needs at least one argument to return context."
-                )
-            if options is not MISSING:
-                if len(coro.__code__.co_varnames) + 1 < len(options):
-                    raise InteractionException(
-                        11,
-                        message="You must have the same amount of arguments as the options of the command.",
-                    )
-                if isinstance(options, List) and len(options) > 25:
-                    raise InteractionException(
-                        11, message="Your command must have less than 25 options."
-                    )
-                _option: Option
-                for _option in options:
-                    if _option.type not in (
-                        OptionType.SUB_COMMAND,
-                        OptionType.SUB_COMMAND_GROUP,
-                    ):
-                        if getattr(_option, "autocomplete", False) and getattr(
-                            _option, "choices", False
-                        ):
-                            log.warning(
-                                "Autocomplete may not be set to true if choices are present."
-                            )
-                        if not getattr(_option, "description", False):
-                            raise InteractionException(
-                                11,
-                                message="A description is required for Options that are not sub-commands.",
-                            )
-                        if len(_option.description) > 100:
-                            raise InteractionException(
-                                11,
-                                message="Command option descriptions must be less than 100 characters.",
-                            )
-
-                    if len(_option.name) > 32:
-                        raise InteractionException(
-                            11, message="Command option names must be less than 32 characters."
-                        )
 
             commands: List[ApplicationCommand] = command(
                 type=type,
@@ -451,6 +585,7 @@ class Client:
                 options=options,
                 default_permission=default_permission,
             )
+            self.__check_command(command=ApplicationCommand(**commands[0]), coro=coro)
 
             if self._automate_sync:
                 if self._loop.is_running():
@@ -782,11 +917,6 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not len(coro.__code__.co_varnames):
-                raise InteractionException(
-                    11,
-                    message="Your command needs at least one argument to return context.",
-                )
 
             commands: List[ApplicationCommand] = command(
                 type=ApplicationCommandType.MESSAGE,
@@ -794,6 +924,7 @@ class Client:
                 scope=scope,
                 default_permission=default_permission,
             )
+            self.__check_command(ApplicationCommand(**commands[0]), coro)
 
             if self._automate_sync:
                 if self._loop.is_running():
@@ -842,11 +973,6 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            if not len(coro.__code__.co_varnames):
-                raise InteractionException(
-                    11,
-                    message="Your command needs at least one argument to return context.",
-                )
 
             commands: List[ApplicationCommand] = command(
                 type=ApplicationCommandType.USER,
@@ -854,6 +980,8 @@ class Client:
                 scope=scope,
                 default_permission=default_permission,
             )
+
+            self.__check_command(ApplicationCommand(**commands[0]), coro)
 
             if self._automate_sync:
                 if self._loop.is_running():
@@ -1304,7 +1432,8 @@ class Extension:
                 func = client.modal(*args, **kwargs)(func)
 
                 modal = kwargs.get("modal") or args[0]
-                modal_name = f"modal_{modal.custom_id}"
+                _modal_id: str = modal.custom_id if isinstance(modal, Modal) else modal
+                modal_name = f"modal_{_modal_id}"
 
                 listeners = self._listeners.get(modal_name, [])
                 listeners.append(func)
