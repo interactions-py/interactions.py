@@ -1027,7 +1027,8 @@ class Extension:
                 func = client.modal(*args, **kwargs)(func)
 
                 modal = kwargs.get("modal") or args[0]
-                modal_name = f"modal_{modal.custom_id}"
+                _modal_id: str = modal.custom_id if isinstance(modal, Modal) else modal
+                modal_name = f"modal_{_modal_id}"
 
                 listeners = self._listeners.get(modal_name, [])
                 listeners.append(func)
