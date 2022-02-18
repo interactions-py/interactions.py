@@ -497,7 +497,7 @@ class _Context(DictSerializerMixin):
         return payload
 
 
-class CommandContext(ContextMixin):
+class CommandContext(_Context):
     """
     A derivation of :class:`interactions.context.Context`
     designed specifically for application command data.
