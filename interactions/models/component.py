@@ -35,7 +35,13 @@ class SelectOption(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.emoji = Emoji(**self.emoji) if self._json.get("emoji") else None
+        self.emoji = (
+            Emoji(**self.emoji if isinstance(self.emoji, dict) else self.emoji._json)
+            if self._json.get("emoji")
+            else None
+        )
+        if self.emoji:
+            self._json.update({"emoji": self.emoji._json})
 
 
 class SelectMenu(DictSerializerMixin):
@@ -348,7 +354,10 @@ class ActionRow(DictSerializerMixin):
         self.type = ComponentType.ACTION_ROW
         for component in self.components:
             if isinstance(component, SelectMenu):
-                component._json["options"] = [option._json for option in component._json["options"]]
+                component._json["options"] = [
+                    option._json if isinstance(option, SelectOption) else option
+                    for option in component._json["options"]
+                ]
         self.components = (
             [Component(**component._json) for component in self.components]
             if self._json.get("components")
