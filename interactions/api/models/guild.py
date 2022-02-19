@@ -129,6 +129,26 @@ class StageInstance(DictSerializerMixin):
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
 
 
+class UnavailableGuild(DictSerializerMixin):
+    """
+    A class object representing how a guild that is unavailable.
+
+    .. note::
+        This object only seems to show up during the connection process
+        of the client to the Gateway when the ``READY`` event is dispatched.
+        This event will pass fields with ``guilds`` where this becomes
+        present.
+
+    :ivar Snowflake id: The ID of the unavailable guild.
+    :ivar bool unavailable: Whether the guild is unavailable or not.
+    """
+
+    __slots__ = ("_json", "id", "unavailable")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class Guild(DictSerializerMixin):
     """
     A class object representing how a guild is registered.

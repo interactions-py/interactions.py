@@ -33,14 +33,15 @@ class ApplicationCommandPermissions(DictSerializerMixin):
         )
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.permissions = (
-            [
-                Permission(**_permission) if isinstance(_permission, dict) else _permission
-                for _permission in self._json.get("permissions")
-            ]
-            if self._json.get("permissions")
-            else None
-        )
+        # TODO: fix the circular import hell from this.
+        # self.permissions = (
+        #     [
+        #         Permission(**_permission) if isinstance(_permission, dict) else _permission
+        #         for _permission in self._json.get("permissions")
+        #     ]
+        #     if self._json.get("permissions")
+        #     else None
+        # )
 
 
 class ChannelPins(DictSerializerMixin):
