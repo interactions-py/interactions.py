@@ -374,23 +374,24 @@ class WebSocketClient:
         """
         __kwargs: dict = {}
         _data: dict = data._json if isinstance(data, Option) else data
-        if _data["type"] == OptionType.SUB_COMMAND:
-            __kwargs["sub_command"] = _data["name"]
-            if _data.get("options"):
-                for option in _data["options"]:
-                    if option.get("focused"):
-                        return (option["name"], option["value"])
-                    else:
-                        __kwargs[option["name"]] = option["value"]
-        elif _data["type"] == OptionType.SUB_COMMAND_GROUP:
-            __kwargs["sub_command_group"] = _data["name"]
-            if _data.get("options"):
-                for group in _data["options"]:
-                    for option in group:
-                        if option.get("focused"):
-                            return (option["name"], option["value"])
-                        else:
-                            __kwargs[option["name"]] = option["value"]
+
+        def _check_auto(option: dict) -> Optional[Tuple[str]]:
+            if option.get("focused"):
+                return (option["name"], option["value"])
+
+        _check_auto(_data)
+        if _data.get("options"):
+            for option in _data["options"]:
+                if option["type"] == OptionType.SUB_COMMAND:
+                    for sub_option in _data["options"]:
+                        _check_auto(sub_option)
+                        __kwargs[sub_option["name"]] = sub_option["value"]
+                else:
+                    for group in _data["options"]:
+                        for _group_option in group:
+                            _check_auto(_group_option)
+                            __kwargs[_group_option["name"]] = _group_option["value"]
+
         return __kwargs
 
     def __option_type_context(self, context: object, type: int) -> dict:
