@@ -35,7 +35,13 @@ class SelectOption(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.emoji = Emoji(**self.emoji) if self._json.get("emoji") else None
+        self.emoji = (
+            Emoji(**self.emoji if isinstance(self.emoji, dict) else self.emoji._json)
+            if self._json.get("emoji")
+            else None
+        )
+        if self.emoji:
+            self._json.update({"emoji": self.emoji._json})
 
 
 class SelectMenu(DictSerializerMixin):

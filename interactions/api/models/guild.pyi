@@ -45,6 +45,12 @@ class StageInstance(DictSerializerMixin):
     discoverable_disabled: bool
     def __init__(self, **kwargs): ...
 
+class UnavailableGuild(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    unavailable: bool
+    def __init__(self, **kwargs): ...
+
 class Guild(DictSerializerMixin):
     _json: dict
     _client: HTTPClient
