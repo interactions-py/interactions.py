@@ -41,7 +41,8 @@ class SelectOption(DictSerializerMixin):
             if self._json.get("emoji")
             else None
         )
-        self._json.update({"emoji": self.emoji._json})
+        if self.emoji:
+            self._json.update({"emoji": self.emoji._json})
 
 
 class SelectMenu(DictSerializerMixin):
