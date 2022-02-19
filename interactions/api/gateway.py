@@ -321,11 +321,11 @@ class WebSocketClient:
                             for component in _context.data.components:
                                 if component.get("components"):
                                     __args.append(
-                                        _value["value"] for _value in component["components"]
+                                        [_value["value"] for _value in component["components"]][0]
                                     )
                                 else:
                                     __args.append(
-                                        _value["value"] for _value in component.components
+                                        [_value.value for _value in component.components][0]
                                     )
 
                         self._dispatch.dispatch("on_modal", _context)
