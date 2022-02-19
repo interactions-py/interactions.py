@@ -180,7 +180,6 @@ class _Context(DictSerializerMixin):
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
 
-
             if isinstance(self.message.components, list):
                 _components = self.message.components
             else:
