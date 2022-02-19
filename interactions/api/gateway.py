@@ -294,12 +294,33 @@ class WebSocketClient:
                     self._dispatch.dispatch("on_command", _context)
                 elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                     _name = f"component_{_context.data.custom_id}"
+
+                    if _context.data._json.get("values"):
+                        __args.append(_context.data.values)
+
                     self._dispatch.dispatch("on_component", _context)
                 elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                     _name = f"autocomplete_{_context.data.id}"
+
+                    if _context.data._json.get("options"):
+                        for option in _context.data.options:
+                            __name, _value = self.__sub_command_context(option)
+                            _name += f"_{__name}" if __name else ""
+
+                            if _value:
+                                __args.append(_value)
+
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
                     _name = f"modal_{_context.data.custom_id}"
+
+                    if _context.data._json.get("components"):
+                        for component in _context.data.components:
+                            if component.get("components"):
+                                __args.append(_value["value"] for _value in component.components)
+                            else:
+                                __args.append(_value["value"] for _value in component["components"])
+
                     self._dispatch.dispatch("on_modal", _context)
 
             self._dispatch.dispatch(_name, *__args, **__kwargs)
