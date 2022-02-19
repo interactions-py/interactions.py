@@ -19,7 +19,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import WSMessage
 
-from ..api.models.gw import Presence
 from ..base import get_logger
 from ..enums import InteractionType, OptionType
 from ..models.command import Option
@@ -29,6 +28,7 @@ from .error import GatewayException
 from .http import HTTPClient
 from .models.flags import Intents
 from .models.misc import MISSING
+from .models.presence import ClientPresence
 
 log: Logger = get_logger("gateway")
 
@@ -68,7 +68,7 @@ class WebSocketClient:
     :ivar dict _ready: The contents of the application returned when ready.
     :ivar _Heartbeat __heartbeater: The context state of a "heartbeat" made to the Gateway.
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
-    :ivar Optional[Presence] __presence: The presence used in connection.
+    :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Task __task: The closing task for ending connections.
     :ivar int session_id: The ID of the ongoing session.
     :ivar str sequence: The sequence identifier of the ongoing session.
@@ -161,7 +161,9 @@ class WebSocketClient:
         await self._establish_connection()
 
     async def _establish_connection(
-        self, shard: Optional[List[Tuple[int]]] = MISSING, presence: Optional[Presence] = MISSING
+        self,
+        shard: Optional[List[Tuple[int]]] = MISSING,
+        presence: Optional[ClientPresence] = MISSING,
     ) -> None:
         """
         Establishes a client connection with the Gateway.
@@ -169,7 +171,7 @@ class WebSocketClient:
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
         :type shard: Optional[List[Tuple[int]]]
         :param presence: The presence to carry with. Defaults to ``None``.
-        :type presence: Optional[Presence]
+        :type presence: Optional[ClientPresence]
         """
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
         url = await self._http.get_gateway()
@@ -193,7 +195,7 @@ class WebSocketClient:
         self,
         stream: Dict[str, Any],
         shard: Optional[List[Tuple[int]]] = MISSING,
-        presence: Optional[Presence] = MISSING,
+        presence: Optional[ClientPresence] = MISSING,
     ) -> None:
         """
         Handles the client's connection with the Gateway.
@@ -203,7 +205,7 @@ class WebSocketClient:
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
         :type shard: Optional[List[Tuple[int]]]
         :param presence: The presence to carry with. Defaults to ``None``.
-        :type presence: Optional[Presence]
+        :type presence: Optional[ClientPresence]
         """
         op: Optional[int] = stream.get("op")
         event: Optional[str] = stream.get("t")
@@ -462,7 +464,7 @@ class WebSocketClient:
         log.debug(packet)
 
     async def __identify(
-        self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[Presence] = None
+        self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
     ) -> None:
         """
         Sends an ``IDENTIFY`` packet to the gateway.
@@ -470,7 +472,7 @@ class WebSocketClient:
         :param shard?: The shard ID to identify under.
         :type shard: Optional[List[Tuple[int]]]
         :param presence?: The presence to change the bot to on identify.
-        :type presence: Optional[Presence]
+        :type presence: Optional[ClientPresence]
         """
         self.__shard = shard
         self.__presence = presence
@@ -489,7 +491,7 @@ class WebSocketClient:
 
         if isinstance(shard, List) and len(shard) >= 1:
             payload["d"]["shard"] = shard
-        if isinstance(presence, Presence):
+        if isinstance(presence, ClientPresence):
             payload["d"]["presence"] = presence._json
 
         log.debug(f"IDENTIFYING: {payload}")
@@ -518,6 +520,6 @@ class WebSocketClient:
         return self.__shard
 
     @property
-    def presence(self) -> Optional[Presence]:
+    def presence(self) -> Optional[ClientPresence]:
         """Returns the current presence."""
         return self.__presence

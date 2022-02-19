@@ -1,3 +1,5 @@
+import time
+
 from .misc import DictSerializerMixin, Snowflake
 
 
@@ -140,3 +142,33 @@ class PresenceActivity(DictSerializerMixin):
         self.party = PresenceParty(**self.party) if self._json.get("party") else None
         self.assets = PresenceAssets(**self.assets) if self._json.get("assets") else None
         self.secrets = PresenceSecrets(**self.secrets) if self._json.get("secrets") else None
+
+
+class ClientPresence(DictSerializerMixin):
+    """
+    An object that symbolizes the presence of the current client's session upon creation.
+
+    :ivar Optional[int] since?: Unix time in milliseconds of when the client went idle. None if it is not idle.
+    :ivar Optional[List[PresenceActivity]] activities: Array of activity objects.
+    :ivar str status: The client's new status.
+    :ivar bool afk: Whether the client is afk or not.
+    """
+
+    __slots__ = ("_json", "since", "activities", "status", "afk")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.activities = (
+            [
+                PresenceActivity(**(activity if isinstance(activity, dict) else activity._json))
+                for activity in self._json.get("activities")
+            ]
+            if self._json.get("activities")
+            else None
+        )
+        if self.activities:
+            self._json["activities"] = [activity._json for activity in self.activities]
+        if self.status == "idle" and not self._json.get("since"):
+            # If since is not provided by the developer...
+            self.since = int(time.time() * 1000)
+            self._json["since"] = self.since
