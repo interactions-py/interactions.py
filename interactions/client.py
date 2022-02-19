@@ -11,7 +11,6 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
 from .api.cache import Item as Build
-from .api.dispatch import Listener
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocketClient
 from .api.http import HTTPClient

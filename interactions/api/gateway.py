@@ -151,7 +151,7 @@ class WebSocketClient:
     async def __restart(self):
         """Restart the client's connection and heartbeat with the Gateway."""
         if self.__task:
-            self.__task = Task()
+            self.__task: Task
             self.__task.cancel()
         await self._client.close()
         self.__heartbeater.event.clear()
@@ -291,7 +291,14 @@ class WebSocketClient:
                             for option in _context.data.options:
                                 __kwargs.update(self.__sub_command_context(option))
                                 __kwargs.update(
-                                    self.__option_type_context(_context, option["type"])
+                                    self.__option_type_context(
+                                        _context,
+                                        (
+                                            option["type"]
+                                            if isinstance(option, dict)
+                                            else option.type.value
+                                        ),
+                                    )
                                 )
 
                         self._dispatch.dispatch("on_command", _context)
@@ -379,7 +386,9 @@ class WebSocketClient:
             if option.get("focused"):
                 return (option["name"], option["value"])
 
-        _check_auto(_data)
+        x = _check_auto(_data)
+        if x:
+            return x
         if _data.get("options"):
             for option in _data["options"]:
                 if option["type"] == OptionType.SUB_COMMAND:
@@ -391,6 +400,8 @@ class WebSocketClient:
                         for _group_option in group:
                             _check_auto(_group_option)
                             __kwargs[_group_option["name"]] = _group_option["value"]
+        elif _data.get("value") and _data.get("name"):
+            __kwargs[_data["name"]] = _data["value"]
 
         return __kwargs
 
@@ -406,6 +417,7 @@ class WebSocketClient:
         :return: The option type context.
         :rtype: dict
         """
+        _resolved = {}
         if type == OptionType.USER.value:
             _resolved = (
                 context.data.resolved.members if context.guild_id else context.data.resolved.users
