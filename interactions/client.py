@@ -39,7 +39,7 @@ class Client:
     :ivar WebSocketClient _websocket: An object-orientation of a websocket server connection to the Gateway.
     :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
     :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
-    :ivar Optional[Presence] _presence: The RPC-like presence shown on an application once connected.
+    :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
     :ivar Application me: The application representation of the client.
@@ -69,7 +69,7 @@ class Client:
         #     Defaults to ``Intents.DEFAULT``.
         # shards? : Optional[List[Tuple[int]]]
         #     Dictates and controls the shards that the application connects under.
-        # presence? : Optional[Presence]
+        # presence? : Optional[ClientPresence]
         #     Sets an RPC-like presence on the application when connected to the Gateway.
         # disable_sync? : Optional[bool]
         #     Controls whether synchronization in the user-facing API should be automatic or not.

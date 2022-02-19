@@ -54,3 +54,11 @@ class PresenceActivity(DictSerializerMixin):
     flags: Optional[int]
     buttons: Optional[List[PresenceButtons]]
     def __init__(self, **kwargs): ...
+
+class ClientPresence(DictSerializerMixin):
+    _json: dict
+    since: Optional[int]
+    activities: Optional[List[PresenceActivity]]
+    status: str
+    afk: bool
+    def __init__(self, **kwargs): ...
