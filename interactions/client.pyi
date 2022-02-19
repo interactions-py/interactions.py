@@ -3,7 +3,7 @@ from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
 
 from .api.cache import Cache
-from .api.gateway import WebSocket
+from .api.gateway import WebSocketClient
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
@@ -21,7 +21,7 @@ _cache: Optional[Cache] = None
 class Client:
     _loop: AbstractEventLoop
     _http: HTTPClient
-    _websocket: WebSocket
+    _websocket: WebSocketClient
     _intents: Intents
     _shard: Optional[List[Tuple[int]]]
     _presence: Optional[Presence]
