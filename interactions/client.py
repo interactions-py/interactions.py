@@ -482,7 +482,9 @@ class Client:
             command.description is MISSING or not command.description
         ):
             raise InteractionException(11, message="A description is required.")
-        elif command.type != ApplicationCommandType.CHAT_INPUT and command.description:
+        elif command.type != ApplicationCommandType.CHAT_INPUT and (
+            command.description is not MISSING and command.description
+        ):
             raise InteractionException(
                 11, message="Only chat-input commands can have a description."
             )
