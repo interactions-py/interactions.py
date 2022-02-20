@@ -98,6 +98,12 @@ class Client:
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
 
+    @property
+    def latency(self) -> float:
+        """Returns the connection latency in milliseconds."""
+
+        return self._websocket.latency * 1000
+
     def start(self) -> None:
         """Starts the client session."""
         self._loop.run_until_complete(self._ready())

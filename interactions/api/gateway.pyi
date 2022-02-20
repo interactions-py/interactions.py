@@ -4,10 +4,11 @@ from asyncio import (
     Task,
 )
 from logging import Logger
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import ClientWebSocketResponse
 
+from ..models import Option
 from ..base import get_logger
 from ..api.models.misc import MISSING
 from ..api.models.presence import ClientPresence
@@ -37,8 +38,13 @@ class WebSocketClient:
     __shard: Optional[List[Tuple[int]]]
     __presence: Optional[ClientPresence]
     __task: Optional[Task]
-    session_id: int
-    sequence: str
+    session_id: str
+    sequence: Optional[int]
+    _last_send: float
+    _last_ack: float
+    latency: float
+    ready: Event
+
     def __init__(
         self,
         token: str,
@@ -57,6 +63,11 @@ class WebSocketClient:
         shard: Optional[List[Tuple[int]]] = MISSING,
         presence: Optional[ClientPresence] = MISSING,
     ) -> None: ...
+    async def wait_until_ready(self) -> None: ...
+    def _dispatch_event(self, event: str, data: dict) -> None: ...
+    def __contextualize(self, data: dict) -> object: ...
+    def __sub_command_context(self, data: Union[dict, Option]) -> Union[Tuple[str], dict]: ...
+    def __option_type_context(self, context: object, type: int) -> dict: ...
     @property
     async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]: ...
     async def _send_packet(self, data: Dict[str, Any]) -> None: ...

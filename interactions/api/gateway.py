@@ -15,6 +15,7 @@ from asyncio import (
 )
 from logging import Logger
 from sys import platform, version_info
+from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import WSMessage
@@ -70,8 +71,8 @@ class WebSocketClient:
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Task __task: The closing task for ending connections.
-    :ivar int session_id: The ID of the ongoing session.
-    :ivar str sequence: The sequence identifier of the ongoing session.
+    :ivar str session_id: The ID of the ongoing session.
+    :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
     """
 
     __slots__ = (
@@ -90,13 +91,16 @@ class WebSocketClient:
         "session_id",
         "sequence",
         "ready",
+        "_last_send",
+        "_last_ack",
+        "latency",
     )
 
     def __init__(
         self,
         token: str,
         intents: Intents,
-        session_id: Optional[int] = MISSING,
+        session_id: Optional[str] = MISSING,
         sequence: Optional[int] = MISSING,
     ) -> None:
         """
@@ -132,7 +136,12 @@ class WebSocketClient:
         self.__task = None
         self.session_id = None if session_id is MISSING else session_id
         self.sequence = None if sequence is MISSING else sequence
-        self.ready = None
+        self.ready = Event(loop=self._loop) if version_info < (3, 10) else Event()
+
+        self._last_send = perf_counter()
+        self._last_ack = perf_counter()
+        self.latency: float("nan")  # noqa: F821
+        # self.latency has to be noqa, this is valid in python but not in Flake8.
 
     async def _manage_heartbeat(self) -> None:
         """Manages the heartbeat loop."""
@@ -226,8 +235,10 @@ class WebSocketClient:
             if op == OpCodeType.HEARTBEAT:
                 await self.__heartbeat()
             if op == OpCodeType.HEARTBEAT_ACK:
+                self._last_ack = perf_counter()
                 log.debug("HEARTBEAT_ACK")
                 self.__heartbeater.event.set()
+                self.latency = self._last_ack - self._last_send
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
 
@@ -243,9 +254,14 @@ class WebSocketClient:
             self.sequence = stream["s"]
             self._dispatch.dispatch("on_ready")
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
+            self.ready.set()
         else:
             log.debug(f"{event}: {data}")
             self._dispatch_event(event, data)
+
+    async def wait_until_ready(self):
+        """Waits for the client to become ready according to the Gateway."""
+        await self.ready.wait()
 
     def _dispatch_event(self, event: str, data: dict) -> None:
         """
@@ -459,6 +475,7 @@ class WebSocketClient:
         :param data: The data to send to the Gateway.
         :type data: Dict[str, Any]
         """
+        self._last_send = perf_counter()
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
         await self._client.send_str(packet)
         log.debug(packet)
