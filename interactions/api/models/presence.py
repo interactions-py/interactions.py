@@ -1,5 +1,7 @@
 import time
+from enum import IntEnum
 
+from ..models import StatusType
 from .misc import DictSerializerMixin, Snowflake
 
 
@@ -77,12 +79,29 @@ class PresenceTimestamp(DictSerializerMixin):
         super().__init__(**kwargs)
 
 
+class PresenceActivityType(IntEnum):
+    """
+    A class object representing all supported Discord activity types.
+    """
+
+    GAME = 0
+    STREAMING = 1
+    LISTENING = 2
+    WATCHING = 3
+    CUSTOM = 4
+    COMPETING = 5
+
+
 class PresenceActivity(DictSerializerMixin):
     """
     A class object representing the current activity data of a presence.
 
+    .. note::
+        When using this model to instantiate alongside the client, if you provide a type 1 ( or PresenceActivityType.STREAMING ), then
+        the ``url`` attribute is necessary.
+
     :ivar str name: The activity name
-    :ivar str type: The activity type
+    :ivar Union[int, PresenceActivityType] type: The activity type
     :ivar Optional[str] url?: stream url (if type is 1)
     :ivar Snowflake created_at: Unix timestamp of when the activity was created to the User's session
     :ivar Optional[PresenceTimestamp] timestamps?: Unix timestamps for start and/or end of the game
@@ -128,6 +147,9 @@ class PresenceActivity(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._json["type"] = (
+            self.type.value if isinstance(self.type, PresenceActivityType) else self.type
+        )
         self.application_id = (
             Snowflake(self.application_id) if self._json.get("application_id") else None
         )
@@ -143,6 +165,20 @@ class PresenceActivity(DictSerializerMixin):
         self.assets = PresenceAssets(**self.assets) if self._json.get("assets") else None
         self.secrets = PresenceSecrets(**self.secrets) if self._json.get("secrets") else None
 
+    @property
+    def gateway_json(self) -> dict:
+        """
+        This returns the JSON representing the ClientPresence sending via the Gateway.
+
+        .. note::
+            This is NOT used for standard presence activity reading by other users, i.e. User activity reading.
+            You can use the `_json` attribute instead.
+        """
+        res = {"name": self.name, "type": self.type}
+        if self.url:
+            res["url"] = self.url
+        return res
+
 
 class ClientPresence(DictSerializerMixin):
     """
@@ -150,7 +186,7 @@ class ClientPresence(DictSerializerMixin):
 
     :ivar Optional[int] since?: Unix time in milliseconds of when the client went idle. None if it is not idle.
     :ivar Optional[List[PresenceActivity]] activities: Array of activity objects.
-    :ivar str status: The client's new status.
+    :ivar Union[str, StatusType] status: The client's new status.
     :ivar bool afk: Whether the client is afk or not.
     """
 
@@ -158,9 +194,14 @@ class ClientPresence(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._json["status"] = (
+            self.status.value if isinstance(self.status, StatusType) else self.status
+        )
         self.activities = (
             [
-                PresenceActivity(**(activity if isinstance(activity, dict) else activity._json))
+                PresenceActivity(
+                    **(activity if isinstance(activity, dict) else activity.gateway_json)
+                )
                 for activity in self._json.get("activities")
             ]
             if self._json.get("activities")
@@ -172,3 +213,5 @@ class ClientPresence(DictSerializerMixin):
             # If since is not provided by the developer...
             self.since = int(time.time() * 1000)
             self._json["since"] = self.since
+        if not self._json.get("afk"):
+            self._json["afk"] = False
