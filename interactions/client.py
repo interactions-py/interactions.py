@@ -311,6 +311,10 @@ class Client:
         while not self._websocket._closed:
             await self._websocket._establish_connection(self._shard, self._presence)
 
+    async def wait_until_ready(self) -> None:
+        """Helper method that waits until the websocket is ready."""
+        await self._websocket.wait_until_ready()
+
     def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
