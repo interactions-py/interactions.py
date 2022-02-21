@@ -4,8 +4,8 @@ Quickstart
 Installing
 **********
 
-**discord-interactions** is a :ref:`Python library <index:discord-interactions>` for the Discord Artificial Programming Interface. (API)
-A library in Python has to be installed through the `pip` file. Run this in your terminal/command line
+**discord-interactions** is a :ref:`Python library <index:discord-interactions>` for the Discord Application Programming Interface. (API)
+It is recommended to use pip to install libraries in python. Run this in your terminal/command line
 in order to install our library:
 
 ``pip install -U discord-py-interactions``
