@@ -4,21 +4,19 @@ from asyncio import (
     Task,
 )
 from logging import Logger
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, Iterable
 
 from aiohttp import ClientWebSocketResponse
 
 from ..models import Option
-from ..base import get_logger
 from ..api.models.misc import MISSING
 from ..api.models.presence import ClientPresence
 from .dispatch import Listener
 from .http import HTTPClient
 from .models.flags import Intents
 
-log: Logger = get_logger("gateway")
-
-__all__ = ("_Heartbeat", "WebSocketClient")
+log: Logger
+__all__: Iterable[str]
 
 class _Heartbeat:
     event: Event
@@ -38,7 +36,7 @@ class WebSocketClient:
     __shard: Optional[List[Tuple[int]]]
     __presence: Optional[ClientPresence]
     __task: Optional[Task]
-    session_id: str
+    session_id: Optional[str]
     sequence: Optional[int]
     _last_send: float
     _last_ack: float

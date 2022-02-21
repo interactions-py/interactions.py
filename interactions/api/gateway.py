@@ -13,7 +13,6 @@ from asyncio import (
     new_event_loop,
     sleep,
 )
-from logging import Logger
 from sys import platform, version_info
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -31,7 +30,7 @@ from .models.flags import Intents
 from .models.misc import MISSING
 from .models.presence import ClientPresence
 
-log: Logger = get_logger("gateway")
+log = get_logger("gateway")
 
 
 __all__ = ("_Heartbeat", "WebSocketClient")
@@ -71,7 +70,7 @@ class WebSocketClient:
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Task __task: The closing task for ending connections.
-    :ivar str session_id: The ID of the ongoing session.
+    :ivar Optional[str] session_id: The ID of the ongoing session.
     :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
     """
 
@@ -109,7 +108,7 @@ class WebSocketClient:
         :param intents: The Gateway intents of the application for event dispatch.
         :type intents: Intents
         :param session_id?: The ID of the session if trying to reconnect. Defaults to ``None``.
-        :type session_id: Optional[int]
+        :type session_id: Optional[str]
         :param sequence?: The identifier sequence if trying to reconnect. Defaults to ``None``.
         :type sequence: Optional[int]
         """
@@ -195,7 +194,7 @@ class WebSocketClient:
                     continue
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
                     raise GatewayException(self._client.close_code)
-                elif self._client.close_code is not None:
+                elif self._closed:  # Redundant conditional.
                     await self._establish_connection()
 
                 await self._handle_connection(stream, shard, presence)
@@ -298,7 +297,7 @@ class WebSocketClient:
                     )
                 else:
                     _context = self.__contextualize(data)
-                    _name: str
+                    _name: str = ""
                     __args: list = [_context]
                     __kwargs: dict = {}
 
@@ -355,9 +354,9 @@ class WebSocketClient:
 
                         self._dispatch.dispatch("on_modal", _context)
 
-                self._dispatch.dispatch(_name, *__args, **__kwargs)
-                self._dispatch.dispatch("on_interaction", _context)
-                self._dispatch.dispatch("on_interaction_create", _context)
+                    self._dispatch.dispatch(_name, *__args, **__kwargs)
+                    self._dispatch.dispatch("on_interaction", _context)
+                    self._dispatch.dispatch("on_interaction_create", _context)
 
         self._dispatch.dispatch("raw_socket_create", data)
 
