@@ -7,13 +7,12 @@ from .api.gateway import WebSocketClient
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
-from .api.models.gw import Presence
 from .api.models.misc import MISSING, Snowflake
+from .api.models.presence import ClientPresence
 from .api.models.team import Application
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
-from .models.misc import MISSING
 
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
@@ -24,7 +23,7 @@ class Client:
     _websocket: WebSocketClient
     _intents: Intents
     _shard: Optional[List[Tuple[int]]]
-    _presence: Optional[Presence]
+    _presence: Optional[ClientPresence]
     _token: str
     _scopes: set[List[Union[int, Snowflake]]]
     _automate_sync: bool

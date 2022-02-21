@@ -228,7 +228,7 @@ class Channel(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...models.component import ActionRow, Button, SelectMenu
+        from ...models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content
@@ -243,106 +243,10 @@ class Channel(DictSerializerMixin):
         else:
             _embeds = [embeds._json]
 
-        # TODO: Break this obfuscation pattern down to a "builder" method.
         if not components or components is MISSING:
             _components = []
         else:
-            _components: List[dict] = [{"type": 1, "components": []}]
-            if isinstance(components, list) and all(
-                isinstance(action_row, ActionRow) for action_row in components
-            ):
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in action_row.components
-                        ],
-                    }
-                    for action_row in components
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(component, (Button, SelectMenu)) for component in components
-            ):
-                for component in components:
-                    if isinstance(component, SelectMenu):
-                        component._json["options"] = [
-                            options._json if not isinstance(options, dict) else options
-                            for options in component._json["options"]
-                        ]
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in components
-                        ],
-                    }
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(action_row, (list, ActionRow)) for action_row in components
-            ):
-                _components = []
-                for action_row in components:
-                    for component in (
-                        action_row if isinstance(action_row, list) else action_row.components
-                    ):
-                        if isinstance(component, SelectMenu):
-                            component._json["options"] = [
-                                option._json if not isinstance(option, dict) else option
-                                for option in component.options
-                            ]
-                    _components.append(
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in (
-                                    action_row
-                                    if isinstance(action_row, list)
-                                    else action_row.components
-                                )
-                            ],
-                        }
-                    )
-            elif isinstance(components, ActionRow):
-                _components[0]["components"] = [
-                    (
-                        component._json
-                        if component._json.get("custom_id") or component._json.get("url")
-                        else []
-                    )
-                    for component in components.components
-                ]
-            elif isinstance(components, Button):
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
-            elif isinstance(components, SelectMenu):
-                components._json["options"] = [
-                    options._json if not isinstance(options, dict) else options
-                    for options in components._json["options"]
-                ]
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
+            _components = _build_components(components=components)
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -398,7 +302,7 @@ class Channel(DictSerializerMixin):
         :type parent_id: Optional[int]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
-        :param reason: The reason for the edit
+        :param reason?: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel as new object
         :rtype: Channel
@@ -434,6 +338,164 @@ class Channel(DictSerializerMixin):
             data=payload._json,
         )
         return Channel(**res, _client=self._client)
+
+    async def set_name(
+        self,
+        name: str,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the name of the channel.
+
+        :param name: The new name of the channel
+        :type name: str
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(name=name, reason=reason)
+
+    async def set_topic(
+        self,
+        topic: str,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the topic of the channel.
+
+        :param topic: The new topic of the channel
+        :type topic: str
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(topic=topic, reason=reason)
+
+    async def set_bitrate(
+        self,
+        bitrate: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the bitrate of the channel.
+
+        :param bitrate: The new bitrate of the channel
+        :type bitrate: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        if self.type != ChannelType.GUILD_VOICE:
+            raise TypeError("Bitrate is only available for VoiceChannels")
+
+        return await self.modify(bitrate=bitrate, reason=reason)
+
+    async def set_user_limit(
+        self,
+        user_limit: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the user_limit of the channel.
+
+        :param user_limit: The new user limit of the channel
+        :type user_limit: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        if self.type != ChannelType.GUILD_VOICE:
+            raise TypeError("user_limit is only available for VoiceChannels")
+
+        return await self.modify(user_limit=user_limit, reason=reason)
+
+    async def set_rate_limit_per_user(
+        self,
+        rate_limit_per_user: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the position of the channel.
+
+        :param rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
+        :type rate_limit_per_user: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(rate_limit_per_user=rate_limit_per_user, reason=reason)
+
+    async def set_position(
+        self,
+        position: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the position of the channel.
+
+        :param position: The new position of the channel
+        :type position: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(position=position, reason=reason)
+
+    async def set_parent_id(
+        self,
+        parent_id: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the parent_id of the channel.
+
+        :param parent_id: The new parent_id of the channel
+        :type parent_id: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(parent_id=parent_id, reason=reason)
+
+    async def set_nsfw(
+        self,
+        nsfw: bool,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the nsfw-flag of the channel.
+
+        :param nsfw: The new nsfw-flag of the channel
+        :type nsfw: bool
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(nsfw=nsfw, reason=reason)
 
     async def add_member(
         self,
