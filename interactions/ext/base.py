@@ -15,13 +15,13 @@ class Base:
     :ivar str description: The description of the library.
     :ivar Optional[str] long_description: The long description of the library.
     :ivar str link: The repository link or the library.
-    :ivar Optional[List[str]] _dependencies: The dependencies of the library needed.
+    :ivar Optional[List[str]] _packages: The packages of the library.
     :ivar Optional[List[str]] _requirements: The modules in the library required.
     :ivar Dict[str, object] __objects: The objects running under the service.
     """
 
     __slots__ = (
-        "_dependencies",
+        "_packages",
         "_requirements",
         "__objects",
         "version",
@@ -38,7 +38,7 @@ class Base:
         link: str,
         description: str,
         long_description: Optional[str] = None,
-        dependencies: Optional[List[str]] = None,
+        packages: Optional[List[str]] = None,
         requirements: Optional[List[str]] = None,
     ) -> None:
         """
@@ -52,8 +52,8 @@ class Base:
         :type description: str
         :param long_description?: The full description of the library, e.g. README. Defaults to ``None``.
         :type long_description: Optional[str]
-        :param dependencies?: The dependencies/other modules needed for library function. Defaults to ``None``.
-        :type dependencies: Optional[List[str]]
+        :param packages?: The package(s) of the library. Defaults to ``None``.
+        :type packages: Optional[List[str]]
         :param requirements?: The required modules needed for library function. Defaults to ``None``.
         :type requirements: Optional[List[str]]
         """
@@ -62,7 +62,7 @@ class Base:
         self.link = link
         self.description = description
         self.long_description = long_description
-        self._dependencies = dependencies
+        self._packages = packages
         self._requirements = requirements
         self.__objects = {}
 
@@ -136,6 +136,6 @@ def build(base: Base) -> None:
         author=base.version.author,
         author_email=base.version.author.email,
         url=base.link,
-        packages=[] if base._dependencies is None else base._dependencies,
+        packages=[] if base._packages is None else base._packages,
         install_requires=[] if base._requirements is None else base._requirements,
     )
