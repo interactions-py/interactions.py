@@ -471,7 +471,6 @@ class Client:
 
         else:
             log.debug(f"checking command '{command.name}':")
-
         if (
             not re.fullmatch(reg, command.name)
             and command.type == ApplicationCommandType.CHAT_INPUT
@@ -479,16 +478,12 @@ class Client:
             raise InteractionException(
                 11, message=f"Your command does not match the regex for valid names ('{regex}')"
             )
-        elif (
-            command.type == ApplicationCommandType.CHAT_INPUT
-            and command.description is MISSING
-            or not command.description
+        elif command.type == ApplicationCommandType.CHAT_INPUT and (
+            command.description is MISSING or not command.description
         ):
             raise InteractionException(11, message="A description is required.")
-        elif (
-            command.type != ApplicationCommandType.CHAT_INPUT
-            and command.description is not MISSING
-            and command.description
+        elif command.type != ApplicationCommandType.CHAT_INPUT and (
+            command.description is not MISSING and command.description
         ):
             raise InteractionException(
                 11, message="Only chat-input commands can have a description."
