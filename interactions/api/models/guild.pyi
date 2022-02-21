@@ -301,7 +301,7 @@ class Guild(DictSerializerMixin):
         *,
         reason: Optional[str],
     ) -> "Guild": ...
-    async def afk_timeout(
+    async def set_afk_timeout(
         self,
         afk_timeout: int,
         *,

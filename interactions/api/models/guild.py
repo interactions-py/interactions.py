@@ -1124,7 +1124,7 @@ class Guild(DictSerializerMixin):
         """
         return await self.modify(afk_channel_id=afk_channel_id, reason=reason)
 
-    async def afk_timeout(
+    async def set_afk_timeout(
         self,
         afk_timeout: int,
         *,
