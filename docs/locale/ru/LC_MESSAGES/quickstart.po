@@ -42,7 +42,7 @@ msgstr ""
 
 #: ../../quickstart.rst:16
 msgid ""
-"**discord-interactions** is a Python library for the Discord Artificial "
+"**discord-interactions** is a Python library for the Discord Application "
 "Programming Interface. (API) A library in Python has to be installed "
 "through the `pip` file. Run this in your terminal/command line in order "
 "to install our library:"
