@@ -23,6 +23,7 @@ class Base:
     __slots__ = (
         "_packages",
         "_requirements",
+        "_kwargs",
         "__objects",
         "version",
         "name",
@@ -40,6 +41,7 @@ class Base:
         long_description: Optional[str] = None,
         packages: Optional[List[str]] = None,
         requirements: Optional[List[str]] = None,
+        **kwargs: Optional[dict],
     ) -> None:
         """
         :param name: The name of the library.
@@ -56,6 +58,8 @@ class Base:
         :type packages: Optional[List[str]]
         :param requirements?: The required modules needed for library function. Defaults to ``None``.
         :type requirements: Optional[List[str]]
+        :param kwargs?: Any other keyword arguments. Defaults to ``None``.
+        :type kwargs: Optional[dict]
         """
         self.version = version
         self.name = name
@@ -64,6 +68,7 @@ class Base:
         self.long_description = long_description
         self._packages = packages
         self._requirements = requirements
+        self._kwargs = kwargs
         self.__objects = {}
 
     def _check_service(self, name: str) -> bool:
@@ -138,4 +143,5 @@ def build(base: Base) -> None:
         url=base.link,
         packages=[] if base._packages is None else base._packages,
         install_requires=[] if base._requirements is None else base._requirements,
+        **base._kwargs,
     )
