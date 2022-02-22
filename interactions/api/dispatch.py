@@ -34,13 +34,6 @@ class Listener:
         """
         for event in self.events.get(__name, []):
 
-            _ = kwargs.copy()
-            for kwarg, value in _.items():
-                if kwargs.get(value):
-                    kwargs[kwarg] = kwargs[value]
-
-                    del kwargs[value]
-
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
 
