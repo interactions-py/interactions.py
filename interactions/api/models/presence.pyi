@@ -1,7 +1,10 @@
-from typing import List, Optional
+from enum import IntEnum
+from typing import List, Optional, Union
 
 from .message import Emoji
 from .misc import DictSerializerMixin, Snowflake
+from ..models import StatusType
+
 
 class PresenceParty(DictSerializerMixin):
     _json: dict
@@ -36,10 +39,18 @@ class PresenceTimestamp(DictSerializerMixin):
     end: Optional[int]
     def __init__(self, **kwargs): ...
 
+class PresenceActivityType(IntEnum):
+    GAME: int
+    STREAMING: int
+    LISTENING: int
+    WATCHING: int
+    CUSTOM: int
+    COMPETING: int
+
 class PresenceActivity(DictSerializerMixin):
     _json: dict
     name: str
-    type: int
+    type: Union[int, PresenceActivityType]
     url: Optional[str]
     created_at: Snowflake
     timestamps: Optional[PresenceTimestamp]
@@ -54,11 +65,13 @@ class PresenceActivity(DictSerializerMixin):
     flags: Optional[int]
     buttons: Optional[List[PresenceButtons]]
     def __init__(self, **kwargs): ...
+    @property
+    def gateway_json(self) -> dict: ...
 
 class ClientPresence(DictSerializerMixin):
     _json: dict
     since: Optional[int]
     activities: Optional[List[PresenceActivity]]
-    status: str
+    status: Union[str, StatusType]
     afk: bool
     def __init__(self, **kwargs): ...

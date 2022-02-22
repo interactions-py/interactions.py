@@ -268,7 +268,6 @@ class _Context(DictSerializerMixin):
             payload["components"] = _components
 
         payload = Message(**payload)
-        self.message = payload
         self.message._client = self.client
 
         return payload
@@ -321,13 +320,11 @@ class CommandContext(_Context):
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
-    :ivar str name: The name of the command in the interaction.
-    :ivar Optional[str] description?: The description of the command in the interaction.
-    :ivar Optional[List[Option]] options?: The options of the command in the interaction, if any.
-    :ivar InteractionData data: The application command data.
+    :ivar InteractionData data?: The application command data.
+    :ivar Optional[Union[Message, Member, User]] target: The target selected if this interaction is invoked as a context menu.
     :ivar str token: The token of the interaction response.
-    :ivar Snowflake channel_id: The ID of the current channel.
-    :ivar Snowflake guild_id: The ID of the current guild.
+    :ivar Snowflake guild_id?: The ID of the current guild.
+    :ivar Snowflake channel_id?: The ID of the current channel.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar str locale?: The selected language of the user invoking the interaction.
@@ -354,7 +351,6 @@ class CommandContext(_Context):
         "channel_id",
         "responded",
         "deferred",
-        #
         "locale",
         "guild_locale",
     )
@@ -380,13 +376,14 @@ class CommandContext(_Context):
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
         payload = await super().edit(content, **kwargs)
+        msg = None
 
         if self.deferred:
             if hasattr(self.message, "id") and self.message.id is not None:
                 res = await self.client.edit_message(
                     int(self.channel_id), int(self.message.id), payload=payload._json
                 )
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
             else:
                 res = await self.client.edit_interaction_response(
                     token=self.token,
@@ -402,7 +399,7 @@ class CommandContext(_Context):
                     await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
-                    self.message = Message(**res, _client=self.client)
+                    self.message = msg = Message(**res, _client=self.client)
         else:
             res = await self.client.edit_interaction_response(
                 token=self.token,
@@ -415,8 +412,10 @@ class CommandContext(_Context):
                 await self.client.edit_message(
                     int(self.channel_id), res["id"], payload=payload._json
                 )
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
 
+        if msg is not None:
+            return msg
         return payload
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
@@ -454,7 +453,7 @@ class CommandContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
             else:
                 await self.client._post_followup(
                     data=payload._json,
@@ -477,8 +476,9 @@ class CommandContext(_Context):
                 msg = Message(**__newdata, _client=self.client)
                 self.message = msg
             self.responded = True
-
-        return msg or payload
+        if msg is not None:
+            return msg
+        return payload
 
     async def delete(self) -> None:
         """
@@ -569,7 +569,6 @@ class ComponentContext(_Context):
         "channel_id",
         "responded",
         "deferred",
-        #
         "locale",
         "guild_locale",
     )
@@ -582,6 +581,7 @@ class ComponentContext(_Context):
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
         payload = await super().edit(content, **kwargs)
+        msg = None
 
         if not self.deferred:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
@@ -605,7 +605,10 @@ class ComponentContext(_Context):
                 application_id=str(self.application_id),
             )
             self.responded = True
-            self.message = Message(**res, _client=self.client)
+            self.message = msg = Message(**res, _client=self.client)
+
+        if msg is not None:
+            return msg
 
         return payload
 
@@ -630,7 +633,7 @@ class ComponentContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
             else:
                 await self.client._post_followup(
                     data=payload._json,
@@ -654,7 +657,9 @@ class ComponentContext(_Context):
                 self.message = msg
             self.responded = True
 
-        return msg or payload
+        if msg is not None:
+            return msg
+        return payload
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
