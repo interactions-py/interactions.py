@@ -401,16 +401,15 @@ class WebSocketClient:
         if x:
             return x
         if _data.get("options"):
-            for option in _data["options"]:
-                if option["type"] == OptionType.SUB_COMMAND:
-                    for sub_option in _data["options"]:
-                        _check_auto(sub_option)
-                        __kwargs[sub_option["name"]] = sub_option["value"]
-                else:
-                    for group in _data["options"]:
-                        for _group_option in group:
-                            _check_auto(_group_option)
-                            __kwargs[_group_option["name"]] = _group_option["value"]
+            if _data["type"] == OptionType.SUB_COMMAND:
+                for sub_option in _data["options"]:
+                    _check_auto(sub_option)
+                    __kwargs[sub_option["name"]] = sub_option["value"]
+            elif _data["type"] == OptionType.SUB_COMMAND_GROUP:
+                for group in _data["options"]:
+                    for _group_option in group:
+                        _check_auto(_group_option)
+                        __kwargs[_group_option["name"]] = _group_option["value"]
         elif _data.get("value") and _data.get("name"):
             __kwargs[_data["name"]] = _data["value"]
 
