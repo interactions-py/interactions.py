@@ -291,17 +291,23 @@ class WebSocketClient:
 
                         if _context.data._json.get("options"):
                             for option in _context.data.options:
-                                __kwargs.update(self.__sub_command_context(option))
-                                __kwargs.update(
-                                    self.__option_type_context(
-                                        _context,
-                                        (
-                                            option["type"]
-                                            if isinstance(option, dict)
-                                            else option.type.value
-                                        ),
-                                    )
+                                _option_context = self.__option_type_context(
+                                    _context,
+                                    (
+                                        option["type"]
+                                        if isinstance(option, dict)
+                                        else option.type.value
+                                    ),
                                 )
+                                if _option_context:
+                                    if isinstance(option, dict):
+                                        option.update({"value": _option_context[option["value"]]})
+                                    else:
+                                        option._json.update(
+                                            {"value": _option_context[option.value]}
+                                        )
+                                _option = self.__sub_command_context(option)
+                                __kwargs.update(_option)
 
                         self._dispatch.dispatch("on_command", _context)
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
@@ -385,8 +391,11 @@ class WebSocketClient:
         _data: dict = data._json if isinstance(data, Option) else data
 
         def _check_auto(option: dict) -> Optional[Tuple[str]]:
-            if option.get("focused"):
-                return (option["name"], option["value"])
+            try:
+                if option.get("focused"):
+                    return (option["name"], option["value"])
+            except AttributeError:
+                return False
 
         x = _check_auto(_data)
         if x:
