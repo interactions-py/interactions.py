@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-from ...models.command import Permission
 from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
