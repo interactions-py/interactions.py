@@ -98,6 +98,12 @@ class Client:
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
 
+    @property
+    def latency(self) -> float:
+        """Returns the connection latency in milliseconds."""
+
+        return self._websocket.latency * 1000
+
     def start(self) -> None:
         """Starts the client session."""
         self._loop.run_until_complete(self._ready())
@@ -304,6 +310,10 @@ class Client:
         """Makes a login with the Discord API."""
         while not self._websocket._closed:
             await self._websocket._establish_connection(self._shard, self._presence)
+
+    async def wait_until_ready(self) -> None:
+        """Helper method that waits until the websocket is ready."""
+        await self._websocket.wait_until_ready()
 
     def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
         """
