@@ -69,9 +69,13 @@ class WebSocketClient:
     :ivar _Heartbeat __heartbeater: The context state of a "heartbeat" made to the Gateway.
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
+    :ivar Event ready: The ready state of the client as an ``asyncio.Event``.
     :ivar Task __task: The closing task for ending connections.
     :ivar Optional[str] session_id: The ID of the ongoing session.
     :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
+    :ivar float _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
+    :ivar float _last_ack: The latest time of the last ``HEARTBEAT_ACK`` event since connection creation, in seconds.
+    :ivar float latency: The latency of the connection, in seconds.
     """
 
     __slots__ = (
