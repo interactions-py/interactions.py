@@ -399,7 +399,7 @@ class WebSocketClient:
             return context(**data)
 
     def __sub_command_context(
-        self, data: Union[dict, Option], _context: Optional[object] = None
+        self, data: Union[dict, Option], _context: Optional[object] = MISSING
     ) -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
