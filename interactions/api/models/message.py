@@ -298,10 +298,6 @@ class Message(DictSerializerMixin):
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
 
-        if self._json.get("embeds"):
-            if all(isinstance(x, Embed) for x in self._json.get("embeds")):
-                self._json["embeds"] = [_._json for _ in self.embeds]
-
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
@@ -387,17 +383,12 @@ class Message(DictSerializerMixin):
         # _file = None if file is None else file
 
         if embeds is MISSING:
-            _embeds = self.embeds
-        else:
-            _embeds: list = (
-                []
-                if not embeds
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
+            embeds = self.embeds
+        _embeds: list = (
+            []
+            if not embeds
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
