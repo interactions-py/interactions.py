@@ -298,6 +298,10 @@ class Message(DictSerializerMixin):
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
 
+        if self._json.get("embeds"):
+            if all(isinstance(x, Embed) for x in self._json.get("embeds")):
+                self._json["embeds"] = [_._json for _ in self.embeds]
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
@@ -413,12 +417,13 @@ class Message(DictSerializerMixin):
             components=_components,
         )
 
-        await self._client.edit_message(
+        _dct = await self._client.edit_message(
             channel_id=int(self.channel_id),
             message_id=int(self.id),
             payload=payload._json,
         )
-        return payload
+
+        return Message(**_dct) if not _dct.get("code") else payload
 
     async def reply(
         self,
