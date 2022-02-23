@@ -39,7 +39,7 @@ class Client:
     :ivar WebSocketClient _websocket: An object-orientation of a websocket server connection to the Gateway.
     :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
     :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
-    :ivar Optional[Presence] _presence: The RPC-like presence shown on an application once connected.
+    :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
     :ivar Application me: The application representation of the client.
@@ -69,7 +69,7 @@ class Client:
         #     Defaults to ``Intents.DEFAULT``.
         # shards? : Optional[List[Tuple[int]]]
         #     Dictates and controls the shards that the application connects under.
-        # presence? : Optional[Presence]
+        # presence? : Optional[ClientPresence]
         #     Sets an RPC-like presence on the application when connected to the Gateway.
         # disable_sync? : Optional[bool]
         #     Controls whether synchronization in the user-facing API should be automatic or not.
@@ -97,6 +97,12 @@ class Client:
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
+
+    @property
+    def latency(self) -> float:
+        """Returns the connection latency in milliseconds."""
+
+        return self._websocket.latency * 1000
 
     def start(self) -> None:
         """Starts the client session."""
@@ -305,6 +311,10 @@ class Client:
         while not self._websocket._closed:
             await self._websocket._establish_connection(self._shard, self._presence)
 
+    async def wait_until_ready(self) -> None:
+        """Helper method that waits until the websocket is ready."""
+        await self._websocket.wait_until_ready()
+
     def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
@@ -471,7 +481,6 @@ class Client:
 
         else:
             log.debug(f"checking command '{command.name}':")
-
         if (
             not re.fullmatch(reg, command.name)
             and command.type == ApplicationCommandType.CHAT_INPUT
@@ -479,16 +488,12 @@ class Client:
             raise InteractionException(
                 11, message=f"Your command does not match the regex for valid names ('{regex}')"
             )
-        elif (
-            command.type == ApplicationCommandType.CHAT_INPUT
-            and command.description is MISSING
-            or not command.description
+        elif command.type == ApplicationCommandType.CHAT_INPUT and (
+            command.description is MISSING or not command.description
         ):
             raise InteractionException(11, message="A description is required.")
-        elif (
-            command.type != ApplicationCommandType.CHAT_INPUT
-            and command.description is not MISSING
-            and command.description
+        elif command.type != ApplicationCommandType.CHAT_INPUT and (
+            command.description is not MISSING and command.description
         ):
             raise InteractionException(
                 11, message="Only chat-input commands can have a description."

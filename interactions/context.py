@@ -11,7 +11,7 @@ from .api.models.user import User
 from .base import get_logger
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
-from .models.component import ActionRow, Button, Modal, SelectMenu
+from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
 
 log: Logger = get_logger("context")
@@ -170,112 +170,20 @@ class _Context(DictSerializerMixin):
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
 
-        _components: List[dict] = [{"type": 1, "components": []}]
-
-        # TODO: Break this obfuscation pattern down to a "builder" method.
         if components is not MISSING and components:
             # components could be not missing but an empty list
-            if isinstance(components, list) and all(
-                isinstance(action_row, ActionRow) for action_row in components
-            ):
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in action_row.components
-                        ],
-                    }
-                    for action_row in components
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(component, (Button, SelectMenu)) for component in components
-            ):
-                for component in components:
-                    if isinstance(component, SelectMenu):
-                        component._json["options"] = [
-                            options._json if not isinstance(options, dict) else options
-                            for options in component._json["options"]
-                        ]
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in components
-                        ],
-                    }
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(action_row, (list, ActionRow)) for action_row in components
-            ):
-                _components = []
-                for action_row in components:
-                    for component in (
-                        action_row if isinstance(action_row, list) else action_row.components
-                    ):
-                        if isinstance(component, SelectMenu):
-                            component._json["options"] = [
-                                option._json if not isinstance(option, dict) else option
-                                for option in component.options
-                            ]
-                    _components.append(
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in (
-                                    action_row
-                                    if isinstance(action_row, list)
-                                    else action_row.components
-                                )
-                            ],
-                        }
-                    )
-            elif isinstance(components, ActionRow):
-                _components[0]["components"] = [
-                    (
-                        component._json
-                        if component._json.get("custom_id") or component._json.get("url")
-                        else []
-                    )
-                    for component in components.components
-                ]
-            elif isinstance(components, Button):
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
-            elif isinstance(components, SelectMenu):
-                components._json["options"] = [
-                    options._json if not isinstance(options, dict) else options
-                    for options in components._json["options"]
-                ]
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
 
-        elif self.message and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
+            _components = _build_components(components=components)
+        elif (
+            components is MISSING
+            and self.message
+            and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ):
+
             if isinstance(self.message.components, list):
-                _components = [component._json for component in self.message.components]
+                _components = self.message.components
             else:
-                _components = [self.message.components._json]
+                _components = [self.message.components]
 
         else:
             _components = []
@@ -355,116 +263,11 @@ class _Context(DictSerializerMixin):
             elif not components:
                 _components = []
             else:
-                _components: list = [{"type": 1, "components": []}]
-                if (
-                    isinstance(components, list)
-                    and components
-                    and all(isinstance(action_row, ActionRow) for action_row in components)
-                ):
-                    _components = [
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in action_row.components
-                            ],
-                        }
-                        for action_row in components
-                    ]
-                elif (
-                    isinstance(components, list)
-                    and components
-                    and all(isinstance(component, (Button, SelectMenu)) for component in components)
-                ):
-                    if isinstance(components[0], SelectMenu):
-                        components[0]._json["options"] = [
-                            option._json if not isinstance(option, dict) else option
-                            for option in components[0].options
-                        ]
-                    _components = [
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in components
-                            ],
-                        }
-                    ]
-                elif (
-                    isinstance(components, list)
-                    and components
-                    and all(isinstance(action_row, (list, ActionRow)) for action_row in components)
-                ):
-                    _components = []
-                    for action_row in components:
-                        for component in (
-                            action_row if isinstance(action_row, list) else action_row.components
-                        ):
-                            if isinstance(component, SelectMenu):
-                                component._json["options"] = [
-                                    option._json if not isinstance(option, dict) else option
-                                    for option in component.options
-                                ]
-                        _components.append(
-                            {
-                                "type": 1,
-                                "components": [
-                                    (
-                                        component._json
-                                        if component._json.get("custom_id")
-                                        or component._json.get("url")
-                                        else []
-                                    )
-                                    for component in (
-                                        action_row
-                                        if isinstance(action_row, list)
-                                        else action_row.components
-                                    )
-                                ],
-                            }
-                        )
-                elif isinstance(components, ActionRow):
-                    _components[0]["components"] = [
-                        (
-                            component._json
-                            if component._json.get("custom_id") or component._json.get("url")
-                            else []
-                        )
-                        for component in components.components
-                    ]
-                elif isinstance(components, Button):
-                    _components[0]["components"] = (
-                        [components._json]
-                        if components._json.get("custom_id") or components._json.get("url")
-                        else []
-                    )
-                elif isinstance(components, SelectMenu):
-                    components._json["options"] = [
-                        options._json if not isinstance(options, dict) else options
-                        for options in components._json["options"]
-                    ]
-                    _components[0]["components"] = (
-                        [components._json]
-                        if components._json.get("custom_id") or components._json.get("url")
-                        else []
-                    )
-                else:
-                    _components = []
+                _components = _build_components(components=components)
 
             payload["components"] = _components
 
         payload = Message(**payload)
-        self.message = payload
         self.message._client = self.client
 
         return payload
@@ -517,13 +320,11 @@ class CommandContext(_Context):
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
-    :ivar str name: The name of the command in the interaction.
-    :ivar Optional[str] description?: The description of the command in the interaction.
-    :ivar Optional[List[Option]] options?: The options of the command in the interaction, if any.
-    :ivar InteractionData data: The application command data.
+    :ivar InteractionData data?: The application command data.
+    :ivar Optional[Union[Message, Member, User]] target: The target selected if this interaction is invoked as a context menu.
     :ivar str token: The token of the interaction response.
-    :ivar Snowflake channel_id: The ID of the current channel.
-    :ivar Snowflake guild_id: The ID of the current guild.
+    :ivar Snowflake guild_id?: The ID of the current guild.
+    :ivar Snowflake channel_id?: The ID of the current channel.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar str locale?: The selected language of the user invoking the interaction.
@@ -550,7 +351,6 @@ class CommandContext(_Context):
         "channel_id",
         "responded",
         "deferred",
-        #
         "locale",
         "guild_locale",
     )
@@ -576,13 +376,14 @@ class CommandContext(_Context):
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
         payload = await super().edit(content, **kwargs)
+        msg = None
 
         if self.deferred:
             if hasattr(self.message, "id") and self.message.id is not None:
                 res = await self.client.edit_message(
                     int(self.channel_id), int(self.message.id), payload=payload._json
                 )
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
             else:
                 res = await self.client.edit_interaction_response(
                     token=self.token,
@@ -598,7 +399,7 @@ class CommandContext(_Context):
                     await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
-                    self.message = Message(**res, _client=self.client)
+                    self.message = msg = Message(**res, _client=self.client)
         else:
             res = await self.client.edit_interaction_response(
                 token=self.token,
@@ -611,8 +412,10 @@ class CommandContext(_Context):
                 await self.client.edit_message(
                     int(self.channel_id), res["id"], payload=payload._json
                 )
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
 
+        if msg is not None:
+            return msg
         return payload
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
@@ -650,7 +453,7 @@ class CommandContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
             else:
                 await self.client._post_followup(
                     data=payload._json,
@@ -673,8 +476,9 @@ class CommandContext(_Context):
                 msg = Message(**__newdata, _client=self.client)
                 self.message = msg
             self.responded = True
-
-        return msg or payload
+        if msg is not None:
+            return msg
+        return payload
 
     async def delete(self) -> None:
         """
@@ -765,7 +569,6 @@ class ComponentContext(_Context):
         "channel_id",
         "responded",
         "deferred",
-        #
         "locale",
         "guild_locale",
     )
@@ -778,6 +581,7 @@ class ComponentContext(_Context):
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
         payload = await super().edit(content, **kwargs)
+        msg = None
 
         if not self.deferred:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
@@ -801,7 +605,10 @@ class ComponentContext(_Context):
                 application_id=str(self.application_id),
             )
             self.responded = True
-            self.message = Message(**res, _client=self.client)
+            self.message = msg = Message(**res, _client=self.client)
+
+        if msg is not None:
+            return msg
 
         return payload
 
@@ -826,7 +633,7 @@ class ComponentContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
             else:
                 await self.client._post_followup(
                     data=payload._json,
@@ -850,7 +657,9 @@ class ComponentContext(_Context):
                 self.message = msg
             self.responded = True
 
-        return msg or payload
+        if msg is not None:
+            return msg
+        return payload
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False

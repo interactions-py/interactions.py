@@ -11,15 +11,32 @@ from .role import Role
 from .user import User
 from ..http import HTTPClient
 
-class VerificationLevel(IntEnum): ...
+class VerificationLevel(IntEnum):
+    NONE: int
+    LOW: int
+    MEDIUM: int
+    HIGH: int
+    VERY_HIGH: int
 
-class ExplicitContentFilterLevel(IntEnum): ...
+class ExplicitContentFilterLevel(IntEnum):
+    DISABLED: int
+    MEMBERS_WITHOUT_ROLES: int
+    ALL_MEMBERS: int
 
-class DefaultMessageNotificationLevel(IntEnum): ...
+class DefaultMessageNotificationLevel(IntEnum):
+    ALL_MESSAGES: int
+    ONLY_MENTIONS: int
 
-class EntityType(IntEnum): ...
+class EntityType(IntEnum):
+    STAGE_INSTANCE: int
+    VOICE: int
+    EXTERNAL: int
 
-class EventStatus(IntEnum): ...
+class EventStatus(IntEnum):
+    SCHEDULED: int
+    ACTIVE: int
+    COMPLETED: int
+    CANCELED: int
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -254,6 +271,79 @@ class Guild(DictSerializerMixin):
         premium_progress_bar_enabled: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Guild": ...
+    async def set_name(
+        self,
+        name: str,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_verification_level(
+        self,
+        verification_level: VerificationLevel,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_default_message_notifications(
+        self,
+        default_message_notifications: DefaultMessageNotificationLevel,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_explicit_content_filter(
+        self,
+        explicit_content_filter: ExplicitContentFilterLevel,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_afk_channel(
+        self,
+        afk_channel_id: int,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_afk_timeout(
+        self,
+        afk_timeout: int,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_system_channel(
+        self,
+        system_channel_id: int,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_rules_channel(
+        self,
+        rules_channel_id: int,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_public_updates_channel(
+        self,
+        public_updates_channel_id: int,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_preferred_locale(
+        self,
+        preferred_locale: str,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_description(
+        self,
+        description: str,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+    async def set_premium_progress_bar_enabled(
+        self,
+        premium_progress_bar_enabled: bool,
+        *,
+        reason: Optional[str],
+    ) -> "Guild": ...
+
     async def create_scheduled_event(
         self,
         name: str,
