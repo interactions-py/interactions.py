@@ -1206,6 +1206,7 @@ def extension_command(*args, **kwargs):
     return decorator
 
 
+@wraps(Client.event)
 def extension_listener(name=None):
     def decorator(func):
         func.__listener_name__ = name or func.__name__
