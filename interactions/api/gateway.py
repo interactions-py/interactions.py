@@ -310,7 +310,7 @@ class WebSocketClient:
 
                         if _context.data._json.get("options"):
                             for option in _context.data.options:
-                                _option_context = self.__option_type_context(
+                                _type = self.__option_type_context(
                                     _context,
                                     (
                                         option["type"]
@@ -318,15 +318,13 @@ class WebSocketClient:
                                         else option.type.value
                                     ),
                                 )
-                                if _option_context:
+                                if _type:
                                     if isinstance(option, dict):
-                                        _option_context[option["value"]]._client = self._http
-                                        option.update({"value": _option_context[option["value"]]})
+                                        _type[option["value"]]._client = self._http
+                                        option.update({"value": _type[option["value"]]})
                                     else:
-                                        _option_context[option.value]._client = self._http
-                                        option._json.update(
-                                            {"value": _option_context[option.value]}
-                                        )
+                                        _type[option.value]._client = self._http
+                                        option._json.update({"value": _type[option.value]})
                                 _option = self.__sub_command_context(option, _context)
                                 __kwargs.update(_option)
 
