@@ -47,20 +47,26 @@ This code shows a basic example for creating the base of a 3rd party:
 
 .. code-block:: python
 
-    from interactions.ext import Base, build, Version
+    from interactions.ext import Base, build, Version, VersionAuthor
 
+    version = (
+        Version(
+            version="0.0.1",
+            author=VersionAuthor(
+                name="name",
+                email="example@email.com",
+            ),
+        ),
+    )
     data = {
-        "name": "interactions.ext.name_here"
-        "description": "We do cool things!"
-        "version": Version(version="0.0.1")
-        "link": "https://example.com"
+        "name": "interactions-name_here",
+        "description": "We do cool things!",
+        "version": version
+        "link": "https://example.com",
+        "packages": ["interactions.ext.name_here"]
     }
-    class MyThirdParty(Base):
-        def __init__(self):
-            super().__init__(**data)
 
-    library = MyThirdParty()
-    build(library)
+    build(Base(**data))
 
 This configures the base of the library in a rather simple manner: you give the name
 and description of the 3rd party, as well as its own official version and link for
