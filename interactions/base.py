@@ -1,13 +1,14 @@
 import logging
-from typing import ClassVar, List, Optional, Union
+from typing import ClassVar, List
 
 from colorama import Fore, Style, init
 
-__version__ = "4.0.2"
+__version__ = "4.1.0"
 __authors__ = {
     "current": [
-        {"name": "James Walston<@goverfl0w>", "status": "Lead Developer"},
-        {"name": "DeltaX<@DeltaXW>", "status": "Co-developer"},
+        {"name": "James Walston<@goverfl0w>", "status": "Project Maintainer"},
+        {"name": "DeltaX<@DeltaXWizard>", "status": "Project Lead"},
+        {"name": "EdVraz<@EdVraz>", "status": "Developer"},
     ],
     "old": [
         {"name": "Daniel Allen<@LordOfPolls>"},
@@ -27,22 +28,26 @@ class Data:
     LOGGERS: List[str] = []
 
 
-def get_logger(
-    logger: Optional[Union[logging.Logger, str]] = None,
-    handler: Optional[logging.Handler] = logging.StreamHandler(),
-) -> logging.Logger:
-    _logger = logging.getLogger(logger) if isinstance(logger, str) else logger
-    _logger_name = logger if isinstance(logger, str) else logger.name
-    if len(_logger.handlers) > 1:
-        _logger.removeHandler(_logger.handlers[0])
-    _handler = handler
-    _handler.setFormatter(CustomFormatter)
-    _handler.setLevel(Data.LOG_LEVEL)
-    _logger.addHandler(_handler)
-    _logger.propagate = True
+# def get_logger(
+#    logger: Optional[Union[logging.Logger, str]] = None,
+#    handler: Optional[logging.Handler] = logging.StreamHandler(),
+# ) -> logging.Logger:
+#    _logger = logging.getLogger(logger) if isinstance(logger, str) else logger
+#    _logger_name = logger if isinstance(logger, str) else logger.name
+#    if len(_logger.handlers) > 1:
+#        _logger.removeHandler(_logger.handlers[0])
+#    _handler = handler
+#    _handler.setFormatter(CustomFormatter)
+#    _handler.setLevel(Data.LOG_LEVEL)
+#    _logger.addHandler(_handler)
+#    _logger.propagate = True
 
-    Data.LOGGERS.append(_logger_name)
-    return _logger
+#    Data.LOGGERS.append(_logger_name)
+#    return _logger
+
+get_logger = logging.getLogger
+
+# TODO: clean up base.py
 
 
 class CustomFormatter(logging.Formatter):

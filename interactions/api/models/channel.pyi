@@ -1,14 +1,25 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Callable
 
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
-from .misc import DictSerializerMixin, Overwrite, Snowflake
+from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
 from .user import User
 from ..http import HTTPClient
 
-class ChannelType(IntEnum): ...
+class ChannelType(IntEnum):
+    GUILD_TEXT: int
+    DM: int
+    GUILD_VOICE: int
+    GROUP_DM = int
+    GUILD_CATEGORY: int
+    GUILD_NEWS: int
+    GUILD_STORE: int
+    GUILD_NEWS_THREAD: int
+    GUILD_PUBLIC_THREAD: int
+    GUILD_PRIVATE_THREAD: int
+    GUILD_STAGE_VOICE: int
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict
@@ -57,37 +68,96 @@ class Channel(DictSerializerMixin):
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
+    @property
+    def mention(self) -> str: ...
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        components: Optional[
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
+        ] = MISSING,
     ) -> Message: ...
     async def delete(self) -> None: ...
     async def modify(
         self,
-        name: Optional[str] = None,
-        topic: Optional[str] = None,
-        bitrate: Optional[int] = None,
-        user_limit: Optional[int] = None,
-        rate_limit_per_user: Optional[int] = None,
-        position: Optional[int] = None,
+        name: Optional[str] = MISSING,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
         # permission_overwrites,
-        parent_id: Optional[int] = None,
-        nsfw: Optional[bool] = False,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
+    ) -> "Channel": ...
+    async def set_name(
+        self,
+        name: str,
+        *,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_topic(
+        self,
+        topic: str,
+        *,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_bitrate(
+        self,
+        bitrate: int,
+        *,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_user_limit(
+        self,
+        user_limit: int,
+        *,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_rate_limit_per_user(
+        self,
+        rate_limit_per_user: int,
+        *,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_position(
+        self,
+        position: int,
+        *,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_parent_id(
+        self,
+        parent_id: int,
+        *,
+        reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def set_nsfw(
+        self,
+        nsfw: bool,
+        *,
+        reason: Optional[str] = None
     ) -> "Channel": ...
     async def add_member(
         self,
         member_id: int,
     ) -> None: ...
     async def pin_message(
-            self,
-            message_id: int,
+        self,
+        message_id: int,
     ) -> None: ...
     async def unpin_message(
         self,
@@ -98,6 +168,26 @@ class Channel(DictSerializerMixin):
         message_id: int,
     ) -> Message: ...
     async def get_pinned_messages(self) -> List[Message]: ...
-
+    async def get_message(
+        self,
+        message_id: int,
+    ) -> Message: ...
+    async def purge(
+        self,
+        amount: int,
+        check: Callable[[Message], bool] = MISSING,
+        before: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+        bulk: Optional[bool] = True,
+    ) -> List[Message]: ...
+    async def create_thread(
+        self,
+        name: str,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Channel": ...
 
 class Thread(Channel): ...

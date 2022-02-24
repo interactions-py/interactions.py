@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel
 from .member import Member
-from .misc import DictSerializerMixin, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
@@ -36,6 +36,7 @@ class Attachment(DictSerializerMixin):
     proxy_url: str
     height: Optional[int]
     width: Optional[int]
+    ephemeral: Optional[bool]
     def __init__(self, **kwargs): ...
 
 class MessageInteraction(DictSerializerMixin):
@@ -94,30 +95,62 @@ class Message(DictSerializerMixin):
     async def delete(self, reason: Optional[str] = None) -> None: ...
     async def edit(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = None,
+        tts: Optional[bool] = MISSING,
         # file: Optional[FileIO] = None,
-        embeds: Optional[Union["Embed", List["Embed"]]] = None,
-        allowed_mentions: Optional["MessageInteraction"] = None,
-        message_reference: Optional["MessageReference"] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] = None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        message_reference: Optional["MessageReference"] = MISSING,
+        components: Optional[
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
+        ] = MISSING,
     ) -> "Message": ...
 
-    async def reply(self,
-        content: Optional[str] = None,
+    async def reply(
+            self,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None
-        embeds: Optional[Union["Embed", List["Embed"]]] = None,
-        allowed_mentions: Optional["MessageInteraction"] = None,
-        components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]=None,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        components: Optional[
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
+        ] = MISSING,
     ) -> "Message": ...
     async def get_channel(self) -> Channel: ...
     async def get_guild(self) -> Guild: ...
     async def pin(self) -> None: ...
     async def unpin(self) -> None: ...
     async def publish(self) -> "Message": ...
+    async def create_thread(
+        self,
+        name: str,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
+    @classmethod
+    async def get_from_url(
+        cls,
+        url: str,
+        client: HTTPClient,
+    ) -> "Message": ...
 
 
 class Emoji(DictSerializerMixin):

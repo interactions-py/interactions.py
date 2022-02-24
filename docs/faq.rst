@@ -153,10 +153,16 @@ And the error occurs in the line where you try to send something. You can fix th
 
 .. code-block:: python
 
-    channel = interactions.Channel(**await bot.http.get_channel(channel_id), _client=bot.http)
+    channel = interactions.Channel(**await bot.http.get_channel(channel_id), _client=bot._http)
     await channel.send("...")
 
 You have to add this extra argument for every object you instantiate by yourself if you want to use it's methods
+
+
+Context and Messages don't have the ``Channel`` and ``Guild`` attributes! Why?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+At the moment the Discord API does *not* include them into their responses.
+You can get those object via the ``get_channel()`` and ``get_guild()`` methods of the Context and Message model.
 
 
 My question is not answered on here!

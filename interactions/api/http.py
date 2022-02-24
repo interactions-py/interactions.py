@@ -1,6 +1,6 @@
 import asyncio
 import traceback
-from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop
+from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
 from json import dumps
 from logging import Logger
 from sys import version_info
@@ -11,8 +11,8 @@ from aiohttp import ClientSession, FormData
 from aiohttp import __version__ as http_version
 
 import interactions.api.cache
+from interactions.api.models.misc import MISSING
 from interactions.base import __version__, get_logger
-from interactions.models.misc import MISSING
 
 from ..api.cache import Cache, Item
 from ..api.error import HTTPException
@@ -66,7 +66,7 @@ class Route:
         :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
         """
-        self.__api__ = "https://discord.com/api/v9"
+        self.__api__ = "https://discord.com/api/v10"
         self.method = method
         self.path = path.format(**kwargs)
         self.channel_id = kwargs.get("channel_id")
@@ -128,6 +128,15 @@ class Limiter:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         return self.lock.release()
 
+    def release_lock(self):
+        # Releases the lock if its locked, overriding the traditional release() method.
+        # Useful for per-route, not needed? for globals.
+
+        # See #428.
+
+        if self.lock.locked():
+            self.lock.release()
+
 
 class Request:
     """
@@ -165,12 +174,15 @@ class Request:
         :type token: str
         """
         self.token = token
-        self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
+        try:
+            self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
+        except RuntimeError:
+            self._loop = new_event_loop()
         self.ratelimits = {}
         self.buckets = {}
         self._headers = {
             "Authorization": f"Bot {self.token}",
-            "User-Agent": f"DiscordBot (https://github.com/goverfl0w/interactions.py {__version__} "
+            "User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
@@ -227,7 +239,7 @@ class Request:
                     log.warning(
                         f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
                     )
-                self._loop.call_later(_limiter.reset_after, _limiter.lock.release)
+                self._loop.call_later(_limiter.reset_after, _limiter.release_lock)
             _limiter.reset_after = 0
         else:
             self.ratelimits[bucket] = (
@@ -289,6 +301,9 @@ class Request:
                             )
 
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
+
+                    _limiter.release_lock()  # checks if its locked, then releases upon success.
+
                     return data
 
             # These account for general/specific exceptions. (Windows...)
@@ -310,9 +325,6 @@ class Request:
                     pass
                 log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
                 break
-
-        if _limiter.lock.locked():
-            _limiter.lock.release()
 
     async def close(self) -> None:
         """Closes the current session."""
@@ -346,7 +358,7 @@ class HTTPClient:
         url: Any = await self._req.request(
             Route("GET", "/gateway")
         )  # typehinting Any because pycharm yells
-        return url["url"] + "?v=9&encoding=json"
+        return f'{url["url"]}?v=10&encoding=json'
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
         """
@@ -356,7 +368,7 @@ class HTTPClient:
         """
 
         data: Any = await self._req.request(Route("GET", "/gateway/bot"))
-        return data["shards"], data["url"] + "?v=9&encoding=json"
+        return data["shards"], f'{data["url"]}?v=9&encoding=json'
 
     async def login(self) -> Optional[dict]:
         """
@@ -1193,6 +1205,35 @@ class HTTPClient:
 
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/prune"), params=payload)
 
+    async def get_guild_auditlog(
+        self,
+        guild_id: int,
+        user_id: Optional[int] = None,
+        action_type: Optional[int] = None,
+        before: Optional[int] = None,
+        limit: int = 50,
+    ) -> dict:
+        """
+        Returns an audit log object for the guild. Requires the 'VIEW_AUDIT_LOG' permission.
+        :param guild_id: Guild ID snowflake.
+        :param user_id: User ID snowflake. filter the log for actions made by a user.
+        :param action_type: the type ID of audit log event.
+        :param before: filter the log before a certain entry id.
+        :param limit: how many entries are returned (default 50, minimum 1, maximum 100)
+        """
+
+        payload = {"limit": limit}
+        if user_id:
+            payload["user_id"] = user_id
+        if action_type:
+            payload["action_type"] = action_type
+        if before:
+            payload["before"] = before
+
+        return await self._req.request(
+            Route("GET", f"/guilds/{guild_id}/audit-logs"), params=payload
+        )
+
     # Guild (Member) endpoint
 
     async def get_member(self, guild_id: int, member_id: int) -> Optional[Member]:
@@ -1994,7 +2035,7 @@ class HTTPClient:
 
     # TODO: Merge single and batch variants ?
 
-    async def get_application_command(
+    async def get_application_commands(
         self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
     ) -> List[dict]:
         """
@@ -2577,7 +2618,7 @@ class HTTPClient:
         payload = {k: v for k, v in data.items() if k in valid_keys}
 
         return await self._req.request(
-            Route("POST", "guilds/{guild_id}/scheduled-events/", guild_id=int(guild_id)),
+            Route("POST", "/guilds/{guild_id}/scheduled-events", guild_id=int(guild_id)),
             json=payload,
         )
 

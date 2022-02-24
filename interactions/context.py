@@ -1,22 +1,23 @@
 from logging import Logger
 from typing import List, Optional, Union
 
+from .api import InteractionException
 from .api.models.channel import Channel
 from .api.models.guild import Guild
 from .api.models.member import Member
 from .api.models.message import Embed, Message, MessageInteraction, MessageReference
-from .api.models.misc import DictSerializerMixin, Snowflake
+from .api.models.misc import MISSING, DictSerializerMixin, Snowflake
 from .api.models.user import User
 from .base import get_logger
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
-from .models.component import ActionRow, Button, Modal, SelectMenu
+from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
 
 log: Logger = get_logger("context")
 
 
-class Context(DictSerializerMixin):
+class _Context(DictSerializerMixin):
     """
     The base class of "context" for dispatched event data
     from the gateway. The premise of having this class is so
@@ -27,11 +28,26 @@ class Context(DictSerializerMixin):
     :ivar Optional[Message] message?: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Channel channel: The channel data model.
-    :ivar Guild guild: The guild data model.
+    :ivar Optional[Channel] channel: The channel data model.
+    :ivar Optional[Guild] guild: The guild data model.
     """
 
-    __slots__ = ("message", "member", "author", "user", "channel", "guild", "client")
+    __slots__ = (
+        "message",
+        "member",
+        "author",
+        "user",
+        "channel",
+        "channel_id",
+        "guild",
+        "guild_id",
+        "client",
+        "id",
+        "application_id",
+        "type",
+        "data",
+        "token",
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -44,69 +60,6 @@ class Context(DictSerializerMixin):
         self.author = self.member
         self.user = User(**self.user) if self._json.get("user") else None
 
-        # TODO: The below attributes are always None because they aren't by API return.
-        self.channel = Channel(**self.channel) if self._json.get("channel") else None
-        self.guild = Guild(**self.guild) if self._json.get("guild") else None
-
-
-class CommandContext(Context):
-    """
-    A derivation of :class:`interactions.context.Context`
-    designed specifically for application command data.
-
-    .. warning::
-        The ``guild`` attribute of the base context
-        is not accessible for any interaction-related events
-        since the current Discord API schema does not return
-        this as a value, but instead ``guild_id``. You will
-        need to manually fetch for this data for the time being.
-
-        You can fetch with ``client.get_guild(guild_id)`` which
-        will return a JSON dictionary, which you can then use
-        ``interactions.Guild(**data)`` for an object or continue
-        with a dictionary for your own purposes.
-
-    :ivar Snowflake id: The ID of the interaction.
-    :ivar Snowflake application_id: The application ID of the interaction.
-    :ivar InteractionType type: The type of interaction.
-    :ivar str name: The name of the command in the interaction.
-    :ivar Optional[str] description?: The description of the command in the interaction.
-    :ivar Optional[List[Option]] options?: The options of the command in the interaction, if any.
-    :ivar InteractionData data: The application command data.
-    :ivar str token: The token of the interaction response.
-    :ivar Snowflake channel_id: The ID of the current channel.
-    :ivar Snowflake guild_id: The ID of the current guild.
-    :ivar bool responded: Whether an original response was made or not.
-    :ivar bool deferred: Whether the response was deferred or not.
-    """
-
-    __slots__ = (
-        "message",
-        "member",
-        "author",
-        "user",
-        "channel",
-        "guild",
-        "client",
-        "id",
-        "application_id",
-        "callback",
-        "type",
-        "data",
-        "target",
-        "version",
-        "token",
-        "guild_id",
-        "channel_id",
-        "responded",
-        "deferred",
-        #
-        "locale",
-        "guild_locale",
-    )
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.application_id = (
             Snowflake(self.application_id) if self._json.get("application_id") else None
@@ -117,51 +70,60 @@ class CommandContext(Context):
         self.type = InteractionType(self.type)
         self.data = InteractionData(**self.data) if self._json.get("data") else None
 
-        if self._json.get("data").get("target_id"):
-            self.target = str(self.data.target_id)
+        if guild := self._json.get("guild"):
+            self.guild = Guild(**guild)
+        elif self.guild_id is None:
+            self.guild = None
+        elif guild := self.client.cache.guilds.get(self.guild_id):
+            self.guild = guild
+        else:
+            self.guild = MISSING
 
-            if str(self.data.target_id) in self.data.resolved.users:
-                self.target = self.data.resolved.users[self.target]
-            elif str(self.data.target_id) in self.data.resolved.members:
-                self.target = self.data.resolved.members[self.target]
-            else:
-                self.target = self.data.resolved.messages[self.target]
+        if channel := self._json.get("channel"):
+            self.channel = Channel(**channel)
+        elif channel := self.client.cache.channels.get(self.channel_id):
+            self.channel = channel
+        else:
+            self.channel = MISSING
 
         self.responded = False
         self.deferred = False
 
-    async def defer(self, ephemeral: Optional[bool] = False) -> None:
+    async def get_channel(self) -> Channel:
         """
-        This "defers" an interaction response, allowing up
-        to a 15-minute delay between invocation and responding.
+        This gets the channel the context was invoked in.
 
-        :param ephemeral?: Whether the deferred state is hidden or not.
-        :type ephemeral: Optional[bool]
+        :return: The channel as object
+        :rtype: Channel
         """
-        self.deferred = True
-        _ephemeral: int = (1 << 6) if ephemeral else 0
-        if self.type == InteractionType.MESSAGE_COMPONENT:
-            self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        elif self.type == InteractionType.APPLICATION_COMMAND:
-            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
-        await self.client.create_interaction_response(
-            token=self.token,
-            application_id=int(self.id),
-            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
-        )
+        res = await self.client.get_channel(int(self.channel_id))
+        self.channel = Channel(**res, _client=self.client)
+        return self.channel
+
+    async def get_guild(self) -> Guild:
+        """
+        This gets the guild the context was invoked in.
+
+        :return: The guild as object
+        :rtype: Guild
+        """
+
+        res = await self.client.get_guild(int(self.guild_id))
+        self.guild = Guild(**res, _client=self.client)
+        return self.guild
 
     async def send(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = False,
+        tts: Optional[bool] = MISSING,
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = MISSING,
         ephemeral: Optional[bool] = False,
     ) -> Message:
         """
@@ -184,143 +146,49 @@ class CommandContext(Context):
         :rtype: Message
         """
         if (
-            content is None
+            content is MISSING
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
             _content = self.message.content
         else:
-            _content: str = "" if content is None else content
-        _tts: bool = False if tts is None else tts
+            _content: str = "" if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
         # _file = None if file is None else file
         # _attachments = [] if attachments else None
-        if embeds is None and self.message:
-            _embeds = self.message.embeds
-        else:
-            _embeds: list = (
-                []
-                if embeds is None
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _components: List[dict] = [{"type": 1, "components": []}]
 
-        # TODO: Break this obfuscation pattern down to a "builder" method.
-        if components:
-            if isinstance(components, list) and all(
-                isinstance(action_row, ActionRow) for action_row in components
-            ):
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in action_row.components
-                        ],
-                    }
-                    for action_row in components
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(component, (Button, SelectMenu)) for component in components
-            ):
-                for component in components:
-                    if isinstance(component, SelectMenu):
-                        component._json["options"] = [
-                            options._json if not isinstance(options, dict) else options
-                            for options in component._json["options"]
-                        ]
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in components
-                        ],
-                    }
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(action_row, (list, ActionRow)) for action_row in components
-            ):
-                _components = []
-                for action_row in components:
-                    for component in (
-                        action_row if isinstance(action_row, list) else action_row.components
-                    ):
-                        if isinstance(component, SelectMenu):
-                            component._json["options"] = [
-                                option._json for option in component.options
-                            ]
-                    _components.append(
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in (
-                                    action_row
-                                    if isinstance(action_row, list)
-                                    else action_row.components
-                                )
-                            ],
-                        }
-                    )
-            elif isinstance(components, ActionRow):
-                _components[0]["components"] = [
-                    (
-                        component._json
-                        if component._json.get("custom_id") or component._json.get("url")
-                        else []
-                    )
-                    for component in components.components
-                ]
-            elif isinstance(components, Button):
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
-            elif isinstance(components, SelectMenu):
-                components._json["options"] = [
-                    options._json if not isinstance(options, dict) else options
-                    for options in components._json["options"]
-                ]
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
-        elif components is None and self.message:
-            _components = self.message.components
+        if (
+            embeds is MISSING
+            and self.message
+            and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ):
+            embeds = self.message.embeds
+        _embeds: list = (
+            []
+            if not embeds or embeds is MISSING
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+
+        if components is not MISSING and components:
+            # components could be not missing but an empty list
+
+            _components = _build_components(components=components)
+        elif (
+            components is MISSING
+            and self.message
+            and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ):
+
+            if isinstance(self.message.components, list):
+                _components = self.message.components
+            else:
+                _components = [self.message.components]
+
         else:
             _components = []
 
         _ephemeral: int = (1 << 6) if ephemeral else 0
-
-        if not self.deferred and self.type != InteractionType.MESSAGE_COMPONENT:
-            self.callback = (
-                InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
-                if self.type == InteractionType.APPLICATION_COMMAND
-                else InteractionCallbackType.UPDATE_MESSAGE
-            )
-
-        if not self.deferred and self.type == InteractionType.MESSAGE_COMPONENT:
-            self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
         # TODO: post-v4: Add attachments into Message obj.
         payload: Message = Message(
@@ -335,57 +203,20 @@ class CommandContext(Context):
         )
         self.message = payload
         self.message._client = self.client
-        _payload: dict = {"type": self.callback.value, "data": payload._json}
-
-        async def func():
-            if (
-                self.responded
-                or self.deferred
-                or self.type == InteractionType.MESSAGE_COMPONENT
-                and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-            ):
-                if (
-                    self.type == InteractionType.APPLICATION_COMMAND
-                    and self.deferred
-                    or self.type == InteractionType.MESSAGE_COMPONENT
-                    and self.deferred
-                ):
-                    res = await self.client.edit_interaction_response(
-                        data=payload._json,
-                        token=self.token,
-                        application_id=str(self.application_id),
-                    )
-                    self.responded = True
-                    self.message = Message(**res, _client=self.client)
-                else:
-                    await self.client._post_followup(
-                        data=payload._json,
-                        token=self.token,
-                        application_id=str(self.application_id),
-                    )
-            else:
-                await self.client.create_interaction_response(
-                    token=self.token,
-                    application_id=int(self.id),
-                    data=_payload,
-                )
-                self.responded = True
-
-        await func()
         return payload
 
     async def edit(
         self,
-        content: Optional[str] = None,
+        content: Optional[str] = MISSING,
         *,
-        tts: Optional[bool] = None,
+        tts: Optional[bool] = MISSING,
         # file: Optional[FileIO] = None,
-        embeds: Optional[Union[Embed, List[Embed]]] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,
-        message_reference: Optional[MessageReference] = None,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]
-        ] = None,
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = MISSING,
     ) -> Message:
         """
         This allows the invocation state described in the "context"
@@ -396,204 +227,257 @@ class CommandContext(Context):
         :return: The edited message as an object.
         :rtype: Message
         """
-        _content: str = self.message.content if content is None else content
-        _tts: bool = False if tts is None else tts
+
+        payload = {}
+
+        if self.message.content is not None or content is not MISSING:
+            _content: str = self.message.content if content is MISSING else content
+            payload["content"] = _content
+        _tts: bool = False if tts is MISSING else tts
+        payload["tts"] = _tts
         # _file = None if file is None else file
 
-        if embeds is None:
-            _embeds = self.message.embeds
-        else:
+        if self.message.embeds is not None or embeds is not MISSING:
+            if embeds is MISSING:
+                embeds = self.message.embeds
             _embeds: list = (
                 []
-                if embeds is None
+                if not embeds
                 else (
                     [embed._json for embed in embeds]
                     if isinstance(embeds, list)
                     else [embeds._json]
                 )
             )
-        _allowed_mentions: dict = {} if allowed_mentions is None else allowed_mentions
-        _message_reference: dict = {} if message_reference is None else message_reference._json
+            payload["embeds"] = _embeds
 
-        if components is None:
-            _components = self.message.components
-        elif components == []:
-            _components = []
-        else:
-            _components: list = [{"type": 1, "components": []}]
-            if (
-                isinstance(components, list)
-                and components
-                and all(isinstance(action_row, ActionRow) for action_row in components)
-            ):
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in action_row.components
-                        ],
-                    }
-                    for action_row in components
-                ]
-            elif (
-                isinstance(components, list)
-                and components
-                and all(isinstance(component, (Button, SelectMenu)) for component in components)
-            ):
-                if isinstance(components[0], SelectMenu):
-                    components[0]._json["options"] = [
-                        option._json for option in components[0].options
-                    ]
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in components
-                        ],
-                    }
-                ]
-            elif (
-                isinstance(components, list)
-                and components
-                and all(isinstance(action_row, (list, ActionRow)) for action_row in components)
-            ):
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _message_reference: dict = {} if message_reference is MISSING else message_reference._json
+
+        payload["allowed_mentions"] = _allowed_mentions
+        payload["message_reference"] = _message_reference
+
+        if self.message.components is not None or components is not MISSING:
+            if components is MISSING:
+                _components = self.message.components
+            elif not components:
                 _components = []
-                for action_row in components:
-                    for component in (
-                        action_row if isinstance(action_row, list) else action_row.components
-                    ):
-                        if isinstance(component, SelectMenu):
-                            component._json["options"] = [
-                                option._json for option in component.options
-                            ]
-                    _components.append(
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in (
-                                    action_row
-                                    if isinstance(action_row, list)
-                                    else action_row.components
-                                )
-                            ],
-                        }
-                    )
-            elif isinstance(components, ActionRow):
-                _components[0]["components"] = [
-                    (
-                        component._json
-                        if component._json.get("custom_id") or component._json.get("url")
-                        else []
-                    )
-                    for component in components.components
-                ]
-            elif isinstance(components, (Button, SelectMenu)):
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
             else:
-                _components = []
+                _components = _build_components(components=components)
 
-        payload: Message = Message(
-            content=_content,
-            tts=_tts,
-            # file=file,
-            embeds=_embeds,
-            allowed_mentions=_allowed_mentions,
-            message_reference=_message_reference,
-            components=_components,
+            payload["components"] = _components
+
+        payload = Message(**payload)
+        self.message._client = self.client
+
+        return payload
+
+    async def popup(self, modal: Modal) -> None:
+        """
+        This "pops up" a modal to present information back to the
+        user.
+
+        :param modal: The components you wish to show.
+        :type modal: Modal
+        """
+
+        payload: dict = {
+            "type": InteractionCallbackType.MODAL.value,
+            "data": {
+                "title": modal.title,
+                "components": modal._json.get("components"),
+                "custom_id": modal.custom_id,
+            },
+        }
+
+        await self.client.create_interaction_response(
+            token=self.token,
+            application_id=int(self.id),
+            data=payload,
         )
+        self.responded = True
 
-        async def func():
-            if not self.deferred and self.type == InteractionType.MESSAGE_COMPONENT:
-                self.callback = InteractionCallbackType.UPDATE_MESSAGE
-                await self.client.create_interaction_response(
-                    data={"type": self.callback.value, "data": payload._json},
-                    token=self.token,
-                    application_id=int(self.id),
-                )
-                self.message = payload
-                self.responded = True
-            elif self.deferred:
+        return payload
+
+
+class CommandContext(_Context):
+    """
+    A derivation of :class:`interactions.context.Context`
+    designed specifically for application command data.
+
+    .. warning::
+        The ``guild`` attribute of the base context
+        is not accessible for any interaction-related events
+        since the current Discord API schema does not return
+        this as a value, but instead ``guild_id``. You will
+        need to manually fetch for this data for the time being.
+
+        You can fetch with ``client.get_guild(guild_id)`` which
+        will return a JSON dictionary, which you can then use
+        ``interactions.Guild(**data)`` for an object or continue
+        with a dictionary for your own purposes.
+
+    :ivar Snowflake id: The ID of the interaction.
+    :ivar Snowflake application_id: The application ID of the interaction.
+    :ivar InteractionType type: The type of interaction.
+    :ivar InteractionData data?: The application command data.
+    :ivar Optional[Union[Message, Member, User]] target: The target selected if this interaction is invoked as a context menu.
+    :ivar str token: The token of the interaction response.
+    :ivar Snowflake guild_id?: The ID of the current guild.
+    :ivar Snowflake channel_id?: The ID of the current channel.
+    :ivar bool responded: Whether an original response was made or not.
+    :ivar bool deferred: Whether the response was deferred or not.
+    :ivar str locale?: The selected language of the user invoking the interaction.
+    :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
+    """
+
+    __slots__ = (
+        "message",
+        "member",
+        "author",
+        "user",
+        "channel",
+        "guild",
+        "client",
+        "id",
+        "application_id",
+        "callback",
+        "type",
+        "data",
+        "target",
+        "version",
+        "token",
+        "guild_id",
+        "channel_id",
+        "responded",
+        "deferred",
+        "locale",
+        "guild_locale",
+    )
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+        if self._json.get("data").get("target_id"):
+            self.target = str(self.data.target_id)
+
+            if self.data.type == 2:
                 if (
-                    self.type == InteractionType.MESSAGE_COMPONENT
-                    and self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+                    self._json.get("guild_id")
+                    and str(self.data.target_id) in self.data.resolved.members
                 ):
-                    await self.client._post_followup(
-                        data=payload._json,
-                        token=self.token,
-                        application_id=str(self.application_id),
-                    )
-                elif (
-                    self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-                    and self.type == InteractionType.MESSAGE_COMPONENT
-                ):
-                    res = await self.client.edit_interaction_response(
-                        data=payload._json,
-                        token=self.token,
-                        application_id=str(self.application_id),
-                    )
-                    self.responded = True
-                    self.message = Message(**res, _client=self.client)
-                elif hasattr(self.message, "id") and self.message.id is not None:
-                    res = await self.client.edit_message(
-                        int(self.channel_id), int(self.message.id), payload=payload._json
-                    )
-                    self.message = Message(**res, _client=self.client)
+                    # member id would have potential to exist, and therefore have target def priority.
+                    self.target = self.data.resolved.members[self.target]
                 else:
-                    res = await self.client.edit_interaction_response(
-                        token=self.token,
-                        application_id=str(self.id),
-                        data={"type": self.callback.value, "data": payload._json},
-                        message_id=self.message.id if self.message else "@original",
-                    )
-                    if res["flags"] == 64:
-                        log.warning("You can't edit hidden messages.")
-                        self.message = payload
-                        self.message._client = self.client
-                    else:
-                        await self.client.edit_message(
-                            int(self.channel_id), res["id"], payload=payload._json
-                        )
-                        self.message = Message(**res, _client=self.client)
-            else:
-                self.callback = (
-                    InteractionCallbackType.UPDATE_MESSAGE
-                    if self.type == InteractionType.MESSAGE_COMPONENT
-                    else self.callback
+                    self.target = self.data.resolved.users[self.target]
+            elif self.data.type == 3:
+                self.target = self.data.resolved.messages[self.target]
+
+    async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
+
+        payload = await super().edit(content, **kwargs)
+        msg = None
+
+        if self.deferred:
+            if hasattr(self.message, "id") and self.message.id is not None:
+                res = await self.client.edit_message(
+                    int(self.channel_id), int(self.message.id), payload=payload._json
                 )
+                self.message = msg = Message(**res, _client=self.client)
+            else:
                 res = await self.client.edit_interaction_response(
                     token=self.token,
-                    application_id=str(self.application_id),
+                    application_id=str(self.id),
                     data={"type": self.callback.value, "data": payload._json},
+                    message_id=self.message.id if self.message else "@original",
                 )
                 if res["flags"] == 64:
                     log.warning("You can't edit hidden messages.")
+                    self.message = payload
+                    self.message._client = self.client
                 else:
                     await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
-                    self.message = Message(**res, _client=self.client)
+                    self.message = msg = Message(**res, _client=self.client)
+        else:
+            res = await self.client.edit_interaction_response(
+                token=self.token,
+                application_id=str(self.application_id),
+                data={"type": self.callback.value, "data": payload._json},
+            )
+            if res["flags"] == 64:
+                log.warning("You can't edit hidden messages.")
+            else:
+                await self.client.edit_message(
+                    int(self.channel_id), res["id"], payload=payload._json
+                )
+                self.message = msg = Message(**res, _client=self.client)
 
-        await func()
+        if msg is not None:
+            return msg
+        return payload
+
+    async def defer(self, ephemeral: Optional[bool] = False) -> None:
+        """
+        This "defers" an interaction response, allowing up
+        to a 15-minute delay between invocation and responding.
+
+        :param ephemeral?: Whether the deferred state is hidden or not.
+        :type ephemeral: Optional[bool]
+        """
+        self.deferred = True
+        _ephemeral: int = (1 << 6) if ephemeral else 0
+        self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+
+        await self.client.create_interaction_response(
+            token=self.token,
+            application_id=int(self.id),
+            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+        )
+
+    async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
+        payload = await super().send(content, **kwargs)
+
+        if not self.deferred:
+            self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
+
+        _payload: dict = {"type": self.callback.value, "data": payload._json}
+
+        msg = None
+        if self.responded or self.deferred:
+            if self.deferred:
+                res = await self.client.edit_interaction_response(
+                    data=payload._json,
+                    token=self.token,
+                    application_id=str(self.application_id),
+                )
+                self.responded = True
+                self.message = msg = Message(**res, _client=self.client)
+            else:
+                await self.client._post_followup(
+                    data=payload._json,
+                    token=self.token,
+                    application_id=str(self.application_id),
+                )
+        else:
+            await self.client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data=_payload,
+            )
+            __newdata = await self.client.edit_interaction_response(
+                data={},
+                token=self.token,
+                application_id=str(self.application_id),
+            )
+            if not __newdata.get("code"):
+                # if sending message fails somehow
+                msg = Message(**__newdata, _client=self.client)
+                self.message = msg
+            self.responded = True
+        if msg is not None:
+            return msg
         return payload
 
     async def delete(self) -> None:
@@ -641,7 +525,9 @@ class CommandContext(Context):
                 elif isinstance(choices, Choice):
                     _choices = [choices._json]
                 else:
-                    _choices = [choices]
+                    raise InteractionException(
+                        6, message="Autocomplete choice items must be of type Choice"
+                    )
 
                 await self.client.create_interaction_response(
                     token=self.token,
@@ -656,32 +542,8 @@ class CommandContext(Context):
 
         return await func()
 
-    async def popup(self, modal: Modal) -> None:
-        """
-        This "pops up" a modal to present information back to the
-        user.
 
-        :param modal: The components you wish to show.
-        :type modal: Modal
-        """
-
-        payload: dict = {
-            "type": InteractionCallbackType.MODAL.value,
-            "data": {
-                "title": modal.title,
-                "components": modal._json.get("components"),
-                "custom_id": modal.custom_id,
-            },
-        }
-
-        await self.client.create_interaction_response(
-            token=self.token,
-            application_id=int(self.id),
-            data=payload,
-        )
-
-
-class ComponentContext(CommandContext):
+class ComponentContext(_Context):
     """
     A derivation of :class:`interactions.context.CommandContext`
     designed specifically for component data.
@@ -707,7 +569,6 @@ class ComponentContext(CommandContext):
         "channel_id",
         "responded",
         "deferred",
-        #
         "locale",
         "guild_locale",
     )
@@ -716,6 +577,89 @@ class ComponentContext(CommandContext):
         super().__init__(**kwargs)
         self.responded = False  # remind components that it was not responded to.
         self.deferred = False  # remind components they not have been deferred
+
+    async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
+
+        payload = await super().edit(content, **kwargs)
+        msg = None
+
+        if not self.deferred:
+            self.callback = InteractionCallbackType.UPDATE_MESSAGE
+            await self.client.create_interaction_response(
+                data={"type": self.callback.value, "data": payload._json},
+                token=self.token,
+                application_id=int(self.id),
+            )
+            self.message = payload
+            self.responded = True
+        elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
+            await self.client._post_followup(
+                data=payload._json,
+                token=self.token,
+                application_id=str(self.application_id),
+            )
+        else:
+            res = await self.client.edit_interaction_response(
+                data=payload._json,
+                token=self.token,
+                application_id=str(self.application_id),
+            )
+            self.responded = True
+            self.message = msg = Message(**res, _client=self.client)
+
+        if msg is not None:
+            return msg
+
+        return payload
+
+    async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
+        payload = await super().send(content, **kwargs)
+
+        if not self.deferred:
+            self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
+
+        _payload: dict = {"type": self.callback.value, "data": payload._json}
+
+        msg = None
+        if (
+            self.responded
+            or self.deferred
+            or self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ):
+            if self.deferred:
+                res = await self.client.edit_interaction_response(
+                    data=payload._json,
+                    token=self.token,
+                    application_id=str(self.application_id),
+                )
+                self.responded = True
+                self.message = msg = Message(**res, _client=self.client)
+            else:
+                await self.client._post_followup(
+                    data=payload._json,
+                    token=self.token,
+                    application_id=str(self.application_id),
+                )
+        else:
+            await self.client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data=_payload,
+            )
+            __newdata = await self.client.edit_interaction_response(
+                data={},
+                token=self.token,
+                application_id=str(self.application_id),
+            )
+            if not __newdata.get("code"):
+                # if sending message fails somehow
+                msg = Message(**__newdata, _client=self.client)
+                self.message = msg
+            self.responded = True
+
+        if msg is not None:
+            return msg
+        return payload
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
@@ -731,15 +675,26 @@ class ComponentContext(CommandContext):
         """
         self.deferred = True
         _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
+
         # ephemeral doesn't change callback typings. just data json
-        if self.type == InteractionType.MESSAGE_COMPONENT:
-            if edit_origin:
-                self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-            else:
-                self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        if edit_origin:
+            self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        else:
+            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
         await self.client.create_interaction_response(
             token=self.token,
             application_id=int(self.id),
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},
         )
+
+    @property
+    def custom_id(self) -> Optional[str]:
+        return self.data.custom_id
+
+    @property
+    def label(self) -> Optional[str]:
+        for action_row in self.message.components:
+            for component in action_row["components"]:
+                if component["custom_id"] == self.custom_id and component["type"] == 2:
+                    return component.get("label")

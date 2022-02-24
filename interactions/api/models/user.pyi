@@ -1,6 +1,7 @@
 from typing import Optional
 
 from .misc import DictSerializerMixin, Snowflake
+from .flags import UserFlags, AppFlags
 
 class User(DictSerializerMixin):
     _json: dict
@@ -16,7 +17,11 @@ class User(DictSerializerMixin):
     locale: Optional[str]
     verified: Optional[bool]
     email: Optional[str]
-    flags: Optional[int]
+    flags: Optional[UserFlags]
     premium_type: Optional[int]
-    public_flags: Optional[int]
+    public_flags: Optional[UserFlags]
     def __init__(self, **kwargs): ...
+    @property
+    def mention(self) -> str: ...
+    @property
+    def avatar_url(self) -> str: ...

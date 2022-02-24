@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 from ..api.models.channel import Channel
 from ..api.models.member import Member
-from ..api.models.message import Message
+from ..api.models.message import Attachment, Message
 from ..api.models.misc import DictSerializerMixin, Snowflake
 from ..api.models.role import Role
 from ..api.models.user import User
@@ -19,14 +19,16 @@ class InteractionResolvedData(DictSerializerMixin):
     :ivar Dict[str, Role] roles: The resolved roles data.
     :ivar Dict[str, Channel] channels: The resolved channels data.
     :ivar Dict[str, Message] messages: The resolved messages data.
+    :ivar Dict[str, Attachment] attachments: The resolved attachments data.
     """
 
-    __slots__ = ("_json", "users", "members", "roles", "channels", "messages")
+    __slots__ = ("_json", "users", "members", "roles", "channels", "messages", "attachments")
     users: Dict[str, User]
     members: Dict[str, Member]
     roles: Dict[str, Role]
     channels: Dict[str, Channel]
     messages: Dict[str, Message]
+    attachments: Dict[str, Attachment]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -40,9 +42,11 @@ class InteractionResolvedData(DictSerializerMixin):
             self.users = {}
         if self._json.get("members"):
             [
-                self.members.update({member: Member(**self.members[member])})
+                self.members.update(
+                    {member: Member(**self.members[member], user=self.users[member])}
+                )
                 for member in self._json.get("members")
-            ]
+            ]  # members have User, user may not have Member. /shrug
         else:
             self.members = {}
         if self._json.get("roles"):
@@ -66,6 +70,13 @@ class InteractionResolvedData(DictSerializerMixin):
             ]
         else:
             self.messages = {}
+        if self._json.get("attachments"):
+            [
+                self.attachments.update({attachment: Attachment(**self.attachments[attachment])})
+                for attachment in self._json.get("attachments")
+            ]
+        else:
+            self.attachments = {}
 
 
 class InteractionData(DictSerializerMixin):
@@ -184,9 +195,3 @@ class Interaction(DictSerializerMixin):
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.member = Member(**self.member) if self._json.get("member") else None
         self.user = User(**self.user) if self._json.get("user") else None
-
-
-class MISSING:
-    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
-
-    ...

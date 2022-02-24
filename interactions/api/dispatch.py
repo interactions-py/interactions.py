@@ -21,18 +21,19 @@ class Listener:
         self.loop = get_event_loop()
         self.events = {}
 
-    def dispatch(self, name: str, *args, **kwargs) -> None:
+    def dispatch(self, __name: str, *args, **kwargs) -> None:
         r"""
         Dispatches an event given out by the gateway.
 
-        :param name: The name of the event to dispatch.
-        :type name: str
+        :param __name: The name of the event to dispatch.
+        :type __name: str
         :param \*args: Multiple arguments of the coroutine.
         :type \*args: list[Any]
         :param \**kwargs: Keyword-only arguments of the coroutine.
         :type \**kwargs: dict
         """
-        for event in self.events.get(name, []):
+        for event in self.events.get(__name, []):
+
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
 
