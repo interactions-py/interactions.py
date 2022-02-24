@@ -165,7 +165,7 @@ class WebSocketClient:
         if self.__task:
             self.__task: Task
             self.__task.cancel()
-        await self._client.close()
+        self._client = None  # clear pending waits
         self.__heartbeater.event.clear()
         await self._establish_connection()
 
@@ -199,6 +199,10 @@ class WebSocketClient:
 
                 if stream is None:
                     continue
+                if self._client is None:
+                    await self._establish_connection()
+                    break
+
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
                     raise GatewayException(self._client.close_code)
 
@@ -230,6 +234,10 @@ class WebSocketClient:
             if op == OpCodeType.HELLO:
                 self.__heartbeater.delay = data["heartbeat_interval"]
                 self.__heartbeater.event.set()
+
+                if self.__task:
+                    self.__task.cancel()  # so we can reduce redundant heartbeat bg tasks.
+
                 self.__task = ensure_future(self._manage_heartbeat())
 
                 if not self.session_id:
@@ -246,12 +254,17 @@ class WebSocketClient:
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
 
-                if data and op != OpCodeType.RECONNECT:
+                # if data and op != OpCodeType.RECONNECT:
+                #    self.session_id = None
+                #    self.sequence = None
+                # self._closed = True
+
+                if bool(data) is False and op == OpCodeType.INVALIDATE_SESSION:
                     self.session_id = None
-                    self.sequence = None
-                    self._closed = True
 
                 await self.__restart()
+        elif event == "RESUMED":
+            log.debug(f"RESUMED (session_id: {self.session_id}, seq: {self.sequence})")
         elif event == "READY":
             self._ready = data
             self.session_id = data["session_id"]
@@ -343,7 +356,7 @@ class WebSocketClient:
 
                         if _context.data._json.get("options"):
                             for option in _context.data.options:
-                                __name, _value = self.__sub_command_context(option)
+                                __name, _value = self.__sub_command_context(option, _context)
                                 _name += f"_{__name}" if __name else ""
 
                                 if _value:
@@ -516,6 +529,9 @@ class WebSocketClient:
             }
         return _resolved
 
+    async def restart(self):
+        await self.__restart()
+
     @property
     async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]:
         """
@@ -524,6 +540,7 @@ class WebSocketClient:
         :return: The packet stream.
         :rtype: Optional[Dict[str, Any]]
         """
+
         packet: WSMessage = await self._client.receive()
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 

@@ -46,13 +46,13 @@ class Member(DictSerializerMixin):
         self,
         role: Union[Role, int],
         guild_id: int,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None: ...
     async def remove_role(
         self,
         role: Union[Role, int],
         guild_id: int,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None: ...
     async def send(
         self,

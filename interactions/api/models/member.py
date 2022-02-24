@@ -147,7 +147,7 @@ class Member(DictSerializerMixin):
         self,
         role: Union[Role, int],
         guild_id: int,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method adds a role to a member.
@@ -180,7 +180,7 @@ class Member(DictSerializerMixin):
         self,
         role: Union[Role, int],
         guild_id: int,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method removes a role from a member.
