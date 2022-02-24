@@ -33,6 +33,7 @@ class Listener:
         :type \**kwargs: dict
         """
         for event in self.events.get(__name, []):
+
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
 
