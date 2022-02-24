@@ -167,9 +167,6 @@ class WebSocketClient:
             self.__task.cancel()
         await self._client.close()
         self.__heartbeater.event.clear()
-        self._closed = False
-        self._client = None
-        self.__heartbeater.delay = 0.0
         await self._establish_connection()
 
     async def _establish_connection(
@@ -185,11 +182,17 @@ class WebSocketClient:
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[ClientPresence]
         """
+        self._client = None
+        self.__heartbeater.delay = 0.0
+        self._closed = False
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
         url = await self._http.get_gateway()
 
         async with self._http._req._session.ws_connect(url, **self._options) as self._client:
             self._closed = self._client.closed
+
+            if self._closed:
+                await self._establish_connection()
 
             while not self._closed:
                 stream = await self.__receive_packet_stream
@@ -198,8 +201,6 @@ class WebSocketClient:
                     continue
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
                     raise GatewayException(self._client.close_code)
-                elif self._closed:  # Redundant conditional.
-                    await self._establish_connection()
 
                 await self._handle_connection(stream, shard, presence)
 
@@ -394,10 +395,11 @@ class WebSocketClient:
 
             data["client"] = self._http
             context: object = getattr(__import__("interactions.context"), _context)
+
             return context(**data)
 
     def __sub_command_context(
-        self, data: Union[dict, Option], _context: Optional[object] = MISSING
+        self, data: Union[dict, Option], context: object
     ) -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
@@ -405,6 +407,8 @@ class WebSocketClient:
 
         :param data: The data structure of the option.
         :type data: Union[dict, Option]
+        :param context: The context to refer subcommands from.
+        :type context: object
         :return: A dictionary of the collected options, if any.
         :rtype: Union[Tuple[str], dict]
         """
@@ -412,62 +416,66 @@ class WebSocketClient:
         _data: dict = data._json if isinstance(data, Option) else data
 
         def _check_auto(option: dict) -> Optional[Tuple[str]]:
-            try:
-                if option.get("focused"):
-                    return (option["name"], option["value"])
-            except AttributeError:
-                return False
+            return (option["name"], option["value"]) if option.get("focused") else None
 
-        x = _check_auto(_data)
-        if x:
-            return x
+        check = _check_auto(_data)
+
+        if check:
+            return check
         if _data.get("options"):
             if _data["type"] == OptionType.SUB_COMMAND:
                 __kwargs["sub_command"] = _data["name"]
+
                 for sub_option in _data["options"]:
-                    _check_auto(sub_option)
-                    _option_context = self.__option_type_context(
-                        _context,
+                    _check = _check_auto(sub_option)
+                    _type = self.__option_type_context(
+                        context,
                         (
                             sub_option["type"]
                             if isinstance(sub_option, dict)
                             else sub_option.type.value
                         ),
                     )
-                    if _option_context:
+
+                    if _type:
                         if isinstance(sub_option, dict):
-                            _option_context[sub_option["value"]]._client = self._http
-                            sub_option.update({"value": _option_context[sub_option["value"]]})
+                            _type[sub_option["value"]]._client = self._http
+                            sub_option.update({"value": _type[sub_option["value"]]})
                         else:
-                            _option_context[sub_option.value]._client = self._http
-                            sub_option._json.update({"value": _option_context[sub_option.value]})
+                            _type[sub_option.value]._client = self._http
+                            sub_option._json.update({"value": _type[sub_option.value]})
+                    if _check:
+                        return _check
+
                     __kwargs[sub_option["name"]] = sub_option["value"]
             elif _data["type"] == OptionType.SUB_COMMAND_GROUP:
                 __kwargs["sub_command_group"] = _data["name"]
                 for _group_option in _data["options"]:
                     _check_auto(_group_option)
                     __kwargs["sub_command"] = _group_option["name"]
+
                     for sub_option in _group_option["options"]:
-                        _check_auto(sub_option)
-                        _option_context = self.__option_type_context(
-                            _context,
+                        _check = _check_auto(sub_option)
+                        _type = self.__option_type_context(
+                            context,
                             (
                                 sub_option["type"]
                                 if isinstance(sub_option, dict)
                                 else sub_option.type.value
                             ),
                         )
-                        if _option_context:
-                            if isinstance(sub_option, dict):
-                                _option_context[sub_option["value"]]._client = self._http
-                                sub_option.update({"value": _option_context[sub_option["value"]]})
-                            else:
-                                _option_context[sub_option.value]._client = self._http
-                                sub_option._json.update(
-                                    {"value": _option_context[sub_option.value]}
-                                )
-                        __kwargs[sub_option["name"]] = sub_option["value"]
 
+                        if _type:
+                            if isinstance(sub_option, dict):
+                                _type[sub_option["value"]]._client = self._http
+                                sub_option.update({"value": _type[sub_option["value"]]})
+                            else:
+                                _type[sub_option.value]._client = self._http
+                                sub_option._json.update({"value": _type[sub_option.value]})
+                        if _check:
+                            return _check
+
+                        __kwargs[sub_option["name"]] = sub_option["value"]
         elif _data.get("value") and _data.get("name"):
             __kwargs[_data["name"]] = _data["value"]
 

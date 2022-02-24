@@ -358,7 +358,7 @@ class HTTPClient:
         url: Any = await self._req.request(
             Route("GET", "/gateway")
         )  # typehinting Any because pycharm yells
-        return f'{url["url"]}?v=9&encoding=json'
+        return f'{url["url"]}?v=10&encoding=json'
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
         """
