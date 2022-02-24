@@ -383,17 +383,12 @@ class Message(DictSerializerMixin):
         # _file = None if file is None else file
 
         if embeds is MISSING:
-            _embeds = self.embeds
-        else:
-            _embeds: list = (
-                []
-                if not embeds
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
+            embeds = self.embeds
+        _embeds: list = (
+            []
+            if not embeds
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
@@ -413,12 +408,13 @@ class Message(DictSerializerMixin):
             components=_components,
         )
 
-        await self._client.edit_message(
+        _dct = await self._client.edit_message(
             channel_id=int(self.channel_id),
             message_id=int(self.id),
             payload=payload._json,
         )
-        return payload
+
+        return Message(**_dct) if not _dct.get("code") else payload
 
     async def reply(
         self,
