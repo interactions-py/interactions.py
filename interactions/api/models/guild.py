@@ -1046,7 +1046,7 @@ class Guild(DictSerializerMixin):
         self,
         name: str,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the name of the guild.
@@ -1062,7 +1062,7 @@ class Guild(DictSerializerMixin):
         self,
         verification_level: VerificationLevel,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the verification level of the guild.
@@ -1078,7 +1078,7 @@ class Guild(DictSerializerMixin):
         self,
         default_message_notifications: DefaultMessageNotificationLevel,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the default message notifications level of the guild.
@@ -1096,7 +1096,7 @@ class Guild(DictSerializerMixin):
         self,
         explicit_content_filter: ExplicitContentFilterLevel,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the explicit content filter level of the guild.
@@ -1112,7 +1112,7 @@ class Guild(DictSerializerMixin):
         self,
         afk_channel_id: int,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the afk channel of the guild.
@@ -1128,7 +1128,7 @@ class Guild(DictSerializerMixin):
         self,
         afk_timeout: int,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the afk timeout of the guild.
@@ -1144,7 +1144,7 @@ class Guild(DictSerializerMixin):
         self,
         system_channel_id: int,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the system channel of the guild.
@@ -1160,7 +1160,7 @@ class Guild(DictSerializerMixin):
         self,
         rules_channel_id: int,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the rules channel of the guild.
@@ -1176,7 +1176,7 @@ class Guild(DictSerializerMixin):
         self,
         public_updates_channel_id: int,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the public updates channel of the guild.
@@ -1192,7 +1192,7 @@ class Guild(DictSerializerMixin):
         self,
         preferred_locale: str,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the preferred locale of the guild.
@@ -1208,7 +1208,7 @@ class Guild(DictSerializerMixin):
         self,
         description: str,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the description of the guild.
@@ -1224,7 +1224,7 @@ class Guild(DictSerializerMixin):
         self,
         premium_progress_bar_enabled: bool,
         *,
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the visibility of the premium progress bar of the guild.
