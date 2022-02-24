@@ -342,7 +342,7 @@ class WebSocketClient:
 
                         if _context.data._json.get("options"):
                             for option in _context.data.options:
-                                __name, _value = self.__sub_command_context(option)
+                                __name, _value = self.__sub_command_context(option, _context)
                                 _name += f"_{__name}" if __name else ""
 
                                 if _value:
@@ -399,7 +399,7 @@ class WebSocketClient:
             return context(**data)
 
     def __sub_command_context(
-        self, data: Union[dict, Option], context: object = MISSING
+        self, data: Union[dict, Option], context: object
     ) -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
