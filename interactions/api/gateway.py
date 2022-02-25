@@ -489,6 +489,11 @@ class WebSocketClient:
                             return _check
 
                         __kwargs[sub_option["name"]] = sub_option["value"]
+
+        elif _data.get("type") and _data["type"] == OptionType.SUB_COMMAND:
+            # sub_command_groups must have options so there is no extra check needed for those
+            __kwargs["sub_command"] = _data["name"]
+
         elif _data.get("value") and _data.get("name"):
             __kwargs[_data["name"]] = _data["value"]
 
