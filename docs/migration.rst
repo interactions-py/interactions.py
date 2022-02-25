@@ -37,7 +37,9 @@ Additionally, modifying the way information is dispatched from the Gateway must 
 
 .. code-block:: python
 
-    class ExtendedWebSocketClient(WebSocketClient):
+    import interactions
+
+    class ExtendedWebSocketClient(interactions.WebSocketClient):
         def _dispatch_event(self, event: str, data: dict):
             super()._dispatch_event(event, data)
 
@@ -49,3 +51,14 @@ We recommend that working in correspondance with this, you should be making use 
 A slight, yet another breaking change we made was dundering numerous attributes in our internal models.
 You will now need to refer to the client's HTTP object as ``_http`` instead of ``http``. In order to view
 the full list of these, we highly encourage you to view the documentation readily available.
+
+The last, and most major change is the introduction of the ``MESSAGE_CONTENT`` privileged intent in the library.
+Because of ``4.1.0`` using version 10 of the Discord API, this intent is now required for reading all message
+content. In order to make sure your bot works still, you will need to enable this intent in your bot's developer
+portal and add the intent to your current intents when connecting:
+
+.. code-block:: python
+
+    from interactions import Client, Intents
+
+    bot = Client("TOKEN", intents=Intents.DEFAULT | Intents.MEESAGE_CONTENT)
