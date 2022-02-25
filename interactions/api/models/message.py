@@ -105,6 +105,7 @@ class Attachment(DictSerializerMixin):
     """
 
     __slots__ = (
+        "_client",
         "_json",
         "id",
         "filename",
