@@ -121,9 +121,21 @@ class AppFlags(IntFlag):
     GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
 
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 class StatusType(str, Enum):
     """
     An enumerable object representing Discord status icons that a user may have.
+=======
+class StatusType(StrEnum):
+    """
+    A string enum representing Discord status icons that a user may have.
+>>>>>>> e1320ac (feat: Add localisation enum (#522))
+=======
+class StatusType(str, Enum):
+    """
+    An enumerable object representing Discord status icons that a user may have.
+>>>>>>> 6972ff2 (style: correct ``StatusType`` repr)
     """
 
     ONLINE = "online"
