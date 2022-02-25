@@ -489,7 +489,7 @@ class WebSocketClient:
                             return _check
 
                         __kwargs[sub_option["name"]] = sub_option["value"]
-        elif _data.get("value") and _data.get("name"):
+        elif _data.get("value") is not None and _data.get("name") is not None:
             __kwargs[_data["name"]] = _data["value"]
 
         return __kwargs
