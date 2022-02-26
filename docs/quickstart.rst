@@ -150,7 +150,7 @@ Next, let's create an Option
 
     @bot.command(
         name="say_something",
-        description="say something!",
+        description="Say something!",
         scope=the_id_of_your_guild,
         options = [
             interactions.Option(
@@ -161,7 +161,7 @@ Next, let's create an Option
             ),
         ],
     )
-    async def my_first_command(ctx: interactions.CommandContext, text: str):
+    async def say_something(ctx: interactions.CommandContext, text: str):
         await ctx.send(f"You said '{text}'!")
 
     bot.start()
@@ -178,7 +178,7 @@ Nested commands: subcommands
     @bot.command(
         name="base_command",
         description="This description isn't seen in UI (yet?)",
-        scope=guild_id,
+        scope=the_id_of_your_guild,
         options=[
             interactions.Option(
                 name="command_name",
@@ -191,6 +191,8 @@ Nested commands: subcommands
                         type=interactions.OptionType.INTEGER,
                         required=False,
                     ),
+                ],
+            ),
             interactions.Option(
                 name="second_command",
                 description="A descriptive description",
@@ -206,7 +208,7 @@ Nested commands: subcommands
             ),
         ],
     )
-    async def cmd(ctx: interactions.CommandContext, sub_command: str, second_option: str, option: int = None):
+    async def base_command(ctx: interactions.CommandContext, sub_command: str, second_option: str, option: int = None):
         if sub_command == "command_name":
           await ctx.send(f"You selected the command_name sub command and put in {option}")
         elif sub_command == "second_command":
@@ -233,9 +235,9 @@ your ``@command`` decorator:
     @bot.command(
         type=interactions.ApplicationCommandType.USER,
         name="User Command",
-        scope=1234567890
+        scope=the_id_of_your_guild
     )
-    async def test(ctx):
+    async def user_command(ctx):
         await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
 
@@ -268,17 +270,15 @@ implementation of a component:
 
     @bot.command(
         name="button_test",
-        description="This is the first command I made!",
+        description="Button test command.",
         scope=the_id_of_your_guild,
     )
     async def button_test(ctx):
         await ctx.send("testing", components=button)
 
-    @bot.component("hello"")
+    @bot.component("hello")
     async def button_response(ctx):
         await ctx.send("You clicked the Button :O", ephemeral=True)
-
-    bot.start()
 
 This is a design that we ended up choosing to simplify responding
 to buttons when someone presses on one, and to allow bot developers
@@ -304,7 +304,7 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
 
 .. code-block:: python
 
-    button = interactions.Button(
+    button1 = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
         label="hello world!",
         custom_id="hello",
@@ -313,7 +313,7 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
     button2 = interactions.Button(
         style=interactions.ButtonStyle.DANGER,
         label="bye bye!",
-        custom_id="bye!",
+        custom_id="bye",
     )
 
 
@@ -321,8 +321,12 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
         components=[button1, button2]
     )
 
-    @bot.command(...)
-    async def test(ctx):
+    @bot.command(
+        name="button_test2",
+        description="Button test 2 command.",
+        scope=the_id_of_your_guild,
+    )
+    async def button_test2(ctx):
         await ctx.send("rows!", components=row)
 
 By default, the ``components`` keyword-argument field in the context sending
