@@ -3,11 +3,12 @@ from typing import ClassVar, List
 
 from colorama import Fore, Style, init
 
-__version__ = "4.0.2"
+__version__ = "4.1.0"
 __authors__ = {
     "current": [
-        {"name": "James Walston<@goverfl0w>", "status": "Lead Developer"},
-        {"name": "DeltaX<@DeltaXW>", "status": "Co-developer"},
+        {"name": "James Walston<@goverfl0w>", "status": "Project Maintainer"},
+        {"name": "DeltaX<@DeltaXWizard>", "status": "Project Lead"},
+        {"name": "EdVraz<@EdVraz>", "status": "Developer"},
     ],
     "old": [
         {"name": "Daniel Allen<@LordOfPolls>"},

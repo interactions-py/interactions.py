@@ -3,17 +3,16 @@ from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
 
 from .api.cache import Cache
-from .api.gateway import WebSocket
+from .api.gateway import WebSocketClient
 from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
-from .api.models.gw import Presence
 from .api.models.misc import MISSING, Snowflake
+from .api.models.presence import ClientPresence
 from .api.models.team import Application
 from .enums import ApplicationCommandType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
-from .models.misc import MISSING
 
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
@@ -21,10 +20,10 @@ _cache: Optional[Cache] = None
 class Client:
     _loop: AbstractEventLoop
     _http: HTTPClient
-    _websocket: WebSocket
+    _websocket: WebSocketClient
     _intents: Intents
     _shard: Optional[List[Tuple[int]]]
-    _presence: Optional[Presence]
+    _presence: Optional[ClientPresence]
     _token: str
     _scopes: set[List[Union[int, Snowflake]]]
     _automate_sync: bool
@@ -35,6 +34,8 @@ class Client:
         token: str,
         **kwargs,
     ) -> None: ...
+    @property
+    def latency(self) -> float: ...
     def start(self) -> None: ...
     def __register_events(self) -> None: ...
     async def __compare_sync(self, data: dict) -> None: ...
@@ -45,7 +46,14 @@ class Client:
     async def _synchronize(self, payload: Optional[dict] = None) -> None: ...
     async def _ready(self) -> None: ...
     async def _login(self) -> None: ...
+    async def wait_until_ready(self) -> None: ...
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]: ...
+    def __check_command(
+        self,
+        command: ApplicationCommand,
+        coro: Coroutine,
+        regex: str = r"^[a-z0-9_-]{1,32}$",
+    )-> None: ...
     def command(
         self,
         *,
@@ -107,11 +115,11 @@ def extension_command(
     default_permission: Optional[bool] = None,
 ): ...
 def extension_listener(name=None) -> Callable[..., Any]: ...
-def extension_component(component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
+def extension_component(component: Union[Button, SelectMenu, str]) -> Callable[..., Any]: ...
 def extension_autocomplete(
     name: str, command: Union[ApplicationCommand, int]
 ) -> Callable[..., Any]: ...
-def extension_modal(modal: Modal) -> Callable[..., Any]: ...
+def extension_modal(modal: Union[Modal, str]) -> Callable[..., Any]: ...
 def extension_message_command(
     *,
     name: Optional[str] = None,

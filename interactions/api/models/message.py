@@ -376,7 +376,7 @@ class Message(DictSerializerMixin):
         if self.flags == 64:
             raise Exception("You cannot edit a hidden message!")
 
-        from ...models.component import ActionRow, Button, SelectMenu
+        from ...models.component import _build_components
 
         _content: str = self.content if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -400,103 +400,8 @@ class Message(DictSerializerMixin):
             _components = []
         elif components is MISSING:
             _components = self.components
-        # TODO: Break this obfuscation pattern down to a "builder" method.
         else:
-            _components: list = [{"type": 1, "components": []}]
-            if isinstance(components, list) and all(
-                isinstance(action_row, ActionRow) for action_row in components
-            ):
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in action_row.components
-                        ],
-                    }
-                    for action_row in components
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(component, (Button, SelectMenu)) for component in components
-            ):
-                for component in components:
-                    if isinstance(component, SelectMenu):
-                        component._json["options"] = [
-                            options._json if not isinstance(options, dict) else options
-                            for options in component._json["options"]
-                        ]
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in components
-                        ],
-                    }
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(action_row, (list, ActionRow)) for action_row in components
-            ):
-                _components = []
-                for action_row in components:
-                    for component in (
-                        action_row if isinstance(action_row, list) else action_row.components
-                    ):
-                        if isinstance(component, SelectMenu):
-                            component._json["options"] = [
-                                option._json for option in component.options
-                            ]
-                    _components.append(
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in (
-                                    action_row
-                                    if isinstance(action_row, list)
-                                    else action_row.components
-                                )
-                            ],
-                        }
-                    )
-            elif isinstance(components, ActionRow):
-                _components[0]["components"] = [
-                    (
-                        component._json
-                        if component._json.get("custom_id") or component._json.get("url")
-                        else []
-                    )
-                    for component in components.components
-                ]
-            elif isinstance(components, Button):
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
-            elif isinstance(components, SelectMenu):
-                components._json["options"] = [
-                    options._json if not isinstance(options, dict) else options
-                    for options in components._json["options"]
-                ]
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
+            _components = _build_components(components=components)
 
         payload: Message = Message(
             content=_content,
@@ -552,7 +457,7 @@ class Message(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...models.component import ActionRow, Button, SelectMenu
+        from ...models.component import _build_components
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -570,102 +475,7 @@ class Message(DictSerializerMixin):
             _components = []
         # TODO: Break this obfuscation pattern down to a "builder" method.
         else:
-            _components: List[dict] = [{"type": 1, "components": []}]
-            if isinstance(components, list) and all(
-                isinstance(action_row, ActionRow) for action_row in components
-            ):
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in action_row.components
-                        ],
-                    }
-                    for action_row in components
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(component, (Button, SelectMenu)) for component in components
-            ):
-                for component in components:
-                    if isinstance(component, SelectMenu):
-                        component._json["options"] = [
-                            options._json if not isinstance(options, dict) else options
-                            for options in component._json["options"]
-                        ]
-                _components = [
-                    {
-                        "type": 1,
-                        "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
-                            for component in components
-                        ],
-                    }
-                ]
-            elif isinstance(components, list) and all(
-                isinstance(action_row, (list, ActionRow)) for action_row in components
-            ):
-                _components = []
-                for action_row in components:
-                    for component in (
-                        action_row if isinstance(action_row, list) else action_row.components
-                    ):
-                        if isinstance(component, SelectMenu):
-                            component._json["options"] = [
-                                option._json if not isinstance(option, dict) else option
-                                for option in component.options
-                            ]
-                    _components.append(
-                        {
-                            "type": 1,
-                            "components": [
-                                (
-                                    component._json
-                                    if component._json.get("custom_id")
-                                    or component._json.get("url")
-                                    else []
-                                )
-                                for component in (
-                                    action_row
-                                    if isinstance(action_row, list)
-                                    else action_row.components
-                                )
-                            ],
-                        }
-                    )
-            elif isinstance(components, ActionRow):
-                _components[0]["components"] = [
-                    (
-                        component._json
-                        if component._json.get("custom_id") or component._json.get("url")
-                        else []
-                    )
-                    for component in components.components
-                ]
-            elif isinstance(components, Button):
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
-            elif isinstance(components, SelectMenu):
-                components._json["options"] = [
-                    options._json if not isinstance(options, dict) else options
-                    for options in components._json["options"]
-                ]
-                _components[0]["components"] = (
-                    [components._json]
-                    if components._json.get("custom_id") or components._json.get("url")
-                    else []
-                )
+            _components = _build_components(components=components)
 
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
@@ -1112,8 +922,7 @@ class Embed(DictSerializerMixin):
             
         self.fields.append(EmbedField(name = name, value = value, inline = inline))
         self._json.update({"fields": [field._json for field in self.fields]})
-       
-        
+
     def clear_fields(self):
         """
         Clears all the fields of the embed
@@ -1138,11 +947,11 @@ class Embed(DictSerializerMixin):
         """
         
         try:
-            self.fields.insert(index, EmbedField(name = name, value = value, inline = inline))
-        
+            self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+
         except AttributeError:
-            self.fields  = ([EmbedField(name = name, value = value, inline = inline)])
-            
+            self.fields = [EmbedField(name=name, value=value, inline=inline)]
+
         self._json.update({"fields": [field._json for field in self.fields]})
 
  
@@ -1161,16 +970,15 @@ class Embed(DictSerializerMixin):
         """
         
         try:
-            self.fields[index] = EmbedField(name = name, value = value, inline = inline)
+            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
             self._json.update({"fields": [field._json for field in self.fields]})
-            
+
         except AttributeError:
             raise AttributeError("No fields found in Embed")
-        
+
         except IndexError:
             raise IndexError("No fields at this index")
-        
-                
+
     def remove_field(self, index):
         """
         Remove field at the specified index 
@@ -1182,14 +990,13 @@ class Embed(DictSerializerMixin):
         try:
             self.fields.pop(index)
             self._json.update({"fields": [field._json for field in self.fields]})
-            
+
         except AttributeError:
             raise AttributeError("No fields found in Embed")
-        
+
         except IndexError:
             raise IndexError("Field not Found at index")
-   
-        
+
     def remove_author(self):
         """
         Removes the embed's author

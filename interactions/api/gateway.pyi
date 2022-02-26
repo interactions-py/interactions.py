@@ -1,51 +1,80 @@
-from asyncio import AbstractEventLoop
-from threading import Event, Thread
-from typing import Any, List, Optional, Union
+from asyncio import (
+    AbstractEventLoop,
+    Event,
+    Task,
+)
+from logging import Logger
+from typing import Any, Dict, List, Optional, Tuple, Union, Iterable
 
+from aiohttp import ClientWebSocketResponse
+
+from ..models import Option
+from ..api.models.misc import MISSING
+from ..api.models.presence import ClientPresence
 from .dispatch import Listener
 from .http import HTTPClient
-from .models.gw import Presence
 from .models.flags import Intents
 
-class Heartbeat(Thread):
-    ws: Any
-    interval: Union[int, float]
-    event: Event
-    def __init__(self, ws: Any, interval: int) -> None: ...
-    def run(self) -> None: ...
-    def stop(self) -> None: ...
+log: Logger
+__all__: Iterable[str]
 
-class WebSocket:
-    intents: Intents
-    loop: AbstractEventLoop
-    dispatch: Listener
-    session: Any
-    session_id: Optional[int]
+class _Heartbeat:
+    event: Event
+    delay: float
+    def __init__(self, loop: AbstractEventLoop) -> None: ...
+
+class WebSocketClient:
+    _loop: AbstractEventLoop
+    _dispatch: Listener
+    _http: HTTPClient
+    _client: Optional[ClientWebSocketResponse]
+    _closed: bool
+    _options: dict
+    _intents: Intents
+    _ready: dict
+    __heartbeater: _Heartbeat
+    __shard: Optional[List[Tuple[int]]]
+    __presence: Optional[ClientPresence]
+    __task: Optional[Task]
+    session_id: Optional[str]
     sequence: Optional[int]
-    keep_alive: Optional[Heartbeat]
-    closed: bool
-    http: Optional[HTTPClient]
-    options: dict
+    _last_send: float
+    _last_ack: float
+    latency: float
+    ready: Event
+
     def __init__(
         self,
+        token: str,
         intents: Intents,
-        session_id: Optional[int] = None,
-        sequence: Optional[int] = None,
+        session_id: Optional[int] = MISSING,
+        sequence: Optional[int] = MISSING,
     ) -> None: ...
-    async def recv(self) -> Optional[Any]: ...
-    async def connect(
-        self, token: str, shard: Optional[List[int]] = None, presence: Optional[Presence] = None
+    async def _manage_heartbeat(self) -> None: ...
+    async def __restart(self): ...
+    async def _establish_connection(
+        self, shard: Optional[List[Tuple[int]]] = MISSING, presence: Optional[ClientPresence] = MISSING
     ) -> None: ...
-    async def handle_connection(
-        self, stream: dict, shard: Optional[List[int]] = None, presence: Optional[Presence] = None
+    async def _handle_connection(
+        self,
+        stream: Dict[str, Any],
+        shard: Optional[List[Tuple[int]]] = MISSING,
+        presence: Optional[ClientPresence] = MISSING,
     ) -> None: ...
-    def handle_dispatch(self, event: str, data: dict) -> None: ...
-    def contextualize(self, data: dict) -> object: ...
-    async def send(self, data: Union[str, dict]) -> None: ...
-    async def identify(
-        self, shard: Optional[List[int]] = None, presence: Optional[Presence] = None
+    async def wait_until_ready(self) -> None: ...
+    def _dispatch_event(self, event: str, data: dict) -> None: ...
+    def __contextualize(self, data: dict) -> object: ...
+    def __sub_command_context(self, data: Union[dict, Option]) -> Union[Tuple[str], dict]: ...
+    def __option_type_context(self, context: object, type: int) -> dict: ...
+    @property
+    async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]: ...
+    async def _send_packet(self, data: Dict[str, Any]) -> None: ...
+    async def __identify(
+        self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
     ) -> None: ...
-    async def resume(self) -> None: ...
-    async def heartbeat(self) -> None: ...
-    def check_sub_auto(self, option) -> tuple: ...
-    def check_sub_command(self, option) -> dict: ...
+    async def __resume(self) -> None: ...
+    async def __heartbeat(self) -> None: ...
+    @property
+    def shard(self) -> None: ...
+    @property
+    def presence(self) -> None: ...
