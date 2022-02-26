@@ -48,7 +48,7 @@ class VersionAuthor:
         self._co_author = shared
         self.active = active
         self.email = email
-        self._hash = md5(self.__str__())
+        self._hash = md5(self.__str__().encode())
 
     def __hash__(self):
         return self._hash
