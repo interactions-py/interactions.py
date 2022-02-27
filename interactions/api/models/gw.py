@@ -389,7 +389,16 @@ class MessageReaction(DictSerializerMixin):
     :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
-    __slots__ = ("_json", "user_id", "channel_id", "message_id", "guild_id", "member", "emoji")
+    __slots__ = (
+        "_json",
+        "_client",
+        "user_id",
+        "channel_id",
+        "message_id",
+        "guild_id",
+        "member",
+        "emoji",
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -416,7 +425,7 @@ class ReactionRemove(MessageReaction):
     :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
-    __slots__ = ("_json", "user_id", "channel_id", "message_id", "guild_id", "emoji")
+    __slots__ = ("_json", "_client", "user_id", "channel_id", "message_id", "guild_id", "emoji")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

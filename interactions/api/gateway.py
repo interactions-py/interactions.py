@@ -165,11 +165,8 @@ class WebSocketClient:
         if self.__task:
             self.__task: Task
             self.__task.cancel()
-        await self._client.close()
+        self._client = None  # clear pending waits
         self.__heartbeater.event.clear()
-        self._closed = False
-        self._client = None
-        self.__heartbeater.delay = 0.0
         await self._establish_connection()
 
     async def _establish_connection(
@@ -185,21 +182,29 @@ class WebSocketClient:
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[ClientPresence]
         """
+        self._client = None
+        self.__heartbeater.delay = 0.0
+        self._closed = False
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
         url = await self._http.get_gateway()
 
         async with self._http._req._session.ws_connect(url, **self._options) as self._client:
             self._closed = self._client.closed
 
+            if self._closed:
+                await self._establish_connection()
+
             while not self._closed:
                 stream = await self.__receive_packet_stream
 
                 if stream is None:
                     continue
+                if self._client is None:
+                    await self._establish_connection()
+                    break
+
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
                     raise GatewayException(self._client.close_code)
-                elif self._closed:  # Redundant conditional.
-                    await self._establish_connection()
 
                 await self._handle_connection(stream, shard, presence)
 
@@ -229,6 +234,10 @@ class WebSocketClient:
             if op == OpCodeType.HELLO:
                 self.__heartbeater.delay = data["heartbeat_interval"]
                 self.__heartbeater.event.set()
+
+                if self.__task:
+                    self.__task.cancel()  # so we can reduce redundant heartbeat bg tasks.
+
                 self.__task = ensure_future(self._manage_heartbeat())
 
                 if not self.session_id:
@@ -245,12 +254,17 @@ class WebSocketClient:
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
 
-                if data and op != OpCodeType.RECONNECT:
+                # if data and op != OpCodeType.RECONNECT:
+                #    self.session_id = None
+                #    self.sequence = None
+                # self._closed = True
+
+                if bool(data) is False and op == OpCodeType.INVALIDATE_SESSION:
                     self.session_id = None
-                    self.sequence = None
-                    self._closed = True
 
                 await self.__restart()
+        elif event == "RESUMED":
+            log.debug(f"RESUMED (session_id: {self.session_id}, seq: {self.sequence})")
         elif event == "READY":
             self._ready = data
             self.session_id = data["session_id"]
@@ -310,17 +324,23 @@ class WebSocketClient:
 
                         if _context.data._json.get("options"):
                             for option in _context.data.options:
-                                __kwargs.update(self.__sub_command_context(option))
-                                __kwargs.update(
-                                    self.__option_type_context(
-                                        _context,
-                                        (
-                                            option["type"]
-                                            if isinstance(option, dict)
-                                            else option.type.value
-                                        ),
-                                    )
+                                _type = self.__option_type_context(
+                                    _context,
+                                    (
+                                        option["type"]
+                                        if isinstance(option, dict)
+                                        else option.type.value
+                                    ),
                                 )
+                                if _type:
+                                    if isinstance(option, dict):
+                                        _type[option["value"]]._client = self._http
+                                        option.update({"value": _type[option["value"]]})
+                                    else:
+                                        _type[option.value]._client = self._http
+                                        option._json.update({"value": _type[option.value]})
+                                _option = self.__sub_command_context(option, _context)
+                                __kwargs.update(_option)
 
                         self._dispatch.dispatch("on_command", _context)
                     elif data["type"] == InteractionType.MESSAGE_COMPONENT:
@@ -335,7 +355,7 @@ class WebSocketClient:
 
                         if _context.data._json.get("options"):
                             for option in _context.data.options:
-                                __name, _value = self.__sub_command_context(option)
+                                __name, _value = self.__sub_command_context(option, _context)
                                 _name += f"_{__name}" if __name else ""
 
                                 if _value:
@@ -388,15 +408,20 @@ class WebSocketClient:
 
             data["client"] = self._http
             context: object = getattr(__import__("interactions.context"), _context)
+
             return context(**data)
 
-    def __sub_command_context(self, data: Union[dict, Option]) -> Union[Tuple[str], dict]:
+    def __sub_command_context(
+        self, data: Union[dict, Option], context: object
+    ) -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
         needed for argument collection.
 
         :param data: The data structure of the option.
         :type data: Union[dict, Option]
+        :param context: The context to refer subcommands from.
+        :type context: object
         :return: A dictionary of the collected options, if any.
         :rtype: Union[Tuple[str], dict]
         """
@@ -404,23 +429,71 @@ class WebSocketClient:
         _data: dict = data._json if isinstance(data, Option) else data
 
         def _check_auto(option: dict) -> Optional[Tuple[str]]:
-            if option.get("focused"):
-                return (option["name"], option["value"])
+            return (option["name"], option["value"]) if option.get("focused") else None
 
-        x = _check_auto(_data)
-        if x:
-            return x
+        check = _check_auto(_data)
+
+        if check:
+            return check
         if _data.get("options"):
-            for option in _data["options"]:
-                if option["type"] == OptionType.SUB_COMMAND:
-                    for sub_option in _data["options"]:
-                        _check_auto(sub_option)
+            if _data["type"] == OptionType.SUB_COMMAND:
+                __kwargs["sub_command"] = _data["name"]
+
+                for sub_option in _data["options"]:
+                    _check = _check_auto(sub_option)
+                    _type = self.__option_type_context(
+                        context,
+                        (
+                            sub_option["type"]
+                            if isinstance(sub_option, dict)
+                            else sub_option.type.value
+                        ),
+                    )
+
+                    if _type:
+                        if isinstance(sub_option, dict):
+                            _type[sub_option["value"]]._client = self._http
+                            sub_option.update({"value": _type[sub_option["value"]]})
+                        else:
+                            _type[sub_option.value]._client = self._http
+                            sub_option._json.update({"value": _type[sub_option.value]})
+                    if _check:
+                        return _check
+
+                    __kwargs[sub_option["name"]] = sub_option["value"]
+            elif _data["type"] == OptionType.SUB_COMMAND_GROUP:
+                __kwargs["sub_command_group"] = _data["name"]
+                for _group_option in _data["options"]:
+                    _check_auto(_group_option)
+                    __kwargs["sub_command"] = _group_option["name"]
+
+                    for sub_option in _group_option["options"]:
+                        _check = _check_auto(sub_option)
+                        _type = self.__option_type_context(
+                            context,
+                            (
+                                sub_option["type"]
+                                if isinstance(sub_option, dict)
+                                else sub_option.type.value
+                            ),
+                        )
+
+                        if _type:
+                            if isinstance(sub_option, dict):
+                                _type[sub_option["value"]]._client = self._http
+                                sub_option.update({"value": _type[sub_option["value"]]})
+                            else:
+                                _type[sub_option.value]._client = self._http
+                                sub_option._json.update({"value": _type[sub_option.value]})
+                        if _check:
+                            return _check
+
                         __kwargs[sub_option["name"]] = sub_option["value"]
-                else:
-                    for group in _data["options"]:
-                        for _group_option in group:
-                            _check_auto(_group_option)
-                            __kwargs[_group_option["name"]] = _group_option["value"]
+
+        elif _data.get("type") and _data["type"] == OptionType.SUB_COMMAND:
+            # sub_command_groups must have options so there is no extra check needed for those
+            __kwargs["sub_command"] = _data["name"]
+
         elif _data.get("value") and _data.get("name"):
             __kwargs[_data["name"]] = _data["value"]
 
@@ -460,6 +533,9 @@ class WebSocketClient:
             }
         return _resolved
 
+    async def restart(self):
+        await self.__restart()
+
     @property
     async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]:
         """
@@ -468,6 +544,7 @@ class WebSocketClient:
         :return: The packet stream.
         :rtype: Optional[Dict[str, Any]]
         """
+
         packet: WSMessage = await self._client.receive()
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
