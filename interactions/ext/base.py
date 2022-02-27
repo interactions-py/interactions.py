@@ -28,6 +28,7 @@ class Base:
         "version",
         "name",
         "description",
+        "long_description",
         "link",
     )
 
