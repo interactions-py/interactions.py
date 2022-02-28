@@ -105,6 +105,7 @@ class Attachment(DictSerializerMixin):
     """
 
     __slots__ = (
+        "_client",
         "_json",
         "id",
         "filename",
@@ -383,17 +384,12 @@ class Message(DictSerializerMixin):
         # _file = None if file is None else file
 
         if embeds is MISSING:
-            _embeds = self.embeds
-        else:
-            _embeds: list = (
-                []
-                if not embeds
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
-            )
+            embeds = self.embeds
+        _embeds: list = (
+            []
+            if not embeds
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
@@ -413,12 +409,13 @@ class Message(DictSerializerMixin):
             components=_components,
         )
 
-        await self._client.edit_message(
+        _dct = await self._client.edit_message(
             channel_id=int(self.channel_id),
             message_id=int(self.id),
             payload=payload._json,
         )
-        return payload
+
+        return Message(**_dct) if not _dct.get("code") else payload
 
     async def reply(
         self,
@@ -916,26 +913,26 @@ class Embed(DictSerializerMixin):
         :param inline?: if the field is in the same line as the previous one
         :type inline?: Optional[bool]
         """
-        
 
-        if self.fields is None: self.fields = []
-            
-        self.fields.append(EmbedField(name = name, value = value, inline = inline))
+        if self.fields is None:
+            self.fields = []
+
+        self.fields.append(EmbedField(name=name, value=value, inline=inline))
         self._json.update({"fields": [field._json for field in self.fields]})
 
     def clear_fields(self) -> None:
         """
         Clears all the fields of the embed
         """
-        
+
         self.fields = []
         self._json.update({"fields": []})
   
         
     def insert_field_at(self, index: int,  name: str = None, value: str = None, inline: Optional[bool] = False) -> None:
         """
-        Inserts a field in the embed at the specified index 
-        
+        Inserts a field in the embed at the specified index
+
         :param index: The new field's index
         :type index: int
         :param name: The name of the field
@@ -945,7 +942,7 @@ class Embed(DictSerializerMixin):
         :param inline?: if the field is in the same line as the previous one
         :type inline?: Optional[bool]
         """
-        
+
         try:
             self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
 
@@ -957,8 +954,8 @@ class Embed(DictSerializerMixin):
  
     def set_field_at(self, index: int, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
-        Overwrites the field in the embed at the specified index 
-        
+        Overwrites the field in the embed at the specified index
+
         :param index: The new field's index
         :type index: int
         :param name: The name of the field
@@ -968,7 +965,7 @@ class Embed(DictSerializerMixin):
         :param inline?: if the field is in the same line as the previous one
         :type inline?: Optional[bool]
         """
-        
+
         try:
             self.fields[index] = EmbedField(name=name, value=value, inline=inline)
             self._json.update({"fields": [field._json for field in self.fields]})
@@ -981,12 +978,12 @@ class Embed(DictSerializerMixin):
 
     def remove_field(self, index) -> None:
         """
-        Remove field at the specified index 
-        
+        Remove field at the specified index
+
         :param index: The new field's index
         :type index: int
         """
-        
+
         try:
             self.fields.pop(index)
             self._json.update({"fields": [field._json for field in self.fields]})
@@ -1001,7 +998,7 @@ class Embed(DictSerializerMixin):
         """
         Removes the embed's author
         """
-        
+
         try:
             del self.author
             self._json.update({"author": None})
@@ -1012,7 +1009,7 @@ class Embed(DictSerializerMixin):
     def set_author(self, name: str, url: Optional[str] = None, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None:
         """
         Sets the embed's author
-        
+
         :param name: The name of the author
         :type name: str
         :param url?: Url of author
@@ -1022,14 +1019,16 @@ class Embed(DictSerializerMixin):
         :param proxy_icon_url?: A proxied url of author icon
         :type proxy_icon_url?: Optional[str]
         """
-        
-        self.author = EmbedAuthor(name = name, url = url, icon_url = icon_url, proxy_icon_url = proxy_icon_url)
+
+        self.author = EmbedAuthor(
+            name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
+        )
         self._json.update({"author": self.author._json})
         
     def set_footer(self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None:
         """
         Sets the embed's footer
-        
+
         :param text: The text of the footer
         :type text: str
         :param icon_url?: Url of footer icon (only supports http(s) and attachments)
@@ -1037,14 +1036,14 @@ class Embed(DictSerializerMixin):
         :param proxy_icon_url?: A proxied url of footer icon
         :type proxy_icon_url?: Optional[str]
         """
-        
-        self.footer = EmbedFooter(text = text, icon_url = icon_url, proxy_icon_url = proxy_icon_url )
+
+        self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
         self._json.update({"footer": self.footer._json})
 
     def set_image(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None:
         """
         Sets the embed's image
-        
+
         :param url: Url of the image
         :type url: str
         :param proxy_url?: A proxied url of the image
@@ -1054,14 +1053,14 @@ class Embed(DictSerializerMixin):
         :param width?: The image's width
         :type width?: Optional[int]
         """
-        
-        self.image = EmbedImageStruct(url = url, proxy_url = proxy_url, height = height, width = width)
+
+        self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
         self._json.update({"image": self.image._json})
                   
     def set_thumbnail(self, url: str, proxy_url: Optional[str] = None, height: int = None, width: Optional[str] = None) -> None:
         """
         Sets the embed's thumbnail
-        
+
         :param url: Url of the thumbnail
         :type url: str
         :param proxy_url?: A proxied url of the thumbnail
