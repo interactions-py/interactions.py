@@ -902,8 +902,7 @@ class Embed(DictSerializerMixin):
         if self.footer:
             self._json.update({"footer": self.footer._json})
 
-            
-    def add_field(self, name: str, value: str,inline: Optional[bool] = False) -> None:
+    def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
         Adds a field to the embed
 
@@ -928,9 +927,10 @@ class Embed(DictSerializerMixin):
 
         self.fields = []
         self._json.update({"fields": []})
-  
-        
-    def insert_field_at(self, index: int,  name: str = None, value: str = None, inline: Optional[bool] = False) -> None:
+
+    def insert_field_at(
+        self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
+    ) -> None:
         """
         Inserts a field in the embed at the specified index
 
@@ -952,8 +952,9 @@ class Embed(DictSerializerMixin):
 
         self._json.update({"fields": [field._json for field in self.fields]})
 
- 
-    def set_field_at(self, index: int, name: str, value: str, inline: Optional[bool] = False) -> None:
+    def set_field_at(
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
+    ) -> None:
         """
         Overwrites the field in the embed at the specified index
 
@@ -1005,9 +1006,14 @@ class Embed(DictSerializerMixin):
             self._json.update({"author": None})
         except AttributeError:
             pass
-     
-        
-    def set_author(self, name: str, url: Optional[str] = None, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None:
+
+    def set_author(
+        self,
+        name: str,
+        url: Optional[str] = None,
+        icon_url: Optional[str] = None,
+        proxy_icon_url: Optional[str] = None,
+    ) -> None:
         """
         Sets the embed's author
 
@@ -1025,8 +1031,10 @@ class Embed(DictSerializerMixin):
             name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
         )
         self._json.update({"author": self.author._json})
-        
-    def set_footer(self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None:
+
+    def set_footer(
+        self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
+    ) -> None:
         """
         Sets the embed's footer
 
@@ -1036,12 +1044,18 @@ class Embed(DictSerializerMixin):
         :type icon_url?: Optional[str]
         :param proxy_icon_url?: A proxied url of footer icon
         :type proxy_icon_url?: Optional[str]
-        """ 
+        """
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
         self._json.update({"footer": self.footer._json})
 
-    def set_image(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None:
+    def set_image(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None:
         """
         Sets the embed's image
 
@@ -1057,8 +1071,14 @@ class Embed(DictSerializerMixin):
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
         self._json.update({"image": self.image._json})
-                  
-    def set_thumbnail(self, url: str, proxy_url: Optional[str] = None, height: int = None, width: Optional[str] = None) -> None:
+
+    def set_thumbnail(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: int = None,
+        width: Optional[str] = None,
+    ) -> None:
         """
         Sets the embed's thumbnail
 
@@ -1071,7 +1091,6 @@ class Embed(DictSerializerMixin):
         :param width?: The thumbnail's width
         :type width?: Optional[int]
         """
-        
-        self.thumbnail = EmbedImageStruct(url = url, proxy_url = proxy_url, height = height, width = width)
+
+        self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
         self._json.update({"thumbnail": self.thumbnail._json})
-        
