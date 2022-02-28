@@ -902,6 +902,7 @@ class Embed(DictSerializerMixin):
         if self.footer:
             self._json.update({"footer": self.footer._json})
 
+            
     def add_field(self, name: str, value: str,inline: Optional[bool] = False) -> None:
         """
         Adds a field to the embed
