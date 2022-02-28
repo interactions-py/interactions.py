@@ -1035,7 +1035,7 @@ class Embed(DictSerializerMixin):
         :type icon_url?: Optional[str]
         :param proxy_icon_url?: A proxied url of footer icon
         :type proxy_icon_url?: Optional[str]
-        """
+        """ 
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
         self._json.update({"footer": self.footer._json})
