@@ -453,13 +453,13 @@ class CommandContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = msg = Message(**res, _client=self.client)
             else:
-                await self.client._post_followup(
+                res = await self.client._post_followup(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
+            self.message = msg = Message(**res, _client=self.client)
         else:
             await self.client.create_interaction_response(
                 token=self.token,
@@ -633,13 +633,14 @@ class ComponentContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = msg = Message(**res, _client=self.client)
             else:
-                await self.client._post_followup(
+                res = await self.client._post_followup(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
+            self.message = msg = Message(**res, _client=self.client)
+
         else:
             await self.client.create_interaction_response(
                 token=self.token,

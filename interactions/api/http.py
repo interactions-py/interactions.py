@@ -2301,7 +2301,7 @@ class HTTPClient:
             webhook_id=int(application_id), webhook_token=token, message_id=message_id
         )
 
-    async def _post_followup(self, data: dict, token: str, application_id: str) -> None:
+    async def _post_followup(self, data: dict, token: str, application_id: str) -> dict:
         """
         Send a followup to an interaction.
 
