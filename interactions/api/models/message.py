@@ -976,7 +976,7 @@ class Embed(DictSerializerMixin):
         except IndexError:
             raise IndexError("No fields at this index")
 
-    def remove_field(self, index) -> None:
+    def remove_field(self, index: int) -> None:
         """
         Remove field at the specified index
 
