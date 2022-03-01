@@ -499,7 +499,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.create_guild_role(
             guild_id=int(self.id),
             reason=reason,
-            data=payload._json,
+            payload=payload._json,
         )
         return Role(**res, _client=self._client)
 
@@ -605,7 +605,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.modify_guild_role(
             guild_id=int(self.id),
             role_id=role_id,
-            data=payload._json,
+            payload=payload._json,
             reason=reason,
         )
         return Role(**res, _client=self._client)
@@ -822,7 +822,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.modify_channel(
             channel_id=channel_id,
             reason=reason,
-            data=payload._json,
+            payload=payload._json,
         )
         return Channel(**res, _client=self._client)
 

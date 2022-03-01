@@ -16,22 +16,7 @@ from interactions.base import __version__, get_logger
 
 from ..api.cache import Cache, Item
 from ..api.error import HTTPException
-from ..api.models import (
-    Channel,
-    Embed,
-    Emoji,
-    Guild,
-    GuildPreview,
-    GuildTemplate,
-    Invite,
-    Member,
-    Message,
-    Role,
-    Snowflake,
-    StageInstance,
-    User,
-    WelcomeScreen,
-)
+from ..api.models import Channel, Embed, Emoji, Guild, Member, Message, Role, Snowflake, User
 
 log: Logger = get_logger("http")
 
@@ -436,7 +421,7 @@ class HTTPClient:
         """
         return await self._req.request(Route("PATCH", "/users/@me"), json=payload)
 
-    async def modify_self_nick_in_guild(self, guild_id: int, nickname: Optional[str]):
+    async def modify_self_nick_in_guild(self, guild_id: int, nickname: Optional[str]) -> dict:
         """
         Changes a nickname of the current bot user in a guild.
 
@@ -476,7 +461,7 @@ class HTTPClient:
         nonce: Union[int, str] = None,
         allowed_mentions=None,  # don't know type
         message_reference: Optional[Message] = None,
-    ):
+    ) -> dict:
         """
         A higher level implementation of :meth:`create_message()` that handles the payload dict internally.
         Does not integrate components into the function, and is a port from v3.0.0
@@ -623,7 +608,7 @@ class HTTPClient:
 
     # Guild endpoint
 
-    async def get_self_guilds(self) -> list:
+    async def get_self_guilds(self) -> List[dict]:
         """
         Gets all guild objects associated with the current bot user.
 
@@ -637,7 +622,7 @@ class HTTPClient:
 
         return request
 
-    async def get_guild(self, guild_id: int):
+    async def get_guild(self, guild_id: int) -> Optional[dict]:
         """
         Requests an individual guild from the API.
 
@@ -649,7 +634,7 @@ class HTTPClient:
 
         return request
 
-    async def get_guild_preview(self, guild_id: int) -> GuildPreview:
+    async def get_guild_preview(self, guild_id: int) -> dict:
         """
         Get a guild's preview.
 
@@ -736,7 +721,7 @@ class HTTPClient:
         """
         return await self._req.request(Route("PATCH", f"/guilds/{guild_id}/widget"), json=payload)
 
-    async def get_guild_invites(self, guild_id: int) -> List[Invite]:
+    async def get_guild_invites(self, guild_id: int) -> List[dict]:
         """
         Retrieves a list of invite objects with their own metadata.
 
@@ -745,7 +730,7 @@ class HTTPClient:
         """
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/invites"))
 
-    async def get_guild_welcome_screen(self, guild_id: int) -> WelcomeScreen:
+    async def get_guild_welcome_screen(self, guild_id: int) -> dict:
         """
         Retrieves from the API a welcome screen associated with the guild.
 
@@ -756,7 +741,7 @@ class HTTPClient:
 
     async def modify_guild_welcome_screen(
         self, guild_id: int, enabled: bool, welcome_channels: List[int], description: str
-    ) -> WelcomeScreen:
+    ) -> dict:
         """
         Modify the guild's welcome screen.
 
@@ -816,7 +801,7 @@ class HTTPClient:
         channel_id: int,
         suppress: Optional[bool] = None,
         request_to_speak_timestamp: Optional[str] = None,
-    ) -> None:
+    ) -> dict:
         """
         Update the current user voice state.
 
@@ -840,7 +825,7 @@ class HTTPClient:
 
     async def modify_user_voice_state(
         self, guild_id: int, user_id: int, channel_id: int, suppress: Optional[bool] = None
-    ) -> None:
+    ) -> dict:
         """
         Modify the voice state of a user.
 
@@ -860,7 +845,7 @@ class HTTPClient:
 
     async def create_guild_from_guild_template(
         self, template_code: str, name: str, icon: Optional[str] = None
-    ) -> Guild:
+    ) -> dict:
         """
         Create a new guild based on a template.
 
@@ -881,7 +866,7 @@ class HTTPClient:
             Route("POST", f"/guilds/templates/{template_code}", json=payload)
         )
 
-    async def get_guild_templates(self, guild_id: int) -> List[GuildTemplate]:
+    async def get_guild_templates(self, guild_id: int) -> List[dict]:
         """
         Returns an array of guild templates.
 
@@ -892,7 +877,7 @@ class HTTPClient:
 
     async def create_guild_template(
         self, guild_id: int, name: str, description: Optional[str] = None
-    ) -> GuildTemplate:
+    ) -> dict:
         """
         Create a guild template for the guild.
 
@@ -908,7 +893,7 @@ class HTTPClient:
             },
         )
 
-    async def sync_guild_template(self, guild_id: int, template_code: str) -> GuildTemplate:
+    async def sync_guild_template(self, guild_id: int, template_code: str) -> dict:
         """
         Sync the template to the guild's current state.
 
@@ -926,7 +911,7 @@ class HTTPClient:
         template_code: str,
         name: Optional[str] = None,
         description: Optional[str] = None,
-    ) -> GuildTemplate:
+    ) -> dict:
         """
         Modify a guild template.
 
@@ -943,7 +928,7 @@ class HTTPClient:
             },
         )
 
-    async def delete_guild_template(self, guild_id: int, template_code: str) -> GuildTemplate:
+    async def delete_guild_template(self, guild_id: int, template_code: str) -> dict:
         """
         Delete the guild template.
 
@@ -991,18 +976,18 @@ class HTTPClient:
         return request
 
     async def create_guild_role(
-        self, guild_id: int, data: dict, reason: Optional[str] = None
-    ) -> Role:
+        self, guild_id: int, payload: dict, reason: Optional[str] = None
+    ) -> dict:
         """
         Create a new role for the guild.
 
         :param guild_id: Guild ID snowflake.
-        :param data: A dict containing metadata for the role.
+        :param payload: A dict containing metadata for the role.
         :param reason: The reason for this action, if given.
         :return: Role object
         """
         request = await self._req.request(
-            Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
+            Route("POST", f"/guilds/{guild_id}/roles"), json=payload, reason=reason
         )
         if request.get("id"):
             self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
@@ -1011,7 +996,7 @@ class HTTPClient:
 
     async def modify_guild_role_position(
         self, guild_id: int, role_id: int, position: int, reason: Optional[str] = None
-    ) -> List[Role]:
+    ) -> List[dict]:
         """
         Modify the position of a role in the guild.
 
@@ -1028,19 +1013,19 @@ class HTTPClient:
         )
 
     async def modify_guild_role(
-        self, guild_id: int, role_id: int, data: dict, reason: Optional[str] = None
-    ) -> Role:
+        self, guild_id: int, role_id: int, payload: dict, reason: Optional[str] = None
+    ) -> dict:
         """
         Modify a given role for the guild.
 
         :param guild_id: Guild ID snowflake.
         :param role_id: Role ID snowflake.
-        :param data: A dict containing updated metadata for the role.
+        :param payload: A dict containing updated metadata for the role.
         :param reason: The reason for this action, if given.
         :return: Updated role object.
         """
         return await self._req.request(
-            Route("PATCH", f"/guilds/{guild_id}/roles/{role_id}"), json=data, reason=reason
+            Route("PATCH", f"/guilds/{guild_id}/roles/{role_id}"), json=payload, reason=reason
         )
 
     async def delete_guild_role(self, guild_id: int, role_id: int, reason: str = None) -> None:
@@ -1236,7 +1221,7 @@ class HTTPClient:
 
     # Guild (Member) endpoint
 
-    async def get_member(self, guild_id: int, member_id: int) -> Optional[Member]:
+    async def get_member(self, guild_id: int, member_id: int) -> Optional[dict]:
         """
         Uses the API to fetch a member from a guild.
 
@@ -1255,7 +1240,7 @@ class HTTPClient:
 
     async def get_list_of_members(
         self, guild_id: int, limit: int = 1, after: Optional[int] = None
-    ) -> List[Member]:
+    ) -> List[dict]:
         """
         Lists the members of a guild.
 
@@ -1270,7 +1255,7 @@ class HTTPClient:
 
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/members"), params=payload)
 
-    async def search_guild_members(self, guild_id: int, query: str, limit: int = 1) -> List[Member]:
+    async def search_guild_members(self, guild_id: int, query: str, limit: int = 1) -> List[dict]:
         """
         Search a guild for members whose username or nickname starts with provided string.
 
@@ -1330,7 +1315,7 @@ class HTTPClient:
 
     async def modify_member(
         self, user_id: int, guild_id: int, payload: dict, reason: Optional[str] = None
-    ):
+    ) -> dict:
         """
         Edits a member.
         This can nick them, change their roles, mute/deafen (and its contrary), and moving them across channels and/or disconnect them.
@@ -1381,7 +1366,7 @@ class HTTPClient:
         around: Optional[int] = None,
         before: Optional[int] = None,
         after: Optional[int] = None,
-    ) -> List[Message]:
+    ) -> List[dict]:
         """
         Get messages from a channel.
 
@@ -1454,7 +1439,7 @@ class HTTPClient:
         parent_id: Optional[int],
         lock_perms: bool = False,
         reason: Optional[str] = None,
-    ):
+    ) -> dict:
         """
         Moves a channel to a new position.
 
@@ -1475,21 +1460,21 @@ class HTTPClient:
         )
 
     async def modify_channel(
-        self, channel_id: int, data: dict, reason: Optional[str] = None
-    ) -> Channel:
+        self, channel_id: int, payload: dict, reason: Optional[str] = None
+    ) -> dict:
         """
         Update a channel's settings.
 
         :param channel_id: Channel ID snowflake.
-        :param data: Data representing updated settings.
+        :param payload: Data representing updated settings.
         :param reason: Reason, if any.
         :return: Channel with updated attributes, if successful.
         """
         return await self._req.request(
-            Route("PATCH", f"/channels/{channel_id}"), json=data, reason=reason
+            Route("PATCH", f"/channels/{channel_id}"), json=payload, reason=reason
         )
 
-    async def get_channel_invites(self, channel_id: int) -> List[Invite]:
+    async def get_channel_invites(self, channel_id: int) -> List[dict]:
         """
         Get the invites for the channel.
 
@@ -1499,8 +1484,8 @@ class HTTPClient:
         return await self._req.request(Route("GET", f"/channels/{channel_id}/invites"))
 
     async def create_channel_invite(
-        self, channel_id: int, data: dict, reason: Optional[str] = None
-    ) -> Invite:
+        self, channel_id: int, payload: dict, reason: Optional[str] = None
+    ) -> dict:
         """
         Creates an invite for the given channel.
 
@@ -1513,7 +1498,7 @@ class HTTPClient:
         :return: An invite object.
         """
         return await self._req.request(
-            Route("POST", f"/channels/{channel_id}/invites"), json=data, reason=reason
+            Route("POST", f"/channels/{channel_id}/invites"), json=payload, reason=reason
         )
 
     async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
@@ -1576,7 +1561,7 @@ class HTTPClient:
         """
         return await self._req.request(Route("POST", f"/channels/{channel_id}/typing"))
 
-    async def get_pinned_messages(self, channel_id: int) -> List[Message]:
+    async def get_pinned_messages(self, channel_id: int) -> List[dict]:
         """
         Get all pinned messages from a channel.
 
@@ -1587,7 +1572,7 @@ class HTTPClient:
 
     async def create_stage_instance(
         self, channel_id: int, topic: str, privacy_level: int = 1, reason: Optional[str] = None
-    ) -> StageInstance:
+    ) -> dict:
         """
         Create a new stage instance.
 
@@ -1607,7 +1592,7 @@ class HTTPClient:
             reason=reason,
         )
 
-    async def get_stage_instance(self, channel_id: int) -> StageInstance:
+    async def get_stage_instance(self, channel_id: int) -> dict:
         """
         Get the stage instance associated with a given channel, if it exists.
 
@@ -1622,7 +1607,7 @@ class HTTPClient:
         topic: Optional[str] = None,
         privacy_level: Optional[int] = None,
         reason: Optional[str] = None,
-    ) -> StageInstance:
+    ) -> dict:
         """
         Update the fields of a given stage instance.
 
@@ -1928,7 +1913,7 @@ class HTTPClient:
 
     async def get_reactions_of_emoji(
         self, channel_id: int, message_id: int, emoji: str
-    ) -> List[User]:
+    ) -> List[dict]:
         """
         Gets the users who reacted to the emoji.
 
@@ -1958,7 +1943,7 @@ class HTTPClient:
         """
         return await self._req.request(Route("GET", f"/stickers/{sticker_id}"))
 
-    async def list_nitro_sticker_packs(self) -> list:
+    async def list_nitro_sticker_packs(self) -> List[dict]:
         """
         Gets the list of sticker packs available to Nitro subscribers.
 
@@ -1987,7 +1972,7 @@ class HTTPClient:
 
     async def create_guild_sticker(
         self, payload: FormData, guild_id: int, reason: Optional[str] = None
-    ):
+    ) -> dict:
         """
         Create a new sticker for the guild. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
 
@@ -2002,7 +1987,7 @@ class HTTPClient:
 
     async def modify_guild_sticker(
         self, payload: dict, guild_id: int, sticker_id: int, reason: Optional[str] = None
-    ):
+    ) -> dict:
         """
         Modify the given sticker. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
 
