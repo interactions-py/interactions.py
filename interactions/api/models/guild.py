@@ -1615,11 +1615,7 @@ class Invite(DictSerializerMixin):
             if self._json.get("expires_at")
             else None
         )
-        self.inviter = (
-            User(**self._json.get("inviter"))
-            if self._json.get("inviter")
-            else None
-        )
+        self.inviter = User(**self._json.get("inviter")) if self._json.get("inviter") else None
         self.channel_id = int(self.channel_id)
         self.guild_id = int(self.guild_id)
 
