@@ -870,6 +870,85 @@ class Channel(DictSerializerMixin):
     def url(self) -> str:
         return f"https://discord.com/channels/{self.guild_id}/{self.id}" if self.guild_id else None
 
+    async def create_invite(
+        self,
+        max_age: Optional[int] = 86400,
+        max_uses: Optional[int] = 0,
+        temporary: Optional[bool] = False,
+        unique: Optional[bool] = False,
+        target_type: Optional["InviteTargetType"] = MISSING,  # noqa
+        target_user_id: Optional[int] = MISSING,
+        target_application_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Invite":  # noqa
+        """
+        Creates an invite for the channel
+
+        :param max_age?: Duration of invite in seconds before expiry, or 0 for never. between 0 and 604800 (7 days). Default 86400 (24h)
+        :type max_age: Optional[int]
+        :param max_uses?: Max number of uses or 0 for unlimited. between 0 and 100. Default 0
+        :type max_uses: Optional[int]
+        :param temporary?: Whether this invite only grants temporary membership. Default False
+        :type temporary: Optional[bool]
+        :param unique?: If true, don't try to reuse a similar invite (useful for creating many unique one time use invites). Default False
+        :type unique: Optional[bool]
+        :param target_type?: The type of target for this voice channel invite
+        :type target_type: Optional["InviteTargetType"]
+        :param target_user_id?: The id of the user whose stream to display for this invite, required if target_type is STREAM, the user must be streaming in the channel
+        :type target_user_id: Optional[int]
+        :param target_application_id?: The id of the embedded application to open for this invite, required if target_type is EMBEDDED_APPLICATION, the application must have the EMBEDDED flag
+        :type target_application_id: Optional[int]
+        :param reason?: The reason for the creation of the invite
+        :type reason: Optional[str]
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        payload = {
+            "max_age": max_age,
+            "max_uses": max_uses,
+            "temporary": temporary,
+            "unique": unique,
+        }
+
+        if (target_user_id is not MISSING and target_user_id) and (
+            target_application_id is not MISSING and target_application_id
+        ):
+            raise ValueError(
+                "target user id and target application are mutually exclusive!"
+            )  # TODO: move to custom error formatter
+
+        elif (
+            (target_user_id is not MISSING and target_user_id)
+            or (target_application_id is not MISSING and target_application_id)
+        ) and not target_type:
+            raise ValueError(
+                "you have to specify a target_type if you specify target_user-/target_application_id"
+            )
+
+        if target_user_id is not MISSING:
+            payload["target_type"] = (
+                target_type if isinstance(target_type, int) else target_type.value
+            )
+            payload["target_user_id"] = target_user_id
+
+        if target_application_id is not MISSING:
+            payload["target_type"] = (
+                target_type if isinstance(target_type, int) else target_type.value
+            )
+            payload["target_application_id"] = target_application_id
+
+        res = await self._client.create_channel_invite(
+            channel_id=int(self.id),
+            data=payload,
+            reason=reason,
+        )
+
+        from .guild import Invite
+
+        return Invite(**res, _client=self._client)
+
 
 class Thread(Channel):
     """An object representing a thread.

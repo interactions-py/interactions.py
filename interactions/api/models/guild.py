@@ -1613,6 +1613,14 @@ class Invite(DictSerializerMixin):
             else None
         )
 
+    async def delete(self) -> None:
+        """Deletes the invite"""
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        await self._client.delete_invite(self.code)
+
 
 class GuildTemplate(DictSerializerMixin):
     """

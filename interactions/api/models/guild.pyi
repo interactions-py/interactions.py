@@ -416,6 +416,7 @@ class Invite(DictSerializerMixin):
     temporary: bool
     created_at: datetime
     def __init__(self, **kwargs): ...
+    async def delete(self) -> None: ...
 
 class GuildTemplate(DictSerializerMixin):
     _json: dict

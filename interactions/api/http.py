@@ -1500,7 +1500,7 @@ class HTTPClient:
 
     async def create_channel_invite(
         self, channel_id: int, data: dict, reason: Optional[str] = None
-    ) -> Invite:
+    ) -> dict:
         """
         Creates an invite for the given channel.
 
