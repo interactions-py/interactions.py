@@ -58,7 +58,12 @@ class _Context(DictSerializerMixin):
             Member(**self.member, _client=self.client) if self._json.get("member") else None
         )
         self.author = self.member
-        self.user = User(**self.user) if self._json.get("user") else None
+        if self._json.get("user"):
+            self.user = User(**self.user)
+        elif self.member:
+            self.user = self.member.user
+        else:
+            self.user = None
 
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.application_id = (
