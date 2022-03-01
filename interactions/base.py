@@ -3,7 +3,7 @@ from typing import ClassVar, List
 
 from colorama import Fore, Style, init
 
-__version__ = "4.1.0"
+__version__ = "4.1.1-beta.1"
 __authors__ = {
     "current": [
         {"name": "James Walston<@goverfl0w>", "status": "Project Maintainer"},
@@ -67,6 +67,11 @@ class CustomFormatter(logging.Formatter):
         init(autoreset=True)
 
     def format(self, record):
-        log_format = self.formats.get(record.levelno)
-        formatter = logging.Formatter(log_format)
-        return formatter.format(record)
+        # reference
+        # https://github.com/python/cpython/blob/3.10/Lib/logging/__init__.py#L420
+        # https://github.com/python/cpython/blob/3.10/Lib/logging/__init__.py#L665-L695
+
+        # set format for the style class
+        self._style._fmt = self.formats.get(record.levelno)
+        # call the default formatting fuction
+        return logging.Formatter.format(self, record)

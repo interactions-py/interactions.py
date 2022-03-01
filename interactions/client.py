@@ -399,7 +399,7 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
-            if _sub_command.options is not MISSING:
+            if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
                     raise InteractionException(
                         11, message="Your sub command must have less than 25 options."
