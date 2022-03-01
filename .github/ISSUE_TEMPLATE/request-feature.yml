@@ -1,0 +1,32 @@
+name: Request a new feature
+description: Create an Issue to suggest or propose implementing something(s).
+title: "[REQUEST] "
+labels: ["documentation", "enhancement"]
+assignees:
+  - goverfl0w
+  - DeltaXWizard
+  - EdVraz
+body:
+  - type: markdown
+    id: thanks
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this feature request!
+        We rely on users to tell us things that we might not find on our own,
+        and your help is greatly valued by the team and others contributing.
+  - type: textarea
+    id: process
+    attributes:
+      label: Describe the feature.
+      description: Please give us an in-depth description of the feature you wish to see.
+      placeholder: I am not a fan of doing X for Y, so I would like...
+    validations:
+      required: true
+  - type: checkboxes
+    id: accept
+    attributes:
+      label: Code of Conduct
+      description: By submitting this Issue, you agree to follow our [contribution requirements.](https://github.com/interactions-py/library/blob/unstable/CONTRIBUTING.rst)
+      options:
+        - label: I agree to follow the contribution requirements.
+          required: true
