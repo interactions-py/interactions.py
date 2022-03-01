@@ -80,7 +80,7 @@ class Base:
         :return: Whether the service exists or not.
         :rtype: bool
         """
-        return bool(self.__objects.get(name))
+        return name in self.__objects
 
     def add_service(self, obj: object, name: str) -> Dict[str, object]:
         """
@@ -97,9 +97,8 @@ class Base:
         """
         model: Dict[str, object] = {name: obj}
 
-        if self._check_service(model):
-            self.__objects.update(model)
-        return self.__objects.get(name)
+        self.__objects.update(model)
+        return model
 
     def remove_service(self, name: str) -> Union[Exception, bool]:
         """
