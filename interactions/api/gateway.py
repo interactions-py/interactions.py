@@ -557,7 +557,7 @@ class WebSocketClient:
         """
         self._last_send = perf_counter()
         _data = dumps(data) if isinstance(data, dict) else data
-        packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else data
+        packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
         await self._client.send_str(packet)
         log.debug(packet)
 
