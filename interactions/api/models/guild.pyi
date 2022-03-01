@@ -38,6 +38,10 @@ class EventStatus(IntEnum):
     COMPLETED: int
     CANCELED: int
 
+class InviteTargetType(IntEnum):
+    STREAM: int
+    EMBEDDED_APPLICATION: int
+
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
     channel_id: int
