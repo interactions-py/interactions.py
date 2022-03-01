@@ -16,7 +16,7 @@ class Member(DictSerializerMixin):
     user: Optional[User]
     nick: Optional[str]
     avatar: Optional[str]
-    roles: List[Role]
+    roles: Union[List[Role], List[int]]
     joined_at: datetime
     premium_since: datetime
     deaf: bool
