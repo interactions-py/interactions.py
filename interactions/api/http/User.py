@@ -1,8 +1,8 @@
 from typing import Optional
 
 from ...api.cache import Cache, Item
-from ...api.models.channel import Channel
-from ...api.models.user import User
+from ..models.channel import Channel
+from ..models.user import User
 from .Request import Request
 from .Route import Route
 
