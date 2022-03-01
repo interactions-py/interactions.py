@@ -902,11 +902,195 @@ class Embed(DictSerializerMixin):
         if self.footer:
             self._json.update({"footer": self.footer._json})
 
-        if self.video:
-            self._json.update({"video": self.video._json})
+    def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
+        """
+        Adds a field to the embed
 
-        if self.image:
-            self._json.update({"image": self.image._json})
+        :param name: The name of the field
+        :type name: str
+        :param value: The value of the field
+        :type value: str
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
+        """
 
-        if self.thumbnail:
-            self._json.update({"thumbnail": self.thumbnail._json})
+        if self.fields is None:
+            self.fields = []
+
+        self.fields.append(EmbedField(name=name, value=value, inline=inline))
+        self._json.update({"fields": [field._json for field in self.fields]})
+
+    def clear_fields(self) -> None:
+        """
+        Clears all the fields of the embed
+        """
+
+        self.fields = []
+        self._json.update({"fields": []})
+
+    def insert_field_at(
+        self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
+    ) -> None:
+        """
+        Inserts a field in the embed at the specified index
+
+        :param index: The new field's index
+        :type index: int
+        :param name: The name of the field
+        :type name: str
+        :param value: The value of the field
+        :type value: str
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
+        """
+
+        try:
+            self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+
+        except AttributeError:
+            self.fields = [EmbedField(name=name, value=value, inline=inline)]
+
+        self._json.update({"fields": [field._json for field in self.fields]})
+
+    def set_field_at(
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
+    ) -> None:
+        """
+        Overwrites the field in the embed at the specified index
+
+        :param index: The new field's index
+        :type index: int
+        :param name: The name of the field
+        :type name: str
+        :param value: The value of the field
+        :type value: str
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
+        """
+
+        try:
+            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
+            self._json.update({"fields": [field._json for field in self.fields]})
+
+        except AttributeError:
+            raise AttributeError("No fields found in Embed")
+
+        except IndexError:
+            raise IndexError("No fields at this index")
+
+    def remove_field(self, index: int) -> None:
+        """
+        Remove field at the specified index
+
+        :param index: The new field's index
+        :type index: int
+        """
+
+        try:
+            self.fields.pop(index)
+            self._json.update({"fields": [field._json for field in self.fields]})
+
+        except AttributeError:
+            raise AttributeError("No fields found in Embed")
+
+        except IndexError:
+            raise IndexError("Field not Found at index")
+
+    def remove_author(self) -> None:
+        """
+        Removes the embed's author
+        """
+
+        try:
+            del self.author
+            self._json.update({"author": None})
+        except AttributeError:
+            pass
+
+    def set_author(
+        self,
+        name: str,
+        url: Optional[str] = None,
+        icon_url: Optional[str] = None,
+        proxy_icon_url: Optional[str] = None,
+    ) -> None:
+        """
+        Sets the embed's author
+
+        :param name: The name of the author
+        :type name: str
+        :param url?: Url of author
+        :type url?: Optional[str]
+        :param icon_url?: Url of author icon (only supports http(s) and attachments)
+        :type icon_url?: Optional[str]
+        :param proxy_icon_url?: A proxied url of author icon
+        :type proxy_icon_url?: Optional[str]
+        """
+
+        self.author = EmbedAuthor(
+            name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
+        )
+        self._json.update({"author": self.author._json})
+
+    def set_footer(
+        self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
+    ) -> None:
+        """
+        Sets the embed's footer
+
+        :param text: The text of the footer
+        :type text: str
+        :param icon_url?: Url of footer icon (only supports http(s) and attachments)
+        :type icon_url?: Optional[str]
+        :param proxy_icon_url?: A proxied url of footer icon
+        :type proxy_icon_url?: Optional[str]
+        """
+
+        self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
+        self._json.update({"footer": self.footer._json})
+
+    def set_image(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None:
+        """
+        Sets the embed's image
+
+        :param url: Url of the image
+        :type url: str
+        :param proxy_url?: A proxied url of the image
+        :type proxy_url?: Optional[str]
+        :param height?: The image's height
+        :type height?: Optional[int]
+        :param width?: The image's width
+        :type width?: Optional[int]
+        """
+
+        self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        self._json.update({"image": self.image._json})
+
+    def set_thumbnail(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: int = None,
+        width: Optional[str] = None,
+    ) -> None:
+        """
+        Sets the embed's thumbnail
+
+        :param url: Url of the thumbnail
+        :type url: str
+        :param proxy_url?: A proxied url of the thumbnail
+        :type proxy_url?: Optional[str]
+        :param height?: The thumbnail's height
+        :type height?: Optional[int]
+        :param width?: The thumbnail's width
+        :type width?: Optional[int]
+        """
+
+        self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        self._json.update({"thumbnail": self.thumbnail._json})
