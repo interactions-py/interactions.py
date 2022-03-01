@@ -58,7 +58,12 @@ class _Context(DictSerializerMixin):
             Member(**self.member, _client=self.client) if self._json.get("member") else None
         )
         self.author = self.member
-        self.user = User(**self.user) if self._json.get("user") else None
+        if self._json.get("user"):
+            self.user = User(**self.user)
+        elif self.member:
+            self.user = self.member.user
+        else:
+            self.user = None
 
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.application_id = (
@@ -453,13 +458,13 @@ class CommandContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = msg = Message(**res, _client=self.client)
             else:
-                await self.client._post_followup(
+                res = await self.client._post_followup(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
+            self.message = msg = Message(**res, _client=self.client)
         else:
             await self.client.create_interaction_response(
                 token=self.token,
@@ -633,13 +638,14 @@ class ComponentContext(_Context):
                     application_id=str(self.application_id),
                 )
                 self.responded = True
-                self.message = msg = Message(**res, _client=self.client)
             else:
-                await self.client._post_followup(
+                res = await self.client._post_followup(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
+            self.message = msg = Message(**res, _client=self.client)
+
         else:
             await self.client.create_interaction_response(
                 token=self.token,
