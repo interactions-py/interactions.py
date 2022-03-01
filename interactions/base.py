@@ -3,7 +3,7 @@ from typing import ClassVar, List
 
 from colorama import Fore, Style, init
 
-__version__ = "4.1.0"
+__version__ = "4.1.1-beta.1"
 __authors__ = {
     "current": [
         {"name": "James Walston<@goverfl0w>", "status": "Project Maintainer"},
