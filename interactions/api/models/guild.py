@@ -1574,11 +1574,17 @@ class Invite(DictSerializerMixin):
     """
     The invite object.
 
-    :ivar int uses: The amount of uses on the invite.
-    :ivar int max_uses: The amount of maximum uses on the invite.
-    :ivar int max_age: The maximum age of this invite.
-    :ivar bool temporary: A detection of whether this invite is temporary or not.
+    :ivar int uses: The amount of uses on this invite.
+    :ivar int max_uses: The amount of maximum uses on this invite.
+    :ivar int max_age: The maximum age of this invite, in seconds.
+    :ivar bool temporary: A detection of whether this invite only grants temporary membership.
     :ivar datetime created_at: The time when this invite was created.
+    :ivar datetime expires_at: The time when this invite will expire.
+    :ivar int type: The type of this invite.
+    :ivar User inviter: The user who created this invite.
+    :ivar int guild_id: The guild ID of this invite.
+    :ivar str code: The code of this invite.
+    :ivar int channel_id: The channel ID of this invite.
     """
 
     __slots__ = (
@@ -1589,8 +1595,7 @@ class Invite(DictSerializerMixin):
         "max_age",
         "temporary",
         "created_at",
-        # TODO: Investigate their purposes and document.
-        "types",
+        "type",
         "inviter",
         "guild_id",
         "expires_at",
@@ -1605,6 +1610,18 @@ class Invite(DictSerializerMixin):
             if self._json.get("created_at")
             else None
         )
+        self.expires_at = (
+            datetime.fromisoformat(self._json.get("expires_at"))
+            if self._json.get("expires_at")
+            else None
+        )
+        self.inviter = (
+            User(**self._json.get("inviter"))
+            if self._json.get("inviter")
+            else None
+        )
+        self.channel_id = int(self.channel_id)
+        self.guild_id = int(self.guild_id)
 
 
 class GuildTemplate(DictSerializerMixin):
