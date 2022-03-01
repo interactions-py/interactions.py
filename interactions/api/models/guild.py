@@ -1302,7 +1302,7 @@ class Guild(DictSerializerMixin):
 
         res = await self._client.create_scheduled_event(
             guild_id=self.id,
-            data=payload,
+            payload=payload,
         )
         return ScheduledEvents(**res)
 
@@ -1376,7 +1376,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.modify_scheduled_event(
             guild_id=self.id,
             guild_scheduled_event_id=Snowflake(event_id),
-            data=payload,
+            payload=payload,
         )
         return ScheduledEvents(**res)
 

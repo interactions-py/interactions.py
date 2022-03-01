@@ -2535,34 +2535,34 @@ class HTTPClient:
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis/{emoji_id}"))
 
     async def create_guild_emoji(
-        self, guild_id: int, data: dict, reason: Optional[str] = None
+        self, guild_id: int, payload: dict, reason: Optional[str] = None
     ) -> Emoji:
         """
         Creates an emoji.
 
         :param guild_id: Guild ID snowflake.
-        :param data: Emoji parameters.
+        :param payload: Emoji parameters.
         :param reason: Optionally, give a reason.
         :return: An emoji object with the included parameters.
         """
         return await self._req.request(
-            Route("POST", f"/guilds/{guild_id}/emojis"), json=data, reason=reason
+            Route("POST", f"/guilds/{guild_id}/emojis"), json=payload, reason=reason
         )
 
     async def modify_guild_emoji(
-        self, guild_id: int, emoji_id: int, data: dict, reason: Optional[str] = None
+        self, guild_id: int, emoji_id: int, payload: dict, reason: Optional[str] = None
     ) -> Emoji:
         """
         Modifies an emoji.
 
         :param guild_id: Guild ID snowflake.
         :param emoji_id: Emoji ID snowflake
-        :param data: Emoji parameters with updated attributes
+        :param payload: Emoji parameters with updated attributes
         :param reason: Optionally, give a reason.
         :return: An emoji object with updated attributes.
         """
         return await self._req.request(
-            Route("PATCH", f"/guilds/{guild_id}/emojis/{emoji_id}"), json=data, reason=reason
+            Route("PATCH", f"/guilds/{guild_id}/emojis/{emoji_id}"), json=payload, reason=reason
         )
 
     async def delete_guild_emoji(
@@ -2581,12 +2581,12 @@ class HTTPClient:
 
     # Guild Scheduled Events endpoints
 
-    async def create_scheduled_event(self, guild_id: Snowflake, data: dict) -> dict:
+    async def create_scheduled_event(self, guild_id: Snowflake, payload: dict) -> dict:
         """
         Creates a scheduled event.
 
         :param guild_id: Guild ID snowflake.
-        :param data: The dictionary containing the parameters and values to edit the associated event.
+        :param payload: The dictionary containing the parameters and values to edit the associated event.
         :return A dictionary containing the new guild scheduled event object on success.
         """
         guild_id = int(guild_id)
@@ -2600,11 +2600,11 @@ class HTTPClient:
             "description",
             "entity_type",
         )
-        payload = {k: v for k, v in data.items() if k in valid_keys}
+        data = {k: v for k, v in payload.items() if k in valid_keys}
 
         return await self._req.request(
             Route("POST", "/guilds/{guild_id}/scheduled-events", guild_id=int(guild_id)),
-            json=payload,
+            json=data,
         )
 
     async def get_scheduled_event(
@@ -2651,14 +2651,14 @@ class HTTPClient:
         )
 
     async def modify_scheduled_event(
-        self, guild_id: Snowflake, guild_scheduled_event_id: Snowflake, data: dict
+        self, guild_id: Snowflake, guild_scheduled_event_id: Snowflake, payload: dict
     ) -> dict:
         """
         Modifies a scheduled event.
 
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
-        :param data: The dictionary containing the parameters and values to edit the associated event.
+        :param payload: The dictionary containing the parameters and values to edit the associated event.
         :return A dictionary containing the updated guild scheduled event object on success.
         """
         guild_id, event_id = int(guild_id), int(guild_scheduled_event_id)
@@ -2672,7 +2672,7 @@ class HTTPClient:
             "description",
             "entity_type",
         )
-        payload = {k: v for k, v in data.items() if k in valid_keys}
+        data = {k: v for k, v in payload.items() if k in valid_keys}
         return await self._req.request(
             Route(
                 "PATCH",
@@ -2680,7 +2680,7 @@ class HTTPClient:
                 guild_id=guild_id,
                 event_id=event_id,
             ),
-            json=payload,
+            json=data,
         )
 
     async def delete_scheduled_event(
@@ -2712,7 +2712,7 @@ class HTTPClient:
         with_member: bool = False,
         before: Snowflake = None,
         after: Snowflake = None,
-    ) -> dict:
+    ) -> List[dict]:
         """
         Get the registered users of a scheduled event.
 
