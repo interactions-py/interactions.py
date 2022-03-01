@@ -683,7 +683,7 @@ class HTTPClient:
         :return: None
         """
         return await self._req.request(
-            Route("DELETE", "/users/@me/guilds/{guild_id}", guild_id=guild_id)
+            Route("DELETE", f"/users/@me/guilds/{guild_id}", guild_id=guild_id)
         )
 
     async def delete_guild(self, guild_id: int) -> None:
