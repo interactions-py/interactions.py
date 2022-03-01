@@ -40,6 +40,9 @@ class User(DictSerializerMixin):
         "flags",
         "premium_type",
         "public_flags",
+        # TODO: document
+        "bio",
+        "banner_color",
     )
 
     def __init__(self, **kwargs):
