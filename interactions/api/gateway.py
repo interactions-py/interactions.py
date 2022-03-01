@@ -556,7 +556,8 @@ class WebSocketClient:
         :type data: Dict[str, Any]
         """
         self._last_send = perf_counter()
-        packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
+        _data = dumps(data) if isinstance(data, dict) else data
+        packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
         await self._client.send_str(packet)
         log.debug(packet)
 
