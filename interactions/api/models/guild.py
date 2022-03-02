@@ -346,7 +346,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.create_guild_ban(
+        await self._client.guild.create_guild_ban(
             guild_id=int(self.id),
             user_id=member_id,
             reason=reason,
@@ -368,7 +368,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.remove_guild_ban(
+        await self._client.guild.remove_guild_ban(
             guild_id=int(self.id),
             user_id=user_id,
             reason=reason,
@@ -389,7 +389,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.create_guild_kick(
+        await self._client.guild.create_guild_kick(
             guild_id=int(self.id),
             user_id=member_id,
             reason=reason,
@@ -414,14 +414,14 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
-            await self._client.add_member_role(
+            await self._client.member.add_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
                 role_id=int(role.id),
                 reason=reason,
             )
         else:
-            await self._client.add_member_role(
+            await self._client.member.add_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
                 role_id=role,
@@ -447,14 +447,14 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
-            await self._client.remove_member_role(
+            await self._client.member.remove_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
                 role_id=int(role.id),
                 reason=reason,
             )
         else:
-            await self._client.remove_member_role(
+            await self._client.member.remove_member_role(
                 guild_id=int(self.id),
                 user_id=member_id,
                 role_id=role,
@@ -496,7 +496,7 @@ class Guild(DictSerializerMixin):
             hoist=hoist,
             mentionable=mentionable,
         )
-        res = await self._client.create_guild_role(
+        res = await self._client.guild.create_guild_role(
             guild_id=int(self.id),
             reason=reason,
             payload=payload._json,
@@ -517,7 +517,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.get_member(
+        res = await self._client.member.get_member(
             guild_id=int(self.id),
             member_id=member_id,
         )
@@ -535,7 +535,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.delete_channel(channel_id=channel_id)
+        await self._client.channel.delete_channel(channel_id=channel_id)
 
     async def delete_role(
         self,
@@ -552,7 +552,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.delete_guild_role(
+        await self._client.guild.delete_guild_role(
             guild_id=int(self.id),
             role_id=role_id,
             reason=reason,
@@ -590,7 +590,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        roles = await self._client.guild.get_all_roles(guild_id=int(self.id))
         for i in roles:
             if int(i["id"]) == role_id:
                 role = Role(**i)
@@ -602,7 +602,7 @@ class Guild(DictSerializerMixin):
 
         payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
 
-        res = await self._client.modify_guild_role(
+        res = await self._client.guild.modify_guild_role(
             guild_id=int(self.id),
             role_id=role_id,
             payload=payload._json,
@@ -653,7 +653,7 @@ class Guild(DictSerializerMixin):
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
         _message_id = None if message_id is MISSING else message_id
-        res = await self._client.create_thread(
+        res = await self._client.thread.create_thread(
             channel_id=int(self.id),
             thread_type=type.value,
             name=name,
@@ -743,7 +743,7 @@ class Guild(DictSerializerMixin):
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
 
-        res = await self._client.create_channel(
+        res = await self._client.channel.create_channel(
             guild_id=int(self.id),
             reason=reason,
             payload=payload,
@@ -793,7 +793,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        ch = Channel(**await self._client.get_channel(channel_id=channel_id))
+        ch = Channel(**await self._client.channel.get_channel(channel_id=channel_id))
 
         _name = ch.name if name is MISSING else name
         _topic = ch.topic if topic is MISSING else topic
@@ -819,7 +819,7 @@ class Guild(DictSerializerMixin):
             nsfw=_nsfw,
         )
 
-        res = await self._client.modify_channel(
+        res = await self._client.channel.modify_channel(
             channel_id=channel_id,
             reason=reason,
             payload=payload._json,
@@ -880,7 +880,7 @@ class Guild(DictSerializerMixin):
         if communication_disabled_until is not MISSING:
             payload["communication_disabled_until"] = communication_disabled_until
 
-        res = await self._client.modify_member(
+        res = await self._client.member.modify_member(
             user_id=member_id,
             guild_id=int(self.id),
             payload=payload,
@@ -900,13 +900,13 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
+        return GuildPreview(**await self._client.guild.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
         """Removes the bot from the guild."""
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.leave_guild(guild_id=int(self.id))
+        await self._client.guild.leave_guild(guild_id=int(self.id))
 
     async def modify(
         self,
@@ -1035,7 +1035,7 @@ class Guild(DictSerializerMixin):
         if premium_progress_bar_enabled is not MISSING:
             payload["premium_progress_bar_enabled"] = premium_progress_bar_enabled
 
-        res = await self._client.modify_guild(
+        res = await self._client.guild.modify_guild(
             guild_id=int(self.id),
             payload=payload,
             reason=reason,
@@ -1300,7 +1300,7 @@ class Guild(DictSerializerMixin):
         if description is not MISSING:
             payload["description"] = description
 
-        res = await self._client.create_scheduled_event(
+        res = await self._client.scheduled_event.create_scheduled_event(
             guild_id=self.id,
             payload=payload,
         )
@@ -1373,7 +1373,7 @@ class Guild(DictSerializerMixin):
         if status is not MISSING:
             payload["status"] = status
 
-        res = await self._client.modify_scheduled_event(
+        res = await self._client.scheduled_event.modify_scheduled_event(
             guild_id=self.id,
             guild_scheduled_event_id=Snowflake(event_id),
             payload=payload,
@@ -1389,7 +1389,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.delete_scheduled_event(
+        await self._client.scheduled_event.delete_scheduled_event(
             guild_id=self.id,
             guild_scheduled_event_id=Snowflake(event_id),
         )
@@ -1403,7 +1403,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.get_all_channels(int(self.id))
+        res = await self._client.guild.get_all_channels(int(self.id))
         return [Channel(**channel, _client=self._client) for channel in res]
 
     async def get_all_roles(self) -> List[Role]:
@@ -1415,7 +1415,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.get_all_roles(int(self.id))
+        res = await self._client.guild.get_all_roles(int(self.id))
         return [Role(**role, _client=self._client) for role in res]
 
     async def get_role(
@@ -1433,7 +1433,7 @@ class Guild(DictSerializerMixin):
 
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        roles = await self._client.guild.get_all_roles(guild_id=int(self.id))
         for i in roles:
             if int(i["id"]) == role_id:
                 role = Role(**i)
@@ -1461,7 +1461,7 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         _role_id = role_id.id if isinstance(role_id, Role) else role_id
-        res = await self._client.modify_guild_role_position(
+        res = await self._client.guild.modify_guild_role_position(
             guild_id=int(self.id), position=position, role_id=_role_id, reason=reason
         )
         return [Role(**role, _client=self._client) for role in res]
@@ -1475,7 +1475,7 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.get_guild_bans(int(self.id))
+        res = await self._client.guild.get_guild_bans(int(self.id))
         for ban in res:
             ban["user"] = User(**ban["user"])
         return res

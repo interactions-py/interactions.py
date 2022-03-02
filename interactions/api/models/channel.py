@@ -259,7 +259,9 @@ class Channel(DictSerializerMixin):
             components=_components,
         )
 
-        res = await self._client.create_message(channel_id=int(self.id), payload=payload._json)
+        res = await self._client.message.create_message(
+            channel_id=int(self.id), payload=payload._json
+        )
         return Message(**res, _client=self._client)
 
     async def delete(self) -> None:
@@ -268,7 +270,7 @@ class Channel(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.delete_channel(channel_id=int(self.id))
+        await self._client.channel.delete_channel(channel_id=int(self.id))
 
     async def modify(
         self,
@@ -332,7 +334,7 @@ class Channel(DictSerializerMixin):
             parent_id=_parent_id,
             nsfw=_nsfw,
         )
-        res = await self._client.modify_channel(
+        res = await self._client.channel.modify_channel(
             channel_id=int(self.id),
             reason=reason,
             payload=payload._json,
@@ -513,7 +515,7 @@ class Channel(DictSerializerMixin):
             raise TypeError(
                 "The Channel you specified is not a thread!"
             )  # TODO: Move to new error formatter.
-        await self._client.add_member_to_thread(thread_id=int(self.id), user_id=member_id)
+        await self._client.thread.add_member_to_thread(thread_id=int(self.id), user_id=member_id)
 
     async def pin_message(
         self,
@@ -528,7 +530,7 @@ class Channel(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        await self._client.pin_message(channel_id=int(self.id), message_id=message_id)
+        await self._client.message.pin_message(channel_id=int(self.id), message_id=message_id)
 
     async def unpin_message(
         self,
@@ -543,7 +545,7 @@ class Channel(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        await self._client.unpin_message(channel_id=int(self.id), message_id=message_id)
+        await self._client.message.unpin_message(channel_id=int(self.id), message_id=message_id)
 
     async def publish_message(
         self,
@@ -560,7 +562,7 @@ class Channel(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from .message import Message
 
-        res = await self._client.publish_message(
+        res = await self._client.message.publish_message(
             channel_id=int(self.id), message_id=int(message_id)
         )
         return Message(**res, _client=self._client)
@@ -576,7 +578,7 @@ class Channel(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from .message import Message
 
-        res = await self._client.get_pinned_messages(int(self.id))
+        res = await self._client.channel.get_pinned_messages(int(self.id))
         return [Message(**message, _client=self._client) for message in res]
 
     async def get_message(
@@ -589,7 +591,7 @@ class Channel(DictSerializerMixin):
         :return: The message as object
         :rtype: Message
         """
-        res = await self._client.get_message(
+        res = await self._client.channel.get_message(
             channel_id=int(self.id),
             message_id=message_id,
         )
@@ -637,7 +639,7 @@ class Channel(DictSerializerMixin):
 
                 messages = [
                     Message(**res)
-                    for res in await self._client.get_channel_messages(
+                    for res in await self._client.channel.get_channel_messages(
                         channel_id=int(self.id),
                         limit=100,
                         before=_before,
@@ -662,13 +664,13 @@ class Channel(DictSerializerMixin):
                             _before = int(message.id)
                 _all += messages
                 if len(messages) > 1:
-                    await self._client.delete_messages(
+                    await self._client.message.delete_messages(
                         channel_id=int(self.id),
                         message_ids=[int(message.id) for message in messages],
                         reason=reason,
                     )
                 elif len(messages) == 1:
-                    await self._client.delete_message(
+                    await self._client.message.delete_message(
                         channel_id=int(self.id),
                         message_id=int(messages[0].id),
                         reason=reason,
@@ -685,7 +687,7 @@ class Channel(DictSerializerMixin):
             while amount > 1:
                 messages = [
                     Message(**res)
-                    for res in await self._client.get_channel_messages(
+                    for res in await self._client.channel.get_channel_messages(
                         channel_id=int(self.id),
                         limit=amount,
                         before=_before,
@@ -711,13 +713,13 @@ class Channel(DictSerializerMixin):
                             _before = int(message.id)
                 _all += messages
                 if len(messages) > 1:
-                    await self._client.delete_messages(
+                    await self._client.message.delete_messages(
                         channel_id=int(self.id),
                         message_ids=[int(message.id) for message in messages],
                         reason=reason,
                     )
                 elif len(messages) == 1:
-                    await self._client.delete_message(
+                    await self._client.message.delete_message(
                         channel_id=int(self.id),
                         message_id=int(messages[0].id),
                         reason=reason,
@@ -731,7 +733,7 @@ class Channel(DictSerializerMixin):
             while amount == 1:
                 messages = [
                     Message(**res)
-                    for res in await self._client.get_channel_messages(
+                    for res in await self._client.channel.get_channel_messages(
                         channel_id=int(self.id),
                         limit=amount,
                         before=_before,
@@ -753,7 +755,7 @@ class Channel(DictSerializerMixin):
                 _all += messages
                 if not messages:
                     continue
-                await self._client.delete_message(
+                await self._client.message.delete_message(
                     channel_id=int(self.id),
                     message_id=int(messages[0].id),
                     reason=reason,
@@ -763,7 +765,7 @@ class Channel(DictSerializerMixin):
             while amount > 0:
                 messages = [
                     Message(**res)
-                    for res in await self._client.get_channel_messages(
+                    for res in await self._client.channel.get_channel_messages(
                         channel_id=int(self.id),
                         limit=min(amount, 100),
                         before=_before,
@@ -786,7 +788,7 @@ class Channel(DictSerializerMixin):
                 _all += messages
 
             for message in _all:
-                await self._client.delete_message(
+                await self._client.message.delete_message(
                     channel_id=int(self.id),
                     message_id=int(message.id),
                     reason=reason,
@@ -834,7 +836,7 @@ class Channel(DictSerializerMixin):
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
         _message_id = None if message_id is MISSING else message_id
-        res = await self._client.create_thread(
+        res = await self._client.thread.create_thread(
             channel_id=int(self.id),
             thread_type=type.value,
             name=name,
@@ -863,7 +865,7 @@ class Channel(DictSerializerMixin):
 
         channel_id = channel if isinstance(channel, int) else int(channel.split(sep="/")[-1])
 
-        res = await client.get_channel(channel_id)
+        res = await client.channel.get_channel(channel_id)
         return cls(**res, _client=client)
 
     @property
@@ -939,7 +941,7 @@ class Channel(DictSerializerMixin):
             )
             payload["target_application_id"] = target_application_id
 
-        res = await self._client.create_channel_invite(
+        res = await self._client.channel.create_channel_invite(
             channel_id=int(self.id),
             payload=payload,
             reason=reason,

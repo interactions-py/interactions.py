@@ -151,7 +151,7 @@ class Client:
 
         command: ApplicationCommand = ApplicationCommand(
             **(
-                await self._http.create_application_command(
+                await self._http.interaction.create_application_command(
                     application_id=self.me.id, data=data, guild_id=data.get("guild_id")
                 )
             )
@@ -192,7 +192,7 @@ class Client:
             log.info(
                 f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been {'deleted' if delete else 'synced'}."
             )
-            await self._http.overwrite_application_command(
+            await self._http.interaction.overwrite_application_command(
                 application_id=self.me.id,
                 data=[] if delete else commands,
                 guild_id=guild,
@@ -202,7 +202,7 @@ class Client:
             log.info(
                 f"Global commands {', '.join(command['name'] for command in global_commands)} have been {'deleted' if delete else 'synced'}."
             )
-            await self._http.overwrite_application_command(
+            await self._http.interaction.overwrite_application_command(
                 application_id=self.me.id, data=[] if delete else global_commands
             )
 
@@ -220,7 +220,9 @@ class Client:
             commands: List[dict] = cache
         else:
             log.info("No command cache was found present, retrieving from Web API instead.")
-            commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_commands(
+            commands: Optional[
+                Union[dict, List[dict]]
+            ] = await self._http.interaction.get_application_commands(
                 application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
             )
 
@@ -831,7 +833,7 @@ class Client:
             if not _command_obj or not _command_obj.id:
                 if getattr(_command_obj, "guild_id", None) or self._automate_sync:
                     _application_commands = self._loop.run_until_complete(
-                        self._http.get_application_commands(
+                        self._http.interaction.get_application_commands(
                             application_id=self.me.id,
                             guild_id=None
                             if not hasattr(_command_obj, "guild_id")
@@ -842,7 +844,7 @@ class Client:
                 else:
                     for _scope in self._scopes:
                         _application_commands = self._loop.run_until_complete(
-                            self._http.get_application_commands(
+                            self._http.interaction.get_application_commands(
                                 application_id=self.me.id, guild_id=_scope
                             )
                         )
@@ -1189,7 +1191,7 @@ class Extension:
         if self.client._automate_sync:
             [
                 self.client._loop.create_task(
-                    self.client._http.delete_application_command(
+                    self.client._http.interaction.delete_application_command(
                         cmd["application_id"], cmd["id"], cmd["guild_id"]
                     )
                 )
