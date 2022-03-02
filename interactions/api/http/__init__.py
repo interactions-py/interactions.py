@@ -17,3 +17,4 @@ from .Route import *  # noqa: F401 F403
 from .Sticker import *  # noqa: F401 F403
 from .Thread import *  # noqa: F401 F403
 from .User import *  # noqa: F401 F403
+from .Webhook import *  # noqa: F401 F403
