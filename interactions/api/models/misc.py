@@ -171,56 +171,6 @@ class Snowflake(object):
     # but end users might.
 
 
-class Format:
-    """
-    This object is used to respectively format markdown strings
-    provided by the WYSIWYG text editor for ease-of-accessibility
-    and simple implementations into bots.
-
-    .. note::
-        All base strings are given brackets before being f-string
-        parsable to make conversion simplified.
-
-    .. warning::
-        the ``stylize()`` method must be used if you're actually
-        looking to give a **str** specific result.
-    """
-
-    USER = "<@%s>"
-    USER_NICK = "<@!%s>"
-    CHANNEL = "<#%s>"
-    ROLE = "<@&%s>"
-    EMOJI = "<:%s:%d>"
-    EMOJI_ANIMATED = "<a:%s:%d>"
-    TIMESTAMP = "<t:%s>"
-    TIMESTAMP_SHORT_T = "<t:%s:t>"
-    TIMESTAMP_LONG_T = "<t:%s:T>"
-    TIMESTAMP_SHORT_D = "<t:%s:d>"
-    TIMESTAMP_LONG_D = "<t:%s:D>"
-    TIMESTAMP_SHORT_DT = TIMESTAMP
-    TIMESTAMP_LONG_DT = "<t:%s:F>"
-    TIMESTAMP_RELATIVE = "<t:%s:R>"
-
-    @classmethod
-    def stylize(cls, format: str, **kwargs) -> str:
-        r"""
-        This takes a format style from the object and
-        converts it into a usable string for ease.
-
-        :param format: The format string to use.
-        :type format: str
-        :param \**kwargs: Multiple key-word arguments to use, where key=value is format=value.
-        :type \**kwargs: dict
-        :return: The formatted string.
-        :rtype: str
-        """
-        new: str = f""  # noqa: F541
-        for kwarg in kwargs:
-            if format == kwarg:
-                new %= format
-        return new
-
-
 class MISSING:
     """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
 
