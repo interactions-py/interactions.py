@@ -1,7 +1,7 @@
 .. currentmodule:: interactions
 
-HTTP Client
-===========
+HTTP
+====
 
 .. autoclass:: interactions.api.http.route.Route
     :members:
@@ -19,9 +19,6 @@ HTTP Client
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient.HTTPClient
-    :members:
-    :noindex:
 
 .. autoclass:: interactions.api.http.channel._ChannelRequest
     :members:
