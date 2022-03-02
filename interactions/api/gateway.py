@@ -37,7 +37,12 @@ __all__ = ("_Heartbeat", "WebSocketClient")
 
 
 class _Heartbeat:
-    """An internal class representing the heartbeat in a WebSocket connection."""
+    """
+    An internal class representing the heartbeat in a WebSocket connection.
+
+    :ivar Event event: The asynchronous event of the heartbeat.
+    :ivar float delay: In seconds, how much time to wait per heartbeat.
+    """
 
     event: Event
     delay: float
