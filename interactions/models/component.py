@@ -140,6 +140,8 @@ class Button(DictSerializerMixin):
         self.type = ComponentType.BUTTON
         self.style = ButtonStyle(self.style)
         self._json.update({"type": self.type.value, "style": self.style.value})
+        if self.emoji:
+            self._json.update({"emoji": self.emoji._json})
 
 
 class Component(DictSerializerMixin):
