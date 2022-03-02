@@ -5,6 +5,7 @@ Handles all HTTP-Requests of the library.
 """
 
 from .Channel import *  # noqa: F401 F403
+from .Emoji import *  # noqa: F401 F403
 from .Guild import *  # noqa: F401 F403
 from .HTTPClient import *  # noqa: F401 F403
 from .Interaction import *  # noqa: F401 F403
