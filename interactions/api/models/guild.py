@@ -1628,9 +1628,19 @@ class Invite(DictSerializerMixin):
         self.inviter = User(**self._json.get("inviter")) if self._json.get("inviter") else None
         self.channel_id = int(self.channel_id) if self._json.get("channel_id") else None
         self.guild_id = int(self.guild_id) if self._json.get("guild_id") else None
-        self.target_user = User(**self._json.get("target_user")) if self._json.get("target_user") else None
-        self.guild = Guild(**self._json.get("guild"), _client=self._client) if self._json.get("guild") else None
-        self.channel = Channel(**self._json.get("channel"), _client=self._client) if self._json.get("channel") else None
+        self.target_user = (
+            User(**self._json.get("target_user")) if self._json.get("target_user") else None
+        )
+        self.guild = (
+            Guild(**self._json.get("guild"), _client=self._client)
+            if self._json.get("guild")
+            else None
+        )
+        self.channel = (
+            Channel(**self._json.get("channel"), _client=self._client)
+            if self._json.get("channel")
+            else None
+        )
 
 
 class GuildTemplate(DictSerializerMixin):
