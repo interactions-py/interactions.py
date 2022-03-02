@@ -15,7 +15,7 @@ class User(DictSerializerMixin):
     :ivar Optional[bool] mfa_enabled?: A status denoting if the user has 2fa on their account
     :ivar Optional[str] banner?: The user's banner hash, if any
     # TODO: change banner_color to discord's description when documented
-    :iven Optional[str] banner_color?: The user's banner color as a hex, if any
+    :ivar Optional[str] banner_color?: The user's banner color as a hex, if any
     :ivar Optional[int] accent_color?: The user's banner color as an integer represented of hex color codes
     :ivar Optional[str] locale?: The user's chosen language option
     :ivar Optional[bool] verified?: Whether the email associated with this account has been verified
