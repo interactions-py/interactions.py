@@ -3,6 +3,14 @@
 Client Cache
 ============
 
-.. automodule:: interactions.api.cache
+.. autoclass:: interactions.api.cache.Item
+    :members:
+    :noindex:
+
+.. autoclass:: interactions.api.cache.Storage
+    :members:
+    :noindex:
+
+.. autoclass:: interactions.api.cache.Cache
     :members:
     :noindex:

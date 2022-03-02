@@ -3,7 +3,7 @@
 API Reference
 =============
 
-This page outlines the API wrapper of discord-interactions.
+This page outlines the client-facing implementation.
 
 Interactions
 ************

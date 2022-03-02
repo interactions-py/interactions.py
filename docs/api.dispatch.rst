@@ -3,6 +3,6 @@
 Dispatching
 ===========
 
-.. automodule:: interactions.api.dispatch
+.. autoclass:: interactions.api.dispatch.Listener
     :members:
     :noindex:
