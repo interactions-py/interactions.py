@@ -1,0 +1,297 @@
+from typing import List, Optional, Union
+
+from ...api.cache import Cache
+from ..models import Snowflake
+from .Request import Request
+from .Route import Route
+
+
+class HTTPInteraction:
+
+    __slots__ = ("_req", "cache")
+
+    _req: Request
+    cache: Cache
+
+    def __init__(self, _req, cache) -> None:
+        self._req = _req
+        self.cache = cache
+
+    async def get_application_commands(
+        self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
+    ) -> List[dict]:
+        """
+        Get all application commands from an application.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild to get commands from, if specified. Defaults to global (None)
+        :return: A list of Application commands.
+        """
+        application_id = int(application_id)
+
+        if guild_id in (None, "None"):
+            return await self._req.request(Route("GET", f"/applications/{application_id}/commands"))
+        else:
+            return await self._req.request(
+                Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands")
+            )
+
+    async def create_application_command(
+        self, application_id: Union[int, Snowflake], data: dict, guild_id: Optional[int] = None
+    ) -> dict:
+        """
+        Registers to the Discord API an application command.
+
+        :param application_id: Application ID snowflake
+        :param data: The dictionary that contains the command (name, description, etc)
+        :param guild_id: Guild ID snowflake to put them in, if applicable.
+        :return: An application command object.
+        """
+
+        application_id = int(application_id)
+
+        url = (
+            f"/applications/{application_id}/commands"
+            if guild_id in (None, "None")
+            else f"/applications/{application_id}/guilds/{guild_id}/commands"
+        )
+
+        return await self._req.request(Route("POST", url), json=data)
+
+    async def overwrite_application_command(
+        self, application_id: int, data: List[dict], guild_id: Optional[int] = None
+    ) -> List[dict]:
+        """
+        Overwrites application command(s) from a scope to the new, updated commands.
+
+        ..note:
+            This applies to all forms of application commands (slash and context menus)
+
+        :param application_id: Application ID snowflake
+        :param data: The dictionary that contains the command (name, description, etc)
+        :param guild_id: Guild ID snowflake to put them in, if applicable.
+        :return: An array of application command objects.
+        """
+        url = (
+            f"/applications/{application_id}/commands"
+            if not guild_id
+            else f"/applications/{application_id}/guilds/{guild_id}/commands"
+        )
+
+        return await self._req.request(Route("PUT", url), json=data)
+
+    async def edit_application_command(
+        self,
+        application_id: Union[int, Snowflake],
+        data: dict,
+        command_id: Union[int, Snowflake],
+        guild_id: Optional[int] = None,
+    ) -> dict:
+        """
+        Edits an application command.
+
+        :param application_id: Application ID snowflake.
+        :param data: A dictionary containing updated attributes
+        :param command_id: The application command ID snowflake
+        :param guild_id: Guild ID snowflake, if given. Defaults to None/global.
+        :return: The updated application command object.
+        """
+        application_id, command_id = int(application_id), int(command_id)
+        r = (
+            Route(
+                "PATCH",
+                "/applications/{application_id}/commands/{command_id}",
+                application_id=application_id,
+                command_id=command_id,
+            )
+            if guild_id in (None, "None")
+            else Route(
+                "PATCH",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+                application_id=application_id,
+                command_id=command_id,
+                guild_id=guild_id,
+            )
+        )
+        return await self._req.request(r, json=data)
+
+    async def delete_application_command(
+        self, application_id: Union[int, Snowflake], command_id: int, guild_id: Optional[int] = None
+    ) -> None:
+        """
+        Deletes an application command.
+
+        :param application_id: Application ID snowflake.
+        :param command_id: Application command ID snowflake.
+        :param guild_id: Guild ID snowflake, if declared. Defaults to None (Global).
+        """
+
+        application_id = int(application_id)
+
+        r = (
+            Route(
+                "DELETE",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+                application_id=application_id,
+                command_id=command_id,
+                guild_id=guild_id,
+            )
+            if guild_id not in (None, "None")
+            else Route(
+                "DELETE",
+                "/applications/{application_id}/commands/{command_id}",
+                application_id=application_id,
+                command_id=command_id,
+            )
+        )
+        return await self._req.request(r)
+
+    async def edit_application_command_permissions(
+        self, application_id: int, guild_id: int, command_id: int, data: List[dict]
+    ) -> dict:
+        """
+        Edits permissions for an application command.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :param command_id: Application command ID snowflake
+        :param data: Permission data.
+        :return: Returns an updated Application Guild permission object.
+        """
+
+        return await self._req.request(
+            Route(
+                "PUT",
+                f"/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+            ),
+            json=data,
+        )
+
+    async def batch_edit_application_command_permissions(
+        self, application_id: int, guild_id: int, data: List[dict]
+    ) -> List[dict]:
+        """
+        Edits permissions for all Application Commands in a guild.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :param data: An array of permission dictionaries.
+        :return: An updated array of application array permissions.
+        """
+        return await self._req.request(
+            Route("PUT", f"/applications/{application_id}/guilds/{guild_id}/commands/permissions"),
+            json=data,
+        )
+
+    async def get_application_command_permissions(
+        self, application_id: int, guild_id: int, command_id: int
+    ) -> dict:
+        """
+        Gets, from the Discord API, permissions from a specific Guild application command.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :param command_id: Application Command ID snowflake
+        :return: a Guild Application Command permissions object
+        """
+        return await self._req.request(
+            Route(
+                "GET",
+                f"/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+            )
+        )
+
+    async def get_all_application_command_permissions(
+        self, application_id: int, guild_id: int
+    ) -> List[dict]:
+        """
+        Gets, from the Discord API, permissions from all Application commands at that Guild.
+
+        :param application_id: Application ID snowflake
+        :param guild_id: Guild ID snowflake
+        :return: An array of Guild Application Command permissions
+        """
+        return await self._req.request(
+            Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands/permissions")
+        )
+
+    async def create_interaction_response(
+        self, token: str, application_id: int, data: dict
+    ) -> None:
+        """
+        Posts initial response to an interaction, but you need to add the token.
+
+        :param token: Token.
+        :param application_id: Application ID snowflake
+        :param data: The data to send.
+        """
+        return await self._req.request(
+            Route("POST", f"/interactions/{application_id}/{token}/callback"), json=data
+        )
+
+    # This is still Interactions, but this also applies to webhooks
+    # i.e. overlay
+    async def get_original_interaction_response(
+        self, token: str, application_id: str, message_id: int = "@original"
+    ) -> dict:
+        """
+        Gets an existing interaction message.
+
+        :param token: token
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        :return: Message data.
+        """
+        # ^ again, I don't know if python will let me
+        return await self._req.request(
+            Route("GET", f"/webhooks/{application_id}/{token}/messages/{message_id}")
+        )
+
+    async def edit_interaction_response(
+        self, data: dict, token: str, application_id: str, message_id: str = "@original"
+    ) -> dict:
+        """
+        Edits an existing interaction message, but token needs to be manually called.
+
+        :param data: A dictionary containing the new response.
+        :param token: the token of the interaction
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        :return: Updated message data.
+        """
+        # ^ again, I don't know if python will let me
+        return await self._req.request(
+            Route("PATCH", f"/webhooks/{application_id}/{token}/messages/{message_id}"),
+            json=data,
+        )
+
+    async def delete_interaction_response(
+        self, token: str, application_id: str, message_id: int = "original"
+    ) -> None:
+        """
+        Deletes an existing interaction message.
+
+        :param token: the token of the interaction
+        :param application_id: Application ID snowflake.
+        :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
+        """
+
+        # This is, basically, a helper method for the thing,
+        # because interactions are webhooks
+
+        return await self._req.request(
+            Route("DELETE", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}")
+        )
+
+    async def _post_followup(self, data: dict, token: str, application_id: str) -> dict:
+        """
+        Send a followup to an interaction.
+
+        :param data: the payload to send
+        :param application_id: the id of the application
+        :param token: the token of the interaction
+        """
+
+        return await self._req.request(
+            Route("POST", f"/webhooks/{application_id}/{token}"), json=data
+        )
