@@ -7,7 +7,7 @@ from .Request import Request
 from .Route import Route
 
 
-class _HTTPMessage:
+class HTTPMessage:
 
     _req: Request
     cache: Cache

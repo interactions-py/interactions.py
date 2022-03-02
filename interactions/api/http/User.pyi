@@ -3,7 +3,7 @@ from typing import Optional
 from ...api.cache import Cache
 from .Request import Request
 
-class _HTTPUser:
+class HTTPUser:
 
     _req: Request
     cache: Cache

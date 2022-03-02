@@ -6,7 +6,7 @@ from ..models.misc import Snowflake
 from .Request import Request
 
 
-class _HTTPMessage:
+class HTTPMessage:
 
     _req: Request
     cache: Cache

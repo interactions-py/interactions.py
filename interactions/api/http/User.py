@@ -7,7 +7,7 @@ from .Request import Request
 from .Route import Route
 
 
-class _HTTPUser:
+class HTTPUser:
 
     _req: Request
     cache: Cache
