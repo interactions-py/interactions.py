@@ -1,15 +1,13 @@
 from typing import List, Optional
 
 from ...api.cache import Cache
-from .Request import Request
-from .Route import Route
+from .request import _Request
 
-
-class HTTPMember:
+class _MemberRequest:
 
     __slots__ = ("_req", "cache")
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None: ...

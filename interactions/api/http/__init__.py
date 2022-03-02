@@ -4,19 +4,19 @@ interactions.api.http
 Handles all HTTP-Requests of the library.
 """
 
-from .Channel import *  # noqa: F401 F403
-from .Emoji import *  # noqa: F401 F403
-from .Guild import *  # noqa: F401 F403
+from .channel import *  # noqa: F401 F403
+from .emoji import *  # noqa: F401 F403
+from .guild import *  # noqa: F401 F403
 from .HTTPClient import *  # noqa: F401 F403
-from .Interaction import *  # noqa: F401 F403
-from .Limiter import *  # noqa: F401 F403
-from .Member import *  # noqa: F401 F403
-from .Message import *  # noqa: F401 F403
-from .Reaction import *  # noqa: F401 F403
-from .Request import *  # noqa: F401 F403
-from .Route import *  # noqa: F401 F403
-from .ScheduledEvent import *  # noqa: F401 F403
-from .Sticker import *  # noqa: F401 F403
-from .Thread import *  # noqa: F401 F403
-from .User import *  # noqa: F401 F403
-from .Webhook import *  # noqa: F401 F403
+from .interaction import *  # noqa: F401 F403
+from .limiter import *  # noqa: F401 F403
+from .member import *  # noqa: F401 F403
+from .message import *  # noqa: F401 F403
+from .reaction import *  # noqa: F401 F403
+from .request import *  # noqa: F401 F403
+from .route import *  # noqa: F401 F403
+from .scheduledEvent import *  # noqa: F401 F403
+from .sticker import *  # noqa: F401 F403
+from .thread import *  # noqa: F401 F403
+from .user import *  # noqa: F401 F403
+from .webhook import *  # noqa: F401 F403

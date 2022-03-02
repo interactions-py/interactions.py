@@ -6,15 +6,15 @@ from ..models.channel import Channel
 from ..models.guild import Guild
 from ..models.member import Member
 from ..models.role import Role
-from .Request import Request
-from .Route import Route
+from .request import _Request
+from .route import Route
 
 
-class HTTPGuild:
+class _GuildRequest:
 
     __slots__ = ("_req", "cache")
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None:

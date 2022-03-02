@@ -3,15 +3,15 @@ from typing import Dict, List, Optional, Union
 from ...api.cache import Cache, Item
 from ..models.channel import Channel
 from ..models.message import Message
-from .Request import Request
-from .Route import Route
+from .request import _Request
+from .route import Route
 
 
-class HTTPChannel:
+class _ChannelRequest:
 
     __slots__ = ("_req", "cache")
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None:

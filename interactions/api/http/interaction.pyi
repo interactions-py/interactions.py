@@ -2,12 +2,12 @@ from typing import List, Optional, Union
 
 from ..models import Snowflake
 from ...api.cache import Cache
-from .Request import Request
+from .request import _Request
 
 
-class HTTPInteraction:
+class _InteractionRequest:
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None: ...

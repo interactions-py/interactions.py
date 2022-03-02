@@ -2,10 +2,10 @@ from asyncio import AbstractEventLoop
 from typing import Any, Dict, Optional
 from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
-from .Limiter import Limiter
-from .Route import Route
+from .limiter import Limiter
+from .route import Route
 
-class Request:
+class _Request:
 
     token: str
     _loop: AbstractEventLoop

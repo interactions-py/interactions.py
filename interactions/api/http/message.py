@@ -3,15 +3,15 @@ from typing import List, Optional, Union
 from ...api.cache import Cache, Item
 from ..models.message import Embed, Message
 from ..models.misc import Snowflake
-from .Request import Request
-from .Route import Route
+from .request import _Request
+from .route import Route
 
 
-class HTTPMessage:
+class _MessageRequest:
 
     __slots__ = ("_req", "cache")
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None:

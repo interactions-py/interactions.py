@@ -1,12 +1,12 @@
 from typing import List
 
 from ...api.cache import Cache
-from .Request import Request
+from .request import _Request
 
 
-class HTTPReaction:
+class _ReactionRequest:
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None: ...

@@ -1,12 +1,12 @@
 from typing import List, Optional
 
-from .Request import Request
+from .request import _Request
 from ...api.cache import Cache
 
 
-class HTTPEmoji:
+class _EmojiRequest:
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None: ...

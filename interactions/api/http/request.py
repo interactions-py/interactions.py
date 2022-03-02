@@ -13,14 +13,14 @@ from aiohttp import __version__ as http_version
 from interactions.base import __version__, get_logger
 
 from ...api.error import HTTPException
-from .Limiter import Limiter
-from .Route import Route
+from .limiter import Limiter
+from .route import Route
 
 log: Logger = get_logger("http")
 _session: ClientSession = ClientSession()
 
 
-class Request:
+class _Request:
     """
     A class representing how HTTP requests are sent/read.
 

@@ -1,12 +1,12 @@
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
 
 from ...api.cache import Cache
-from .Request import Request
+from .request import _Request
 
 
-class HTTPChannel:
+class _ChannelRequest:
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None: ...

@@ -1,11 +1,11 @@
 from typing import Optional
 
 from ...api.cache import Cache
-from .Request import Request
+from .request import _Request
 
-class HTTPUser:
+class _UserRequest:
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None: ...

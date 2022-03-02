@@ -3,12 +3,12 @@ from typing import List, Optional, Union
 from ...api.cache import Cache
 from ..models.message import Embed, Message
 from ..models.misc import Snowflake
-from .Request import Request
+from .request import _Request
 
 
-class HTTPMessage:
+class _MessageRequest:
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None:

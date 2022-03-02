@@ -1,15 +1,15 @@
 from typing import List
 
 from ...api.cache import Cache
-from .Request import Request
-from .Route import Route
+from .request import _Request
+from .route import Route
 
 
-class HTTPReaction:
+class _ReactionRequest:
 
     __slots__ = ("_req", "cache")
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None:

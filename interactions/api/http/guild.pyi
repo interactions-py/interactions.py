@@ -1,12 +1,12 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from ...api.cache import Cache
 from ..models.role import Role
-from .Request import Request
+from .request import _Request
 
 
-class HTTPGuild:
+class _GuildRequest:
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None: ...

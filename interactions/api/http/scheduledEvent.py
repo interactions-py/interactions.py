@@ -2,15 +2,15 @@ from typing import List
 
 from ...api.cache import Cache
 from ..models import Snowflake
-from .Request import Request
-from .Route import Route
+from .request import _Request
+from .route import Route
 
 
-class HTTPScheduledEvent:
+class _ScheduledEventRequest:
 
     __slots__ = ("_req", "cache")
 
-    _req: Request
+    _req: _Request
     cache: Cache
 
     def __init__(self, _req, cache) -> None:
