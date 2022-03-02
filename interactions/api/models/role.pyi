@@ -1,7 +1,7 @@
 from typing import Any, Optional, List
 
 from .misc import DictSerializerMixin, MISSING, Snowflake
-from ..http import HTTPClient
+from ..http.HTTPClient import HTTPClient
 
 class RoleTags(DictSerializerMixin):
     _json: dict

@@ -7,7 +7,7 @@ from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
-from ..http import HTTPClient
+from ..http.HTTPClient import HTTPClient
 from ...models.component import ActionRow, Button, SelectMenu
 from .guild import Guild
 
