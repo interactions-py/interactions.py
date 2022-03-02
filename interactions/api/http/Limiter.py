@@ -12,6 +12,8 @@ class Limiter:
     :ivar float reset_after: The remaining time before the request can be ran.
     """
 
+    __slots__ = ("lock", "reset_after")
+
     lock: Lock
     reset_after: float
 

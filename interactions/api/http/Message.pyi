@@ -11,7 +11,7 @@ class HTTPMessage:
     _req: Request
     cache: Cache
 
-    def __init__(self, _req, cache):
+    def __init__(self, _req, cache) -> None:
         self._req = _req
         self.cache = cache
     async def send_message(

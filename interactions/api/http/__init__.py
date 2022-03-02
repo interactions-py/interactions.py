@@ -4,6 +4,7 @@ interactions.api.http
 Handles all HTTP-Requests of the library.
 """
 
+from .Guild import *  # noqa: F401 F403
 from .HTTPClient import *  # noqa: F401 F403
 from .Limiter import *  # noqa: F401 F403
 from .Message import *  # noqa: F401 F403
