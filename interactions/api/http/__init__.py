@@ -10,6 +10,7 @@ from .HTTPClient import *  # noqa: F401 F403
 from .Limiter import *  # noqa: F401 F403
 from .Member import *  # noqa: F401 F403
 from .Message import *  # noqa: F401 F403
+from .Reaction import *  # noqa: F401 F403
 from .Request import *  # noqa: F401 F403
 from .Route import *  # noqa: F401 F403
 from .Thread import *  # noqa: F401 F403
