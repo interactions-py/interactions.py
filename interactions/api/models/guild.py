@@ -1582,9 +1582,14 @@ class Invite(DictSerializerMixin):
     :ivar datetime expires_at: The time when this invite will expire.
     :ivar int type: The type of this invite.
     :ivar User inviter: The user who created this invite.
-    :ivar int guild_id: The guild ID of this invite.
     :ivar str code: The code of this invite.
-    :ivar int channel_id: The channel ID of this invite.
+    :ivar Optional[int] guild_id: The guild ID of this invite.
+    :ivar Optional[int] channel_id: The channel ID of this invite.
+    :ivar Optional[int] target_user_type: The type of the target user of this invite.
+    :ivar Optional[User] target_user: The target user of this invite.
+    :ivar Optional[int] target_type: The target type of this invite.
+    :ivar Optional[Guild] guild: The guild of this invite.
+    :ivar Optional[Channel] channel: The channel of this invite.
     """
 
     __slots__ = (
@@ -1601,6 +1606,11 @@ class Invite(DictSerializerMixin):
         "expires_at",
         "code",
         "channel_id",
+        "target_user_type",
+        "target_user",
+        "target_type",
+        "guild",
+        "channel",
     )
 
     def __init__(self, **kwargs):
@@ -1616,8 +1626,21 @@ class Invite(DictSerializerMixin):
             else None
         )
         self.inviter = User(**self._json.get("inviter")) if self._json.get("inviter") else None
-        self.channel_id = int(self.channel_id)
-        self.guild_id = int(self.guild_id)
+        self.channel_id = int(self.channel_id) if self._json.get("channel_id") else None
+        self.guild_id = int(self.guild_id) if self._json.get("guild_id") else None
+        self.target_user = (
+            User(**self._json.get("target_user")) if self._json.get("target_user") else None
+        )
+        self.guild = (
+            Guild(**self._json.get("guild"), _client=self._client)
+            if self._json.get("guild")
+            else None
+        )
+        self.channel = (
+            Channel(**self._json.get("channel"), _client=self._client)
+            if self._json.get("channel")
+            else None
+        )
 
 
 class GuildTemplate(DictSerializerMixin):
