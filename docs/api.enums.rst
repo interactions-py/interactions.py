@@ -3,6 +3,6 @@
 Enumerable Objects
 ==================
 
-.. automodule:: interactions.api.enums
+.. autoclass:: interactions.api.enums.OpCodeType
     :members:
     :noindex:
