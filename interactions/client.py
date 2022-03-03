@@ -13,7 +13,7 @@ from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocketClient
-from .api.http.HTTPClient import HTTPClient
+from .api.http.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
 from .api.models.misc import MISSING, Snowflake

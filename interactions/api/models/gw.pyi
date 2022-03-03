@@ -9,7 +9,7 @@ from .presence import PresenceActivity
 from .role import Role
 from .user import User
 from .team import Application
-from ..http.HTTPClient import HTTPClient
+from ..http.http import HTTPClient
 from ...models.command import Permission
 
 class ApplicationCommandPermissions(DictSerializerMixin):

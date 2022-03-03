@@ -1,6 +1,6 @@
 rom typing import List, Optional, Union
 
-from .api.http.HTTPClient import HTTPClient
+from .api.http.http import HTTPClient
 from .api.models.channel import Channel as Channel
 from .api.models.guild import Guild as Guild
 from .api.models.member import Member as Member

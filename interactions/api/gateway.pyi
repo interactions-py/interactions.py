@@ -12,7 +12,7 @@ from ..models import Option
 from ..api.models.misc import MISSING
 from ..api.models.presence import ClientPresence
 from .dispatch import Listener
-from .http.HTTPClient import HTTPClient
+from .http.http import HTTPClient
 from .models.flags import Intents
 
 log: Logger

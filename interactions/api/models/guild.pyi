@@ -9,7 +9,7 @@ from .misc import DictSerializerMixin, MISSING, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
-from ..http.HTTPClient import HTTPClient
+from ..http.http import HTTPClient
 
 class VerificationLevel(IntEnum):
     NONE: int
