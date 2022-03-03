@@ -45,18 +45,6 @@ class HTTPClient(
         "token",
         "_req",
         "cache",
-        "user",
-        "message",
-        "guild",
-        "member",
-        "channel",
-        "thread",
-        "reaction",
-        "sticker",
-        "interaction",
-        "webhook",
-        "emoji",
-        "scheduled_event",
     )
 
     token: str
