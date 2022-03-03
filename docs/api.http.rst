@@ -15,7 +15,7 @@ HTTP
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient.HTTPClient
+.. autoclass:: interactions.api.http.http.HTTPClient
     :members:
     :noindex:
 
