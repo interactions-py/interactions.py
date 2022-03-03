@@ -7,14 +7,11 @@ from .route import Route
 
 class _EmojiRequest:
 
-    __slots__ = ("_req", "cache")
-
     _req: _Request
     cache: Cache
 
-    def __init__(self, _req, cache) -> None:
-        self._req = _req
-        self.cache = cache
+    def __init__(self) -> None:
+        pass
 
     async def get_all_emoji(self, guild_id: int) -> List[dict]:
         """

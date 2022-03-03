@@ -117,7 +117,7 @@ class Member(DictSerializerMixin):
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
         :type delete_message_days: Optional[int]
         """
-        await self._client.guild.create_guild_ban(
+        await self._client.create_guild_ban(
             guild_id=guild_id,
             user_id=int(self.user.id),
             reason=reason,
@@ -139,7 +139,7 @@ class Member(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.guild.create_guild_kick(
+        await self._client.create_guild_kick(
             guild_id=guild_id,
             user_id=int(self.user.id),
             reason=reason,
@@ -164,14 +164,14 @@ class Member(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
-            await self._client.member.add_member_role(
+            await self._client.add_member_role(
                 guild_id=guild_id,
                 user_id=int(self.user.id),
                 role_id=int(role.id),
                 reason=reason,
             )
         else:
-            await self._client.member.add_member_role(
+            await self._client.add_member_role(
                 guild_id=guild_id,
                 user_id=int(self.user.id),
                 role_id=role,
@@ -197,14 +197,14 @@ class Member(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if isinstance(role, Role):
-            await self._client.member.remove_member_role(
+            await self._client.remove_member_role(
                 guild_id=guild_id,
                 user_id=int(self.user.id),
                 role_id=int(role.id),
                 reason=reason,
             )
         else:
-            await self._client.member.remove_member_role(
+            await self._client.remove_member_role(
                 guild_id=guild_id,
                 user_id=int(self.user.id),
                 role_id=role,
@@ -278,10 +278,8 @@ class Member(DictSerializerMixin):
             allowed_mentions=_allowed_mentions,
         )
 
-        channel = Channel(**await self._client.user.create_dm(recipient_id=int(self.user.id)))
-        res = await self._client.message.create_message(
-            channel_id=int(channel.id), payload=payload._json
-        )
+        channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
+        res = await self._client.create_message(channel_id=int(channel.id), payload=payload._json)
 
         return Message(**res, _client=self._client)
 
@@ -339,7 +337,7 @@ class Member(DictSerializerMixin):
         if communication_disabled_until is not MISSING:
             payload["communication_disabled_until"] = communication_disabled_until
 
-        res = await self._client.member.modify_member(
+        res = await self._client.modify_member(
             user_id=int(self.user.id),
             guild_id=guild_id,
             payload=payload,
@@ -359,7 +357,7 @@ class Member(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.thread.add_member_to_thread(
+        await self._client.add_member_to_thread(
             user_id=int(self.user.id),
             thread_id=thread_id,
         )

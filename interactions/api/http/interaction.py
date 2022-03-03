@@ -8,14 +8,11 @@ from .route import Route
 
 class _InteractionRequest:
 
-    __slots__ = ("_req", "cache")
-
     _req: _Request
     cache: Cache
 
-    def __init__(self, _req, cache) -> None:
-        self._req = _req
-        self.cache = cache
+    def __init__(self) -> None:
+        pass
 
     async def get_application_commands(
         self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None

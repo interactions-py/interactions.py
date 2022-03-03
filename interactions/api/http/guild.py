@@ -12,14 +12,11 @@ from .route import Route
 
 class _GuildRequest:
 
-    __slots__ = ("_req", "cache")
-
     _req: _Request
     cache: Cache
 
-    def __init__(self, _req, cache) -> None:
-        self._req = _req
-        self.cache = cache
+    def __init__(self) -> None:
+        pass
 
     async def get_self_guilds(self) -> List[dict]:
         """

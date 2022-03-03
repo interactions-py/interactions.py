@@ -88,7 +88,7 @@ class Role(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        await self._client.guild.delete_guild_role(
+        await self._client.delete_guild_role(
             guild_id=guild_id, role_id=int(self.id), reason=reason
         ),
 
@@ -131,7 +131,7 @@ class Role(DictSerializerMixin):
 
         payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
 
-        res = await self._client.guild.modify_guild_role(
+        res = await self._client.modify_guild_role(
             guild_id=guild_id,
             role_id=int(self.id),
             payload=payload._json,
@@ -159,7 +159,7 @@ class Role(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.guild.modify_guild_role_position(
+        res = await self._client.modify_guild_role_position(
             guild_id=guild_id, position=position, role_id=int(self.id), reason=reason
         )
         return [Role(**role, _client=self._client) for role in res]

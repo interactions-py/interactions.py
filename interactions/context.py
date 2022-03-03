@@ -102,7 +102,7 @@ class _Context(DictSerializerMixin):
         :rtype: Channel
         """
 
-        res = await self.client.channel.get_channel(int(self.channel_id))
+        res = await self.client.get_channel(int(self.channel_id))
         self.channel = Channel(**res, _client=self.client)
         return self.channel
 
@@ -114,7 +114,7 @@ class _Context(DictSerializerMixin):
         :rtype: Guild
         """
 
-        res = await self.client.guild.get_guild(int(self.guild_id))
+        res = await self.client.get_guild(int(self.guild_id))
         self.guild = Guild(**res, _client=self.client)
         return self.guild
 
@@ -295,7 +295,7 @@ class _Context(DictSerializerMixin):
             },
         }
 
-        await self.client.interaction.create_interaction_response(
+        await self.client.create_interaction_response(
             token=self.token,
             application_id=int(self.id),
             data=payload,
@@ -317,7 +317,7 @@ class CommandContext(_Context):
         this as a value, but instead ``guild_id``. You will
         need to manually fetch for this data for the time being.
 
-        You can fetch with ``client.guild.get_guild(guild_id)`` which
+        You can fetch with ``client.get_guild(guild_id)`` which
         will return a JSON dictionary, which you can then use
         ``interactions.Guild(**data)`` for an object or continue
         with a dictionary for your own purposes.
@@ -385,12 +385,12 @@ class CommandContext(_Context):
 
         if self.deferred:
             if hasattr(self.message, "id") and self.message.id is not None:
-                res = await self.client.message.edit_message(
+                res = await self.client.edit_message(
                     int(self.channel_id), int(self.message.id), payload=payload._json
                 )
                 self.message = msg = Message(**res, _client=self.client)
             else:
-                res = await self.client.interaction.edit_interaction_response(
+                res = await self.client.edit_interaction_response(
                     token=self.token,
                     application_id=str(self.id),
                     data={"type": self.callback.value, "data": payload._json},
@@ -401,12 +401,12 @@ class CommandContext(_Context):
                     self.message = payload
                     self.message._client = self.client
                 else:
-                    await self.client.message.edit_message(
+                    await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
                     self.message = msg = Message(**res, _client=self.client)
         else:
-            res = await self.client.interaction.edit_interaction_response(
+            res = await self.client.edit_interaction_response(
                 token=self.token,
                 application_id=str(self.application_id),
                 data={"type": self.callback.value, "data": payload._json},
@@ -414,7 +414,7 @@ class CommandContext(_Context):
             if res["flags"] == 64:
                 log.warning("You can't edit hidden messages.")
             else:
-                await self.client.message.edit_message(
+                await self.client.edit_message(
                     int(self.channel_id), res["id"], payload=payload._json
                 )
                 self.message = msg = Message(**res, _client=self.client)
@@ -435,7 +435,7 @@ class CommandContext(_Context):
         _ephemeral: int = (1 << 6) if ephemeral else 0
         self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
-        await self.client.interaction.create_interaction_response(
+        await self.client.create_interaction_response(
             token=self.token,
             application_id=int(self.id),
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},
@@ -452,14 +452,14 @@ class CommandContext(_Context):
         msg = None
         if self.responded or self.deferred:
             if self.deferred:
-                res = await self.client.interaction.edit_interaction_response(
+                res = await self.client.edit_interaction_response(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
                 self.responded = True
             else:
-                res = await self.client.interaction._post_followup(
+                res = await self.client._post_followup(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
@@ -471,7 +471,7 @@ class CommandContext(_Context):
                 application_id=int(self.id),
                 data=_payload,
             )
-            __newdata = await self.client.interaction.edit_interaction_response(
+            __newdata = await self.client.edit_interaction_response(
                 data={},
                 token=self.token,
                 application_id=str(self.application_id),
@@ -495,11 +495,11 @@ class CommandContext(_Context):
             being present.
         """
         if self.responded:
-            await self.client.webhook.delete_webhook_message(
+            await self.client.delete_webhook_message(
                 webhook_id=int(self.id), webhook_token=self.token, message_id=int(self.message.id)
             )
         else:
-            await self.client.webhook.delete_original_webhook_message(int(self.id), self.token)
+            await self.client.delete_original_webhook_message(int(self.id), self.token)
         self.message = None
 
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
@@ -534,7 +534,7 @@ class CommandContext(_Context):
                         6, message="Autocomplete choice items must be of type Choice"
                     )
 
-                await self.client.interaction.create_interaction_response(
+                await self.client.create_interaction_response(
                     token=self.token,
                     application_id=int(self.id),
                     data={
@@ -590,7 +590,7 @@ class ComponentContext(_Context):
 
         if not self.deferred:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
-            await self.client.interaction.create_interaction_response(
+            await self.client.create_interaction_response(
                 data={"type": self.callback.value, "data": payload._json},
                 token=self.token,
                 application_id=int(self.id),
@@ -598,13 +598,13 @@ class ComponentContext(_Context):
             self.message = payload
             self.responded = True
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-            await self.client.interaction._post_followup(
+            await self.client._post_followup(
                 data=payload._json,
                 token=self.token,
                 application_id=str(self.application_id),
             )
         else:
-            res = await self.client.interaction.edit_interaction_response(
+            res = await self.client.edit_interaction_response(
                 data=payload._json,
                 token=self.token,
                 application_id=str(self.application_id),
@@ -632,14 +632,14 @@ class ComponentContext(_Context):
             or self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
             if self.deferred:
-                res = await self.client.interaction.edit_interaction_response(
+                res = await self.client.edit_interaction_response(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
                 self.responded = True
             else:
-                res = await self.client.interaction._post_followup(
+                res = await self.client._post_followup(
                     data=payload._json,
                     token=self.token,
                     application_id=str(self.application_id),
@@ -647,12 +647,12 @@ class ComponentContext(_Context):
             self.message = msg = Message(**res, _client=self.client)
 
         else:
-            await self.client.interaction.create_interaction_response(
+            await self.client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data=_payload,
             )
-            __newdata = await self.client.interaction.edit_interaction_response(
+            __newdata = await self.client.edit_interaction_response(
                 data={},
                 token=self.token,
                 application_id=str(self.application_id),
@@ -688,7 +688,7 @@ class ComponentContext(_Context):
         else:
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
-        await self.client.interaction.create_interaction_response(
+        await self.client.create_interaction_response(
             token=self.token,
             application_id=int(self.id),
             data={"type": self.callback.value, "data": {"flags": _ephemeral}},

@@ -1,4 +1,4 @@
-rom typing import List, Optional, Union
+from typing import List, Optional, Union
 
 from .api.http.http import HTTPClient
 from .api.models.channel import Channel as Channel
