@@ -902,6 +902,15 @@ class Embed(DictSerializerMixin):
         if self.footer:
             self._json.update({"footer": self.footer._json})
 
+        if self.thumbnail:
+            self._json.update({"thumbnail": self.thumbnail._json})
+
+        if self.image:
+            self._json.update({"image": self.image._json})
+
+        if self.video:
+            self._json.update({"video": self.video._json})
+
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
         Adds a field to the embed
