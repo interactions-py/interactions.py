@@ -71,6 +71,13 @@ body:
         - unstable
     validations:
       required: true
+  - type: input
+    id: version-specific
+    attributes:
+      label: Version specification
+      description: "If you're using a pre-release or release candidate, please specify which one."
+    validations:
+      required: false
   - type: checkboxes
     id: accept
     attributes:
