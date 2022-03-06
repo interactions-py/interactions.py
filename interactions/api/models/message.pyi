@@ -172,6 +172,17 @@ class Emoji(DictSerializerMixin):
         emoji_id: int,
         client: "HTTPClient",  # noqa
     ) -> "Emoji": ...
+    @classmethod
+    async def get_all_of_guild(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> List["Emoji"]: ...
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
 
 class ReactionObject(DictSerializerMixin):
     _json: dict

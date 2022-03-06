@@ -628,6 +628,44 @@ class Emoji(DictSerializerMixin):
         res = await client.get_guild_emoji(guild_id=guild_id, emoji_id=emoji_id)
         return cls(**res, _client=client)
 
+    @classmethod
+    async def get_all_of_guild(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> List["Emoji"]:
+        """
+        Gets all emoji of a guild.
+
+        :param guild_id: The id of the guild to get the emojis of
+        :type guild_id: int
+        :param client: The HTTPClient of your bot. Equals to ``bot._http``
+        :type client: HTTPClient
+        :return: The Emoji as list
+        :rtype: List[Emoji]
+        """
+        res = await client.get_all_emoji(guild_id=guild_id)
+        return [cls(**emoji, _client=client) for emoji in res]
+
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes the emoji.
+
+        :param guild_id: The guild id to delete the emoji from
+        :type guild_id: int
+        :param reason?: The reason of the deletion
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        return await self._client.delete_guild_emoji(
+            guild_id=guild_id, emoji_id=int(self.id), reason=reason
+        )
+
 
 class ReactionObject(DictSerializerMixin):
     """The reaction object.
