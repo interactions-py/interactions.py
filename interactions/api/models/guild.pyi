@@ -388,6 +388,12 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> List[Role]: ...
     async def get_bans(self) -> List[dict]: ...
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Guild": ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict

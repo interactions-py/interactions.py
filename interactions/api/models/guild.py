@@ -1487,6 +1487,24 @@ class Guild(DictSerializerMixin):
             ban["user"] = User(**ban["user"])
         return res
 
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Guild":
+        """
+        Gets a guild.
+
+        :param guild_id: The id of the guild to get
+        :type guild_id: int
+        :param client: The HTTPClient of your bot. Equals to ``bot._http``
+        :type client: HTTPClient
+        """
+
+        guild = await client.get_guild(guild_id=guild_id)
+        return cls(**guild, _client=client)
+
 
 class GuildPreview(DictSerializerMixin):
     """
