@@ -868,7 +868,8 @@ class Channel(DictSerializerMixin):
 
     @property
     def url(self) -> str:
-        return f"https://discord.com/channels/{self.guild_id}/{self.id}" if self.guild_id else None
+        guild_id = "@me" if not isinstance(self.guild_id, int) else self.guild_id
+        return f"https://discord.com/channels/{guild_id}/{self.id}"
 
     async def create_invite(
         self,
