@@ -154,6 +154,7 @@ class Message(DictSerializerMixin):
 
 
 class Emoji(DictSerializerMixin):
+    _client: HTTPClient
     _json: dict
     id: Optional[Snowflake]
     name: Optional[str]
