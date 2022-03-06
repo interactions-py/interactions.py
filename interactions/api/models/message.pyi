@@ -165,6 +165,13 @@ class Emoji(DictSerializerMixin):
     animated: Optional[bool]
     available: Optional[bool]
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        emoji_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Emoji": ...
 
 class ReactionObject(DictSerializerMixin):
     _json: dict

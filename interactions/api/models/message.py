@@ -606,6 +606,28 @@ class Emoji(DictSerializerMixin):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
 
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        emoji_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Emoji":
+        """
+        Gets an emoji.
+
+        :param guild_id: The id of the guild of the emoji
+        :type guild_id: int
+        :param emoji_id: The id of the emoji
+        :type emoji_id: int
+        :param client: The HTTPClient of your bot. Equals to ``bot._http``
+        :type client: HTTPClient
+        :return: The Emoji as object
+        :rtype: Emoji
+        """
+        res = await client.get_guild_emoji(guild_id=guild_id, emoji_id=emoji_id)
+        return cls(**res, _client=client)
+
 
 class ReactionObject(DictSerializerMixin):
     """The reaction object.
@@ -902,15 +924,6 @@ class Embed(DictSerializerMixin):
 
         if self.footer:
             self._json.update({"footer": self.footer._json})
-
-        if self.thumbnail:
-            self._json.update({"thumbnail": self.thumbnail._json})
-
-        if self.image:
-            self._json.update({"image": self.image._json})
-
-        if self.video:
-            self._json.update({"video": self.video._json})
 
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
