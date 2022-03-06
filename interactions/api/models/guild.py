@@ -1480,6 +1480,58 @@ class Guild(DictSerializerMixin):
             ban["user"] = User(**ban["user"])
         return res
 
+    async def get_emoji(
+        self,
+        emoji_id: int,
+    ) -> Emoji:
+        """
+        Gets an emoji of the guild and returns it.
+
+        :param emoji_id: The id of the emoji
+        :type emoji_id: int
+        :return: The specified Emoji, if found
+        :rtype: Emoji
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
+        return Emoji(**res, _client=self._client)
+
+    async def get_all_emojis(self) -> List[Emoji]:
+        """
+        Gets all emojis of a guild.
+
+        :return: All emojis of the guild
+        :rtype: List[Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        res = await self._client.get_all_emoji(guild_id=int(self.id))
+        return [Emoji(**emoji, _client=self._client) for emoji in res]
+
+    async def delete_emoji(
+        self,
+        emoji: Union[Emoji, int],
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes an emoji of the guild.
+
+        :param emoji: The emoji or the id of the emoji to delete
+        :type emoji: Union[Emoji, int]
+        :param reason?: The reason of the deletion
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        emoji_id = emoji.id if isinstance(emoji, Emoji) else emoji
+        return await self._client.delete_guild_emoji(
+            guild_id=int(self.id),
+            emoji_id=emoji_id,
+            reason=reason,
+        )
+
 
 class GuildPreview(DictSerializerMixin):
     """
@@ -1626,8 +1678,8 @@ class Invite(DictSerializerMixin):
             else None
         )
         self.inviter = User(**self._json.get("inviter")) if self._json.get("inviter") else None
-        self.channel_id = int(self.channel_id) if self._json.get("channel_id") else None
-        self.guild_id = int(self.guild_id) if self._json.get("guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.target_user = (
             User(**self._json.get("target_user")) if self._json.get("target_user") else None
         )
