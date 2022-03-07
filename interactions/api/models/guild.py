@@ -654,8 +654,8 @@ class Guild(DictSerializerMixin):
         _invitable = None if invitable is MISSING else invitable
         _message_id = None if message_id is MISSING else message_id
         res = await self._client.create_thread(
-            channel_id=int(self.id),
-            thread_type=type.value,
+            channel_id=channel_id,
+            thread_type=type.value if not isinstance(type, int) else type,
             name=name,
             auto_archive_duration=_auto_archive_duration,
             invitable=_invitable,
