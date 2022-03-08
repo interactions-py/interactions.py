@@ -384,6 +384,16 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> List[Role]: ...
     async def get_bans(self) -> List[dict]: ...
+    async def get_emoji(
+        self,
+        emoji_id: int
+    ) -> Emoji: ...
+    async def get_all_emojis(self) -> List[Emoji]: ...
+    async def delete_emoji(
+        self,
+        emoji: Union[Emoji, int],
+        reason: Optional[str] = None,
+    ) -> None: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
@@ -403,7 +413,7 @@ class Invite(DictSerializerMixin):
     _client: HTTPClient
     type: str
     guild_id: Snowflake
-    expires_at: str
+    expires_at: Optional[datetime]
     code: str
     channel_id: Snowflake
     uses: int
