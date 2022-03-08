@@ -470,7 +470,6 @@ class Message(DictSerializerMixin):
 
         if not components or components is MISSING:
             _components = []
-        # TODO: Break this obfuscation pattern down to a "builder" method.
         else:
             _components = _build_components(components=components)
 
@@ -551,6 +550,97 @@ class Message(DictSerializerMixin):
             auto_archive_duration=_auto_archive_duration,
         )
         return Channel(**res, _client=self._client)
+
+    async def create_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None:
+        """
+        Adds a reaction to the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+
+        return await self._client.create_reaction(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
+        )
+
+    async def remove_all_reactions(self) -> None:
+        """
+        Removes all reactions of the message.
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        return await self._client.remove_all_reactions(
+            channel_id=int(self.channel_id), message_id=int(self.id)
+        )
+
+    async def remove_all_reactions_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None:
+        """
+        Removes all reactions of one emoji of the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+        return await self._client.remove_all_reactions_of_emoji(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
+        )
+
+    async def remove_own_reaction_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None:
+        """
+        Removes the own reaction of an emoji of the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f"{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+        return await self._client.remove_self_reaction(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
+        )
+
+    async def remove_reaction_from(
+        self, emoji: Union[str, "Emoji"], user: Union[Member, User, int]
+    ) -> None:
+        """
+        Removes another reaction of an emoji of the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        :param user: The user or user_id to remove the reaction of
+        :type user: Union[Member, user, int]
+        """
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+        _user_id = user if isinstance(user, int) else user.id
+        return await self._client.remove_user_reaction(
+            channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
+        )
 
     @classmethod
     async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,

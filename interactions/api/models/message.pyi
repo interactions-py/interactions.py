@@ -145,6 +145,24 @@ class Message(DictSerializerMixin):
         invitable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
+    async def create_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_all_reactions(self) -> None: ...
+    async def remove_all_reactions_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_own_reaction_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_reaction_from(
+        self,
+        emoji: Union[str, "Emoji"],
+        user: Union[Member, User, int]
+    ) -> None: ...
     @classmethod
     async def get_from_url(
         cls,
