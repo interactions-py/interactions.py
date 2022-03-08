@@ -278,7 +278,7 @@ class Channel(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        permission_overwrites: Optional[Overwrite] = MISSING,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -303,7 +303,7 @@ class Channel(DictSerializerMixin):
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
         :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites: Optional[Overwrite]
+        :type permission_overwrites: Optional[List[Overwrite]]
         :param reason?: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel as new object
@@ -324,7 +324,7 @@ class Channel(DictSerializerMixin):
         _permission_overwrites = (
             self.permission_overwrites
             if permission_overwrites is MISSING
-            else permission_overwrites._json
+            else [overwrite._json for overwrite in permission_overwrites]
         )
         _type = self.type
 

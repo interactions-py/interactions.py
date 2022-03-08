@@ -674,7 +674,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        permission_overwrites: Optional[Overwrite] = MISSING,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -745,7 +745,9 @@ class Guild(DictSerializerMixin):
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
         if permission_overwrites is not MISSING:
-            payload["permission_overwrites"] = permission_overwrites._json
+            payload["permission_overwrites"] = [
+                overwrite._json for overwrite in permission_overwrites
+            ]
 
         res = await self._client.create_channel(
             guild_id=int(self.id),
@@ -764,7 +766,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        permission_overwrites: Optional[Overwrite] = MISSING,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -814,7 +816,7 @@ class Guild(DictSerializerMixin):
         _permission_overwrites = (
             ch.permission_overwrites
             if permission_overwrites is MISSING
-            else permission_overwrites._json
+            else [overwrite._json for overwrite in permission_overwrites]
         )
         _type = ch.type
 
