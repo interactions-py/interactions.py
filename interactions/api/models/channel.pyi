@@ -3,6 +3,7 @@ from enum import IntEnum
 from typing import List, Optional, Union, Callable
 
 from .message import Message, Embed, MessageInteraction
+# from ... import Member, Presence
 from ...models.component import ActionRow, Button, SelectMenu
 from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
 from .user import User
@@ -20,6 +21,7 @@ class ChannelType(IntEnum):
     GUILD_PUBLIC_THREAD: int
     GUILD_PRIVATE_THREAD: int
     GUILD_STAGE_VOICE: int
+    FORUM: int
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict
@@ -36,6 +38,8 @@ class ThreadMember(DictSerializerMixin):
     user_id: Optional[Snowflake]
     join_timestamp: datetime.timestamp
     flags: int
+    # member: Optional[Member]
+    # presence: Optional[Presence]
     def __init__(self, **kwargs): ...
 
 class Channel(DictSerializerMixin):

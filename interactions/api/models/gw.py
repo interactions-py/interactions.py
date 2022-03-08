@@ -436,6 +436,10 @@ class ReactionRemove(MessageReaction):
         self.emoji = Emoji(**self.emoji) if self._json.get("emoji") else None
 
 
+# TODO: (temp) Add Thread object for a THREAD_UPDATE event.
+# More prevalent on forums for some odd reason.
+
+
 class ThreadList(DictSerializerMixin):
     """
     A class object representing the gateway event ``THREAD_LIST_SYNC``.
