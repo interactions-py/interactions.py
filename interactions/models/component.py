@@ -44,18 +44,6 @@ class SelectOption(DictSerializerMixin):
         if self.emoji:
             self._json.update({"emoji": self.emoji._json})
 
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
-            if value is not None and value is not MISSING:
-                try:
-                    value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    pass
-                self._json.update({key: value})
-            elif value is None and key in self._json.keys():
-                del self._json[key]
-
 
 class SelectMenu(DictSerializerMixin):
     """
@@ -114,18 +102,6 @@ class SelectMenu(DictSerializerMixin):
         self._json.update({"type": self.type.value})
         self._json.update({"options": [option._json for option in self.options]})
 
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
-            if value is not None and value is not MISSING:
-                try:
-                    value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    pass
-                self._json.update({key: value})
-            elif value is None and key in self._json.keys():
-                del self._json[key]
-
 
 class Button(DictSerializerMixin):
     """
@@ -166,18 +142,6 @@ class Button(DictSerializerMixin):
         self._json.update({"type": self.type.value, "style": self.style.value})
         if self.emoji:
             self._json.update({"emoji": self.emoji._json})
-
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
-            if value is not None and value is not MISSING:
-                try:
-                    value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    pass
-                self._json.update({key: value})
-            elif value is None and key in self._json.keys():
-                del self._json[key]
 
 
 class Component(DictSerializerMixin):
@@ -318,18 +282,6 @@ class TextInput(DictSerializerMixin):
         self.type = ComponentType.INPUT_TEXT
         self.style = TextStyleType(self.style)
         self._json.update({"type": self.type.value, "style": self.style.value})
-
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
-            if value is not None and value is not MISSING:
-                try:
-                    value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    pass
-                self._json.update({key: value})
-            elif value is None and key in self._json.keys():
-                del self._json[key]
 
 
 class Modal(DictSerializerMixin):
