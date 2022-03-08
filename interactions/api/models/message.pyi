@@ -170,7 +170,6 @@ class Message(DictSerializerMixin):
         client: HTTPClient,
     ) -> "Message": ...
 
-
 class Emoji(DictSerializerMixin):
     _client: HTTPClient
     _json: dict
