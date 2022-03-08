@@ -44,6 +44,7 @@ class SelectOption(DictSerializerMixin):
         if self.emoji:
             self._json.update({"emoji": self.emoji._json})
 
+
 class SelectMenu(DictSerializerMixin):
     """
     A class object representing the select menu of a component.
