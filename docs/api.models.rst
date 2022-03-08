@@ -9,7 +9,7 @@ Model Objects
     api.models.channel.rst
     api.models.guild.rst
     api.models.gw.rst
-    api.models.intents.rst
+    api.models.flags.rst
     api.models.member.rst
     api.models.message.rst
     api.models.misc.rst
