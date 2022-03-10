@@ -337,7 +337,9 @@ class Channel(DictSerializerMixin):
             reason=reason,
             data=payload._json,
         )
-        return Channel(**res, _client=self._client)
+        ch = Channel(**res, _client=self._client)
+        self = ch
+        return ch
 
     async def set_name(
         self,

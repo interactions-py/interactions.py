@@ -1040,7 +1040,9 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Guild(**res, _client=self._client)
+        guild = Guild(**res, _client=self._client)
+        self = guild
+        return guild
 
     async def set_name(
         self,

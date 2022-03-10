@@ -415,7 +415,12 @@ class Message(DictSerializerMixin):
             payload=payload._json,
         )
 
-        return Message(**_dct) if not _dct.get("code") else payload
+        msg = Message(**_dct) if not _dct.get("code") else payload
+
+        if isinstance(msg, Message):
+            self = msg
+
+        return msg
 
     async def reply(
         self,

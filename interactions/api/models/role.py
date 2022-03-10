@@ -137,7 +137,9 @@ class Role(DictSerializerMixin):
             data=payload._json,
             reason=reason,
         )
-        return Role(**res, _client=self._client)
+        role = Role(**res, _client=self._client)
+        self = role
+        return role
 
     async def modify_position(
         self,

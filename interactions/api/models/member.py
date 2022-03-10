@@ -343,7 +343,9 @@ class Member(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Member(**res, _client=self._client)
+        member = Member(**res, _client=self._client)
+        self = member
+        return member
 
     async def add_to_thread(
         self,
