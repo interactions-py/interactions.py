@@ -138,7 +138,10 @@ class Role(DictSerializerMixin):
             reason=reason,
         )
         role = Role(**res, _client=self._client)
-        self = role
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(role, attr))
+
         return role
 
     async def modify_position(

@@ -344,7 +344,10 @@ class Member(DictSerializerMixin):
             reason=reason,
         )
         member = Member(**res, _client=self._client)
-        self = member
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(member, attr))
+
         return member
 
     async def add_to_thread(

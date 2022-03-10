@@ -417,8 +417,8 @@ class Message(DictSerializerMixin):
 
         msg = Message(**_dct) if not _dct.get("code") else payload
 
-        if isinstance(msg, Message):
-            self = msg
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(msg, attr))
 
         return msg
 

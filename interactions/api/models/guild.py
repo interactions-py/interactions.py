@@ -1041,7 +1041,10 @@ class Guild(DictSerializerMixin):
             reason=reason,
         )
         guild = Guild(**res, _client=self._client)
-        self = guild
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(guild, attr))
+
         return guild
 
     async def set_name(
