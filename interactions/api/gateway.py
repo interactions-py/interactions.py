@@ -195,7 +195,6 @@ class WebSocketClient:
 
             while not self._closed:
                 stream = await self.__receive_packet_stream
-                print(stream)
 
                 if stream is None:
                     continue
