@@ -17,6 +17,7 @@ from .api.http import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
 from .api.models.misc import MISSING, Snowflake
+from .api.models.presence import ClientPresence
 from .api.models.team import Application
 from .base import get_logger
 from .decor import command
@@ -329,6 +330,20 @@ class Client:
         """
         self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
+
+    def change_presence(self, presence: ClientPresence) -> None:
+        """
+        A method that changes the current client's presence on runtime.
+
+         .. note::
+            There is a ratelimit to using this method (5 per minute).
+            As there's no gateway ratelimiter yet, breaking this ratelimit
+            will force your bot to disconnect.
+
+        :param presence: The presence to change the bot to on identify.
+        :type presence: ClientPresence
+        """
+        await self._websocket._update_presence(presence)
 
     def __check_command(
         self,
