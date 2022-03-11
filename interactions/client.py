@@ -331,7 +331,7 @@ class Client:
         self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
 
-    def change_presence(self, presence: ClientPresence) -> None:
+    async def change_presence(self, presence: ClientPresence) -> None:
         """
         A method that changes the current client's presence on runtime.
 
