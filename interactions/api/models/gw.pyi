@@ -123,6 +123,7 @@ class Integration(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Presence(DictSerializerMixin):
+    _client: HTTPClient
     _json: dict
     user: User
     guild_id: Snowflake
