@@ -59,6 +59,8 @@ class GuildJoinRequest(DictSerializerMixin):
     _json: dict
     user_id: Snowflake
     guild_id: Snowflake
+    request: Optional[Any]
+    status: Optional[str]
     def __init__(self, **kwargs): ...
 
 class GuildMember(DictSerializerMixin):

@@ -151,14 +151,17 @@ class GuildJoinRequest(DictSerializerMixin):
 
     :ivar Snowflake user_id: The user ID of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
+    :ivar Optional[Any] request: The actual request representing the event. This pertains to _CREATE, and maybe _UPDATE events.
+    :ivar Optional[str] status: The status of the event. This pertains to _CREATE events.
     """
 
-    __slots__ = ("_json", "user_id", "guild_id")
+    __slots__ = ("_json", "user_id", "guild_id", "request", "status")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        # TODO: Add model conversions for request.
 
 
 class GuildMember(DictSerializerMixin):
