@@ -32,7 +32,6 @@ from .models.presence import ClientPresence
 
 log = get_logger("gateway")
 
-
 __all__ = ("_Heartbeat", "WebSocketClient")
 
 
@@ -196,6 +195,7 @@ class WebSocketClient:
 
             while not self._closed:
                 stream = await self.__receive_packet_stream
+                print(stream)
 
                 if stream is None:
                     continue
@@ -621,3 +621,20 @@ class WebSocketClient:
     def presence(self) -> Optional[ClientPresence]:
         """Returns the current presence."""
         return self.__presence
+
+    async def _update_presence(self, presence: ClientPresence) -> None:
+        """
+        Sends an ``UPDATE_PRESENCE`` packet to the gateway.
+
+        .. note::
+            There is a ratelimit to using this method (5 per minute).
+            As there's no gateway ratelimiter yet, breaking this ratelimit
+            will force your bot to disconnect.
+
+        :param presence: The presence to change the bot to on identify.
+        :type presence: ClientPresence
+        """
+        payload: dict = {"op": OpCodeType.PRESENCE, "d": presence._json}
+        await self._send_packet(payload)
+        log.debug(f"UPDATE_PRESENCE: {presence._json}")
+        self.__presence = presence
