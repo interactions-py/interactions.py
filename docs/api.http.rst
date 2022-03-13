@@ -19,7 +19,6 @@ HTTP
     :members:
     :noindex:
 
-
 .. autoclass:: interactions.api.http.channel._ChannelRequest
     :members:
     :noindex:
