@@ -166,6 +166,16 @@ class Snowflake(object):
     def __hash__(self):
         return hash(self._snowflake)
 
+    def __eq__(self, other):
+        if isinstance(other, Snowflake):
+            return str(self) == str(other)
+        elif isinstance(other, int):
+            return int(self) == other
+        elif isinstance(other, str):
+            return str(self) == other
+
+        return NotImplemented
+
     # Do we need not equals, equals, gt/lt/ge/le?
     # If so, list them under. By Discord API this may not be needed
     # but end users might.
