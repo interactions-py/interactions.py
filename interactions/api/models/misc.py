@@ -171,6 +171,57 @@ class Snowflake(object):
     # but end users might.
 
 
+class Color(object):
+    """
+    An object representing Discord branding colors.
+
+    .. note::
+        This object only intends to cover the branding colors
+        and no others. The main reason behind this is due to
+        the current accepted standard of using hex codes or other
+        custom-defined colors.
+    """
+
+    @property
+    def blurple(self) -> hex:
+        """Returns a hexadecimal value of the blurple color."""
+        return 0x5865F2
+
+    @property
+    def green(self) -> hex:
+        """Returns a hexadecimal value of the green color."""
+        return 0x57F287
+
+    @property
+    def yellow(self) -> hex:
+        """Returns a hexadecimal value of the yellow color."""
+        return 0xFEE75C
+
+    @property
+    def fuchsia(self) -> hex:
+        """Returns a hexadecimal value of the fuchsia color."""
+        return 0xEB459E
+
+    @property
+    def red(self) -> hex:
+        """Returns a hexadecimal value of the red color."""
+        return 0xED4245
+
+    # I can't imagine any bot developers actually using these.
+    # If they don't know white is ff and black is 00, something's seriously
+    # wrong.
+
+    @property
+    def white(self) -> hex:
+        """Returns a hexadecimal value of the white color."""
+        return 0xFFFFFF
+
+    @property
+    def black(self) -> hex:
+        """Returns a hexadecimal value of the black color."""
+        return 0x000000
+
+
 class MISSING:
     """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
 

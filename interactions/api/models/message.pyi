@@ -145,6 +145,24 @@ class Message(DictSerializerMixin):
         invitable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
+    async def create_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_all_reactions(self) -> None: ...
+    async def remove_all_reactions_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_own_reaction_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_reaction_from(
+        self,
+        emoji: Union[str, "Emoji"],
+        user: Union[Member, User, int]
+    ) -> None: ...
     @classmethod
     async def get_from_url(
         cls,
@@ -152,8 +170,8 @@ class Message(DictSerializerMixin):
         client: HTTPClient,
     ) -> "Message": ...
 
-
 class Emoji(DictSerializerMixin):
+    _client: HTTPClient
     _json: dict
     id: Optional[Snowflake]
     name: Optional[str]
@@ -164,6 +182,24 @@ class Emoji(DictSerializerMixin):
     animated: Optional[bool]
     available: Optional[bool]
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        emoji_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Emoji": ...
+    @classmethod
+    async def get_all_of_guild(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> List["Emoji"]: ...
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
 
 class ReactionObject(DictSerializerMixin):
     _json: dict

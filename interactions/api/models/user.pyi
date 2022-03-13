@@ -14,6 +14,7 @@ class User(DictSerializerMixin):
     mfa_enabled: Optional[bool]
     banner: Optional[str]
     accent_color: Optional[int]
+    banner_color: Optional[str]
     locale: Optional[str]
     verified: Optional[bool]
     email: Optional[str]
