@@ -30,3 +30,9 @@ from .enums import *  # noqa: F401 F403
 from .models.command import *  # noqa: F401 F403
 from .models.component import *  # noqa: F401 F403
 from .models.misc import *  # noqa: F401 F403
+
+try:
+    from .ext.voice import *  # noqa: F401 F403
+except ImportError:
+    # we need this for voice state dispatching, doesn't work otherwise
+    pass

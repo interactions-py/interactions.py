@@ -290,7 +290,10 @@ class WebSocketClient:
         :type data: dict
         """
         path: str = "interactions"
-        path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
+        if "voice" not in event.lower():
+            path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
+        else:
+            path += ".ext"
 
         if event != "TYPING_START":
             if event != "INTERACTION_CREATE":
