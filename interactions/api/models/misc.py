@@ -176,10 +176,6 @@ class Snowflake(object):
 
         return NotImplemented
 
-    # Do we need not equals, equals, gt/lt/ge/le?
-    # If so, list them under. By Discord API this may not be needed
-    # but end users might.
-
 
 class Color(object):
     """
