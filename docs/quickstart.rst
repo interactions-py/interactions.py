@@ -274,7 +274,7 @@ implementation of a component:
     async def button_test(ctx):
         await ctx.send("testing", components=button)
 
-    @bot.component("hello"")
+    @bot.component("hello")
     async def button_response(ctx):
         await ctx.send("You clicked the Button :O", ephemeral=True)
 
