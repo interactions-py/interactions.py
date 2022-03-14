@@ -1,7 +1,8 @@
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 _T = TypeVar("_T")
+key = Union[str, Tuple[str, str]]
 
 
 class Storage:
@@ -17,9 +18,9 @@ class Storage:
         return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
 
     def __init__(self) -> None:
-        self.values = OrderedDict()
+        self.values: OrderedDict = OrderedDict()
 
-    def add(self, id: str, value: _T) -> OrderedDict:
+    def add(self, id: key, value: Any) -> OrderedDict:
         """
         Adds a new item to the storage.
 
@@ -35,7 +36,7 @@ class Storage:
         self.values.update({id: value})
         return self.values
 
-    def get(self, id: str, default: Any = None) -> Optional[Any]:
+    def get(self, id: key, default: Any = None) -> Optional[Any]:
         """
         Gets an item from the storage.
 
@@ -46,9 +47,9 @@ class Storage:
         :return: The item from the storage if any.
         :rtype: Optional[Item]
         """
-        return self.values.get(id, default)
+        return self.values.get(str(id), default)
 
-    def update(self, items: Dict[str, _T]) -> Dict[str, _T]:
+    def update(self, items: Dict[key, _T]) -> Dict[key, _T]:
         """
         Updates an item from the storage.
 
@@ -97,14 +98,14 @@ class Cache:
     )
 
     def __init__(self) -> None:
-        self.dms = Storage()
-        self.guilds = Storage()
-        self.channels = Storage()
-        self.roles = Storage()
-        self.members = Storage()
-        self.messages = Storage()
-        self.users = Storage()
-        self.interactions = Storage()
+        self.dms: Storage = Storage()
+        self.guilds: Storage = Storage()
+        self.channels: Storage = Storage()
+        self.roles: Storage = Storage()
+        self.members: Storage = Storage()
+        self.messages: Storage = Storage()
+        self.users: Storage = Storage()
+        self.interactions: Storage = Storage()
 
 
 ref_cache = Cache()  # noqa
