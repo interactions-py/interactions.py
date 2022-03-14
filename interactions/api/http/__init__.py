@@ -7,7 +7,7 @@ Handles all HTTP-Requests of the library.
 from .channel import *  # noqa: F401 F403
 from .emoji import *  # noqa: F401 F403
 from .guild import *  # noqa: F401 F403
-from .http import *  # noqa: F401 F403
+from .client import *  # noqa: F401 F403
 from .interaction import *  # noqa: F401 F403
 from .limiter import *  # noqa: F401 F403
 from .member import *  # noqa: F401 F403
