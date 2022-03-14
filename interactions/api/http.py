@@ -631,9 +631,8 @@ class HTTPClient:
         """
         request = await self._req.request(Route("GET", "/users/@me/guilds"))
 
-        for guild in request:
-            if guild.get("id"):
-                self.cache.self_guilds.add(id=guild["id"], value=Guild(**guild))
+        guilds = {guild["id"]: Guild(**guild) for guild in request}
+        self.cache.guilds.update(guilds)
 
         return request
 

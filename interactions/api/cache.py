@@ -77,7 +77,6 @@ class Cache:
     the represented instances of the class.
 
     :ivar Cache dms: The cached Direct Messages.
-    :ivar Cache self_guilds: The cached guilds upon gateway connection.
     :ivar Cache guilds: The cached guilds after ready.
     :ivar Cache channels: The cached channels of guilds.
     :ivar Cache roles: The cached roles of guilds.
@@ -88,7 +87,6 @@ class Cache:
 
     __slots__ = (
         "dms",
-        "self_guilds",
         "guilds",
         "channels",
         "roles",
@@ -100,7 +98,6 @@ class Cache:
 
     def __init__(self) -> None:
         self.dms = Storage()
-        self.self_guilds = Storage()
         self.guilds = Storage()
         self.channels = Storage()
         self.roles = Storage()

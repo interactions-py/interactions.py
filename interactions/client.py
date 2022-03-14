@@ -101,7 +101,7 @@ class Client:
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
-        return [Guild(**_, _client=self._http) for _ in self._http.cache.self_guilds.view]
+        return [Guild(**_, _client=self._http) for _ in self._http.cache.guilds.view]
 
     @property
     def latency(self) -> float:
@@ -1076,7 +1076,7 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.self_guilds.add(id=str(guild.id), value=guild)
+        self._http.cache.guilds.add(id=str(guild.id), value=guild)
 
         return guild._json
 

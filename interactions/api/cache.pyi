@@ -14,7 +14,6 @@ class Storage:
 
 class Cache:
     dms: Any
-    self_guilds: Any
     guilds: Any
     channels: Any
     roles: Any
