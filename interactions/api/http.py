@@ -1167,7 +1167,7 @@ class HTTPClient:
             },
         )
 
-        self.cache.members.add(id=str(user_id), value=Member(**request))
+        self.cache.members.add(id=(str(user_id), str(guild_id)), value=Member(**request))
 
         return request
 

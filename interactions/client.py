@@ -1067,7 +1067,7 @@ class Client:
 
         return message._json
 
-    async def __raw_guild_create(self, guild) -> dict:
+    async def __raw_guild_create(self, guild: Guild) -> dict:
         """
         This is an internal function that caches the guild creates on ready.
 
@@ -1076,7 +1076,17 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.guilds.add(id=str(guild.id), value=guild)
+        cache = self._http.cache
+
+        for channel in guild.channels:
+            cache.channels.add(id=str(channel.id), value=channel)
+
+        for member in guild.members:
+            cache.members.add(id=(str(member.id), str(guild.id)), value=member)
+            if str(member.id) not in cache.users.values:
+                cache.users.add(id=str(member.id), value=member.user)
+
+        cache.guilds.add(id=str(guild.id), value=guild)
 
         return guild._json
 
