@@ -1,32 +1,27 @@
 from collections import OrderedDict
-from typing import Any, List, Optional, Type
+from typing import Any, Dict, List, Optional, TypeVar
 
-class Item(object):
-    id: str
-    value: Any
-    type: Type
-    def __init__(self, id: str, value: Any) -> None: ...
+_T = TypeVar("_T")
 
 class Storage:
-    values: OrderedDict
+    values: Any
     def __init__(self) -> None: ...
-    def add(self, item: Item) -> List[Item]: ...
-    def get(self, id: str) -> Optional[Item]: ...
+    def add(self, id: str, value: _T) -> OrderedDict: ...
+    def get(self, id: str, default: Any = ...) -> Optional[Any]: ...
+    def update(self, items: Dict[str, _T]) -> Dict[str, _T]: ...
     @property
     def view(self) -> List[dict]: ...
-    def update(self, item: Item) -> Optional[Item]: ...
 
 class Cache:
-    token: str
-    dms: Storage
-    self_guilds: Storage
-    guilds: Storage
-    channels: Storage
-    roles: Storage
-    members: Storage
-    messages: Storage
-    users: Storage
-    interactions: Storage
+    dms: Any
+    self_guilds: Any
+    guilds: Any
+    channels: Any
+    roles: Any
+    members: Any
+    messages: Any
+    users: Any
+    interactions: Any
     def __init__(self) -> None: ...
 
-ref_cache: Cache
+ref_cache: Any

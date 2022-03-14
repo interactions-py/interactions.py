@@ -14,7 +14,7 @@ import interactions.api.cache
 from interactions.api.models.misc import MISSING
 from interactions.base import __version__, get_logger
 
-from ..api.cache import Cache, Item
+from ..api.cache import Cache
 from ..api.error import HTTPException
 from ..api.models import (
     Channel,
@@ -424,7 +424,7 @@ class HTTPClient:
             user_id = "@me"
 
         request = await self._req.request(Route("GET", f"/users/{user_id}"))
-        self.cache.users.add(Item(id=user_id, value=User(**request)))
+        self.cache.users.add(id=user_id, value=User(**request))
 
         return request
 
@@ -461,7 +461,7 @@ class HTTPClient:
         request = await self._req.request(
             Route("POST", "/users/@me/channels"), json={"recipient_id": recipient_id}
         )
-        self.cache.dms.add(Item(id=str(recipient_id), value=Channel(**request)))
+        self.cache.dms.add(id=str(recipient_id), value=Channel(**request))
 
         return request
 
@@ -520,7 +520,7 @@ class HTTPClient:
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
         if request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+            self.cache.messages.add(id=request["id"], value=Message(**request))
 
         return request
 
@@ -633,7 +633,7 @@ class HTTPClient:
 
         for guild in request:
             if guild.get("id"):
-                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
+                self.cache.self_guilds.add(id=guild["id"], value=Guild(**guild))
 
         return request
 
@@ -645,7 +645,7 @@ class HTTPClient:
         :return: The guild object associated, if any.
         """
         request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
-        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request)))
+        self.cache.guilds.add(id=str(guild_id), value=Guild(**request))
 
         return request
 
@@ -969,7 +969,7 @@ class HTTPClient:
 
         for channel in request:
             if channel.get("id"):
-                self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
+                self.cache.channels.add(id=channel["id"], value=Channel(**channel))
 
         return request
 
@@ -986,7 +986,7 @@ class HTTPClient:
 
         for role in request:
             if role.get("id"):
-                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+                self.cache.roles.add(id=role["id"], value=Role(**role))
 
         return request
 
@@ -1005,7 +1005,7 @@ class HTTPClient:
             Route("POST", f"/guilds/{guild_id}/roles"), json=data, reason=reason
         )
         if request.get("id"):
-            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
+            self.cache.roles.add(id=request["id"], value=Role(**request))
 
         return request
 
@@ -1168,7 +1168,7 @@ class HTTPClient:
             },
         )
 
-        self.cache.members.add(Item(id=str(user_id), value=Member(**request)))
+        self.cache.members.add(id=str(user_id), value=Member(**request))
 
         return request
 
@@ -1360,7 +1360,7 @@ class HTTPClient:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request)))
+        self.cache.channels.add(id=str(channel_id), value=Channel(**request))
 
         return request
 
@@ -1420,7 +1420,7 @@ class HTTPClient:
 
         for message in request:
             if message.get("id"):
-                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+                self.cache.messages.add(id=message["id"], value=Message(**message))
 
         return request
 
@@ -1442,7 +1442,7 @@ class HTTPClient:
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
+            self.cache.channels.add(id=request["id"], value=Channel(**request))
 
         return request
 
@@ -1817,7 +1817,7 @@ class HTTPClient:
                 reason=reason,
             )
             if request.get("id"):
-                self.cache.channels.add(Item(id=request["id"], value=request))
+                self.cache.channels.add(id=request["id"], value=request)
             return request
 
         payload["type"] = thread_type
@@ -1826,7 +1826,7 @@ class HTTPClient:
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=request))
+            self.cache.channels.add(id=request["id"], value=request)
 
         return request
 

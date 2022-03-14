@@ -10,7 +10,6 @@ from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 from .api.cache import Cache
-from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocketClient
 from .api.http import HTTPClient
@@ -162,7 +161,7 @@ class Client:
                 )
             )
         )
-        self._http.cache.interactions.add(Build(id=command.name, value=command))
+        self._http.cache.interactions.add(command.name, command)
 
     async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
         """
@@ -191,7 +190,7 @@ class Client:
                 global_commands.append(command)
 
             self._http.cache.interactions.add(
-                Build(id=command["name"], value=ApplicationCommand(**command))
+                id=command["name"], value=ApplicationCommand(**command)
             )
 
         for guild, commands in guild_commands.items():
@@ -1051,7 +1050,7 @@ class Client:
         :return: The channel as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.channels.add(Build(id=channel.id, value=channel))
+        self._http.cache.channels.add(id=channel.id, value=channel)
 
         return channel._json
 
@@ -1064,7 +1063,7 @@ class Client:
         :return: The message as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.messages.add(Build(id=message.id, value=message))
+        self._http.cache.messages.add(id=message.id, value=message)
 
         return message._json
 
@@ -1077,7 +1076,7 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
+        self._http.cache.self_guilds.add(id=str(guild.id), value=guild)
 
         return guild._json
 

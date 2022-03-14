@@ -1,28 +1,7 @@
 from collections import OrderedDict
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, TypeVar
 
-
-class Item(object):
-    """
-    A class representing the defined item in a stored dataset.
-
-    :ivar str id: The ID of the item.
-    :ivar Any value: The item itself.
-    :ivar Type type: The ID type representation.
-    """
-
-    __slots__ = ("id", "value", "type")
-
-    def __init__(self, id: str, value: Any) -> None:
-        """
-        :param id: The item's ID.
-        :type id: str
-        :param value: The item itself.
-        :type value: Any
-        """
-        self.id = id
-        self.value = value
-        self.type = type(value)
+_T = TypeVar("_T")
 
 
 class Storage:
@@ -40,43 +19,46 @@ class Storage:
     def __init__(self) -> None:
         self.values = OrderedDict()
 
-    def add(self, item: Item) -> OrderedDict:
+    def add(self, id: str, value: _T) -> OrderedDict:
         """
         Adds a new item to the storage.
 
-        :param item: The item to add.
-        :type item: Item
+        :param id: The id of the item
+        :type id: str
+        :param value: The item to add.
+        :type value: Any
         :return: The new storage.
-        :rtype: OrderedDict
+        :rtype: OrderedDict[str, _T]
         """
-        self.values.update({item.id: item.value})
+        id = str(id)
+
+        self.values.update({id: value})
         return self.values
 
-    def get(self, id: str) -> Optional[Item]:
+    def get(self, id: str, default: Any = None) -> Optional[Any]:
         """
         Gets an item from the storage.
 
         :param id: The ID of the item.
         :type id: str
+        :param default: The value to return if the item was not found
+        :type default: Any
         :return: The item from the storage if any.
         :rtype: Optional[Item]
         """
-        if id in self.values.keys():
-            return self.values[id]
+        return self.values.get(id, default)
 
-    def update(self, item: Item) -> Optional[Item]:
+    def update(self, items: Dict[str, _T]) -> Dict[str, _T]:
         """
         Updates an item from the storage.
 
-        :param item: The item to update.
-        :return: The updated item, if stored.
-        :rtype: Optional[Item]
+        :param items: The dict to update from
+        :type items: Dict[str, Any]
         """
-        if item.id in self.values.keys():
-            self.values[item.id] = item.value
-            return self.values[
-                id
-            ]  # fetches from cache to see if its saved properly, instead of returning input.
+        self.values.update(items)
+
+        # mimicking what was done in the previous design of the cache
+        return {key: self.values[key] for key in items}
 
     @property
     def view(self) -> List[dict]:
