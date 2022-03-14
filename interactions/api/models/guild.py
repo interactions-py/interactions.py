@@ -322,6 +322,13 @@ class Guild(DictSerializerMixin):
                 self.members = members
             else:
                 self.members = [Member(**member, _client=self._client) for member in members]
+
+        self.channels = (
+            [Channel(**channel, _client=self._client) for channel in self.channels]
+            if self._json.get("channels")
+            else None
+        )
+
         self.roles = (
             [Role(**role, _client=self._client) for role in self.roles]
             if self._json.get("roles")
