@@ -15,7 +15,7 @@ HTTP
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.http.HTTPClient
+.. autoclass:: interactions.api.http.client.HTTPClient
     :members:
     :noindex:
 
@@ -23,46 +23,46 @@ HTTP
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._EmojiRequest
+.. autoclass:: interactions.api.http.emoji._EmojiRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._GuildRequest
+.. autoclass:: interactions.api.http.guild._GuildRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._InteractionRequest
+.. autoclass:: interactions.api.http.interaction._InteractionRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._MemberRequest
+.. autoclass:: interactions.api.http.member._MemberRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._MessageRequest
+.. autoclass:: interactions.api.http.message._MessageRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._ReactionRequest
+.. autoclass:: interactions.api.http.reaction._ReactionRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._ScheduledEventRequest
+.. autoclass:: interactions.api.http.scheduledEvent._ScheduledEventRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._StickerRequest
+.. autoclass:: interactions.api.http.sticker._StickerRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._ThreadRequest
+.. autoclass:: interactions.api.http.thread._ThreadRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._UserRequest
+.. autoclass:: interactions.api.http.user._UserRequest
     :members:
     :noindex:
 
-.. autoclass:: interactions.api.http.HTTPClient._WebhookRequest
+.. autoclass:: interactions.api.http.webhook._WebhookRequest
     :members:
     :noindex:
