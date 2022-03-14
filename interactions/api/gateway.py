@@ -25,7 +25,7 @@ from ..models.command import Option
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
-from .http.http import HTTPClient
+from .http.client import HTTPClient
 from .models.flags import Intents
 from .models.misc import MISSING
 from .models.presence import ClientPresence
