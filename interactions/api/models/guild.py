@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -677,7 +677,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -701,6 +701,8 @@ class Guild(DictSerializerMixin):
         :type position: Optional[int]
         :param parent_id?: The id of the parent category for a channel
         :type parent_id: Optional[int]
+        :param permission_overwrites?: The permission overwrites, if any
+        :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, default ``False``
         :type nsfw: Optional[bool]
         :param reason: The reason for the creation
@@ -745,6 +747,10 @@ class Guild(DictSerializerMixin):
             payload["parent_id"] = parent_id
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
+        if permission_overwrites is not MISSING:
+            payload["permission_overwrites"] = [
+                overwrite._json for overwrite in permission_overwrites
+            ]
 
         res = await self._client.create_channel(
             guild_id=int(self.id),
@@ -763,7 +769,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -787,6 +793,8 @@ class Guild(DictSerializerMixin):
         :type position: Optional[int]
         :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
         :type parent_id: Optional[int]
+        :param permission_overwrites?: The permission overwrites, if any
+        :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
         :param reason: The reason for the edit
@@ -808,6 +816,11 @@ class Guild(DictSerializerMixin):
         _position = ch.position if position is MISSING else position
         _parent_id = ch.parent_id if parent_id is MISSING else parent_id
         _nsfw = ch.nsfw if nsfw is MISSING else nsfw
+        _permission_overwrites = (
+            ch.permission_overwrites
+            if permission_overwrites is MISSING
+            else [overwrite._json for overwrite in permission_overwrites]
+        )
         _type = ch.type
 
         payload = Channel(
@@ -817,6 +830,7 @@ class Guild(DictSerializerMixin):
             bitrate=_bitrate,
             user_limit=_user_limit,
             rate_limit_per_user=_rate_limit_per_user,
+            permission_overwrites=_permission_overwrites,
             position=_position,
             parent_id=_parent_id,
             nsfw=_nsfw,

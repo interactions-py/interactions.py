@@ -1182,11 +1182,11 @@ class Embed(DictSerializerMixin):
         try:
             self.fields[index] = EmbedField(name=name, value=value, inline=inline)
 
-        except AttributeError:
-            raise AttributeError("No fields found in Embed")
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
 
-        except IndexError:
-            raise IndexError("No fields at this index")
+        except IndexError as e:
+            raise IndexError("No fields at this index") from e
 
     def remove_field(self, index: int) -> None:
         """
@@ -1201,11 +1201,11 @@ class Embed(DictSerializerMixin):
             fields.pop(index)
             self.fields = fields
 
-        except AttributeError:
-            raise AttributeError("No fields found in Embed")
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
 
-        except IndexError:
-            raise IndexError("Field not Found at index")
+        except IndexError as e:
+            raise IndexError("Field not Found at index") from e
 
     def remove_author(self) -> None:
         """
