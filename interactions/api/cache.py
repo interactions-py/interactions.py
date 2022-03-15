@@ -1,3 +1,4 @@
+import asyncio
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
@@ -12,13 +13,25 @@ class Storage:
     :ivar List[Item] values: The list of items stored.
     """
 
-    __slots__ = "values"
+    __slots__ = ("values", "ttl", "_timeouts")
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
 
-    def __init__(self) -> None:
+    def __init__(self, ttl: Optional[float] = None) -> None:
         self.values: OrderedDict = OrderedDict()
+        self.ttl: Optional[float] = ttl
+        self._timeouts: Dict[str, asyncio.Task] = {}
+
+    async def _clear_item(self, id: key) -> None:
+        if self.ttl is None:
+            return
+
+        if old_task := self._timeouts.get(id):
+            old_task.cancel()
+
+        await asyncio.sleep(self.ttl)
+        del self.values[id]
 
     def add(self, id: key, value: Any) -> OrderedDict:
         """
@@ -31,9 +44,10 @@ class Storage:
         :return: The new storage.
         :rtype: OrderedDict[str, _T]
         """
-        id = str(id)
-
         self.values.update({id: value})
+
+        asyncio.create_task(self._clear_item(id))
+
         return self.values
 
     def get(self, id: key, default: Any = None) -> Optional[Any]:
@@ -58,8 +72,11 @@ class Storage:
         """
         self.values.update(items)
 
+        for id in items:
+            asyncio.create_task(self._clear_item(id))
+
         # mimicking what was done in the previous design of the cache
-        return {key: self.values[key] for key in items}
+        return {id: self.values[id] for id in items}
 
     @property
     def view(self) -> List[dict]:
@@ -108,4 +125,4 @@ class Cache:
         self.interactions: Storage = Storage()
 
 
-ref_cache = Cache()  # noqa
+ref_cache: Cache = Cache()  # noqa
