@@ -1561,14 +1561,12 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.get_list_of_members(guild_id=int(self.id), limit=limit, after=after)
+        res = await self._client.get_list_of_members(
+            guild_id=int(self.id), limit=limit, after=after
+        )
         return [Member(**member, _client=self._client) for member in res]
 
-    async def search_members(
-        self, 
-        query: str, 
-        limit: Optional[int] = 1
-    ) -> list:
+    async def search_members(self, query: str, limit: Optional[int] = 1) -> list:
         """
         Search the guild for members whose username or nickname starts with provided string.
 
@@ -1579,7 +1577,9 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.search_guild_members(guild_id=int(self.id), query=query, limit=limit)
+        res = await self._client.search_guild_members(
+            guild_id=int(self.id), query=query, limit=limit
+        )
         return [Member(**member, _client=self._client) for member in res]
 
 
