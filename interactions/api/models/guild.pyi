@@ -394,6 +394,16 @@ class Guild(DictSerializerMixin):
         emoji: Union[Emoji, int],
         reason: Optional[str] = None,
     ) -> None: ...
+    async def get_list_of_members(
+        self,
+        limit: Optional[int] = 1,
+        after: Optional[int] = None,
+    ) -> list: ...
+    async def search_members(
+        self, 
+        query: str, 
+        limit: Optional[int] = 1
+    ) -> list: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
