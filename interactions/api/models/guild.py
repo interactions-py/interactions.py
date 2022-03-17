@@ -1557,7 +1557,7 @@ class Guild(DictSerializerMixin):
         :param limit?: How many members to get from the API. Max is 1000.
         :type limit: Optional[int]
         :param after?: Get only Members after this member.
-        :type after: Optional[int]
+        :type after: Optional[Union[Member, int]
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
