@@ -1580,6 +1580,8 @@ class Guild(DictSerializerMixin):
         :type query: str
         :param limit?: The number of members to return.
         :type limit: Optional[int]
+        :return: A list of matching members
+        :rtype: List[Member]
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
