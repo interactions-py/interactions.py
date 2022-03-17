@@ -1556,7 +1556,7 @@ class Guild(DictSerializerMixin):
 
         :param limit?: How many members to get from the API. Max is 1000.
         :type limit: Optional[int]
-        :param after?: Get Member IDs after this snowflake.
+        :param after?: Get only Members after this member.
         :type after: Optional[int]
         """
         if not self._client:
