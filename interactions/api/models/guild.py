@@ -1549,7 +1549,7 @@ class Guild(DictSerializerMixin):
     async def get_list_of_members(
         self,
         limit: Optional[int] = 1,
-        after: Optional[Union[Member, int] = MISSING,
+        after: Optional[Union[Member, int]] = MISSING,
     ) -> List[Member]:
         """
         Lists the members of a guild.
@@ -1557,7 +1557,7 @@ class Guild(DictSerializerMixin):
         :param limit?: How many members to get from the API. Max is 1000.
         :type limit: Optional[int]
         :param after?: Get only Members after this member.
-        :type after: Optional[Union[Member, int]
+        :type after: Optional[Union[Member, int]]
         :return: A list of members
         :rtype: List[Member]
         """
