@@ -1549,7 +1549,7 @@ class Guild(DictSerializerMixin):
     async def get_list_of_members(
         self,
         limit: Optional[int] = 1,
-        after: Optional[int] = None,
+        after: Optional[Union[Member, int] = MISSING,
     ) -> List[Member]:
         """
         Lists the members of a guild.
