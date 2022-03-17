@@ -398,7 +398,7 @@ class Guild(DictSerializerMixin):
         self,
         limit: Optional[int] = 1,
         after: Optional[int] = None,
-    ) -> list: ...
+    ) -> List[Member]: ...
     async def search_members(
         self,
         query: str,
