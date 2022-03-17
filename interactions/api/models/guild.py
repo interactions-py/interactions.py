@@ -1550,7 +1550,7 @@ class Guild(DictSerializerMixin):
         self,
         limit: Optional[int] = 1,
         after: Optional[int] = None,
-    ) -> list:
+    ) -> List[Member]:
         """
         Lists the members of a guild.
 
