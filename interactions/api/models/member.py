@@ -229,7 +229,7 @@ class Member(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
-    ):
+    ) -> "Message":  # noqa
         """
         Sends a DM to the member.
 

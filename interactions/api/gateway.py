@@ -290,7 +290,6 @@ class WebSocketClient:
         """
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
-
         if event == "INTERACTION_CREATE":
             if not data.get("type"):
                 log.warning(
