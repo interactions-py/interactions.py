@@ -6,7 +6,7 @@ from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
 from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
 from .user import User
-from ..http import HTTPClient
+from ..http.client import HTTPClient
 
 class ChannelType(IntEnum):
     GUILD_TEXT: int
