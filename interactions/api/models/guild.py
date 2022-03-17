@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -654,8 +654,8 @@ class Guild(DictSerializerMixin):
         _invitable = None if invitable is MISSING else invitable
         _message_id = None if message_id is MISSING else message_id
         res = await self._client.create_thread(
-            channel_id=int(self.id),
-            thread_type=type.value,
+            channel_id=channel_id,
+            thread_type=type.value if not isinstance(type, int) else type,
             name=name,
             auto_archive_duration=_auto_archive_duration,
             invitable=_invitable,
@@ -674,7 +674,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -698,6 +698,8 @@ class Guild(DictSerializerMixin):
         :type position: Optional[int]
         :param parent_id?: The id of the parent category for a channel
         :type parent_id: Optional[int]
+        :param permission_overwrites?: The permission overwrites, if any
+        :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, default ``False``
         :type nsfw: Optional[bool]
         :param reason: The reason for the creation
@@ -742,6 +744,10 @@ class Guild(DictSerializerMixin):
             payload["parent_id"] = parent_id
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
+        if permission_overwrites is not MISSING:
+            payload["permission_overwrites"] = [
+                overwrite._json for overwrite in permission_overwrites
+            ]
 
         res = await self._client.create_channel(
             guild_id=int(self.id),
@@ -760,7 +766,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -784,6 +790,8 @@ class Guild(DictSerializerMixin):
         :type position: Optional[int]
         :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
         :type parent_id: Optional[int]
+        :param permission_overwrites?: The permission overwrites, if any
+        :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
         :param reason: The reason for the edit
@@ -805,6 +813,11 @@ class Guild(DictSerializerMixin):
         _position = ch.position if position is MISSING else position
         _parent_id = ch.parent_id if parent_id is MISSING else parent_id
         _nsfw = ch.nsfw if nsfw is MISSING else nsfw
+        _permission_overwrites = (
+            ch.permission_overwrites
+            if permission_overwrites is MISSING
+            else [overwrite._json for overwrite in permission_overwrites]
+        )
         _type = ch.type
 
         payload = Channel(
@@ -814,6 +827,7 @@ class Guild(DictSerializerMixin):
             bitrate=_bitrate,
             user_limit=_user_limit,
             rate_limit_per_user=_rate_limit_per_user,
+            permission_overwrites=_permission_overwrites,
             position=_position,
             parent_id=_parent_id,
             nsfw=_nsfw,
@@ -1480,6 +1494,58 @@ class Guild(DictSerializerMixin):
             ban["user"] = User(**ban["user"])
         return res
 
+    async def get_emoji(
+        self,
+        emoji_id: int,
+    ) -> Emoji:
+        """
+        Gets an emoji of the guild and returns it.
+
+        :param emoji_id: The id of the emoji
+        :type emoji_id: int
+        :return: The specified Emoji, if found
+        :rtype: Emoji
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
+        return Emoji(**res, _client=self._client)
+
+    async def get_all_emojis(self) -> List[Emoji]:
+        """
+        Gets all emojis of a guild.
+
+        :return: All emojis of the guild
+        :rtype: List[Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        res = await self._client.get_all_emoji(guild_id=int(self.id))
+        return [Emoji(**emoji, _client=self._client) for emoji in res]
+
+    async def delete_emoji(
+        self,
+        emoji: Union[Emoji, int],
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes an emoji of the guild.
+
+        :param emoji: The emoji or the id of the emoji to delete
+        :type emoji: Union[Emoji, int]
+        :param reason?: The reason of the deletion
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        emoji_id = emoji.id if isinstance(emoji, Emoji) else emoji
+        return await self._client.delete_guild_emoji(
+            guild_id=int(self.id),
+            emoji_id=emoji_id,
+            reason=reason,
+        )
+
 
 class GuildPreview(DictSerializerMixin):
     """
@@ -1582,9 +1648,14 @@ class Invite(DictSerializerMixin):
     :ivar datetime expires_at: The time when this invite will expire.
     :ivar int type: The type of this invite.
     :ivar User inviter: The user who created this invite.
-    :ivar int guild_id: The guild ID of this invite.
     :ivar str code: The code of this invite.
-    :ivar int channel_id: The channel ID of this invite.
+    :ivar Optional[int] guild_id: The guild ID of this invite.
+    :ivar Optional[int] channel_id: The channel ID of this invite.
+    :ivar Optional[int] target_user_type: The type of the target user of this invite.
+    :ivar Optional[User] target_user: The target user of this invite.
+    :ivar Optional[int] target_type: The target type of this invite.
+    :ivar Optional[Guild] guild: The guild of this invite.
+    :ivar Optional[Channel] channel: The channel of this invite.
     """
 
     __slots__ = (
@@ -1601,6 +1672,11 @@ class Invite(DictSerializerMixin):
         "expires_at",
         "code",
         "channel_id",
+        "target_user_type",
+        "target_user",
+        "target_type",
+        "guild",
+        "channel",
     )
 
     def __init__(self, **kwargs):
@@ -1616,8 +1692,21 @@ class Invite(DictSerializerMixin):
             else None
         )
         self.inviter = User(**self._json.get("inviter")) if self._json.get("inviter") else None
-        self.channel_id = int(self.channel_id)
-        self.guild_id = int(self.guild_id)
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.target_user = (
+            User(**self._json.get("target_user")) if self._json.get("target_user") else None
+        )
+        self.guild = (
+            Guild(**self._json.get("guild"), _client=self._client)
+            if self._json.get("guild")
+            else None
+        )
+        self.channel = (
+            Channel(**self._json.get("channel"), _client=self._client)
+            if self._json.get("channel")
+            else None
+        )
 
 
 class GuildTemplate(DictSerializerMixin):
