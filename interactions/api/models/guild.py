@@ -1546,6 +1546,50 @@ class Guild(DictSerializerMixin):
             reason=reason,
         )
 
+    async def get_list_of_members(
+        self,
+        limit: Optional[int] = 1,
+        after: Optional[Union[Member, int]] = MISSING,
+    ) -> List[Member]:
+        """
+        Lists the members of a guild.
+
+        :param limit?: How many members to get from the API. Max is 1000.
+        :type limit: Optional[int]
+        :param after?: Get only Members after this member.
+        :type after: Optional[Union[Member, int]]
+        :return: A list of members
+        :rtype: List[Member]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        if after is not MISSING:
+            _after = int(after.id) if not isinstance(after, int) else after
+        else:
+            _after = None
+        res = await self._client.get_list_of_members(
+            guild_id=int(self.id), limit=limit, after=_after
+        )
+        return [Member(**member, _client=self._client) for member in res]
+
+    async def search_members(self, query: str, limit: Optional[int] = 1) -> List[Member]:
+        """
+        Search the guild for members whose username or nickname starts with provided string.
+
+        :param query: The string to search for
+        :type query: str
+        :param limit?: The number of members to return.
+        :type limit: Optional[int]
+        :return: A list of matching members
+        :rtype: List[Member]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        res = await self._client.search_guild_members(
+            guild_id=int(self.id), query=query, limit=limit
+        )
+        return [Member(**member, _client=self._client) for member in res]
+
 
 class GuildPreview(DictSerializerMixin):
     """
