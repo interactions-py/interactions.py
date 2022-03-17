@@ -403,7 +403,7 @@ class Guild(DictSerializerMixin):
         self,
         query: str,
         limit: Optional[int] = 1
-    ) -> list: ...
+    ) -> List[Member]: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
