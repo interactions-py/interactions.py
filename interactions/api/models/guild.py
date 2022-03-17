@@ -1564,9 +1564,9 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if after is not MISSING:
-                _after = int(after.id) if not isinstance(after, int) else after
+            _after = int(after.id) if not isinstance(after, int) else after
         else:
-                _after = None
+            _after = None
         res = await self._client.get_list_of_members(
             guild_id=int(self.id), limit=limit, after=_after
         )
