@@ -1558,6 +1558,8 @@ class Guild(DictSerializerMixin):
         :type limit: Optional[int]
         :param after?: Get only Members after this member.
         :type after: Optional[Union[Member, int]
+        :return: A list of members
+        :rtype: List[Member]
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
