@@ -1566,7 +1566,7 @@ class Guild(DictSerializerMixin):
         )
         return [Member(**member, _client=self._client) for member in res]
 
-    async def search_members(self, query: str, limit: Optional[int] = 1) -> list:
+    async def search_members(self, query: str, limit: Optional[int] = 1) -> List[Member]:
         """
         Search the guild for members whose username or nickname starts with provided string.
 
