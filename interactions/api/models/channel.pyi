@@ -4,7 +4,7 @@ from typing import List, Optional, Union, Callable
 
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
-from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
+from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING, File
 from .user import User
 from ..http.client import HTTPClient
 
@@ -75,7 +75,7 @@ class Channel(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[

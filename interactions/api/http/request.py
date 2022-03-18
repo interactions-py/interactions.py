@@ -98,7 +98,8 @@ class _Request:
         """
 
         kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
-        kwargs["headers"]["Content-Type"] = "application/json"
+        if "data" not in kwargs:
+            kwargs["headers"]["Content-Type"] = "application/json"
 
         reason = kwargs.pop("reason", None)
         if reason:

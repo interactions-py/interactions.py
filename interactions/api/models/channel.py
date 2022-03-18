@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Callable, List, Optional, Union
 
-from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
+from .misc import MISSING, DictSerializerMixin, File, Overwrite, Snowflake
 
 
 class ChannelType(IntEnum):
@@ -196,7 +196,7 @@ class Channel(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
         components: Optional[
@@ -217,6 +217,8 @@ class Channel(DictSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param files?: A file or list of files to be attached to the message.
+        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -248,18 +250,26 @@ class Channel(DictSerializerMixin):
         else:
             _components = _build_components(components=components)
 
-        # TODO: post-v4: Add attachments into Message obj.
+        if not files or files is MISSING:
+            _files = []
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
+
         payload = Message(
             content=_content,
             tts=_tts,
-            # file=file,
-            # attachments=_attachments,
+            attachments=_files,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
         )
 
-        res = await self._client.create_message(channel_id=int(self.id), payload=payload._json)
+        res = await self._client.create_message(
+            channel_id=int(self.id), payload=payload._json, files=files
+        )
         return Message(**res, _client=self._client)
 
     async def delete(self) -> None:
