@@ -60,6 +60,9 @@ class User(DictSerializerMixin):
 
         self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
 
+    def __repr__(self) -> str:
+        return self.username
+
     @property
     def mention(self) -> str:
         """

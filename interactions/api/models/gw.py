@@ -726,7 +726,7 @@ class Presence(DictSerializerMixin):
     :ivar ClientStatus client_status: The client status across platforms in the event.
     """
 
-    __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status")
+    __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status", "_client")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -328,6 +328,9 @@ class Guild(DictSerializerMixin):
             else None
         )
 
+    def __repr__(self) -> str:
+        return self.name
+
     async def ban(
         self,
         member_id: int,

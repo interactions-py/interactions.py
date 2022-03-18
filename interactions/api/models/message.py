@@ -299,6 +299,9 @@ class Message(DictSerializerMixin):
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
 
+    def __repr__(self) -> str:
+        return self.content
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
@@ -854,6 +857,15 @@ class EmbedImageStruct(DictSerializerMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
 
 class EmbedProvider(DictSerializerMixin):
     """
@@ -867,6 +879,15 @@ class EmbedProvider(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class EmbedAuthor(DictSerializerMixin):
@@ -892,6 +913,15 @@ class EmbedAuthor(DictSerializerMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
 
 class EmbedFooter(DictSerializerMixin):
     """
@@ -914,6 +944,15 @@ class EmbedFooter(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class EmbedField(DictSerializerMixin):
@@ -939,6 +978,15 @@ class EmbedField(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class Embed(DictSerializerMixin):
@@ -1037,30 +1085,36 @@ class Embed(DictSerializerMixin):
             else None
         )
 
-        # TODO: Complete partial fix.
+        # (Complete partial fix.)
         # The issue seems to be that this itself is not updating
         # JSON result correctly. After numerous attempts I seem to
         # have the attribute to do it, but _json won't budge at all.
         # a genexpr is a poor way to go about this, but I know later
         # on we'll be refactoring this anyhow. What the fuck is breaking
         # it?
-        if self.fields:
-            self._json.update({"fields": [field._json for field in self.fields]})
 
-        if self.author:
-            self._json.update({"author": self.author._json})
+        # the __setattr__ method fixes this issue :)
 
-        if self.footer:
-            self._json.update({"footer": self.footer._json})
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (
+            key not in self._json
+            or (
+                value != self._json.get(key)
+                or not isinstance(value, dict)
+                # we don't need this instance check in components because serialisation works for them
+            )
+        ):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    if isinstance(value, datetime):
+                        value = value.isoformat()
+                self._json.update({key: value})
 
-        if self.thumbnail:
-            self._json.update({"thumbnail": self.thumbnail._json})
-
-        if self.image:
-            self._json.update({"image": self.image._json})
-
-        if self.video:
-            self._json.update({"video": self.video._json})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
@@ -1074,11 +1128,13 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-        if self.fields is None:
-            self.fields = []
+        fields = self.fields or []
+        fields.append(EmbedField(name=name, value=value, inline=inline))
 
-        self.fields.append(EmbedField(name=name, value=value, inline=inline))
-        self._json.update({"fields": [field._json for field in self.fields]})
+        self.fields = fields
+        # We must use "=" here to call __setattr__. Append does not call any magic, making it impossible to modify the
+        # json when using it, so the object what would be sent wouldn't be modified.
+        # Imo this is still better than doing a `self._json.update({"fields": [field._json for ...]})`
 
     def clear_fields(self) -> None:
         """
@@ -1086,7 +1142,6 @@ class Embed(DictSerializerMixin):
         """
 
         self.fields = []
-        self._json.update({"fields": []})
 
     def insert_field_at(
         self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
@@ -1104,13 +1159,9 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-        try:
-            self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
-
-        except AttributeError:
-            self.fields = [EmbedField(name=name, value=value, inline=inline)]
-
-        self._json.update({"fields": [field._json for field in self.fields]})
+        fields = self.fields or []
+        fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+        self.fields = fields
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
@@ -1130,7 +1181,6 @@ class Embed(DictSerializerMixin):
 
         try:
             self.fields[index] = EmbedField(name=name, value=value, inline=inline)
-            self._json.update({"fields": [field._json for field in self.fields]})
 
         except AttributeError as e:
             raise AttributeError("No fields found in Embed") from e
@@ -1147,8 +1197,9 @@ class Embed(DictSerializerMixin):
         """
 
         try:
-            self.fields.pop(index)
-            self._json.update({"fields": [field._json for field in self.fields]})
+            fields = self.fields
+            fields.pop(index)
+            self.fields = fields
 
         except AttributeError as e:
             raise AttributeError("No fields found in Embed") from e
@@ -1163,7 +1214,6 @@ class Embed(DictSerializerMixin):
 
         try:
             del self.author
-            self._json.update({"author": None})
         except AttributeError:
             pass
 
@@ -1190,7 +1240,6 @@ class Embed(DictSerializerMixin):
         self.author = EmbedAuthor(
             name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
         )
-        self._json.update({"author": self.author._json})
 
     def set_footer(
         self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
@@ -1207,7 +1256,6 @@ class Embed(DictSerializerMixin):
         """
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
-        self._json.update({"footer": self.footer._json})
 
     def set_image(
         self,
@@ -1230,7 +1278,6 @@ class Embed(DictSerializerMixin):
         """
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
-        self._json.update({"image": self.image._json})
 
     def set_thumbnail(
         self,
@@ -1253,4 +1300,3 @@ class Embed(DictSerializerMixin):
         """
 
         self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
-        self._json.update({"thumbnail": self.thumbnail._json})

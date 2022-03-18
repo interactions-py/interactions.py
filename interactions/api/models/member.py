@@ -81,6 +81,9 @@ class Member(DictSerializerMixin):
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
 
+    def __repr__(self) -> str:
+        return self.user.username if self.user else self.nick
+
     @property
     def id(self) -> Snowflake:
         """

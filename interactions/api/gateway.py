@@ -365,7 +365,8 @@ class WebSocketClient:
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
                 __obj: object = getattr(__import__(path), _name)
 
-                if name in {"_create", "_add"}:
+                # name in {"_create", "_add"} returns False (tested w message_create)
+                if any(_ in name for _ in {"_create", "_update", "_add", "_remove", "_delete"}):
                     data["_client"] = self._http
 
                 self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa

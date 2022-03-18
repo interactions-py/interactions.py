@@ -181,6 +181,9 @@ class Channel(DictSerializerMixin):
             else None
         )
 
+    def __repr__(self) -> str:
+        return self.name
+
     @property
     def mention(self) -> str:
         """

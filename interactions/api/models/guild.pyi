@@ -131,6 +131,7 @@ class Guild(DictSerializerMixin):
     lazy: Any
     application_command_counts: Any
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     async def ban(
         self,
         member_id: int,
