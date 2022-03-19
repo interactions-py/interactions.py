@@ -854,9 +854,6 @@ class EmbedImageStruct(DictSerializerMixin):
 
     __slots__ = ("_json", "url", "proxy_url", "height", "width")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
         if key != "_json" and (key not in self._json or value != self._json.get(key)):
@@ -876,9 +873,6 @@ class EmbedProvider(DictSerializerMixin):
     """
 
     __slots__ = ("_json", "url", "name")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
@@ -910,9 +904,6 @@ class EmbedAuthor(DictSerializerMixin):
 
     __slots__ = ("_json", "url", "proxy_icon_url", "icon_url", "name")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
         if key != "_json" and (key not in self._json or value != self._json.get(key)):
@@ -941,9 +932,6 @@ class EmbedFooter(DictSerializerMixin):
     """
 
     __slots__ = ("_json", "text", "proxy_icon_url", "icon_url")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
@@ -975,9 +963,6 @@ class EmbedField(DictSerializerMixin):
     """
 
     __slots__ = ("_json", "name", "inline", "value")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
