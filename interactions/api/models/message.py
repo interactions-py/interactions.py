@@ -301,7 +301,7 @@ class Message(DictSerializerMixin):
 
     def __repr__(self) -> str:
         return self.content
-
+  
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
@@ -872,7 +872,7 @@ class EmbedProvider(DictSerializerMixin):
     A class object representing the provider of an embed.
 
     :ivar Optional[str] name?: Name of provider
-    :ivar Optional[str] name?: URL of provider
+    :ivar Optional[str] url?: URL of provider
     """
 
     __slots__ = ("_json", "url", "name")
@@ -1048,38 +1048,38 @@ class Embed(DictSerializerMixin):
         )
         self.footer = (
             EmbedFooter(**self.footer)
-            if isinstance(self._json.get("footer"), dict)
-            else self._json.get("footer")
+            if isinstance(self.footer, dict)
+            else self.footer
         )
         self.image = (
             EmbedImageStruct(**self.image)
-            if isinstance(self._json.get("image"), dict)
-            else self._json.get("image")
+            if isinstance(self.image, dict)
+            else self.image
         )
         self.thumbnail = (
             EmbedImageStruct(**self.thumbnail)
-            if isinstance(self._json.get("thumbnail"), dict)
-            else self._json.get("thumbnail")
+            if isinstance(self.thumbnail, dict)
+            else self.thumbnail
         )
         self.video = (
             EmbedImageStruct(**self.video)
-            if isinstance(self._json.get("video"), dict)
-            else self._json.get("video")
+            if isinstance(self.video, dict)
+            else self.video
         )
         self.provider = (
             EmbedProvider(**self.provider)
-            if isinstance(self._json.get("provider"), dict)
-            else self._json.get("provider")
+            if isinstance(self.provider, dict)
+            else self.provider
         )
         self.author = (
             EmbedAuthor(**self.author)
-            if isinstance(self._json.get("author"), dict)
-            else self._json.get("author")
+            if isinstance(self.author, dict)
+            else self.author
         )
         self.fields = (
             [
                 EmbedField(**field) if isinstance(field, dict) else field
-                for field in self._json["fields"]
+                for field in self.fields
             ]
             if self._json.get("fields")
             else None
