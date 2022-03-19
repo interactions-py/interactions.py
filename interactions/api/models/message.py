@@ -854,9 +854,6 @@ class EmbedImageStruct(DictSerializerMixin):
 
     __slots__ = ("_json", "url", "proxy_url", "height", "width")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
         if key != "_json" and (key not in self._json or value != self._json.get(key)):
@@ -872,13 +869,10 @@ class EmbedProvider(DictSerializerMixin):
     A class object representing the provider of an embed.
 
     :ivar Optional[str] name?: Name of provider
-    :ivar Optional[str] name?: URL of provider
+    :ivar Optional[str] url?: URL of provider
     """
 
     __slots__ = ("_json", "url", "name")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
@@ -910,9 +904,6 @@ class EmbedAuthor(DictSerializerMixin):
 
     __slots__ = ("_json", "url", "proxy_icon_url", "icon_url", "name")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
         if key != "_json" and (key not in self._json or value != self._json.get(key)):
@@ -941,9 +932,6 @@ class EmbedFooter(DictSerializerMixin):
     """
 
     __slots__ = ("_json", "text", "proxy_icon_url", "icon_url")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
@@ -975,9 +963,6 @@ class EmbedField(DictSerializerMixin):
     """
 
     __slots__ = ("_json", "name", "inline", "value")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
@@ -1046,41 +1031,20 @@ class Embed(DictSerializerMixin):
             if self._json.get("timestamp")
             else datetime.utcnow()
         )
-        self.footer = (
-            EmbedFooter(**self.footer)
-            if isinstance(self._json.get("footer"), dict)
-            else self._json.get("footer")
-        )
-        self.image = (
-            EmbedImageStruct(**self.image)
-            if isinstance(self._json.get("image"), dict)
-            else self._json.get("image")
-        )
+        self.footer = EmbedFooter(**self.footer) if isinstance(self.footer, dict) else self.footer
+        self.image = EmbedImageStruct(**self.image) if isinstance(self.image, dict) else self.image
         self.thumbnail = (
             EmbedImageStruct(**self.thumbnail)
-            if isinstance(self._json.get("thumbnail"), dict)
-            else self._json.get("thumbnail")
+            if isinstance(self.thumbnail, dict)
+            else self.thumbnail
         )
-        self.video = (
-            EmbedImageStruct(**self.video)
-            if isinstance(self._json.get("video"), dict)
-            else self._json.get("video")
-        )
+        self.video = EmbedImageStruct(**self.video) if isinstance(self.video, dict) else self.video
         self.provider = (
-            EmbedProvider(**self.provider)
-            if isinstance(self._json.get("provider"), dict)
-            else self._json.get("provider")
+            EmbedProvider(**self.provider) if isinstance(self.provider, dict) else self.provider
         )
-        self.author = (
-            EmbedAuthor(**self.author)
-            if isinstance(self._json.get("author"), dict)
-            else self._json.get("author")
-        )
+        self.author = EmbedAuthor(**self.author) if isinstance(self.author, dict) else self.author
         self.fields = (
-            [
-                EmbedField(**field) if isinstance(field, dict) else field
-                for field in self._json["fields"]
-            ]
+            [EmbedField(**field) if isinstance(field, dict) else field for field in self.fields]
             if self._json.get("fields")
             else None
         )
