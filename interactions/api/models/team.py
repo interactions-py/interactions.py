@@ -117,6 +117,7 @@ class Application(DictSerializerMixin):
         self.owner = User(**self.owner) if self._json.get("owner") else None
         self.team = Team(**self.team) if self._json.get("team") else None
         self.flags = AppFlags(self.flags) if self._json.get("flags") else None
+
     @property
     def icon_url(self) -> str:
         """
