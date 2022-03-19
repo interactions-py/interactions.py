@@ -117,3 +117,18 @@ class Application(DictSerializerMixin):
         self.owner = User(**self.owner) if self._json.get("owner") else None
         self.team = Team(**self.team) if self._json.get("team") else None
         self.flags = AppFlags(self.flags) if self._json.get("flags") else None
+    @property
+    def icon_url(self) -> str:
+        """
+        Returns the URL of the application's icon
+
+        :return: URL of the application's icon.
+        :rtype: str
+        """
+        url = "https://cdn.discordapp.com/"
+        if self.icon:
+            url += f"avatars/{int(self.id)}/{self.icon}"
+            url += ".gif" if self.icon.startswith("a_") else ".png"
+        else:
+            url += f"embed/avatars/{int(self.discriminator) % 5}.png"
+        return url
