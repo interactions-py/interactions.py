@@ -191,12 +191,6 @@ class Channel(DictSerializerMixin):
         message_id: Optional[int] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel": ...
-    @classmethod
-    async def get(
-        cls,
-        channel: Union[int, str],
-        client: HTTPClient,
-    ) -> "Channel": ...
     @property
     def url(self) -> str: ...
     async def create_invite(
