@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -335,6 +335,9 @@ class Guild(DictSerializerMixin):
             else None
         )
 
+    def __repr__(self) -> str:
+        return self.name
+
     async def ban(
         self,
         member_id: int,
@@ -506,7 +509,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.create_guild_role(
             guild_id=int(self.id),
             reason=reason,
-            data=payload._json,
+            payload=payload._json,
         )
         return Role(**res, _client=self._client)
 
@@ -612,7 +615,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.modify_guild_role(
             guild_id=int(self.id),
             role_id=role_id,
-            data=payload._json,
+            payload=payload._json,
             reason=reason,
         )
         return Role(**res, _client=self._client)
@@ -681,7 +684,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -705,6 +708,8 @@ class Guild(DictSerializerMixin):
         :type position: Optional[int]
         :param parent_id?: The id of the parent category for a channel
         :type parent_id: Optional[int]
+        :param permission_overwrites?: The permission overwrites, if any
+        :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, default ``False``
         :type nsfw: Optional[bool]
         :param reason: The reason for the creation
@@ -749,6 +754,10 @@ class Guild(DictSerializerMixin):
             payload["parent_id"] = parent_id
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
+        if permission_overwrites is not MISSING:
+            payload["permission_overwrites"] = [
+                overwrite._json for overwrite in permission_overwrites
+            ]
 
         res = await self._client.create_channel(
             guild_id=int(self.id),
@@ -767,7 +776,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -791,6 +800,8 @@ class Guild(DictSerializerMixin):
         :type position: Optional[int]
         :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
         :type parent_id: Optional[int]
+        :param permission_overwrites?: The permission overwrites, if any
+        :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
         :param reason: The reason for the edit
@@ -812,6 +823,11 @@ class Guild(DictSerializerMixin):
         _position = ch.position if position is MISSING else position
         _parent_id = ch.parent_id if parent_id is MISSING else parent_id
         _nsfw = ch.nsfw if nsfw is MISSING else nsfw
+        _permission_overwrites = (
+            ch.permission_overwrites
+            if permission_overwrites is MISSING
+            else [overwrite._json for overwrite in permission_overwrites]
+        )
         _type = ch.type
 
         payload = Channel(
@@ -821,6 +837,7 @@ class Guild(DictSerializerMixin):
             bitrate=_bitrate,
             user_limit=_user_limit,
             rate_limit_per_user=_rate_limit_per_user,
+            permission_overwrites=_permission_overwrites,
             position=_position,
             parent_id=_parent_id,
             nsfw=_nsfw,
@@ -829,7 +846,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.modify_channel(
             channel_id=channel_id,
             reason=reason,
-            data=payload._json,
+            payload=payload._json,
         )
         return Channel(**res, _client=self._client)
 
@@ -1309,7 +1326,7 @@ class Guild(DictSerializerMixin):
 
         res = await self._client.create_scheduled_event(
             guild_id=self.id,
-            data=payload,
+            payload=payload,
         )
         return ScheduledEvents(**res)
 
@@ -1383,7 +1400,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.modify_scheduled_event(
             guild_id=self.id,
             guild_scheduled_event_id=Snowflake(event_id),
-            data=payload,
+            payload=payload,
         )
         return ScheduledEvents(**res)
 
@@ -1556,6 +1573,50 @@ class Guild(DictSerializerMixin):
             emoji_id=emoji_id,
             reason=reason,
         )
+
+    async def get_list_of_members(
+        self,
+        limit: Optional[int] = 1,
+        after: Optional[Union[Member, int]] = MISSING,
+    ) -> List[Member]:
+        """
+        Lists the members of a guild.
+
+        :param limit?: How many members to get from the API. Max is 1000.
+        :type limit: Optional[int]
+        :param after?: Get only Members after this member.
+        :type after: Optional[Union[Member, int]]
+        :return: A list of members
+        :rtype: List[Member]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        if after is not MISSING:
+            _after = int(after.id) if not isinstance(after, int) else after
+        else:
+            _after = None
+        res = await self._client.get_list_of_members(
+            guild_id=int(self.id), limit=limit, after=_after
+        )
+        return [Member(**member, _client=self._client) for member in res]
+
+    async def search_members(self, query: str, limit: Optional[int] = 1) -> List[Member]:
+        """
+        Search the guild for members whose username or nickname starts with provided string.
+
+        :param query: The string to search for
+        :type query: str
+        :param limit?: The number of members to return.
+        :type limit: Optional[int]
+        :return: A list of matching members
+        :rtype: List[Member]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        res = await self._client.search_guild_members(
+            guild_id=int(self.id), query=query, limit=limit
+        )
+        return [Member(**member, _client=self._client) for member in res]
 
 
 class GuildPreview(DictSerializerMixin):

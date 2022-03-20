@@ -43,6 +43,9 @@ class User(DictSerializerMixin):
         "flags",
         "premium_type",
         "public_flags",
+        # TODO: document
+        "bio",
+        "banner_color",
     )
 
     def __init__(self, **kwargs):
@@ -56,6 +59,9 @@ class User(DictSerializerMixin):
         )
 
         self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
+
+    def __repr__(self) -> str:
+        return self.username
 
     @property
     def mention(self) -> str:

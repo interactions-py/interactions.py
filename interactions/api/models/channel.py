@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Callable, List, Optional, Union
 
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
 
 
 class ChannelType(IntEnum):
@@ -181,6 +181,9 @@ class Channel(DictSerializerMixin):
             else None
         )
 
+    def __repr__(self) -> str:
+        return self.name
+
     @property
     def mention(self) -> str:
         """
@@ -278,7 +281,7 @@ class Channel(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -302,6 +305,8 @@ class Channel(DictSerializerMixin):
         :type parent_id: Optional[int]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
+        :param permission_overwrites?: The permission overwrites, if any
+        :type permission_overwrites: Optional[List[Overwrite]]
         :param reason?: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel as new object
@@ -317,8 +322,13 @@ class Channel(DictSerializerMixin):
             self.rate_limit_per_user if rate_limit_per_user is MISSING else rate_limit_per_user
         )
         _position = self.position if position is MISSING else position
-        _parent_id = self.parent_id if parent_id is MISSING else parent_id
+        _parent_id = int(self.parent_id) if parent_id is MISSING else int(parent_id)
         _nsfw = self.nsfw if nsfw is MISSING else nsfw
+        _permission_overwrites = (
+            self.permission_overwrites
+            if permission_overwrites is MISSING
+            else [overwrite._json for overwrite in permission_overwrites]
+        )
         _type = self.type
 
         payload = Channel(
@@ -331,11 +341,12 @@ class Channel(DictSerializerMixin):
             position=_position,
             parent_id=_parent_id,
             nsfw=_nsfw,
+            permission_overwrites=_permission_overwrites,
         )
         res = await self._client.modify_channel(
             channel_id=int(self.id),
             reason=reason,
-            data=payload._json,
+            payload=payload._json,
         )
         return Channel(**res, _client=self._client)
 
@@ -846,30 +857,10 @@ class Channel(DictSerializerMixin):
 
         return Channel(**res, _client=self._client)
 
-    @classmethod
-    async def get(
-        cls,
-        channel: Union[int, str],
-        client: "HTTPClient",  # noqa
-    ) -> "Channel":
-        """
-        Gets a channel based of its URL or its id.
-
-        :param channel: The URL to the channel or the id of the channel
-        :type channel: Union[int, str]
-        :param client: The HTTPClient of your bot. Set as ``bot._http``
-        :type client: HTTPClient
-        """
-
-        channel_id = channel if isinstance(channel, int) else int(channel.split(sep="/")[-1])
-
-        res = await client.get_channel(channel_id)
-        return cls(**res, _client=client)
-
     @property
     def url(self) -> str:
-        guild_id = "@me" if not isinstance(self.guild_id, int) else self.guild_id
-        return f"https://discord.com/channels/{guild_id}/{self.id}"
+        _guild_id = "@me" if not isinstance(self.guild_id, int) else self.guild_id
+        return f"https://discord.com/channels/{_guild_id}/{self.id}"
 
     async def create_invite(
         self,
@@ -942,7 +933,7 @@ class Channel(DictSerializerMixin):
 
         res = await self._client.create_channel_invite(
             channel_id=int(self.id),
-            data=payload,
+            payload=payload,
             reason=reason,
         )
 

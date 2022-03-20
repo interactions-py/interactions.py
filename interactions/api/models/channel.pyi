@@ -7,7 +7,7 @@ from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
 from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
 from .user import User
-from ..http import HTTPClient
+from ..http.client import HTTPClient
 
 class ChannelType(IntEnum):
     GUILD_TEXT: int
@@ -69,6 +69,7 @@ class Channel(DictSerializerMixin):
     default_auto_archive_duration: Optional[int]
     permissions: Optional[str]
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     @property
     def mention(self) -> str: ...
     async def send(
@@ -99,7 +100,7 @@ class Channel(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,

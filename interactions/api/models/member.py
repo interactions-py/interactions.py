@@ -81,6 +81,9 @@ class Member(DictSerializerMixin):
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
 
+    def __repr__(self) -> str:
+        return self.user.username if self.user else self.nick
+
     @property
     def id(self) -> Snowflake:
         """
@@ -229,7 +232,7 @@ class Member(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
-    ):
+    ) -> "Message":  # noqa
         """
         Sends a DM to the member.
 

@@ -7,7 +7,7 @@ from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
-from ..http import HTTPClient
+from ..http.client import HTTPClient
 from ...models.component import ActionRow, Button, SelectMenu
 from .guild import Guild
 
@@ -92,6 +92,7 @@ class Message(DictSerializerMixin):
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     async def delete(self, reason: Optional[str] = None) -> None: ...
     async def edit(
         self,
@@ -235,12 +236,14 @@ class EmbedImageStruct(DictSerializerMixin):
     height: Optional[str]
     width: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedProvider(DictSerializerMixin):
     _json: dict
     name: Optional[str]
     url: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedAuthor(DictSerializerMixin):
     _json: dict
@@ -249,6 +252,7 @@ class EmbedAuthor(DictSerializerMixin):
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedFooter(DictSerializerMixin):
     _json: dict
@@ -256,6 +260,7 @@ class EmbedFooter(DictSerializerMixin):
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedField(DictSerializerMixin):
     _json: dict
@@ -263,6 +268,7 @@ class EmbedField(DictSerializerMixin):
     inline: Optional[bool]
     value: str
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class Embed(DictSerializerMixin):
     _json: dict
@@ -280,6 +286,7 @@ class Embed(DictSerializerMixin):
     author: Optional[EmbedAuthor]
     fields: Optional[List[EmbedField]]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None: ...
     def clear_fields(self) -> None: ...
     def insert_field_at(self, index: int,  name: str, value: str, inline: Optional[bool] = False) -> None: ...
