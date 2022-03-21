@@ -3,7 +3,6 @@ from typing import ClassVar, List
 
 from colorama import Fore, Style, init
 
-
 __version__ = "4.1.1-beta.1"
 __authors__ = {
     "current": [

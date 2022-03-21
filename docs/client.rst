@@ -39,13 +39,13 @@ a "trigger." These triggers are mostly referred to as :ref:`Gateway events <api.
 Commands
 ~~~~~~~~
 
-These decorators serve as ways to register partial callback functionality, as well as 
+These decorators serve as ways to register partial callback functionality, as well as
 registering a command with the Discord API.
 
 When used for creating a command, these decorators wrap information given into them
 as :ref:`Application command objects <models.command:interactions.models.command.ApplicationCommand>`.
 
-Otherwise, when being used for responding to a command, these decorators parse data through our 
+Otherwise, when being used for responding to a command, these decorators parse data through our
 :ref:`context manager <context:interactions.context.CommandContext>` by reading an
 :ref:`Interaction object <models.misc:interactions.models.misc.Interaction>`.
 

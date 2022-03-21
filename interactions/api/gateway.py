@@ -158,7 +158,7 @@ class WebSocketClient:
     async def _manage_heartbeat(self) -> None:
         """
         Manages the heartbeat loop.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
@@ -178,7 +178,7 @@ class WebSocketClient:
     async def __restart(self):
         """
         Restart the client's connection and heartbeat with the Gateway.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
@@ -600,7 +600,7 @@ class WebSocketClient:
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
         Sends a packet to the Gateway.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
@@ -656,7 +656,7 @@ class WebSocketClient:
     async def __resume(self) -> None:
         """
         Sends a ``RESUME`` packet to the gateway.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
@@ -672,7 +672,7 @@ class WebSocketClient:
     async def __heartbeat(self) -> None:
         """
         Sends a ``HEARTBEAT`` packet to the gateway.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!

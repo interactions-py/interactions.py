@@ -14,7 +14,7 @@ This is the main object used for representing an application command from the Di
     :private-members:
     :members:
 
-Option object 
+Option object
 ~~~~~~~~~~~~~
 
 Options are another way of creating “arguments” akin to a text-based command.
@@ -24,7 +24,7 @@ Options are another way of creating “arguments” akin to a text-based command
     :private-members:
     :members:
 
-Choice object 
+Choice object
 ~~~~~~~~~~~~~
 
 A choice is a subset of an option where values have been pre-filled for the end user.

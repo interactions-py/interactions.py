@@ -39,7 +39,7 @@ class Client:
         The ``**kwargs`` mapping argument of this class takes in multiple inputs
         respective to what additional processes you'd like for the library to do
         for you while connecting. Refer to :ref:`the options <client:Connection options>` for more.
-    
+
     :ivar _loop: The :class:`asynchronous event loop <asyncio.AbstractEventLoop>` of the client.
     :ivar _http: The :ref:`user-facing HTTP connection <api.http:HTTPClient>` to the Web API, as its own separate client.
     :ivar _websocket: An object-orientation of a :ref:`websocket server connection <interactions.api.gateway.WebSocketClient>` to the Gateway.
@@ -93,7 +93,7 @@ class Client:
     def latency(self) -> float:
         """
         Returns the client connection's latency in milliseconds.
-        
+
         :rtype: float
         """
 
@@ -106,7 +106,7 @@ class Client:
     def __register_events(self) -> None:
         """
         Registers all raw Gateway events to the major known ones.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
@@ -321,7 +321,7 @@ class Client:
     async def _login(self) -> None:
         """
         Makes a login with the Discord API.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
@@ -332,7 +332,7 @@ class Client:
     async def wait_until_ready(self) -> None:
         """
         Helper method that waits until the websocket is ready.
-        
+
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
@@ -347,7 +347,7 @@ class Client:
         Below is an example for listening to an event.
 
         .. code-block:: python
-            
+
             # Method 1
             @event("message_create")
             async def event_response(message):
@@ -355,7 +355,7 @@ class Client:
 
             # Method 2
             # This reads off of the coroutine name instead.
-            @event 
+            @event
             async def on_message_create(...):
                 ...
 
@@ -381,7 +381,7 @@ class Client:
         .. warning::
             This is an internal method.
             Do not directly call this unless you know what you're doing!
-        
+
         :param command: The command in question to check.
         :type command: :class:`.ApplicationCommand`
         :param coro: The coroutine associated with the command.
@@ -595,7 +595,7 @@ class Client:
         gateway events.
 
         .. seealso::
-            For decorators geared towards context menu-related commands, check out our 
+            For decorators geared towards context menu-related commands, check out our
             :ref:`message <client:id6>` and
             :ref:`user <client:id9>` command feature converters.
 
@@ -1131,6 +1131,7 @@ class Client:
 
         return guild._json
 
+
 class Extension:
     """
     A class that allows you to represent "extensions" of your code, or
@@ -1269,12 +1270,13 @@ class Extension:
 def extension_command(*args, **kwargs):
     """
     An alias of :ref:`client.command`.
-    
+
     .. seealso::
-        For context menu-related commands, please 
+        For context menu-related commands, please
         see the :ref:`client:extension_message_command`
         and :ref:`client:extension_user_command` equivalents.
     """
+
     def decorator(coro):
         coro.__command_data__ = (args, kwargs)
         return coro
@@ -1284,6 +1286,7 @@ def extension_command(*args, **kwargs):
 
 def extension_listener(name=None):
     """An alias of :ref:`client:event`."""
+
     def decorator(func):
         func.__listener_name__ = name or func.__name__
 
@@ -1295,6 +1298,7 @@ def extension_listener(name=None):
 @wraps(Client.component)
 def extension_component(*args, **kwargs):
     """An alias of :ref:`client:component`."""
+
     def decorator(func):
         func.__component_data__ = (args, kwargs)
         return func
@@ -1305,6 +1309,7 @@ def extension_component(*args, **kwargs):
 @wraps(Client.autocomplete)
 def extension_autocomplete(*args, **kwargs):
     """An alias of :ref:`client:autocomplete`."""
+
     def decorator(func):
         func.__autocomplete_data__ = (args, kwargs)
         return func
@@ -1315,6 +1320,7 @@ def extension_autocomplete(*args, **kwargs):
 @wraps(Client.modal)
 def extension_modal(*args, **kwargs):
     """An alias of :ref:`client:modal`."""
+
     def decorator(func):
         func.__modal_data__ = (args, kwargs)
         return func
@@ -1325,6 +1331,7 @@ def extension_modal(*args, **kwargs):
 @wraps(Client.message_command)
 def extension_message_command(*args, **kwargs):
     """An alias of :ref:`client:message_command`."""
+
     def decorator(func):
         kwargs["type"] = ApplicationCommandType.MESSAGE
         func.__command_data__ = (args, kwargs)
@@ -1336,6 +1343,7 @@ def extension_message_command(*args, **kwargs):
 @wraps(Client.user_command)
 def extension_user_command(*args, **kwargs):
     """An alias of :ref:`client:user_command`."""
+
     def decorator(func):
         kwargs["type"] = ApplicationCommandType.USER
         func.__command_data__ = (args, kwargs)
