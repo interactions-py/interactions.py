@@ -40,8 +40,12 @@ class _Heartbeat:
     """
     An internal class representing the heartbeat in a WebSocket connection.
 
-    :ivar Event event: The asynchronous event of the heartbeat.
-    :ivar float delay: In seconds, how much time to wait per heartbeat.
+    .. warning::
+        This is an internal class.
+        Do not directly instantiate this **at all!**
+
+    :ivar event: The :class:`asynchronous event <asyncio.Event>` of the heartbeat.
+    :ivar delay: In seconds, how much time to wait per heartbeat.
     """
 
     event: Event
@@ -50,7 +54,7 @@ class _Heartbeat:
     def __init__(self, loop: AbstractEventLoop) -> None:
         """
         :param loop: The event loop to base the asynchronous manager.
-        :type loop: AbstractEventLoop
+        :type loop: :class:`asyncio.AbstractEventLoop`
         """
         try:
             self.event = Event(loop=loop) if version_info < (3, 10) else Event()
@@ -63,24 +67,24 @@ class WebSocketClient:
     """
     A class representing the client's connection to the Gateway via. WebSocket.
 
-    :ivar AbstractEventLoop _loop: The asynchronous event loop.
-    :ivar Listener _dispatch: The built-in event dispatcher.
-    :ivar HTTPClient _http: The user-facing HTTP client.
-    :ivar ClientWebSocketResponse _client: The WebSocket data of the connection.
-    :ivar bool _closed: Whether the connection has been closed or not.
-    :ivar dict _options: The connection options made during connection.
-    :ivar Intents _intents: The gateway intents used for connection.
-    :ivar dict _ready: The contents of the application returned when ready.
-    :ivar _Heartbeat __heartbeater: The context state of a "heartbeat" made to the Gateway.
-    :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
-    :ivar Optional[ClientPresence] __presence: The presence used in connection.
-    :ivar Event ready: The ready state of the client as an ``asyncio.Event``.
-    :ivar Task __task: The closing task for ending connections.
-    :ivar Optional[str] session_id: The ID of the ongoing session.
-    :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
-    :ivar float _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
-    :ivar float _last_ack: The latest time of the last ``HEARTBEAT_ACK`` event since connection creation, in seconds.
-    :ivar float latency: The latency of the connection, in seconds.
+    :ivar  _loop: The :class:`asynchronous event loop <asyncio.AbstractEventLoop>`.
+    :ivar _dispatch: The :ref:`built-in event dispatcher <api.dispatch:interactions.api.dispatch.Listener>`.
+    :ivar _http: The :ref:`user-facing HTTP client. <api.http:HTTPClient>`
+    :ivar _client: The :class:`WebSocket data <aiohttp.ClientWebSocketResponse>` of the connection.
+    :ivar _closed: Whether the connection has been closed or not.
+    :ivar _options: The connection options made during connection.
+    :ivar _intents: The :ref:`gateway intents <api.models:interactions.api.models.flags.Intents>` used for connection.
+    :ivar _ready: The contents of the application returned when ready.
+    :ivar __heartbeater: The :ref:`context state <api.gateway:interactions.api.gateway._Heartbeat>` of a "heartbeat" made to the Gateway.
+    :ivar __shard: The shards used during connection.
+    :ivar __presence: The :ref:`presence <api.models:interactions.api.models.presence.ClientPresence>` used in connection.
+    :ivar ready: The :class:`ready state <asyncio.Event>` of the client.
+    :ivar __task: The closing :class:`task <asyncio.Task>` for ending connections.
+    :ivar session_id: The ID of the ongoing session.
+    :ivar sequence: The sequence identifier of the ongoing session.
+    :ivar _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
+    :ivar _last_ack: The latest time of the last ``HEARTBEAT_ACK`` event since connection creation, in seconds.
+    :ivar latency: The latency of the connection, in seconds.
     """
 
     __slots__ = (
@@ -117,9 +121,9 @@ class WebSocketClient:
         :param intents: The Gateway intents of the application for event dispatch.
         :type intents: Intents
         :param session_id?: The ID of the session if trying to reconnect. Defaults to ``None``.
-        :type session_id: Optional[str]
+        :type session_id?: Optional[str]
         :param sequence?: The identifier sequence if trying to reconnect. Defaults to ``None``.
-        :type sequence: Optional[int]
+        :type sequence?: Optional[int]
         """
         try:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
@@ -152,7 +156,13 @@ class WebSocketClient:
         # self.latency has to be noqa, this is valid in python but not in Flake8.
 
     async def _manage_heartbeat(self) -> None:
-        """Manages the heartbeat loop."""
+        """
+        Manages the heartbeat loop.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        """
         while True:
             if self._closed:
                 await self.__restart()
@@ -166,7 +176,13 @@ class WebSocketClient:
                 break
 
     async def __restart(self):
-        """Restart the client's connection and heartbeat with the Gateway."""
+        """
+        Restart the client's connection and heartbeat with the Gateway.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        """
         if self.__task:
             self.__task: Task
             self.__task.cancel()
@@ -182,10 +198,14 @@ class WebSocketClient:
         """
         Establishes a client connection with the Gateway.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: :class:`typing.Optional`[:class:`typing.List`[:class:`typing.Tuple`[int]]]
         :param presence: The presence to carry with. Defaults to ``None``.
-        :type presence: Optional[ClientPresence]
+        :type presence: :class:`typing.Optional`[:ref:`api.models:interactions.api.models.presence.ClientPresence`]
         """
         self._client = None
         self.__heartbeater.delay = 0.0
@@ -222,12 +242,16 @@ class WebSocketClient:
         """
         Handles the client's connection with the Gateway.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :param stream: The packet stream to handle.
-        :type stream: Dict[str, Any]
+        :type stream: :class:`typing.Dict`[str, :class:`typing.Any`]
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard: Optional[List[Tuple[int]]]
-        :param presence: The presence to carry with. Defaults to ``None``.
-        :type presence: Optional[ClientPresence]
+        :type shard?: :class:`typing.Optional`[:class:`typing.List`[:class:`typing.Tuple`[int]]]
+        :param presence?: The presence to carry with. Defaults to ``None``.
+        :type presence?: :class:`typing.Optional`[:ref:`api.models:interactions.api.models.presence.ClientPresence`]
         """
         op: Optional[int] = stream.get("op")
         event: Optional[str] = stream.get("t")
@@ -288,6 +312,10 @@ class WebSocketClient:
     def _dispatch_event(self, event: str, data: dict) -> None:
         """
         Dispatches an event from the Gateway.
+
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         :param event: The name of the event.
         :type event: str
@@ -394,6 +422,10 @@ class WebSocketClient:
         Takes raw data given back from the Gateway
         and gives "context" based off of what it is.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :param data: The data from the Gateway.
         :type data: dict
         :return: The context object.
@@ -423,12 +455,16 @@ class WebSocketClient:
         Checks if an application command schema has sub commands
         needed for argument collection.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :param data: The data structure of the option.
-        :type data: Union[dict, Option]
+        :type data: :class:`typing.Union`[dict, :ref:`models.command:interactions.models.command.Option`]
         :param context: The context to refer subcommands from.
         :type context: object
         :return: A dictionary of the collected options, if any.
-        :rtype: Union[Tuple[str], dict]
+        :rtype: :class:`typing.Union`[:class:`typing.Tuple`[str], dict]
         """
         __kwargs: dict = {}
         _data: dict = data._json if isinstance(data, Option) else data
@@ -504,6 +540,10 @@ class WebSocketClient:
         Looks up the type of option respective to the existing
         option types.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :param context: The context to refer types from.
         :type context: object
         :param type: The option type.
@@ -541,8 +581,12 @@ class WebSocketClient:
         """
         Receives a stream of packets sent from the Gateway.
 
+        .. warning::
+            This is an internal property method.
+            Do not directly call this unless you know what you're doing!
+
         :return: The packet stream.
-        :rtype: Optional[Dict[str, Any]]
+        :rtype: :class:`typing.Optional`[:class:`typing.Dict`[str, :class:`typing.Any`]]
         """
 
         packet: WSMessage = await self._client.receive()
@@ -551,9 +595,13 @@ class WebSocketClient:
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
         Sends a packet to the Gateway.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         :param data: The data to send to the Gateway.
-        :type data: Dict[str, Any]
+        :type data: :class:`typing.Dict`[str, :class:`typing.Any`]
         """
         self._last_send = perf_counter()
         packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
@@ -566,10 +614,14 @@ class WebSocketClient:
         """
         Sends an ``IDENTIFY`` packet to the gateway.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :param shard?: The shard ID to identify under.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: :class:`typing.Optional`[:class:`typing.List`[:class:`typing.Tuple`[int]]]
         :param presence?: The presence to change the bot to on identify.
-        :type presence: Optional[ClientPresence]
+        :type presence?: :class:`typing.Optional`[:ref:`api.models:interactions.api.models.presence.ClientPresence`]
         """
         self.__shard = shard
         self.__presence = presence
@@ -596,7 +648,13 @@ class WebSocketClient:
         log.debug("IDENTIFY")
 
     async def __resume(self) -> None:
-        """Sends a ``RESUME`` packet to the gateway."""
+        """
+        Sends a ``RESUME`` packet to the gateway.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        """
         payload: dict = {
             "op": OpCodeType.RESUME,
             "d": {"token": self._http.token, "seq": self.sequence, "session_id": self.session_id},
@@ -606,7 +664,13 @@ class WebSocketClient:
         log.debug("RESUME")
 
     async def __heartbeat(self) -> None:
-        """Sends a ``HEARTBEAT`` packet to the gateway."""
+        """
+        Sends a ``HEARTBEAT`` packet to the gateway.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        """
         payload: dict = {"op": OpCodeType.HEARTBEAT, "d": self.sequence}
         await self._send_packet(payload)
         log.debug("HEARTBEAT")

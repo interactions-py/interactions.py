@@ -41,14 +41,14 @@ class Client:
         for you while connecting. Refer to :ref:`the options <client:Connection options>` for more.
     
     :ivar _loop: The :class:`asynchronous event loop <asyncio.AbstractEventLoop>` of the client.
-    :ivar _http: The :ref:`user-facing HTTP connection <interactions.api.http.client.HTTPClient>` to the Web API, as its own separate client.
+    :ivar _http: The :ref:`user-facing HTTP connection <api.http:HTTPClient>` to the Web API, as its own separate client.
     :ivar _websocket: An object-orientation of a :ref:`websocket server connection <interactions.api.gateway.WebSocketClient>` to the Gateway.
-    :ivar _intents: The :ref:`Gateway intents <interactions.api.models.flags.Intents>` of the application. Defaults to ``Intents.DEFAULT``.
+    :ivar _intents: The :ref:`Gateway intents <api.models:interactions.api.models.flags.Intents>` of the application. Defaults to ``Intents.DEFAULT``.
     :ivar _shard: The list of bucketed shards for the application's connection as tupled integers.
-    :ivar _presence: The :ref:`RPC-like presence <interactions.api.models.presence.ClientPresence>` shown on an application once connected.
+    :ivar _presence: The :ref:`RPC-like presence <api.models:interations.api.models.presence.ClientPresence>` shown on an application once connected.
     :ivar _token: The token of the application used for authentication when connecting.
     :ivar _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar me: The :ref:`bot's representation <interactions.api.models.team.Application>` in the client.
+    :ivar me: The :ref:`bot's representation <api.models:interactions.api.models.team.Application>` in the client.
     """
 
     def __init__(
@@ -127,7 +127,7 @@ class Client:
         :param data: The application command to compare.
         :type data: dict
         :param pool: The "pool" or list of commands to compare from.
-        :type pool: :class:`List[dict]`
+        :type pool: :class:`typing.List`[dict]
         :return: Whether the command has changed or not.
         :rtype: bool
         """
@@ -172,9 +172,9 @@ class Client:
             Do not directly call this unless you know what you're doing!
 
         :param data: The application commands to update.
-        :type data: :class:`List[dict]`
+        :type data: :class:`typing.List`[dict]
         :param delete?: Whether these commands are being deleted or not.
-        :type delete: :class:`Optional[bool]`
+        :type delete: :class:`typing.Optional`[bool]
         """
         guild_commands: dict = {}
         global_commands: List[dict] = []
@@ -219,7 +219,7 @@ class Client:
             Do not directly call this unless you know what you're doing!
 
         :ivar payload?: The application command to synchronize. Defaults to ``None`` where a global synchronization process begins.
-        :type payload?: :class:`Optional[dict]`
+        :type payload?: :class:`typing.Optional`[dict]
         """
         cache: Optional[List[dict]] = self._http.cache.interactions.view
 
@@ -360,11 +360,11 @@ class Client:
                 ...
 
         :param coro: The coroutine of the event.
-        :type coro: Coroutine
+        :type coro: :class:`typing.Coroutine`
         :param name?: The name of the event. If not given, this defaults to the coroutine's name.
-        :type name?: :class:`Optional[str]`
+        :type name?: :class:`typing.Optional`[str]
         :return: A callable response.
-        :rtype: :class:`Callable`[..., :class:`Any`]
+        :rtype: :class:`typing.Callable`[..., :class:`typing.Any`]
         """
         self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
@@ -596,8 +596,8 @@ class Client:
 
         .. seealso::
             For decorators geared towards context menu-related commands, check out our 
-            :ref:`message <client:interactions.client.Client.message_command>` and
-            :ref:`user <client.interactions.client.Client.user_command>` command feature converters.
+            :ref:`message <client:id6>` and
+            :ref:`user <client:id9>` command feature converters.
 
         Below is an example for creating a global application command.
 
@@ -617,17 +617,17 @@ class Client:
                 ...
 
         :param type?: The type of application command. Defaults to ``ApplicationCommandType.CHAT_INPUT`` or ``1``.
-        :type type?: :class:`Optional`[:class:`Union`[str, int, :class:`.ApplicationCommandType`]]
-        :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
-        :type name: :class:`Optional[str]`
-        :param description?: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type description?: :class:`Optional[str]`
-        :param scope?: The "scope"/applicable guilds the application command applies to.
-        :type scope?: :class:`Optional`[:class:`Union`[int, :class:`.Guild`, :class:`List`[int], :class:`List`[:class:`.Guild`]]]
-        :param options?: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type options?: :class:`Optional`[:class:`Union`[:class:`Dict`[str, :class:`Any`], :class:`List`[:class:`Dict`[str, :class:`Any`]], :class:`.Option`, :class:`List`[:class:`.Option`]]]
-        :type default_permission?: Optional[bool]
+        :type type?: :ref:`enums:interactions.enums.ApplicationCommandType`
+        :param name: The name of the application command. Must follow regex if ``CHAT_INPUT``-based.
+        :type name: str
+        :param description?: The description of the application command. Should be left blank if not ``CHAT_INPUT``-based.
+        :type description?: :class:`typing.Optional`[str]
+        :param scope?: The "scope" or targetable guilds of the application command.
+        :type scope?: :class:`typing.Optional`[:class:`typing.Union`[int, :ref:`api.models:interactions.api.models.guild.Guild`, :class:`typing.List`[int], :class:`typing.List`[:ref:`api.models:interactions.api.models.guild.Guild`]]]
+        :param options?: The "arguments"/options of the application command. Should be left blank if not ``CHAT_INPUT``-based.
+        :type options?: :class:`typing.Optional`[:class:`typing.Union`[:class:`typing.Dict`[str, :class:`typing.Any`], :class:`typing.List`[:class:`typing.Dict`[str, :class:`typing.Any`]], :ref:`models:interactions.models.command.Option`, :class:`typing.List`[:ref:`models:interactions.models.command.Option`]]]
+        :param default_permission?: The base permission of the application command. Defaults to being available for everyone.
+        :type default_permission?: :class:`typing.Optional`[bool]
         :return: A callable response.
         :rtype: :class:`Callable`[..., :class:`Any`]
         """
@@ -684,11 +684,11 @@ class Client:
                 ...
 
         :param name: The name of the application command.
-        :type name: :class:`Optional[str]`
-        :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope?: :class:`Optional`[:class:`Union`[int, :class:`Guild`, :class:`List`[int], :class:`List`[:class:`.Guild`]]]
-        :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission?: :class:`Optional`[bool]
+        :type name: str
+        :param scope?: The "scope" or targetable guilds of the application command.
+        :type scope?: :class:`typing.Optional`[:class:`typing.Union`[int, :ref:`api.models:interactions.api.models.guild.Guild`, :class:`typing.List`[int], :class:`typing.List`[:ref:`api.models:interactions.api.models.guild.Guild`]]]
+        :param default_permission?: The base permission of the application command. Defaults to being available for everyone.
+        :type default_permission?: :class:`typing.Optional`[bool]
         :return: A callable response.
         :rtype: :class:`Callable`[..., :class:`Any`]
         """
@@ -737,11 +737,11 @@ class Client:
                 ...
 
         :param name: The name of the application command.
-        :type name: :class:`Optional[str]`
-        :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope?: :class:`Optional`[:class:`Union`[int, :class:`Guild`, :class:`List`[int], :class:`List`[:class:`.Guild`]]]
-        :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission?: :class:`Optional`[bool]
+        :type name: str
+        :param scope?: The "scope" or targetable guilds of the application command.
+        :type scope?: :class:`typing.Optional`[:class:`typing.Union`[int, :ref:`api.models:interactions.api.models.guild.Guild`, :class:`typing.List`[int], :class:`typing.List`[:ref:`api.models:interactions.api.models.guild.Guild`]]]
+        :param default_permission?: The base permission of the application command. Defaults to being available for everyone.
+        :type default_permission?: :class:`typing.Optional`[bool]
         :return: A callable response.
         :rtype: :class:`Callable`[..., :class:`Any`]
         """
@@ -799,7 +799,7 @@ class Client:
             See the :ref:`component context <context.ComponentContext>` for more.
 
         :param component: The component you wish to callback for.
-        :type component: :class:`Union`[str, :class:`.Button`, :class:`SelectMenu`]
+        :type component: :class:`typing.Union`[str, :ref:`models.component:interactions.models.component.Button`, :ref:`models.component:interactions.models.component.SelectMenu`]
         :return: A callable response.
         :rtype: :class:`Callable`[..., :class:`Any`]
         """
@@ -828,7 +828,7 @@ class Client:
         :var command: The name of the command to match.
         :type command: str
         :return: An application command.
-        :rtype: :class:`.ApplicationCommand`
+        :rtype: :ref:`models.command:interactions.models.command.ApplicationCommand`
         """
         _command: dict = {}
         _command_obj = next(
@@ -869,11 +869,11 @@ class Client:
                 ])
 
         :param command: The command, command ID, or command name with the option.
-        :type command: :class:`Union`[:class:`.ApplicationCommand`, int, str, :class:`.Snowflake`]
+        :type command: :class:`typing.Union`[:ref:`models.command:interactions.models.command.ApplicationCommand`, int, str, :ref:`api.models:interactions.api.models.misc.Snowflake`]
         :param name: The name of the option to autocomplete.
         :type name: str
         :return: A callable response.
-        :rtype: :class:`Callable`[..., :class:`Any`]
+        :rtype: :class:`typing.Callable`[..., :class:`typing.Any`]
         """
 
         if isinstance(command, ApplicationCommand):
@@ -936,9 +936,9 @@ class Client:
         as of the component decorator.
 
         :param modal: The modal or custom_id of modal you wish to callback for.
-        :type modal: :class:`Union`[:class:`.Modal`, str]
+        :type modal: :class:`typing.Union`[:ref:`models.component:interactions.models.component.Modal`, str]
         :return: A callable response.
-        :rtype: :class:`Callable`[..., :class:`Any`]
+        :rtype: :class:`typing.Callable`[..., :class:`typing.Any`]
         """
 
         def decorator(coro: Coroutine) -> Any:
@@ -957,13 +957,13 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
-        :type package?: :class:`Optional[str]`
+        :type package?: :class:`typing.Optional`[str]
         :param \*args?: Optional arguments to pass to the extension
         :type \**args?: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
         :type \**kwargs?: dict
         :return: The loaded extension.
-        :rtype: :class:`Optional`[:class:`.Extension`]
+        :rtype: :class:`typing.Optional`[:ref:`client:interactions.client.Extension`]
         """
         _name: str = resolve_name(name, package)
 
@@ -994,7 +994,7 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
-        :type package?: :class:`Optional[str]`
+        :type package?: :class:`typing.Optional`[str]
         """
         try:
             _name: str = resolve_name(name, package)
@@ -1039,7 +1039,7 @@ class Client:
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
         :type \**kwargs?: dict
         :return: The reloaded extension.
-        :rtype: :class:`Optional`[:class:`.Extension`]
+        :rtype: :class:`typing.Optional`[:ref:`client:interactions.client.Extension`]
         """
         _name: str = resolve_name(name, package)
         extension = self._extensions.get(_name)
@@ -1059,7 +1059,7 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :return: The extension, if found.
-        :rtype: :class:`Optional`[:class:`Union`[:class:`ModuleType`, :class:`.Extension`]]
+        :rtype: :class:`typing.Optional`[:class:`typing.Union`[:class:`types.ModuleType`, :ref:`client:interactions.client.Extension`]]
         """
         return self._extensions.get(name)
 
@@ -1073,9 +1073,9 @@ class Client:
             Do not directly call this unless you know what you're doing!
 
         :param data: The data that is returned
-        :type data: :class:`Dict[Any, Any]`
+        :type data: :class:`typing.Dict`[:class:`typing.Any`, :class:`typing.Any`]
         :return: A dictionary of raw data.
-        :rtype: :class:`Dict[Any, Any]`
+        :rtype: :class:`typing.Dict`[:class:`typing.Any`, :class:`typing.Any`]
         """
 
         return data
@@ -1089,7 +1089,7 @@ class Client:
             Do not directly call this unless you know what you're doing!
 
         :param channel: The channel object data in question.
-        :type channel: :class:`.Channel`
+        :type channel: :ref:`api.models:interactions.api.models.channel.Channel`
         :return: The channel as a dictionary of raw data.
         :rtype: dict
         """
@@ -1106,7 +1106,7 @@ class Client:
             Do not directly call this unless you know what you're doing!
 
         :param message: The message object data in question.
-        :type message: :class:`.Message`
+        :type message: :ref:`api.models:interactions.api.models.message.Message`
         :return: The message as a dictionary of raw data.
         :rtype: dict
         """
@@ -1123,7 +1123,7 @@ class Client:
             Do not directly call this unless you know what you're doing!
 
         :param guild: The guild object data in question.
-        :type guild: :class:`.Guild`
+        :type guild: :ref:`api.models:interactions.api.models.guild.Guild`
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
@@ -1272,8 +1272,8 @@ def extension_command(*args, **kwargs):
     
     .. seealso::
         For context menu-related commands, please 
-        see the :ref:`client.extension_message_command`
-        and :ref:`client.extension_user_command` equivalents.
+        see the :ref:`client:extension_message_command`
+        and :ref:`client:extension_user_command` equivalents.
     """
     def decorator(coro):
         coro.__command_data__ = (args, kwargs)
@@ -1283,7 +1283,7 @@ def extension_command(*args, **kwargs):
 
 
 def extension_listener(name=None):
-    """An alias of :ref:`client.event`."""
+    """An alias of :ref:`client:event`."""
     def decorator(func):
         func.__listener_name__ = name or func.__name__
 
@@ -1294,7 +1294,7 @@ def extension_listener(name=None):
 
 @wraps(Client.component)
 def extension_component(*args, **kwargs):
-    """An alias of :ref:`client.component`."""
+    """An alias of :ref:`client:component`."""
     def decorator(func):
         func.__component_data__ = (args, kwargs)
         return func
@@ -1304,7 +1304,7 @@ def extension_component(*args, **kwargs):
 
 @wraps(Client.autocomplete)
 def extension_autocomplete(*args, **kwargs):
-    """An alias of :ref:`client.autocomplete`."""
+    """An alias of :ref:`client:autocomplete`."""
     def decorator(func):
         func.__autocomplete_data__ = (args, kwargs)
         return func
@@ -1314,7 +1314,7 @@ def extension_autocomplete(*args, **kwargs):
 
 @wraps(Client.modal)
 def extension_modal(*args, **kwargs):
-    """An alias of :ref:`client.modal`."""
+    """An alias of :ref:`client:modal`."""
     def decorator(func):
         func.__modal_data__ = (args, kwargs)
         return func
@@ -1324,7 +1324,7 @@ def extension_modal(*args, **kwargs):
 
 @wraps(Client.message_command)
 def extension_message_command(*args, **kwargs):
-    """An alias of :ref:`client.message_command`."""
+    """An alias of :ref:`client:message_command`."""
     def decorator(func):
         kwargs["type"] = ApplicationCommandType.MESSAGE
         func.__command_data__ = (args, kwargs)
@@ -1335,7 +1335,7 @@ def extension_message_command(*args, **kwargs):
 
 @wraps(Client.user_command)
 def extension_user_command(*args, **kwargs):
-    """An alias of :ref:`client.user_command`."""
+    """An alias of :ref:`client:user_command`."""
     def decorator(func):
         kwargs["type"] = ApplicationCommandType.USER
         func.__command_data__ = (args, kwargs)
