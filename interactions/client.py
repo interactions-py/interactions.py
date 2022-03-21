@@ -38,24 +38,12 @@ class Client:
     .. important::
         The ``**kwargs`` mapping argument of this class takes in multiple inputs
         respective to what additional processes you'd like for the library to do
-        for you while connecting. Such include:
-
-        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
-        | name         | type                                        | description                                                                                                                                     | default             |
-        +==============+=============================================+=================================================================================================================================================+=====================+
-        | intents      | :class:`Optional`[:class:`.Intents`]        | Allows specific control of permissions the application has when connected. In order to use multiple intents, the ``|`` operator is recommended. | ``Intents.DEFAULT`` |
-        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
-        | shards       | :class:`Optional[List[Tuple[int]]]`         | Dictates and controls the shards that the application connects under.                                                                           | ``[]``              |
-        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
-        | presence     | :class:`Optional`[:class:`.ClientPresence`] | Sets an RPC-like presence on the application when connected to the Gateway.                                                                     | ``None``            |
-        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
-        | disable_sync | :class:`Optional[bool]`                     | Controls whether synchronization in the user-facing API should be automatic or not.                                                             | ``False``           |
-        +--------------+--------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
+        for you while connecting. Refer to the table above for more.
         
     :ivar :class:`AbstractEventLoop` _loop: The asynchronous event loop of the client.
-    :ivar :class:`.HTTPClient` _http: The user-facing HTTP connection to the Web API, as its own separate client.
-    :ivar :class:`.WebSocketClient` _websocket: An object-orientation of a websocket server connection to the Gateway.
-    :ivar :class:`.Intents` _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
+    :ivar :ref:`interactions.api.http.client.HTTPClient` _http: The user-facing HTTP connection to the Web API, as its own separate client.
+    :ivar :ref:`interactions.api.gateway.WebSocketClient` _websocket: An object-orientation of a websocket server connection to the Gateway.
+    :ivar :ref:`interactions.api.models.flags.Intents` _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
     :ivar :class:`Optional[List[Tuple[int]]]` _shard: The list of bucketed shards for the application's connection.
     :ivar :class:`Optional`[:class:`.ClientPresence`] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
