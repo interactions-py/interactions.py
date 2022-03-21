@@ -38,17 +38,17 @@ class Client:
     .. important::
         The ``**kwargs`` mapping argument of this class takes in multiple inputs
         respective to what additional processes you'd like for the library to do
-        for you while connecting. Refer to the table above for more.
+        for you while connecting. Refer to :ref:`the table above <client:Connection options>` for more.
         
-    :ivar :class:`AbstractEventLoop` _loop: The asynchronous event loop of the client.
-    :ivar :ref:`interactions.api.http.client.HTTPClient` _http: The user-facing HTTP connection to the Web API, as its own separate client.
-    :ivar :ref:`interactions.api.gateway.WebSocketClient` _websocket: An object-orientation of a websocket server connection to the Gateway.
-    :ivar :ref:`interactions.api.models.flags.Intents` _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
-    :ivar :class:`Optional[List[Tuple[int]]]` _shard: The list of bucketed shards for the application's connection.
-    :ivar :class:`Optional`[:class:`.ClientPresence`] _presence: The RPC-like presence shown on an application once connected.
+    :ivar _loop: The :class:`asynchronous event loop <asyncio.AbstractEventLoop>` of the client.
+    :ivar _http: The :ref:`user-facing HTTP connection <interactions.api.http.client.HTTPClient>` to the Web API, as its own separate client.
+    :ivar _websocket: An object-orientation of a :ref:`websocket server connection <interactions.api.gateway.WebSocketClient>` to the Gateway.
+    :ivar _intents: The :ref:`Gateway intents <interactions.api.models.flags.Intents>` of the application. Defaults to ``Intents.DEFAULT``.
+    :ivar _shard: The list of bucketed shards for the application's connection as tupled integers.
+    :ivar Optional _presence: The :ref:`RPC-like presence <interactions.api.models.presence.ClientPresence>` shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
-    :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar :class:`.Application` me: The application representation of the client.
+    :ivar _extensions: The "extensions" or cog equivalence registered to the main client.
+    :ivar me: The :ref:`bot's representation <interactions.api.models.team.Application>` in the client.
     """
 
     def __init__(
