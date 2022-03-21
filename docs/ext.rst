@@ -9,8 +9,8 @@ the architecture of the library to specifically suit you or others needs? Well, 
 something to introduce to you: ``interactions.ext``. The officially given software development kit
 (SDK) tools suite made by developers; for developers.
 
-How does the framework... work?
-*******************************
+How does it work?
+*****************
 
 Great question! We're glad you asked. The framework is a set of tools that are designed to make
 your life easier. There are a few tools that we provide out of the box, but you can also create
@@ -18,10 +18,5 @@ some of your own. We'll be covering each one of these tools in great detail.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Tools:
 
    ext.gettingstarted.rst
-   ext.base.rst
-   ext.converter.rst
-   ext.error.rst
-   ext.version.rst

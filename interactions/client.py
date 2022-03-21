@@ -32,17 +32,35 @@ _cache: Optional[Cache] = None
 
 class Client:
     """
-    A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
+    A class representing the client-facing connection to Discord's Gateway and Web API
+    via. REST and WebSocket clients.
 
-    :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
-    :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
-    :ivar WebSocketClient _websocket: An object-orientation of a websocket server connection to the Gateway.
-    :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
-    :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
-    :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
+    .. important::
+        The ``**kwargs`` mapping argument of this class takes in multiple inputs
+        respective to what additional processes you'd like for the library to do
+        for you while connecting. Such include:
+
+        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
+        | name         | type                                        | description                                                                                                                                     | default             |
+        +==============+=============================================+=================================================================================================================================================+=====================+
+        | intents      | :class:`Optional`[:class:`.Intents`]        | Allows specific control of permissions the application has when connected. In order to use multiple intents, the ``|`` operator is recommended. | ``Intents.DEFAULT`` |
+        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
+        | shards       | :class:`Optional[List[Tuple[int]]]`         | Dictates and controls the shards that the application connects under.                                                                           | ``[]``              |
+        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
+        | presence     | :class:`Optional`[:class:`.ClientPresence`] | Sets an RPC-like presence on the application when connected to the Gateway.                                                                     | ``None``            |
+        +--------------+---------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
+        | disable_sync | :class:`Optional[bool]`                     | Controls whether synchronization in the user-facing API should be automatic or not.                                                             | ``False``           |
+        +--------------+--------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+---------------------+
+        
+    :ivar :class:`AbstractEventLoop` _loop: The asynchronous event loop of the client.
+    :ivar :class:`.HTTPClient` _http: The user-facing HTTP connection to the Web API, as its own separate client.
+    :ivar :class:`.WebSocketClient` _websocket: An object-orientation of a websocket server connection to the Gateway.
+    :ivar :class:`.Intents` _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
+    :ivar :class:`Optional[List[Tuple[int]]]` _shard: The list of bucketed shards for the application's connection.
+    :ivar :class:`Optional`[:class:`.ClientPresence`] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar Application me: The application representation of the client.
+    :ivar :class:`.Application` me: The application representation of the client.
     """
 
     def __init__(
@@ -58,21 +76,6 @@ class Client:
         :param \**kwargs: Multiple key-word arguments able to be passed through.
         :type \**kwargs: dict
         """
-
-        # Arguments
-        # ~~~~~~~~~
-        # token : str
-        #     The token of the application for authentication and connection.
-        # intents? : Optional[Intents]
-        #     Allows specific control of permissions the application has when connected.
-        #     In order to use multiple intents, the | operator is recommended.
-        #     Defaults to ``Intents.DEFAULT``.
-        # shards? : Optional[List[Tuple[int]]]
-        #     Dictates and controls the shards that the application connects under.
-        # presence? : Optional[ClientPresence]
-        #     Sets an RPC-like presence on the application when connected to the Gateway.
-        # disable_sync? : Optional[bool]
-        #     Controls whether synchronization in the user-facing API should be automatic or not.
 
         self._loop = get_event_loop()
         self._http = HTTPClient(token=token)
@@ -100,7 +103,11 @@ class Client:
 
     @property
     def latency(self) -> float:
-        """Returns the connection latency in milliseconds."""
+        """
+        Returns the client connection's latency in milliseconds.
+        
+        :rtype: float
+        """
 
         return self._websocket.latency * 1000
 
@@ -109,7 +116,13 @@ class Client:
         self._loop.run_until_complete(self._ready())
 
     def __register_events(self) -> None:
-        """Registers all raw gateway events to the known events."""
+        """
+        Registers all raw Gateway events to the major known ones.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        """
         self._websocket._dispatch.register(self.__raw_socket_create)
         self._websocket._dispatch.register(self.__raw_channel_create, "on_channel_create")
         self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
@@ -119,10 +132,14 @@ class Client:
         """
         Compares an application command during the synchronization process.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :param data: The application command to compare.
         :type data: dict
         :param pool: The "pool" or list of commands to compare from.
-        :type pool: List[dict]
+        :type pool: :class:`List[dict]`
         :return: Whether the command has changed or not.
         :rtype: bool
         """
@@ -162,15 +179,14 @@ class Client:
         """
         Bulk updates a list of application commands during the synchronization process.
 
-        The theory behind this is that instead of sending individual ``PATCH``
-        requests to the Web API, we collect the commands needed and do a bulk
-        overwrite instead. This is to mitigate the amount of calls, and hopefully,
-        chances of hitting rate limits during the readying state.
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         :param data: The application commands to update.
-        :type data: List[dict]
+        :type data: :class:`List[dict]`
         :param delete?: Whether these commands are being deleted or not.
-        :type delete: Optional[bool]
+        :type delete: :class:`Optional[bool]`
         """
         guild_commands: dict = {}
         global_commands: List[dict] = []
@@ -210,8 +226,12 @@ class Client:
         """
         Synchronizes a command from the client-facing API to the Web API.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
         :ivar payload?: The application command to synchronize. Defaults to ``None`` where a global synchronization process begins.
-        :type payload: Optional[dict]
+        :type payload?: :class:`Optional[dict]`
         """
         cache: Optional[List[dict]] = self._http.cache.interactions.view
 
@@ -257,6 +277,10 @@ class Client:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
+
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         .. code-block::
 
@@ -307,12 +331,24 @@ class Client:
                 await self._login()
 
     async def _login(self) -> None:
-        """Makes a login with the Discord API."""
+        """
+        Makes a login with the Discord API.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        """
         while not self._websocket._closed:
             await self._websocket._establish_connection(self._shard, self._presence)
 
     async def wait_until_ready(self) -> None:
-        """Helper method that waits until the websocket is ready."""
+        """
+        Helper method that waits until the websocket is ready.
+        
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        """
         await self._websocket.wait_until_ready()
 
     def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
@@ -322,10 +358,10 @@ class Client:
 
         :param coro: The coroutine of the event.
         :type coro: Coroutine
-        :param name(?): The name of the event. If not given, this defaults to the coroutine's name.
-        :type name: Optional[str]
+        :param name?: The name of the event. If not given, this defaults to the coroutine's name.
+        :type name?: :class:`Optional[str]`
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: :class:`Callable`[..., :class:`Any`]
         """
         self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
@@ -334,10 +370,21 @@ class Client:
         self,
         command: ApplicationCommand,
         coro: Coroutine,
-        regex: str = r"^[a-z0-9_-]{1,32}$",
+        regex: Optional[str] = r"^[a-z0-9_-]{1,32}$",
     ) -> None:
         """
         Checks if a command is valid.
+
+        :param command: The command in question to check.
+        :type command: :class:`.ApplicationCommand`
+        :param coro: The coroutine associated with the command.
+        :type coro: :class:`Coroutine`
+        :param regex?: The regex of the command for name comparison. Defaults to ``^[a-z0-9_-]{1,32}$``.
+        :type regex?: :class:`Optional[str]`
+
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
         """
         reg = re.compile(regex)
         _options_names: List[str] = []
@@ -544,40 +591,41 @@ class Client:
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
         gateway events.
 
-        The structure of a chat-input command:
+        .. seealso::
+            For decorators geared towards context menu-related commands, check out our 
+            :ref:`message <client.message_command>` and :ref:`user <client.user_command>` command feature converters.
+
+        Below is an example for creating a global application command.
 
         .. code-block:: python
 
-            @command(name="command-name", description="this is a command.")
-            async def command_name(ctx):
-                ...
+            @command(name="hello", description="prints \"hello world!\"")
+            async def hello_world(ctx):
+                await ctx.send("hello world!")
 
-        You are also able to establish it as a message or user command by simply passing
-        the ``type`` kwarg field into the decorator:
+        In order to make an application command unique for a guild, or set of guilds, use
+        the ``scope`` keyword-argument.
 
         .. code-block:: python
 
-            @command(type=interactions.ApplicationCommandType.MESSAGE, name="Message Command")
-            async def message_command(ctx):
+            @command(..., scope=guild_id_here)
+            async def hello_world(ctx):
                 ...
 
-        The ``scope`` kwarg field may also be used to designate the command in question
-        applicable to a guild or set of guilds.
-
-        :param type?: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
-        :type type: Optional[Union[str, int, ApplicationCommandType]]
+        :param type?: The type of application command. Defaults to ``ApplicationCommandType.CHAT_INPUT`` or ``1``.
+        :type type?: :class:`Optional`[:class:`Union`[str, int, :class:`.ApplicationCommandType`]]
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
-        :type name: Optional[str]
+        :type name: :class:`Optional[str]`
         :param description?: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type description: Optional[str]
+        :type description?: :class:`Optional[str]`
         :param scope?: The "scope"/applicable guilds the application command applies to.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: :class:`Optional`[:class:`Union`[int, :class:`.Guild`, :class:`List`[int], :class:`List`[:class:`.Guild`]]]
         :param options?: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
+        :type options?: :class:`Optional`[:class:`Union`[:class:`Dict`[str, :class:`Any`], :class:`List`[:class:`Dict`[str, :class:`Any`]], :class:`.Option`, :class:`List`[:class:`.Option`]]]
+        :type default_permission?: Optional[bool]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: :class:`Callable`[..., :class:`Any`]
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
@@ -631,17 +679,14 @@ class Client:
             async def context_menu_name(ctx):
                 ...
 
-        The ``scope`` kwarg field may also be used to designate the command in question
-        applicable to a guild or set of guilds.
-
         :param name: The name of the application command.
-        :type name: Optional[str]
+        :type name: :class:`Optional[str]`
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: :class:`Optional`[:class:`Union`[int, :class:`Guild`, :class:`List`[int], :class:`List`[:class:`.Guild`]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
+        :type default_permission?: :class:`Optional`[bool]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: :class:`Callable`[..., :class:`Any`]
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
@@ -687,17 +732,14 @@ class Client:
             async def context_menu_name(ctx):
                 ...
 
-        The ``scope`` kwarg field may also be used to designate the command in question
-        applicable to a guild or set of guilds.
-
         :param name: The name of the application command.
-        :type name: Optional[str]
+        :type name: :class:`Optional[str]`
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: :class:`Optional`[:class:`Union`[int, :class:`Guild`, :class:`List`[int], :class:`List`[:class:`.Guild`]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
+        :type default_permission?: :class:`Optional`[bool]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: :class:`Callable`[..., :class:`Any`]
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
@@ -747,13 +789,15 @@ class Client:
             async def button_response(ctx):
                 ...
 
-        The context of the component callback decorator inherits the same
-        as of the command decorator.
+        .. seealso::
+            The context of the component callback decorator inherits the same
+            as of the command decorator, with additional information.
+            See the :ref:`component context <context.ComponentContext>` for more.
 
         :param component: The component you wish to callback for.
-        :type component: Union[str, Button, SelectMenu]
+        :type component: :class:`Union`[str, :class:`.Button`, :class:`SelectMenu`]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: :class:`Callable`[..., :class:`Any`]
         """
 
         def decorator(coro: Coroutine) -> Any:
@@ -769,16 +813,20 @@ class Client:
     @staticmethod
     def _find_command(commands: List[Dict], command: str) -> ApplicationCommand:
         """
-        Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
+        Iterates over `commands` and returns an :class:`.ApplicationCommand` if it matches the name from `command`.
 
-        :ivar commands: The list of dicts to iterate through
-        :type commands: List[Dict]
-        :ivar command: The name of the command to match:
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+
+        :var commands: The list of dicts to iterate through.
+        :type commands: :class:`List[Dict]`
+        :var command: The name of the command to match.
         :type command: str
-        :return: An ApplicationCommand model
-        :rtype: ApplicationCommand
+        :return: An application command.
+        :rtype: :class:`.ApplicationCommand`
         """
-        _command: Dict
+        _command: dict = {}
         _command_obj = next(
             (
                 ApplicationCommand(**_command)
@@ -817,11 +865,11 @@ class Client:
                 ])
 
         :param command: The command, command ID, or command name with the option.
-        :type command: Union[ApplicationCommand, int, str, Snowflake]
+        :type command: :class:`Union`[:class:`.ApplicationCommand`, int, str, :class:`.Snowflake`]
         :param name: The name of the option to autocomplete.
         :type name: str
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: :class:`Callable`[..., :class:`Any`]
         """
 
         if isinstance(command, ApplicationCommand):
@@ -884,9 +932,9 @@ class Client:
         as of the component decorator.
 
         :param modal: The modal or custom_id of modal you wish to callback for.
-        :type modal: Union[Modal, str]
+        :type modal: :class:`Union`[:class:`.Modal`, str]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: :class:`Callable`[..., :class:`Any`]
         """
 
         def decorator(coro: Coroutine) -> Any:
@@ -905,13 +953,13 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
-        :type package: Optional[str]
+        :type package?: :class:`Optional[str]`
         :param \*args?: Optional arguments to pass to the extension
-        :type \**args: tuple
+        :type \**args?: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
-        :type \**kwargs: dict
+        :type \**kwargs?: dict
         :return: The loaded extension.
-        :rtype: Optional[Extension]
+        :rtype: :class:`Optional`[:class:`.Extension`]
         """
         _name: str = resolve_name(name, package)
 
@@ -942,7 +990,7 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
-        :type package: Optional[str]
+        :type package?: :class:`Optional[str]`
         """
         try:
             _name: str = resolve_name(name, package)
@@ -981,13 +1029,13 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
-        :type package: Optional[str]
+        :type package?: :class:`Optional[str]`
         :param \*args?: Optional arguments to pass to the extension
-        :type \**args: tuple
+        :type \**args?: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
-        :type \**kwargs: dict
+        :type \**kwargs?: dict
         :return: The reloaded extension.
-        :rtype: Optional[Extension]
+        :rtype: :class:`Optional`[:class:`.Extension`]
         """
         _name: str = resolve_name(name, package)
         extension = self._extensions.get(_name)
@@ -1001,28 +1049,43 @@ class Client:
         return self.load(name, package, *args, **kwargs)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
+        """
+        Gets an extension if it exists in the client's known extensions.
+
+        :param name: The name of the extension.
+        :type name: str
+        :return: The extension, if found.
+        :rtype: :class:`Optional`[:class:`Union`[:class:`ModuleType`, :class:`.Extension`]]
+        """
         return self._extensions.get(name)
 
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
-        This is an internal function that takes any gateway socket event
-        and then returns the data purely based off of what it does in
-        the client instantiation class.
+        Takes any gateway socket event and then returns the data purely based
+        off of what it does in the client instantiation class.
+
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         :param data: The data that is returned
-        :type data: Dict[Any, Any]
+        :type data: :class:`Dict[Any, Any]`
         :return: A dictionary of raw data.
-        :rtype: Dict[Any, Any]
+        :rtype: :class:`Dict[Any, Any]`
         """
 
         return data
 
     async def __raw_channel_create(self, channel) -> dict:
         """
-        This is an internal function that caches the channel creates when dispatched.
+        Caches the channel creates when dispatched.
+
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         :param channel: The channel object data in question.
-        :type channel: Channel
+        :type channel: :class:`.Channel`
         :return: The channel as a dictionary of raw data.
         :rtype: dict
         """
@@ -1032,10 +1095,14 @@ class Client:
 
     async def __raw_message_create(self, message) -> dict:
         """
-        This is an internal function that caches the message creates when dispatched.
+        Caches the message creates when dispatched.
+
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         :param message: The message object data in question.
-        :type message: Message
+        :type message: :class:`.Message`
         :return: The message as a dictionary of raw data.
         :rtype: dict
         """
@@ -1045,10 +1112,14 @@ class Client:
 
     async def __raw_guild_create(self, guild) -> dict:
         """
-        This is an internal function that caches the guild creates on ready.
+        Caches the guild creates on ready.
+
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
 
         :param guild: The guild object data in question.
-        :type guild: Guild
+        :type guild: :class:`.Guild`
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
@@ -1056,8 +1127,6 @@ class Client:
 
         return guild._json
 
-
-# TODO: Implement the rest of cog behaviour when possible.
 class Extension:
     """
     A class that allows you to represent "extensions" of your code, or
@@ -1194,6 +1263,14 @@ class Extension:
 
 @wraps(command)
 def extension_command(*args, **kwargs):
+    """
+    An alias of :ref:`client.command`.
+    
+    .. seealso::
+        For context menu-related commands, please 
+        see the :ref:`client.extension_message_command`
+        and :ref:`client.extension_user_command` equivalents.
+    """
     def decorator(coro):
         coro.__command_data__ = (args, kwargs)
         return coro
@@ -1202,6 +1279,7 @@ def extension_command(*args, **kwargs):
 
 
 def extension_listener(name=None):
+    """An alias of :ref:`client.event`."""
     def decorator(func):
         func.__listener_name__ = name or func.__name__
 
@@ -1212,6 +1290,7 @@ def extension_listener(name=None):
 
 @wraps(Client.component)
 def extension_component(*args, **kwargs):
+    """An alias of :ref:`client.component`."""
     def decorator(func):
         func.__component_data__ = (args, kwargs)
         return func
@@ -1221,6 +1300,7 @@ def extension_component(*args, **kwargs):
 
 @wraps(Client.autocomplete)
 def extension_autocomplete(*args, **kwargs):
+    """An alias of :ref:`client.autocomplete`."""
     def decorator(func):
         func.__autocomplete_data__ = (args, kwargs)
         return func
@@ -1230,6 +1310,7 @@ def extension_autocomplete(*args, **kwargs):
 
 @wraps(Client.modal)
 def extension_modal(*args, **kwargs):
+    """An alias of :ref:`client.modal`."""
     def decorator(func):
         func.__modal_data__ = (args, kwargs)
         return func
@@ -1239,6 +1320,7 @@ def extension_modal(*args, **kwargs):
 
 @wraps(Client.message_command)
 def extension_message_command(*args, **kwargs):
+    """An alias of :ref:`client.message_command`."""
     def decorator(func):
         kwargs["type"] = ApplicationCommandType.MESSAGE
         func.__command_data__ = (args, kwargs)
@@ -1249,6 +1331,7 @@ def extension_message_command(*args, **kwargs):
 
 @wraps(Client.user_command)
 def extension_user_command(*args, **kwargs):
+    """An alias of :ref:`client.user_command`."""
     def decorator(func):
         kwargs["type"] = ApplicationCommandType.USER
         func.__command_data__ = (args, kwargs)

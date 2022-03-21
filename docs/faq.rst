@@ -1,6 +1,5 @@
 Frequently Asked Questions
 ==========================
-
 Got a question about our library? Well, your answer is probably laying somewhere around here.
 
 .. note::
