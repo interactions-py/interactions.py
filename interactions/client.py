@@ -39,7 +39,7 @@ class Client:
         The ``**kwargs`` mapping argument of this class takes in multiple inputs
         respective to what additional processes you'd like for the library to do
         for you while connecting. Refer to :ref:`the options <client:Connection options>` for more.
-        
+    
     :ivar _loop: The :class:`asynchronous event loop <asyncio.AbstractEventLoop>` of the client.
     :ivar _http: The :ref:`user-facing HTTP connection <interactions.api.http.client.HTTPClient>` to the Web API, as its own separate client.
     :ivar _websocket: An object-orientation of a :ref:`websocket server connection <interactions.api.gateway.WebSocketClient>` to the Gateway.
