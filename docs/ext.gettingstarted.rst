@@ -9,7 +9,7 @@ you'll find yourself often checking the source code and directly making changes
 to the library. We want to make a change to that, and additionally, make it easier
 for developers to find creativity in the simplicity of our overengineered product.
 
-.. warning::
+.. caution::
 
     If you're not familiar with the source code of the library, you should
     probably read the documentation first.
@@ -58,7 +58,9 @@ This code shows a basic example for creating the base of a 3rd party:
             ),
         ),
     )
-    data = {
+    __version__ = str(version)
+
+    data: dict = {
         "name": "interactions-name_here",
         "description": "We do cool things!",
         "version": version
