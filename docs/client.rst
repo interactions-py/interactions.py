@@ -3,8 +3,8 @@
 Bot Client
 ==========
 
-The bot client is the main class every bot developer using this library will work with. This class easily allows
-a developer to connect, build commands, and extend off of it.
+The bot client is largely responsible for simplifying the communication between the bot developer
+and API. This section covers documentation for classes, methods and the likes for this.
 
 Client
 ******
@@ -23,4 +23,4 @@ Client
 
 .. autoclass:: interactions.client.Client
     :no-undoc-members:
-    :private-members:`
+    :private-members:
