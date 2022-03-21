@@ -9,6 +9,11 @@ class Choice(DictSerializerMixin):
     """
     A class object representing the choice of an option.
 
+    .. caution::
+        This object can either be generated within an interaction response 
+        from an :ref:`Interaction object <models.misc:interactions.models.misc.Interaction>`,
+        or used in a command decorator.
+    
     .. note::
         ``value`` allows ``float`` as a passable value type,
         whereas it's supposed to be ``double``.
@@ -35,6 +40,11 @@ class Choice(DictSerializerMixin):
 class Option(DictSerializerMixin):
     """
     A class object representing the option of an application command.
+
+    .. caution::
+        This object can either be generated within an interaction response 
+        from an :ref:`Interaction object <models.misc:interactions.models.misc.Interaction>`,
+        or used in a command decorator.
 
     .. note::
         ``options`` is only present for when a subcommand
@@ -161,7 +171,7 @@ class Permission(DictSerializerMixin):
 class ApplicationCommand(DictSerializerMixin):
     """
     A class object representing all types of commands.
-
+    
     .. warning::
         This object is inferred upon whenever the client is caching
         information about commands from an HTTP request and/or the

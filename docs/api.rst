@@ -14,8 +14,8 @@ of what's going on.
     - A ``?`` on an attribute means that the attribute in question is always optional, and not "temporarily" optional. We recommend only looking at the attribute's typing for an idea of how it's parsed, not the final rendition of its value.
     - A ``_`` on an attribute, class or method name indicates that this is for **internal** purposes only. In the event were a developer to ever need this, we have the documentation exposed for it. We additionally have admonitions saying when not to use something unless explicitly needed for your own benefit.
 
-Bot Developing
-**************
+Bot reference
+*************
 
 This section covers all of the documentation related to how we as the bot developer interact with connecting
 and "talking" to the Discord API.
@@ -32,8 +32,8 @@ and "talking" to the Discord API.
     client.rst
     context.rst
 
-Internal development
-********************
+Internal reference
+******************
 
 This section covers over the internal aspects of our library.
 
@@ -47,9 +47,11 @@ Handlers
 
     api.http.rst
     api.gateway.rst
-    
+    api.cache.rst
+    api.dispatch.rst
+
 Data Models
-~~~~~~~~~~~
+***********
 
 "Data models" are a term in our vocabulary here at interactions.py to describe how we shape and show
 data given from the API. Data is an ambigious term that can resemble information from the Gateway
@@ -58,16 +60,9 @@ packet stream, (e.g. events) HTTP request returns, or interfacing with library c
 The most common form of a data model is a Python subclassed object.
 
 .. toctree::
-    :maxdepth: 1
-
-    api.models.channel.rst
-    api.models.flags.rst
-    api.models.guild.rst
-    api.models.gw.rst
-    api.models.member.rst
-    api.models.message.rst
-    api.models.misc.rst
-    api.models.presence.rst
-    api.models.role.rst
-    api.models.team.rst
-    api.models.user.rst
+    :maxdepth: 2
+    
+    models.command.rst
+    enums.rst
+    api.models.rst
+    api.enums.rst
