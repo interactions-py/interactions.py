@@ -38,15 +38,15 @@ class Client:
     .. important::
         The ``**kwargs`` mapping argument of this class takes in multiple inputs
         respective to what additional processes you'd like for the library to do
-        for you while connecting. Refer to :ref:`the table above <client:Connection options>` for more.
-        
+        for you while connecting. Refer to :ref:`the options <client:Connection options>` for more.
+    
     :ivar _loop: The :class:`asynchronous event loop <asyncio.AbstractEventLoop>` of the client.
     :ivar _http: The :ref:`user-facing HTTP connection <interactions.api.http.client.HTTPClient>` to the Web API, as its own separate client.
     :ivar _websocket: An object-orientation of a :ref:`websocket server connection <interactions.api.gateway.WebSocketClient>` to the Gateway.
     :ivar _intents: The :ref:`Gateway intents <interactions.api.models.flags.Intents>` of the application. Defaults to ``Intents.DEFAULT``.
     :ivar _shard: The list of bucketed shards for the application's connection as tupled integers.
-    :ivar Optional _presence: The :ref:`RPC-like presence <interactions.api.models.presence.ClientPresence>` shown on an application once connected.
-    :ivar str _token: The token of the application used for authentication when connecting.
+    :ivar _presence: The :ref:`RPC-like presence <interactions.api.models.presence.ClientPresence>` shown on an application once connected.
+    :ivar _token: The token of the application used for authentication when connecting.
     :ivar _extensions: The "extensions" or cog equivalence registered to the main client.
     :ivar me: The :ref:`bot's representation <interactions.api.models.team.Application>` in the client.
     """
@@ -344,6 +344,21 @@ class Client:
         A decorator for listening to events dispatched from the
         Gateway.
 
+        Below is an example for listening to an event.
+
+        .. code-block:: python
+            
+            # Method 1
+            @event("message_create")
+            async def event_response(message):
+                print(message.content)  # hello world.
+
+            # Method 2
+            # This reads off of the coroutine name instead.
+            @event 
+            async def on_message_create(...):
+                ...
+
         :param coro: The coroutine of the event.
         :type coro: Coroutine
         :param name?: The name of the event. If not given, this defaults to the coroutine's name.
@@ -363,16 +378,16 @@ class Client:
         """
         Checks if a command is valid.
 
+        .. warning::
+            This is an internal method.
+            Do not directly call this unless you know what you're doing!
+        
         :param command: The command in question to check.
         :type command: :class:`.ApplicationCommand`
         :param coro: The coroutine associated with the command.
         :type coro: :class:`Coroutine`
         :param regex?: The regex of the command for name comparison. Defaults to ``^[a-z0-9_-]{1,32}$``.
         :type regex?: :class:`Optional[str]`
-
-        .. warning::
-            This is an internal method.
-            Do not directly call this unless you know what you're doing!
         """
         reg = re.compile(regex)
         _options_names: List[str] = []
@@ -581,7 +596,8 @@ class Client:
 
         .. seealso::
             For decorators geared towards context menu-related commands, check out our 
-            :ref:`message <client.message_command>` and :ref:`user <client.user_command>` command feature converters.
+            :ref:`message <client:interactions.client.Client.message_command>` and
+            :ref:`user <client.interactions.client.Client.user_command>` command feature converters.
 
         Below is an example for creating a global application command.
 

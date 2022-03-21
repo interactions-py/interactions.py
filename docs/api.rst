@@ -9,9 +9,10 @@ of what's going on.
 
 .. tip::
 
-    Our documentation uses various symbols to add context to something. For example, a ``?`` on an attribute
-    means that the attribute in question is always optional, and not "temporarily" optional. We recommend
-    only looking at the attribute's typing for an idea of how it's parsed, not the final rendition of its value.
+    Our documentation uses various symbols to add context to something.
+    
+    - A ``?`` on an attribute means that the attribute in question is always optional, and not "temporarily" optional. We recommend only looking at the attribute's typing for an idea of how it's parsed, not the final rendition of its value.
+    - A ``_`` on an attribute, class or method name indicates that this is for **internal** purposes only. In the event were a developer to ever need this, we have the documentation exposed for it. We additionally have admonitions saying when not to use something unless explicitly needed for your own benefit.
 
 Bot Developing
 **************
