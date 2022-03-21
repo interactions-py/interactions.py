@@ -40,7 +40,7 @@ class _Heartbeat:
     """
     An internal class representing the heartbeat in a WebSocket connection.
 
-    .. warning::
+    .. danger::
         This is an internal class.
         Do not directly instantiate this **at all!**
 
