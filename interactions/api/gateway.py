@@ -530,6 +530,11 @@ class WebSocketClient:
                             return _check
 
                         __kwargs[sub_option["name"]] = sub_option["value"]
+
+        elif _data.get("type") and _data["type"] == OptionType.SUB_COMMAND:
+            # sub_command_groups must have options so there is no extra check needed for those
+            __kwargs["sub_command"] = _data["name"]
+
         elif _data.get("value") and _data.get("name"):
             __kwargs[_data["name"]] = _data["value"]
 
@@ -604,7 +609,8 @@ class WebSocketClient:
         :type data: :class:`typing.Dict`[str, :class:`typing.Any`]
         """
         self._last_send = perf_counter()
-        packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
+        _data = dumps(data) if isinstance(data, dict) else data
+        packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
         await self._client.send_str(packet)
         log.debug(packet)
 
