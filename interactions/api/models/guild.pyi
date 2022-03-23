@@ -5,11 +5,11 @@ from enum import IntEnum
 from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import DictSerializerMixin, MISSING, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake, Overwrite
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
-from ..http import HTTPClient
+from ..http.client import HTTPClient
 
 class VerificationLevel(IntEnum):
     NONE: int
@@ -37,6 +37,10 @@ class EventStatus(IntEnum):
     ACTIVE: int
     COMPLETED: int
     CANCELED: int
+
+class InviteTargetType(IntEnum):
+    STREAM: int
+    EMBEDDED_APPLICATION: int
 
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
@@ -131,6 +135,7 @@ class Guild(DictSerializerMixin):
     lazy: Any
     application_command_counts: Any
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     async def ban(
         self,
         member_id: int,
@@ -214,7 +219,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -228,7 +233,7 @@ class Guild(DictSerializerMixin):
         user_limit: Optional[int] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
-        # permission_overwrites,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
@@ -384,6 +389,26 @@ class Guild(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> List[Role]: ...
     async def get_bans(self) -> List[dict]: ...
+    async def get_emoji(
+        self,
+        emoji_id: int
+    ) -> Emoji: ...
+    async def get_all_emojis(self) -> List[Emoji]: ...
+    async def delete_emoji(
+        self,
+        emoji: Union[Emoji, int],
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def get_list_of_members(
+        self,
+        limit: Optional[int] = 1,
+        after: Optional[Union[Member, int]] = MISSING,
+    ) -> List[Member]: ...
+    async def search_members(
+        self,
+        query: str,
+        limit: Optional[int] = 1
+    ) -> List[Member]: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
@@ -403,7 +428,7 @@ class Invite(DictSerializerMixin):
     _client: HTTPClient
     type: str
     guild_id: Snowflake
-    expires_at: str
+    expires_at: Optional[datetime]
     code: str
     channel_id: Snowflake
     uses: int
@@ -412,6 +437,7 @@ class Invite(DictSerializerMixin):
     temporary: bool
     created_at: datetime
     def __init__(self, **kwargs): ...
+    async def delete(self) -> None: ...
 
 class GuildTemplate(DictSerializerMixin):
     _json: dict

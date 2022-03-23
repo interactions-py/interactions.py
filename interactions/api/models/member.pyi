@@ -5,7 +5,7 @@ from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .user import User
 from .flags import Permissions
-from ..http import HTTPClient
+from ..http.client import HTTPClient
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
 
@@ -27,8 +27,10 @@ class Member(DictSerializerMixin):
     communication_disabled_until: Optional[datetime.isoformat]
     hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     @property
     def mention(self) -> str: ...
+    @property
     def id(self) -> Snowflake: ...
     async def ban(
         self,

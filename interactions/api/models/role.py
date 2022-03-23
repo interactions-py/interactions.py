@@ -134,7 +134,7 @@ class Role(DictSerializerMixin):
         res = await self._client.modify_guild_role(
             guild_id=guild_id,
             role_id=int(self.id),
-            data=payload._json,
+            payload=payload._json,
             reason=reason,
         )
         return Role(**res, _client=self._client)

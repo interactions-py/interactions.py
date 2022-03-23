@@ -5,7 +5,7 @@ class SimpleCog(interactions.Extension):
     def __init__(self, client) -> None:
         self.client = client
 
-    # @interactions.command(
+    # @interactions.extension_command(
     #     name="cog-command",
     #     description="wanna be in a cog? :)) ok.",
     #     scope=852402668294766612,

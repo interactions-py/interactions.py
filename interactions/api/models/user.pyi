@@ -14,6 +14,7 @@ class User(DictSerializerMixin):
     mfa_enabled: Optional[bool]
     banner: Optional[str]
     accent_color: Optional[int]
+    banner_color: Optional[str]
     locale: Optional[str]
     verified: Optional[bool]
     email: Optional[str]
@@ -21,6 +22,7 @@ class User(DictSerializerMixin):
     premium_type: Optional[int]
     public_flags: Optional[UserFlags]
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     @property
     def mention(self) -> str: ...
     @property

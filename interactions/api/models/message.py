@@ -299,6 +299,9 @@ class Message(DictSerializerMixin):
         )
         self.thread = Channel(**self.thread) if self._json.get("thread") else None
 
+    def __repr__(self) -> str:
+        return self.content
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
@@ -470,7 +473,6 @@ class Message(DictSerializerMixin):
 
         if not components or components is MISSING:
             _components = []
-        # TODO: Break this obfuscation pattern down to a "builder" method.
         else:
             _components = _build_components(components=components)
 
@@ -552,6 +554,97 @@ class Message(DictSerializerMixin):
         )
         return Channel(**res, _client=self._client)
 
+    async def create_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None:
+        """
+        Adds a reaction to the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+
+        return await self._client.create_reaction(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
+        )
+
+    async def remove_all_reactions(self) -> None:
+        """
+        Removes all reactions of the message.
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        return await self._client.remove_all_reactions(
+            channel_id=int(self.channel_id), message_id=int(self.id)
+        )
+
+    async def remove_all_reactions_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None:
+        """
+        Removes all reactions of one emoji of the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+        return await self._client.remove_all_reactions_of_emoji(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
+        )
+
+    async def remove_own_reaction_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None:
+        """
+        Removes the own reaction of an emoji of the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f"{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+        return await self._client.remove_self_reaction(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
+        )
+
+    async def remove_reaction_from(
+        self, emoji: Union[str, "Emoji"], user: Union[Member, User, int]
+    ) -> None:
+        """
+        Removes another reaction of an emoji of the message.
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        :param user: The user or user_id to remove the reaction of
+        :type user: Union[Member, user, int]
+        """
+        _emoji = (
+            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
+        )
+        _user_id = user if isinstance(user, int) else user.id
+        return await self._client.remove_user_reaction(
+            channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
+        )
+
     @classmethod
     async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,
         """
@@ -590,6 +683,7 @@ class Emoji(DictSerializerMixin):
     """
 
     __slots__ = (
+        "_client",
         "_json",
         "id",
         "name",
@@ -604,6 +698,66 @@ class Emoji(DictSerializerMixin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = Snowflake(self.id) if self._json.get("id") else None
+
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        emoji_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Emoji":
+        """
+        Gets an emoji.
+
+        :param guild_id: The id of the guild of the emoji
+        :type guild_id: int
+        :param emoji_id: The id of the emoji
+        :type emoji_id: int
+        :param client: The HTTPClient of your bot. Equals to ``bot._http``
+        :type client: HTTPClient
+        :return: The Emoji as object
+        :rtype: Emoji
+        """
+        res = await client.get_guild_emoji(guild_id=guild_id, emoji_id=emoji_id)
+        return cls(**res, _client=client)
+
+    @classmethod
+    async def get_all_of_guild(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> List["Emoji"]:
+        """
+        Gets all emoji of a guild.
+
+        :param guild_id: The id of the guild to get the emojis of
+        :type guild_id: int
+        :param client: The HTTPClient of your bot. Equals to ``bot._http``
+        :type client: HTTPClient
+        :return: The Emoji as list
+        :rtype: List[Emoji]
+        """
+        res = await client.get_all_emoji(guild_id=guild_id)
+        return [cls(**emoji, _client=client) for emoji in res]
+
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes the emoji.
+
+        :param guild_id: The guild id to delete the emoji from
+        :type guild_id: int
+        :param reason?: The reason of the deletion
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        return await self._client.delete_guild_emoji(
+            guild_id=guild_id, emoji_id=int(self.id), reason=reason
+        )
 
 
 class ReactionObject(DictSerializerMixin):
@@ -700,8 +854,14 @@ class EmbedImageStruct(DictSerializerMixin):
 
     __slots__ = ("_json", "url", "proxy_url", "height", "width")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class EmbedProvider(DictSerializerMixin):
@@ -709,13 +869,19 @@ class EmbedProvider(DictSerializerMixin):
     A class object representing the provider of an embed.
 
     :ivar Optional[str] name?: Name of provider
-    :ivar Optional[str] name?: URL of provider
+    :ivar Optional[str] url?: URL of provider
     """
 
     __slots__ = ("_json", "url", "name")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class EmbedAuthor(DictSerializerMixin):
@@ -738,8 +904,14 @@ class EmbedAuthor(DictSerializerMixin):
 
     __slots__ = ("_json", "url", "proxy_icon_url", "icon_url", "name")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class EmbedFooter(DictSerializerMixin):
@@ -761,8 +933,14 @@ class EmbedFooter(DictSerializerMixin):
 
     __slots__ = ("_json", "text", "proxy_icon_url", "icon_url")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class EmbedField(DictSerializerMixin):
@@ -786,8 +964,14 @@ class EmbedField(DictSerializerMixin):
 
     __slots__ = ("_json", "name", "inline", "value")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class Embed(DictSerializerMixin):
@@ -847,60 +1031,54 @@ class Embed(DictSerializerMixin):
             if self._json.get("timestamp")
             else datetime.utcnow()
         )
-        self.footer = (
-            EmbedFooter(**self.footer)
-            if isinstance(self._json.get("footer"), dict)
-            else self._json.get("footer")
-        )
-        self.image = (
-            EmbedImageStruct(**self.image)
-            if isinstance(self._json.get("image"), dict)
-            else self._json.get("image")
-        )
+        self.footer = EmbedFooter(**self.footer) if isinstance(self.footer, dict) else self.footer
+        self.image = EmbedImageStruct(**self.image) if isinstance(self.image, dict) else self.image
         self.thumbnail = (
             EmbedImageStruct(**self.thumbnail)
-            if isinstance(self._json.get("thumbnail"), dict)
-            else self._json.get("thumbnail")
+            if isinstance(self.thumbnail, dict)
+            else self.thumbnail
         )
-        self.video = (
-            EmbedImageStruct(**self.video)
-            if isinstance(self._json.get("video"), dict)
-            else self._json.get("video")
-        )
+        self.video = EmbedImageStruct(**self.video) if isinstance(self.video, dict) else self.video
         self.provider = (
-            EmbedProvider(**self.provider)
-            if isinstance(self._json.get("provider"), dict)
-            else self._json.get("provider")
+            EmbedProvider(**self.provider) if isinstance(self.provider, dict) else self.provider
         )
-        self.author = (
-            EmbedAuthor(**self.author)
-            if isinstance(self._json.get("author"), dict)
-            else self._json.get("author")
-        )
+        self.author = EmbedAuthor(**self.author) if isinstance(self.author, dict) else self.author
         self.fields = (
-            [
-                EmbedField(**field) if isinstance(field, dict) else field
-                for field in self._json["fields"]
-            ]
+            [EmbedField(**field) if isinstance(field, dict) else field for field in self.fields]
             if self._json.get("fields")
             else None
         )
 
-        # TODO: Complete partial fix.
+        # (Complete partial fix.)
         # The issue seems to be that this itself is not updating
         # JSON result correctly. After numerous attempts I seem to
         # have the attribute to do it, but _json won't budge at all.
         # a genexpr is a poor way to go about this, but I know later
         # on we'll be refactoring this anyhow. What the fuck is breaking
         # it?
-        if self.fields:
-            self._json.update({"fields": [field._json for field in self.fields]})
 
-        if self.author:
-            self._json.update({"author": self.author._json})
+        # the __setattr__ method fixes this issue :)
 
-        if self.footer:
-            self._json.update({"footer": self.footer._json})
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (
+            key not in self._json
+            or (
+                value != self._json.get(key)
+                or not isinstance(value, dict)
+                # we don't need this instance check in components because serialisation works for them
+            )
+        ):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    if isinstance(value, datetime):
+                        value = value.isoformat()
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
@@ -914,11 +1092,13 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-        if self.fields is None:
-            self.fields = []
+        fields = self.fields or []
+        fields.append(EmbedField(name=name, value=value, inline=inline))
 
-        self.fields.append(EmbedField(name=name, value=value, inline=inline))
-        self._json.update({"fields": [field._json for field in self.fields]})
+        self.fields = fields
+        # We must use "=" here to call __setattr__. Append does not call any magic, making it impossible to modify the
+        # json when using it, so the object what would be sent wouldn't be modified.
+        # Imo this is still better than doing a `self._json.update({"fields": [field._json for ...]})`
 
     def clear_fields(self) -> None:
         """
@@ -926,7 +1106,6 @@ class Embed(DictSerializerMixin):
         """
 
         self.fields = []
-        self._json.update({"fields": []})
 
     def insert_field_at(
         self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
@@ -944,13 +1123,9 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-        try:
-            self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
-
-        except AttributeError:
-            self.fields = [EmbedField(name=name, value=value, inline=inline)]
-
-        self._json.update({"fields": [field._json for field in self.fields]})
+        fields = self.fields or []
+        fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+        self.fields = fields
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
@@ -970,13 +1145,12 @@ class Embed(DictSerializerMixin):
 
         try:
             self.fields[index] = EmbedField(name=name, value=value, inline=inline)
-            self._json.update({"fields": [field._json for field in self.fields]})
 
-        except AttributeError:
-            raise AttributeError("No fields found in Embed")
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
 
-        except IndexError:
-            raise IndexError("No fields at this index")
+        except IndexError as e:
+            raise IndexError("No fields at this index") from e
 
     def remove_field(self, index: int) -> None:
         """
@@ -987,14 +1161,15 @@ class Embed(DictSerializerMixin):
         """
 
         try:
-            self.fields.pop(index)
-            self._json.update({"fields": [field._json for field in self.fields]})
+            fields = self.fields
+            fields.pop(index)
+            self.fields = fields
 
-        except AttributeError:
-            raise AttributeError("No fields found in Embed")
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
 
-        except IndexError:
-            raise IndexError("Field not Found at index")
+        except IndexError as e:
+            raise IndexError("Field not Found at index") from e
 
     def remove_author(self) -> None:
         """
@@ -1003,7 +1178,6 @@ class Embed(DictSerializerMixin):
 
         try:
             del self.author
-            self._json.update({"author": None})
         except AttributeError:
             pass
 
@@ -1030,7 +1204,6 @@ class Embed(DictSerializerMixin):
         self.author = EmbedAuthor(
             name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
         )
-        self._json.update({"author": self.author._json})
 
     def set_footer(
         self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
@@ -1047,7 +1220,6 @@ class Embed(DictSerializerMixin):
         """
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
-        self._json.update({"footer": self.footer._json})
 
     def set_image(
         self,
@@ -1070,7 +1242,6 @@ class Embed(DictSerializerMixin):
         """
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
-        self._json.update({"image": self.image._json})
 
     def set_thumbnail(
         self,
@@ -1093,4 +1264,3 @@ class Embed(DictSerializerMixin):
         """
 
         self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
-        self._json.update({"thumbnail": self.thumbnail._json})
