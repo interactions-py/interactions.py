@@ -183,10 +183,10 @@ class Client:
 
         for command in data:
             if command.get("guild_id"):
-                if guild_commands.get(command["guild_id"]):
-                    guild_commands[command["guild_id"]].append(command)
+                if guild_commands.get(int(command["guild_id"])):
+                    guild_commands[int(command["guild_id"])].append(command)
                 else:
-                    guild_commands[command["guild_id"]] = [command]
+                    guild_commands[int(command["guild_id"])] = [command]
             else:
                 global_commands.append(command)
 
@@ -255,9 +255,10 @@ class Client:
             else:
                 await self.__create_sync(payload)
         else:
-            to_delete.extend(command for command in commands if command not in cache)
-        await self.__bulk_update_sync(to_sync)
-        await self.__bulk_update_sync(to_delete, delete=True)
+            to_delete.extend(
+                command for command in commands if command not in cache)
+        if len(to_sync) >= 1:
+            await self.__bulk_update_sync(to_sync+commands)
 
     async def _ready(self) -> None:
         """
