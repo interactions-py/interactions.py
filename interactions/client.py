@@ -255,10 +255,9 @@ class Client:
             else:
                 await self.__create_sync(payload)
         else:
-            to_delete.extend(
-                command for command in commands if command not in cache)
+            to_delete.extend(command for command in commands if command not in cache)
         if len(to_sync) >= 1:
-            await self.__bulk_update_sync(to_sync+commands)
+            await self.__bulk_update_sync(to_sync + commands)
 
     async def _ready(self) -> None:
         """
