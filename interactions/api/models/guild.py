@@ -54,6 +54,13 @@ class EventStatus(IntEnum):
     CANCELED = 4
 
 
+class InviteTargetType(IntEnum):
+    """An enumerable object representing the different invite target types"""
+
+    STREAM = 1
+    EMBEDDED_APPLICATION = 2
+
+
 class WelcomeChannels(DictSerializerMixin):
     """
     A class object representing a welcome channel on the welcome screen.
@@ -1754,6 +1761,14 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
+
+    async def delete(self) -> None:
+        """Deletes the invite"""
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        await self._client.delete_invite(self.code)
 
 
 class GuildTemplate(DictSerializerMixin):

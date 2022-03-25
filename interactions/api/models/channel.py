@@ -857,29 +857,10 @@ class Channel(DictSerializerMixin):
 
         return Channel(**res, _client=self._client)
 
-    @classmethod
-    async def get(
-        cls,
-        channel: Union[int, str],
-        client: "HTTPClient",  # noqa
-    ) -> "Channel":
-        """
-        Gets a channel based of its URL or its id.
-
-        :param channel: The URL to the channel or the id of the channel
-        :type channel: Union[int, str]
-        :param client: The HTTPClient of your bot. Set as ``bot._http``
-        :type client: HTTPClient
-        """
-
-        channel_id = channel if isinstance(channel, int) else int(channel.split(sep="/")[-1])
-
-        res = await client.get_channel(channel_id)
-        return cls(**res, _client=client)
-
     @property
     def url(self) -> str:
-        return f"https://discord.com/channels/{self.guild_id}/{self.id}" if self.guild_id else None
+        _guild_id = "@me" if not isinstance(self.guild_id, int) else self.guild_id
+        return f"https://discord.com/channels/{_guild_id}/{self.id}"
 
     async def create_invite(
         self,
