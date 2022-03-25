@@ -84,6 +84,10 @@ class Client:
         self._token = token
         self._extensions = {}
         self._scopes = set([])
+        self.__to_sync = []
+        self.__to_delete = []
+        self.__has_commands = False
+        # determines if any command has been found in the code. if not, all existing commands will be deleted.
         self.me = None
         _token = self._token  # noqa: F841
         _cache = self._http.cache  # noqa: F841
@@ -132,14 +136,34 @@ class Client:
         :return: Whether the command has changed or not.
         :rtype: bool
         """
-        attrs: List[str] = ["type", "name", "description", "options", "guild_id"]
+        attrs: List[str] = [
+            "type",
+            "name",
+            "description",
+            "options",
+            "guild_id",
+            "default_permission",
+        ]
+        # TODO: implement permission/localization check when available.
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
         for command in pool:
             if command["name"] == data["name"]:
+                if not isinstance(command.get("options"), list):
+                    command["options"] = []
+                    # this will ensure that the option will be an emtpy list, since discord returns `None`
+                    # when no options are present, but they're in the data as `[]`
+                if command.get("guild_id") and not isinstance(command.get("guild_id"), int):
+                    if isinstance(command.get("guild_id"), list):
+                        command["guild_id"] = [int(_) for _ in command["guild_id"]]
+                    else:
+                        command["guild_id"] = int(command["guild_id"])
+                    # ensure that IDs are present as integers since discord returns strings.
                 for attr in attrs:
-                    if hasattr(data, attr) and command.get(attr) == data.get(attr):
+
+                    if data.get(attr, None) and command.get(attr) == data.get(attr):
+                        # hasattr checks `dict` not `dict[attr]`
                         continue
                     else:
                         clean = False
@@ -196,7 +220,8 @@ class Client:
 
         for guild, commands in guild_commands.items():
             log.info(
-                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been {'deleted' if delete else 'synced'}."
+                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} "
+                f"have been {'deleted' if delete else 'synced'}."
             )
             await self._http.overwrite_application_command(
                 application_id=self.me.id,
@@ -206,17 +231,18 @@ class Client:
 
         if global_commands:
             log.info(
-                f"Global commands {', '.join(command['name'] for command in global_commands)} have been {'deleted' if delete else 'synced'}."
+                f"Global commands {', '.join(command['name'] for command in global_commands)} "
+                f"have been {'deleted' if delete else 'synced'}."
             )
             await self._http.overwrite_application_command(
                 application_id=self.me.id, data=[] if delete else global_commands
             )
 
-    async def _synchronize(self, payload: Optional[dict] = None) -> None:
+    async def __prepare_sync(self, payload: Optional[dict] = None) -> None:
         """
-        Synchronizes a command from the client-facing API to the Web API.
+        Prepares commands to be synced.
 
-        :ivar payload?: The application command to synchronize. Defaults to ``None`` where a global synchronization process begins.
+        :ivar payload?: The application command to prepare. Defaults to ``None`` where a global synchronization process begins.
         :type payload: Optional[dict]
         """
         cache: Optional[List[dict]] = self._http.cache.interactions.view
@@ -234,7 +260,7 @@ class Client:
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
                 raise JSONException(commands["code"], message=f'{commands["message"]} |')
-                # TODO: redo error handling.
+
         elif isinstance(commands, list):
             for command in commands:
                 if command.get("code"):
@@ -244,20 +270,23 @@ class Client:
         names: List[str] = (
             [command["name"] for command in commands if command.get("name")] if commands else []
         )
-        to_sync: list = []
-        to_delete: list = []
 
         if payload:
             log.info(f"Checking command {payload['name']}.")
             if payload["name"] in names:
                 if not await self.__compare_sync(payload, commands):
-                    to_sync.append(payload)
+                    self.__to_sync.append(payload)
             else:
                 await self.__create_sync(payload)
         else:
-            to_delete.extend(command for command in commands if command not in cache)
-        await self.__bulk_update_sync(to_sync)
-        await self.__bulk_update_sync(to_delete, delete=True)
+            self.__to_delete.extend(command for command in commands if command not in cache)
+
+    async def _synchronize(self) -> None:
+        """
+        Synchronizes all commands at once.
+        """
+        await self.__bulk_update_sync(self.__to_sync)
+        await self.__bulk_update_sync(self.__to_delete, delete=True)
 
     async def _ready(self) -> None:
         """
@@ -303,6 +332,14 @@ class Client:
 
             self.__register_events()
             if self._automate_sync:
+                if not self.__has_commands:
+                    # I don't know how I could check for guild commands since the guild objects are not available before
+                    # login, so I can only get all existing global commands and delete them,
+                    # if there are no commands in the code.
+
+                    cmds = await self._http.get_application_commands(application_id=self.me.id)
+                    for cmd in cmds:
+                        self.__to_delete.append(cmd)
                 await self._synchronize()
             ready = True
         except Exception as error:
@@ -602,6 +639,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
+            self.__has_commands = True
             commands: List[ApplicationCommand] = command(
                 type=type,
                 name=name,
@@ -614,12 +652,14 @@ class Client:
 
             if self._automate_sync:
                 if self._loop.is_running():
-                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                    [self._loop.create_task(self.__prepare_sync(command)) for command in commands]
                 else:
                     [
-                        self._loop.run_until_complete(self._synchronize(command))
+                        self._loop.run_until_complete(self.__prepare_sync(command))
                         for command in commands
                     ]
+
+                # no sync call, _ready should handle that(?)
 
             if scope is not MISSING:
                 if isinstance(scope, List):
@@ -666,6 +706,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
+            self.__has_commands = True
             commands: List[ApplicationCommand] = command(
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
@@ -676,10 +717,10 @@ class Client:
 
             if self._automate_sync:
                 if self._loop.is_running():
-                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                    [self._loop.create_task(self.__prepare_sync(command)) for command in commands]
                 else:
                     [
-                        self._loop.run_until_complete(self._synchronize(command))
+                        self._loop.run_until_complete(self.__prepare_sync(command))
                         for command in commands
                     ]
 
@@ -722,6 +763,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
+            self.__has_commands = True
             commands: List[ApplicationCommand] = command(
                 type=ApplicationCommandType.USER,
                 name=name,
@@ -733,10 +775,10 @@ class Client:
 
             if self._automate_sync:
                 if self._loop.is_running():
-                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                    [self._loop.create_task(self.__prepare_sync(command)) for command in commands]
                 else:
                     [
-                        self._loop.run_until_complete(self._synchronize(command))
+                        self._loop.run_until_complete(self.__prepare_sync(command))
                         for command in commands
                     ]
 
