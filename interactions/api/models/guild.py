@@ -1600,6 +1600,34 @@ class Guild(DictSerializerMixin):
         )
         return [Member(**member, _client=self._client) for member in res]
 
+    async def get_all_members(self) -> List[Member]:
+        """
+        Gets all members of a guild.
+
+        .. warning:: Calling this method can lead to rate-limits in larger guilds.
+
+        :return: Returns a list of all members of the guild
+        :rtype: List[Member]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _all_members: List[dict] = []
+        _last_member: Member
+        _members: List[dict] = await self._client.get_list_of_members(
+            guild_id=int(self.id), limit=100
+        )
+        if len(_members) == 100:
+            while len(_members) >= 100:
+                _all_members.extend(_members)
+                _last_member = Member(**_members[-1])
+                _members = await self._client.get_list_of_members(
+                    guild_id=int(self.id), limit=100, after=int(_last_member.id)
+                )
+        _all_members.extend(_members)
+
+        return [Member(**_, _client=self._client) for _ in _all_members]
+
 
 class GuildPreview(DictSerializerMixin):
     """
