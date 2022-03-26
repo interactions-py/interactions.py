@@ -699,7 +699,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
-        :type bitrate Optional[int]
+        :type bitrate: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
@@ -791,7 +791,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel, defaults to the current value of the channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate Optional[int]
+        :type bitrate: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
