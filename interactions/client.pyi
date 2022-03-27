@@ -28,9 +28,6 @@ class Client:
     _scopes: set[List[Union[int, Snowflake]]]
     _automate_sync: bool
     _extensions: Optional[Dict[str, Union[ModuleType, Extension]]]
-    __to_delete: list
-    __to_sync: list
-    __has_commands: bool
     me: Optional[Application]
     def __init__(
         self,
@@ -48,7 +45,6 @@ class Client:
     async def __bulk_update_sync(
         self, data: List[dict], delete: Optional[bool] = False
     ) -> None: ...
-    async def __prepare_sync(self, payload: Optional[dict] = None) -> None: ...
     async def _synchronize(self, payload: Optional[dict] = None) -> None: ...
     async def _ready(self) -> None: ...
     async def _login(self) -> None: ...
