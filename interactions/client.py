@@ -849,7 +849,7 @@ class Client:
         elif isinstance(command, str):
             _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
             if not _command_obj or not _command_obj.id:
-                if getattr(_command_obj, "guild_id", None) or self._automate_sync:
+                if getattr(_command_obj, "guild_id", None) or not self._automate_sync:
                     _application_commands = self._loop.run_until_complete(
                         self._http.get_application_commands(
                             application_id=self.me.id,
