@@ -535,6 +535,63 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(nsfw=nsfw, reason=reason)
 
+    async def archive(
+        self,
+        archived: bool = True,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the archived state of the thread.
+
+        :param archived: Whether the Thread is archived, defaults to True
+        :type archived: bool
+        :param reason?: The reason of the archiving
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(archived=archived, reason=reason)
+
+    async def set_auto_archive_duration(
+        self,
+        auto_archive_duration: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the time after the thread is automatically archived.
+
+        :param auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :type auto_archive_duration: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(auto_archive_duration=auto_archive_duration, reason=reason)
+
+    async def lock(
+        self,
+        locked: bool = True,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the locked state of the thread.
+
+        :param locked: Whether the Thread is locked, defaults to True
+        :type locked: bool
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(locked=locked, reason=reason)
+
     async def add_member(
         self,
         member_id: int,
