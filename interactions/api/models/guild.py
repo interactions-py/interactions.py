@@ -1599,7 +1599,7 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id), query=query, limit=limit
         )
         return [Member(**member, _client=self._client) for member in res]
-    
+
     @property
     def icon_url(self) -> str:
         """
