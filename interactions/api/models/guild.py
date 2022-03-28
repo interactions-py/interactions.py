@@ -1599,6 +1599,21 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id), query=query, limit=limit
         )
         return [Member(**member, _client=self._client) for member in res]
+    
+    @property
+    def icon_url(self) -> str:
+        """
+        Returns the URL of the guild's icon.
+
+        :return: URL of the guild's icon (None will be returned if none of icon is set)
+        :rtype: str
+        """
+        url = "https://cdn.discordapp.com/"
+        if self.icon is not None:
+            url += f"icons/{int(self.id)}/{self.icon}.png"
+        else:
+            url = None
+        return url
 
 
 class GuildPreview(DictSerializerMixin):
