@@ -409,6 +409,8 @@ class Guild(DictSerializerMixin):
         query: str,
         limit: Optional[int] = 1
     ) -> List[Member]: ...
+    @property
+    def icon_url(self) -> str: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
