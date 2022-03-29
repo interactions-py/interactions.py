@@ -412,6 +412,7 @@ class Guild(DictSerializerMixin):
         query: str,
         limit: Optional[int] = 1
     ) -> List[Member]: ...
+    async def get_all_members(self) -> List[Member]: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict

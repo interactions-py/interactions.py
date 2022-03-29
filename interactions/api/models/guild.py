@@ -699,7 +699,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
-        :type bitrate Optional[int]
+        :type bitrate: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
@@ -797,7 +797,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel, defaults to the current value of the channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate Optional[int]
+        :type bitrate: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
@@ -1625,6 +1625,34 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id), query=query, limit=limit
         )
         return [Member(**member, _client=self._client) for member in res]
+
+    async def get_all_members(self) -> List[Member]:
+        """
+        Gets all members of a guild.
+
+        .. warning:: Calling this method can lead to rate-limits in larger guilds.
+
+        :return: Returns a list of all members of the guild
+        :rtype: List[Member]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _all_members: List[dict] = []
+        _last_member: Member
+        _members: List[dict] = await self._client.get_list_of_members(
+            guild_id=int(self.id), limit=100
+        )
+        if len(_members) == 100:
+            while len(_members) >= 100:
+                _all_members.extend(_members)
+                _last_member = Member(**_members[-1])
+                _members = await self._client.get_list_of_members(
+                    guild_id=int(self.id), limit=100, after=int(_last_member.id)
+                )
+        _all_members.extend(_members)
+
+        return [Member(**_, _client=self._client) for _ in _all_members]
 
 
 class GuildPreview(DictSerializerMixin):

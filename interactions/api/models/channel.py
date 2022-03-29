@@ -702,6 +702,9 @@ class Channel(DictSerializerMixin):
     ) -> List["Message"]:  # noqa
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
+
+        .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
+
         .. code-block:: python
             def check_pinned(message):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned
