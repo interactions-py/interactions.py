@@ -34,17 +34,18 @@ def command(
     _description: str = "" if description is MISSING else description
     _options: list = []
 
-    _name_localizations: dict = {} if name_localizations is MISSING else name_localizations
-    _description_localizations: dict = (
-        {} if description_localizations is MISSING else description_localizations
+    _name_localizations = (
+        {}
+        if name_localizations is MISSING
+        else {k.value if isinstance(k, Locale) else k: v for k, v in name_localizations.items()}
     )
-
-    _name_localizations = {
-        k.value if isinstance(k, Locale) else k: v for k, v in _name_localizations.items()
-    }
-    _description_localizations = {
-        k.value if isinstance(k, Locale) else k: v for k, v in _description_localizations.items()
-    }
+    _description_localizations = (
+        {}
+        if description_localizations is MISSING
+        else {
+            k.value if isinstance(k, Locale) else k: v for k, v in description_localizations.items()
+        }
+    )
 
     if options is not MISSING:
         if all(isinstance(option, Option) for option in options):
