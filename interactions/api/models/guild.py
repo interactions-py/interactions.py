@@ -1611,6 +1611,8 @@ class Guild(DictSerializerMixin):
         if self.icon is not None:
             url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
             url += ".gif" if self.icon.startswith("a_") else ".png"
+        else:
+            url = None
         return url
 
 
