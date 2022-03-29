@@ -1210,11 +1210,11 @@ class Extension:
     def teardown(self):
         for event, funcs in self._listeners.items():
             for func in funcs:
-                self.client._websocket.dispatch.events[event].remove(func)
+                self.client._websocket._dispatch.events[event].remove(func)
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
-                self.client._websocket.dispatch.events[cmd].remove(func)
+                self.client._websocket._dispatch.events[cmd].remove(func)
 
         clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
         cmds = filter(
