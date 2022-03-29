@@ -199,7 +199,7 @@ class WebSocketClient:
 
                 if stream is None:
                     continue
-                if self._client is None or stream == WS_CLOSED_MESSAGE:
+                if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
                     await self._establish_connection()
                     break
 
