@@ -1,5 +1,5 @@
 # Normal libraries
-from enum import Enum, IntEnum
+from enum import IntEnum
 
 # TODO: post-v4: Implement this into the new error system at a later point.
 # class DefaultErrorType(IntEnum):
@@ -48,39 +48,6 @@ class OpCodeType(IntEnum):
     HELLO = 10
     HEARTBEAT_ACK = 11
     GUILD_SYNC = 12
-
-
-class Locale(str, Enum):
-    DANISH = "da"
-    GERMAN = "de"
-    ENGLISH_UK = "en-GB"
-    ENGLISH_US = "en-US"
-    SPANISH = "es-ES"
-    FRENCH = "fr"
-    CROATIAN = "hr"
-    ITALIAN = "it"
-    LITHUANIAN = "lt"
-    HUNGARIAN = "hu"
-    DUTCH = "nl"
-    NORWEGIAN = "no"
-    POLISH = "pl"
-    PORTUGUESE_BRAZILIAN = "pt-BR"
-    ROMANIAN_ROMANIA = "ro"
-    FINNISH = "fi"
-    SWEDISH = "sv-SE"
-    VIETNAMESE = "vi"
-    TURKISH = "tr"
-    CZECH = "cs"
-    GREEK = "el"
-    BULGARIAN = "bg"
-    RUSSIAN = "ru"
-    UKRAINIAN = "uk"
-    HINDI = "hi"
-    THAI = "th"
-    CHINESE_CHINA = "zh-CN"
-    JAPANESE = "ja"
-    CHINESE_TAIWAN = "zh_TW"
-    KOREAN = "ko"
 
 
 # TODO: post-v4: Implement this into the new error system at a later point.
