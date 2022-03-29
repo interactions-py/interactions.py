@@ -1,3 +1,5 @@
+from aiohttp.http_websocket import WS_CLOSING_MESSAGE
+
 try:
     from orjson import dumps, loads
 except ImportError:
@@ -539,6 +541,11 @@ class WebSocketClient:
         packet: WSMessage = await self._client.receive()
         if packet == WS_CLOSED_MESSAGE:
             return packet
+
+        elif packet == WS_CLOSING_MESSAGE:
+            await self._client.close()
+            return WS_CLOSED_MESSAGE
+
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
