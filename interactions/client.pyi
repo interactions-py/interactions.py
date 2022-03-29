@@ -66,6 +66,8 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         options: Optional[List[Option]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[str, str]] = MISSING,
+        description_localizations: Optional[Dict[str, str]] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
@@ -73,6 +75,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[str, str]] = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
@@ -80,6 +83,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[str, str]] = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(

@@ -178,6 +178,8 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar int version: The Application Command version autoincrement identifier.
     :ivar str default_member_permissions: The default member permission state of the application command.
     :ivar boolean dm_permission: The application permissions if executed in a Direct Message.
+    :ivar Optional[Dict[str, str]] name_localizations: The localisation dictionary for the application command name, if any.
+    :ivar Optional[Dict[str, str]] description_localizations: The localisation dictionary for the application command description, if any.
     """
 
     __slots__ = (
@@ -194,8 +196,8 @@ class ApplicationCommand(DictSerializerMixin):
         "version",
         "default_member_permissions",
         "dm_permission",
-        "description_localizations",
         "name_localizations",
+        "description_localizations",
     )
     _json: dict
     id: Snowflake
@@ -212,8 +214,6 @@ class ApplicationCommand(DictSerializerMixin):
     # TODO: post-v4: Investigate these once documented by Discord.
     default_member_permissions: str
     dm_permission: bool
-
-    # TODO: post-v4: Document once Discord does.
     name_localizations: Optional[Dict[str, str]]
     description_localizations: Optional[Dict[str, str]]
 

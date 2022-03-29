@@ -22,7 +22,7 @@ from .api.models.team import Application
 from .base import get_logger
 from .decor import command
 from .decor import component as _component
-from .enums import ApplicationCommandType, OptionType
+from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -557,6 +557,8 @@ class Client:
         options: Optional[
             Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]
         ] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
@@ -596,6 +598,10 @@ class Client:
         :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[str, str]]
+        :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :param description_localizations: Optional[Dict[str, str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -609,6 +615,8 @@ class Client:
                 scope=scope,
                 options=options,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
+                description_localizations=description_localizations,
             )
             self.__check_command(command=ApplicationCommand(**commands[0]), coro=coro)
 
@@ -637,6 +645,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,  # This is theory.
     ) -> Callable[..., Any]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -671,6 +680,7 @@ class Client:
                 name=name,
                 scope=scope,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
             )
             self.__check_command(ApplicationCommand(**commands[0]), coro)
 
@@ -693,6 +703,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,  # This is theory.
     ) -> Callable[..., Any]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -727,6 +738,7 @@ class Client:
                 name=name,
                 scope=scope,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
             )
 
             self.__check_command(ApplicationCommand(**commands[0]), coro)
