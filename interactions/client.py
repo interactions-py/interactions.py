@@ -599,9 +599,9 @@ class Client:
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :param name_localizations: Optional[Dict[str, str]]
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :param description_localizations: Optional[Dict[str, str]]
+        :param description_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -645,7 +645,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,  # This is theory.
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -669,6 +669,8 @@ class Client:
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -703,7 +705,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,  # This is theory.
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -727,6 +729,8 @@ class Client:
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
