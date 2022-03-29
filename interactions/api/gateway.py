@@ -1,5 +1,3 @@
-from aiohttp.http_websocket import WS_CLOSING_MESSAGE
-
 try:
     from orjson import dumps, loads
 except ImportError:
@@ -20,7 +18,7 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import WSMessage
-from aiohttp.http import WS_CLOSED_MESSAGE
+from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ..base import get_logger
 from ..enums import InteractionType, OptionType
