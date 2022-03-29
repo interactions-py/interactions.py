@@ -1608,11 +1608,9 @@ class Guild(DictSerializerMixin):
         :return: URL of the guild's icon (None will be returned if none of icon is set)
         :rtype: str
         """
-        url = "https://cdn.discordapp.com/"
         if self.icon is not None:
-            url += f"icons/{int(self.id)}/{self.icon}.png"
-        else:
-            url = None
+            url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
+            url += ".gif" if self.icon.startswith("a_") else ".png"
         return url
 
 
