@@ -1,5 +1,7 @@
 from collections import OrderedDict
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Type, TypeVar, Union
+
+_T = TypeVar("_T")
 
 
 class Item(object):
@@ -20,25 +22,26 @@ class Item(object):
         :param value: The item itself.
         :type value: Any
         """
-        self.id = id
-        self.value = value
-        self.type = type(value)
+        self.id: str = id
+        self.value: Any = value
+        self.type: str = type(value)
 
 
-class Storage:
+class Cache:
     """
-    A class representing a set of items stored as a cache state.
+    A class representing the cache.
+    This cache collects all of the HTTP requests made for
+    the represented instances of the class.
 
-    :ivar List[Item] values: The list of items stored.
     """
 
-    __slots__ = "values"
+    __slots__ = ("values",)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
 
     def __init__(self) -> None:
-        self.values = OrderedDict()
+        self.values: OrderedDict[str, Item] = OrderedDict()
 
     def add(self, item: Item) -> OrderedDict:
         """
@@ -49,20 +52,21 @@ class Storage:
         :return: The new storage.
         :rtype: OrderedDict
         """
-        self.values.update({item.id: item.value})
+        self.values.update({item.id: item})
         return self.values
 
-    def get(self, id: str) -> Optional[Item]:
+    def get(self, id: str, default: _T = None) -> Union[Item, _T]:
         """
         Gets an item from the storage.
 
         :param id: The ID of the item.
         :type id: str
+        :param default: The value to return if no matches were found
+        :type default: Any
         :return: The item from the storage if any.
         :rtype: Optional[Item]
         """
-        if id in self.values.keys():
-            return self.values[id]
+        return self.values.get(id, default)
 
     def update(self, item: Item) -> Optional[Item]:
         """
@@ -72,60 +76,13 @@ class Storage:
         :return: The updated item, if stored.
         :rtype: Optional[Item]
         """
-        if item.id in self.values.keys():
-            self.values[item.id] = item.value
-            return self.values[
-                id
-            ]  # fetches from cache to see if its saved properly, instead of returning input.
+        self.values[item.id] = item.value
+        return self.values[
+            item.id
+        ]  # fetches from cache to see if its saved properly, instead of returning input.
 
-    @property
-    def view(self) -> List[dict]:
-        """Views all items from storage.
-
-        :return The items stored.
-        :rtype: List[dict]
-        """
-        return [v._json for v in self.values.values()]
+    def get_types(self, type: Type[_T]) -> List[_T]:
+        return [item.value for item in self.values.values() if issubclass(item.type, type)]
 
 
-class Cache:
-    """
-    A class representing the cache.
-    This cache collects all of the HTTP requests made for
-    the represented instances of the class.
-
-    :ivar Cache dms: The cached Direct Messages.
-    :ivar Cache self_guilds: The cached guilds upon gateway connection.
-    :ivar Cache guilds: The cached guilds after ready.
-    :ivar Cache channels: The cached channels of guilds.
-    :ivar Cache roles: The cached roles of guilds.
-    :ivar Cache members: The cached members of guilds and threads.
-    :ivar Cache messages: The cached messages of DMs and channels.
-    :ivar Cache interactions: The cached interactions upon interaction.
-    """
-
-    __slots__ = (
-        "dms",
-        "self_guilds",
-        "guilds",
-        "channels",
-        "roles",
-        "members",
-        "messages",
-        "users",
-        "interactions",
-    )
-
-    def __init__(self) -> None:
-        self.dms = Storage()
-        self.self_guilds = Storage()
-        self.guilds = Storage()
-        self.channels = Storage()
-        self.roles = Storage()
-        self.members = Storage()
-        self.messages = Storage()
-        self.users = Storage()
-        self.interactions = Storage()
-
-
-ref_cache = Cache()  # noqa
+ref_cache: Cache = Cache()  # noqa

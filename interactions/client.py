@@ -102,7 +102,7 @@ class Client:
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
-        return [Guild(**_, _client=self._http) for _ in self._http.cache.self_guilds.view]
+        return self._http.cache.get_types(Guild)
 
     @property
     def latency(self) -> float:
@@ -162,7 +162,7 @@ class Client:
                 )
             )
         )
-        self._http.cache.interactions.add(Build(id=command.name, value=command))
+        self._http.cache.add(Build(id=command.name, value=command))
 
     async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
         """
@@ -190,9 +190,7 @@ class Client:
             else:
                 global_commands.append(command)
 
-            self._http.cache.interactions.add(
-                Build(id=command["name"], value=ApplicationCommand(**command))
-            )
+            self._http.cache.add(Build(id=command["name"], value=ApplicationCommand(**command)))
 
         for guild, commands in guild_commands.items():
             log.info(
@@ -219,7 +217,9 @@ class Client:
         :ivar payload?: The application command to synchronize. Defaults to ``None`` where a global synchronization process begins.
         :type payload: Optional[dict]
         """
-        cache: Optional[List[dict]] = self._http.cache.interactions.view
+        cache: Optional[List[dict]] = [
+            command._json for command in self._http.cache.get_types(ApplicationCommand)
+        ] or None
 
         if cache:
             log.info("A command cache was detected, using for synchronization instead.")
@@ -847,7 +847,7 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
+            _command_obj: ApplicationCommand = self._http.cache.get(command).value
             if not _command_obj or not _command_obj.id:
                 if getattr(_command_obj, "guild_id", None) or not self._automate_sync:
                     _application_commands = self._loop.run_until_complete(
@@ -1051,7 +1051,7 @@ class Client:
         :return: The channel as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.channels.add(Build(id=channel.id, value=channel))
+        self._http.cache.add(Build(id=channel.id, value=channel))
 
         return channel._json
 
@@ -1064,7 +1064,7 @@ class Client:
         :return: The message as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.messages.add(Build(id=message.id, value=message))
+        self._http.cache.add(Build(id=message.id, value=message))
 
         return message._json
 
@@ -1077,7 +1077,7 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
+        self._http.cache.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
 
@@ -1202,15 +1202,15 @@ class Extension:
 
         clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
         cmds = filter(
-            lambda cmd_data: cmd_data["name"] in clean_cmd_names,
-            self.client._http.cache.interactions.view,
+            lambda cmd_data: cmd_data.name in clean_cmd_names,
+            self.client._http.cache.get_types(ApplicationCommand),
         )
 
         if self.client._automate_sync:
             [
                 self.client._loop.create_task(
                     self.client._http.delete_application_command(
-                        cmd["application_id"], cmd["id"], cmd["guild_id"]
+                        cmd.application_id, cmd.id, cmd.guild_id
                     )
                 )
                 for cmd in cmds

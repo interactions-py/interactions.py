@@ -23,7 +23,7 @@ class _ChannelRequest:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request)))
+        self.cache.add(Item(id=str(channel_id), value=Channel(**request)))
 
         return request
 
@@ -83,7 +83,7 @@ class _ChannelRequest:
 
         for message in request:
             if message.get("id"):
-                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+                self.cache.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
@@ -105,7 +105,7 @@ class _ChannelRequest:
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
+            self.cache.add(Item(id=request["id"], value=Channel(**request)))
 
         return request
 

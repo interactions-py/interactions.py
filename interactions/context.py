@@ -79,14 +79,14 @@ class _Context(DictSerializerMixin):
             self.guild = Guild(**guild)
         elif self.guild_id is None:
             self.guild = None
-        elif guild := self.client.cache.guilds.get(self.guild_id):
+        elif guild := self.client.cache.get(self.guild_id).value:
             self.guild = guild
         else:
             self.guild = MISSING
 
         if channel := self._json.get("channel"):
             self.channel = Channel(**channel)
-        elif channel := self.client.cache.channels.get(self.channel_id):
+        elif channel := self.client.cache.get(self.channel_id).value:
             self.channel = channel
         else:
             self.channel = MISSING

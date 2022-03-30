@@ -28,7 +28,7 @@ class _GuildRequest:
 
         for guild in request:
             if guild.get("id"):
-                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
+                self.cache.add(Item(id=guild["id"], value=Guild(**guild, _client=self)))
 
         return request
 
@@ -40,7 +40,7 @@ class _GuildRequest:
         :return: The guild object associated, if any.
         """
         request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
-        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request)))
+        self.cache.add(Item(id=str(guild_id), value=Guild(**request, _client=self)))
 
         return request
 
@@ -364,7 +364,7 @@ class _GuildRequest:
 
         for channel in request:
             if channel.get("id"):
-                self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
+                self.cache.add(Item(id=channel["id"], value=Channel(**channel)))
 
         return request
 
@@ -381,7 +381,7 @@ class _GuildRequest:
 
         for role in request:
             if role.get("id"):
-                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+                self.cache.add(Item(id=role["id"], value=Role(**role)))
 
         return request
 
@@ -400,7 +400,7 @@ class _GuildRequest:
             Route("POST", f"/guilds/{guild_id}/roles"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
+            self.cache.add(Item(id=request["id"], value=Role(**request)))
 
         return request
 
@@ -563,7 +563,7 @@ class _GuildRequest:
             },
         )
 
-        self.cache.members.add(Item(id=str(user_id), value=Member(**request)))
+        self.cache.add(Item(id=str(user_id), value=Member(**request)))
 
         return request
 

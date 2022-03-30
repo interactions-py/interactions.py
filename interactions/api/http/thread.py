@@ -175,7 +175,7 @@ class _ThreadRequest:
                 reason=reason,
             )
             if request.get("id"):
-                self.cache.channels.add(Item(id=request["id"], value=request))
+                self.cache.add(Item(id=request["id"], value=request))
             return request
 
         payload["type"] = thread_type
@@ -184,6 +184,6 @@ class _ThreadRequest:
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=request))
+            self.cache.add(Item(id=request["id"], value=request))
 
         return request

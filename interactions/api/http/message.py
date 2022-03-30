@@ -68,7 +68,7 @@ class _MessageRequest:
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
         )
         if request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+            self.cache.add(Item(id=request["id"], value=Message(**request)))
 
         return request
 

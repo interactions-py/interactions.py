@@ -35,7 +35,7 @@ class _UserRequest:
             user_id = "@me"
 
         request = await self._req.request(Route("GET", f"/users/{user_id}"))
-        self.cache.users.add(Item(id=user_id, value=User(**request)))
+        self.cache.add(Item(id=user_id, value=User(**request)))
 
         return request
 
@@ -72,6 +72,6 @@ class _UserRequest:
         request = await self._req.request(
             Route("POST", "/users/@me/channels"), json={"recipient_id": recipient_id}
         )
-        self.cache.dms.add(Item(id=str(recipient_id), value=Channel(**request)))
+        self.cache.add(Item(id=str(recipient_id), value=Channel(**request)))
 
         return request
