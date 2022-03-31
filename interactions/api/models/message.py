@@ -1242,7 +1242,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
-        
+
     def set_video(
         self,
         url: str,
