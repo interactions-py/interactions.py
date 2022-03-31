@@ -9,10 +9,10 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from ..api.cache import Cache
-from ..api.cache import Item as Build
+from ..api import Cache
+from ..api import Item as Build
+from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
-from ..api.gateway.client import WebSocketClient
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
@@ -78,7 +78,7 @@ class Client:
         self._loop = get_event_loop()
         self._http = HTTPClient(token=token)
         self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WebSocketClient(token=token, intents=self._intents)
+        self._websocket = WSClient(token=token, intents=self._intents)
         self._shard = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token

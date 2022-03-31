@@ -33,8 +33,6 @@ from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
 
-__all__ = "WebSocketClient"
-
 
 class WebSocketClient:
     """
