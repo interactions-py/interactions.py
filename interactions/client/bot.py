@@ -1080,7 +1080,7 @@ class Client:
         # TODO: custom error formatter
 
         if isinstance(obj, Channel):
-            if not channel_id:
+            if channel_id is MISSING:
                 raise AttributeError("Please specify a channel_id for getting a channel!")
 
             if channel := self._http.cache.channels.get(str(channel_id)) and cache:
@@ -1090,7 +1090,7 @@ class Client:
                 return Channel(**await self._http.get_channel(int(channel_id)), _client=self._http)
 
         elif isinstance(obj, Guild):
-            if not guild_id:
+            if guild_id is MISSING:
                 raise AttributeError("Please specify a guild_id for getting a guild!")
 
             if not (guild := self._http.cache.self_guilds.get(str(guild_id)) and cache):
@@ -1107,7 +1107,7 @@ class Client:
             return guild
 
         elif isinstance(obj, Member):
-            if not guild_id or not user_id:
+            if guild_id is MISSING or user_id is MISSING:
                 raise AttributeError("Please specify guild_id and user_id for getting a member!")
 
             # todo: cache impl
@@ -1117,7 +1117,7 @@ class Client:
             )
 
         elif isinstance(obj, Message):
-            if not channel_id or not message_id:
+            if channel_id is MISSING or message_id is MISSING:
                 raise AttributeError(
                     "Please specify message_id and channel_id for getting a message!"
                 )
@@ -1135,7 +1135,7 @@ class Client:
             return Message(**message, _client=self._http)
 
         elif isinstance(obj, Role):
-            if not guild_id or not role_id:
+            if guild_id is MISSING or role_id is MISSING:
                 raise AttributeError("Please specify guild_id and role_id for getting a role!")
 
             if role := self._http.cache.roles.get(str(role_id)) and cache:
