@@ -680,9 +680,7 @@ class Message(DictSerializerMixin):
         :return: The URL of said message
         :rtype: str
         """
-        guild = "@me"
-        if self.guild_id:
-            guild = str(self.guild_id)
+        guild = self.guild_id if self.guild_id else "@me"
         return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
 
 
