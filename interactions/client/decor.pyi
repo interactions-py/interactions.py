@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 
-from .api.models.guild import Guild
+from ..api.models.guild import Guild
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu

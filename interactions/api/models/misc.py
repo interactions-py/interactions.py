@@ -36,7 +36,7 @@ class DictSerializerMixin(object):
         # for key in kwargs:
         #    setattr(self, key, kwargs[key])
 
-        for key in kwargs:
+        for key in list(kwargs):
             if key in self.__slots__ if hasattr(self, "__slots__") else True:
                 # else case if the mixin is used outside of this library and/or SDK.
                 setattr(self, key, kwargs[key])

@@ -1,15 +1,15 @@
 from asyncio import AbstractEventLoop
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
-from .api.cache import Cache
-from .api.gateway import WebSocketClient
-from .api.http.client import HTTPClient
-from .api.models.flags import Intents
-from .api.models.guild import Guild
-from .api.models.misc import MISSING, Snowflake
-from .api.models.presence import ClientPresence
-from .api.models.team import Application
+from ..api.cache import Cache
+from ..api.gateway import WebSocketClient
+from ..api.http.client import HTTPClient
+from ..api.models.flags import Intents
+from ..api.models.guild import Guild
+from ..api.models.misc import MISSING, Snowflake
+from ..api.models.presence import ClientPresence
+from ..api.models.team import Application
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu

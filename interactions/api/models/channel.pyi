@@ -103,6 +103,9 @@ class Channel(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel": ...
     async def set_name(
@@ -152,6 +155,24 @@ class Channel(DictSerializerMixin):
         nsfw: bool,
         *,
         reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def archive(
+        self,
+        archived: bool = True,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel": ...
+    async def set_auto_archive_duration(
+        self,
+        auto_archive_duration: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel": ...
+    async def lock(
+        self,
+        locked: bool = True,
+        *,
+        reason: Optional[str] = None,
     ) -> "Channel": ...
     async def add_member(
         self,
