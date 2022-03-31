@@ -12,13 +12,18 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 from ..api.cache import Cache
 from ..api.cache import Item as Build
 from ..api.error import InteractionException, JSONException
-from ..api.gateway import WebSocketClient
+from ..api.gateway.client import WebSocketClient
 from ..api.http.client import HTTPClient
+from ..api.models.channel import Channel
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
+from ..api.models.member import Member
+from ..api.models.message import Message
 from ..api.models.misc import MISSING, Snowflake
 from ..api.models.presence import ClientPresence
+from ..api.models.role import Role
 from ..api.models.team import Application
+from ..api.models.user import User
 from ..base import get_logger
 from .decor import command
 from .decor import component as _component
@@ -1037,6 +1042,48 @@ class Client:
 
         self.remove(name, package)
         return self.load(name, package, *args, **kwargs)
+
+    async def get(
+        self,
+        obj: Union[Channel, Guild, Member, Message, Role, User],
+        *,
+        cache: bool = False,
+        channel_id: Optional[int] = MISSING,
+        guild_id: Optional[int] = MISSING,
+        message_id: Optional[int] = MISSING,
+        user_id: Optional[int] = MISSING,
+    ) -> Union[Channel, Guild, Member, Message, Role, User]:
+        """
+        Gets an object from discord.
+
+        .. error:: Getting from cache may be very inconsistent at the moment.
+
+        .. note:: If an object is not found in the cache, it will be gotten via API-call
+
+        .. note:: A member's cache currently isn't available
+
+        .. important::
+            When getting an object you must pass its required attributes. Those are listed below:
+                * Channel: channel_id
+                * Guild: guild_id
+
+        .. code-block:: python
+            ...
+
+
+        """
+
+        # TODO: custom error formatter
+
+        if isinstance(obj, Channel):
+            if not channel_id:
+                raise AttributeError("Please specify a channel_id for getting a channel!")
+
+            if channel := self._http.cache.channels.get(str(channel_id)) and cache:
+                return Channel(**channel) if not isinstance(channel, Channel) else channel
+
+            else:
+                return Channel(**await self._http.get_channel(str(channel_id)), _client=self._http)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
