@@ -4,7 +4,6 @@ except ImportError:
     from json import dumps, loads
 
 from asyncio import (
-    AbstractEventLoop,
     Event,
     Task,
     ensure_future,
@@ -20,38 +19,20 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from aiohttp import WSMessage, WSMsgType
 from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
-from ..base import get_logger
-from ..enums import InteractionType, OptionType
-from ..models.command import Option
-from .dispatch import Listener
-from .enums import OpCodeType
-from .error import GatewayException
-from .http.client import HTTPClient
-from .models.flags import Intents
-from .models.misc import MISSING
-from .models.presence import ClientPresence
+from ...base import get_logger
+from ...client.models import Option
+from ..dispatch import Listener
+from ..enums import InteractionType, OpCodeType, OptionType
+from ..error import GatewayException
+from ..http.client import HTTPClient
+from ..models.flags import Intents
+from ..models.misc import MISSING
+from ..models.presence import ClientPresence
+from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
 
-__all__ = ("_Heartbeat", "WebSocketClient")
-
-
-class _Heartbeat:
-    """An internal class representing the heartbeat in a WebSocket connection."""
-
-    event: Event
-    delay: float
-
-    def __init__(self, loop: AbstractEventLoop) -> None:
-        """
-        :param loop: The event loop to base the asynchronous manager.
-        :type loop: AbstractEventLoop
-        """
-        try:
-            self.event = Event(loop=loop) if version_info < (3, 10) else Event()
-        except TypeError:
-            pass
-        self.delay = 0.0
+__all__ = "WebSocketClient"
 
 
 class WebSocketClient:

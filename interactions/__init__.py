@@ -23,10 +23,10 @@ from .api.models.role import *  # noqa: F401 F403
 from .api.models.team import *  # noqa: F401 F403
 from .api.models.user import *  # noqa: F401 F403
 from .base import *  # noqa: F401 F403
-from .client import *  # noqa: F401 F403
-from .context import *  # noqa: F401 F403
-from .decor import *  # noqa: F401 F403
-from .enums import *  # noqa: F401 F403
-from .models.command import *  # noqa: F401 F403
-from .models.component import *  # noqa: F401 F403
-from .models.misc import *  # noqa: F401 F403
+from .client.bot import *  # noqa: F401 F403
+from .client.context import *  # noqa: F401 F403
+from .client.decor import *  # noqa: F401 F403
+from .client.enums import *  # noqa: F401 F403
+from .client.models.command import *  # noqa: F401 F403
+from .client.models.component import *  # noqa: F401 F403
+from .client.models.misc import *  # noqa: F401 F403

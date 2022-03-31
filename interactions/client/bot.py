@@ -9,17 +9,17 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from .api.cache import Cache
-from .api.cache import Item as Build
-from .api.error import InteractionException, JSONException
-from .api.gateway import WebSocketClient
-from .api.http.client import HTTPClient
-from .api.models.flags import Intents
-from .api.models.guild import Guild
-from .api.models.misc import MISSING, Snowflake
-from .api.models.presence import ClientPresence
-from .api.models.team import Application
-from .base import get_logger
+from ..api.cache import Cache
+from ..api.cache import Item as Build
+from ..api.error import InteractionException, JSONException
+from ..api.gateway import WebSocketClient
+from ..api.http.client import HTTPClient
+from ..api.models.flags import Intents
+from ..api.models.guild import Guild
+from ..api.models.misc import MISSING, Snowflake
+from ..api.models.presence import ClientPresence
+from ..api.models.team import Application
+from ..base import get_logger
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType, OptionType
