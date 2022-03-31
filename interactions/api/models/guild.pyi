@@ -236,6 +236,9 @@ class Guild(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def modify_member(
@@ -409,6 +412,9 @@ class Guild(DictSerializerMixin):
         query: str,
         limit: Optional[int] = 1
     ) -> List[Member]: ...
+    async def get_all_members(self) -> List[Member]: ...
+    @property
+    def icon_url(self) -> str: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict

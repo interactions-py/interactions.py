@@ -284,10 +284,16 @@ class Channel(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel":
         """
         Edits the channel.
+
+        .. note::
+            The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
 
         :param name?: The name of the channel, defaults to the current value of the channel
         :type name: str
@@ -307,6 +313,12 @@ class Channel(DictSerializerMixin):
         :type nsfw: Optional[bool]
         :param permission_overwrites?: The permission overwrites, if any
         :type permission_overwrites: Optional[List[Overwrite]]
+        :param archived?: Whether the thread is archived
+        :type archived: Optional[bool]
+        :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param locked?: Whether the thread is locked
+        :type locked: Optional[bool]
         :param reason?: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel as new object
@@ -343,12 +355,32 @@ class Channel(DictSerializerMixin):
             nsfw=_nsfw,
             permission_overwrites=_permission_overwrites,
         )
+
+        payload = payload._json
+
+        if (
+            archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
+        ) and not self.thread_metadata:
+            raise ValueError("The specified channel is not a Thread!")
+
+        if archived is not MISSING:
+            payload["archived"] = archived
+        if auto_archive_duration is not MISSING:
+            payload["auto_archive_duration"] = auto_archive_duration
+        if locked is not MISSING:
+            payload["locked"] = locked
+
         res = await self._client.modify_channel(
             channel_id=int(self.id),
             reason=reason,
-            payload=payload._json,
+            payload=payload,
         )
-        return Channel(**res, _client=self._client)
+        ch = Channel(**res, _client=self._client)
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(ch, attr))
+
+        return ch
 
     async def set_name(
         self,
@@ -508,6 +540,63 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(nsfw=nsfw, reason=reason)
 
+    async def archive(
+        self,
+        archived: bool = True,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the archived state of the thread.
+
+        :param archived: Whether the Thread is archived, defaults to True
+        :type archived: bool
+        :param reason?: The reason of the archiving
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(archived=archived, reason=reason)
+
+    async def set_auto_archive_duration(
+        self,
+        auto_archive_duration: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the time after the thread is automatically archived.
+
+        :param auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :type auto_archive_duration: int
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(auto_archive_duration=auto_archive_duration, reason=reason)
+
+    async def lock(
+        self,
+        locked: bool = True,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Sets the locked state of the thread.
+
+        :param locked: Whether the Thread is locked, defaults to True
+        :type locked: bool
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        :return: The edited channel
+        :rtype: Channel
+        """
+
+        return await self.modify(locked=locked, reason=reason)
+
     async def add_member(
         self,
         member_id: int,
@@ -618,6 +707,9 @@ class Channel(DictSerializerMixin):
     ) -> List["Message"]:  # noqa
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
+
+        .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
+
         .. code-block:: python
             def check_pinned(message):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned
