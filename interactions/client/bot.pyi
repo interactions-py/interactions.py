@@ -6,7 +6,12 @@ from ..api.cache import Cache
 from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents
+from ..api.models.channel import Channel
 from ..api.models.guild import Guild
+from ..api.models.member import Member
+from ..api.models.message import Message
+from ..api.models.role import Role
+from ..api.models.user import User
 from ..api.models.misc import MISSING, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
@@ -93,6 +98,17 @@ class Client:
     def reload(
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]: ...
+    async def get(
+        self,
+        obj: Union[Channel, Guild, Member, Message, Role, User],
+        *,
+        cache: bool = False,
+        channel_id: Optional[int] = MISSING,
+        guild_id: Optional[int] = MISSING,
+        message_id: Optional[int] = MISSING,
+        role_id: Optional[int] = MISSING,
+        user_id: Optional[int] = MISSING,
+    ) -> Union[Channel, Guild, Member, Message, Role, User]: ...
     def get_extension(self, name: str) -> Union[ModuleType, "Extension"]: ...
     async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
     async def raw_channel_create(self, message) -> dict: ...
