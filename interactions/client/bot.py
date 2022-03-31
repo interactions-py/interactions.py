@@ -1051,6 +1051,7 @@ class Client:
         channel_id: Optional[int] = MISSING,
         guild_id: Optional[int] = MISSING,
         message_id: Optional[int] = MISSING,
+        role_id: Optional[int] = MISSING,
         user_id: Optional[int] = MISSING,
     ) -> Union[Channel, Guild, Member, Message, Role, User]:
         """
@@ -1068,6 +1069,7 @@ class Client:
                 * Guild: guild_id
                 * Member: guild_id and user_id
                 * Message: channel_id and message_id
+                * Role: guild_id and role_id
 
         .. code-block:: python
             ...
@@ -1131,6 +1133,20 @@ class Client:
                 return message
 
             return Message(**message, _client=self._http)
+
+        elif isinstance(obj, Role):
+            if not guild_id or not role_id:
+                raise AttributeError("Please specify guild_id and role_id for getting a role!")
+
+            if role := self._http.cache.roles.get(str(role_id)) and cache:
+                role._client = (
+                    self._http
+                )  # this is only cached as role obj, therefore no check is needed
+                return role
+
+            else:
+                g = Guild(**await self._http.get_guild(int(guild_id)), _client=self._http)
+                return await g.get_role(role_id=int(role_id))
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
