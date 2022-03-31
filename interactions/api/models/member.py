@@ -72,12 +72,17 @@ class Member(DictSerializerMixin):
             else None
         )
 
-        self.roles = [
-            role_id if isinstance(role_id, int) else int(role_id) for role_id in self.roles
-        ]
+        self.roles = (
+            [role_id if isinstance(role_id, int) else int(role_id) for role_id in self.roles]
+            if self._json.get("roles")
+            else None
+        )
 
         if not self.avatar and self.user:
             self.avatar = self.user.avatar
+
+    def __repr__(self) -> str:
+        return self.user.username if self.user else self.nick
 
     @property
     def id(self) -> Snowflake:
@@ -227,7 +232,7 @@ class Member(DictSerializerMixin):
         # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
-    ):
+    ) -> "Message":  # noqa
         """
         Sends a DM to the member.
 
@@ -341,7 +346,12 @@ class Member(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Member(**res, _client=self._client)
+        member = Member(**res, _client=self._client)
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(member, attr))
+
+        return member
 
     async def add_to_thread(
         self,

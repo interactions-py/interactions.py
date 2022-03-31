@@ -36,12 +36,12 @@ class DictSerializerMixin(object):
         # for key in kwargs:
         #    setattr(self, key, kwargs[key])
 
-        for key in kwargs:
+        for key in list(kwargs):
             if key in self.__slots__ if hasattr(self, "__slots__") else True:
                 # else case if the mixin is used outside of this library and/or SDK.
                 setattr(self, key, kwargs[key])
             else:
-                log.warning(
+                log.info(
                     f"Attribute {key} is missing from the {self.__class__.__name__} data model, skipping."
                 )
                 # work on message printout? Effective, but I think it should be a little bit more friendly
@@ -166,59 +166,66 @@ class Snowflake(object):
     def __hash__(self):
         return hash(self._snowflake)
 
-    # Do we need not equals, equals, gt/lt/ge/le?
-    # If so, list them under. By Discord API this may not be needed
-    # but end users might.
+    def __eq__(self, other):
+        if isinstance(other, Snowflake):
+            return str(self) == str(other)
+        elif isinstance(other, int):
+            return int(self) == other
+        elif isinstance(other, str):
+            return str(self) == other
+
+        return NotImplemented
 
 
-class Format:
+class Color(object):
     """
-    This object is used to respectively format markdown strings
-    provided by the WYSIWYG text editor for ease-of-accessibility
-    and simple implementations into bots.
+    An object representing Discord branding colors.
 
     .. note::
-        All base strings are given brackets before being f-string
-        parsable to make conversion simplified.
-
-    .. warning::
-        the ``stylize()`` method must be used if you're actually
-        looking to give a **str** specific result.
+        This object only intends to cover the branding colors
+        and no others. The main reason behind this is due to
+        the current accepted standard of using hex codes or other
+        custom-defined colors.
     """
 
-    USER = "<@%s>"
-    USER_NICK = "<@!%s>"
-    CHANNEL = "<#%s>"
-    ROLE = "<@&%s>"
-    EMOJI = "<:%s:%d>"
-    EMOJI_ANIMATED = "<a:%s:%d>"
-    TIMESTAMP = "<t:%s>"
-    TIMESTAMP_SHORT_T = "<t:%s:t>"
-    TIMESTAMP_LONG_T = "<t:%s:T>"
-    TIMESTAMP_SHORT_D = "<t:%s:d>"
-    TIMESTAMP_LONG_D = "<t:%s:D>"
-    TIMESTAMP_SHORT_DT = TIMESTAMP
-    TIMESTAMP_LONG_DT = "<t:%s:F>"
-    TIMESTAMP_RELATIVE = "<t:%s:R>"
+    @property
+    def blurple(self) -> hex:
+        """Returns a hexadecimal value of the blurple color."""
+        return 0x5865F2
 
-    @classmethod
-    def stylize(cls, format: str, **kwargs) -> str:
-        r"""
-        This takes a format style from the object and
-        converts it into a usable string for ease.
+    @property
+    def green(self) -> hex:
+        """Returns a hexadecimal value of the green color."""
+        return 0x57F287
 
-        :param format: The format string to use.
-        :type format: str
-        :param \**kwargs: Multiple key-word arguments to use, where key=value is format=value.
-        :type \**kwargs: dict
-        :return: The formatted string.
-        :rtype: str
-        """
-        new: str = f""  # noqa: F541
-        for kwarg in kwargs:
-            if format == kwarg:
-                new %= format
-        return new
+    @property
+    def yellow(self) -> hex:
+        """Returns a hexadecimal value of the yellow color."""
+        return 0xFEE75C
+
+    @property
+    def fuchsia(self) -> hex:
+        """Returns a hexadecimal value of the fuchsia color."""
+        return 0xEB459E
+
+    @property
+    def red(self) -> hex:
+        """Returns a hexadecimal value of the red color."""
+        return 0xED4245
+
+    # I can't imagine any bot developers actually using these.
+    # If they don't know white is ff and black is 00, something's seriously
+    # wrong.
+
+    @property
+    def white(self) -> hex:
+        """Returns a hexadecimal value of the white color."""
+        return 0xFFFFFF
+
+    @property
+    def black(self) -> hex:
+        """Returns a hexadecimal value of the black color."""
+        return 0x000000
 
 
 class MISSING:

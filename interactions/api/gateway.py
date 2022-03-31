@@ -18,6 +18,7 @@ from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import WSMessage
+from aiohttp.http import WS_CLOSED_MESSAGE
 
 from ..base import get_logger
 from ..enums import InteractionType, OptionType
@@ -25,13 +26,12 @@ from ..models.command import Option
 from .dispatch import Listener
 from .enums import OpCodeType
 from .error import GatewayException
-from .http import HTTPClient
+from .http.client import HTTPClient
 from .models.flags import Intents
 from .models.misc import MISSING
 from .models.presence import ClientPresence
 
 log = get_logger("gateway")
-
 
 __all__ = ("_Heartbeat", "WebSocketClient")
 
@@ -199,7 +199,7 @@ class WebSocketClient:
 
                 if stream is None:
                     continue
-                if self._client is None:
+                if self._client is None or stream == WS_CLOSED_MESSAGE:
                     await self._establish_connection()
                     break
 
@@ -280,7 +280,7 @@ class WebSocketClient:
         """Waits for the client to become ready according to the Gateway."""
         await self.ready.wait()
 
-    def _dispatch_event(self, event: str, data: dict) -> None:
+    def _dispatch_event(self, event: str, data: dict) -> None:  # sourcery no-metrics
         """
         Dispatches an event from the Gateway.
 
@@ -291,97 +291,88 @@ class WebSocketClient:
         """
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
-
-        if event != "TYPING_START":
-            if event != "INTERACTION_CREATE":
-                name: str = event.lower()
-                try:
-                    _event_path: list = [section.capitalize() for section in name.split("_")]
-                    _name: str = (
-                        _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
-                    )
-                    __obj: object = getattr(__import__(path), _name)
-
-                    if name in {"_create", "_add"}:
-                        data["_client"] = self._http
-
-                    self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
-                except AttributeError as error:
-                    log.fatal(f"An error occured dispatching {name}: {error}")
+        if event == "INTERACTION_CREATE":
+            if not data.get("type"):
+                log.warning(
+                    "Context is being created for the interaction, but no type is specified. Skipping..."
+                )
             else:
-                if not data.get("type"):
-                    log.warning(
-                        "Context is being created for the interaction, but no type is specified. Skipping..."
-                    )
-                else:
-                    _context = self.__contextualize(data)
-                    _name: str = ""
-                    __args: list = [_context]
-                    __kwargs: dict = {}
+                # sourcery skip: extract-method
+                _context = self.__contextualize(data)
+                _name: str = ""
+                __args: list = [_context]
+                __kwargs: dict = {}
 
-                    if data["type"] == InteractionType.APPLICATION_COMMAND:
-                        _name = f"command_{_context.data.name}"
+                if data["type"] == InteractionType.APPLICATION_COMMAND:
+                    _name = f"command_{_context.data.name}"
 
-                        if _context.data._json.get("options"):
-                            for option in _context.data.options:
-                                _type = self.__option_type_context(
-                                    _context,
-                                    (
-                                        option["type"]
-                                        if isinstance(option, dict)
-                                        else option.type.value
-                                    ),
-                                )
-                                if _type:
-                                    if isinstance(option, dict):
-                                        _type[option["value"]]._client = self._http
-                                        option.update({"value": _type[option["value"]]})
-                                    else:
-                                        _type[option.value]._client = self._http
-                                        option._json.update({"value": _type[option.value]})
-                                _option = self.__sub_command_context(option, _context)
-                                __kwargs.update(_option)
-
-                        self._dispatch.dispatch("on_command", _context)
-                    elif data["type"] == InteractionType.MESSAGE_COMPONENT:
-                        _name = f"component_{_context.data.custom_id}"
-
-                        if _context.data._json.get("values"):
-                            __args.append(_context.data.values)
-
-                        self._dispatch.dispatch("on_component", _context)
-                    elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                        _name = f"autocomplete_{_context.data.id}"
-
-                        if _context.data._json.get("options"):
-                            for option in _context.data.options:
-                                __name, _value = self.__sub_command_context(option, _context)
-                                _name += f"_{__name}" if __name else ""
-
-                                if _value:
-                                    __args.append(_value)
-
-                        self._dispatch.dispatch("on_autocomplete", _context)
-                    elif data["type"] == InteractionType.MODAL_SUBMIT:
-                        _name = f"modal_{_context.data.custom_id}"
-
-                        if _context.data._json.get("components"):
-                            for component in _context.data.components:
-                                if component.get("components"):
-                                    __args.append(
-                                        [_value["value"] for _value in component["components"]][0]
-                                    )
+                    if _context.data._json.get("options"):
+                        for option in _context.data.options:
+                            _type = self.__option_type_context(
+                                _context,
+                                (option["type"] if isinstance(option, dict) else option.type.value),
+                            )
+                            if _type:
+                                if isinstance(option, dict):
+                                    _type[option["value"]]._client = self._http
+                                    option.update({"value": _type[option["value"]]})
                                 else:
-                                    __args.append(
-                                        [_value.value for _value in component.components][0]
-                                    )
+                                    _type[option.value]._client = self._http
+                                    option._json.update({"value": _type[option.value]})
+                            _option = self.__sub_command_context(option, _context)
+                            __kwargs.update(_option)
 
-                        self._dispatch.dispatch("on_modal", _context)
+                    self._dispatch.dispatch("on_command", _context)
+                elif data["type"] == InteractionType.MESSAGE_COMPONENT:
+                    _name = f"component_{_context.data.custom_id}"
 
-                    self._dispatch.dispatch(_name, *__args, **__kwargs)
-                    self._dispatch.dispatch("on_interaction", _context)
-                    self._dispatch.dispatch("on_interaction_create", _context)
+                    if _context.data._json.get("values"):
+                        __args.append(_context.data.values)
 
+                    self._dispatch.dispatch("on_component", _context)
+                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
+                    _name = f"autocomplete_{_context.data.id}"
+
+                    if _context.data._json.get("options"):
+                        for option in _context.data.options:
+                            __name, _value = self.__sub_command_context(option, _context)
+                            _name += f"_{__name}" if __name else ""
+
+                            if _value:
+                                __args.append(_value)
+
+                    self._dispatch.dispatch("on_autocomplete", _context)
+                elif data["type"] == InteractionType.MODAL_SUBMIT:
+                    _name = f"modal_{_context.data.custom_id}"
+
+                    if _context.data._json.get("components"):
+                        for component in _context.data.components:
+                            if component.get("components"):
+                                __args.append(
+                                    [_value["value"] for _value in component["components"]][0]
+                                )
+                            else:
+                                __args.append([_value.value for _value in component.components][0])
+
+                    self._dispatch.dispatch("on_modal", _context)
+
+                self._dispatch.dispatch(_name, *__args, **__kwargs)
+                self._dispatch.dispatch("on_interaction", _context)
+                self._dispatch.dispatch("on_interaction_create", _context)
+        elif event != "TYPING_START":
+            name: str = event.lower()
+            try:
+                _event_path: list = [section.capitalize() for section in name.split("_")]
+                _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
+                __obj: object = getattr(__import__(path), _name)
+
+                # name in {"_create", "_add"} returns False (tested w message_create)
+                if any(_ in name for _ in {"_create", "_update", "_add", "_remove", "_delete"}):
+                    data["_client"] = self._http
+
+                self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
+            except AttributeError as error:
+                log.fatal(f"An error occured dispatching {name}: {error}")
         self._dispatch.dispatch("raw_socket_create", data)
 
     def __contextualize(self, data: dict) -> object:
@@ -489,6 +480,11 @@ class WebSocketClient:
                             return _check
 
                         __kwargs[sub_option["name"]] = sub_option["value"]
+
+        elif _data.get("type") is not None and and _data["type"] == OptionType.SUB_COMMAND:
+            # sub_command_groups must have options so there is no extra check needed for those
+            __kwargs["sub_command"] = _data["name"]
+
         elif _data.get("value") is not None and _data.get("name") is not None:
             __kwargs[_data["name"]] = _data["value"]
 
@@ -541,6 +537,8 @@ class WebSocketClient:
         """
 
         packet: WSMessage = await self._client.receive()
+        if packet == WS_CLOSED_MESSAGE:
+            return packet
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
@@ -551,7 +549,8 @@ class WebSocketClient:
         :type data: Dict[str, Any]
         """
         self._last_send = perf_counter()
-        packet: str = dumps(data).decode("utf-8") if isinstance(data, dict) else data
+        _data = dumps(data) if isinstance(data, dict) else data
+        packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
         await self._client.send_str(packet)
         log.debug(packet)
 
@@ -615,3 +614,20 @@ class WebSocketClient:
     def presence(self) -> Optional[ClientPresence]:
         """Returns the current presence."""
         return self.__presence
+
+    async def _update_presence(self, presence: ClientPresence) -> None:
+        """
+        Sends an ``UPDATE_PRESENCE`` packet to the gateway.
+
+        .. note::
+            There is a ratelimit to using this method (5 per minute).
+            As there's no gateway ratelimiter yet, breaking this ratelimit
+            will force your bot to disconnect.
+
+        :param presence: The presence to change the bot to on identify.
+        :type presence: ClientPresence
+        """
+        payload: dict = {"op": OpCodeType.PRESENCE, "d": presence._json}
+        await self._send_packet(payload)
+        log.debug(f"UPDATE_PRESENCE: {presence._json}")
+        self.__presence = presence

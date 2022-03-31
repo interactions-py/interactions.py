@@ -13,10 +13,11 @@ from .api.cache import Cache
 from .api.cache import Item as Build
 from .api.error import InteractionException, JSONException
 from .api.gateway import WebSocketClient
-from .api.http import HTTPClient
+from .api.http.client import HTTPClient
 from .api.models.flags import Intents
 from .api.models.guild import Guild
 from .api.models.misc import MISSING, Snowflake
+from .api.models.presence import ClientPresence
 from .api.models.team import Application
 from .base import get_logger
 from .decor import command
@@ -97,6 +98,11 @@ class Client:
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data)
+
+    @property
+    def guilds(self) -> List[Guild]:
+        """Returns a list of guilds the bot is in."""
+        return [Guild(**_, _client=self._http) for _ in self._http.cache.self_guilds.view]
 
     @property
     def latency(self) -> float:
@@ -330,6 +336,20 @@ class Client:
         self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
         return coro
 
+    async def change_presence(self, presence: ClientPresence) -> None:
+        """
+        A method that changes the current client's presence on runtime.
+
+         .. note::
+            There is a ratelimit to using this method (5 per minute).
+            As there's no gateway ratelimiter yet, breaking this ratelimit
+            will force your bot to disconnect.
+
+        :param presence: The presence to change the bot to on identify.
+        :type presence: ClientPresence
+        """
+        await self._websocket._update_presence(presence)
+
     def __check_command(
         self,
         command: ApplicationCommand,
@@ -399,7 +419,7 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
-            if _sub_command.options is not MISSING:
+            if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
                     raise InteractionException(
                         11, message="Your sub command must have less than 25 options."
@@ -829,7 +849,7 @@ class Client:
         elif isinstance(command, str):
             _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
             if not _command_obj or not _command_obj.id:
-                if getattr(_command_obj, "guild_id", None) or self._automate_sync:
+                if getattr(_command_obj, "guild_id", None) or not self._automate_sync:
                     _application_commands = self._loop.run_until_complete(
                         self._http.get_application_commands(
                             application_id=self.me.id,

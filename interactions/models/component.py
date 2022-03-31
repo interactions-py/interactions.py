@@ -2,24 +2,20 @@ from typing import List, Optional
 
 from ..api.error import InteractionException
 from ..api.models.message import Emoji
-from ..api.models.misc import DictSerializerMixin
+from ..api.models.misc import MISSING, DictSerializerMixin
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 
 class SelectOption(DictSerializerMixin):
     """
     A class object representing the select option of a select menu.
-
     The structure for a select option:
-
     .. code-block:: python
-
         interactions.SelectOption(
             label="I'm a cool option. :)",
             value="internal_option_value",
             description="some extra info about me! :D",
         )
-
     :ivar str label: The label of the select option.
     :ivar str value: The returned value of the select option.
     :ivar Optional[str] description?: The description of the select option.
@@ -44,21 +40,29 @@ class SelectOption(DictSerializerMixin):
         if self.emoji:
             self._json.update({"emoji": self.emoji._json})
 
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    pass
+                self._json.update({key: value})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
 
 class SelectMenu(DictSerializerMixin):
     """
     A class object representing the select menu of a component.
-
     The structure for a select menu:
-
     .. code-block:: python
-
         interactions.SelectMenu(
             options=[interactions.SelectOption(...)],
             placeholder="Check out my options. :)",
             custom_id="menu_component",
         )
-
     :ivar ComponentType type: The type of select menu. Always defaults to ``3``.
     :ivar str custom_id: The customized "ID" of the select menu.
     :ivar List[SelectOption] options: The list of select options in the select menu.
@@ -102,21 +106,29 @@ class SelectMenu(DictSerializerMixin):
         self._json.update({"type": self.type.value})
         self._json.update({"options": [option._json for option in self.options]})
 
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    pass
+                self._json.update({key: value})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
 
 class Button(DictSerializerMixin):
     """
     A class object representing the button of a component.
-
     The structure for a button:
-
     .. code-block:: python
-
         interactions.Button(
             style=interactions.ButtonStyle.DANGER,
             label="Delete",
             custom_id="delete_message",
         )
-
     :ivar ComponentType type: The type of button. Always defaults to ``2``.
     :ivar ButtonStyle style: The style of the button.
     :ivar str label: The label of the button.
@@ -140,20 +152,31 @@ class Button(DictSerializerMixin):
         self.type = ComponentType.BUTTON
         self.style = ButtonStyle(self.style)
         self._json.update({"type": self.type.value, "style": self.style.value})
+        if self.emoji:
+            self._json.update({"emoji": self.emoji._json})
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    pass
+                self._json.update({key: value})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 class Component(DictSerializerMixin):
     """
     A class object representing the component in an interaction response/followup.
-
     .. note::
         ``components`` is only applicable if an ActionRow is supported, otherwise
         ActionRow-less will be opted. ``list`` is in reference to the class.
-
     .. warning::
         This object object class is only inferred upon when the gateway is processing
         back information involving a component. Do not use this object for sending.
-
     :ivar ComponentType type: The type of component.
     :ivar Optional[str] custom_id?: The customized "ID" of the component.
     :ivar Optional[bool] disabled?: Whether the component is unable to be used.
@@ -198,7 +221,7 @@ class Component(DictSerializerMixin):
     label: Optional[str]
     emoji: Optional[Emoji]
     url: Optional[str]
-    options: Optional[List[SelectMenu]]
+    options: Optional[List[SelectOption]]
     placeholder: Optional[str]
     min_values: Optional[int]
     max_values: Optional[int]
@@ -225,15 +248,25 @@ class Component(DictSerializerMixin):
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]
 
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    if key == "style":
+                        value = value.value
+                self._json.update({key: value})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
 
 class TextInput(DictSerializerMixin):
     """
     A class object representing the text input of a modal.
-
     The structure for a text input:
-
     .. code-block:: python
-
         interactions.TextInput(
             style=interactions.TextStyleType.SHORT,
             label="Let's get straight to it: what's 1 + 1?",
@@ -241,7 +274,6 @@ class TextInput(DictSerializerMixin):
             min_length=2,
             max_length=3,
         )
-
     :ivar ComponentType type: The type of input. Always defaults to ``4``.
     :ivar TextStyleType style: The style of the input.
     :ivar str custom_id: The custom Id of the input.
@@ -281,21 +313,30 @@ class TextInput(DictSerializerMixin):
         self.style = TextStyleType(self.style)
         self._json.update({"type": self.type.value, "style": self.style.value})
 
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    if key == "style":
+                        value = value.value
+                self._json.update({key: value})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
 
 class Modal(DictSerializerMixin):
     """
     A class object representing a modal.
-
     The structure for a modal:
-
     .. code-block:: python
-
         interactions.Modal(
             title="Application Form",
             custom_id="mod_app_form",
             components=[interactions.TextInput(...)],
         )
-
     :ivar str custom_id: The custom ID of the modal.
     :ivar str title: The title of the modal.
     :ivar List[Component] components: The components of the modal.
@@ -321,27 +362,33 @@ class Modal(DictSerializerMixin):
             }
         )
 
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    pass
+                self._json.update({key: value})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
 
 class ActionRow(DictSerializerMixin):
     """
     A class object representing the action row for interaction responses holding components.
-
     .. note::
         A message cannot have more than 5 ActionRow's supported.
         An ActionRow may also support only 1 text input component
         only.
-
     The structure for an action row:
-
     .. code-block:: python
-
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
-
         # Method 2:
         interactions.ActionRow(components=[...])
-
     :ivar int type: The type of component. Always defaults to ``1``.
     :ivar Optional[List[Component]] components?: A list of components the ActionRow has, if any.
     """
@@ -367,6 +414,18 @@ class ActionRow(DictSerializerMixin):
         self._json.update({"type": self.type.value})
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    pass
+                self._json.update({key: value})
+            elif value is None and key in self._json.keys():
+                del self._json[key]
 
 
 def _build_components(components) -> List[dict]:

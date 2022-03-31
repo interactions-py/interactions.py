@@ -48,7 +48,7 @@ class VersionAuthor:
         self._co_author = shared
         self.active = active
         self.email = email
-        self._hash = md5(self.__str__())
+        self._hash = md5(self.__str__().encode())
 
     def __hash__(self):
         return self._hash
@@ -83,7 +83,7 @@ class Version:
     :ivar Optional[Dict[str, Union[int, VersionAlphanumericType]]] __alphanum: The alphanumeric typing of the version.
     """
 
-    __slots__ = ("_major", "_minor", "_patch", "__version", "__alphanum")
+    __slots__ = ("_major", "_minor", "_patch", "_authors", "__version", "__alphanum")
 
     def __init__(self, **kwargs) -> None:
         """

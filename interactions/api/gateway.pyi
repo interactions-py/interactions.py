@@ -12,7 +12,7 @@ from ..models import Option
 from ..api.models.misc import MISSING
 from ..api.models.presence import ClientPresence
 from .dispatch import Listener
-from .http import HTTPClient
+from .http.client import HTTPClient
 from .models.flags import Intents
 
 log: Logger
@@ -79,3 +79,4 @@ class WebSocketClient:
     @property
     def presence(self) -> None: ...
     async def restart(self): ...
+    async def _update_presence(self, presence: ClientPresence) -> None: ...
