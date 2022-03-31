@@ -1085,6 +1085,20 @@ class Client:
             else:
                 return Channel(**await self._http.get_channel(str(channel_id)), _client=self._http)
 
+        elif isinstance(obj, Guild):
+            if not guild_id:
+                raise AttributeError("Please specify a guild_id for getting a guild!")
+
+            if guild := self._http.cache.self_guilds.get(str(guild_id)) and cache:
+                if guild.get("_client") ^ hasattr(guild, "_client"):
+                    return Guild(**guild) if not isinstance(guild, Guild) else guild
+                if isinstance(guild, dict):
+                    return Guild(**guild, _client=self._http)
+
+                guild: Guild
+                guild._client = self._http
+                return guild
+
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
 
