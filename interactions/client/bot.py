@@ -1066,6 +1066,7 @@ class Client:
             When getting an object you must pass its required attributes. Those are listed below:
                 * Channel: channel_id
                 * Guild: guild_id
+                * Message: channel_id and message_id
 
         .. code-block:: python
             ...
@@ -1101,6 +1102,24 @@ class Client:
             guild: Guild
             guild._client = self._http
             return guild
+
+        elif isinstance(obj, Message):
+            if not channel_id or not message_id:
+                raise AttributeError(
+                    "Please specify message_id and channel_id for getting a message!"
+                )
+
+            if not (message := self._http.cache.messages.get(str(message_id)) and cache):
+                return Message(
+                    **await self._http.get_message(int(channel_id), int(message_id)),
+                    _client=self._http,
+                )
+
+            if isinstance(message, Message):
+                message._client = self._http
+                return message
+
+            return Message(**message, _client=self._http)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
