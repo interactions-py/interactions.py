@@ -1070,6 +1070,7 @@ class Client:
                 * Member: guild_id and user_id
                 * Message: channel_id and message_id
                 * Role: guild_id and role_id
+                * User: user_id
 
         .. code-block:: python
             ...
@@ -1089,7 +1090,7 @@ class Client:
             else:
                 return Channel(**await self._http.get_channel(int(channel_id)), _client=self._http)
 
-        elif obj == Channel:
+        elif obj == Guild:
             if guild_id is MISSING:
                 raise AttributeError("Please specify a guild_id for getting a guild!")
 
@@ -1147,6 +1148,16 @@ class Client:
             else:
                 g = Guild(**await self._http.get_guild(int(guild_id)), _client=self._http)
                 return await g.get_role(role_id=int(role_id))
+
+        elif obj == User:
+            if user_id is MISSING:
+                raise AttributeError("Please specify user_id for getting a user!")
+
+            if user := self._http.cache.users.get(str(user_id)) and cache:
+                return user
+
+            else:
+                return User(**await self._http.get_user(int(user_id)))
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
