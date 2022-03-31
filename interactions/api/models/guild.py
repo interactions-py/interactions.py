@@ -54,6 +54,13 @@ class EventStatus(IntEnum):
     CANCELED = 4
 
 
+class InviteTargetType(IntEnum):
+    """An enumerable object representing the different invite target types"""
+
+    STREAM = 1
+    EMBEDDED_APPLICATION = 2
+
+
 class WelcomeChannels(DictSerializerMixin):
     """
     A class object representing a welcome channel on the welcome screen.
@@ -692,7 +699,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
-        :type bitrate Optional[int]
+        :type bitrate: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
@@ -772,10 +779,16 @@ class Guild(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:
         """
         Edits a channel of the guild.
+
+        .. note::
+            The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
 
         :param channel_id: The id of the channel to modify
         :type channel_id: int
@@ -784,7 +797,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel, defaults to the current value of the channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate Optional[int]
+        :type bitrate: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
@@ -797,6 +810,12 @@ class Guild(DictSerializerMixin):
         :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
+        :param archived?: Whether the thread is archived
+        :type archived: Optional[bool]
+        :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param locked?: Whether the thread is locked
+        :type locked: Optional[bool]
         :param reason: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel
@@ -836,10 +855,24 @@ class Guild(DictSerializerMixin):
             nsfw=_nsfw,
         )
 
+        payload = payload._json
+
+        if (
+            archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
+        ) and not ch.thread_metadata:
+            raise ValueError("The specified channel is not a Thread!")
+
+        if archived is not MISSING:
+            payload["archived"] = archived
+        if auto_archive_duration is not MISSING:
+            payload["auto_archive_duration"] = auto_archive_duration
+        if locked is not MISSING:
+            payload["locked"] = locked
+
         res = await self._client.modify_channel(
             channel_id=channel_id,
             reason=reason,
-            payload=payload._json,
+            payload=payload,
         )
         return Channel(**res, _client=self._client)
 
@@ -1593,6 +1626,34 @@ class Guild(DictSerializerMixin):
         )
         return [Member(**member, _client=self._client) for member in res]
 
+    async def get_all_members(self) -> List[Member]:
+        """
+        Gets all members of a guild.
+
+        .. warning:: Calling this method can lead to rate-limits in larger guilds.
+
+        :return: Returns a list of all members of the guild
+        :rtype: List[Member]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _all_members: List[dict] = []
+        _last_member: Member
+        _members: List[dict] = await self._client.get_list_of_members(
+            guild_id=int(self.id), limit=100
+        )
+        if len(_members) == 100:
+            while len(_members) >= 100:
+                _all_members.extend(_members)
+                _last_member = Member(**_members[-1])
+                _members = await self._client.get_list_of_members(
+                    guild_id=int(self.id), limit=100, after=int(_last_member.id)
+                )
+        _all_members.extend(_members)
+
+        return [Member(**_, _client=self._client) for _ in _all_members]
+
 
 class GuildPreview(DictSerializerMixin):
     """
@@ -1754,6 +1815,14 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
+
+    async def delete(self) -> None:
+        """Deletes the invite"""
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        await self._client.delete_invite(self.code)
 
 
 class GuildTemplate(DictSerializerMixin):
