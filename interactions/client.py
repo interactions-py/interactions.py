@@ -133,14 +133,8 @@ class Client:
         :rtype: bool
         """
         attrs: List[str] = [
-            "type",
-            "name",
-            "description",
-            "options",
-            "guild_id",
-            "default_permission",
+            name for name in ApplicationCommand.__slots__ if not name.startswith("_")
         ]
-        # TODO: implement permission/localization check when available.
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
