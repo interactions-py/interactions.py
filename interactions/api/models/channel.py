@@ -375,7 +375,12 @@ class Channel(DictSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        return Channel(**res, _client=self._client)
+        ch = Channel(**res, _client=self._client)
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(ch, attr))
+
+        return ch
 
     async def set_name(
         self,

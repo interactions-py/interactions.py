@@ -1090,7 +1090,12 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Guild(**res, _client=self._client)
+        guild = Guild(**res, _client=self._client)
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(guild, attr))
+
+        return guild
 
     async def set_name(
         self,
@@ -1548,7 +1553,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
         return Emoji(**res, _client=self._client)
 
-    async def get_all_emojis(self) -> List[Emoji]:
+    async def get_all_emoji(self) -> List[Emoji]:
         """
         Gets all emojis of a guild.
 
