@@ -672,6 +672,19 @@ class Message(DictSerializerMixin):
         )
         return cls(**_message, _client=client)
 
+    @property
+    def url(self) -> str:
+        """
+        Returns the URL of the message.
+
+        :return: The URL of said message
+        :rtype: str
+        """
+        guild = "@me"
+        if self.guild_id:
+            guild = str(self.guild_id)
+        return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
+
 
 class Emoji(DictSerializerMixin):
     """
