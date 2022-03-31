@@ -17,8 +17,8 @@ from sys import platform, version_info
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from aiohttp import WSMessage
-from aiohttp.http import WS_CLOSED_MESSAGE
+from aiohttp import WSMessage, WSMsgType
+from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ..base import get_logger
 from ..enums import InteractionType, OptionType
@@ -199,7 +199,7 @@ class WebSocketClient:
 
                 if stream is None:
                     continue
-                if self._client is None or stream == WS_CLOSED_MESSAGE:
+                if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
                     await self._establish_connection()
                     break
 
@@ -537,8 +537,18 @@ class WebSocketClient:
         """
 
         packet: WSMessage = await self._client.receive()
-        if packet == WS_CLOSED_MESSAGE:
+
+        if packet == WSMsgType.CLOSE:
+            await self._client.close()
             return packet
+
+        elif packet == WS_CLOSED_MESSAGE:
+            return packet
+
+        elif packet == WS_CLOSING_MESSAGE:
+            await self._client.close()
+            return WS_CLOSED_MESSAGE
+
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
