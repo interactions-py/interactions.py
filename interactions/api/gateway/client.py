@@ -20,9 +20,10 @@ from aiohttp import WSMessage, WSMsgType
 from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ...base import get_logger
+from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ..dispatch import Listener
-from ..enums import InteractionType, OpCodeType, OptionType
+from ..enums import OpCodeType
 from ..error import GatewayException
 from ..http.client import HTTPClient
 from ..models.flags import Intents

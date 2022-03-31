@@ -12,7 +12,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 from ..api.cache import Cache
 from ..api.cache import Item as Build
 from ..api.error import InteractionException, JSONException
-from ..api.gateway import WebSocketClient
+from ..api.gateway.client import WebSocketClient
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
