@@ -10,7 +10,7 @@ from .api.models.guild import Guild
 from .api.models.misc import MISSING, Snowflake
 from .api.models.presence import ClientPresence
 from .api.models.team import Application
-from .enums import ApplicationCommandType
+from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -66,8 +66,8 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         options: Optional[List[Option]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[str, str]] = MISSING,
-        description_localizations: Optional[Dict[str, str]] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
@@ -75,7 +75,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[str, str]] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
@@ -83,7 +83,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[str, str]] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
