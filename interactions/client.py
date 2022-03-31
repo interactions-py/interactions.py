@@ -132,14 +132,28 @@ class Client:
         :return: Whether the command has changed or not.
         :rtype: bool
         """
-        attrs: List[str] = ["type", "name", "description", "options", "guild_id"]
+        attrs: List[str] = [
+            name for name in ApplicationCommand.__slots__ if not name.startswith("_")
+        ]
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
         for command in pool:
             if command["name"] == data["name"]:
+                if not isinstance(command.get("options"), list):
+                    command["options"] = []
+                    # this will ensure that the option will be an emtpy list, since discord returns `None`
+                    # when no options are present, but they're in the data as `[]`
+                if command.get("guild_id") and not isinstance(command.get("guild_id"), int):
+                    if isinstance(command.get("guild_id"), list):
+                        command["guild_id"] = [int(_) for _ in command["guild_id"]]
+                    else:
+                        command["guild_id"] = int(command["guild_id"])
+                    # ensure that IDs are present as integers since discord returns strings.
                 for attr in attrs:
-                    if hasattr(data, attr) and command.get(attr) == data.get(attr):
+
+                    if data.get(attr, None) and command.get(attr) == data.get(attr):
+                        # hasattr checks `dict.attr` not `dict[attr]`
                         continue
                     else:
                         clean = False
@@ -234,7 +248,6 @@ class Client:
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
                 raise JSONException(commands["code"], message=f'{commands["message"]} |')
-                # TODO: redo error handling.
         elif isinstance(commands, list):
             for command in commands:
                 if command.get("code"):
