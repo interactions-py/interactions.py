@@ -1079,7 +1079,7 @@ class Client:
 
         # TODO: custom error formatter
 
-        if isinstance(obj, Channel):
+        if obj == Channel:
             if channel_id is MISSING:
                 raise AttributeError("Please specify a channel_id for getting a channel!")
 
@@ -1089,7 +1089,7 @@ class Client:
             else:
                 return Channel(**await self._http.get_channel(int(channel_id)), _client=self._http)
 
-        elif isinstance(obj, Guild):
+        elif obj == Channel:
             if guild_id is MISSING:
                 raise AttributeError("Please specify a guild_id for getting a guild!")
 
@@ -1106,7 +1106,7 @@ class Client:
             guild._client = self._http
             return guild
 
-        elif isinstance(obj, Member):
+        elif obj == Member:
             if guild_id is MISSING or user_id is MISSING:
                 raise AttributeError("Please specify guild_id and user_id for getting a member!")
 
@@ -1116,7 +1116,7 @@ class Client:
                 **await self._http.get_member(int(guild_id), int(user_id)), _client=self._http
             )
 
-        elif isinstance(obj, Message):
+        elif obj == Message:
             if channel_id is MISSING or message_id is MISSING:
                 raise AttributeError(
                     "Please specify message_id and channel_id for getting a message!"
@@ -1134,7 +1134,7 @@ class Client:
 
             return Message(**message, _client=self._http)
 
-        elif isinstance(obj, Role):
+        elif obj == Role:
             if guild_id is MISSING or role_id is MISSING:
                 raise AttributeError("Please specify guild_id and role_id for getting a role!")
 
