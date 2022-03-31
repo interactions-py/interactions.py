@@ -1067,6 +1067,7 @@ class Client:
                 * Channel: channel_id
                 * Guild: guild_id
                 * Message: channel_id and message_id
+                * Member: guild_id and user_id
 
         .. code-block:: python
             ...
@@ -1120,6 +1121,16 @@ class Client:
                 return message
 
             return Message(**message, _client=self._http)
+
+        elif isinstance(obj, Member):
+            if not guild_id or not user_id:
+                raise AttributeError("Please specify guild_id and user_id for getting a member!")
+
+            # todo: cache impl
+
+            return Member(
+                **await self._http.get_member(int(guild_id), int(user_id)), _client=self._http
+            )
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
