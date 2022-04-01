@@ -1059,9 +1059,9 @@ class Client:
 
         .. error:: Getting from cache may be very inconsistent at the moment.
 
-        .. note:: If an object is not found in the cache, it will be gotten via API-call
-
-        .. note:: A member's cache currently isn't available
+        .. note::
+            * If an object is not found in the cache, it will be gotten via API-call.
+            * A cache for member objects currently isn't available.
 
         .. important::
             When getting an object you must pass its required attributes. Those are listed below:
