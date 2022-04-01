@@ -418,7 +418,12 @@ class Message(DictSerializerMixin):
             payload=payload._json,
         )
 
-        return Message(**_dct) if not _dct.get("code") else payload
+        msg = Message(**_dct) if not _dct.get("code") else payload
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(msg, attr))
+
+        return msg
 
     async def reply(
         self,
@@ -666,6 +671,17 @@ class Message(DictSerializerMixin):
             message_id=_message_id,
         )
         return cls(**_message, _client=client)
+
+    @property
+    def url(self) -> str:
+        """
+        Returns the URL of the message.
+
+        :return: The URL of said message
+        :rtype: str
+        """
+        guild = self.guild_id if self.guild_id else "@me"
+        return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
 
 
 class Emoji(DictSerializerMixin):
@@ -1243,12 +1259,34 @@ class Embed(DictSerializerMixin):
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
 
+    def set_video(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None:
+        """
+        Sets the embed's video
+
+        :param url: Url of the video
+        :type url: str
+        :param proxy_url?: A proxied url of the video
+        :type proxy_url?: Optional[str]
+        :param height?: The video's height
+        :type height?: Optional[int]
+        :param width?: The video's width
+        :type width?: Optional[int]
+        """
+
+        self.video = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+
     def set_thumbnail(
         self,
         url: str,
         proxy_url: Optional[str] = None,
-        height: int = None,
-        width: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
     ) -> None:
         """
         Sets the embed's thumbnail

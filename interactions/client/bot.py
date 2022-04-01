@@ -9,17 +9,17 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from .api.cache import Cache
-from .api.cache import Item as Build
-from .api.error import InteractionException, JSONException
-from .api.gateway import WebSocketClient
-from .api.http.client import HTTPClient
-from .api.models.flags import Intents
-from .api.models.guild import Guild
-from .api.models.misc import MISSING, Snowflake
-from .api.models.presence import ClientPresence
-from .api.models.team import Application
-from .base import get_logger
+from ..api import Cache
+from ..api import Item as Build
+from ..api import WebSocketClient as WSClient
+from ..api.error import InteractionException, JSONException
+from ..api.http.client import HTTPClient
+from ..api.models.flags import Intents
+from ..api.models.guild import Guild
+from ..api.models.misc import MISSING, Snowflake
+from ..api.models.presence import ClientPresence
+from ..api.models.team import Application
+from ..base import get_logger
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType, OptionType
@@ -78,7 +78,7 @@ class Client:
         self._loop = get_event_loop()
         self._http = HTTPClient(token=token)
         self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WebSocketClient(token=token, intents=self._intents)
+        self._websocket = WSClient(token=token, intents=self._intents)
         self._shard = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token
@@ -132,14 +132,28 @@ class Client:
         :return: Whether the command has changed or not.
         :rtype: bool
         """
-        attrs: List[str] = ["type", "name", "description", "options", "guild_id"]
+        attrs: List[str] = [
+            name for name in ApplicationCommand.__slots__ if not name.startswith("_")
+        ]
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
         for command in pool:
             if command["name"] == data["name"]:
+                if not isinstance(command.get("options"), list):
+                    command["options"] = []
+                    # this will ensure that the option will be an emtpy list, since discord returns `None`
+                    # when no options are present, but they're in the data as `[]`
+                if command.get("guild_id") and not isinstance(command.get("guild_id"), int):
+                    if isinstance(command.get("guild_id"), list):
+                        command["guild_id"] = [int(_) for _ in command["guild_id"]]
+                    else:
+                        command["guild_id"] = int(command["guild_id"])
+                    # ensure that IDs are present as integers since discord returns strings.
                 for attr in attrs:
-                    if hasattr(data, attr) and command.get(attr) == data.get(attr):
+
+                    if data.get(attr, None) and command.get(attr) == data.get(attr):
+                        # hasattr checks `dict.attr` not `dict[attr]`
                         continue
                     else:
                         clean = False
@@ -234,7 +248,6 @@ class Client:
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
                 raise JSONException(commands["code"], message=f'{commands["message"]} |')
-                # TODO: redo error handling.
         elif isinstance(commands, list):
             for command in commands:
                 if command.get("code"):
