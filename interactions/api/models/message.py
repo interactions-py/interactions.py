@@ -1031,15 +1031,10 @@ class Embed(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if self._json.get("timestamp"):
-            if isinstance(self._json.get("timestamp"), str):
-                self.timestamp = datetime.fromisoformat(
-                    self._json.get("timestamp")
-                )  # readability on non `_json` attr.
-            elif isinstance(self._json.get("timestamp"), datetime):
-                self._json["timestamp"] = str(
-                    self._json.get("timestamp")
-                )  # converts to isoformat for API.
+        if isinstance(self._json.get("timestamp"), str):
+            self.timestamp = datetime.fromisoformat(
+                self._json.get("timestamp")
+            )  # readability on non `_json` attr.
 
         self.footer = EmbedFooter(**self.footer) if isinstance(self.footer, dict) else self.footer
         self.image = EmbedImageStruct(**self.image) if isinstance(self.image, dict) else self.image
