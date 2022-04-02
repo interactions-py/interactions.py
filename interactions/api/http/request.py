@@ -166,15 +166,16 @@ class _Request:
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
                         raise HTTPException(data["code"], message=data["message"])
-                    if remaining and not int(remaining):
-                        if response.status == 429:
+
+                    if response.status == 429:
+                        if not is_global:
                             log.warning(
                                 f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
                             )
                             _limiter.reset_after = reset_after
                             await asyncio.sleep(_limiter.reset_after)
                             continue
-                        elif is_global:
+                        else:
                             log.warning(
                                 f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
                             )
@@ -182,18 +183,11 @@ class _Request:
                             self._loop.call_later(
                                 self._global_lock.reset_after, self._global_lock.lock.release
                             )
-                        elif int(remaining) == 0:
-                            log.warning(
-                                f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
-                            )
-                            self._loop.call_later(reset_after, _limiter.release_lock())
-
-                    if response.status in {500, 502, 504}:
+                    elif int(remaining) == 0:
                         log.warning(
-                            f"{route.endpoint} Received {response.status}... retrying in {1 + tries * 2} seconds"
+                            f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
                         )
-                        await asyncio.sleep(1 + tries * 2)
-                        continue
+                        self._loop.call_later(reset_after, _limiter.release_lock())
 
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
 
