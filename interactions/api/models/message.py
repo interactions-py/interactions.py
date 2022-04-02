@@ -1042,11 +1042,11 @@ class Embed(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.timestamp = (
-            datetime.fromisoformat(self._json.get("timestamp"))
-            if self._json.get("timestamp")
-            else datetime.utcnow()
-        )
+        if isinstance(self._json.get("timestamp"), str):
+            self.timestamp = datetime.fromisoformat(
+                self._json.get("timestamp")
+            )  # readability on non `_json` attr.
+
         self.footer = EmbedFooter(**self.footer) if isinstance(self.footer, dict) else self.footer
         self.image = EmbedImageStruct(**self.image) if isinstance(self.image, dict) else self.image
         self.thumbnail = (
@@ -1064,7 +1064,6 @@ class Embed(DictSerializerMixin):
             if self._json.get("fields")
             else None
         )
-
         # (Complete partial fix.)
         # The issue seems to be that this itself is not updating
         # JSON result correctly. After numerous attempts I seem to
