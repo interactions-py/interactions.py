@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Union
 
-from ..api.models.channel import ChannelType
-from ..api.models.misc import DictSerializerMixin, Snowflake
+from ...api.models.channel import ChannelType
+from ...api.models.misc import DictSerializerMixin, Snowflake
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 
