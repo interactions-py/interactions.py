@@ -1669,8 +1669,22 @@ class Guild(DictSerializerMixin):
         if not self.icon:
             return None
 
-            url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
-            url += ".gif" if self.icon.startswith("a_") else ".png"
+        url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
+        url += ".gif" if self.icon.startswith("a_") else ".png"
+        return url
+    
+    @property
+    def banner_url(self) -> Optional[str]:
+        """
+        Returns the URL of the guild's banner.
+        :return: URL of the guild's banner (None will be returned if no banner is set)
+        :rtype: str
+        """
+        if not self.banner:
+            return None
+
+        url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
+        url += ".gif" if self.banner.startswith("a_") else ".png"
         return url
 
 
