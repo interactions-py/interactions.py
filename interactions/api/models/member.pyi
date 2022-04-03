@@ -25,7 +25,8 @@ class Member(DictSerializerMixin):
     pending: Optional[bool]
     permissions: Optional[Permissions]
     communication_disabled_until: Optional[datetime.isoformat]
-    hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
+    hoisted_role: Any  # TODO: Investigate what this is for when documented by Discord.
+    flags: int  # TODO: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
     def __repr__(self) -> str: ...
     @property
