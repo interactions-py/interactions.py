@@ -45,6 +45,7 @@ class Member(DictSerializerMixin):
         "permissions",
         "communication_disabled_until",
         "hoisted_role",
+        "flags",
         "_client",
     )
 

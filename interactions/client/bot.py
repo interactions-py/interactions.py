@@ -9,10 +9,10 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from ..api.cache import Cache
-from ..api.cache import Item as Build
+from ..api import Cache
+from ..api import Item as Build
+from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
-from ..api.gateway.client import WebSocketClient
 from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
 from ..api.models.flags import Intents
@@ -27,7 +27,7 @@ from ..api.models.user import User
 from ..base import get_logger
 from .decor import command
 from .decor import component as _component
-from .enums import ApplicationCommandType, OptionType
+from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -83,7 +83,7 @@ class Client:
         self._loop = get_event_loop()
         self._http = HTTPClient(token=token)
         self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WebSocketClient(token=token, intents=self._intents)
+        self._websocket = WSClient(token=token, intents=self._intents)
         self._shard = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token
@@ -402,6 +402,17 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
+            if (
+                _sub_group.name_localizations is not MISSING
+                and _sub_group.name_localizations is not None
+            ):
+                for __name in command.name_localizations.values():
+                    if not re.fullmatch(reg, __name):
+                        raise InteractionException(
+                            11,
+                            message=f"The sub command group name does not match the regex for valid names ('{regex}')",
+                        )
+
             if not _sub_group.options:
                 raise InteractionException(11, message="sub command groups must have subcommands!")
             if len(_sub_group.options) > 25:
@@ -437,6 +448,17 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
+            if (
+                _sub_command.name_localizations is not MISSING
+                and _sub_command.name_localizations is not None
+            ):
+                for __name in command.name_localizations.values():
+                    if not re.fullmatch(reg, __name):
+                        raise InteractionException(
+                            11,
+                            message=f"The sub command name does not match the regex for valid names ('{regex}')",
+                        )
+
             if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
                     raise InteractionException(
@@ -483,6 +505,14 @@ class Client:
                 raise InteractionException(
                     11, message="You must not have two options with the same name in a command!"
                 )
+            if _option.name_localizations is not MISSING and _option.name_localizations is not None:
+                for __name in _option.name_localizations.values():
+                    if not re.fullmatch(reg, __name):
+                        raise InteractionException(
+                            11,
+                            message=f"The option name does not match the regex for valid names ('{regex}')",
+                        )
+
             _names.append(_option.name)
 
         def __check_coro():
@@ -540,6 +570,14 @@ class Client:
         elif command.description is not MISSING and len(command.description) > 100:
             raise InteractionException(11, message="Descriptions must be less than 100 characters.")
 
+        if command.name_localizations is not MISSING and command.name_localizations is not None:
+            for __name in command.name_localizations.values():
+                if not re.fullmatch(reg, __name):
+                    raise InteractionException(
+                        11,
+                        message=f"One of your command name localisations does not match the regex for valid names ('{regex}')",
+                    )
+
         if command.options and command.options is not MISSING:
             if len(command.options) > 25:
                 raise InteractionException(
@@ -575,6 +613,8 @@ class Client:
         options: Optional[
             Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]
         ] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
@@ -614,6 +654,10 @@ class Client:
         :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :param description_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -627,6 +671,8 @@ class Client:
                 scope=scope,
                 options=options,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
+                description_localizations=description_localizations,
             )
             self.__check_command(command=ApplicationCommand(**commands[0]), coro=coro)
 
@@ -655,6 +701,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -678,6 +725,8 @@ class Client:
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -689,6 +738,7 @@ class Client:
                 name=name,
                 scope=scope,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
             )
             self.__check_command(ApplicationCommand(**commands[0]), coro)
 
@@ -711,6 +761,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -734,6 +785,8 @@ class Client:
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -745,6 +798,7 @@ class Client:
                 name=name,
                 scope=scope,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
             )
 
             self.__check_command(ApplicationCommand(**commands[0]), coro)
@@ -1328,11 +1382,11 @@ class Extension:
     def teardown(self):
         for event, funcs in self._listeners.items():
             for func in funcs:
-                self.client._websocket.dispatch.events[event].remove(func)
+                self.client._websocket._dispatch.events[event].remove(func)
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
-                self.client._websocket.dispatch.events[cmd].remove(func)
+                self.client._websocket._dispatch.events[cmd].remove(func)
 
         clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
         cmds = filter(

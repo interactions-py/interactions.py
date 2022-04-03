@@ -170,6 +170,8 @@ class Message(DictSerializerMixin):
         url: str,
         client: HTTPClient,
     ) -> "Message": ...
+    @property
+    def url(self) -> str: ...
 
 class Emoji(DictSerializerMixin):
     _client: HTTPClient

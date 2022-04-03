@@ -33,8 +33,6 @@ from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
 
-__all__ = "WebSocketClient"
-
 
 class WebSocketClient:
     """
@@ -380,7 +378,7 @@ class WebSocketClient:
                 _context = "ComponentContext"
 
             data["client"] = self._http
-            context: object = getattr(__import__("interactions.context"), _context)
+            context: object = getattr(__import__("interactions.client.context"), _context)
 
             return context(**data)
 
