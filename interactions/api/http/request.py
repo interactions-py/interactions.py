@@ -183,7 +183,7 @@ class _Request:
                             self._loop.call_later(
                                 self._global_lock.reset_after, self._global_lock.lock.release
                             )
-                    elif int(remaining) == 0:
+                    if remaining is not None and int(remaining) == 0:
                         log.warning(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
                         )
