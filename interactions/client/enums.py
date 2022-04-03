@@ -176,7 +176,7 @@ class Locale(str, Enum):
     PORTUGUESE_BRAZIL = "pt-BR"
     ROMANIAN = "ro"
     RUSSIAN = "ru"
-    SPANISH_SPAIN = "es-ES"
+    SPANISH = "es-ES"
     SWEDISH = "sv-SE"
     THAI = "th"
     TURKISH = "tr"

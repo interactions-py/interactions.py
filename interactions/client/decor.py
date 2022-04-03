@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from ..api.models.guild import Guild
 from ..api.models.misc import MISSING
-from .enums import ApplicationCommandType
+from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu
 
@@ -15,6 +15,8 @@ def command(
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
     options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = MISSING,
     default_permission: Optional[bool] = MISSING,
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
 ) -> List[ApplicationCommand]:
     """
     A wrapper designed to interpret the client-facing API for
@@ -31,6 +33,19 @@ def command(
 
     _description: str = "" if description is MISSING else description
     _options: list = []
+
+    _name_localizations = (
+        {}
+        if name_localizations is MISSING
+        else {k.value if isinstance(k, Locale) else k: v for k, v in name_localizations.items()}
+    )
+    _description_localizations = (
+        {}
+        if description_localizations is MISSING
+        else {
+            k.value if isinstance(k, Locale) else k: v for k, v in description_localizations.items()
+        }
+    )
 
     if options is not MISSING:
         if all(isinstance(option, Option) for option in options):
@@ -68,6 +83,8 @@ def command(
                 description=_description,
                 options=_options,
                 default_permission=_default_permission,
+                name_localizations=_name_localizations,
+                description_localizations=_description_localizations,
             )
             payloads.append(payload._json)
     else:
@@ -77,6 +94,8 @@ def command(
             description=_description,
             options=_options,
             default_permission=_default_permission,
+            name_localizations=_name_localizations,
+            description_localizations=_description_localizations,
         )
         payloads.append(payload._json)
 
