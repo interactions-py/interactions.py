@@ -252,7 +252,7 @@ class Member(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...models.component import _build_components
+        from ...client.models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content

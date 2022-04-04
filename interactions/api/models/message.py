@@ -380,7 +380,7 @@ class Message(DictSerializerMixin):
         if self.flags == 64:
             raise Exception("You cannot edit a hidden message!")
 
-        from ...models.component import _build_components
+        from ...client.models.component import _build_components
 
         _content: str = self.content if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -462,7 +462,7 @@ class Message(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...models.component import _build_components
+        from ...client.models.component import _build_components
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
