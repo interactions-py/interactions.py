@@ -200,7 +200,7 @@ class Client:
             )
             await self._http.overwrite_application_command(
                 application_id=self.me.id,
-                data= commands,
+                data=commands,
                 guild_id=guild,
             )
 
@@ -209,7 +209,7 @@ class Client:
                 f"Global commands {', '.join(command['name'] for command in global_commands)} have been synced."
             )
             await self._http.overwrite_application_command(
-                application_id=self.me.id, data= global_commands
+                application_id=self.me.id, data=global_commands
             )
 
     async def _synchronize(self, payload: Optional[dict] = None) -> None:
