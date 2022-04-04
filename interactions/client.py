@@ -96,7 +96,8 @@ class Client:
         else:
             self._automate_sync = True
 
-        data = self._loop.run_until_complete(self._http.get_current_bot_information())
+        data = self._loop.run_until_complete(
+            self._http.get_current_bot_information())
         self.me = Application(**data)
 
     @property
@@ -117,9 +118,12 @@ class Client:
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
         self._websocket._dispatch.register(self.__raw_socket_create)
-        self._websocket._dispatch.register(self.__raw_channel_create, "on_channel_create")
-        self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
-        self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
+        self._websocket._dispatch.register(
+            self.__raw_channel_create, "on_channel_create")
+        self._websocket._dispatch.register(
+            self.__raw_message_create, "on_message_create")
+        self._websocket._dispatch.register(
+            self.__raw_guild_create, "on_guild_create")
 
     async def __compare_sync(self, data: dict, pool: List[dict]) -> bool:
         """
@@ -132,7 +136,8 @@ class Client:
         :return: Whether the command has changed or not.
         :rtype: bool
         """
-        attrs: List[str] = ["type", "name", "description", "options", "guild_id"]
+        attrs: List[str] = ["type", "name",
+                            "description", "options", "guild_id"]
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
@@ -158,13 +163,15 @@ class Client:
         command: ApplicationCommand = ApplicationCommand(
             **(
                 await self._http.create_application_command(
-                    application_id=self.me.id, data=data, guild_id=data.get("guild_id")
+                    application_id=self.me.id, data=data, guild_id=data.get(
+                        "guild_id")
                 )
             )
         )
-        self._http.cache.interactions.add(Build(id=command.name, value=command))
+        self._http.cache.interactions.add(
+            Build(id=command.name, value=command))
 
-    async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
+    async def __bulk_update_sync(self, data: List[dict]) -> None:
         """
         Bulk updates a list of application commands during the synchronization process.
 
@@ -196,20 +203,20 @@ class Client:
 
         for guild, commands in guild_commands.items():
             log.info(
-                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been {'deleted' if delete else 'synced'}."
+                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been synced."
             )
             await self._http.overwrite_application_command(
                 application_id=self.me.id,
-                data=[] if delete else commands,
+                data=commands,
                 guild_id=guild,
             )
 
         if global_commands:
             log.info(
-                f"Global commands {', '.join(command['name'] for command in global_commands)} have been {'deleted' if delete else 'synced'}."
+                f"Global commands {', '.join(command['name'] for command in global_commands)} have been synced."
             )
             await self._http.overwrite_application_command(
-                application_id=self.me.id, data=[] if delete else global_commands
+                application_id=self.me.id, data=global_commands
             )
 
     async def _synchronize(self, payload: Optional[dict] = None) -> None:
@@ -222,27 +229,33 @@ class Client:
         cache: Optional[List[dict]] = self._http.cache.interactions.view
 
         if cache:
-            log.info("A command cache was detected, using for synchronization instead.")
+            log.info(
+                "A command cache was detected, using for synchronization instead.")
             commands: List[dict] = cache
         else:
-            log.info("No command cache was found present, retrieving from Web API instead.")
+            log.info(
+                "No command cache was found present, retrieving from Web API instead.")
             commands: Optional[Union[dict, List[dict]]] = await self._http.get_application_commands(
-                application_id=self.me.id, guild_id=payload.get("guild_id") if payload else None
+                application_id=self.me.id, guild_id=payload.get(
+                    "guild_id") if payload else None
             )
 
         # TODO: redo error handling.
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
-                raise JSONException(commands["code"], message=f'{commands["message"]} |')
+                raise JSONException(
+                    commands["code"], message=f'{commands["message"]} |')
                 # TODO: redo error handling.
         elif isinstance(commands, list):
             for command in commands:
                 if command.get("code"):
                     # Error exists.
-                    raise JSONException(command["code"], message=f'{command["message"]} |')
+                    raise JSONException(
+                        command["code"], message=f'{command["message"]} |')
 
         names: List[str] = (
-            [command["name"] for command in commands if command.get("name")] if commands else []
+            [command["name"]
+                for command in commands if command.get("name")] if commands else []
         )
         to_sync: list = []
         to_delete: list = []
@@ -255,7 +268,8 @@ class Client:
             else:
                 await self.__create_sync(payload)
         else:
-            to_delete.extend(command for command in commands if command not in cache)
+            to_delete.extend(
+                command for command in commands if command not in cache)
         if len(to_sync) >= 1:
             await self.__bulk_update_sync(to_sync + commands)
 
@@ -287,19 +301,23 @@ class Client:
                     self.me.flags.GATEWAY_PRESENCE in self.me.flags
                     or self.me.flags.GATEWAY_PRESENCE_LIMITED in self.me.flags
                 ):
-                    raise RuntimeError("Client not authorised for the GUILD_PRESENCES intent.")
+                    raise RuntimeError(
+                        "Client not authorised for the GUILD_PRESENCES intent.")
                 if self._intents.GUILD_MEMBERS in self._intents and not (
                     self.me.flags.GATEWAY_GUILD_MEMBERS in self.me.flags
                     or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED in self.me.flags
                 ):
-                    raise RuntimeError("Client not authorised for the GUILD_MEMBERS intent.")
+                    raise RuntimeError(
+                        "Client not authorised for the GUILD_MEMBERS intent.")
                 if self._intents.GUILD_MESSAGES in self._intents and not (
                     self.me.flags.GATEWAY_MESSAGE_CONTENT in self.me.flags
                     or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED in self.me.flags
                 ):
-                    log.critical("Client not authorised for the MESSAGE_CONTENT intent.")
+                    log.critical(
+                        "Client not authorised for the MESSAGE_CONTENT intent.")
             elif self._intents.value != Intents.DEFAULT.value:
-                raise RuntimeError("Client not authorised for any privileged intents.")
+                raise RuntimeError(
+                    "Client not authorised for any privileged intents.")
 
             self.__register_events()
             if self._automate_sync:
@@ -333,7 +351,8 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
+        self._websocket._dispatch.register(
+            coro, name if name is not MISSING else coro.__name__)
         return coro
 
     async def change_presence(self, presence: ClientPresence) -> None:
@@ -368,7 +387,8 @@ class Client:
             nonlocal _sub_groups_present
             _sub_groups_present = True
             if _sub_group.name is MISSING:
-                raise InteractionException(11, message="Sub command groups must have a name.")
+                raise InteractionException(
+                    11, message="Sub command groups must have a name.")
             __indent = 4
             log.debug(
                 f"{' ' * __indent}checking sub command group '{_sub_group.name}' of command '{command.name}'"
@@ -379,13 +399,15 @@ class Client:
                     message=f"The sub command group name does not match the regex for valid names ('{regex}')",
                 )
             elif _sub_group.description is MISSING and not _sub_group.description:
-                raise InteractionException(11, message="A description is required.")
+                raise InteractionException(
+                    11, message="A description is required.")
             elif len(_sub_group.description) > 100:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
             if not _sub_group.options:
-                raise InteractionException(11, message="sub command groups must have subcommands!")
+                raise InteractionException(
+                    11, message="sub command groups must have subcommands!")
             if len(_sub_group.options) > 25:
                 raise InteractionException(
                     11, message="A sub command group cannot contain more than 25 sub commands!"
@@ -397,7 +419,8 @@ class Client:
             nonlocal _sub_cmds_present
             _sub_cmds_present = True
             if _sub_command.name is MISSING:
-                raise InteractionException(11, message="sub commands must have a name!")
+                raise InteractionException(
+                    11, message="sub commands must have a name!")
             if _sub_group is not MISSING:
                 __indent = 8
                 log.debug(
@@ -414,7 +437,8 @@ class Client:
                     message=f"The sub command name does not match the regex for valid names ('{reg}')",
                 )
             elif _sub_command.description is MISSING or not _sub_command.description:
-                raise InteractionException(11, message="A description is required.")
+                raise InteractionException(
+                    11, message="A description is required.")
             elif len(_sub_command.description) > 100:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
@@ -426,15 +450,18 @@ class Client:
                     )
                 _sub_opt_names = []
                 for _opt in _sub_command.options:
-                    __check_options(Option(**_opt), _sub_opt_names, _sub_command)
+                    __check_options(
+                        Option(**_opt), _sub_opt_names, _sub_command)
                 del _sub_opt_names
 
         def __check_options(_option: Option, _names: list, _sub_command: Option = MISSING):
             nonlocal _options_names
             if getattr(_option, "autocomplete", False) and getattr(_option, "choices", False):
-                log.warning("Autocomplete may not be set to true if choices are present.")
+                log.warning(
+                    "Autocomplete may not be set to true if choices are present.")
             if _option.name is MISSING:
-                raise InteractionException(11, message="Options must have a name.")
+                raise InteractionException(
+                    11, message="Options must have a name.")
             if _sub_command is not MISSING:
                 __indent = 8 if not _sub_groups_present else 12
                 log.debug(
@@ -497,7 +524,8 @@ class Client:
                 )
 
         if command.name is MISSING:
-            raise InteractionException(11, message="Your command must have a name.")
+            raise InteractionException(
+                11, message="Your command must have a name.")
 
         else:
             log.debug(f"checking command '{command.name}':")
@@ -511,7 +539,8 @@ class Client:
         elif command.type == ApplicationCommandType.CHAT_INPUT and (
             command.description is MISSING or not command.description
         ):
-            raise InteractionException(11, message="A description is required.")
+            raise InteractionException(
+                11, message="A description is required.")
         elif command.type != ApplicationCommandType.CHAT_INPUT and (
             command.description is not MISSING and command.description
         ):
@@ -520,7 +549,8 @@ class Client:
             )
 
         elif command.description is not MISSING and len(command.description) > 100:
-            raise InteractionException(11, message="Descriptions must be less than 100 characters.")
+            raise InteractionException(
+                11, message="Descriptions must be less than 100 characters.")
 
         if command.options and command.options is not MISSING:
             if len(command.options) > 25:
@@ -550,7 +580,8 @@ class Client:
     def command(
         self,
         *,
-        type: Optional[Union[int, ApplicationCommandType]] = ApplicationCommandType.CHAT_INPUT,
+        type: Optional[Union[int, ApplicationCommandType]
+                       ] = ApplicationCommandType.CHAT_INPUT,
         name: Optional[str] = MISSING,
         description: Optional[str] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
@@ -610,22 +641,27 @@ class Client:
                 options=options,
                 default_permission=default_permission,
             )
-            self.__check_command(command=ApplicationCommand(**commands[0]), coro=coro)
+            self.__check_command(
+                command=ApplicationCommand(**commands[0]), coro=coro)
 
             if self._automate_sync:
                 if self._loop.is_running():
-                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                    [self._loop.create_task(self._synchronize(command))
+                     for command in commands]
                 else:
                     [
-                        self._loop.run_until_complete(self._synchronize(command))
+                        self._loop.run_until_complete(
+                            self._synchronize(command))
                         for command in commands
                     ]
 
             if scope is not MISSING:
                 if isinstance(scope, List):
-                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
+                    [self._scopes.add(_ if isinstance(_, int) else _.id)
+                     for _ in scope]
                 else:
-                    self._scopes.add(scope if isinstance(scope, int) else scope.id)
+                    self._scopes.add(scope if isinstance(
+                        scope, int) else scope.id)
 
             return self.event(coro, name=f"command_{name}")
 
@@ -676,10 +712,12 @@ class Client:
 
             if self._automate_sync:
                 if self._loop.is_running():
-                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                    [self._loop.create_task(self._synchronize(command))
+                     for command in commands]
                 else:
                     [
-                        self._loop.run_until_complete(self._synchronize(command))
+                        self._loop.run_until_complete(
+                            self._synchronize(command))
                         for command in commands
                     ]
 
@@ -733,10 +771,12 @@ class Client:
 
             if self._automate_sync:
                 if self._loop.is_running():
-                    [self._loop.create_task(self._synchronize(command)) for command in commands]
+                    [self._loop.create_task(self._synchronize(command))
+                     for command in commands]
                 else:
                     [
-                        self._loop.run_until_complete(self._synchronize(command))
+                        self._loop.run_until_complete(
+                            self._synchronize(command))
                         for command in commands
                     ]
 
@@ -847,7 +887,8 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
+            _command_obj: ApplicationCommand = self._http.cache.interactions.get(
+                command)
             if not _command_obj or not _command_obj.id:
                 if getattr(_command_obj, "guild_id", None) or self._automate_sync:
                     _application_commands = self._loop.run_until_complete(
@@ -858,7 +899,8 @@ class Client:
                             else _command_obj.guild_id,
                         )
                     )
-                    _command_obj = self._find_command(_application_commands, command)
+                    _command_obj = self._find_command(
+                        _application_commands, command)
                 else:
                     for _scope in self._scopes:
                         _application_commands = self._loop.run_until_complete(
@@ -866,7 +908,8 @@ class Client:
                                 application_id=self.me.id, guild_id=_scope
                             )
                         )
-                        _command_obj = self._find_command(_application_commands, command)
+                        _command_obj = self._find_command(
+                            _application_commands, command)
             _command: Union[Snowflake, int] = int(_command_obj.id)
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
@@ -915,7 +958,8 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Any:
-            payload: str = modal.custom_id if isinstance(modal, Modal) else modal
+            payload: str = modal.custom_id if isinstance(
+                modal, Modal) else modal
             return self.event(coro, name=f"modal_{payload}")
 
         return decorator
@@ -977,7 +1021,8 @@ class Client:
         extension = self._extensions.get(_name)
 
         if _name not in self._extensions:
-            log.error(f"Extension {name} has not been loaded before. Skipping.")
+            log.error(
+                f"Extension {name} has not been loaded before. Skipping.")
             return
 
         try:
@@ -987,7 +1032,8 @@ class Client:
 
         if isinstance(extension, ModuleType):  # loaded as a module
             for ext_name, ext in getmembers(
-                extension, lambda x: isinstance(x, type) and issubclass(x, Extension)
+                extension, lambda x: isinstance(
+                    x, type) and issubclass(x, Extension)
             ):
                 self.remove(ext_name)
 
@@ -1018,7 +1064,8 @@ class Client:
         extension = self._extensions.get(_name)
 
         if extension is None:
-            log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
+            log.warning(
+                f"Extension {name} could not be reloaded because it was never loaded.")
             self.load(name, package)
             return
 
@@ -1166,7 +1213,8 @@ class Extension:
                 _command = kwargs.get("command") or args[1]
 
                 _command: Union[Snowflake, int] = (
-                    _command.id if isinstance(_command, ApplicationCommand) else _command
+                    _command.id if isinstance(
+                        _command, ApplicationCommand) else _command
                 )
 
                 auto_name = f"autocomplete_{_command}_{name}"
@@ -1180,7 +1228,8 @@ class Extension:
                 func = client.modal(*args, **kwargs)(func)
 
                 modal = kwargs.get("modal") or args[0]
-                _modal_id: str = modal.custom_id if isinstance(modal, Modal) else modal
+                _modal_id: str = modal.custom_id if isinstance(
+                    modal, Modal) else modal
                 modal_name = f"modal_{_modal_id}"
 
                 listeners = self._listeners.get(modal_name, [])
