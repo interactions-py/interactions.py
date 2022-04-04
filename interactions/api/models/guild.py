@@ -1686,6 +1686,30 @@ class Guild(DictSerializerMixin):
         url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
         url += ".gif" if self.banner.startswith("a_") else ".png"
         return url
+    
+    @property
+    def splash_url(self) -> Optional[str]:
+        """
+        Returns the URL of the guild's invite splash banner.
+        :return: URL of the guild's invite splash banner (None will be returned if no banner is set)
+        :rtype: str
+        """
+        if not self.banner:
+            return None
+
+        return f"https://cdn.discordapp.com/splashes/{int(self.id)}/{self.splash}.png"
+    
+    @property
+    def discovery_splash_url(self) -> Optional[str]:
+        """
+        Returns the URL of the guild's discovery splash banner.
+        :return: URL of the guild's discovery splash banner (None will be returned if no banner is set)
+        :rtype: str
+        """
+        if not self.banner:
+            return None
+
+        return f"https://cdn.discordapp.com/discovery-splashes/{int(self.id)}/{self.discovery_splash}.png"
 
 
 class GuildPreview(DictSerializerMixin):
