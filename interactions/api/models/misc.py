@@ -38,12 +38,12 @@ class DictSerializerMixin(object):
         # for key in kwargs:
         #    setattr(self, key, kwargs[key])
 
-        for key in kwargs:
+        for key in list(kwargs):
             if key in self.__slots__ if hasattr(self, "__slots__") else True:
                 # else case if the mixin is used outside of this library and/or SDK.
                 setattr(self, key, kwargs[key])
             else:
-                log.warning(
+                log.info(
                     f"Attribute {key} is missing from the {self.__class__.__name__} data model, skipping."
                 )
                 # work on message printout? Effective, but I think it should be a little bit more friendly

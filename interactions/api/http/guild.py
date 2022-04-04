@@ -507,14 +507,35 @@ class _GuildRequest:
             reason=reason,
         )
 
-    async def get_guild_bans(self, guild_id: int) -> List[dict]:
+    async def get_guild_bans(
+        self,
+        guild_id: int,
+        limit: Optional[int] = 1000,
+        before: Optional[int] = None,
+        after: Optional[int] = None,
+    ) -> List[dict]:
         """
         Gets a list of banned users.
 
+        .. note::
+            If both ``before`` and ``after`` are provided, only ``before`` is respected.
+
         :param guild_id: Guild ID snowflake.
+        :param limit: Number of users to return. Defaults to 1000.
+        :param before: Consider only users before the given User ID snowflake.
+        :param after: Consider only users after the given User ID snowflake.
         :return: A list of banned users.
         """
-        return await self._req.request(Route("GET", f"/guilds/{guild_id}/bans"))
+
+        params = {}
+        if limit is not None:
+            params["limit"] = limit
+        if before:
+            params["before"] = before
+        if after:
+            params["after"] = after
+
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/bans"), params=params)
 
     async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]:
         """

@@ -38,6 +38,10 @@ class EventStatus(IntEnum):
     COMPLETED: int
     CANCELED: int
 
+class InviteTargetType(IntEnum):
+    STREAM: int
+    EMBEDDED_APPLICATION: int
+
 class WelcomeChannels(DictSerializerMixin):
     _json: dict
     channel_id: int
@@ -131,6 +135,7 @@ class Guild(DictSerializerMixin):
     lazy: Any
     application_command_counts: Any
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     async def ban(
         self,
         member_id: int,
@@ -231,6 +236,9 @@ class Guild(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def modify_member(
@@ -404,6 +412,9 @@ class Guild(DictSerializerMixin):
         query: str,
         limit: Optional[int] = 1
     ) -> List[Member]: ...
+    async def get_all_members(self) -> List[Member]: ...
+    @property
+    def icon_url(self) -> str: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict
@@ -432,6 +443,7 @@ class Invite(DictSerializerMixin):
     temporary: bool
     created_at: datetime
     def __init__(self, **kwargs): ...
+    async def delete(self) -> None: ...
 
 class GuildTemplate(DictSerializerMixin):
     _json: dict

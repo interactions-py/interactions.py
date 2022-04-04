@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-from ...models.component import ActionRow, Button, SelectMenu
+from ...client.models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
@@ -726,7 +726,7 @@ class Presence(DictSerializerMixin):
     :ivar ClientStatus client_status: The client status across platforms in the event.
     """
 
-    __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status")
+    __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status", "_client")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
