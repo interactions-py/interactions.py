@@ -7,7 +7,7 @@ from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, TypeVar, Union
 
 from ..api import Cache
 from ..api import Item as Build
@@ -18,6 +18,7 @@ from ..api.models.flags import Intents
 from ..api.models.guild import Guild
 from ..api.models.misc import MISSING, Snowflake
 from ..api.models.presence import ClientPresence
+from ..api.models.role import Role
 from ..api.models.team import Application
 from ..base import get_logger
 from .decor import command
@@ -26,6 +27,7 @@ from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
+T = TypeVar("T")
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
@@ -362,6 +364,55 @@ class Client:
         :type presence: ClientPresence
         """
         await self._websocket._update_presence(presence)
+
+    async def get(
+        self, model: T, http_method: Optional[str] = None, **kwargs: Dict[str, Snowflake]
+    ) -> T:
+        """
+        A helper function for getting a model from the Discord API.
+
+        :param model: The model to get.
+        :type model: object
+        :param http_method: The HTTP method to use instead of `get_x`.
+        :type http_method: Optional[str]
+        :param kwargs: The arguments to pass to the HTTP method.
+        :type kwargs: Dict[str, Snowflake]
+        :return: The model.
+        :rtype: object
+        """
+        if model is Role:
+            if not kwargs.get("guild_id") and kwargs.get("role_id"):
+                raise TypeError(
+                    "Client.get() missing some of the following required keyword arguments: guild_id, role_id."
+                )
+            try:
+                roles: List[dict] = await self._http.get_all_roles(int(kwargs["guild_id"]))
+            except TypeError as e:
+                raise ValueError("Invalid guild_id provided.") from e
+            role = next((_role for _role in roles if _role["id"] == str(kwargs["role_id"])), None)
+            if role is None:
+                raise ValueError("Role not found.")
+            return Role(**role, _client=self._http)
+        else:
+            class_name: str = model.__name__.removesuffix("s")
+            try:
+                _http_method: Coroutine = getattr(
+                    self._http, http_method or f"get_{class_name.lower()}"
+                )
+            except AttributeError as e:
+                raise ValueError(f"Client.get() does not support the model {class_name}.") from e
+            try:
+                res: Union[dict, List[dict]] = await _http_method(**kwargs)
+            except TypeError as e:
+                raise ValueError(
+                    f"Client.get() could not find a {class_name} with the given IDs."
+                ) from e
+            if isinstance(res, dict):
+                return model(**res, _client=self._http)
+            elif isinstance(res, list):
+                return [model(**r, _client=self._http) for r in res]
+            else:
+                return res
 
     def __check_command(
         self,

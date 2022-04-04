@@ -1,19 +1,37 @@
 from asyncio import AbstractEventLoop
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Coroutine,
+    Dict,
+    List,
+    Optional,
+    overload,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from ..api.cache import Cache
 from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
+from ..api.models.channel import Channel
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
+from ..api.models.member import Member
+from ..api.models.message import Message
 from ..api.models.misc import MISSING, Snowflake
 from ..api.models.presence import ClientPresence
+from ..api.models.role import Role
 from ..api.models.team import Application
+from ..api.models.user import User
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
+T = TypeVar("T")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
@@ -51,12 +69,58 @@ class Client:
     async def wait_until_ready(self) -> None: ...
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]: ...
     def change_presence(self, presence: ClientPresence) -> None: ...
+    @overload
+    async def get(
+        self, model: Type[Channel], http_method: Optional[str] = None, *, channel_id: Snowflake
+    ) -> Channel: ...
+    @overload
+    async def get(
+        self, model: Type[Guild], http_method: Optional[str] = None, *, guild_id: Snowflake
+    ) -> Guild: ...
+    @overload
+    async def get(
+        self,
+        model: Type[Member],
+        http_method: Optional[str] = None,
+        *,
+        guild_id: Snowflake,
+        member_id: Snowflake,
+    ) -> Member: ...
+    @overload
+    async def get(
+        self,
+        model: Type[Message],
+        http_method: Optional[str] = None,
+        *,
+        channel_id: Snowflake,
+        message_id: Snowflake,
+    ) -> Message: ...
+    @overload
+    async def get(
+        self,
+        model: Type[Role],
+        http_method: Optional[str] = None,
+        *,
+        guild_id: Snowflake,
+        role_id: Snowflake,
+    ) -> Role: ...
+    @overload
+    async def get(
+        self,
+        model: Type[User],
+        http_method: Optional[str] = None,
+        *,
+        user_id: Optional[Snowflake] = None,
+    ) -> User: ...
+    async def get(
+        self, model: T, http_method: Optional[str] = None, **kwargs: Dict[str, Snowflake]
+    ) -> T: ...
     def __check_command(
         self,
         command: ApplicationCommand,
         coro: Coroutine,
         regex: str = r"^[a-z0-9_-]{1,32}$",
-    )-> None: ...
+    ) -> None: ...
     def command(
         self,
         *,
@@ -67,7 +131,7 @@ class Client:
         options: Optional[List[Option]] = MISSING,
         default_permission: Optional[bool] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-        description_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
@@ -75,7 +139,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
@@ -83,7 +147,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
