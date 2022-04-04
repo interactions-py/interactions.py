@@ -164,7 +164,7 @@ class Client:
         )
         self._http.cache.interactions.add(Build(id=command.name, value=command))
 
-    async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
+    async def __bulk_update_sync(self, data: List[dict]) -> None:
         """
         Bulk updates a list of application commands during the synchronization process.
 
@@ -196,20 +196,20 @@ class Client:
 
         for guild, commands in guild_commands.items():
             log.info(
-                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been {'deleted' if delete else 'synced'}."
+                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been synced."
             )
             await self._http.overwrite_application_command(
                 application_id=self.me.id,
-                data=[] if delete else commands,
+                data= commands,
                 guild_id=guild,
             )
 
         if global_commands:
             log.info(
-                f"Global commands {', '.join(command['name'] for command in global_commands)} have been {'deleted' if delete else 'synced'}."
+                f"Global commands {', '.join(command['name'] for command in global_commands)} have been synced."
             )
             await self._http.overwrite_application_command(
-                application_id=self.me.id, data=[] if delete else global_commands
+                application_id=self.me.id, data= global_commands
             )
 
     async def _synchronize(self, payload: Optional[dict] = None) -> None:
