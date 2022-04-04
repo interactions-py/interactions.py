@@ -378,7 +378,7 @@ class WebSocketClient:
                 _context = "ComponentContext"
 
             data["client"] = self._http
-            context: object = getattr(__import__("interactions.context"), _context)
+            context: object = getattr(__import__("interactions.client.context"), _context)
 
             return context(**data)
 
