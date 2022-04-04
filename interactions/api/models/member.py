@@ -370,7 +370,7 @@ class Member(DictSerializerMixin):
             user_id=int(self.user.id),
             thread_id=thread_id,
         )
-        
+
     def get_member_avatar_url(self, guild_id: int) -> Optional[str]:
         """
         Returns the URL of the member's avatar for the specified guild.

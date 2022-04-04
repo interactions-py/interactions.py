@@ -1672,7 +1672,7 @@ class Guild(DictSerializerMixin):
         url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
         url += ".gif" if self.icon.startswith("a_") else ".png"
         return url
-    
+
     @property
     def banner_url(self) -> Optional[str]:
         """
@@ -1686,7 +1686,7 @@ class Guild(DictSerializerMixin):
         url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
         url += ".gif" if self.banner.startswith("a_") else ".png"
         return url
-    
+
     @property
     def splash_url(self) -> Optional[str]:
         """
@@ -1698,7 +1698,7 @@ class Guild(DictSerializerMixin):
             return None
 
         return f"https://cdn.discordapp.com/splashes/{int(self.id)}/{self.splash}.png"
-    
+
     @property
     def discovery_splash_url(self) -> Optional[str]:
         """

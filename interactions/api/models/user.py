@@ -90,7 +90,7 @@ class User(DictSerializerMixin):
         else:
             url += f"embed/avatars/{int(self.discriminator) % 5}.png"
         return url
-    
+
     @property
     def banner_url(self) -> Optional[str]:
         """
