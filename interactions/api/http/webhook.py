@@ -119,13 +119,13 @@ class _WebhookRequest:
         :return: The message sent, if wait=True, else None.
         """
 
-        dct = {"wait": "true" if wait else "false"}
+        params = {"wait": "true" if wait else "false"}
         if thread_id:
-            dct["thread_id"] = thread_id
+            params["thread_id"] = thread_id
 
         return await self._req.request(
             Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"),
-            params=dct,
+            params=params,
             json=payload,
         )
 
