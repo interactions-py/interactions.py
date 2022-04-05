@@ -1,8 +1,10 @@
 from typing import List, Optional, Union
 
+from aiohttp import MultipartWriter
+
 from ...api.cache import Cache, Item
 from ..models.message import Embed, Message
-from ..models.misc import Snowflake
+from ..models.misc import MISSING, File, Snowflake
 from .request import _Request
 from .route import Route
 
@@ -56,16 +58,38 @@ class _MessageRequest:
 
         return await self.create_message(payload, channel_id)
 
-    async def create_message(self, payload: dict, channel_id: int) -> dict:
+    async def create_message(
+        self, payload: dict, channel_id: int, files: Optional[List[File]] = MISSING
+    ) -> dict:
         """
         Send a message to the specified channel.
 
         :param payload: Dictionary contents of a message. (i.e. message payload)
         :param channel_id: Channel snowflake ID.
+        :param files: An optional list of files to send attached to the message.
         :return dict: Dictionary representing a message (?)
         """
+
+        data = None
+        if files is not MISSING and len(files) > 0:
+
+            data = MultipartWriter("form-data")
+            part = data.append_json(payload)
+            part.set_content_disposition("form-data", name="payload_json")
+            payload = None
+
+            for id, file in enumerate(files):
+                part = data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name="files[" + str(id) + "]", filename=file._filename
+                )
+
         request = await self._req.request(
-            Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), json=payload
+            Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id),
+            json=payload,
+            data=data,
         )
         if request.get("id"):
             self.cache.messages.add(Item(id=request["id"], value=Message(**request)))

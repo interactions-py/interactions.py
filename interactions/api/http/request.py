@@ -98,6 +98,7 @@ class _Request:
         """
 
         kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
+
         if kwargs.get("json"):
             kwargs["headers"]["Content-Type"] = "application/json"
 
