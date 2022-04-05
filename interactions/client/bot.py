@@ -391,7 +391,7 @@ class Client:
                     return Role(**role, _client=self._http)
             raise ValueError("Role not found.")
         elif __obj is not List:
-            class_name: str = __obj.__name__.removesuffix("s")
+            class_name: str = __obj.__name__
             try:
                 _http_method: Coroutine = getattr(
                     self._http, http_method or f"get_{class_name.lower()}"
