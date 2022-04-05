@@ -269,7 +269,7 @@ class JSONException(InteractionException):
             "or channel names contain words that are not allowed",
             20035: "Guild premium subscription level too low",
             30001: "Maximum number of guilds reached (100)",
-            30002: "Maximum number of friends reached(1000)",
+            30002: "Maximum number of friends reached (1000)",
             30003: "Maximum number of pins reached for the channel (50)",
             30004: "Maximum number of recipients reached (10)",
             30005: "Maximum number of guild roles reached (250)",
