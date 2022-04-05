@@ -5,7 +5,7 @@ from typing import List, Optional, Union, Callable
 from .guild import Invite, InviteTargetType
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
-from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING
+from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING, File
 from .user import User
 from ..http.client import HTTPClient
 
@@ -77,7 +77,7 @@ class Channel(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
@@ -103,6 +103,9 @@ class Channel(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel": ...
     async def set_name(
@@ -152,6 +155,24 @@ class Channel(DictSerializerMixin):
         nsfw: bool,
         *,
         reason: Optional[str] = None
+    ) -> "Channel": ...
+    async def archive(
+        self,
+        archived: bool = True,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel": ...
+    async def set_auto_archive_duration(
+        self,
+        auto_archive_duration: int,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Channel": ...
+    async def lock(
+        self,
+        locked: bool = True,
+        *,
+        reason: Optional[str] = None,
     ) -> "Channel": ...
     async def add_member(
         self,
