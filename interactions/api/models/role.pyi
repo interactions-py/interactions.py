@@ -8,6 +8,8 @@ class RoleTags(DictSerializerMixin):
     bot_id: Optional[Snowflake]
     integration_id: Optional[Snowflake]
     premium_subscriber: Optional[Any]
+    subscription_listing_id: Optional[Snowflake]
+    purchasable_or_has_subscribers: Optional[Any]
     def __init__(self, **kwargs): ...
 
 class Role(DictSerializerMixin):

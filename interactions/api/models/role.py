@@ -10,11 +10,20 @@ class RoleTags(DictSerializerMixin):
     :ivar Optional[Snowflake] bot_id?: The id of the bot this role belongs to
     :ivar Optional[Snowflake] integration_id?: The id of the integration this role belongs to
     :ivar Optional[Any] premium_subscriber?: Whether if this is the guild's premium subscriber role
+    :ivar Optional[Snowflake] subscription_listing_id?: The id of the linked premium membership role, if any.
     """
 
-    __slots__ = ("_json", "id", "bot_id", "integration_id", "premium_subscriber")
+    __slots__ = (
+        "_json",
+        "id",
+        "bot_id",
+        "integration_id",
+        "premium_subscriber",
+        "subscription_listing_id",
+        "purchasable_or_has_subscribers",
+    )
 
-    # TODO: Figure out what actual type it returns, all it says is null.
+    # TODO: Figure out what actual type it returns by Discord.
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -22,6 +31,11 @@ class RoleTags(DictSerializerMixin):
         self.bot_id = Snowflake(self.bot_id) if self._json.get("bot_id") else None
         self.integration_id = (
             Snowflake(self.integration_id) if self._json.get("integration_id") else None
+        )
+        self.subscription_listing_id = (
+            Snowflake(self.subscription_listing_id)
+            if self._json.get("subscription_listing_id")
+            else None
         )
 
 
