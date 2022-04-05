@@ -370,3 +370,18 @@ class Member(DictSerializerMixin):
             user_id=int(self.user.id),
             thread_id=thread_id,
         )
+
+    def get_member_avatar_url(self, guild_id: int) -> Optional[str]:
+        """
+        Returns the URL of the member's avatar for the specified guild.
+        :param guild_id: The id of the guild to get the member's avatar from
+        :type guild_id: int
+        :return: URL of the members's avatar (None will be returned if no avatar is set)
+        :rtype: str
+        """
+        if not self.avatar:
+            return None
+
+        url = f"https://cdn.discordapp.com/guilds/{guild_id}/users/{int(self.user.id)}/avatars/{self.avatar}"
+        url += ".gif" if self.avatar.startswith("a_") else ".png"
+        return url
