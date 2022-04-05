@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel
 from .member import Member
-from .misc import DictSerializerMixin, MISSING, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake, File
 from .role import Role
 from .team import Application
 from .user import User
@@ -99,7 +99,7 @@ class Message(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # file: Optional[FileIO] = None,
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional["MessageReference"] = MISSING,
@@ -116,11 +116,11 @@ class Message(DictSerializerMixin):
     ) -> "Message": ...
 
     async def reply(
-            self,
+        self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         components: Optional[

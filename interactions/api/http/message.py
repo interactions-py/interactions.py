@@ -143,16 +143,35 @@ class _MessageRequest:
 
         return await self._req.request(r, json=payload, reason=reason)
 
-    async def edit_message(self, channel_id: int, message_id: int, payload: dict) -> dict:
+    async def edit_message(
+        self, channel_id: int, message_id: int, payload: dict, files: Optional[List[File]] = MISSING
+    ) -> dict:
         """
         Edits a message that already exists.
 
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param payload: Any new data that needs to be changed.
+        :param files: An optional list of files to send attached to the message.
         :type payload: dict
         :return: A message object with edited attributes.
         """
+        data = None
+        if files is not MISSING and len(files) > 0:
+
+            data = MultipartWriter("form-data")
+            part = data.append_json(payload)
+            part.set_content_disposition("form-data", name="payload_json")
+            payload = None
+
+            for id, file in enumerate(files):
+                part = data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name="files[" + str(id) + "]", filename=file._filename
+                )
+
         return await self._req.request(
             Route(
                 "PATCH",
@@ -161,6 +180,7 @@ class _MessageRequest:
                 message_id=message_id,
             ),
             json=payload,
+            data=data,
         )
 
     async def pin_message(self, channel_id: int, message_id: int) -> None:

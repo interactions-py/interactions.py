@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from .misc import DictSerializerMixin, MISSING, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake, File
 from .role import Role
 from .user import User
 from .flags import Permissions
@@ -71,7 +71,7 @@ class Member(DictSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List["Embed"]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
     ) -> Message: ...
