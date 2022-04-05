@@ -368,15 +368,15 @@ class Client:
     async def get(
         self, model: T, http_method: Optional[str] = None, **kwargs: Dict[str, Snowflake]
     ) -> T:
-        """
+        r"""
         A helper function for getting a model from the Discord API.
 
         :param model: The model to get.
         :type model: object
         :param http_method: The HTTP method to use instead of `get_x`.
         :type http_method: Optional[str]
-        :param kwargs: The arguments to pass to the HTTP method.
-        :type kwargs: Dict[str, Snowflake]
+        :param \**kwargs: The arguments to pass to the HTTP method.
+        :type \**kwargs: Dict[str, Snowflake]
         :return: The model.
         :rtype: object
         """
