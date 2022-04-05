@@ -213,6 +213,7 @@ class Guild(DictSerializerMixin):
     :ivar int nsfw_level: The NSFW safety filter level of the guild.
     :ivar Optional[List[StageInstance]] stage_instances?: The stage instance of the guild.
     :ivar Optional[List[Sticker]] stickers?: The list of stickers from the guild.
+    :ivar Optional[bool] premium_progress_bar_enabled?: Whether the guild has the boost progress bar enabled.
     """
 
     __slots__ = (
@@ -268,13 +269,13 @@ class Guild(DictSerializerMixin):
         "nsfw_level",
         "stage_instances",
         "stickers",
+        "premium_progress_bar_enabled",
         # TODO: post-v4: Investigate all of these once Discord has them all documented.
         "guild_hashes",
         "embedded_activities",
         "guild_scheduled_events",
         "nsfw",
         "application_command_count",
-        "premium_progress_bar_enabled",
         "hub_type",
         "lazy",  # lol what?
         "application_command_counts",
