@@ -2,7 +2,7 @@ from typing import List, Optional, Union
 
 from ...api.cache import Cache
 from ..models.message import Embed, Message
-from ..models.misc import Snowflake, File
+from ..models.misc import Snowflake, File, MISSING
 from .request import _Request
 
 
@@ -31,7 +31,9 @@ class _MessageRequest:
     async def delete_messages(
             self, channel_id: int, message_ids: List[int], reason: Optional[str] = None
     ) -> None: ...
-    async def edit_message(self, channel_id: int, message_id: int, payload: dict) -> dict: ...
+    async def edit_message(
+            self, channel_id: int, message_id: int, payload: dict, files: Optional[List[File]] = MISSING
+    ) -> dict: ...
     async def pin_message(self, channel_id: int, message_id: int) -> None: ...
     async def unpin_message(self, channel_id: int, message_id: int) -> None: ...
     async def publish_message(self, channel_id: int, message_id: int) -> dict: ...
