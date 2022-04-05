@@ -7,31 +7,22 @@ from typing import (
     Dict,
     List,
     Optional,
-    overload,
     Tuple,
-    Type,
-    TypeVar,
     Union,
 )
 
 from ..api.cache import Cache
 from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
-from ..api.models.channel import Channel
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
-from ..api.models.member import Member
-from ..api.models.message import Message
 from ..api.models.misc import MISSING, Snowflake
 from ..api.models.presence import ClientPresence
-from ..api.models.role import Role
 from ..api.models.team import Application
-from ..api.models.user import User
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
-T = TypeVar("T")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
@@ -69,52 +60,7 @@ class Client:
     async def wait_until_ready(self) -> None: ...
     def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]: ...
     def change_presence(self, presence: ClientPresence) -> None: ...
-    @overload
-    async def get(
-        self, model: Type[Channel], http_method: Optional[str] = None, *, channel_id: Snowflake
-    ) -> Channel: ...
-    @overload
-    async def get(
-        self, model: Type[Guild], http_method: Optional[str] = None, *, guild_id: Snowflake
-    ) -> Guild: ...
-    @overload
-    async def get(
-        self,
-        model: Type[Member],
-        http_method: Optional[str] = None,
-        *,
-        guild_id: Snowflake,
-        member_id: Snowflake,
-    ) -> Member: ...
-    @overload
-    async def get(
-        self,
-        model: Type[Message],
-        http_method: Optional[str] = None,
-        *,
-        channel_id: Snowflake,
-        message_id: Snowflake,
-    ) -> Message: ...
-    @overload
-    async def get(
-        self,
-        model: Type[Role],
-        http_method: Optional[str] = None,
-        *,
-        guild_id: Snowflake,
-        role_id: Snowflake,
-    ) -> Role: ...
-    @overload
-    async def get(
-        self,
-        model: Type[User],
-        http_method: Optional[str] = None,
-        *,
-        user_id: Optional[Snowflake] = None,
-    ) -> User: ...
-    async def get(
-        self, model: T, http_method: Optional[str] = None, **kwargs: Dict[str, Snowflake]
-    ) -> T: ...
+    async def get(self, __obj: object, http_method: Optional[str] = None, **kwargs) -> object: ...
     def __check_command(
         self,
         command: ApplicationCommand,
