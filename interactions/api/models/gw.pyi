@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Any
 
-from ...models.command import Permission
 from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
@@ -12,7 +11,7 @@ from .role import Role
 from .user import User
 from .team import Application
 
-from ..http.http import HTTPClient
+from ..http.client import HTTPClient
 from ...models.command import Permission
 
 class ApplicationCommandPermissions(DictSerializerMixin):
