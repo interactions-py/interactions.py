@@ -354,7 +354,7 @@ But how to send it? You can't use ``ctx.send`` for it. Take a look at :ref:`Moda
 
 Modals
 ******
-Modals are a new way to interact with a user. Currently only a ``TextInput`` component is supported. You can have up to three ``TextInput`` in a Modal.
+Modals are a new way to interact with a user. Currently only a ``TextInput`` component is supported. You can have up to five ``TextInput`` in a Modal.
 
 .. code-block:: python
 

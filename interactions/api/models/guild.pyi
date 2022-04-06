@@ -236,6 +236,9 @@ class Guild(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def modify_member(
@@ -393,7 +396,7 @@ class Guild(DictSerializerMixin):
         self,
         emoji_id: int
     ) -> Emoji: ...
-    async def get_all_emojis(self) -> List[Emoji]: ...
+    async def get_all_emoji(self) -> List[Emoji]: ...
     async def delete_emoji(
         self,
         emoji: Union[Emoji, int],
@@ -409,6 +412,15 @@ class Guild(DictSerializerMixin):
         query: str,
         limit: Optional[int] = 1
     ) -> List[Member]: ...
+    async def get_all_members(self) -> List[Member]: ...
+    @property
+    def icon_url(self) -> Optional[str]: ...
+    @property
+    def banner_url(self) -> Optional[str]: ...
+    @property
+    def splash_url(self) -> Optional[str]: ...
+    @property
+    def discovery_splash_url(self) -> Optional[str]: ...
 
 class GuildPreview(DictSerializerMixin):
     _json: dict

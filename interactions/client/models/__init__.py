@@ -1,5 +1,5 @@
 """
-interactions.models
+interactions.client.models
 
 This section of the library maintains
 and stores all of the data defining

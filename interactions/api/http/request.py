@@ -98,7 +98,9 @@ class _Request:
         """
 
         kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
-        kwargs["headers"]["Content-Type"] = "application/json"
+
+        if kwargs.get("json"):
+            kwargs["headers"]["Content-Type"] = "application/json"
 
         reason = kwargs.pop("reason", None)
         if reason:
@@ -165,15 +167,16 @@ class _Request:
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
                         raise HTTPException(data["code"], message=data["message"])
-                    elif remaining and not int(remaining):
-                        if response.status == 429:
+
+                    if response.status == 429:
+                        if not is_global:
                             log.warning(
                                 f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
                             )
                             _limiter.reset_after = reset_after
                             await asyncio.sleep(_limiter.reset_after)
                             continue
-                        elif is_global:
+                        else:
                             log.warning(
                                 f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
                             )
@@ -181,6 +184,11 @@ class _Request:
                             self._loop.call_later(
                                 self._global_lock.reset_after, self._global_lock.lock.release
                             )
+                    if remaining is not None and int(remaining) == 0:
+                        log.warning(
+                            f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
+                        )
+                        self._loop.call_later(reset_after, _limiter.release_lock())
 
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
 
