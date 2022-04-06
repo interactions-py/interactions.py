@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from typing import Optional, Union
-from io import IOBase
+from io import IOBase, FileIO
 
 log: logging.Logger
 
@@ -74,3 +74,11 @@ class File(object):
         description: Optional[str] = MISSING
     ) -> None: ...
     def _json_payload(self, id) -> dict: ...
+
+class Image(object):
+
+    _URI: str
+
+    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING): ...
+    @property
+    def data(self) -> str: ...

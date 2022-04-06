@@ -1,10 +1,13 @@
 # TODO: This is post-v4.
-# TODO: Reorganise these models based on which big obj uses little obj
-# TODO: Potentially rename some model references to enums, if applicable
-# TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.
+#   Reorganise these models based on which big obj uses little obj
+#   Potentially rename some model references to enums, if applicable
+#   Reorganise mixins to its own thing, currently placed here because circular import sucks.
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
+# pycharm says serializer for me /shrug
+
 import datetime
-from io import IOBase
+from base64 import b64encode
+from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
@@ -240,7 +243,7 @@ class File(object):
     """
     A File object to be sent as an attachment along with a message.
 
-    If an fp is not given, this will try to open & send a local file at the location
+    If a fp is not given, this will try to open & send a local file at the location
     specified in the 'filename' parameter.
 
     .. note::
@@ -270,3 +273,39 @@ class File(object):
 
     def _json_payload(self, id):
         return {"id": id, "description": self._description, "filename": self._filename}
+
+
+class Image(object):
+    """
+    This class object allows you to upload Images to the Discord API.
+
+    If a fp is not given, this will try to open & send a local file at the location
+    specified in the 'file' parameter.
+    """
+
+    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING):
+
+        self._URI = "data:image/"
+
+        if fp is MISSING or isinstance(file, FileIO):
+            file: FileIO = FileIO(file) if not isinstance(file, FileIO) else file
+
+            _name = file.name
+            _file = file.read()
+
+        else:
+            _name = file
+            _file = fp
+
+        if (
+            not _name.endswith(".jpeg")
+            and not _name.endswith(".png")
+            and not _name.endswith(".gif")
+        ):
+            raise ValueError("File type must be jpeg, png or gif!")
+
+        self._URI += f"{'jpeg' if _name.endswith('jpeg') else _name[-3:]};base64,{b64encode(_file).decode('utf-8')}"
+
+    @property
+    def data(self) -> str:
+        return self._URI
