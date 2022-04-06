@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
+from .misc import MISSING, DictSerializerMixin, Image, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -966,11 +966,11 @@ class Guild(DictSerializerMixin):
         explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
         afk_channel_id: Optional[int] = MISSING,
         afk_timeout: Optional[int] = MISSING,
-        # icon, TODO: implement images
+        icon: Optional[Image] = MISSING,
         owner_id: Optional[int] = MISSING,
-        # splash, TODO: implement images
-        # discovery_splash, TODO: implement images
-        # banner, TODO: implement images
+        splash: Optional[Image] = MISSING,
+        discovery_splash: Optional[Image] = MISSING,
+        banner: Optional[Image] = MISSING,
         system_channel_id: Optional[int] = MISSING,
         suppress_join_notifications: Optional[bool] = MISSING,
         suppress_premium_subscriptions: Optional[bool] = MISSING,
@@ -998,8 +998,16 @@ class Guild(DictSerializerMixin):
         :type afk_channel_id: Optional[int]
         :param afk_timeout?: Afk timeout in seconds
         :type afk_timeout: Optional[int]
+        :param icon?: 1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when the server has the ANIMATED_ICON feature)
+        :type icon: Optional[Image]
         :param owner_id?: The id of the user to transfer the guild ownership to. You must be the owner to perform this
         :type owner_id: Optional[int]
+        :param splash?: 16:9 png/jpeg image for the guild splash (when the server has the INVITE_SPLASH feature)
+        :type splash: Optional[Image]
+        :param discovery_splash?: 16:9 png/jpeg image for the guild discovery splash (when the server has the DISCOVERABLE feature)
+        :type discovery_splash: Optional[Image]
+        :param banner?: 16:9 png/jpeg image for the guild banner (when the server has the BANNER feature; can be animated gif when the server has the ANIMATED_BANNER feature)
+        :type banner: Optional[Image]
         :param system_channel_id?: The id of the channel where guild notices such as welcome messages and boost events are posted
         :type system_channel_id: Optional[int]
         :param suppress_join_notifications?: Whether to suppress member join notifications in the system channel or not
@@ -1084,6 +1092,16 @@ class Guild(DictSerializerMixin):
             payload["description"] = description
         if premium_progress_bar_enabled is not MISSING:
             payload["premium_progress_bar_enabled"] = premium_progress_bar_enabled
+        if icon is not MISSING:
+            payload["icon"] = icon.data if isinstance(icon, Image) else icon  # in case it is `None`
+        if splash is not MISSING:
+            payload["splash"] = splash.data if isinstance(splash, Image) else splash
+        if discovery_splash is not MISSING:
+            payload["discovery_splash"] = (
+                splash.data if isinstance(discovery_splash, Image) else discovery_splash
+            )
+        if banner is not MISSING:
+            payload["banner"] = banner.data if isinstance(banner, Image) else banner
 
         res = await self._client.modify_guild(
             guild_id=int(self.id),
