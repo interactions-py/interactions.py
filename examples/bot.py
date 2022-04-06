@@ -54,9 +54,6 @@ async def hello_world(ctx: interactions.CommandContext):
     # The interaction response should be the LAST thing you do when a command is ran.
     await ctx.send("hello world!")
 
-    # Because of this, this line of code right here will not execute.
-    print("we ran.")
-
 
 # After we've declared all of the bot code we want, we need to tell the library to run our bot.
 # In this example, we've decided to do some things in a different way without explicitly saying it:
