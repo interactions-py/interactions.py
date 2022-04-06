@@ -361,6 +361,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
         ) -> "ScheduledEvents": ...
     async def modify_scheduled_event(
@@ -373,6 +374,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents": ...
     async def delete_scheduled_event(

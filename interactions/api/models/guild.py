@@ -1320,6 +1320,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -1339,6 +1340,8 @@ class Guild(DictSerializerMixin):
         :type channel_id: Optional[int]
         :param description?: The description of the scheduled event
         :type description: Optional[str]
+        :param image?: The cover image of the scheduled event
+        :type image?: Optional[Image]
         :return: The created event
         :rtype: ScheduledEvents
         """
@@ -1372,6 +1375,8 @@ class Guild(DictSerializerMixin):
             payload["channel_id"] = channel_id
         if description is not MISSING:
             payload["description"] = description
+        if image is not MISSING:
+            payload["image"] = image.data if isinstance(image, Image) else image
 
         res = await self._client.create_scheduled_event(
             guild_id=self.id,
@@ -1390,6 +1395,7 @@ class Guild(DictSerializerMixin):
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
         status: Optional[EventStatus] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -1413,6 +1419,8 @@ class Guild(DictSerializerMixin):
         :type description: Optional[str]
         :param status?: The status of the scheduled event
         :type status: Optional[EventStatus]
+        :param image?: The cover image of the scheduled event
+        :type image?: Optional[Image]
         :return: The modified event
         :rtype: ScheduledEvents
         """
@@ -1445,6 +1453,8 @@ class Guild(DictSerializerMixin):
             payload["description"] = description
         if status is not MISSING:
             payload["status"] = status
+        if image is not MISSING:
+            payload["image"] = image.data if isinstance(image, Image) else image
 
         res = await self._client.modify_scheduled_event(
             guild_id=self.id,
