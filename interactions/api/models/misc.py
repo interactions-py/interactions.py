@@ -4,9 +4,11 @@
 # TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 import datetime
+from io import IOBase
 from logging import Logger
 from math import floor
-from typing import Union
+from os.path import basename
+from typing import Optional, Union
 
 from interactions.base import get_logger
 
@@ -232,3 +234,39 @@ class MISSING:
     """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
 
     ...
+
+
+class File(object):
+    """
+    A File object to be sent as an attachment along with a message.
+
+    If an fp is not given, this will try to open & send a local file at the location
+    specified in the 'filename' parameter.
+
+    .. note::
+        If a description is not given the file's basename is used instead.
+    """
+
+    def __init__(
+        self, filename: str, fp: Optional[IOBase] = MISSING, description: Optional[str] = MISSING
+    ):
+
+        if not isinstance(filename, str):
+            raise TypeError(
+                "File's first parameter 'filename' must be a string, not " + str(type(filename))
+            )
+
+        if not fp or fp is MISSING:
+            self._fp = open(filename, "rb")
+        else:
+            self._fp = fp
+
+        self._filename = basename(filename)
+
+        if not description or description is MISSING:
+            self._description = self._filename
+        else:
+            self._description = description
+
+    def _json_payload(self, id):
+        return {"id": id, "description": self._description, "filename": self._filename}

@@ -1660,16 +1660,56 @@ class Guild(DictSerializerMixin):
         return [Member(**_, _client=self._client) for _ in _all_members]
 
     @property
-    def icon_url(self) -> str:
+    def icon_url(self) -> Optional[str]:
         """
         Returns the URL of the guild's icon.
-        :return: URL of the guild's icon (None will be returned if none of icon is set)
+        :return: URL of the guild's icon (None will be returned if no icon is set)
         :rtype: str
         """
-        if self.icon is not None:
-            url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
-            url += ".gif" if self.icon.startswith("a_") else ".png"
+        if not self.icon:
+            return None
+
+        url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
+        url += ".gif" if self.icon.startswith("a_") else ".png"
         return url
+
+    @property
+    def banner_url(self) -> Optional[str]:
+        """
+        Returns the URL of the guild's banner.
+        :return: URL of the guild's banner (None will be returned if no banner is set)
+        :rtype: str
+        """
+        if not self.banner:
+            return None
+
+        url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
+        url += ".gif" if self.banner.startswith("a_") else ".png"
+        return url
+
+    @property
+    def splash_url(self) -> Optional[str]:
+        """
+        Returns the URL of the guild's invite splash banner.
+        :return: URL of the guild's invite splash banner (None will be returned if no banner is set)
+        :rtype: str
+        """
+        if not self.banner:
+            return None
+
+        return f"https://cdn.discordapp.com/splashes/{int(self.id)}/{self.splash}.png"
+
+    @property
+    def discovery_splash_url(self) -> Optional[str]:
+        """
+        Returns the URL of the guild's discovery splash banner.
+        :return: URL of the guild's discovery splash banner (None will be returned if no banner is set)
+        :rtype: str
+        """
+        if not self.banner:
+            return None
+
+        return f"https://cdn.discordapp.com/discovery-splashes/{int(self.id)}/{self.discovery_splash}.png"
 
 
 class GuildPreview(DictSerializerMixin):
