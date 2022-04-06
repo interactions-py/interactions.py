@@ -175,8 +175,6 @@ class Client:
 
         :param data: The application commands to update.
         :type data: List[dict]
-        :param delete?: Whether these commands are being deleted or not.
-        :type delete: Optional[bool]
         """
         guild_commands: dict = {}
         global_commands: List[dict] = []
