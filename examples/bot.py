@@ -24,8 +24,8 @@ async def on_ready():
     print(f"Our latency is {round(client.latency)} ms.")
 
 
-@client.event("message_create")
-async def name_this_however_you_want(message: interactions.Message):
+@client.event
+async def on_message_create(message: interactions.Message):
     # Whenever we specify any other event type that isn't "READY," the function underneath
     # the decorator will most likely have an argument required. This argument is the data
     # that is being supplied back to us developers, which we call a data model.
@@ -34,8 +34,10 @@ async def name_this_however_you_want(message: interactions.Message):
     # a "message" argument to be passed to the function, which will be the data model of such.
 
     # We can use the data model to access the data we need.
+    # Keep in mind that you can only access the message content if your bot has the MESSAGE_CONTENT intent.
+    # You can find more information on this in the migration section of the quickstart guide.
     print(
-        f"We've received a message from {message.author.name}. The message is: {message.content}."
+        f"We've received a message from {message.author.username}. The message is: {message.content}."
     )
 
 
