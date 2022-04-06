@@ -20,8 +20,8 @@ from interactions.base import __version__
 # -- Project information -----------------------------------------------------
 
 project = "interactions.py"
-copyright = "2022, goverfl0w"
-author = "goverfl0w"
+copyright = "2022"
+author = "interactions-py"
 release = __version__
 version = ".".join(__version__.split(".", 2)[:2])
 
@@ -38,7 +38,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
     "hoverxref.extension",
-    "karma_sphinx_theme",
 ]
 
 # Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
@@ -74,7 +73,7 @@ autodoc_member_order = "bysource"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "karma_sphinx_theme"
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

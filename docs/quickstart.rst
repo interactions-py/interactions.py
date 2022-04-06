@@ -1,5 +1,6 @@
 Quickstart
 ==========
+This page fully covers how to quickly get started with using our library.
 
 Installing
 **********

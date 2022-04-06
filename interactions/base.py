@@ -18,7 +18,13 @@ __authors__ = {
 
 
 class Data:
-    """A class representing constants for the library.
+    """
+    A class representing constants for the library.
+
+    .. admonition:: The meaning of this class
+        This class is meant to be internally used for
+        storing the default log level, but bot developers
+        are free to openly use this for their own benefit.
 
     :ivar LOG_LEVEL ClassVar[int]: The default level of logging as an integer
     :ivar LOGGERS List[str]: A list of all loggers registered from this library
@@ -48,6 +54,7 @@ class Data:
 get_logger = logging.getLogger
 
 # TODO: clean up base.py
+# haha you funny. -fl0w
 
 
 class CustomFormatter(logging.Formatter):
