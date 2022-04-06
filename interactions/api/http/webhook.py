@@ -105,7 +105,7 @@ class _WebhookRequest:
         webhook_id: int,
         webhook_token: str,
         payload: dict,
-        wait: bool = False,
+        wait: Optional[bool] = False,
         thread_id: Optional[int] = None,
     ) -> Optional[dict]:
         """
@@ -119,9 +119,13 @@ class _WebhookRequest:
         :return: The message sent, if wait=True, else None.
         """
 
+        params = {"wait": "true" if wait else "false"}
+        if thread_id:
+            params["thread_id"] = thread_id
+
         return await self._req.request(
             Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"),
-            params={"wait": wait, "thread_id": thread_id},
+            params=params,
             json=payload,
         )
 
