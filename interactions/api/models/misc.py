@@ -290,22 +290,31 @@ class Image(object):
         if fp is MISSING or isinstance(file, FileIO):
             file: FileIO = FileIO(file) if not isinstance(file, FileIO) else file
 
-            _name = file.name
+            self._name = file.name
             _file = file.read()
 
         else:
-            _name = file
+            self._name = file
             _file = fp
 
         if (
-            not _name.endswith(".jpeg")
-            and not _name.endswith(".png")
-            and not _name.endswith(".gif")
+            not self._name.endswith(".jpeg")
+            and not self._name.endswith(".png")
+            and not self._name.endswith(".gif")
         ):
             raise ValueError("File type must be jpeg, png or gif!")
 
-        self._URI += f"{'jpeg' if _name.endswith('jpeg') else _name[-3:]};base64,{b64encode(_file).decode('utf-8')}"
+        self._URI += f"{'jpeg' if self._name.endswith('jpeg') else self._name[-3:]};"
+        self._URI += f"base64,{b64encode(_file).decode('utf-8')}"
 
     @property
     def data(self) -> str:
         return self._URI
+
+    @property
+    def filename(self) -> str:
+        """
+        Returns the name of the file.
+        """
+        _name = self._name.split("/")
+        return _name[-1][:-3]

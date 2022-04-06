@@ -78,7 +78,10 @@ class File(object):
 class Image(object):
 
     _URI: str
+    _name: str
 
     def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING): ...
     @property
     def data(self) -> str: ...
+    @property
+    def filename(self) -> str: ...
