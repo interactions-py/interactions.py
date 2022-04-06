@@ -316,5 +316,4 @@ class Image(object):
         """
         Returns the name of the file.
         """
-        _name = self._name.split("/")
-        return _name[-1][:-3]
+        return self._name.split("/")[-1].split(".")[0]

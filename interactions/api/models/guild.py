@@ -1583,6 +1583,44 @@ class Guild(DictSerializerMixin):
         res = await self._client.get_all_emoji(guild_id=int(self.id))
         return [Emoji(**emoji, _client=self._client) for emoji in res]
 
+    async def create_emoji(
+        self,
+        image: Image,
+        name: Optional[str] = MISSING,
+        roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Emoji:
+        """
+        Creates an Emoji in the guild.
+
+        :param image: The image of the emoji.
+        :type image: Image
+        :param name?: The name of the emoji. If not specified, the filename will be used
+        :type name?: Optional[str]
+        :param roles?: Roles allowed to use this emoji
+        :type roles?: Optional[Union[List[Role], List[int]]]
+        :param reason?: The reason of the creation
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _name = name if name is not MISSING else image.filename
+
+        payload: dict = {
+            "name": _name,
+            "image": image.data,
+        }
+
+        if roles is not MISSING:
+            _roles = [role.id if isinstance(role, Role) else role for role in roles]
+            payload["roles"] = _roles
+
+        res = await self._client.create_guild_emoji(
+            guild_id=int(self.id), payload=payload, reason=reason
+        )
+        return Emoji(**res)
+
     async def delete_emoji(
         self,
         emoji: Union[Emoji, int],

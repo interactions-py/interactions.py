@@ -397,6 +397,13 @@ class Guild(DictSerializerMixin):
         emoji_id: int
     ) -> Emoji: ...
     async def get_all_emoji(self) -> List[Emoji]: ...
+    async def create_emoji(
+        self,
+        image: Image,
+        name: Optional[str] = MISSING,
+        roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Emoji: ...
     async def delete_emoji(
         self,
         emoji: Union[Emoji, int],
