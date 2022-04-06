@@ -164,7 +164,7 @@ class Client:
         )
         self._http.cache.interactions.add(Build(id=command.name, value=command))
 
-    async def __bulk_update_sync(self, data: List[dict], delete: Optional[bool] = False) -> None:
+    async def __bulk_update_sync(self, data: List[dict]) -> None:
         """
         Bulk updates a list of application commands during the synchronization process.
 
@@ -175,18 +175,16 @@ class Client:
 
         :param data: The application commands to update.
         :type data: List[dict]
-        :param delete?: Whether these commands are being deleted or not.
-        :type delete: Optional[bool]
         """
         guild_commands: dict = {}
         global_commands: List[dict] = []
 
         for command in data:
             if command.get("guild_id"):
-                if guild_commands.get(command["guild_id"]):
-                    guild_commands[command["guild_id"]].append(command)
+                if guild_commands.get(int(command["guild_id"])):
+                    guild_commands[int(command["guild_id"])].append(command)
                 else:
-                    guild_commands[command["guild_id"]] = [command]
+                    guild_commands[int(command["guild_id"])] = [command]
             else:
                 global_commands.append(command)
 
@@ -196,20 +194,20 @@ class Client:
 
         for guild, commands in guild_commands.items():
             log.info(
-                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been {'deleted' if delete else 'synced'}."
+                f"Guild commands {', '.join(command['name'] for command in commands)} under ID {guild} have been synced."
             )
             await self._http.overwrite_application_command(
                 application_id=self.me.id,
-                data=[] if delete else commands,
+                data=commands,
                 guild_id=guild,
             )
 
         if global_commands:
             log.info(
-                f"Global commands {', '.join(command['name'] for command in global_commands)} have been {'deleted' if delete else 'synced'}."
+                f"Global commands {', '.join(command['name'] for command in global_commands)} have been synced."
             )
             await self._http.overwrite_application_command(
-                application_id=self.me.id, data=[] if delete else global_commands
+                application_id=self.me.id, data=global_commands
             )
 
     async def _synchronize(self, payload: Optional[dict] = None) -> None:
@@ -256,8 +254,8 @@ class Client:
                 await self.__create_sync(payload)
         else:
             to_delete.extend(command for command in commands if command not in cache)
-        await self.__bulk_update_sync(to_sync)
-        await self.__bulk_update_sync(to_delete, delete=True)
+        if len(to_sync) >= 1:
+            await self.__bulk_update_sync(to_sync + commands)
 
     async def _ready(self) -> None:
         """
