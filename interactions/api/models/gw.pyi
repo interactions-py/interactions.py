@@ -1,15 +1,17 @@
 from datetime import datetime
-from typing import List, Optional, Any
+from typing import List, Optional, Union, Any
 
+from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
-from .message import Emoji, Sticker
-from .misc import ClientStatus, DictSerializerMixin, Snowflake
+from .message import Embed, Emoji, Message, MessageInteraction, Sticker
+from .misc import MISSING, ClientStatus, DictSerializerMixin, Snowflake, File
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
 from .team import Application
-from ..http import HTTPClient
+
+from ..http.client import HTTPClient
 from ...models.command import Permission
 
 class ApplicationCommandPermissions(DictSerializerMixin):
@@ -20,7 +22,6 @@ class ApplicationCommandPermissions(DictSerializerMixin):
     permissions: List[Permission]
 
     def __init__(self, **kwargs): ...
-
 
 class ChannelPins(DictSerializerMixin):
     _json: dict
@@ -75,11 +76,67 @@ class GuildMember(DictSerializerMixin):
     pending: Optional[bool]
     _client: Optional[HTTPClient]
     def __init__(self, **kwargs): ...
+    @property
+    def mention(self) -> str: ...
+    @property
+    def id(self) -> Snowflake: ...
+    async def ban(
+        self,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
+    ) -> None: ...
+    async def kick(
+        self,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def add_role(
+        self,
+        role: Union[Role, int],
+        reason: Optional[str],
+    ) -> None: ...
+    async def remove_role(
+        self,
+        role: Union[Role, int],
+        reason: Optional[str],
+    ) -> None: ...
+    async def send(
+        self,
+        content: Optional[str] = MISSING,
+        *,
+        components: Optional[
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
+        ] = MISSING,
+        tts: Optional[bool] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
+        embeds: Optional[Union[Embed, List["Embed"]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+    ) -> Message: ...
+    async def modify(
+        self,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[int]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "GuildMember": ...
+    async def add_to_thread(
+        self,
+        thread_id: int,
+    ) -> None: ...
 
 class GuildMembers(DictSerializerMixin):
     _json: dict
     guild_id: Snowflake
-    members: List[Member]
+    members: List[GuildMember]
     chunk_index: int
     chunk_count: int
     not_found: Optional[list]
@@ -123,6 +180,7 @@ class Integration(DictSerializerMixin):
     def __init__(self, **kwargs): ...
 
 class Presence(DictSerializerMixin):
+    _client: HTTPClient
     _json: dict
     user: User
     guild_id: Snowflake
