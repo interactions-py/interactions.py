@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from typing import Optional, Union
-
+from io import IOBase
 
 log: logging.Logger
 
@@ -42,6 +42,7 @@ class Snowflake(object):
     def __hash__(self) -> int: ...
     def __str__(self) -> str: ...
     def __int__(self) -> int: ...
+    def __eq__(self, other) -> Union[bool, NotImplemented]: ...
 
 class Format:
     USER: str
@@ -61,3 +62,15 @@ class Format:
     def stylize(self, format: str, **kwargs) -> str: ...
 
 class MISSING: ...
+
+class File(object):
+    _filename: str
+    _fp: IOBase
+    _description: str
+    def __init__(
+        self,
+        filename: str,
+        fp: Optional[IOBase] = MISSING,
+        description: Optional[str] = MISSING
+    ) -> None: ...
+    def _json_payload(self, id) -> dict: ...

@@ -3,11 +3,11 @@ from typing import List, Optional, Union
 
 from .channel import Channel
 from .member import Member
-from .misc import DictSerializerMixin, MISSING, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake, File
 from .role import Role
 from .team import Application
 from .user import User
-from ..http import HTTPClient
+from ..http.client import HTTPClient
 from ...models.component import ActionRow, Button, SelectMenu
 from .guild import Guild
 
@@ -92,13 +92,14 @@ class Message(DictSerializerMixin):
     sticker_items: Optional[List["PartialSticker"]]
     stickers: Optional[List["Sticker"]]  # deprecated
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     async def delete(self, reason: Optional[str] = None) -> None: ...
     async def edit(
         self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # file: Optional[FileIO] = None,
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional["MessageReference"] = MISSING,
@@ -115,11 +116,11 @@ class Message(DictSerializerMixin):
     ) -> "Message": ...
 
     async def reply(
-            self,
+        self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         components: Optional[
@@ -145,15 +146,35 @@ class Message(DictSerializerMixin):
         invitable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
+    async def create_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_all_reactions(self) -> None: ...
+    async def remove_all_reactions_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_own_reaction_of(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> None: ...
+    async def remove_reaction_from(
+        self,
+        emoji: Union[str, "Emoji"],
+        user: Union[Member, User, int]
+    ) -> None: ...
     @classmethod
     async def get_from_url(
         cls,
         url: str,
         client: HTTPClient,
     ) -> "Message": ...
-
+    @property
+    def url(self) -> str: ...
 
 class Emoji(DictSerializerMixin):
+    _client: HTTPClient
     _json: dict
     id: Optional[Snowflake]
     name: Optional[str]
@@ -164,6 +185,24 @@ class Emoji(DictSerializerMixin):
     animated: Optional[bool]
     available: Optional[bool]
     def __init__(self, **kwargs): ...
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        emoji_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Emoji": ...
+    @classmethod
+    async def get_all_of_guild(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> List["Emoji"]: ...
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
 
 class ReactionObject(DictSerializerMixin):
     _json: dict
@@ -199,12 +238,14 @@ class EmbedImageStruct(DictSerializerMixin):
     height: Optional[str]
     width: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedProvider(DictSerializerMixin):
     _json: dict
     name: Optional[str]
     url: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedAuthor(DictSerializerMixin):
     _json: dict
@@ -213,6 +254,7 @@ class EmbedAuthor(DictSerializerMixin):
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedFooter(DictSerializerMixin):
     _json: dict
@@ -220,6 +262,7 @@ class EmbedFooter(DictSerializerMixin):
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class EmbedField(DictSerializerMixin):
     _json: dict
@@ -227,6 +270,7 @@ class EmbedField(DictSerializerMixin):
     inline: Optional[bool]
     value: str
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
 
 class Embed(DictSerializerMixin):
     _json: dict
@@ -244,6 +288,7 @@ class Embed(DictSerializerMixin):
     author: Optional[EmbedAuthor]
     fields: Optional[List[EmbedField]]
     def __init__(self, **kwargs): ...
+    def __setattr__(self, key, value) -> None: ...
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None: ...
     def clear_fields(self) -> None: ...
     def insert_field_at(self, index: int,  name: str, value: str, inline: Optional[bool] = False) -> None: ...
@@ -253,4 +298,5 @@ class Embed(DictSerializerMixin):
     def set_author(self, name: str, url: Optional[str] = None, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None: ...
     def set_footer(self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None: ...
     def set_image(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None: ...
+    def set_video(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None: ...
     def set_thumbnail(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None: ...

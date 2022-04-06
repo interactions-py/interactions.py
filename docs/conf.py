@@ -20,8 +20,8 @@ from interactions.base import __version__
 # -- Project information -----------------------------------------------------
 
 project = "interactions.py"
-copyright = "2022, goverfl0w"
-author = "goverfl0w"
+copyright = "2022"
+author = "interactions-py"
 release = __version__
 version = ".".join(__version__.split(".", 2)[:2])
 

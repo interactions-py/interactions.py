@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .flags import UserFlags
 from .misc import DictSerializerMixin, Snowflake
 
@@ -14,6 +16,8 @@ class User(DictSerializerMixin):
     :ivar Optional[bool] system?: A status denoting if the user is an Official Discord System user
     :ivar Optional[bool] mfa_enabled?: A status denoting if the user has 2fa on their account
     :ivar Optional[str] banner?: The user's banner hash, if any
+    # TODO: change banner_color to discord's description when documented
+    :ivar Optional[str] banner_color?: The user's banner color as a hex, if any
     :ivar Optional[int] accent_color?: The user's banner color as an integer represented of hex color codes
     :ivar Optional[str] locale?: The user's chosen language option
     :ivar Optional[bool] verified?: Whether the email associated with this account has been verified
@@ -34,12 +38,16 @@ class User(DictSerializerMixin):
         "mfa_enabled",
         "banner",
         "accent_color",
+        "banner_color",
         "locale",
         "verified",
         "email",
         "flags",
         "premium_type",
         "public_flags",
+        # TODO: document
+        "bio",
+        "banner_color",
     )
 
     def __init__(self, **kwargs):
@@ -53,6 +61,9 @@ class User(DictSerializerMixin):
         )
 
         self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
+
+    def __repr__(self) -> str:
+        return self.username
 
     @property
     def mention(self) -> str:
@@ -78,4 +89,18 @@ class User(DictSerializerMixin):
             url += ".gif" if self.avatar.startswith("a_") else ".png"
         else:
             url += f"embed/avatars/{int(self.discriminator) % 5}.png"
+        return url
+
+    @property
+    def banner_url(self) -> Optional[str]:
+        """
+        Returns the URL of the user's banner.
+        :return: URL of the user's banner (None will be returned if no banner is set)
+        :rtype: str
+        """
+        if not self.banner:
+            return None
+
+        url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
+        url += ".gif" if self.banner.startswith("a_") else ".png"
         return url

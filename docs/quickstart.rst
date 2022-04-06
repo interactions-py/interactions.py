@@ -275,7 +275,7 @@ implementation of a component:
     async def button_test(ctx):
         await ctx.send("testing", components=button)
 
-    @bot.component("hello"")
+    @bot.component("hello")
     async def button_response(ctx):
         await ctx.send("You clicked the Button :O", ephemeral=True)
 
@@ -338,7 +338,7 @@ tables, if you so wish to choose to not use our class objects instead.
 
 Creating a TextInput
 ^^^^^^^^^^^^^^^^^^^^
-You want to get a Text from a user? You can use ``TextInput``s for that.
+You want to get a Text from a user? You can use ``TextInput`` for that.
 
 .. code-block:: python
 
@@ -355,7 +355,7 @@ But how to send it? You can't use ``ctx.send`` for it. Take a look at :ref:`Moda
 
 Modals
 ******
-Modals are a new way to interact with a user. Currently only a ``TextInput`` component is supported. You can have up to three ``TextInput``s in a Modal.
+Modals are a new way to interact with a user. Currently only a ``TextInput`` component is supported. You can have up to five ``TextInput`` in a Modal.
 
 .. code-block:: python
 

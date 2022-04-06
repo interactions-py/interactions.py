@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from .misc import DictSerializerMixin, MISSING, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake, File
 from .role import Role
 from .user import User
 from .flags import Permissions
-from ..http import HTTPClient
+from ..http.client import HTTPClient
 from .message import Message, Embed, MessageInteraction
 from ...models.component import ActionRow, Button, SelectMenu
 
@@ -25,10 +25,13 @@ class Member(DictSerializerMixin):
     pending: Optional[bool]
     permissions: Optional[Permissions]
     communication_disabled_until: Optional[datetime.isoformat]
-    hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
+    hoisted_role: Any  # TODO: Investigate what this is for when documented by Discord.
+    flags: int  # TODO: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
     @property
     def mention(self) -> str: ...
+    @property
     def id(self) -> Snowflake: ...
     async def ban(
         self,
@@ -68,7 +71,7 @@ class Member(DictSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List["Embed"]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
     ) -> Message: ...
@@ -87,3 +90,4 @@ class Member(DictSerializerMixin):
         self,
         thread_id: int,
     ) -> None: ...
+    def get_member_avatar_url(self, guild_id: int) -> Optional[str]: ...
