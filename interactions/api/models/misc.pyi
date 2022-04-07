@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from typing import Optional, Union
-from io import IOBase
+
 
 log: logging.Logger
 
@@ -78,15 +78,3 @@ class Format:
     def stylize(self, format: str, **kwargs) -> str: ...
 
 class MISSING: ...
-
-class File(object):
-    _filename: str
-    _fp: IOBase
-    _description: str
-    def __init__(
-        self,
-        filename: str,
-        fp: Optional[IOBase] = MISSING,
-        description: Optional[str] = MISSING
-    ) -> None: ...
-    def _json_payload(self, id) -> dict: ...

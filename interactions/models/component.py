@@ -1,8 +1,8 @@
 from typing import List, Optional
 
-from ...api.error import InteractionException
-from ...api.models.message import Emoji
-from ...api.models.misc import MISSING, DictSerializerMixin
+from ..api.error import InteractionException
+from ..api.models.message import Emoji
+from ..api.models.misc import MISSING, DictSerializerMixin
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 

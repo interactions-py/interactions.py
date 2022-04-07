@@ -699,7 +699,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
-        :type bitrate: Optional[int]
+        :type bitrate Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
@@ -779,16 +779,10 @@ class Guild(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
-        archived: Optional[bool] = MISSING,
-        auto_archive_duration: Optional[int] = MISSING,
-        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:
         """
         Edits a channel of the guild.
-
-        .. note::
-            The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
 
         :param channel_id: The id of the channel to modify
         :type channel_id: int
@@ -797,7 +791,7 @@ class Guild(DictSerializerMixin):
         :param topic?: The topic of that channel, defaults to the current value of the channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate: Optional[int]
+        :type bitrate Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
@@ -810,12 +804,6 @@ class Guild(DictSerializerMixin):
         :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
         :type nsfw: Optional[bool]
-        :param archived?: Whether the thread is archived
-        :type archived: Optional[bool]
-        :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
-        :param locked?: Whether the thread is locked
-        :type locked: Optional[bool]
         :param reason: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel
@@ -855,24 +843,10 @@ class Guild(DictSerializerMixin):
             nsfw=_nsfw,
         )
 
-        payload = payload._json
-
-        if (
-            archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
-        ) and not ch.thread_metadata:
-            raise ValueError("The specified channel is not a Thread!")
-
-        if archived is not MISSING:
-            payload["archived"] = archived
-        if auto_archive_duration is not MISSING:
-            payload["auto_archive_duration"] = auto_archive_duration
-        if locked is not MISSING:
-            payload["locked"] = locked
-
         res = await self._client.modify_channel(
             channel_id=channel_id,
             reason=reason,
-            payload=payload,
+            payload=payload._json,
         )
         return Channel(**res, _client=self._client)
 
@@ -1090,12 +1064,7 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        guild = Guild(**res, _client=self._client)
-
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(guild, attr))
-
-        return guild
+        return Guild(**res, _client=self._client)
 
     async def set_name(
         self,
@@ -1553,7 +1522,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
         return Emoji(**res, _client=self._client)
 
-    async def get_all_emoji(self) -> List[Emoji]:
+    async def get_all_emojis(self) -> List[Emoji]:
         """
         Gets all emojis of a guild.
 
@@ -1630,86 +1599,6 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id), query=query, limit=limit
         )
         return [Member(**member, _client=self._client) for member in res]
-
-    async def get_all_members(self) -> List[Member]:
-        """
-        Gets all members of a guild.
-
-        .. warning:: Calling this method can lead to rate-limits in larger guilds.
-
-        :return: Returns a list of all members of the guild
-        :rtype: List[Member]
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-
-        _all_members: List[dict] = []
-        _last_member: Member
-        _members: List[dict] = await self._client.get_list_of_members(
-            guild_id=int(self.id), limit=100
-        )
-        if len(_members) == 100:
-            while len(_members) >= 100:
-                _all_members.extend(_members)
-                _last_member = Member(**_members[-1])
-                _members = await self._client.get_list_of_members(
-                    guild_id=int(self.id), limit=100, after=int(_last_member.id)
-                )
-        _all_members.extend(_members)
-
-        return [Member(**_, _client=self._client) for _ in _all_members]
-
-    @property
-    def icon_url(self) -> Optional[str]:
-        """
-        Returns the URL of the guild's icon.
-        :return: URL of the guild's icon (None will be returned if no icon is set)
-        :rtype: str
-        """
-        if not self.icon:
-            return None
-
-        url = f"https://cdn.discordapp.com/icons/{int(self.id)}/{self.icon}"
-        url += ".gif" if self.icon.startswith("a_") else ".png"
-        return url
-
-    @property
-    def banner_url(self) -> Optional[str]:
-        """
-        Returns the URL of the guild's banner.
-        :return: URL of the guild's banner (None will be returned if no banner is set)
-        :rtype: str
-        """
-        if not self.banner:
-            return None
-
-        url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
-        url += ".gif" if self.banner.startswith("a_") else ".png"
-        return url
-
-    @property
-    def splash_url(self) -> Optional[str]:
-        """
-        Returns the URL of the guild's invite splash banner.
-        :return: URL of the guild's invite splash banner (None will be returned if no banner is set)
-        :rtype: str
-        """
-        if not self.banner:
-            return None
-
-        return f"https://cdn.discordapp.com/splashes/{int(self.id)}/{self.splash}.png"
-
-    @property
-    def discovery_splash_url(self) -> Optional[str]:
-        """
-        Returns the URL of the guild's discovery splash banner.
-        :return: URL of the guild's discovery splash banner (None will be returned if no banner is set)
-        :rtype: str
-        """
-        if not self.banner:
-            return None
-
-        return f"https://cdn.discordapp.com/discovery-splashes/{int(self.id)}/{self.discovery_splash}.png"
 
 
 class GuildPreview(DictSerializerMixin):

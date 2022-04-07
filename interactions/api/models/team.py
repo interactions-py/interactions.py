@@ -124,11 +124,12 @@ class Application(DictSerializerMixin):
         Returns the URL of the application's icon
 
         :return: URL of the application's icon.
-        :rtype: str (None will be returned if none of any icon is set)
+        :rtype: str
         """
         url = "https://cdn.discordapp.com/"
         if self.icon:
-            url += f"app-icons/{int(self.id)}/{self.icon}.png"
+            url += f"avatars/{int(self.id)}/{self.icon}"
+            url += ".gif" if self.icon.startswith("a_") else ".png"
         else:
-            url = None
+            url += f"embed/avatars/{int(self.discriminator) % 5}.png"
         return url

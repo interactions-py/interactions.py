@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from .misc import DictSerializerMixin, MISSING, Snowflake, File
+from .misc import DictSerializerMixin, MISSING, Snowflake
 from .role import Role
 from .user import User
 from .flags import Permissions
@@ -25,8 +25,7 @@ class Member(DictSerializerMixin):
     pending: Optional[bool]
     permissions: Optional[Permissions]
     communication_disabled_until: Optional[datetime.isoformat]
-    hoisted_role: Any  # TODO: Investigate what this is for when documented by Discord.
-    flags: int  # TODO: Investigate what this is for when documented by Discord.
+    hoisted_role: Any  # TODO: post-v4: Investigate what this is for when documented by Discord.
     def __init__(self, **kwargs): ...
     def __repr__(self) -> str: ...
     @property
@@ -71,7 +70,7 @@ class Member(DictSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
-        files: Optional[Union[File, List[File]]] = MISSING,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List["Embed"]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
     ) -> Message: ...
@@ -90,4 +89,3 @@ class Member(DictSerializerMixin):
         self,
         thread_id: int,
     ) -> None: ...
-    def get_member_avatar_url(self, guild_id: int) -> Optional[str]: ...

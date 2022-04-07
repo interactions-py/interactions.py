@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel
 from .flags import Permissions
-from .misc import MISSING, DictSerializerMixin, File, Snowflake
+from .misc import MISSING, DictSerializerMixin, Snowflake
 from .role import Role
 from .user import User
 
@@ -45,7 +45,6 @@ class Member(DictSerializerMixin):
         "permissions",
         "communication_disabled_until",
         "hoisted_role",
-        "flags",
         "_client",
     )
 
@@ -230,7 +229,7 @@ class Member(DictSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
-        files: Optional[Union[File, List[File]]] = MISSING,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
     ) -> "Message":  # noqa
@@ -243,8 +242,6 @@ class Member(DictSerializerMixin):
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -254,7 +251,7 @@ class Member(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...client.models.component import _build_components
+        from ...models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content
@@ -273,28 +270,19 @@ class Member(DictSerializerMixin):
         else:
             _components = _build_components(components=components)
 
-        if not files or files is MISSING:
-            _files = []
-        elif isinstance(files, list):
-            _files = [file._json_payload(id) for id, file in enumerate(files)]
-        else:
-            _files = [files._json_payload(0)]
-            files = [files]
-
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
             content=_content,
             tts=_tts,
-            attachments=_files,
+            # file=file,
+            # attachments=_attachments,
             embeds=_embeds,
             components=_components,
             allowed_mentions=_allowed_mentions,
         )
 
         channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
-        res = await self._client.create_message(
-            channel_id=int(channel.id), payload=payload._json, files=files
-        )
+        res = await self._client.create_message(channel_id=int(channel.id), payload=payload._json)
 
         return Message(**res, _client=self._client)
 
@@ -358,12 +346,7 @@ class Member(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        member = Member(**res, _client=self._client)
-
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(member, attr))
-
-        return member
+        return Member(**res, _client=self._client)
 
     async def add_to_thread(
         self,
@@ -381,18 +364,3 @@ class Member(DictSerializerMixin):
             user_id=int(self.user.id),
             thread_id=thread_id,
         )
-
-    def get_member_avatar_url(self, guild_id: int) -> Optional[str]:
-        """
-        Returns the URL of the member's avatar for the specified guild.
-        :param guild_id: The id of the guild to get the member's avatar from
-        :type guild_id: int
-        :return: URL of the members's avatar (None will be returned if no avatar is set)
-        :rtype: str
-        """
-        if not self.avatar:
-            return None
-
-        url = f"https://cdn.discordapp.com/guilds/{guild_id}/users/{int(self.user.id)}/avatars/{self.avatar}"
-        url += ".gif" if self.avatar.startswith("a_") else ".png"
-        return url

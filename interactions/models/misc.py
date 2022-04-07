@@ -1,11 +1,11 @@
 from typing import Dict, List, Optional
 
-from ...api.models.channel import Channel
-from ...api.models.member import Member
-from ...api.models.message import Attachment, Message
-from ...api.models.misc import DictSerializerMixin, Snowflake
-from ...api.models.role import Role
-from ...api.models.user import User
+from ..api.models.channel import Channel
+from ..api.models.member import Member
+from ..api.models.message import Attachment, Message
+from ..api.models.misc import DictSerializerMixin, Snowflake
+from ..api.models.role import Role
+from ..api.models.user import User
 from ..enums import ApplicationCommandType, ComponentType, InteractionType
 from ..models.command import Option
 

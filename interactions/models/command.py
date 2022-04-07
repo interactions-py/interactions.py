@@ -1,8 +1,8 @@
 from typing import Dict, List, Optional, Union
 
-from ...api.models.channel import ChannelType
-from ...api.models.misc import DictSerializerMixin, Snowflake
-from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
+from ..api.models.channel import ChannelType
+from ..api.models.misc import DictSerializerMixin, Snowflake
+from ..enums import ApplicationCommandType, OptionType, PermissionType
 
 
 class Choice(DictSerializerMixin):
@@ -21,29 +21,15 @@ class Choice(DictSerializerMixin):
 
     :ivar str name: The name of the choice.
     :ivar Union[str, int, float] value: The returned value of the choice.
-    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     """
 
-    __slots__ = ("_json", "name", "value", "name_localizations")
+    __slots__ = ("_json", "name", "value")
     _json: dict
     name: str
     value: Union[str, int, float]
-    name_localizations: Optional[Dict[Union[str, Locale], str]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        if self._json.get("name_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("name_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["name_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["name_localizations"].items()
-                }
-            self.name_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["name_localizations"].items()
-            }
 
 
 class Option(DictSerializerMixin):
@@ -81,8 +67,6 @@ class Option(DictSerializerMixin):
     :ivar Optional[int] min_value?: The minimum value supported by the option.
     :ivar Optional[int] max_value?: The maximum value supported by the option.
     :ivar Optional[bool] autocomplete?: A status denoting whether this option is an autocomplete option.
-    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-    :ivar Optional[Dict[Union[str, Locale], str]] description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
     """
 
     __slots__ = (
@@ -115,8 +99,9 @@ class Option(DictSerializerMixin):
     min_value: Optional[int]
     max_value: Optional[int]
     autocomplete: Optional[bool]
-    name_localizations: Optional[Dict[Union[str, Locale], str]]
-    description_localizations: Optional[Dict[Union[str, Locale], str]]
+
+    name_localizations: Optional[Dict[str, str]]  # TODO: post-v4: document these when Discord does.
+    description_localizations: Optional[Dict[str, str]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -140,32 +125,6 @@ class Option(DictSerializerMixin):
                     ]
             elif all(isinstance(choice, Choice) for choice in self.choices):
                 self._json["choices"] = [choice._json for choice in self.choices]
-
-        if self._json.get("name_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("name_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["name_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["name_localizations"].items()
-                }
-            self.name_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["name_localizations"].items()
-            }
-
-        if self._json.get("description_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("name_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["description_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["description_localizations"].items()
-                }
-            self.description_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["description_localizations"].items()
-            }
 
 
 class Permission(DictSerializerMixin):
@@ -219,8 +178,6 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar int version: The Application Command version autoincrement identifier.
     :ivar str default_member_permissions: The default member permission state of the application command.
     :ivar boolean dm_permission: The application permissions if executed in a Direct Message.
-    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The localisation dictionary for the application command name, if any.
-    :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The localisation dictionary for the application command description, if any.
     """
 
     __slots__ = (
@@ -237,8 +194,8 @@ class ApplicationCommand(DictSerializerMixin):
         "version",
         "default_member_permissions",
         "dm_permission",
-        "name_localizations",
         "description_localizations",
+        "name_localizations",
     )
     _json: dict
     id: Snowflake
@@ -255,8 +212,10 @@ class ApplicationCommand(DictSerializerMixin):
     # TODO: post-v4: Investigate these once documented by Discord.
     default_member_permissions: str
     dm_permission: bool
-    name_localizations: Optional[Dict[Union[str, Locale], str]]
-    description_localizations: Optional[Dict[Union[str, Locale], str]]
+
+    # TODO: post-v4: Document once Discord does.
+    name_localizations: Optional[Dict[str, str]]
+    description_localizations: Optional[Dict[str, str]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -273,29 +232,3 @@ class ApplicationCommand(DictSerializerMixin):
             if self._json.get("permissions")
             else None
         )
-
-        if self._json.get("name_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("name_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["name_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["name_localizations"].items()
-                }
-            self.name_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["name_localizations"].items()
-            }
-
-        if self._json.get("description_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("description_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["description_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["description_localizations"].items()
-                }
-            self.description_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["description_localizations"].items()
-            }

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from .flags import UserFlags
 from .misc import DictSerializerMixin, Snowflake
 
@@ -89,18 +87,4 @@ class User(DictSerializerMixin):
             url += ".gif" if self.avatar.startswith("a_") else ".png"
         else:
             url += f"embed/avatars/{int(self.discriminator) % 5}.png"
-        return url
-
-    @property
-    def banner_url(self) -> Optional[str]:
-        """
-        Returns the URL of the user's banner.
-        :return: URL of the user's banner (None will be returned if no banner is set)
-        :rtype: str
-        """
-        if not self.banner:
-            return None
-
-        url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
-        url += ".gif" if self.banner.startswith("a_") else ".png"
         return url

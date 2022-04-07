@@ -4,6 +4,7 @@ except ImportError:
     from json import dumps, loads
 
 from asyncio import (
+    AbstractEventLoop,
     Event,
     Task,
     ensure_future,
@@ -16,22 +17,40 @@ from sys import platform, version_info
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from aiohttp import WSMessage, WSMsgType
-from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
+from aiohttp import WSMessage
 
-from ...base import get_logger
-from ...client.enums import InteractionType, OptionType
-from ...client.models import Option
-from ..dispatch import Listener
-from ..enums import OpCodeType
-from ..error import GatewayException
-from ..http.client import HTTPClient
-from ..models.flags import Intents
-from ..models.misc import MISSING
-from ..models.presence import ClientPresence
-from .heartbeat import _Heartbeat
+from ..base import get_logger
+from ..enums import InteractionType, OptionType
+from ..models.command import Option
+from .dispatch import Listener
+from .enums import OpCodeType
+from .error import GatewayException
+from .http.client import HTTPClient
+from .models.flags import Intents
+from .models.misc import MISSING
+from .models.presence import ClientPresence
 
 log = get_logger("gateway")
+
+__all__ = ("_Heartbeat", "WebSocketClient")
+
+
+class _Heartbeat:
+    """An internal class representing the heartbeat in a WebSocket connection."""
+
+    event: Event
+    delay: float
+
+    def __init__(self, loop: AbstractEventLoop) -> None:
+        """
+        :param loop: The event loop to base the asynchronous manager.
+        :type loop: AbstractEventLoop
+        """
+        try:
+            self.event = Event(loop=loop) if version_info < (3, 10) else Event()
+        except TypeError:
+            pass
+        self.delay = 0.0
 
 
 class WebSocketClient:
@@ -179,7 +198,7 @@ class WebSocketClient:
 
                 if stream is None:
                     continue
-                if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
+                if self._client is None:
                     await self._establish_connection()
                     break
 
@@ -378,7 +397,7 @@ class WebSocketClient:
                 _context = "ComponentContext"
 
             data["client"] = self._http
-            context: object = getattr(__import__("interactions.client.context"), _context)
+            context: object = getattr(__import__("interactions.context"), _context)
 
             return context(**data)
 
@@ -517,18 +536,6 @@ class WebSocketClient:
         """
 
         packet: WSMessage = await self._client.receive()
-
-        if packet == WSMsgType.CLOSE:
-            await self._client.close()
-            return packet
-
-        elif packet == WS_CLOSED_MESSAGE:
-            return packet
-
-        elif packet == WS_CLOSING_MESSAGE:
-            await self._client.close()
-            return WS_CLOSED_MESSAGE
-
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:

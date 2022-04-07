@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Callable, List, Optional, Union
 
-from .misc import MISSING, DictSerializerMixin, File, Overwrite, Snowflake
+from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
 
 
 class ChannelType(IntEnum):
@@ -199,7 +199,7 @@ class Channel(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        files: Optional[Union[File, List[File]]] = MISSING,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
         components: Optional[
@@ -220,8 +220,6 @@ class Channel(DictSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -233,7 +231,7 @@ class Channel(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...client.models.component import _build_components
+        from ...models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content
@@ -253,26 +251,18 @@ class Channel(DictSerializerMixin):
         else:
             _components = _build_components(components=components)
 
-        if not files or files is MISSING:
-            _files = []
-        elif isinstance(files, list):
-            _files = [file._json_payload(id) for id, file in enumerate(files)]
-        else:
-            _files = [files._json_payload(0)]
-            files = [files]
-
+        # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
             content=_content,
             tts=_tts,
-            attachments=_files,
+            # file=file,
+            # attachments=_attachments,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
         )
 
-        res = await self._client.create_message(
-            channel_id=int(self.id), payload=payload._json, files=files
-        )
+        res = await self._client.create_message(channel_id=int(self.id), payload=payload._json)
         return Message(**res, _client=self._client)
 
     async def delete(self) -> None:
@@ -294,16 +284,10 @@ class Channel(DictSerializerMixin):
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
-        archived: Optional[bool] = MISSING,
-        auto_archive_duration: Optional[int] = MISSING,
-        locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel":
         """
         Edits the channel.
-
-        .. note::
-            The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
 
         :param name?: The name of the channel, defaults to the current value of the channel
         :type name: str
@@ -323,12 +307,6 @@ class Channel(DictSerializerMixin):
         :type nsfw: Optional[bool]
         :param permission_overwrites?: The permission overwrites, if any
         :type permission_overwrites: Optional[List[Overwrite]]
-        :param archived?: Whether the thread is archived
-        :type archived: Optional[bool]
-        :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
-        :param locked?: Whether the thread is locked
-        :type locked: Optional[bool]
         :param reason?: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel as new object
@@ -365,32 +343,12 @@ class Channel(DictSerializerMixin):
             nsfw=_nsfw,
             permission_overwrites=_permission_overwrites,
         )
-
-        payload = payload._json
-
-        if (
-            archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
-        ) and not self.thread_metadata:
-            raise ValueError("The specified channel is not a Thread!")
-
-        if archived is not MISSING:
-            payload["archived"] = archived
-        if auto_archive_duration is not MISSING:
-            payload["auto_archive_duration"] = auto_archive_duration
-        if locked is not MISSING:
-            payload["locked"] = locked
-
         res = await self._client.modify_channel(
             channel_id=int(self.id),
             reason=reason,
-            payload=payload,
+            payload=payload._json,
         )
-        ch = Channel(**res, _client=self._client)
-
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(ch, attr))
-
-        return ch
+        return Channel(**res, _client=self._client)
 
     async def set_name(
         self,
@@ -550,63 +508,6 @@ class Channel(DictSerializerMixin):
 
         return await self.modify(nsfw=nsfw, reason=reason)
 
-    async def archive(
-        self,
-        archived: bool = True,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Channel":
-        """
-        Sets the archived state of the thread.
-
-        :param archived: Whether the Thread is archived, defaults to True
-        :type archived: bool
-        :param reason?: The reason of the archiving
-        :type reason: Optional[str]
-        :return: The edited channel
-        :rtype: Channel
-        """
-
-        return await self.modify(archived=archived, reason=reason)
-
-    async def set_auto_archive_duration(
-        self,
-        auto_archive_duration: int,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Channel":
-        """
-        Sets the time after the thread is automatically archived.
-
-        :param auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration: int
-        :param reason?: The reason of the edit
-        :type reason: Optional[str]
-        :return: The edited channel
-        :rtype: Channel
-        """
-
-        return await self.modify(auto_archive_duration=auto_archive_duration, reason=reason)
-
-    async def lock(
-        self,
-        locked: bool = True,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Channel":
-        """
-        Sets the locked state of the thread.
-
-        :param locked: Whether the Thread is locked, defaults to True
-        :type locked: bool
-        :param reason?: The reason of the edit
-        :type reason: Optional[str]
-        :return: The edited channel
-        :rtype: Channel
-        """
-
-        return await self.modify(locked=locked, reason=reason)
-
     async def add_member(
         self,
         member_id: int,
@@ -717,9 +618,6 @@ class Channel(DictSerializerMixin):
     ) -> List["Message"]:  # noqa
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
-
-        .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
-
         .. code-block:: python
             def check_pinned(message):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned

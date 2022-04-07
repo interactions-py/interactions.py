@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
+from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import MISSING, ClientStatus, DictSerializerMixin, File, Snowflake
+from .misc import MISSING, ClientStatus, DictSerializerMixin, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
@@ -347,7 +347,7 @@ class GuildMember(DictSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
-        files: Optional[Union[File, List[File]]] = MISSING,
+        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
     ) -> Message:
@@ -360,8 +360,6 @@ class GuildMember(DictSerializerMixin):
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -385,30 +383,117 @@ class GuildMember(DictSerializerMixin):
 
         if not components or components is MISSING:
             _components = []
+        # TODO: Break this obfuscation pattern down to a "builder" method.
         else:
-            _components = _build_components(components=components)
+            _components: List[dict] = [{"type": 1, "components": []}]
+            if isinstance(components, list) and all(
+                isinstance(action_row, ActionRow) for action_row in components
+            ):
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in action_row.components
+                        ],
+                    }
+                    for action_row in components
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(component, (Button, SelectMenu)) for component in components
+            ):
+                for component in components:
+                    if isinstance(component, SelectMenu):
+                        component._json["options"] = [
+                            options._json if not isinstance(options, dict) else options
+                            for options in component._json["options"]
+                        ]
+                _components = [
+                    {
+                        "type": 1,
+                        "components": [
+                            (
+                                component._json
+                                if component._json.get("custom_id") or component._json.get("url")
+                                else []
+                            )
+                            for component in components
+                        ],
+                    }
+                ]
+            elif isinstance(components, list) and all(
+                isinstance(action_row, (list, ActionRow)) for action_row in components
+            ):
+                _components = []
+                for action_row in components:
+                    for component in (
+                        action_row if isinstance(action_row, list) else action_row.components
+                    ):
+                        if isinstance(component, SelectMenu):
+                            component._json["options"] = [
+                                option._json for option in component.options
+                            ]
+                    _components.append(
+                        {
+                            "type": 1,
+                            "components": [
+                                (
+                                    component._json
+                                    if component._json.get("custom_id")
+                                    or component._json.get("url")
+                                    else []
+                                )
+                                for component in (
+                                    action_row
+                                    if isinstance(action_row, list)
+                                    else action_row.components
+                                )
+                            ],
+                        }
+                    )
+            elif isinstance(components, ActionRow):
+                _components[0]["components"] = [
+                    (
+                        component._json
+                        if component._json.get("custom_id") or component._json.get("url")
+                        else []
+                    )
+                    for component in components.components
+                ]
+            elif isinstance(components, Button):
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
+            elif isinstance(components, SelectMenu):
+                components._json["options"] = [
+                    options._json if not isinstance(options, dict) else options
+                    for options in components._json["options"]
+                ]
+                _components[0]["components"] = (
+                    [components._json]
+                    if components._json.get("custom_id") or components._json.get("url")
+                    else []
+                )
 
-        if not files or files is MISSING:
-            _files = []
-        elif isinstance(files, list):
-            _files = [file._json_payload(id) for id, file in enumerate(files)]
-        else:
-            _files = [files._json_payload(0)]
-            files = [files]
-
+        # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
             content=_content,
             tts=_tts,
-            attachments=_files,
+            # file=file,
+            # attachments=_attachments,
             embeds=_embeds,
             components=_components,
             allowed_mentions=_allowed_mentions,
         )
 
         channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
-        res = await self._client.create_message(
-            channel_id=int(channel.id), payload=payload._json, files=files
-        )
+        res = await self._client.create_message(channel_id=int(channel.id), payload=payload._json)
 
         return Message(**res, _client=self._client)
 
