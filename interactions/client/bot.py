@@ -334,7 +334,9 @@ class Client:
         """Helper method that waits until the websocket is ready."""
         await self._websocket.wait_until_ready()
 
-    def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
+    def event(
+        self, coro: Optional[Coroutine] = MISSING, name: Optional[str] = MISSING
+    ) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
         Gateway.
@@ -346,8 +348,18 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
-        return coro
+
+        def decorator(coro: Coroutine):
+            self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
+            return coro
+
+        if coro is not MISSING:
+            self._websocket._dispatch.register(coro, coro.__name__)
+            # it is not possible to provide a name here since it is only called when you use `@event`
+            # for a name you would need `@bot.event()`, but this is handled in the decorator function
+            return coro
+
+        return decorator
 
     async def change_presence(self, presence: ClientPresence) -> None:
         """
@@ -1293,10 +1305,15 @@ def extension_command(*args, **kwargs):
     return decorator
 
 
-def extension_listener(name=None):
-    def decorator(func):
+def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None):
+    def decorator(func: Coroutine):
         func.__listener_name__ = name or func.__name__
 
+        return func
+
+    if func:
+        # allows omitting `()` on `@listener`
+        func.__listener_name__ = func.__name__
         return func
 
     return decorator
