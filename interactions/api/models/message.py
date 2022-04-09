@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, File, Snowflake
 from .team import Application
 from .user import User
 
@@ -344,7 +344,7 @@ class Message(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # file: Optional[FileIO] = None,
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional["MessageReference"] = MISSING,
@@ -366,6 +366,8 @@ class Message(DictSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param files?: A file or list of files to be attached to the message.
+        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -384,7 +386,14 @@ class Message(DictSerializerMixin):
 
         _content: str = self.content if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
+
+        if not files or files is MISSING:
+            _files = self.attachments
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
 
         if embeds is MISSING:
             embeds = self.embeds
@@ -405,7 +414,7 @@ class Message(DictSerializerMixin):
         payload: Message = Message(
             content=_content,
             tts=_tts,
-            # file=file,
+            attachments=_files,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
@@ -416,6 +425,7 @@ class Message(DictSerializerMixin):
             channel_id=int(self.channel_id),
             message_id=int(self.id),
             payload=payload._json,
+            files=files,
         )
 
         msg = Message(**_dct) if not _dct.get("code") else payload
@@ -430,8 +440,8 @@ class Message(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         components: Optional[
             Union[
@@ -451,6 +461,8 @@ class Message(DictSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param files?: A file or list of files to be attached to the message.
+        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -481,12 +493,19 @@ class Message(DictSerializerMixin):
         else:
             _components = _build_components(components=components)
 
+        if not files or files is MISSING:
+            _files = []
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
+
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
             content=_content,
             tts=_tts,
-            # file=file,
-            # attachments=_attachments,
+            attachments=_files,
             embeds=_embeds,
             message_reference=_message_reference,
             allowed_mentions=_allowed_mentions,
@@ -494,7 +513,7 @@ class Message(DictSerializerMixin):
         )
 
         res = await self._client.create_message(
-            channel_id=int(self.channel_id), payload=payload._json
+            channel_id=int(self.channel_id), payload=payload._json, files=files
         )
         return Message(**res, _client=self._client)
 

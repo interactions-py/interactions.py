@@ -5,7 +5,7 @@ from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import MISSING, ClientStatus, DictSerializerMixin, Snowflake
+from .misc import MISSING, ClientStatus, DictSerializerMixin, Snowflake, File
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
@@ -114,7 +114,7 @@ class GuildMember(DictSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List["Embed"]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
     ) -> Message: ...
