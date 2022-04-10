@@ -39,7 +39,7 @@ class _StickerRequest:
         :param guild_id: The guild to get stickers from
         :return: List of Stickers or None
         """
-        return await self._req.request(Route("GET", f"/guild/{guild_id}/stickers"))
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/stickers"))
 
     async def get_guild_sticker(self, guild_id: int, sticker_id: int) -> dict:
         """
@@ -49,7 +49,7 @@ class _StickerRequest:
         :param sticker_id: The sticker to get from the guild
         :return: Sticker or None
         """
-        return await self._req.request(Route("GET", f"/guild/{guild_id}/stickers/{sticker_id}"))
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/stickers/{sticker_id}"))
 
     async def create_guild_sticker(
         self, payload: FormData, guild_id: int, reason: Optional[str] = None
@@ -63,7 +63,7 @@ class _StickerRequest:
         :return: The new sticker data on success.
         """
         return await self._req.request(
-            Route("POST", f"/guild/{guild_id}/stickers"), json=payload, reason=reason
+            Route("POST", f"/guilds/{guild_id}/stickers"), json=payload, reason=reason
         )
 
     async def modify_guild_sticker(
@@ -79,7 +79,7 @@ class _StickerRequest:
         :return: The updated sticker data on success.
         """
         return await self._req.request(
-            Route("PATCH", f"/guild/{guild_id}/stickers/{sticker_id}"), json=payload, reason=reason
+            Route("PATCH", f"/guilds/{guild_id}/stickers/{sticker_id}"), json=payload, reason=reason
         )
 
     async def delete_guild_sticker(
@@ -94,5 +94,5 @@ class _StickerRequest:
         :return: Returns 204 No Content on success.
         """
         return await self._req.request(
-            Route("DELETE", f"/guild/{guild_id}/stickers/{sticker_id}"), reason=reason
+            Route("DELETE", f"/guilds/{guild_id}/stickers/{sticker_id}"), reason=reason
         )
