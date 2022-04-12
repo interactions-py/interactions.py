@@ -7,9 +7,10 @@ from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Snowflake
+from ..api.models.misc import MISSING, Snowflake, Image
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
+from ..api.models.user import User
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
@@ -97,6 +98,11 @@ class Client:
     def reload(
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]: ...
+    async def modify(
+        self,
+        username: Optional[str] = MISSING,
+        avatar: Optional[Image] = MISSING,
+    ) -> User: ...
     def get_extension(self, name: str) -> Union[ModuleType, "Extension"]: ...
     async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
     async def raw_channel_create(self, message) -> dict: ...

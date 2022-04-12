@@ -16,9 +16,10 @@ from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Snowflake
+from ..api.models.misc import MISSING, Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
+from ..api.models.user import User
 from ..base import get_logger
 from .decor import command
 from .decor import component as _component
@@ -1091,6 +1092,26 @@ class Client:
 
         self.remove(name, package)
         return self.load(name, package, *args, **kwargs)
+
+    async def modify(
+        self,
+        username: Optional[str] = MISSING,
+        avatar: Optional[Image] = MISSING,
+    ) -> User:
+        """
+        Modify the bot user account settings.
+
+        :param username?: The new username of the bot
+        :type username?: Optional[str]
+        :param avatar?: The new avatar of the bot
+        :type avatar?: Optional[Image]
+        :return: The modified User object
+        :rtype: User
+        """
+        payload: dict = {"username": username, "avatar": avatar.data}
+        data: dict = await self._http.modify_self(payload=payload)
+
+        return User(**data)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
