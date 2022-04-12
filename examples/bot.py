@@ -14,9 +14,8 @@ client = interactions.Client("your bot token will go here.")
 
 # With our client established, let's have the library inform us when the client is ready.
 # These are known as event listeners. An event listener can be established in one of two ways.
-# You can provide the name of the event, prefixed by an "on_", by naming the function afterwards
-# as the event you want to listen to.
-@client.event
+# You can provide the name of the event, prefixed by an "on_", or by telling the event decorator what event it is.
+@client.event(name="on_ready")
 async def on_ready():
     # We can use the client "me" attribute to get information about the bot.
     print(f"We're online! We've logged in as {client.me.name}.")
@@ -25,8 +24,8 @@ async def on_ready():
     print(f"Our latency is {round(client.latency)} ms.")
 
 
-@client.event
-async def on_message_create(message: interactions.Message):
+@client.event(name="on_message_create")
+async def name_this_however_you_want(message: interactions.Message):
     # Whenever we specify any other event type that isn't "READY," the function underneath
     # the decorator will most likely have an argument required. This argument is the data
     # that is being supplied back to us developers, which we call a data model.
