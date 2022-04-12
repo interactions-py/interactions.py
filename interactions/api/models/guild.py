@@ -1311,6 +1311,70 @@ class Guild(DictSerializerMixin):
             premium_progress_bar_enabled=premium_progress_bar_enabled, reason=reason
         )
 
+    async def set_icon(
+        self,
+        icon: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the icon of the guild.
+
+        :param icon: The new icon of the guild
+        :type icon: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(icon=icon, reason=reason)
+
+    async def set_splash(
+        self,
+        splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the splash of the guild.
+
+        :param splash: The new splash of the guild
+        :type self: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(splash=splash, reason=reason)
+
+    async def set_discovery_splash(
+        self,
+        discovery_splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the discovery_splash of the guild.
+
+        :param discovery_splash: The new discovery_splash of the guild
+        :type discovery_splash: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(discovery_splash=discovery_splash, reason=reason)
+
+    async def set_banner(
+        self,
+        banner: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the banner of the guild.
+
+        :param banner: The new banner of the guild
+        :type banner: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(banner=banner, reason=reason)
+
     async def create_scheduled_event(
         self,
         name: str,

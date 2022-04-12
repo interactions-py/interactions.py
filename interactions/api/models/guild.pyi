@@ -351,7 +351,30 @@ class Guild(DictSerializerMixin):
         *,
         reason: Optional[str] = None,
     ) -> "Guild": ...
-
+    async def set_icon(
+        self,
+        icon: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
+    async def set_splash(
+        self,
+        splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
+    async def set_discovery_splash(
+        self,
+        discovery_splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
+    async def set_banner(
+        self,
+        banner: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
     async def create_scheduled_event(
         self,
         name: str,
