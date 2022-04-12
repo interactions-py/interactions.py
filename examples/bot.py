@@ -15,7 +15,7 @@ client = interactions.Client("your bot token will go here.")
 # With our client established, let's have the library inform us when the client is ready.
 # These are known as event listeners. An event listener can be established in one of two ways.
 # You can provide the name of the event, prefixed by an "on_", or by telling the event decorator what event it is.
-@client.event(name="on_ready")
+@client.event
 async def on_ready():
     # We can use the client "me" attribute to get information about the bot.
     print(f"We're online! We've logged in as {client.me.name}.")
