@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
@@ -1521,18 +1521,65 @@ class Guild(DictSerializerMixin):
         )
         return [Role(**role, _client=self._client) for role in res]
 
-    async def get_bans(self) -> List[dict]:
+    async def get_bans(
+        self,
+        limit: Optional[int] = 1000,
+        before: Optional[int] = MISSING,
+        after: Optional[int] = MISSING,
+    ) -> List[Dict[str, User]]:
         """
         Gets a list of banned users.
 
+        :param limit?: Number of users to return. Defaults to 1000.
+        :type limit?: Optional[int]
+        :param before?: Consider only users before the given User ID snowflake.
+        :type before?: Optional[int]
+        :param after?: Consider only users after the given User ID snowflake.
+        :type after?: Optional[int]
         :return: List of banned users with reasons
-        :rtype: List[dict]
+        :rtype: List[Dict[str, User]]
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.get_guild_bans(int(self.id))
+        _before = before if before is not MISSING else None
+        _after = after if after is not MISSING else None
+        res = await self._client.get_guild_bans(int(self.id), limit, _before, _after)
         for ban in res:
             ban["user"] = User(**ban["user"])
+        return res
+
+    async def get_all_bans(self) -> List[Dict[str, User]]:
+        """
+        Gets all bans of the guild.
+
+        :return: List of banned users with reasons
+        :rtype: List[Dict[str, User]]
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _after = None
+        _all: list = []
+
+        res = await self._client.get_guild_bans(int(self.id), limit=1000)
+
+        while res >= 1000:
+
+            for ban in res:
+                ban["user"] = User(**ban["user"])
+            _all.append(res)
+            _after = int(res[-1]["user"].id)
+
+            res = await self._client.get_guild_bans(
+                int(self.id),
+                after=_after,
+            )
+
+        for ban in res:
+            ban["user"] = User(**ban["user"])
+        _all.append(res)
+
         return res
 
     async def get_emoji(

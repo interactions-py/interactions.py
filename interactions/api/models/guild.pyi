@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union, Dict
 from enum import IntEnum
 
 from .channel import Channel, ChannelType, Thread
@@ -391,7 +391,13 @@ class Guild(DictSerializerMixin):
         position: int,
         reason: Optional[str] = None,
     ) -> List[Role]: ...
-    async def get_bans(self) -> List[dict]: ...
+    async def get_bans(
+        self,
+        limit: Optional[int] = 1000,
+        before: Optional[int] = None,
+        after: Optional[int] = None,
+    ) -> List[dict]: ...
+    async def get_all_bans(self) -> List[Dict[str, User]]: ...
     async def get_emoji(
         self,
         emoji_id: int
