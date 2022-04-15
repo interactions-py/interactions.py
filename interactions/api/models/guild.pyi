@@ -5,7 +5,7 @@ from enum import IntEnum
 from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import DictSerializerMixin, MISSING, Snowflake, Overwrite
+from .misc import DictSerializerMixin, MISSING, Snowflake, Overwrite, Image
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
@@ -262,11 +262,11 @@ class Guild(DictSerializerMixin):
         explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
         afk_channel_id: Optional[int] = MISSING,
         afk_timeout: Optional[int] = MISSING,
-        # icon, TODO: implement images
+        icon: Optional[Image] = MISSING,
         owner_id: Optional[int] = MISSING,
-        # splash, TODO: implement images
-        # discovery_splash, TODO: implement images
-        # banner, TODO: implement images
+        splash: Optional[Image] = MISSING,
+        discovery_splash: Optional[Image] = MISSING,
+        banner: Optional[Image] = MISSING,
         system_channel_id: Optional[int] = MISSING,
         suppress_join_notifications: Optional[bool] = MISSING,
         suppress_premium_subscriptions: Optional[bool] = MISSING,
@@ -351,7 +351,30 @@ class Guild(DictSerializerMixin):
         *,
         reason: Optional[str] = None,
     ) -> "Guild": ...
-
+    async def set_icon(
+        self,
+        icon: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
+    async def set_splash(
+        self,
+        splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
+    async def set_discovery_splash(
+        self,
+        discovery_splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
+    async def set_banner(
+        self,
+        banner: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild": ...
     async def create_scheduled_event(
         self,
         name: str,
@@ -361,6 +384,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
         ) -> "ScheduledEvents": ...
     async def modify_scheduled_event(
@@ -373,6 +397,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents": ...
     async def delete_scheduled_event(
@@ -403,6 +428,13 @@ class Guild(DictSerializerMixin):
         emoji_id: int
     ) -> Emoji: ...
     async def get_all_emoji(self) -> List[Emoji]: ...
+    async def create_emoji(
+        self,
+        image: Image,
+        name: Optional[str] = MISSING,
+        roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Emoji: ...
     async def delete_emoji(
         self,
         emoji: Union[Emoji, int],

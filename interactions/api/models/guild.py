@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Union
 from .channel import Channel, ChannelType
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import MISSING, DictSerializerMixin, Overwrite, Snowflake
+from .misc import MISSING, DictSerializerMixin, Image, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -966,11 +966,11 @@ class Guild(DictSerializerMixin):
         explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
         afk_channel_id: Optional[int] = MISSING,
         afk_timeout: Optional[int] = MISSING,
-        # icon, TODO: implement images
+        icon: Optional[Image] = MISSING,
         owner_id: Optional[int] = MISSING,
-        # splash, TODO: implement images
-        # discovery_splash, TODO: implement images
-        # banner, TODO: implement images
+        splash: Optional[Image] = MISSING,
+        discovery_splash: Optional[Image] = MISSING,
+        banner: Optional[Image] = MISSING,
         system_channel_id: Optional[int] = MISSING,
         suppress_join_notifications: Optional[bool] = MISSING,
         suppress_premium_subscriptions: Optional[bool] = MISSING,
@@ -998,8 +998,16 @@ class Guild(DictSerializerMixin):
         :type afk_channel_id: Optional[int]
         :param afk_timeout?: Afk timeout in seconds
         :type afk_timeout: Optional[int]
+        :param icon?: 1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when the server has the ANIMATED_ICON feature)
+        :type icon: Optional[Image]
         :param owner_id?: The id of the user to transfer the guild ownership to. You must be the owner to perform this
         :type owner_id: Optional[int]
+        :param splash?: 16:9 png/jpeg image for the guild splash (when the server has the INVITE_SPLASH feature)
+        :type splash: Optional[Image]
+        :param discovery_splash?: 16:9 png/jpeg image for the guild discovery splash (when the server has the DISCOVERABLE feature)
+        :type discovery_splash: Optional[Image]
+        :param banner?: 16:9 png/jpeg image for the guild banner (when the server has the BANNER feature; can be animated gif when the server has the ANIMATED_BANNER feature)
+        :type banner: Optional[Image]
         :param system_channel_id?: The id of the channel where guild notices such as welcome messages and boost events are posted
         :type system_channel_id: Optional[int]
         :param suppress_join_notifications?: Whether to suppress member join notifications in the system channel or not
@@ -1084,6 +1092,16 @@ class Guild(DictSerializerMixin):
             payload["description"] = description
         if premium_progress_bar_enabled is not MISSING:
             payload["premium_progress_bar_enabled"] = premium_progress_bar_enabled
+        if icon is not MISSING:
+            payload["icon"] = icon.data if isinstance(icon, Image) else icon  # in case it is `None`
+        if splash is not MISSING:
+            payload["splash"] = splash.data if isinstance(splash, Image) else splash
+        if discovery_splash is not MISSING:
+            payload["discovery_splash"] = (
+                splash.data if isinstance(discovery_splash, Image) else discovery_splash
+            )
+        if banner is not MISSING:
+            payload["banner"] = banner.data if isinstance(banner, Image) else banner
 
         res = await self._client.modify_guild(
             guild_id=int(self.id),
@@ -1293,6 +1311,70 @@ class Guild(DictSerializerMixin):
             premium_progress_bar_enabled=premium_progress_bar_enabled, reason=reason
         )
 
+    async def set_icon(
+        self,
+        icon: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the icon of the guild.
+
+        :param icon: The new icon of the guild
+        :type icon: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(icon=icon, reason=reason)
+
+    async def set_splash(
+        self,
+        splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the splash of the guild.
+
+        :param splash: The new splash of the guild
+        :type self: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(splash=splash, reason=reason)
+
+    async def set_discovery_splash(
+        self,
+        discovery_splash: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the discovery_splash of the guild.
+
+        :param discovery_splash: The new discovery_splash of the guild
+        :type discovery_splash: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(discovery_splash=discovery_splash, reason=reason)
+
+    async def set_banner(
+        self,
+        banner: Image,
+        *,
+        reason: Optional[str] = None,
+    ) -> "Guild":
+        """
+        Sets the banner of the guild.
+
+        :param banner: The new banner of the guild
+        :type banner: Image
+        :param reason?: The reason of the edit
+        :type reason: Optional[str]
+        """
+        return await self.modify(banner=banner, reason=reason)
+
     async def create_scheduled_event(
         self,
         name: str,
@@ -1302,6 +1384,7 @@ class Guild(DictSerializerMixin):
         entity_metadata: Optional["EventMetadata"] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -1321,6 +1404,8 @@ class Guild(DictSerializerMixin):
         :type channel_id: Optional[int]
         :param description?: The description of the scheduled event
         :type description: Optional[str]
+        :param image?: The cover image of the scheduled event
+        :type image?: Optional[Image]
         :return: The created event
         :rtype: ScheduledEvents
         """
@@ -1354,6 +1439,8 @@ class Guild(DictSerializerMixin):
             payload["channel_id"] = channel_id
         if description is not MISSING:
             payload["description"] = description
+        if image is not MISSING:
+            payload["image"] = image.data if isinstance(image, Image) else image
 
         res = await self._client.create_scheduled_event(
             guild_id=self.id,
@@ -1372,6 +1459,7 @@ class Guild(DictSerializerMixin):
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
         status: Optional[EventStatus] = MISSING,
+        image: Optional[Image] = MISSING,
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
@@ -1395,6 +1483,8 @@ class Guild(DictSerializerMixin):
         :type description: Optional[str]
         :param status?: The status of the scheduled event
         :type status: Optional[EventStatus]
+        :param image?: The cover image of the scheduled event
+        :type image?: Optional[Image]
         :return: The modified event
         :rtype: ScheduledEvents
         """
@@ -1427,6 +1517,8 @@ class Guild(DictSerializerMixin):
             payload["description"] = description
         if status is not MISSING:
             payload["status"] = status
+        if image is not MISSING:
+            payload["image"] = image.data if isinstance(image, Image) else image
 
         res = await self._client.modify_scheduled_event(
             guild_id=self.id,
@@ -1611,6 +1703,44 @@ class Guild(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_all_emoji(guild_id=int(self.id))
         return [Emoji(**emoji, _client=self._client) for emoji in res]
+
+    async def create_emoji(
+        self,
+        image: Image,
+        name: Optional[str] = MISSING,
+        roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Emoji:
+        """
+        Creates an Emoji in the guild.
+
+        :param image: The image of the emoji.
+        :type image: Image
+        :param name?: The name of the emoji. If not specified, the filename will be used
+        :type name?: Optional[str]
+        :param roles?: Roles allowed to use this emoji
+        :type roles?: Optional[Union[List[Role], List[int]]]
+        :param reason?: The reason of the creation
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _name = name if name is not MISSING else image.filename
+
+        payload: dict = {
+            "name": _name,
+            "image": image.data,
+        }
+
+        if roles is not MISSING:
+            _roles = [role.id if isinstance(role, Role) else role for role in roles]
+            payload["roles"] = _roles
+
+        res = await self._client.create_guild_emoji(
+            guild_id=int(self.id), payload=payload, reason=reason
+        )
+        return Emoji(**res)
 
     async def delete_emoji(
         self,
