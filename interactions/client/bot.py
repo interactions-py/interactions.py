@@ -1093,6 +1093,9 @@ class Client:
         self.remove(name, package)
         return self.load(name, package, *args, **kwargs)
 
+    def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
+        return self._extensions.get(name)
+
     async def modify(
         self,
         username: Optional[str] = MISSING,
@@ -1112,9 +1115,6 @@ class Client:
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)
-
-    def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
-        return self._extensions.get(name)
 
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
