@@ -38,6 +38,7 @@ setup(
     long_description_content_type="text/x-rst",
     url="https://github.com/interactions-py/library",
     packages=find_packages(),
+    include_package_data=True,
     python_requires=">=3.8.6",
     classifiers=[
         "Development Status :: 4 - Beta",

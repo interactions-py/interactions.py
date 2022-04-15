@@ -115,7 +115,7 @@ class _Request:
         # The idea is that its regulated by the priority of Discord's bucket header and not just self-computation.
         # This implementation is based on JDA's bucket implementation, which we heavily use in favour of allowing routes
         # and other resources to be exhausted first on a separate lock call before hitting global limits.
-        
+
         if self.ratelimits.get(bucket):
             _limiter: Limiter = self.ratelimits.get(bucket)
             if _limiter.lock.locked():
