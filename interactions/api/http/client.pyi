@@ -10,7 +10,6 @@ from .member import _MemberRequest
 from .message import _MessageRequest
 from .reaction import _ReactionRequest
 from .request import _Request
-from .route import Route
 from .scheduledEvent import _ScheduledEventRequest
 from .sticker import _StickerRequest
 from .thread import _ThreadRequest
