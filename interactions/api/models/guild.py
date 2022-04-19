@@ -322,7 +322,7 @@ class Guild(DictSerializerMixin):
         if (
             not self.members
             and self._client
-            and len(self._client.cache.self_guilds.view) > 1
+            and self._client.cache.self_guilds.values.get(str(self.id))
             and self._client.cache.self_guilds.values[str(self.id)].members
         ):
             members = self._client.cache.self_guilds.values[str(self.id)].members
