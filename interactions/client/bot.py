@@ -339,7 +339,7 @@ class Client:
         await self._websocket.wait_until_ready()
 
     def event(
-        self, coro: Optional[Coroutine] = MISSING, name: Optional[str] = MISSING
+        self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = MISSING
     ) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
