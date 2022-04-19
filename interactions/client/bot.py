@@ -102,7 +102,11 @@ class Client:
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
-        return [Guild(**_, _client=self._http) for _ in self._http.cache.self_guilds.view]
+
+        return [
+            Guild(**_) if _.get("_client") else Guild(**_, _client=self._http)
+            for _ in self._http.cache.self_guilds.view
+        ]
 
     @property
     def latency(self) -> float:
