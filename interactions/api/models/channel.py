@@ -180,6 +180,11 @@ class Channel(DictSerializerMixin):
             if self._json.get("last_pin_timestamp")
             else None
         )
+        self.permission_overwrites = (
+            [Overwrite(**overwrite) for overwrite in self._json.get("permission_overwrites")]
+            if self._json.get("permission_overwrites")
+            else None
+        )
 
     def __repr__(self) -> str:
         return self.name
