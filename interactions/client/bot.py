@@ -355,11 +355,15 @@ class Client:
         """
 
         def decorator(coro: Coroutine):
-            self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
+            self._websocket._dispatch.register(
+                coro, name=name if name is not MISSING else coro.__name__
+            )
             return coro
 
         if coro is not MISSING:
-            self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
+            self._websocket._dispatch.register(
+                coro, name=name if name is not MISSING else coro.__name__
+            )
             return coro
 
         return decorator
