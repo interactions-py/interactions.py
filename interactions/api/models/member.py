@@ -83,7 +83,7 @@ class Member(DictSerializerMixin):
             self.avatar = self.user.avatar
 
     def __repr__(self) -> str:
-        return self.user.username if self.user else self.nick
+        return self.nick or (self.user.username if self.user else None)
 
     @property
     def id(self) -> Snowflake:
@@ -104,6 +104,16 @@ class Member(DictSerializerMixin):
         :rtype: str
         """
         return f"<@!{self.user.id}>" if self.nick else f"<@{self.user.id}>"
+
+    @property
+    def name(self) -> str:
+        """
+        Returns a string of whether the users nickname or its username, if a nickname isn't present
+
+        :return: The name of the member
+        :rtype: str
+        """
+        return self.nick or (self.user.username if self.user else None)
 
     async def ban(
         self,
