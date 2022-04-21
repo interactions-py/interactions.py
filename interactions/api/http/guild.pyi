@@ -65,7 +65,7 @@ class _GuildRequest:
         self, guild_id: int, payload: dict, reason: Optional[str] = None
     ) -> dict: ...
     async def modify_guild_role_positions(
-        self, guild_id: int, payload: dict, reason: Optional[str] = None
+        self, guild_id: int, payload: List[dict], reason: Optional[str] = None
     ) -> List[dict]: ...
     async def modify_guild_role(
         self, guild_id: int, role_id: int, payload: dict, reason: Optional[str] = None
