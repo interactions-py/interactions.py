@@ -666,7 +666,7 @@ class Guild(DictSerializerMixin):
         _message_id = None if message_id is MISSING else message_id
         res = await self._client.create_thread(
             channel_id=channel_id,
-            thread_type=type.value if not isinstance(type, int) else type,
+            thread_type=type if isinstance(type, int) else type.value,
             name=name,
             auto_archive_duration=_auto_archive_duration,
             invitable=_invitable,
@@ -1808,7 +1808,7 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if after is not MISSING:
-            _after = int(after.id) if not isinstance(after, int) else after
+            _after = after if isinstance(after, int) else int(after.id)
         else:
             _after = None
         res = await self._client.get_list_of_members(
@@ -1897,10 +1897,11 @@ class Guild(DictSerializerMixin):
         :return: URL of the guild's invite splash banner (None will be returned if no banner is set)
         :rtype: str
         """
-        if not self.banner:
-            return None
-
-        return f"https://cdn.discordapp.com/splashes/{int(self.id)}/{self.splash}.png"
+        return (
+            f"https://cdn.discordapp.com/splashes/{int(self.id)}/{self.splash}.png"
+            if self.banner
+            else None
+        )
 
     @property
     def discovery_splash_url(self) -> Optional[str]:
@@ -1909,10 +1910,11 @@ class Guild(DictSerializerMixin):
         :return: URL of the guild's discovery splash banner (None will be returned if no banner is set)
         :rtype: str
         """
-        if not self.banner:
-            return None
-
-        return f"https://cdn.discordapp.com/discovery-splashes/{int(self.id)}/{self.discovery_splash}.png"
+        return (
+            f"https://cdn.discordapp.com/discovery-splashes/{int(self.id)}/{self.discovery_splash}.png"
+            if self.banner
+            else None
+        )
 
 
 class GuildPreview(DictSerializerMixin):

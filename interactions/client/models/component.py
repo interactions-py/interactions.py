@@ -429,6 +429,7 @@ class ActionRow(DictSerializerMixin):
 
 
 def _build_components(components) -> List[dict]:
+    # sourcery no-metrics
     def __check_action_row():
 
         if isinstance(components, list) and all(
@@ -441,9 +442,10 @@ def _build_components(components) -> List[dict]:
                 ):
                     if isinstance(component, SelectMenu):
                         component._json["options"] = [
-                            option._json if not isinstance(option, dict) else option
+                            option if isinstance(option, dict) else option._json
                             for option in component.options
                         ]
+
                 _components.append(
                     {
                         "type": 1,
@@ -484,9 +486,10 @@ def _build_components(components) -> List[dict]:
             for component in components:
                 if isinstance(component, SelectMenu):
                     component._json["options"] = [
-                        options._json if not isinstance(options, dict) else options
+                        options if isinstance(options, dict) else options._json
                         for options in component._json["options"]
                     ]
+
             _components = [
                 {
                     "type": 1,
@@ -513,9 +516,10 @@ def _build_components(components) -> List[dict]:
         elif isinstance(components, SelectMenu):
             _components: List[dict] = [{"type": 1, "components": []}]
             components._json["options"] = [
-                options._json if not isinstance(options, dict) else options
+                options if isinstance(options, dict) else options._json
                 for options in components._json["options"]
             ]
+
             _components[0]["components"] = (
                 [components._json]
                 if components._json.get("custom_id") or components._json.get("url")

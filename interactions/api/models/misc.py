@@ -259,11 +259,7 @@ class File(object):
                 "File's first parameter 'filename' must be a string, not " + str(type(filename))
             )
 
-        if not fp or fp is MISSING:
-            self._fp = open(filename, "rb")
-        else:
-            self._fp = fp
-
+        self._fp = open(filename, "rb") if not fp or fp is MISSING else fp
         self._filename = basename(filename)
 
         if not description or description is MISSING:
@@ -288,7 +284,7 @@ class Image(object):
         self._URI = "data:image/"
 
         if fp is MISSING or isinstance(file, FileIO):
-            file: FileIO = FileIO(file) if not isinstance(file, FileIO) else file
+            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)
 
             self._name = file.name
             _file = file.read()

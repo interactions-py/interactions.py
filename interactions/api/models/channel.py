@@ -50,7 +50,7 @@ class ThreadMetadata(DictSerializerMixin):
         self.archive_timestamp = (
             datetime.fromisoformat(self._json.get("archive_timestamp"))
             if self._json.get("archive_timestamp")
-            else datetime.utcnow()
+            else datetime.now(timezone.utc)
         )
 
 
@@ -675,9 +675,8 @@ class Channel(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from .message import Message
 
-        res = await self._client.publish_message(
-            channel_id=int(self.id), message_id=int(message_id)
-        )
+        res = await self._client.publish_message(channel_id=int(self.id), message_id=message_id)
+
         return Message(**res, _client=self._client)
 
     async def get_pinned_messages(self) -> List["Message"]:  # noqa
@@ -966,7 +965,7 @@ class Channel(DictSerializerMixin):
 
     @property
     def url(self) -> str:
-        _guild_id = "@me" if not isinstance(self.guild_id, int) else self.guild_id
+        _guild_id = self.guild_id if isinstance(self.guild_id, int) else "@me"
         return f"https://discord.com/channels/{_guild_id}/{self.id}"
 
     async def create_invite(

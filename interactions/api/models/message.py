@@ -380,7 +380,7 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if self.flags == 64:
-            raise Exception("You cannot edit a hidden message!")
+            raise TypeError("You cannot edit a hidden message!")
 
         from ...client.models.component import _build_components
 
@@ -398,10 +398,11 @@ class Message(DictSerializerMixin):
         if embeds is MISSING:
             embeds = self.embeds
         _embeds: list = (
-            []
-            if not embeds
-            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+            ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+            if embeds
+            else []
         )
+
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
@@ -428,7 +429,7 @@ class Message(DictSerializerMixin):
             files=files,
         )
 
-        msg = Message(**_dct) if not _dct.get("code") else payload
+        msg = payload if _dct.get("code") else Message(**_dct)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(msg, attr))
@@ -591,9 +592,7 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
 
         return await self._client.create_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
@@ -623,9 +622,8 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+
         return await self._client.remove_all_reactions_of_emoji(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
         )
@@ -643,9 +641,8 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f"{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f"{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+
         return await self._client.remove_self_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
         )
@@ -661,9 +658,8 @@ class Message(DictSerializerMixin):
         :param user: The user or user_id to remove the reaction of
         :type user: Union[Member, user, int]
         """
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+
         _user_id = user if isinstance(user, int) else user.id
         return await self._client.remove_user_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
@@ -699,7 +695,7 @@ class Message(DictSerializerMixin):
         :return: The URL of said message
         :rtype: str
         """
-        guild = self.guild_id if self.guild_id else "@me"
+        guild = self.guild_id or "@me"
         return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
 
 
