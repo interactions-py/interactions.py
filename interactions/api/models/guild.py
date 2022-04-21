@@ -1606,11 +1606,36 @@ class Guild(DictSerializerMixin):
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """
+        return await self.modify_role_positions(
+            changes=[{"id": role_id, "position": position}], reason=reason
+        )
+
+    async def modify_role_positions(
+        self,
+        changes: List[dict],
+        reason: Optional[str] = None,
+    ) -> List[Role]:
+        """
+        Modifies the positions of multiple roles in the guild.
+
+        :param changes: A list of dicts containing roles (id) and their new positions (position)
+        :type changes: List[dict]
+        :param reason?: The reason for the modifying
+        :type reason: Optional[str]
+        :return: List of guild roles with updated hierarchy
+        :rtype: List[Role]
+        """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        _role_id = role_id.id if isinstance(role_id, Role) else role_id
-        res = await self._client.modify_guild_role_position(
-            guild_id=int(self.id), position=position, role_id=_role_id, reason=reason
+        res = await self._client.modify_guild_role_positions(
+            guild_id=int(self.id),
+            payload=[
+                {"id": int(change["id"].id), "position": change["position"]}
+                if isinstance(change["id"], Role)
+                else change
+                for change in changes
+            ],
+            reason=reason,
         )
         return [Role(**role, _client=self._client) for role in res]
 

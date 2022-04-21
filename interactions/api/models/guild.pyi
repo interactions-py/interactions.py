@@ -416,6 +416,11 @@ class Guild(DictSerializerMixin):
         position: int,
         reason: Optional[str] = None,
     ) -> List[Role]: ...
+    async def modify_role_positions(
+        self,
+        changes: List[dict],
+        reason: Optional[str] = None,
+    ) -> List[Role]: ...
     async def get_bans(
         self,
         limit: Optional[int] = 1000,
