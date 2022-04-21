@@ -239,7 +239,7 @@ class WebSocketClient:
                 #    self.sequence = None
                 # self._closed = True
 
-                if bool(data) is False and op == OpCodeType.INVALIDATE_SESSION:
+                if not bool(data) and op == OpCodeType.INVALIDATE_SESSION:
                     self.session_id = None
 
                 await self.__restart()
@@ -272,11 +272,7 @@ class WebSocketClient:
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
-            if not data.get("type"):
-                log.warning(
-                    "Context is being created for the interaction, but no type is specified. Skipping..."
-                )
-            else:
+            if data.get("type"):
                 # sourcery skip: extract-method
                 _context = self.__contextualize(data)
                 _name: str = ""
@@ -339,6 +335,10 @@ class WebSocketClient:
                 self._dispatch.dispatch(_name, *__args, **__kwargs)
                 self._dispatch.dispatch("on_interaction", _context)
                 self._dispatch.dispatch("on_interaction_create", _context)
+            else:
+                log.warning(
+                    "Context is being created for the interaction, but no type is specified. Skipping..."
+                )
         elif event != "TYPING_START":
             name: str = event.lower()
             try:
