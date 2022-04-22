@@ -396,7 +396,7 @@ class _GuildRequest:
         request = await self.get_all_roles(guild_id)
 
         for role in request:
-            if role.get("id") == role_id:
+            if role.get("id") and int(role["id"]) == role_id:
                 return role
 
     async def create_guild_role(
