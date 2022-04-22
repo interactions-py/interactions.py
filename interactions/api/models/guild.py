@@ -1581,11 +1581,9 @@ class Guild(DictSerializerMixin):
 
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        roles = await self._client.get_all_roles(guild_id=int(self.id))
-        for i in roles:
-            if int(i["id"]) == role_id:
-                role = Role(**i)
-                break
+        role = await self._client.get_role(guild_id=int(self.id), role_id=role_id)
+        if role:
+            role = Role(**role)
         return role
 
     async def modify_role_position(

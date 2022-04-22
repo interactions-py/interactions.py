@@ -32,6 +32,16 @@ class _EmojiRequest:
         """
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis/{emoji_id}"))
 
+    async def get_emoji(self, guild_id: int, emoji_id: int) -> dict:
+        """
+        Gets an emote from a guild.
+
+        :param guild_id: Guild ID snowflake.
+        :param emoji_id: Emoji ID snowflake.
+        :return: Emoji object
+        """
+        return await self.get_guild_emoji(guild_id, emoji_id)
+
     async def create_guild_emoji(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
     ) -> dict:

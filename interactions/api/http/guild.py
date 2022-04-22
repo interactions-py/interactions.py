@@ -385,6 +385,20 @@ class _GuildRequest:
 
         return request
 
+    async def get_role(self, guild_id: int, role_id: int) -> dict:
+        """
+        Gets a role from a Guild.
+
+        :param guild_id: Guild ID snowflake
+        :param role_id: Role ID snowflake
+        :return: A Role object as a dictionary.
+        """
+        request = await self.get_all_roles(guild_id)
+
+        for role in request:
+            if role.get("id") == role_id:
+                return role
+
     async def create_guild_role(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
     ) -> dict:
