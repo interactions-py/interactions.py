@@ -34,7 +34,7 @@ class _EmojiRequest:
 
     async def get_emoji(self, guild_id: int, emoji_id: int) -> dict:
         """
-        Gets an emote from a guild.
+        An alias to `get_guild_emoji`.
 
         :param guild_id: Guild ID snowflake.
         :param emoji_id: Emoji ID snowflake.

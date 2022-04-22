@@ -387,7 +387,7 @@ class _GuildRequest:
 
     async def get_role(self, guild_id: int, role_id: int) -> dict:
         """
-        Gets a role from a Guild.
+        Gets the specified role from the list of roles in a Guild.
 
         :param guild_id: Guild ID snowflake
         :param role_id: Role ID snowflake
