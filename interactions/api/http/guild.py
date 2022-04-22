@@ -389,6 +389,8 @@ class _GuildRequest:
         """
         Gets the specified role from the list of roles in a Guild.
 
+        This is not a native Discord API endpoint.
+
         :param guild_id: Guild ID snowflake
         :param role_id: Role ID snowflake
         :return: A Role object as a dictionary.
