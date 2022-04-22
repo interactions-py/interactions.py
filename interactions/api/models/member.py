@@ -108,7 +108,7 @@ class Member(DictSerializerMixin):
     @property
     def name(self) -> str:
         """
-        Returns a string of whether the users nickname or its username, if a nickname isn't present
+        returns the string of either the user's nickname or username
 
         :return: The name of the member
         :rtype: str
