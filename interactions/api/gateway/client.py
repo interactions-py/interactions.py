@@ -70,7 +70,7 @@ class WebSocketClient:
         "__received_heartbeat_ack",
         "__shard",
         "__presence",
-        "__task",
+        "__heartbeat_task",
         "session_id",
         "sequence",
         "ready",
