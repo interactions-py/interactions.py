@@ -6,9 +6,8 @@ from asyncio import (
 from logging import Logger
 from typing import Any, Dict, List, Optional, Tuple, Union, Iterable
 
-from aiohttp import ClientWebSocketResponse
+from aiohttp import ClientWebSocketResponse, WSMessage
 
-from .heartbeat import _Heartbeat
 from ...client.models import Option
 from ...api.models.misc import MISSING
 from ...api.models.presence import ClientPresence
@@ -28,12 +27,13 @@ class WebSocketClient:
     _options: dict
     _intents: Intents
     _ready: dict
-    __heartbeater: _Heartbeat
+    __received_heartbeat_ack: bool
     __shard: Optional[List[Tuple[int]]]
     __presence: Optional[ClientPresence]
-    __task: Optional[Task]
+    __heartbeat_task: Optional[Task]
     session_id: Optional[str]
     sequence: Optional[int]
+    _heartbeat_delay: Optional[int]
     _last_send: float
     _last_ack: float
     latency: float
@@ -60,13 +60,12 @@ class WebSocketClient:
     ) -> None: ...
     async def wait_until_ready(self) -> None: ...
     def _dispatch_event(self, event: str, data: dict) -> None: ...
-    def __contextualize(self, data: dict) -> object: ...
+    def __contextualize(self, data: dict) -> Any: ...
     def __sub_command_context(
         self, data: Union[dict, Option], _context: Optional[object] = MISSING
     ) -> Union[Tuple[str], dict]: ...
-    def __option_type_context(self, context: object, type: int) -> dict: ...
-    @property
-    async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]: ...
+    def __option_type_context(self, context: Any, type: int) -> dict: ...
+    async def __get_next_packet(self) -> Union[Dict[str, Any], WSMessage, None]:: ...
     async def _send_packet(self, data: Dict[str, Any]) -> None: ...
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None

@@ -29,7 +29,6 @@ from ..http.client import HTTPClient
 from ..models.flags import Intents
 from ..models.misc import MISSING
 from ..models.presence import ClientPresence
-from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
 
@@ -46,13 +45,14 @@ class WebSocketClient:
     :ivar dict _options: The connection options made during connection.
     :ivar Intents _intents: The gateway intents used for connection.
     :ivar dict _ready: The contents of the application returned when ready.
-    :ivar _Heartbeat __heartbeater: The context state of a "heartbeat" made to the Gateway.
+    :ivar bool __received_heartbeat_ack:
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Event ready: The ready state of the client as an ``asyncio.Event``.
-    :ivar Task __task: The closing task for ending connections.
+    :ivar Task __heartbeat_task: The closing task for ending connections.
     :ivar Optional[str] session_id: The ID of the ongoing session.
     :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
+    :ivar: Optional[float] _heartbeat_delay: The delay between heartbeats
     :ivar float _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
     :ivar float _last_ack: The latest time of the last ``HEARTBEAT_ACK`` event since connection creation, in seconds.
     :ivar float latency: The latency of the connection, in seconds.
@@ -67,7 +67,7 @@ class WebSocketClient:
         "_options",
         "_intents",
         "_ready",
-        "__heartbeater",
+        "__received_heartbeat_ack",
         "__shard",
         "__presence",
         "__task",
@@ -75,6 +75,7 @@ class WebSocketClient:
         "sequence",
         "ready",
         "_last_send",
+        "_heartbeat_delay",
         "_last_ack",
         "latency",
     )
@@ -111,16 +112,14 @@ class WebSocketClient:
             "compress": 0,
         }
         self._intents = intents
-        self.__heartbeater: _Heartbeat = _Heartbeat(
-            loop=self._loop if version_info < (3, 10) else None
-        )
+        self.__received_heartbeat_ack: bool = False
         self.__shard = None
         self.__presence = None
-        self.__task = None
+        self.__heartbeat_task = None
         self.session_id = None if session_id is MISSING else session_id
         self.sequence = None if sequence is MISSING else sequence
         self.ready = Event(loop=self._loop) if version_info < (3, 10) else Event()
-
+        self._heartbeat_delay: int = 0
         self._last_send = perf_counter()
         self._last_ack = perf_counter()
         self.latency: float("nan")  # noqa: F821
@@ -131,10 +130,10 @@ class WebSocketClient:
         while True:
             if self._closed:
                 await self.__restart()
-            if self.__heartbeater.event.is_set():
+            if self.__received_heartbeat_ack:
                 await self.__heartbeat()
-                self.__heartbeater.event.clear()
-                await sleep(self.__heartbeater.delay / 1000)
+                self.__received_heartbeat_ack = False
+                await sleep(self._heartbeat_delay / 1000)
             else:
                 log.debug("HEARTBEAT_ACK missing, reconnecting...")
                 await self.__restart()
@@ -142,11 +141,11 @@ class WebSocketClient:
 
     async def __restart(self):
         """Restart the client's connection and heartbeat with the Gateway."""
-        if self.__task:
-            self.__task: Task
-            self.__task.cancel()
+        if self.__heartbeat_task:
+            self.__heartbeat_task: Task
+            self.__heartbeat_task.cancel()
         self._client = None  # clear pending waits
-        self.__heartbeater.event.clear()
+        self.__received_heartbeat_ack = False
         await self._establish_connection()
 
     async def _establish_connection(
@@ -163,7 +162,6 @@ class WebSocketClient:
         :type presence: Optional[ClientPresence]
         """
         self._client = None
-        self.__heartbeater.delay = 0.0
         self._closed = False
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
         url = await self._http.get_gateway()
@@ -175,7 +173,7 @@ class WebSocketClient:
                 await self._establish_connection()
 
             while not self._closed:
-                stream = await self.__receive_packet_stream
+                stream = await self.__get_next_packet()
 
                 if stream is None:
                     continue
@@ -212,13 +210,13 @@ class WebSocketClient:
             log.debug(data)
 
             if op == OpCodeType.HELLO:
-                self.__heartbeater.delay = data["heartbeat_interval"]
-                self.__heartbeater.event.set()
+                self._heartbeat_delay = data["heartbeat_interval"]
+                self.__received_heartbeat_ack = True
 
-                if self.__task:
-                    self.__task.cancel()  # so we can reduce redundant heartbeat bg tasks.
+                if self.__heartbeat_task:
+                    self.__heartbeat_task.cancel()  # so we can reduce redundant heartbeat bg tasks.
 
-                self.__task = ensure_future(self._manage_heartbeat())
+                self.__heartbeat_task = ensure_future(self._manage_heartbeat())
 
                 if not self.session_id:
                     await self.__identify(shard, presence)
@@ -229,7 +227,7 @@ class WebSocketClient:
             if op == OpCodeType.HEARTBEAT_ACK:
                 self._last_ack = perf_counter()
                 log.debug("HEARTBEAT_ACK")
-                self.__heartbeater.event.set()
+                self.__received_heartbeat_ack = True
                 self.latency = self._last_ack - self._last_send
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
@@ -344,7 +342,7 @@ class WebSocketClient:
             try:
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
-                __obj: object = getattr(__import__(path), _name)
+                __obj: Any = getattr(__import__(path), _name)
 
                 # name in {"_create", "_add"} returns False (tested w message_create)
                 if any(_ in name for _ in {"_create", "_update", "_add", "_remove", "_delete"}):
@@ -355,7 +353,7 @@ class WebSocketClient:
                 log.fatal(f"An error occured dispatching {name}: {error}")
         self._dispatch.dispatch("raw_socket_create", data)
 
-    def __contextualize(self, data: dict) -> object:
+    def __contextualize(self, data: dict) -> Any:
         """
         Takes raw data given back from the Gateway
         and gives "context" based off of what it is.
@@ -470,13 +468,13 @@ class WebSocketClient:
 
         return __kwargs
 
-    def __option_type_context(self, context: object, type: int) -> dict:
+    def __option_type_context(self, context: Any, type: int) -> dict:
         """
         Looks up the type of option respective to the existing
         option types.
 
         :param context: The context to refer types from.
-        :type context: object
+        :type context: Any
         :param type: The option type.
         :type type: int
         :return: The option type context.
@@ -507,12 +505,10 @@ class WebSocketClient:
     async def restart(self):
         await self.__restart()
 
-    @property
-    async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]:
+    async def __get_next_packet(self) -> Union[Dict[str, Any], WSMessage, None]:
         """
-        Receives a stream of packets sent from the Gateway.
-
-        :return: The packet stream.
+        Gets the next packet from the gateway
+        :return: The packet from the gateway
         :rtype: Optional[Dict[str, Any]]
         """
 
