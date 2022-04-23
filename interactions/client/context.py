@@ -518,7 +518,6 @@ class CommandContext(_Context):
         """
 
         async def func():
-            log.debug("Populating choices...")
             _choices: Union[list, None] = []
 
             if not choices or (isinstance(choices, list) and len(choices) == 0):
