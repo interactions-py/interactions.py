@@ -525,7 +525,9 @@ class CommandContext(_Context):
                 _choices = None
             elif isinstance(choices, Choice):
                 _choices.append(choices._json)
-            elif isinstance(choices, list) and all(isinstance(choice, Choice) for choice in choices):
+            elif isinstance(choices, list) and all(
+                isinstance(choice, Choice) for choice in choices
+            ):
                 _choices = [choice._json for choice in choices]
             elif all(
                 isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
