@@ -7,7 +7,7 @@ from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from ..api import Cache
 from ..api import Item as Build
@@ -15,9 +15,13 @@ from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents, Permissions
+from ..api.models.channel import Channel
 from ..api.models.guild import Guild
+from ..api.models.member import Member
+from ..api.models.message import Message, Emoji, Sticker
 from ..api.models.misc import MISSING, Image, Snowflake
 from ..api.models.presence import ClientPresence
+from ..api.models.role import Role
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
@@ -30,6 +34,7 @@ from .models.component import Button, Modal, SelectMenu
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
+_T = TypeVar("_T")
 
 
 class Client:
@@ -1424,7 +1429,8 @@ class Client:
         Modify the bot user account settings.
 
         :param username?: The new username of the bot
-        :type username?: Optional[str]
+        :type
+        username?: Optional[str]
         :param avatar?: The new avatar of the bot
         :type avatar?: Optional[Image]
         :return: The modified User object
@@ -1434,6 +1440,36 @@ class Client:
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)
+
+    async def get(self, obj: Type[_T] = MISSING, **kwargs) -> _T:
+        """
+        A helper method for retrieving data from the Discord API in its object representation.
+
+        :param obj: The object to get. Should be a class object (not an instance!). For example: `interactions.Channel`.
+        :type obj: object
+        :param \**kwargs: The arguments to pass to the HTTP method.
+        :type \**kwargs: dict
+        :return: The object we're trying to get.
+        :rtype: object
+        """
+
+        if obj is MISSING:
+            raise ValueError("The object is required!")
+
+        if isinstance(obj, (Channel, Emoji, Guild, Member, Message, Role, Sticker, User)):
+            raise TypeError("The object must not be an instance of a class!")
+
+        _name = f"get_{obj.__name__.lower()}"
+
+        if obj in (Role, Emoji):
+            _guild = Guild(**await self._http.get_guild(kwargs.pop("guild_id")), _client=self._http)
+            _func = getattr(_guild, _name)
+            return await _func(**kwargs)
+
+        else:
+            _func = getattr(self._http, _name)
+            _obj = await _func(**kwargs)
+            return obj(**_obj, _client=self._http)
 
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
