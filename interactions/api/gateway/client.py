@@ -4,7 +4,6 @@ except ImportError:
     from json import dumps, loads
 
 from asyncio import (
-    AbstractEventLoop,
     Event,
     Task,
     ensure_future,
@@ -17,41 +16,22 @@ from sys import platform, version_info
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from aiohttp import WSMessage
-from aiohttp.http import WS_CLOSED_MESSAGE
+from aiohttp import WSMessage, WSMsgType
+from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
-from ..base import get_logger
-from ..enums import InteractionType, OptionType
-from ..models.command import Option
-from .dispatch import Listener
-from .enums import OpCodeType
-from .error import GatewayException
-from .http.client import HTTPClient
-from .models.flags import Intents
-from .models.misc import MISSING
-from .models.presence import ClientPresence
+from ...base import get_logger
+from ...client.enums import InteractionType, OptionType
+from ...client.models import Option
+from ..dispatch import Listener
+from ..enums import OpCodeType
+from ..error import GatewayException
+from ..http.client import HTTPClient
+from ..models.flags import Intents
+from ..models.misc import MISSING
+from ..models.presence import ClientPresence
+from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
-
-__all__ = ("_Heartbeat", "WebSocketClient")
-
-
-class _Heartbeat:
-    """An internal class representing the heartbeat in a WebSocket connection."""
-
-    event: Event
-    delay: float
-
-    def __init__(self, loop: AbstractEventLoop) -> None:
-        """
-        :param loop: The event loop to base the asynchronous manager.
-        :type loop: AbstractEventLoop
-        """
-        try:
-            self.event = Event(loop=loop) if version_info < (3, 10) else Event()
-        except TypeError:
-            pass
-        self.delay = 0.0
 
 
 class WebSocketClient:
@@ -199,7 +179,7 @@ class WebSocketClient:
 
                 if stream is None:
                     continue
-                if self._client is None or stream == WS_CLOSED_MESSAGE:
+                if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
                     await self._establish_connection()
                     break
 
@@ -259,7 +239,7 @@ class WebSocketClient:
                 #    self.sequence = None
                 # self._closed = True
 
-                if bool(data) is False and op == OpCodeType.INVALIDATE_SESSION:
+                if not bool(data) and op == OpCodeType.INVALIDATE_SESSION:
                     self.session_id = None
 
                 await self.__restart()
@@ -292,11 +272,7 @@ class WebSocketClient:
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
-            if not data.get("type"):
-                log.warning(
-                    "Context is being created for the interaction, but no type is specified. Skipping..."
-                )
-            else:
+            if data.get("type"):
                 # sourcery skip: extract-method
                 _context = self.__contextualize(data)
                 _name: str = ""
@@ -359,6 +335,10 @@ class WebSocketClient:
                 self._dispatch.dispatch(_name, *__args, **__kwargs)
                 self._dispatch.dispatch("on_interaction", _context)
                 self._dispatch.dispatch("on_interaction_create", _context)
+            else:
+                log.warning(
+                    "Context is being created for the interaction, but no type is specified. Skipping..."
+                )
         elif event != "TYPING_START":
             name: str = event.lower()
             try:
@@ -398,7 +378,7 @@ class WebSocketClient:
                 _context = "ComponentContext"
 
             data["client"] = self._http
-            context: object = getattr(__import__("interactions.context"), _context)
+            context: object = getattr(__import__("interactions.client.context"), _context)
 
             return context(**data)
 
@@ -485,7 +465,7 @@ class WebSocketClient:
             # sub_command_groups must have options so there is no extra check needed for those
             __kwargs["sub_command"] = _data["name"]
 
-        elif _data.get("value") and _data.get("name"):
+        elif _data.get("value") is not None and _data.get("name") is not None:
             __kwargs[_data["name"]] = _data["value"]
 
         return __kwargs
@@ -537,8 +517,18 @@ class WebSocketClient:
         """
 
         packet: WSMessage = await self._client.receive()
-        if packet == WS_CLOSED_MESSAGE:
+
+        if packet == WSMsgType.CLOSE:
+            await self._client.close()
             return packet
+
+        elif packet == WS_CLOSED_MESSAGE:
+            return packet
+
+        elif packet == WS_CLOSING_MESSAGE:
+            await self._client.close()
+            return WS_CLOSED_MESSAGE
+
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:

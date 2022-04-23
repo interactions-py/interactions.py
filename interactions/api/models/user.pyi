@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .misc import DictSerializerMixin, Snowflake
-from .flags import UserFlags, AppFlags
+from .flags import UserFlags
 
 class User(DictSerializerMixin):
     _json: dict
@@ -27,3 +27,5 @@ class User(DictSerializerMixin):
     def mention(self) -> str: ...
     @property
     def avatar_url(self) -> str: ...
+    @property
+    def banner_url(self) -> Optional[str]: ...

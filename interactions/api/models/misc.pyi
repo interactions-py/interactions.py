@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from typing import Optional, Union
-
+from io import IOBase, FileIO
 
 log: logging.Logger
 
@@ -44,6 +44,22 @@ class Snowflake(object):
     def __int__(self) -> int: ...
     def __eq__(self, other) -> Union[bool, NotImplemented]: ...
 
+class Color:
+    @property
+    def blurple(self) -> hex: ...
+    @property
+    def green(self) -> hex: ...
+    @property
+    def yellow(self) -> hex: ...
+    @property
+    def fuchsia(self) -> hex: ...
+    @property
+    def red(self) -> hex: ...
+    @property
+    def white(self) -> hex: ...
+    @property
+    def black(self) -> hex: ...
+
 class Format:
     USER: str
     USER_NICK: str
@@ -62,3 +78,26 @@ class Format:
     def stylize(self, format: str, **kwargs) -> str: ...
 
 class MISSING: ...
+
+class File(object):
+    _filename: str
+    _fp: IOBase
+    _description: str
+    def __init__(
+        self,
+        filename: str,
+        fp: Optional[IOBase] = MISSING,
+        description: Optional[str] = MISSING
+    ) -> None: ...
+    def _json_payload(self, id) -> dict: ...
+
+class Image(object):
+
+    _URI: str
+    _name: str
+
+    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING): ...
+    @property
+    def data(self) -> str: ...
+    @property
+    def filename(self) -> str: ...

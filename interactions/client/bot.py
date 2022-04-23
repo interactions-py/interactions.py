@@ -9,20 +9,21 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
-from .api.cache import Cache
-from .api.cache import Item as Build
-from .api.error import InteractionException, JSONException
-from .api.gateway import WebSocketClient
-from .api.http.client import HTTPClient
-from .api.models.flags import Intents
-from .api.models.guild import Guild
-from .api.models.misc import MISSING, Snowflake
-from .api.models.presence import ClientPresence
-from .api.models.team import Application
-from .base import get_logger
+from ..api import Cache
+from ..api import Item as Build
+from ..api import WebSocketClient as WSClient
+from ..api.error import InteractionException, JSONException
+from ..api.http.client import HTTPClient
+from ..api.models.flags import Intents
+from ..api.models.guild import Guild
+from ..api.models.misc import MISSING, Image, Snowflake
+from ..api.models.presence import ClientPresence
+from ..api.models.team import Application
+from ..api.models.user import User
+from ..base import get_logger
 from .decor import command
 from .decor import component as _component
-from .enums import ApplicationCommandType, OptionType
+from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -78,7 +79,7 @@ class Client:
         self._loop = get_event_loop()
         self._http = HTTPClient(token=token)
         self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WebSocketClient(token=token, intents=self._intents)
+        self._websocket = WSClient(token=token, intents=self._intents)
         self._shard = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token
@@ -102,7 +103,11 @@ class Client:
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
-        return [Guild(**_, _client=self._http) for _ in self._http.cache.self_guilds.view]
+
+        return [
+            Guild(**_) if _.get("_client") else Guild(**_, _client=self._http)
+            for _ in self._http.cache.self_guilds.view
+        ]
 
     @property
     def latency(self) -> float:
@@ -132,14 +137,28 @@ class Client:
         :return: Whether the command has changed or not.
         :rtype: bool
         """
-        attrs: List[str] = ["type", "name", "description", "options", "guild_id"]
+        attrs: List[str] = [
+            name for name in ApplicationCommand.__slots__ if not name.startswith("_")
+        ]
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
         for command in pool:
             if command["name"] == data["name"]:
+                if not isinstance(command.get("options"), list):
+                    command["options"] = []
+                    # this will ensure that the option will be an emtpy list, since discord returns `None`
+                    # when no options are present, but they're in the data as `[]`
+                if command.get("guild_id") and not isinstance(command.get("guild_id"), int):
+                    if isinstance(command.get("guild_id"), list):
+                        command["guild_id"] = [int(_) for _ in command["guild_id"]]
+                    else:
+                        command["guild_id"] = int(command["guild_id"])
+                    # ensure that IDs are present as integers since discord returns strings.
                 for attr in attrs:
-                    if hasattr(data, attr) and command.get(attr) == data.get(attr):
+
+                    if data.get(attr, None) and command.get(attr) == data.get(attr):
+                        # hasattr checks `dict.attr` not `dict[attr]`
                         continue
                     else:
                         clean = False
@@ -234,7 +253,6 @@ class Client:
         if isinstance(commands, dict):
             if commands.get("code"):  # Error exists.
                 raise JSONException(commands["code"], message=f'{commands["message"]} |')
-                # TODO: redo error handling.
         elif isinstance(commands, list):
             for command in commands:
                 if command.get("code"):
@@ -321,7 +339,9 @@ class Client:
         """Helper method that waits until the websocket is ready."""
         await self._websocket.wait_until_ready()
 
-    def event(self, coro: Coroutine, name: Optional[str] = MISSING) -> Callable[..., Any]:
+    def event(
+        self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = MISSING
+    ) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
         Gateway.
@@ -333,8 +353,20 @@ class Client:
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
-        self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
-        return coro
+
+        def decorator(coro: Coroutine):
+            self._websocket._dispatch.register(
+                coro, name=name if name is not MISSING else coro.__name__
+            )
+            return coro
+
+        if coro is not MISSING:
+            self._websocket._dispatch.register(
+                coro, name=name if name is not MISSING else coro.__name__
+            )
+            return coro
+
+        return decorator
 
     async def change_presence(self, presence: ClientPresence) -> None:
         """
@@ -384,6 +416,17 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
+            if (
+                _sub_group.name_localizations is not MISSING
+                and _sub_group.name_localizations is not None
+            ):
+                for __name in command.name_localizations.values():
+                    if not re.fullmatch(reg, __name):
+                        raise InteractionException(
+                            11,
+                            message=f"The sub command group name does not match the regex for valid names ('{regex}')",
+                        )
+
             if not _sub_group.options:
                 raise InteractionException(11, message="sub command groups must have subcommands!")
             if len(_sub_group.options) > 25:
@@ -419,6 +462,17 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
+            if (
+                _sub_command.name_localizations is not MISSING
+                and _sub_command.name_localizations is not None
+            ):
+                for __name in command.name_localizations.values():
+                    if not re.fullmatch(reg, __name):
+                        raise InteractionException(
+                            11,
+                            message=f"The sub command name does not match the regex for valid names ('{regex}')",
+                        )
+
             if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
                     raise InteractionException(
@@ -465,6 +519,14 @@ class Client:
                 raise InteractionException(
                     11, message="You must not have two options with the same name in a command!"
                 )
+            if _option.name_localizations is not MISSING and _option.name_localizations is not None:
+                for __name in _option.name_localizations.values():
+                    if not re.fullmatch(reg, __name):
+                        raise InteractionException(
+                            11,
+                            message=f"The option name does not match the regex for valid names ('{regex}')",
+                        )
+
             _names.append(_option.name)
 
         def __check_coro():
@@ -522,6 +584,14 @@ class Client:
         elif command.description is not MISSING and len(command.description) > 100:
             raise InteractionException(11, message="Descriptions must be less than 100 characters.")
 
+        if command.name_localizations is not MISSING and command.name_localizations is not None:
+            for __name in command.name_localizations.values():
+                if not re.fullmatch(reg, __name):
+                    raise InteractionException(
+                        11,
+                        message=f"One of your command name localisations does not match the regex for valid names ('{regex}')",
+                    )
+
         if command.options and command.options is not MISSING:
             if len(command.options) > 25:
                 raise InteractionException(
@@ -557,6 +627,8 @@ class Client:
         options: Optional[
             Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]
         ] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
@@ -596,6 +668,10 @@ class Client:
         :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :param description_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -609,6 +685,8 @@ class Client:
                 scope=scope,
                 options=options,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
+                description_localizations=description_localizations,
             )
             self.__check_command(command=ApplicationCommand(**commands[0]), coro=coro)
 
@@ -637,6 +715,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -660,6 +739,8 @@ class Client:
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -671,6 +752,7 @@ class Client:
                 name=name,
                 scope=scope,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
             )
             self.__check_command(ApplicationCommand(**commands[0]), coro)
 
@@ -693,6 +775,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -716,6 +799,8 @@ class Client:
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -727,6 +812,7 @@ class Client:
                 name=name,
                 scope=scope,
                 default_permission=default_permission,
+                name_localizations=name_localizations,
             )
 
             self.__check_command(ApplicationCommand(**commands[0]), coro)
@@ -1028,6 +1114,26 @@ class Client:
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
 
+    async def modify(
+        self,
+        username: Optional[str] = MISSING,
+        avatar: Optional[Image] = MISSING,
+    ) -> User:
+        """
+        Modify the bot user account settings.
+
+        :param username?: The new username of the bot
+        :type username?: Optional[str]
+        :param avatar?: The new avatar of the bot
+        :type avatar?: Optional[Image]
+        :return: The modified User object
+        :rtype: User
+        """
+        payload: dict = {"username": username, "avatar": avatar.data}
+        data: dict = await self._http.modify_self(payload=payload)
+
+        return User(**data)
+
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
@@ -1194,11 +1300,11 @@ class Extension:
     def teardown(self):
         for event, funcs in self._listeners.items():
             for func in funcs:
-                self.client._websocket.dispatch.events[event].remove(func)
+                self.client._websocket._dispatch.events[event].remove(func)
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
-                self.client._websocket.dispatch.events[cmd].remove(func)
+                self.client._websocket._dispatch.events[cmd].remove(func)
 
         clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
         cmds = filter(
@@ -1226,10 +1332,15 @@ def extension_command(*args, **kwargs):
     return decorator
 
 
-def extension_listener(name=None):
-    def decorator(func):
+def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None):
+    def decorator(func: Coroutine):
         func.__listener_name__ = name or func.__name__
 
+        return func
+
+    if func:
+        # allows omitting `()` on `@listener`
+        func.__listener_name__ = func.__name__
         return func
 
     return decorator

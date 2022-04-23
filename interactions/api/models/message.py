@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from .channel import Channel, ChannelType
 from .member import Member
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, File, Snowflake
 from .team import Application
 from .user import User
 
@@ -344,7 +344,7 @@ class Message(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # file: Optional[FileIO] = None,
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional["MessageReference"] = MISSING,
@@ -366,6 +366,8 @@ class Message(DictSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param files?: A file or list of files to be attached to the message.
+        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -378,21 +380,29 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if self.flags == 64:
-            raise Exception("You cannot edit a hidden message!")
+            raise TypeError("You cannot edit a hidden message!")
 
-        from ...models.component import _build_components
+        from ...client.models.component import _build_components
 
         _content: str = self.content if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
+
+        if not files or files is MISSING:
+            _files = self.attachments
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
 
         if embeds is MISSING:
             embeds = self.embeds
         _embeds: list = (
-            []
-            if not embeds
-            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+            ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+            if embeds
+            else []
         )
+
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
@@ -405,7 +415,7 @@ class Message(DictSerializerMixin):
         payload: Message = Message(
             content=_content,
             tts=_tts,
-            # file=file,
+            attachments=_files,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
@@ -416,17 +426,23 @@ class Message(DictSerializerMixin):
             channel_id=int(self.channel_id),
             message_id=int(self.id),
             payload=payload._json,
+            files=files,
         )
 
-        return Message(**_dct) if not _dct.get("code") else payload
+        msg = payload if _dct.get("code") else Message(**_dct)
+
+        for attr in self.__slots__:
+            setattr(self, attr, getattr(msg, attr))
+
+        return msg
 
     async def reply(
         self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         components: Optional[
             Union[
@@ -446,6 +462,8 @@ class Message(DictSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param files?: A file or list of files to be attached to the message.
+        :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -457,7 +475,7 @@ class Message(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        from ...models.component import _build_components
+        from ...client.models.component import _build_components
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -476,12 +494,19 @@ class Message(DictSerializerMixin):
         else:
             _components = _build_components(components=components)
 
+        if not files or files is MISSING:
+            _files = []
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
+
         # TODO: post-v4: Add attachments into Message obj.
         payload = Message(
             content=_content,
             tts=_tts,
-            # file=file,
-            # attachments=_attachments,
+            attachments=_files,
             embeds=_embeds,
             message_reference=_message_reference,
             allowed_mentions=_allowed_mentions,
@@ -489,7 +514,7 @@ class Message(DictSerializerMixin):
         )
 
         res = await self._client.create_message(
-            channel_id=int(self.channel_id), payload=payload._json
+            channel_id=int(self.channel_id), payload=payload._json, files=files
         )
         return Message(**res, _client=self._client)
 
@@ -567,9 +592,7 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
 
         return await self._client.create_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
@@ -599,9 +622,8 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+
         return await self._client.remove_all_reactions_of_emoji(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
         )
@@ -619,9 +641,8 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f"{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f"{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+
         return await self._client.remove_self_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
         )
@@ -637,9 +658,8 @@ class Message(DictSerializerMixin):
         :param user: The user or user_id to remove the reaction of
         :type user: Union[Member, user, int]
         """
-        _emoji = (
-            emoji if not isinstance(emoji, Emoji) else f":{emoji.name.replace(':', '')}:{emoji.id}"
-        )
+        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+
         _user_id = user if isinstance(user, int) else user.id
         return await self._client.remove_user_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
@@ -666,6 +686,17 @@ class Message(DictSerializerMixin):
             message_id=_message_id,
         )
         return cls(**_message, _client=client)
+
+    @property
+    def url(self) -> str:
+        """
+        Returns the URL of the message.
+
+        :return: The URL of said message
+        :rtype: str
+        """
+        guild = self.guild_id or "@me"
+        return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
 
 
 class Emoji(DictSerializerMixin):
@@ -1026,11 +1057,11 @@ class Embed(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.timestamp = (
-            datetime.fromisoformat(self._json.get("timestamp"))
-            if self._json.get("timestamp")
-            else datetime.utcnow()
-        )
+        if isinstance(self._json.get("timestamp"), str):
+            self.timestamp = datetime.fromisoformat(
+                self._json.get("timestamp")
+            )  # readability on non `_json` attr.
+
         self.footer = EmbedFooter(**self.footer) if isinstance(self.footer, dict) else self.footer
         self.image = EmbedImageStruct(**self.image) if isinstance(self.image, dict) else self.image
         self.thumbnail = (
@@ -1048,7 +1079,6 @@ class Embed(DictSerializerMixin):
             if self._json.get("fields")
             else None
         )
-
         # (Complete partial fix.)
         # The issue seems to be that this itself is not updating
         # JSON result correctly. After numerous attempts I seem to
@@ -1243,12 +1273,34 @@ class Embed(DictSerializerMixin):
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
 
+    def set_video(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None:
+        """
+        Sets the embed's video
+
+        :param url: Url of the video
+        :type url: str
+        :param proxy_url?: A proxied url of the video
+        :type proxy_url?: Optional[str]
+        :param height?: The video's height
+        :type height?: Optional[int]
+        :param width?: The video's width
+        :type width?: Optional[int]
+        """
+
+        self.video = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+
     def set_thumbnail(
         self,
         url: str,
         proxy_url: Optional[str] = None,
-        height: int = None,
-        width: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
     ) -> None:
         """
         Sets the embed's thumbnail

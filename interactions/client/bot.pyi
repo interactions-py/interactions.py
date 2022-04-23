@@ -1,16 +1,17 @@
 from asyncio import AbstractEventLoop
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
-from .api.cache import Cache
-from .api.gateway import WebSocketClient
-from .api.http.client import HTTPClient
-from .api.models.flags import Intents
-from .api.models.guild import Guild
-from .api.models.misc import MISSING, Snowflake
-from .api.models.presence import ClientPresence
-from .api.models.team import Application
-from .enums import ApplicationCommandType
+from ..api.cache import Cache
+from ..api.gateway import WebSocketClient
+from ..api.http.client import HTTPClient
+from ..api.models.flags import Intents
+from ..api.models.guild import Guild
+from ..api.models.misc import MISSING, Snowflake, Image
+from ..api.models.presence import ClientPresence
+from ..api.models.team import Application
+from ..api.models.user import User
+from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
 
@@ -49,7 +50,7 @@ class Client:
     async def _ready(self) -> None: ...
     async def _login(self) -> None: ...
     async def wait_until_ready(self) -> None: ...
-    def event(self, coro: Coroutine, name: Optional[str] = None) -> Callable[..., Any]: ...
+    def event(self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = None) -> Callable[..., Any]: ...
     def change_presence(self, presence: ClientPresence) -> None: ...
     def __check_command(
         self,
@@ -66,6 +67,8 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         options: Optional[List[Option]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
@@ -73,6 +76,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
@@ -80,6 +84,7 @@ class Client:
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         default_permission: Optional[bool] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
@@ -94,6 +99,11 @@ class Client:
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]: ...
     def get_extension(self, name: str) -> Union[ModuleType, "Extension"]: ...
+    async def modify(
+        self,
+        username: Optional[str] = MISSING,
+        avatar: Optional[Image] = MISSING,
+    ) -> User: ...
     async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
     async def raw_channel_create(self, message) -> dict: ...
     async def raw_message_create(self, message) -> dict: ...
@@ -117,7 +127,7 @@ def extension_command(
     options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
     default_permission: Optional[bool] = None,
 ): ...
-def extension_listener(name=None) -> Callable[..., Any]: ...
+def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None) -> Callable[..., Any]: ...
 def extension_component(component: Union[Button, SelectMenu, str]) -> Callable[..., Any]: ...
 def extension_autocomplete(
     name: str, command: Union[ApplicationCommand, int]

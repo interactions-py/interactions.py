@@ -10,7 +10,7 @@ HERE = path.abspath(path.dirname(__file__))
 with open("README.rst", "r", encoding="UTF-8") as f:
     README = f.read()
 with open(path.join(HERE, PACKAGE_NAME, "base.py"), encoding="utf-8") as fp:
-    VERSION = re.search('__version__ = "([^"]+)"', fp.read()).group(1)
+    VERSION = re.search('__version__ = "([^"]+)"', fp.read())[1]
 
 
 def read_requirements(filename):
@@ -24,7 +24,6 @@ extras = {
 }
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 requirements = read_requirements("requirements.txt")
-
 setup(
     name="discord-py-interactions",
     version=VERSION,
@@ -38,6 +37,7 @@ setup(
     long_description_content_type="text/x-rst",
     url="https://github.com/interactions-py/library",
     packages=find_packages(),
+    include_package_data=True,
     python_requires=">=3.8.6",
     classifiers=[
         "Development Status :: 4 - Beta",

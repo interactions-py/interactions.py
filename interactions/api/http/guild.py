@@ -404,21 +404,20 @@ class _GuildRequest:
 
         return request
 
-    async def modify_guild_role_position(
-        self, guild_id: int, role_id: int, position: int, reason: Optional[str] = None
+    async def modify_guild_role_positions(
+        self, guild_id: int, payload: List[dict], reason: Optional[str] = None
     ) -> List[dict]:
         """
         Modify the position of a role in the guild.
 
         :param guild_id: Guild ID snowflake.
-        :param role_id: Role ID snowflake.
-        :param position: The new position of the associated role.
+        :param payload: A list of dicts containing the role IDs and new positions for all the roles to be moved.
         :param reason: The reason for this action, if given.
         :return: List of guild roles with updated hierarchy.
         """
         return await self._req.request(
             Route("PATCH", f"/guilds/{guild_id}/roles"),
-            json={"id": role_id, "position": position},
+            json=payload,
             reason=reason,
         )
 
@@ -507,14 +506,35 @@ class _GuildRequest:
             reason=reason,
         )
 
-    async def get_guild_bans(self, guild_id: int) -> List[dict]:
+    async def get_guild_bans(
+        self,
+        guild_id: int,
+        limit: Optional[int] = 1000,
+        before: Optional[int] = None,
+        after: Optional[int] = None,
+    ) -> List[dict]:
         """
         Gets a list of banned users.
 
+        .. note::
+            If both ``before`` and ``after`` are provided, only ``before`` is respected.
+
         :param guild_id: Guild ID snowflake.
+        :param limit: Number of users to return. Defaults to 1000.
+        :param before: Consider only users before the given User ID snowflake.
+        :param after: Consider only users after the given User ID snowflake.
         :return: A list of banned users.
         """
-        return await self._req.request(Route("GET", f"/guilds/{guild_id}/bans"))
+
+        params = {}
+        if limit is not None:
+            params["limit"] = limit
+        if before:
+            params["before"] = before
+        if after:
+            params["after"] = after
+
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/bans"), params=params)
 
     async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]:
         """
