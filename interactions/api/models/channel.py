@@ -1047,7 +1047,7 @@ class Channel(DictSerializerMixin):
 
         return Invite(**res, _client=self._client)
 
-    async def get_history(self, limit: int = 100) -> List["Message"]:
+    async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
         """
         Gets messages from the channel's history.
 
@@ -1061,6 +1061,7 @@ class Channel(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
 
         from .message import Message
+
         _messages: List[Message] = []
         _before: int = None
         while limit > 100:
@@ -1077,9 +1078,7 @@ class Channel(DictSerializerMixin):
         _messages.append = [
             Message(**res, _client=self._client)
             for res in await self._client.get_channel_messages(
-                channel_id=int(self.id),
-                limit=limit,
-                before=_before
+                channel_id=int(self.id), limit=limit, before=_before
             )
         ]
 
