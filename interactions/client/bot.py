@@ -1410,8 +1410,7 @@ class Client:
         Modify the bot user account settings.
 
         :param username?: The new username of the bot
-        :type
-        username?: Optional[str]
+        :type username?: Optional[str]
         :param avatar?: The new avatar of the bot
         :type avatar?: Optional[Image]
         :return: The modified User object
