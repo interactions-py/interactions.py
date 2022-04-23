@@ -1,16 +1,22 @@
-from asyncio import AbstractEventLoop
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Union, overload, Type, Tuple
+from asyncio import AbstractEventLoop
 
-from ..api.cache import Cache
-from ..api.gateway import WebSocketClient
+from ..api import Cache
+from ..api import Item as Build
+from ..api.gateway.client import WebSocketClient
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents, Permissions
+from ..api.models.channel import Channel
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Snowflake, Image
+from ..api.models.member import Member
+from ..api.models.message import Message, Emoji, Sticker
+from ..api.models.misc import MISSING, Image, Snowflake
 from ..api.models.presence import ClientPresence
+from ..api.models.role import Role
 from ..api.models.team import Application
 from ..api.models.user import User
+from .decor import component as _component
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
@@ -110,11 +116,32 @@ class Client:
         username: Optional[str] = MISSING,
         avatar: Optional[Image] = MISSING,
     ) -> User: ...
-    async def raw_socket_create(self, data: Dict[Any, Any]) -> dict: ...
-    async def raw_channel_create(self, message) -> dict: ...
-    async def raw_message_create(self, message) -> dict: ...
-    async def raw_guild_create(self, guild) -> dict: ...
     def _find_command(self, command: str) -> ApplicationCommand: ...
+    @overload
+    async def get(self, obj: Type[Channel] = Channel, *, channel_id: int = MISSING) -> Channel: ...
+    @overload
+    async def get(self, obj: Type[Emoji] = Emoji, *, guild_id: int, emoji_id: int) -> Emoji: ...
+    @overload
+    async def get(self, obj: Type[Guild] = Guild, *, guild_id: int = MISSING) -> Guild: ...
+    @overload
+    async def get(self, obj: Type[Member] = Member, *, guild_id: int = MISSING, user_id: int = MISSING) -> Member: ...
+    @overload
+    async def get(
+        self,
+        obj: Type[Message] = Message,
+        *,
+        channel_id: int = MISSING,
+        message_id: int = MISSING,
+    ) -> Message: ...
+    @overload
+    async def get(self, obj: Type[Role] = Role, *, guild_id: int = MISSING, role_id: int = MISSING) -> Role: ...
+    @overload
+    async def get(self, obj: Type[Sticker] = MISSING, *, sticker_id: int = MISSING) -> Sticker: ...
+    @overload
+    async def get(self, obj: Type[User] = MISSING, *, user_id: int = MISSING) -> User: ...
+    async def __raw_channel_create(self, message) -> dict: ...
+    async def __raw_message_create(self, message) -> dict: ...
+    async def __raw_guild_create(self, guild) -> dict: ...
 
 class Extension:
     client: Client
