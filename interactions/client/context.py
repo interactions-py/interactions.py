@@ -518,32 +518,35 @@ class CommandContext(_Context):
         """
 
         async def func():
-            if choices:
-                _choices: list = []
-                if all(isinstance(choice, Choice) for choice in choices):
-                    _choices = [choice._json for choice in choices]
-                elif all(
-                    isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
-                    for choice in choices
-                ):
-                    _choices = list(choices)
-                elif isinstance(choices, Choice):
-                    _choices = [choices._json]
-                else:
-                    raise InteractionException(
-                        6, message="Autocomplete choice items must be of type Choice"
-                    )
+            log.debug("Populating choices...")
+            _choices: Union[list, None] = []
 
-                await self.client.create_interaction_response(
-                    token=self.token,
-                    application_id=int(self.id),
-                    data={
-                        "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
-                        "data": {"choices": _choices},
-                    },
+            if not choices or (isinstance(choices, list) and len(choices) == 0):
+                _choices = None
+            elif isinstance(choices, Choice):
+                _choices.append(choices._json)
+            elif isinstance(choices, list) and all(isinstance(choice, Choice) for choice in choices):
+                _choices = [choice._json for choice in choices]
+            elif all(
+                isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
+                for choice in choices
+            ):
+                _choices = list(choices)
+            else:
+                raise InteractionException(
+                    6, message="Autocomplete choice items must be of type Choice"
                 )
 
-                return _choices
+            await self.client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data={
+                    "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
+                    "data": {"choices": _choices},
+                },
+            )
+
+            return _choices
 
         return await func()
 
