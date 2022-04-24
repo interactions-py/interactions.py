@@ -724,13 +724,11 @@ class Channel(DictSerializerMixin):
 
         .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
 
-
         .. code-block:: python
 
             def check_pinned(message):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned
             await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
-
 
         :param amount: The amount of messages to delete
         :type amount: int
