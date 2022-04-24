@@ -315,7 +315,7 @@ class Channel(DictSerializerMixin):
         :param topic?: The topic of that channel, defaults to the current value of the channel
         :type topic: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate Optional[int]
+        :type bitrate: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
         :type user_limit: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
@@ -725,9 +725,11 @@ class Channel(DictSerializerMixin):
         .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
 
         .. code-block:: python
+
             def check_pinned(message):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned
             await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
+
         :param amount: The amount of messages to delete
         :type amount: int
         :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
