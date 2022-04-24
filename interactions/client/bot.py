@@ -490,7 +490,7 @@ class Client:
             if _option.name is MISSING:
                 raise InteractionException(11, message="Options must have a name.")
             if _sub_command is not MISSING:
-                __indent = 8 if not _sub_groups_present else 12
+                __indent = 12 if _sub_groups_present else 8
                 log.debug(
                     f"{' ' * __indent}checking option '{_option.name}' of sub command '{_sub_command.name}'"
                 )
@@ -1340,7 +1340,7 @@ def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = N
 
     if func:
         # allows omitting `()` on `@listener`
-        func.__listener_name__ = func.__name__
+        func.__listener_name__ = name or func.__name__
         return func
 
     return decorator
