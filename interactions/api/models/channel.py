@@ -1065,7 +1065,7 @@ class Channel(DictSerializerMixin):
         _messages: List[Message] = []
         _before: int = None
         while limit > 100:
-            _messages.append = [
+            _msgs = [
                 Message(**res, _client=self._client)
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id),
@@ -1075,12 +1075,25 @@ class Channel(DictSerializerMixin):
             ]
             limit -= 100
             _before = int(_messages[-1].id)
-        _messages.append = [
-            Message(**res, _client=self._client)
-            for res in await self._client.get_channel_messages(
-                channel_id=int(self.id), limit=limit, before=_before
-            )
-        ]
+
+            for msg in _msgs:
+                if msg in _messages:
+                    return _messages
+                else:
+                    _messages.append(msg)
+
+        if limit > 0:
+            _msgs = [
+                Message(**res, _client=self._client)
+                for res in await self._client.get_channel_messages(
+                    channel_id=int(self.id), limit=limit, before=_before
+                )
+            ]
+            for msg in _msgs:
+                if msg in _messages:
+                    return _messages
+                else:
+                    _messages.append(msg)
 
         return _messages
 
