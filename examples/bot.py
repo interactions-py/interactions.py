@@ -24,7 +24,7 @@ async def on_ready():
     print(f"Our latency is {round(client.latency)} ms.")
 
 
-@client.event("message_create")
+@client.event(name="on_message_create")
 async def name_this_however_you_want(message: interactions.Message):
     # Whenever we specify any other event type that isn't "READY," the function underneath
     # the decorator will most likely have an argument required. This argument is the data
@@ -34,8 +34,10 @@ async def name_this_however_you_want(message: interactions.Message):
     # a "message" argument to be passed to the function, which will be the data model of such.
 
     # We can use the data model to access the data we need.
+    # Keep in mind that you can only access the message content if your bot has the MESSAGE_CONTENT intent.
+    # You can find more information on this in the migration section of the quickstart guide.
     print(
-        f"We've received a message from {message.author.name}. The message is: {message.content}."
+        f"We've received a message from {message.author.username}. The message is: {message.content}."
     )
 
 
@@ -50,11 +52,10 @@ async def hello_world(ctx: interactions.CommandContext):
     # You don't need to type hint this, but it's recommended to do so.
 
     # Now, let's send back a response.
-    # Note that when you make an interaction response, you can no longer run anything in this function.
     # The interaction response should be the LAST thing you do when a command is ran.
     await ctx.send("hello world!")
 
-    # Because of this, this line of code right here will not execute.
+    # However, any code you put after a response will still execute unless you prevent it from doing so.
     print("we ran.")
 
 

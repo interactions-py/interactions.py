@@ -191,6 +191,8 @@ Nested commands: subcommands
                         type=interactions.OptionType.INTEGER,
                         required=False,
                     ),
+                ],
+            ),
             interactions.Option(
                 name="second_command",
                 description="A descriptive description",
