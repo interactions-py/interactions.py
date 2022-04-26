@@ -7,7 +7,7 @@ from .request import _Request
 from .route import Route
 
 
-class _ChannelRequest:
+class ChannelRequest:
 
     _req: _Request
     cache: Cache

@@ -6,7 +6,7 @@ from ..models.misc import Snowflake, File, MISSING
 from .request import _Request
 
 
-class _MessageRequest:
+class MessageRequest:
 
     _req: _Request
     cache: Cache

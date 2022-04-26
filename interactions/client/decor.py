@@ -17,7 +17,7 @@ def command(
     default_permission: Optional[bool] = MISSING,
     name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-) -> List[ApplicationCommand]:
+) -> Union[List[dict], dict]:
     """
     A wrapper designed to interpret the client-facing API for
     how a command is to be created and used.
@@ -97,7 +97,7 @@ def command(
             name_localizations=_name_localizations,
             description_localizations=_description_localizations,
         )
-        payloads.append(payload._json)
+        return payload._json
 
     return payloads
 

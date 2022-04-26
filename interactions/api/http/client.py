@@ -3,35 +3,35 @@ from typing import Any, Optional, Tuple
 import interactions.api.cache
 
 from ...api.cache import Cache
-from .channel import _ChannelRequest
-from .emoji import _EmojiRequest
-from .guild import _GuildRequest
-from .interaction import _InteractionRequest
-from .member import _MemberRequest
-from .message import _MessageRequest
-from .reaction import _ReactionRequest
+from .channel import ChannelRequest
+from .emoji import EmojiRequest
+from .guild import GuildRequest
+from .interaction import InteractionRequest
+from .member import MemberRequest
+from .message import MessageRequest
+from .reaction import ReactionRequest
 from .request import _Request
 from .route import Route
-from .scheduledEvent import _ScheduledEventRequest
-from .sticker import _StickerRequest
-from .thread import _ThreadRequest
-from .user import _UserRequest
-from .webhook import _WebhookRequest
+from .scheduledEvent import ScheduledEventRequest
+from .sticker import StickerRequest
+from .thread import ThreadRequest
+from .user import UserRequest
+from .webhook import WebhookRequest
 
 
 class HTTPClient(
-    _ChannelRequest,
-    _EmojiRequest,
-    _GuildRequest,
-    _InteractionRequest,
-    _MemberRequest,
-    _MessageRequest,
-    _ReactionRequest,
-    _ScheduledEventRequest,
-    _StickerRequest,
-    _ThreadRequest,
-    _UserRequest,
-    _WebhookRequest,
+    ChannelRequest,
+    EmojiRequest,
+    GuildRequest,
+    InteractionRequest,
+    MemberRequest,
+    MessageRequest,
+    ReactionRequest,
+    ScheduledEventRequest,
+    StickerRequest,
+    ThreadRequest,
+    UserRequest,
+    WebhookRequest,
 ):
     """
     The user-facing client of the Web API for individual endpoints.
@@ -55,18 +55,18 @@ class HTTPClient(
         self.token = token
         self._req = _Request(self.token)
         self.cache = interactions.api.cache.ref_cache
-        _UserRequest.__init__(self)
-        _MessageRequest.__init__(self)
-        _GuildRequest.__init__(self)
-        _ChannelRequest.__init__(self)
-        _ThreadRequest.__init__(self)
-        _ReactionRequest.__init__(self)
-        _StickerRequest.__init__(self)
-        _InteractionRequest.__init__(self)
-        _WebhookRequest.__init__(self)
-        _ScheduledEventRequest.__init__(self)
-        _EmojiRequest.__init__(self)
-        _MemberRequest.__init__(self)
+        UserRequest.__init__(self)
+        MessageRequest.__init__(self)
+        GuildRequest.__init__(self)
+        ChannelRequest.__init__(self)
+        ThreadRequest.__init__(self)
+        ReactionRequest.__init__(self)
+        StickerRequest.__init__(self)
+        InteractionRequest.__init__(self)
+        WebhookRequest.__init__(self)
+        ScheduledEventRequest.__init__(self)
+        EmojiRequest.__init__(self)
+        MemberRequest.__init__(self)
 
         # An ideology is that this client does every single HTTP call, which reduces multiple ClientSessions in theory
         # because of how they are constructed/closed. This includes Gateway

@@ -10,7 +10,7 @@ from .request import _Request
 from .route import Route
 
 
-class _GuildRequest:
+class GuildRequest:
 
     _req: _Request
     cache: Cache
