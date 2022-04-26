@@ -220,7 +220,6 @@ class Client:
 
             ready = True
         except Exception as error:
-            raise
             log.critical(f"Could not prepare the client: {error}")
         finally:
             if ready:
