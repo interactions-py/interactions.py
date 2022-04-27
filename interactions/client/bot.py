@@ -131,7 +131,7 @@ class Client:
         self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
         self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
 
-    async def __compare_sync(self, data: dict, pool: List[dict]) -> (bool, dict):
+    async def __compare_sync(self, data: dict, pool: List[dict]) -> Tuple[bool, dict]:
         """
         Compares an application command during the synchronization process.
 
