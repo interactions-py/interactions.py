@@ -54,7 +54,7 @@ class ScheduledEventRequest:
         guild_id, event_id = int(guild_id), int(guild_scheduled_event_id)
         params = {}
         if with_user_count:
-            params["with_user_count"] = f"{with_user_count}"
+            params["with_user_count"] = str(with_user_count)
 
         return await self._req.request(
             Route(
