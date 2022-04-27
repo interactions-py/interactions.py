@@ -7,7 +7,7 @@ from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union, Tuple
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from ..api import Cache
 from ..api import Item as Build
