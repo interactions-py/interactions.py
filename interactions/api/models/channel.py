@@ -169,6 +169,9 @@ class Channel(DictSerializerMixin):
         # TODO: Document banner when Discord officially documents them.
         "banner",
         "guild_hashes",
+        "flags",
+        "template",
+        "available_tags",
     )
 
     def __init__(self, **kwargs):
@@ -1102,6 +1105,8 @@ class Thread(Channel):
         "guild_hashes",
         "flags",  # This seems to be forum unique.
         "newly_created",
+        "template",
+        "available_tags",
     )
 
     ...
