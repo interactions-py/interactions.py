@@ -7,7 +7,7 @@ from importlib.util import resolve_name
 from inspect import getmembers
 from logging import Logger
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from ..api import Cache
 from ..api import Item as Build
@@ -131,7 +131,7 @@ class Client:
         self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
         self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
 
-    async def __compare_sync(self, data: dict, pool: List[dict]) -> (bool, dict):
+    async def __compare_sync(self, data: dict, pool: List[dict]) -> Tuple[bool, dict]:
         """
         Compares an application command during the synchronization process.
 

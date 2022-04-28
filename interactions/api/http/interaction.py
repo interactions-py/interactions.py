@@ -25,7 +25,7 @@ class InteractionRequest:
 
         :param application_id: Application ID snowflake
         :param guild_id: Guild to get commands from, if specified. Defaults to global (None)
-        :param with_localizations: 	Whether to include full localization dictionaries (name_localizations and description_localizations) in the returned objects, instead of the name_localized and description_localized fields. Default false.
+        :param with_localizations: Whether to include full localization dictionaries (name_localizations and description_localizations) in the returned objects, instead of the name_localized and description_localized fields. Default false.
         :return: A list of Application commands.
         """
         application_id = int(application_id)
