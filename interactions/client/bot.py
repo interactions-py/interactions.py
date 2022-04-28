@@ -768,7 +768,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
-            commands: dict = command(
+            commands: Union[List[dict], dict] = command(
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
                 scope=scope,
@@ -776,8 +776,12 @@ class Client:
                 name_localizations=name_localizations,
             )
 
-            self.__check_command(ApplicationCommand(**commands[0]), coro)
-
+            self.__check_command(
+                command=ApplicationCommand(
+                    **(commands[0] if isinstance(commands, list) else commands)
+                ),
+                coro=coro,
+            )
             coro._command_data = commands
             self.__command_coroutines.append(coro)
 
@@ -823,7 +827,7 @@ class Client:
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
 
-            commands: dict = command(
+            commands: Union[List[dict], dict] = command(
                 type=ApplicationCommandType.USER,
                 name=name,
                 scope=scope,
@@ -831,8 +835,12 @@ class Client:
                 name_localizations=name_localizations,
             )
 
-            self.__check_command(ApplicationCommand(**commands[0]), coro)
-
+            self.__check_command(
+                command=ApplicationCommand(
+                    **(commands[0] if isinstance(commands, list) else commands)
+                ),
+                coro=coro,
+            )
             coro._command_data = commands
             self.__command_coroutines.append(coro)
 
