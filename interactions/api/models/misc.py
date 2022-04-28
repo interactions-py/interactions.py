@@ -1,10 +1,13 @@
 # TODO: This is post-v4.
-# TODO: Reorganise these models based on which big obj uses little obj
-# TODO: Potentially rename some model references to enums, if applicable
-# TODO: Reorganise mixins to its own thing, currently placed here because circular import sucks.
+#   Reorganise these models based on which big obj uses little obj
+#   Potentially rename some model references to enums, if applicable
+#   Reorganise mixins to its own thing, currently placed here because circular import sucks.
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
+# pycharm says serializer for me /shrug
+
 import datetime
-from io import IOBase
+from base64 import b64encode
+from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
@@ -240,7 +243,7 @@ class File(object):
     """
     A File object to be sent as an attachment along with a message.
 
-    If an fp is not given, this will try to open & send a local file at the location
+    If a fp is not given, this will try to open & send a local file at the location
     specified in the 'filename' parameter.
 
     .. note::
@@ -256,11 +259,7 @@ class File(object):
                 "File's first parameter 'filename' must be a string, not " + str(type(filename))
             )
 
-        if not fp or fp is MISSING:
-            self._fp = open(filename, "rb")
-        else:
-            self._fp = fp
-
+        self._fp = open(filename, "rb") if not fp or fp is MISSING else fp
         self._filename = basename(filename)
 
         if not description or description is MISSING:
@@ -270,3 +269,47 @@ class File(object):
 
     def _json_payload(self, id):
         return {"id": id, "description": self._description, "filename": self._filename}
+
+
+class Image(object):
+    """
+    This class object allows you to upload Images to the Discord API.
+
+    If a fp is not given, this will try to open & send a local file at the location
+    specified in the 'file' parameter.
+    """
+
+    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING):
+
+        self._URI = "data:image/"
+
+        if fp is MISSING or isinstance(file, FileIO):
+            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)
+
+            self._name = file.name
+            _file = file.read()
+
+        else:
+            self._name = file
+            _file = fp
+
+        if (
+            not self._name.endswith(".jpeg")
+            and not self._name.endswith(".png")
+            and not self._name.endswith(".gif")
+        ):
+            raise ValueError("File type must be jpeg, png or gif!")
+
+        self._URI += f"{'jpeg' if self._name.endswith('jpeg') else self._name[-3:]};"
+        self._URI += f"base64,{b64encode(_file).decode('utf-8')}"
+
+    @property
+    def data(self) -> str:
+        return self._URI
+
+    @property
+    def filename(self) -> str:
+        """
+        Returns the name of the file.
+        """
+        return self._name.split("/")[-1].split(".")[0]

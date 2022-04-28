@@ -16,9 +16,10 @@ from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Snowflake
+from ..api.models.misc import MISSING, Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
+from ..api.models.user import User
 from ..base import get_logger
 from .decor import command
 from .decor import component as _component
@@ -102,7 +103,11 @@ class Client:
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
-        return [Guild(**_, _client=self._http) for _ in self._http.cache.self_guilds.view]
+
+        return [
+            Guild(**_) if _.get("_client") else Guild(**_, _client=self._http)
+            for _ in self._http.cache.self_guilds.view
+        ]
 
     @property
     def latency(self) -> float:
@@ -335,7 +340,7 @@ class Client:
         await self._websocket.wait_until_ready()
 
     def event(
-        self, coro: Optional[Coroutine] = MISSING, name: Optional[str] = MISSING
+        self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = MISSING
     ) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
@@ -350,13 +355,15 @@ class Client:
         """
 
         def decorator(coro: Coroutine):
-            self._websocket._dispatch.register(coro, name if name is not MISSING else coro.__name__)
+            self._websocket._dispatch.register(
+                coro, name=name if name is not MISSING else coro.__name__
+            )
             return coro
 
         if coro is not MISSING:
-            self._websocket._dispatch.register(coro, coro.__name__)
-            # it is not possible to provide a name here since it is only called when you use `@event`
-            # for a name you would need `@bot.event()`, but this is handled in the decorator function
+            self._websocket._dispatch.register(
+                coro, name=name if name is not MISSING else coro.__name__
+            )
             return coro
 
         return decorator
@@ -483,7 +490,7 @@ class Client:
             if _option.name is MISSING:
                 raise InteractionException(11, message="Options must have a name.")
             if _sub_command is not MISSING:
-                __indent = 8 if not _sub_groups_present else 12
+                __indent = 12 if _sub_groups_present else 8
                 log.debug(
                     f"{' ' * __indent}checking option '{_option.name}' of sub command '{_sub_command.name}'"
                 )
@@ -1107,6 +1114,26 @@ class Client:
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         return self._extensions.get(name)
 
+    async def modify(
+        self,
+        username: Optional[str] = MISSING,
+        avatar: Optional[Image] = MISSING,
+    ) -> User:
+        """
+        Modify the bot user account settings.
+
+        :param username?: The new username of the bot
+        :type username?: Optional[str]
+        :param avatar?: The new avatar of the bot
+        :type avatar?: Optional[Image]
+        :return: The modified User object
+        :rtype: User
+        """
+        payload: dict = {"username": username, "avatar": avatar.data}
+        data: dict = await self._http.modify_self(payload=payload)
+
+        return User(**data)
+
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
         This is an internal function that takes any gateway socket event
@@ -1313,7 +1340,7 @@ def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = N
 
     if func:
         # allows omitting `()` on `@listener`
-        func.__listener_name__ = func.__name__
+        func.__listener_name__ = name or func.__name__
         return func
 
     return decorator

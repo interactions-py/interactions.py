@@ -191,6 +191,8 @@ Nested commands: subcommands
                         type=interactions.OptionType.INTEGER,
                         required=False,
                     ),
+                ],
+            ),
             interactions.Option(
                 name="second_command",
                 description="A descriptive description",
@@ -206,7 +208,7 @@ Nested commands: subcommands
             ),
         ],
     )
-    async def cmd(ctx: interactions.CommandContext, sub_command: str, second_option: str, option: int = None):
+    async def cmd(ctx: interactions.CommandContext, sub_command: str, second_option: str = "", option: int = None):
         if sub_command == "command_name":
           await ctx.send(f"You selected the command_name sub command and put in {option}")
         elif sub_command == "second_command":

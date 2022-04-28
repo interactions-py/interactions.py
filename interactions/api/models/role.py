@@ -164,7 +164,9 @@ class Role(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        res = await self._client.modify_guild_role_position(
-            guild_id=guild_id, position=position, role_id=int(self.id), reason=reason
+        res = await self._client.modify_guild_role_positions(
+            guild_id=guild_id,
+            payload=[{"position": position, "id": int(self.id)}],
+            reason=reason,
         )
         return [Role(**role, _client=self._client) for role in res]
