@@ -662,7 +662,7 @@ class Client:
 
         .. code-block:: python
 
-            @command(name="kick", description="Kick a user.", default_member_permissions=default_member_permissions=interactions.Permissions.BAN_MEMBERS | interactions.Permissions.KICK_MEMBERS)
+            @command(name="kick", description="Kick a user.", default_member_permissions=interactions.Permissions.BAN_MEMBERS | interactions.Permissions.KICK_MEMBERS)
             async def kick(ctx, user: interactions.Member):
                 ...
 
@@ -675,7 +675,7 @@ class Client:
                 ...
 
         .. note::
-            If ``default_member_permissions`` is not given, this will default to anyone that are able to use the command.
+            If ``default_member_permissions`` is not given, this will default to anyone that is able to use the command.
 
         :param type?: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
         :type type: Optional[Union[str, int, ApplicationCommandType]]
