@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 
+from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.misc import MISSING
 from .enums import ApplicationCommandType, Locale
@@ -14,9 +15,10 @@ def command(
     description: Optional[str] = MISSING,
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
     options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = MISSING,
-    default_permission: Optional[bool] = MISSING,
     name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+    default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+    dm_permission: Optional[bool] = MISSING
 ) -> List[ApplicationCommand]:
     """
     A wrapper designed to interpret the client-facing API for
@@ -60,8 +62,20 @@ def command(
         else:
             _options = [options]
 
-    _default_permission: bool = True if default_permission is MISSING else default_permission
     _scope: list = []
+
+    _default_member_permissions: str = (
+        str(Permissions.USE_APPLICATION_COMMANDS.value)
+        if default_member_permissions is MISSING
+        else str(
+            (
+                default_member_permissions.value
+                if isinstance(default_member_permissions, Permissions)
+                else default_member_permissions
+            )
+        )
+    )
+    _dm_permission: bool = True if dm_permission is MISSING else dm_permission
 
     payloads: list = []
 
@@ -82,9 +96,10 @@ def command(
                 name=name,
                 description=_description,
                 options=_options,
-                default_permission=_default_permission,
                 name_localizations=_name_localizations,
                 description_localizations=_description_localizations,
+                default_member_permissions=_default_member_permissions,
+                dm_permission=_dm_permission,
             )
             payloads.append(payload._json)
     else:
@@ -93,9 +108,10 @@ def command(
             name=name,
             description=_description,
             options=_options,
-            default_permission=_default_permission,
             name_localizations=_name_localizations,
             description_localizations=_description_localizations,
+            default_member_permissions=_default_member_permissions,
+            dm_permission=_dm_permission,
         )
         payloads.append(payload._json)
 

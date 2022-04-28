@@ -48,7 +48,7 @@ class _ChannelRequest:
         """
         Get messages from a channel.
 
-        ..note::
+        .. note::
             around, before, and after arguments are mutually exclusive.
 
         :param channel_id: Channel ID snowflake.
@@ -93,7 +93,7 @@ class _ChannelRequest:
         """
         Creates a channel within a guild.
 
-        ..note::
+        .. note::
             This does not handle payload in this method. Tread carefully.
 
         :param guild_id: Guild ID snowflake.
@@ -167,7 +167,7 @@ class _ChannelRequest:
         """
         Creates an invite for the given channel.
 
-        ..note::
+        .. note::
             This method does not handle payload. It just sends it.
 
         :param channel_id: Channel ID snowflake.

@@ -251,8 +251,6 @@ class ApplicationCommand(DictSerializerMixin):
     default_permission: Optional[bool]
     permissions: Optional[List[Permission]]
     version: int
-
-    # TODO: post-v4: Investigate these once documented by Discord.
     default_member_permissions: str
     dm_permission: bool
     name_localizations: Optional[Dict[Union[str, Locale], str]]

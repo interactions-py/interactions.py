@@ -14,7 +14,7 @@ from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
-from ..api.models.flags import Intents
+from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
 from ..api.models.misc import MISSING, Image, Snowflake
 from ..api.models.presence import ClientPresence
@@ -629,7 +629,8 @@ class Client:
         ] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering an application command to the Discord API,
@@ -656,6 +657,26 @@ class Client:
         The ``scope`` kwarg field may also be used to designate the command in question
         applicable to a guild or set of guilds.
 
+        To properly utilise the ``default_member_permissions`` kwarg, it requires OR'ing the permission values, similar to instantiating the client with Intents.
+        For example:
+
+        .. code-block:: python
+
+            @command(name="kick", description="Kick a user.", default_member_permissions=default_member_permissions=interactions.Permissions.BAN_MEMBERS | interactions.Permissions.KICK_MEMBERS)
+            async def kick(ctx, user: interactions.Member):
+                ...
+
+        Another example below for instance is an admin-only command:
+
+        .. code-block:: python
+
+            @command(name="sudo", description="this is an admin-only command.", default_member_permissions=interactions.Permissions.ADMINISTRATOR)
+            async def sudo(ctx):
+                ...
+
+        .. note::
+            If ``default_member_permissions`` is not given, this will default to anyone that are able to use the command.
+
         :param type?: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
         :type type: Optional[Union[str, int, ApplicationCommandType]]
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
@@ -666,12 +687,14 @@ class Client:
         :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param options?: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
         :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
-        :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :param name_localizations: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
         :param description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
+        :param default_member_permissions: Optional[Union[int, Permissions]]
+        :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -684,9 +707,10 @@ class Client:
                 description=description,
                 scope=scope,
                 options=options,
-                default_permission=default_permission,
                 name_localizations=name_localizations,
                 description_localizations=description_localizations,
+                default_member_permissions=default_member_permissions,
+                dm_permission=dm_permission,
             )
             self.__check_command(command=ApplicationCommand(**commands[0]), coro=coro)
 
@@ -714,8 +738,9 @@ class Client:
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -741,6 +766,10 @@ class Client:
         :type default_permission: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :param name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
+        :param default_member_permissions: Optional[Union[int, Permissions]]
+        :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -751,8 +780,9 @@ class Client:
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
                 scope=scope,
-                default_permission=default_permission,
                 name_localizations=name_localizations,
+                default_member_permissions=default_member_permissions,
+                dm_permission=dm_permission,
             )
             self.__check_command(ApplicationCommand(**commands[0]), coro)
 
@@ -774,8 +804,9 @@ class Client:
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -801,6 +832,10 @@ class Client:
         :type default_permission: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :param name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
+        :param default_member_permissions: Optional[Union[int, Permissions]]
+        :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -811,8 +846,9 @@ class Client:
                 type=ApplicationCommandType.USER,
                 name=name,
                 scope=scope,
-                default_permission=default_permission,
                 name_localizations=name_localizations,
+                default_member_permissions=default_member_permissions,
+                dm_permission=dm_permission,
             )
 
             self.__check_command(ApplicationCommand(**commands[0]), coro)

@@ -111,7 +111,7 @@ class _GuildRequest:
         """
         Get an url representing a png image widget for the guild.
 
-        ..note::
+        .. note::
             See _<https://discord.com/developers/docs/resources/guild#get-guild-widget-image> for list of styles.
 
         :param guild_id: Guild ID snowflake.
@@ -259,7 +259,7 @@ class _GuildRequest:
         """
         Create a new guild based on a template.
 
-        ..note::
+        .. note::
             This endpoint can only be used by bots in less than 10 guilds.
 
         :param template_code: The code of the template to use.
