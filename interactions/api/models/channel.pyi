@@ -21,6 +21,8 @@ class ChannelType(IntEnum):
     GUILD_PUBLIC_THREAD: int
     GUILD_PRIVATE_THREAD: int
     GUILD_STAGE_VOICE: int
+    GUILD_DIRECTORY: int
+    GUILD_FORUM: int
 
 class ThreadMetadata(DictSerializerMixin):
     _json: dict
@@ -226,3 +228,4 @@ class Channel(DictSerializerMixin):
     ) -> Invite: ...
 
 class Thread(Channel): ...
+class Forum(Thread): ...

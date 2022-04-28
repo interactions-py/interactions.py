@@ -19,6 +19,8 @@ class ChannelType(IntEnum):
     GUILD_PUBLIC_THREAD = 11
     GUILD_PRIVATE_THREAD = 12
     GUILD_STAGE_VOICE = 13
+    GUILD_DIRECTORY = 14
+    GUILD_FORUM = 15
 
 
 class ThreadMetadata(DictSerializerMixin):
@@ -79,6 +81,8 @@ class ThreadMember(DictSerializerMixin):
         "team_id",
         "membership_state",
         "permissions",
+        "member",
+        "presence",
     )
 
     def __init__(self, **kwargs):
@@ -90,6 +94,11 @@ class ThreadMember(DictSerializerMixin):
             if self._json.get("join_timestamp")
             else None
         )
+        # Take these conversions with a grain of salt.
+
+        # Commented out for circular import reasons, but schema says they do work.
+        # self.member = Member(**self._json.get("member")) if self._json.get("member") else None
+        # self.presence = Presence(**self._json.get("presence")) if self._json.get("presence") else None
 
 
 class Channel(DictSerializerMixin):
@@ -1052,10 +1061,55 @@ class Channel(DictSerializerMixin):
 
 class Thread(Channel):
     """An object representing a thread.
-
     .. note::
         This is a derivation of the base Channel, since a
         thread can be its own event.
+        Also note that forums are also dispatched as Thread
+        objects.
     """
 
+    __slots__ = (
+        "_json",
+        "id",
+        "type",
+        "guild_id",
+        "position",
+        "permission_overwrites",
+        "name",
+        "topic",
+        "nsfw",
+        "last_message_id",
+        "bitrate",
+        "user_limit",
+        "rate_limit_per_user",
+        "recipients",
+        "icon",
+        "owner_id",
+        "application_id",
+        "parent_id",
+        "last_pin_timestamp",
+        "rtc_region",
+        "video_quality_mode",
+        "message_count",
+        "member_count",
+        "thread_metadata",
+        "member",
+        "default_auto_archive_duration",
+        "permissions",
+        "_client",
+        # TODO: Document these when Discord officially documents them.
+        "banner",
+        "guild_hashes",
+        "flags",  # This seems to be forum unique.
+        "newly_created",
+    )
+
     ...
+
+
+class Forum(Thread):
+    """An object representing a Forum.
+    .. note::
+        While this isn't directly dispatched for GW based events,
+        this object exists moreso for future helper methods.
+    """
