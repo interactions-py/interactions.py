@@ -236,9 +236,7 @@ class Client:
         await self._websocket.wait_until_ready()
 
     async def __sync(self) -> None:  # sourcery no-metrics
-        """
-        Syncs all commands to the API
-        """
+        """Synchronizes all commands to the API."""
 
         log.debug("starting command sync")
         _guilds = await self._http.get_self_guilds()
