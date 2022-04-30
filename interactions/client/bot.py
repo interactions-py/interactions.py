@@ -122,6 +122,8 @@ class Client:
         """Starts the client session."""
         if self._automate_sync:
             self._loop.run_until_complete(self.__sync())
+        else:
+            self._loop.run_until_complete(self.__get_all_commands())
         self._loop.run_until_complete(self._ready())
 
     def __register_events(self) -> None:
@@ -235,6 +237,41 @@ class Client:
         """Helper method that waits until the websocket is ready."""
         await self._websocket.wait_until_ready()
 
+    async def __get_all_commands(self) -> None:
+        # this method is just copied from the sync method
+        # I expect this to be changed in the sync rework
+        # until then this will deliver a cache if sync is off to make autocomplete work bug-free
+        # but even with sync off, we should cache all commands here always
+
+        _guilds = await self._http.get_self_guilds()
+        _guild_ids = [int(_["id"]) for _ in _guilds]
+        self._scopes.add(_guild_ids)
+        _cmds = await self._http.get_application_commands(
+            application_id=self.me.id, with_localizations=True
+        )
+
+        for command in _cmds:
+            if command.get("code"):
+                # Error exists.
+                raise JSONException(command["code"], message=f'{command["message"]} |')
+
+        self.__global_commands = {"commands": _cmds, "clean": True}
+        # TODO: add to cache (later)
+
+        # responsible for checking if a command is in the cache but not a coro -> allowing removal
+
+        for _id in _guild_ids:
+            _cmds = await self._http.get_application_commands(
+                application_id=self.me.id, guild_id=_id, with_localizations=True
+            )
+
+            for command in _cmds:
+                if command.get("code"):
+                    # Error exists.
+                    raise JSONException(command["code"], message=f'{command["message"]} |')
+
+            self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
+
     async def __sync(self) -> None:  # sourcery no-metrics
         """
         Syncs all commands to the API
@@ -243,6 +280,7 @@ class Client:
         log.debug("starting command sync")
         _guilds = await self._http.get_self_guilds()
         _guild_ids = [int(_["id"]) for _ in _guilds]
+        self._scopes.add(_guild_ids)
         _cmds = await self._http.get_application_commands(
             application_id=self.me.id, with_localizations=True
         )
@@ -351,6 +389,7 @@ class Client:
                 await self._http.overwrite_application_command(
                     application_id=int(self.me.id), data=self.__global_commands["commands"]
                 )
+                self.__global_commands["clean"] = True
 
             for _id in _guild_ids:
                 if not self.__guild_commands[_id]["clean"]:
@@ -359,6 +398,7 @@ class Client:
                         data=self.__guild_commands[_id]["commands"],
                         guild_id=_id,
                     )
+                    self.__guild_commands[_id]["clean"] = True
 
     def event(
         self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = MISSING
@@ -890,13 +930,10 @@ class Client:
 
         return decorator
 
-    @staticmethod
-    def _find_command(commands: List[Dict], command: str) -> ApplicationCommand:
+    def _find_command(self, command: str) -> ApplicationCommand:
         """
         Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
 
-        :ivar commands: The list of dicts to iterate through
-        :type commands: List[Dict]
         :ivar command: The name of the command to match:
         :type command: str
         :return: An ApplicationCommand model
@@ -906,11 +943,24 @@ class Client:
         _command_obj = next(
             (
                 ApplicationCommand(**_command)
-                for _command in commands
+                for _command in self.__global_commands["commands"]
                 if _command["name"] == command
             ),
             None,
         )
+
+        if not _command_obj:
+            for scope in self._scopes:
+                _command_obj = next(
+                    (
+                        ApplicationCommand(**_command)
+                        for _command in self.__guild_commands[scope]["commands"]
+                        if _command["name"] == command
+                    ),
+                    None,
+                )
+                if _command_obj:
+                    break
 
         if not _command_obj or (hasattr(_command_obj, "id") and not _command_obj.id):
             raise InteractionException(
@@ -951,26 +1001,7 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj: ApplicationCommand = self._http.cache.interactions.get(command)
-            if not _command_obj or not _command_obj.id:
-                if getattr(_command_obj, "guild_id", None) or not self._automate_sync:
-                    _application_commands = self._loop.run_until_complete(
-                        self._http.get_application_commands(
-                            application_id=self.me.id,
-                            guild_id=None
-                            if not hasattr(_command_obj, "guild_id")
-                            else _command_obj.guild_id,
-                        )
-                    )
-                    _command_obj = self._find_command(_application_commands, command)
-                else:
-                    for _scope in self._scopes:
-                        _application_commands = self._loop.run_until_complete(
-                            self._http.get_application_commands(
-                                application_id=self.me.id, guild_id=_scope
-                            )
-                        )
-                        _command_obj = self._find_command(_application_commands, command)
+            _command_obj = self._find_command(command)
             _command: Union[Snowflake, int] = int(_command_obj.id)
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
