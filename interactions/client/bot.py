@@ -273,9 +273,7 @@ class Client:
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
 
     async def __sync(self) -> None:  # sourcery no-metrics
-        """
-        Syncs all commands to the API
-        """
+        """Synchronizes all commands to the API."""
 
         log.debug("starting command sync")
         _guilds = await self._http.get_self_guilds()
