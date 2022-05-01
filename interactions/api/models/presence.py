@@ -209,9 +209,9 @@ class ClientPresence(DictSerializerMixin):
         )
         if self.activities:
             self._json["activities"] = [activity._json for activity in self.activities]
-        if self.status == "idle" and not self._json.get("since"):
+        if not self._json.get("since"):
             # If since is not provided by the developer...
-            self.since = int(time.time() * 1000)
+            self.since = int(time.time() * 1000) if self.status == "idle" else 0
             self._json["since"] = self.since
         if not self._json.get("afk"):
             self._json["afk"] = False
