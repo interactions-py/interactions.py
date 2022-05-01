@@ -88,6 +88,7 @@ class Client:
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
+        self.__name_autocomplete = {}
         self.me = None
         _token = self._token  # noqa: F841
         _cache = self._http.cache  # noqa: F841
@@ -133,6 +134,12 @@ class Client:
         self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
         self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
 
+    async def __register_name_autocomplete(self) -> None:
+        for key in self.__name_autocomplete.keys():
+            _command_obj = self._find_command(key)
+            _command: Union[Snowflake, int] = int(_command_obj.id)
+            self.event(self.__name_autocomplete[key]["coro"], name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}")
+    
     async def __compare_sync(self, data: dict, pool: List[dict]) -> Tuple[bool, dict]:
         """
         Compares an application command during the synchronization process.
@@ -999,8 +1006,8 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            _command_obj = self._find_command(command)
-            _command: Union[Snowflake, int] = int(_command_obj.id)
+            self.__name_autocomplete[command] = {"coro": coro, "name": name}
+            return
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
         else:
