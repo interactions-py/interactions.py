@@ -138,8 +138,11 @@ class Client:
         for key in self.__name_autocomplete.keys():
             _command_obj = self._find_command(key)
             _command: Union[Snowflake, int] = int(_command_obj.id)
-            self.event(self.__name_autocomplete[key]["coro"], name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}")
-    
+            self.event(
+                self.__name_autocomplete[key]["coro"],
+                name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}",
+            )
+
     async def __compare_sync(self, data: dict, pool: List[dict]) -> Tuple[bool, dict]:
         """
         Compares an application command during the synchronization process.
