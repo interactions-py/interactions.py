@@ -1,12 +1,14 @@
 from typing import List, Optional
 
+from aiohttp import MultipartWriter
+
 from ...api.cache import Cache, Item
+from ..models.misc import MISSING, File
 from .request import _Request
 from .route import Route
 
 
 class _ThreadRequest:
-
     _req: _Request
     cache: Cache
 
@@ -187,3 +189,58 @@ class _ThreadRequest:
             self.cache.channels.add(Item(id=request["id"], value=request))
 
         return request
+
+    async def create_thread_in_forum(
+        self,
+        channel_id: int,
+        name: str,
+        message_payload: dict,
+        files: Optional[List[File]] = MISSING,
+        rate_limit_per_user: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        From a given Forum channel, create a Thread with a message to start with.
+
+        ..note::
+            This does not currently work, it just returns 500s.
+
+        :param channel_id: The ID of the channel to create this thread in
+        :param name: The name of the thread
+        :param message_payload: The payload/dictionary contents of the first message in the forum thread.
+        :param files: An optional list of files to send attached to the message.
+        :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
+        :param reason: An optional reason for the audit log
+        :return: Returns a Thread in a Forum object with a starting Message.
+        """
+        query = {"use_nested_fields": "True"}
+
+        payload = {"name": name}
+        if rate_limit_per_user:
+            payload["rate_limit_per_user"] = rate_limit_per_user
+
+        # payload.update(**{'use_nested_fields': 1})
+
+        data = None
+        if files is not MISSING and len(files) > 0:
+
+            data = MultipartWriter("form-data")
+            part = data.append_json(message_payload)
+            part.set_content_disposition("form-data", name="payload_json")
+            payload = None
+
+            for id, file in enumerate(files):
+                part = data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
+                )
+
+        return await self._req.request(
+            Route("POST", f"/channels/{channel_id}/threads"),
+            json=payload,
+            data=data,
+            params=query,
+            reason=reason,
+        )
