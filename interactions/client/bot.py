@@ -1009,8 +1009,7 @@ class Client:
         if isinstance(command, ApplicationCommand):
             _command: Union[Snowflake, int] = command.id
         elif isinstance(command, str):
-            self.__name_autocomplete[command] = {"coro": coro, "name": name}
-            return
+            _command: str = command
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
         else:
@@ -1019,6 +1018,9 @@ class Client:
             )  # TODO: move to custom error formatter
 
         def decorator(coro: Coroutine) -> Any:
+            if isinstance(_command, str):
+                self.__name_autocomplete[_command] = {"coro": coro, "name": name}
+                return
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
         return decorator
