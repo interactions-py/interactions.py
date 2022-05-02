@@ -156,7 +156,9 @@ class Client:
         :rtype: bool
         """
         attrs: List[str] = [
-            name for name in ApplicationCommand.__slots__ if not name.startswith("_") and not name.endswith("id")
+            name
+            for name in ApplicationCommand.__slots__
+            if not name.startswith("_") and not name.endswith("id")
         ]
         option_attrs: List[str] = [name for name in Option.__slots__ if not name.startswith("_")]
         choice_attrs: List[str] = [name for name in Choice.__slots__ if not name.startswith("_")]
@@ -214,7 +216,9 @@ class Client:
                                                 clean = False
                                                 break
                                             elif option_attr == "choices":
-                                                if not option.get("choices") or not _option.get("choices"):
+                                                if not option.get("choices") or not _option.get(
+                                                    "choices"
+                                                ):
                                                     continue
 
                                                 _option_choice_names = [
@@ -245,7 +249,9 @@ class Client:
                                                                 ):
                                                                     clean = False
                                                                     break
-                                                                elif choice.get(choice_attr) != _choice.get(choice_attr):
+                                                                elif choice.get(
+                                                                    choice_attr
+                                                                ) != _choice.get(choice_attr):
                                                                     clean = False
                                                                     break
                                                                 else:
@@ -256,7 +262,9 @@ class Client:
                                                             break
                                                     if not clean:
                                                         break
-                                            elif option.get(option_attr) != _option.get(option_attr):
+                                            elif option.get(option_attr) != _option.get(
+                                                option_attr
+                                            ):
                                                 clean = False
                                                 break
                                             else:
