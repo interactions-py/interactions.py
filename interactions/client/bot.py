@@ -190,7 +190,7 @@ class Client:
                             and not data.get("options")
                         ):
                             clean = False
-                            break
+                            return clean, _command
 
                         elif command.get("options") and data.get("options"):
 
@@ -201,7 +201,7 @@ class Client:
                                 _ not in _command_option_names for _ in _data_option_names
                             ) or len(_data_option_names) != len(_command_option_names):
                                 clean = False
-                                break
+                                return clean, _command
 
                             for option in command.get("options"):
                                 for _option in data.get("options"):
@@ -214,7 +214,7 @@ class Client:
                                                 and _option.get(option_attr)
                                             ):
                                                 clean = False
-                                                break
+                                                return clean, _command
                                             elif option_attr == "choices":
                                                 if not option.get("choices") or not _option.get(
                                                     "choices"
@@ -235,7 +235,7 @@ class Client:
                                                     _option_choice_names
                                                 ):
                                                     clean = False
-                                                    break
+                                                    return clean, _command
 
                                                 for choice in option.get("choices"):
                                                     for _choice in _option.get("choices"):
@@ -248,36 +248,24 @@ class Client:
                                                                     and _choice.get(choice_attr)
                                                                 ):
                                                                     clean = False
-                                                                    break
+                                                                    return clean, _command
                                                                 elif choice.get(
                                                                     choice_attr
                                                                 ) != _choice.get(choice_attr):
                                                                     clean = False
-                                                                    break
+                                                                    return clean, _command
                                                                 else:
                                                                     continue
-                                                            if not clean:
-                                                                break
-                                                        if not clean:
-                                                            break
-                                                    if not clean:
-                                                        break
                                             elif option.get(option_attr) != _option.get(
                                                 option_attr
                                             ):
                                                 clean = False
-                                                break
+                                                return clean, _command
                                             else:
                                                 continue
-                                        if not clean:
-                                            break
-                                    if not clean:
-                                        break
-                                if not clean:
-                                    break
 
                         if not clean:
-                            break
+                            return clean, _command
 
                         else:
                             continue
