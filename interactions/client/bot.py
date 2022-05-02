@@ -158,8 +158,9 @@ class Client:
         attrs: List[str] = [
             name
             for name in ApplicationCommand.__slots__
-            if not name.startswith("_") and not name.endswith("id")
+            if not name.startswith("_") and not name.endswith("id") and name != "version"
         ]
+
         option_attrs: List[str] = [name for name in Option.__slots__ if not name.startswith("_")]
         choice_attrs: List[str] = [name for name in Choice.__slots__ if not name.startswith("_")]
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
@@ -270,7 +271,13 @@ class Client:
                         else:
                             continue
 
-                    elif data.get(attr, None) and command.get(attr) == data.get(attr):
+                    elif attr.endswith("localizations"):
+                        if command.get(attr, None) is None and data.get(attr) == {}:
+                            # This is an API/Version difference.
+                            continue
+
+                    # elif data.get(attr, None) and command.get(attr) == data.get(attr):
+                    elif command.get(attr, None) == data.get(attr, None):
                         # hasattr checks `dict.attr` not `dict[attr]`
                         continue
                     clean = False
@@ -486,6 +493,8 @@ class Client:
             not self.__guild_commands[_id]["clean"] for _id in _guild_ids
         ):
             if not self.__global_commands["clean"]:
+                print(self.__global_commands["clean"])
+                print(not self.__global_commands["clean"])
                 res = await self._http.overwrite_application_command(
                     application_id=int(self.me.id), data=self.__global_commands["commands"]
                 )
@@ -494,6 +503,8 @@ class Client:
 
             for _id in _guild_ids:
                 if not self.__guild_commands[_id]["clean"]:
+                    print(self.__guild_commands[_id]["clean"])
+                    print(not self.__guild_commands[_id]["clean"])
                     res = await self._http.overwrite_application_command(
                         application_id=int(self.me.id),
                         data=self.__guild_commands[_id]["commands"],
