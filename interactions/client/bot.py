@@ -493,8 +493,6 @@ class Client:
             not self.__guild_commands[_id]["clean"] for _id in _guild_ids
         ):
             if not self.__global_commands["clean"]:
-                print(self.__global_commands["clean"])
-                print(not self.__global_commands["clean"])
                 res = await self._http.overwrite_application_command(
                     application_id=int(self.me.id), data=self.__global_commands["commands"]
                 )
@@ -503,8 +501,6 @@ class Client:
 
             for _id in _guild_ids:
                 if not self.__guild_commands[_id]["clean"]:
-                    print(self.__guild_commands[_id]["clean"])
-                    print(not self.__guild_commands[_id]["clean"])
                     res = await self._http.overwrite_application_command(
                         application_id=int(self.me.id),
                         data=self.__guild_commands[_id]["commands"],
