@@ -24,7 +24,7 @@ from ..base import get_logger
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
-from .models.command import ApplicationCommand, Option
+from .models.command import ApplicationCommand, Choice, Option
 from .models.component import Button, Modal, SelectMenu
 
 log: Logger = get_logger("client")
@@ -125,6 +125,7 @@ class Client:
             self._loop.run_until_complete(self.__sync())
         else:
             self._loop.run_until_complete(self.__get_all_commands())
+        self._loop.run_until_complete(self.__register_name_autocomplete())
         self._loop.run_until_complete(self._ready())
 
     def __register_events(self) -> None:
@@ -155,8 +156,10 @@ class Client:
         :rtype: bool
         """
         attrs: List[str] = [
-            name for name in ApplicationCommand.__slots__ if not name.startswith("_")
+            name for name in ApplicationCommand.__slots__ if not name.startswith("_") and not name.endswith("id")
         ]
+        option_attrs: List[str] = [name for name in Option.__slots__ if not name.startswith("_")]
+        choice_attrs: List[str] = [name for name in Choice.__slots__ if not name.startswith("_")]
         log.info(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
@@ -166,7 +169,7 @@ class Client:
             if command["name"] == data["name"]:
                 _command = command
                 # in case it continues looping
-                if not isinstance(command.get("options"), list):
+                if not command.get("options"):
                     command["options"] = []
                     # this will ensure that the option will be an emtpy list, since discord returns `None`
                     # when no options are present, but they're in the data as `[]`
@@ -177,8 +180,101 @@ class Client:
                         command["guild_id"] = int(command["guild_id"])
                     # ensure that IDs are present as integers since discord returns strings.
                 for attr in attrs:
+                    if attr == "options":
+                        if (
+                            not command.get("options")
+                            and data.get("options")
+                            or command.get("options")
+                            and not data.get("options")
+                        ):
+                            clean = False
+                            break
 
-                    if data.get(attr, None) and command.get(attr) == data.get(attr):
+                        elif command.get("options") and data.get("options"):
+
+                            _command_option_names = [_["name"] for _ in command.get("options")]
+                            _data_option_names = [_["name"] for _ in data.get("options")]
+
+                            if any(
+                                _ not in _command_option_names for _ in _data_option_names
+                            ) or len(_data_option_names) != len(_command_option_names):
+                                clean = False
+                                break
+
+                            for option in command.get("options"):
+                                for _option in data.get("options"):
+                                    if _option["name"] == option["name"]:
+                                        for option_attr in option_attrs:
+                                            if (
+                                                option.get(option_attr)
+                                                and not _option.get(option_attr)
+                                                or not option.get(option_attr)
+                                                and _option.get(option_attr)
+                                            ):
+                                                clean = False
+                                                break
+                                            elif option_attr == "choices":
+                                                if not option.get("choices") or not _option.get("choices"):
+                                                    continue
+
+                                                _option_choice_names = [
+                                                    _["name"] for _ in option.get("choices")
+                                                ]
+                                                _data_choice_names = [
+                                                    _["name"] for _ in _option.get("choices")
+                                                ]
+
+                                                if any(
+                                                    _ not in _option_choice_names
+                                                    for _ in _data_choice_names
+                                                ) or len(_data_choice_names) != len(
+                                                    _option_choice_names
+                                                ):
+                                                    clean = False
+                                                    break
+
+                                                for choice in option.get("choices"):
+                                                    for _choice in _option.get("choices"):
+                                                        if choice["name"] == _choice["name"]:
+                                                            for choice_attr in choice_attrs:
+                                                                if (
+                                                                    choice.get(choice_attr)
+                                                                    and not _choice.get(choice_attr)
+                                                                    or not choice.get(choice_attr)
+                                                                    and _choice.get(choice_attr)
+                                                                ):
+                                                                    clean = False
+                                                                    break
+                                                                elif choice.get(choice_attr) != _choice.get(choice_attr):
+                                                                    clean = False
+                                                                    break
+                                                                else:
+                                                                    continue
+                                                            if not clean:
+                                                                break
+                                                        if not clean:
+                                                            break
+                                                    if not clean:
+                                                        break
+                                            elif option.get(option_attr) != _option.get(option_attr):
+                                                clean = False
+                                                break
+                                            else:
+                                                continue
+                                        if not clean:
+                                            break
+                                    if not clean:
+                                        break
+                                if not clean:
+                                    break
+
+                        if not clean:
+                            break
+
+                        else:
+                            continue
+
+                    elif data.get(attr, None) and command.get(attr) == data.get(attr):
                         # hasattr checks `dict.attr` not `dict[attr]`
                         continue
                     clean = False
@@ -331,10 +427,10 @@ class Client:
                             self.__guild_commands[_guild_id]["commands"].append(_guild_command)
 
                         else:
-                            change, _command = await self.__compare_sync(
+                            clean, _command = await self.__compare_sync(
                                 _guild_command, self.__guild_commands[_guild_id]["commands"]
                             )
-                            if change:
+                            if not clean:
                                 self.__guild_commands[_guild_id]["clean"] = False
                                 _pos = self.__guild_commands[_guild_id]["commands"].index(_command)
                                 self.__guild_commands[_guild_id]["commands"][_pos] = _guild_command
@@ -344,11 +440,11 @@ class Client:
                                 ]
 
                 elif coro._command_data["name"] in __check_global_commands:
-                    change, _command = await self.__compare_sync(
+                    clean, _command = await self.__compare_sync(
                         coro._command_data, self.__global_commands["commands"]
                     )
 
-                    if change:
+                    if not clean:
                         self.__global_commands["clean"] = False
                         _pos = self.__global_commands["commands"].index(_command)
                         self.__global_commands["commands"][_pos] = coro._command_data
@@ -394,19 +490,21 @@ class Client:
             not self.__guild_commands[_id]["clean"] for _id in _guild_ids
         ):
             if not self.__global_commands["clean"]:
-                await self._http.overwrite_application_command(
+                res = await self._http.overwrite_application_command(
                     application_id=int(self.me.id), data=self.__global_commands["commands"]
                 )
                 self.__global_commands["clean"] = True
+                self.__global_commands["commands"] = res
 
             for _id in _guild_ids:
                 if not self.__guild_commands[_id]["clean"]:
-                    await self._http.overwrite_application_command(
+                    res = await self._http.overwrite_application_command(
                         application_id=int(self.me.id),
                         data=self.__guild_commands[_id]["commands"],
                         guild_id=_id,
                     )
                     self.__guild_commands[_id]["clean"] = True
+                    self.__guild_commands[_id]["commands"] = res
 
     def event(
         self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = MISSING
