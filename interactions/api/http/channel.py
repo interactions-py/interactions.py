@@ -232,7 +232,7 @@ class _ChannelRequest:
         """
         Posts "... is typing" in a given channel.
 
-        ..note:
+        .. note::
             By default, this lib doesn't use this endpoint, however, this is listed for third-party implementation.
 
         :param channel_id: Channel ID snowflake.

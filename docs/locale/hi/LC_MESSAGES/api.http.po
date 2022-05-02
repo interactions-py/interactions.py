@@ -447,7 +447,7 @@ msgstr ""
 #: interactions.api.http.HTTPClient.create_guild_from_guild_template:4
 #: interactions.api.http.HTTPClient.get_channel_messages:4
 #: interactions.api.http.HTTPClient.modify_guild:4 of
-msgid "..note::"
+msgid ".. note::"
 msgstr ""
 
 #: interactions.api.http.HTTPClient.modify_guild:4 of
@@ -514,7 +514,7 @@ msgid "Guild Widget contents as a dict: {\"enabled\":bool, \"channel_id\": str}"
 msgstr ""
 
 #: interactions.api.http.HTTPClient.get_guild_widget_image:1 of
-msgid "Get a url representing a png image widget for the guild. ..note::"
+msgid "Get a url representing a png image widget for the guild. .. note::"
 msgstr ""
 
 #: interactions.api.http.HTTPClient.get_guild_widget_image:6 of

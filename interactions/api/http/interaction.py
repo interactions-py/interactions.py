@@ -61,7 +61,7 @@ class _InteractionRequest:
         """
         Overwrites application command(s) from a scope to the new, updated commands.
 
-        ..note:
+        .. note::
             This applies to all forms of application commands (slash and context menus)
 
         :param application_id: Application ID snowflake
