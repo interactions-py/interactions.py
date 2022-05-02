@@ -121,11 +121,6 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
-        if self._automate_sync:
-            self._loop.run_until_complete(self.__sync())
-        else:
-            self._loop.run_until_complete(self.__get_all_commands())
-        self._loop.run_until_complete(self.__register_name_autocomplete())
         self._loop.run_until_complete(self._ready())
 
     def __register_events(self) -> None:
@@ -328,6 +323,12 @@ class Client:
                 raise RuntimeError("Client not authorised for any privileged intents.")
 
             self.__register_events()
+
+            if self._automate_sync:
+                await self.__sync()
+            else:
+                await self.__get_all_commands()
+            await self.__register_name_autocomplete()
 
             ready = True
         except Exception as error:
