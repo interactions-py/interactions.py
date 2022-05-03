@@ -346,6 +346,7 @@ class Message(DictSerializerMixin):
         tts: Optional[bool] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        suppress_embeds: Optional[bool] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional["MessageReference"] = MISSING,
         components: Optional[
@@ -370,6 +371,8 @@ class Message(DictSerializerMixin):
         :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
+        :param suppress_embeds?: Whether to suppress embeds in the message.
+        :type suppress_embeds: Optional[bool]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
@@ -381,6 +384,10 @@ class Message(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         if self.flags == 64:
             raise TypeError("You cannot edit a hidden message!")
+        if suppress_embeds is not MISSING and suppress_embeds:
+            self.flags |= 1 << 2
+        elif suppress_embeds is not MISSING:
+            self.flags &= ~1 << 2
 
         from ...client.models.component import _build_components
 
@@ -420,6 +427,7 @@ class Message(DictSerializerMixin):
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
             components=_components,
+            flags=self.flags,
         )
 
         _dct = await self._client.edit_message(
