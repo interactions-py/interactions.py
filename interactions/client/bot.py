@@ -1049,7 +1049,7 @@ class Client:
         """
         Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
 
-        :ivar command: The name of the command to match:
+        :param command: The name of the command to match
         :type command: str
         :return: An ApplicationCommand model
         :rtype: ApplicationCommand
