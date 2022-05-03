@@ -81,9 +81,10 @@ class _ChannelRequest:
             Route("GET", f"/channels/{channel_id}/messages"), params=params
         )
 
-        for message in request:
-            if message.get("id"):
-                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+        if isinstance(request, list):
+            for message in request:
+                if message.get("id"):
+                    self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
