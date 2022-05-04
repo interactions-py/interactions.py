@@ -429,7 +429,7 @@ class Message(DictSerializerMixin):
             files=files,
         )
 
-        msg = payload if _dct.get("code") else Message(**_dct)
+        msg = payload if _dct.get("code") else Message(**_dct, _client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(msg, attr))
