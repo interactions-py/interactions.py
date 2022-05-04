@@ -445,7 +445,7 @@ Here's an example of a guild-only command:
     async def sudo(ctx, response: str):
         await ctx.send(f"You wrote: {response}", ephemeral=True)
 
-Likewise, setting ``dm_permission`` to True makes it usable in DMs. Just to note that this argument's mainly used for
+Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. Just to note that this argument's mainly used for
 global commands. Guild commands with this argument will have no effect.
 
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html

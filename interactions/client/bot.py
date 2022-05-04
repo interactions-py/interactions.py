@@ -688,13 +688,13 @@ class Client:
         :param options?: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
         :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :param description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :param default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :param dm_permission: Optional[bool]
+        :type dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -765,11 +765,11 @@ class Client:
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :param default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :param dm_permission: Optional[bool]
+        :type dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
@@ -831,11 +831,11 @@ class Client:
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
         :type default_permission: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :param name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :param default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :param dm_permission: Optional[bool]
+        :type dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
