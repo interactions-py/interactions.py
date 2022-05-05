@@ -5,7 +5,7 @@ from .request import _Request
 from .route import Route
 
 
-class _EmojiRequest:
+class EmojiRequest:
 
     _req: _Request
     cache: Cache

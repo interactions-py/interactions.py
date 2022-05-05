@@ -4,7 +4,7 @@ from .request import _Request
 from ...api.cache import Cache
 
 
-class _EmojiRequest:
+class EmojiRequest:
 
     _req: _Request
     cache: Cache

@@ -1,35 +1,34 @@
 from typing import Optional, Tuple
 
-from .request import _Request
 from ...api.cache import Cache
-from .channel import _ChannelRequest
-from .emoji import _EmojiRequest
-from .guild import _GuildRequest
-from .interaction import _InteractionRequest
-from .member import _MemberRequest
-from .message import _MessageRequest
-from .reaction import _ReactionRequest
+from .channel import ChannelRequest
+from .emoji import EmojiRequest
+from .guild import GuildRequest
+from .interaction import InteractionRequest
+from .member import MemberRequest
+from .message import MessageRequest
+from .reaction import ReactionRequest
 from .request import _Request
-from .scheduledEvent import _ScheduledEventRequest
-from .sticker import _StickerRequest
-from .thread import _ThreadRequest
-from .user import _UserRequest
-from .webhook import _WebhookRequest
+from .scheduledEvent import ScheduledEventRequest
+from .sticker import StickerRequest
+from .thread import ThreadRequest
+from .user import UserRequest
+from .webhook import WebhookRequest
 
 
 class HTTPClient(
-    _ChannelRequest,
-    _EmojiRequest,
-    _GuildRequest,
-    _InteractionRequest,
-    _MemberRequest,
-    _MessageRequest,
-    _ReactionRequest,
-    _ScheduledEventRequest,
-    _StickerRequest,
-    _ThreadRequest,
-    _UserRequest,
-    _WebhookRequest,
+    ChannelRequest,
+    EmojiRequest,
+    GuildRequest,
+    InteractionRequest,
+    MemberRequest,
+    MessageRequest,
+    ReactionRequest,
+    ScheduledEventRequest,
+    StickerRequest,
+    ThreadRequest,
+    UserRequest,
+    WebhookRequest,
 ):
 
     token: str

@@ -5,14 +5,16 @@ from ...api.cache import Cache
 from .request import _Request
 
 
-class _InteractionRequest:
+class InteractionRequest:
 
     _req: _Request
     cache: Cache
 
     def __init__(self) -> None: ...
+
     async def get_application_commands(
-        self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
+        self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None,
+        with_localizations: Optional[bool] = None
     ) -> List[dict]: ...
     async def create_application_command(
         self, application_id: Union[int, Snowflake], data: dict, guild_id: Optional[int] = None

@@ -6,7 +6,7 @@ from .request import _Request
 from .route import Route
 
 
-class _InteractionRequest:
+class InteractionRequest:
 
     _req: _Request
     cache: Cache
@@ -15,22 +15,34 @@ class _InteractionRequest:
         pass
 
     async def get_application_commands(
-        self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
+        self,
+        application_id: Union[int, Snowflake],
+        guild_id: Optional[int] = None,
+        with_localizations: Optional[bool] = None,
     ) -> List[dict]:
         """
         Get all application commands from an application.
 
         :param application_id: Application ID snowflake
         :param guild_id: Guild to get commands from, if specified. Defaults to global (None)
+        :param with_localizations: Whether to include full localization dictionaries (name_localizations and description_localizations) in the returned objects, instead of the name_localized and description_localized fields. Default false.
         :return: A list of Application commands.
         """
         application_id = int(application_id)
 
+        params = {}
+
+        if with_localizations:
+            params["with_localizations"] = f"{with_localizations}"
+
         if guild_id in (None, "None"):
-            return await self._req.request(Route("GET", f"/applications/{application_id}/commands"))
+            return await self._req.request(
+                Route("GET", f"/applications/{application_id}/commands"), params=params
+            )
         else:
             return await self._req.request(
-                Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands")
+                Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands"),
+                params=params,
             )
 
     async def create_application_command(
@@ -70,9 +82,9 @@ class _InteractionRequest:
         :return: An array of application command objects.
         """
         url = (
-            f"/applications/{application_id}/commands"
-            if not guild_id
-            else f"/applications/{application_id}/guilds/{guild_id}/commands"
+            f"/applications/{application_id}/guilds/{guild_id}/commands"
+            if guild_id
+            else f"/applications/{application_id}/commands"
         )
 
         return await self._req.request(Route("PUT", url), json=data)

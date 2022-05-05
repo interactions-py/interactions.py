@@ -6,7 +6,7 @@ from ...api.cache import Cache
 from .request import _Request
 
 
-class _StickerRequest:
+class StickerRequest:
 
     _req: _Request
     cache: Cache

@@ -19,7 +19,7 @@ def command(
     description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
     dm_permission: Optional[bool] = MISSING
-) -> List[ApplicationCommand]:
+) -> Union[List[dict], dict]:
     """
     A wrapper designed to interpret the client-facing API for
     how a command is to be created and used.
@@ -113,7 +113,7 @@ def command(
             default_member_permissions=_default_member_permissions,
             dm_permission=_dm_permission,
         )
-        payloads.append(payload._json)
+        return payload._json
 
     return payloads
 

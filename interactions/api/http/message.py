@@ -9,7 +9,7 @@ from .request import _Request
 from .route import Route
 
 
-class _MessageRequest:
+class MessageRequest:
 
     _req: _Request
     cache: Cache
