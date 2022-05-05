@@ -169,7 +169,6 @@ class Client:
 
         for command in pool:
             if command["name"] == data["name"]:
-
                 _command = command
                 # in case it continues looping
                 if not command.get("options"):
@@ -923,11 +922,13 @@ class Client:
                 coro=coro,
             )
 
+
             if hasattr(coro, "__func__"):
                 coro.__func__._command_data = commands
             else:
                 coro._command_data = commands
 
+            coro._command_data = commands
             self.__command_coroutines.append(coro)
 
             if scope is not MISSING:
