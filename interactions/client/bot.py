@@ -352,7 +352,6 @@ class Client:
 
             ready = True
         except Exception as error:
-            raise error
             log.critical(f"Could not prepare the client: {error}")
         finally:
             if ready:
@@ -1308,7 +1307,7 @@ class Client:
                     try:
                         await _extension.teardown()  # made for Extension, usable by others
                     except AttributeError:
-                        raise
+                        pass
 
             del sys.modules[_name]
 
