@@ -233,7 +233,6 @@ class ApplicationCommand(DictSerializerMixin):
         "description",
         "options",
         "default_permission",
-        "permissions",
         "version",
         "default_member_permissions",
         "dm_permission",
@@ -249,10 +248,7 @@ class ApplicationCommand(DictSerializerMixin):
     description: str
     options: Optional[List[Option]]
     default_permission: Optional[bool]
-    permissions: Optional[List[Permission]]
     version: int
-
-    # TODO: post-v4: Investigate these once documented by Discord.
     default_member_permissions: str
     dm_permission: bool
     name_localizations: Optional[Dict[Union[str, Locale], str]]
@@ -267,11 +263,6 @@ class ApplicationCommand(DictSerializerMixin):
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.options = (
             [Option(**option) for option in self.options] if self._json.get("options") else None
-        )
-        self.permissions = (
-            [Permission(**permission) for permission in self.permissions]
-            if self._json.get("permissions")
-            else None
         )
 
         if self._json.get("name_localizations"):
