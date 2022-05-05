@@ -922,7 +922,6 @@ class Client:
                 coro=coro,
             )
 
-
             if hasattr(coro, "__func__"):
                 coro.__func__._command_data = commands
             else:
