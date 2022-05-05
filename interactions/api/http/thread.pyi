@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from ..models.misc import File
 from ...api.cache import Cache
 from .request import _Request
 
@@ -34,4 +35,15 @@ class _ThreadRequest:
         invitable: Optional[bool] = None,
         message_id: Optional[int] = None,
         reason: Optional[str] = None,
+    ) -> dict: ...
+    async def create_thread_in_forum(
+            self,
+            channel_id: int,
+            name: str,
+            auto_archive_duration: int,
+            message_payload: dict,
+            applied_tags: List[str] = None,
+            files: Optional[List[File]] = None,
+            rate_limit_per_user: Optional[int] = None,
+            reason: Optional[str] = None,
     ) -> dict: ...

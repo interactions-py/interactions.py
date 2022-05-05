@@ -66,3 +66,19 @@ class _ChannelRequest:
         reason: Optional[str] = None,
     ) -> dict: ...
     async def delete_stage_instance(self, channel_id: int, reason: Optional[str] = None) -> None: ...
+    async def create_tag(
+            self,
+            channel_id: int,
+            name: str,
+            emoji_id: Optional[int] = None,
+            emoji_name: Optional[str] = None,
+    ) -> dict: ...
+    async def edit_tag(
+            self,
+            channel_id: int,
+            tag_id: int,
+            name: str,
+            emoji_id: Optional[int] = None,
+            emoji_name: Optional[str] = None,
+    ) -> dict: ...
+    async def delete_tag(self, channel_id: int, tag_id: int) -> dict: ...
