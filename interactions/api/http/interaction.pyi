@@ -35,9 +35,6 @@ class InteractionRequest:
     async def edit_application_command_permissions(
         self, application_id: int, guild_id: int, command_id: int, data: List[dict]
     ) -> dict: ...
-    async def batch_edit_application_command_permissions(
-        self, application_id: int, guild_id: int, data: List[dict]
-    ) -> List[dict]: ...
     async def get_application_command_permissions(
         self, application_id: int, guild_id: int, command_id: int
     ) -> dict: ...

@@ -73,7 +73,7 @@ class InteractionRequest:
         """
         Overwrites application command(s) from a scope to the new, updated commands.
 
-        ..note:
+        .. note::
             This applies to all forms of application commands (slash and context menus)
 
         :param application_id: Application ID snowflake
@@ -161,6 +161,10 @@ class InteractionRequest:
         """
         Edits permissions for an application command.
 
+        .. note::
+            This requires authenticating with the Bearer token. Likewise, if this function is used in a bot
+            process with a bot token, this will fail.
+
         :param application_id: Application ID snowflake
         :param guild_id: Guild ID snowflake
         :param command_id: Application command ID snowflake
@@ -173,22 +177,6 @@ class InteractionRequest:
                 "PUT",
                 f"/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
             ),
-            json=data,
-        )
-
-    async def batch_edit_application_command_permissions(
-        self, application_id: int, guild_id: int, data: List[dict]
-    ) -> List[dict]:
-        """
-        Edits permissions for all Application Commands in a guild.
-
-        :param application_id: Application ID snowflake
-        :param guild_id: Guild ID snowflake
-        :param data: An array of permission dictionaries.
-        :return: An updated array of application array permissions.
-        """
-        return await self._req.request(
-            Route("PUT", f"/applications/{application_id}/guilds/{guild_id}/commands/permissions"),
             json=data,
         )
 

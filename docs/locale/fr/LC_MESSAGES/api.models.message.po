@@ -27,7 +27,7 @@ msgid "An enumerable object representing the types of messages."
 msgstr ""
 
 #: interactions.api.models.message.MessageType:3 of
-msgid "..note::"
+msgid ".. note::"
 msgstr ""
 
 #: interactions.api.models.message.MessageType:4 of

@@ -208,7 +208,7 @@ Nested commands: subcommands
             ),
         ],
     )
-    async def cmd(ctx: interactions.CommandContext, sub_command: str, second_option: str, option: int = None):
+    async def cmd(ctx: interactions.CommandContext, sub_command: str, second_option: str = "", option: int = None):
         if sub_command == "command_name":
           await ctx.send(f"You selected the command_name sub command and put in {option}")
         elif sub_command == "second_command":
@@ -384,6 +384,69 @@ Responding to a Modal interaction
 
 You can respond to a modal the same way as you would respond to a normal ``chat-input`` command, except your function has an extra argument for the text what was put into the modal.
 
+Adding v2 Permissions
+^^^^^^^^^^^^^^^^^^^^^
+
+v2 permissions consist of the ``default_member_permissions`` and ``dm_permission`` keyword arguments.
+Similar to adding privileged intents, you add permissions (like admin-only, ``BAN_MEMBERS``-only, etc.) as follows:
+
+.. code-block:: python
+
+    @bot.command(
+        name="sudo",
+        description="Fake a command as if its done by someone else.",
+        default_member_permissions=interactions.Permissions.ADMINISTRATOR,  # admin-only
+        options=[interactions.Option(
+                        name="response",
+                        description="What command you want to execute",
+                        type=interactions.OptionType.STRING,
+                        required=True,
+                    )]
+    )
+    async def sudo(ctx, response: str):
+        await ctx.send(f"You wrote: {response}", ephemeral=True)
+
+    # This is the same command however, the below example covers more than 1 permission.
+
+    @bot.command(
+        name="sudo",
+        description="Fake a command as if its done by someone else.",
+        default_member_permissions=interactions.Permissions.ADMINISTRATOR | interactions.Permissions.MOVE_MEMBERS,
+        options=[interactions.Option(
+                        name="response",
+                        description="What command you want to execute",
+                        type=interactions.OptionType.STRING,
+                        required=True,
+                    )]
+    )
+    async def sudo(ctx, response: str):
+        await ctx.send(f"You wrote: {response}", ephemeral=True)
+
+    # Just a disclaimer, these examples are not meant to be used line by line because
+    # you can't have more than 1 global command with the same name
+
+
+Adding guild-only commands is easier as the only thing it takes is a boolean.
+Here's an example of a guild-only command:
+
+.. code-block:: python
+
+    @bot.command(
+        name="sudo",
+        description="Fake a command as if its done by someone else.",
+        dm_permission=False,  # Guild-only
+        options=[interactions.Option(
+                        name="response",
+                        description="What command you want to execute",
+                        type=interactions.OptionType.STRING,
+                        required=True,
+                    )]
+    )
+    async def sudo(ctx, response: str):
+        await ctx.send(f"You wrote: {response}", ephemeral=True)
+
+Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. Just to note that this argument's mainly used for
+global commands. Guild commands with this argument will have no effect.
 
 .. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
 .. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html

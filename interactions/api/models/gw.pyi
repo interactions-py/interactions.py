@@ -20,6 +20,7 @@ class ApplicationCommandPermissions(DictSerializerMixin):
     guild_id: Snowflake
     id: Snowflake
     permissions: List[Permission]
+    _client: Optional[HTTPClient]
 
     def __init__(self, **kwargs): ...
 

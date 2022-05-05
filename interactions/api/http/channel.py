@@ -48,7 +48,7 @@ class ChannelRequest:
         """
         Get messages from a channel.
 
-        ..note::
+        .. note::
             around, before, and after arguments are mutually exclusive.
 
         :param channel_id: Channel ID snowflake.
@@ -81,9 +81,10 @@ class ChannelRequest:
             Route("GET", f"/channels/{channel_id}/messages"), params=params
         )
 
-        for message in request:
-            if message.get("id"):
-                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+        if isinstance(request, list):
+            for message in request:
+                if message.get("id"):
+                    self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
@@ -93,7 +94,7 @@ class ChannelRequest:
         """
         Creates a channel within a guild.
 
-        ..note::
+        .. note::
             This does not handle payload in this method. Tread carefully.
 
         :param guild_id: Guild ID snowflake.
@@ -167,7 +168,7 @@ class ChannelRequest:
         """
         Creates an invite for the given channel.
 
-        ..note::
+        .. note::
             This method does not handle payload. It just sends it.
 
         :param channel_id: Channel ID snowflake.
@@ -232,7 +233,7 @@ class ChannelRequest:
         """
         Posts "... is typing" in a given channel.
 
-        ..note:
+        .. note::
             By default, this lib doesn't use this endpoint, however, this is listed for third-party implementation.
 
         :param channel_id: Channel ID snowflake.

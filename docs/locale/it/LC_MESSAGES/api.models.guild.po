@@ -318,7 +318,7 @@ msgid "A model representing the preview of a guild."
 msgstr ""
 
 #: interactions.api.models.guild.GuildPreview:4 of
-msgid "..note::"
+msgid ".. note::"
 msgstr ""
 
 #: interactions.api.models.guild.GuildPreview:4 of

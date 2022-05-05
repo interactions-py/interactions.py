@@ -5,7 +5,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api.cache import Cache
 from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
-from ..api.models.flags import Intents
+from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
 from ..api.models.misc import MISSING, Snowflake, Image
 from ..api.models.presence import ClientPresence
@@ -68,25 +68,28 @@ class Client:
         description: Optional[str] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         options: Optional[List[Option]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(

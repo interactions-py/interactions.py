@@ -1049,6 +1049,56 @@ class Channel(DictSerializerMixin):
 
         return Invite(**res, _client=self._client)
 
+    async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
+        """
+        Gets messages from the channel's history.
+
+        :param limit?: The amount of messages to get. Default 100
+        :type limit?: int
+        :return: A list of messages
+        :rtype: List[Message]
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        from .message import Message
+
+        _messages: List[Message] = []
+        _before: int = None
+        while limit > 100:
+            _msgs = [
+                Message(**res, _client=self._client)
+                for res in await self._client.get_channel_messages(
+                    channel_id=int(self.id),
+                    limit=100,
+                    before=_before,
+                )
+            ]
+            limit -= 100
+            _before = int(_messages[-1].id)
+
+            for msg in _msgs:
+                if msg in _messages:
+                    return _messages
+                else:
+                    _messages.append(msg)
+
+        if limit > 0:
+            _msgs = [
+                Message(**res, _client=self._client)
+                for res in await self._client.get_channel_messages(
+                    channel_id=int(self.id), limit=limit, before=_before
+                )
+            ]
+            for msg in _msgs:
+                if msg in _messages:
+                    return _messages
+                else:
+                    _messages.append(msg)
+
+        return _messages
+
 
 class Thread(Channel):
     """An object representing a thread.
