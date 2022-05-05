@@ -927,7 +927,6 @@ class Client:
             else:
                 coro._command_data = commands
 
-            coro._command_data = commands
             self.__command_coroutines.append(coro)
 
             if scope is not MISSING:
