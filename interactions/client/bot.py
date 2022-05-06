@@ -139,7 +139,10 @@ class Client:
                 name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}",
             )
 
-    async def __compare_sync(self, data: dict, pool: List[dict]) -> Tuple[bool, dict]:
+    @staticmethod
+    async def __compare_sync(
+        data: dict, pool: List[dict]
+    ) -> Tuple[bool, dict]:  # sourcery no-metrics
         """
         Compares an application command during the synchronization process.
 
@@ -150,10 +153,14 @@ class Client:
         :return: Whether the command has changed or not.
         :rtype: bool
         """
+
+        # sourcery skip: none-compare
         attrs: List[str] = [
             name
             for name in ApplicationCommand.__slots__
-            if not name.startswith("_") and not name.endswith("id") and name != "version"
+            if not name.startswith("_")
+            and not name.endswith("id")
+            and name not in {"version", "default_permission"}
         ]
 
         option_attrs: List[str] = [name for name in Option.__slots__ if not name.startswith("_")]
@@ -252,6 +259,14 @@ class Client:
                                                                     return clean, _command
                                                                 else:
                                                                     continue
+                                            elif option_attr == "required":
+                                                if (
+                                                    option.get(option_attr) == None  # noqa: E711
+                                                    and _option.get(option_attr)
+                                                    == False  # noqa: E712
+                                                ):
+                                                    # API not including if False
+                                                    continue
                                             elif option.get(option_attr) != _option.get(
                                                 option_attr
                                             ):
@@ -270,6 +285,14 @@ class Client:
                         if command.get(attr, None) is None and data.get(attr) == {}:
                             # This is an API/Version difference.
                             continue
+
+                    elif (
+                        attr == "dm_permission"
+                        and data.get(attr) == True  # noqa: E712
+                        and command.get(attr) == None  # noqa: E711
+                    ):
+                        # idk, it encountered me and synced unintentionally
+                        continue
 
                     # elif data.get(attr, None) and command.get(attr) == data.get(attr):
                     elif command.get(attr, None) == data.get(attr, None):
@@ -708,22 +731,27 @@ class Client:
         def __check_coro():
             __indent = 4
             log.debug(f"{' ' * __indent}Checking coroutine: '{coro.__name__}'")
-            if not len(coro.__code__.co_varnames):
+            _ismethod = hasattr(coro, "__func__")
+            if not len(coro.__code__.co_varnames) ^ (
+                _ismethod and len(coro.__code__.co_varnames) == 1
+            ):
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
             elif "kwargs" in coro.__code__.co_varnames:
                 return
-            elif _sub_cmds_present and len(coro.__code__.co_varnames) < 2:
+            elif _sub_cmds_present and len(coro.__code__.co_varnames) < (3 if _ismethod else 2):
                 raise InteractionException(
                     11, message="Your command needs one argument for the sub_command."
                 )
-            elif _sub_groups_present and len(coro.__code__.co_varnames) < 3:
+            elif _sub_groups_present and len(coro.__code__.co_varnames) < (4 if _ismethod else 3):
                 raise InteractionException(
                     11,
                     message="Your command needs one argument for the sub_command and one for the sub_command_group.",
                 )
-            add: int = 1 + abs(_sub_cmds_present) + abs(_sub_groups_present)
+            add: int = (
+                1 + abs(_sub_cmds_present) + abs(_sub_groups_present) + 1 if _ismethod else +0
+            )
 
             if len(coro.__code__.co_varnames) - add < len(set(_options_names)):
                 log.debug(
@@ -896,7 +924,11 @@ class Client:
                 coro=coro,
             )
 
-            coro._command_data = commands
+            if hasattr(coro, "__func__"):
+                coro.__func__._command_data = commands
+            else:
+                coro._command_data = commands
+
             self.__command_coroutines.append(coro)
 
             if scope is not MISSING:
@@ -1268,18 +1300,27 @@ class Client:
             log.error(f"Extension {name} has not been loaded before. Skipping.")
             return
 
-        try:
-            extension.teardown()  # made for Extension, usable by others
-        except AttributeError:
-            pass
-
         if isinstance(extension, ModuleType):  # loaded as a module
             for ext_name, ext in getmembers(
                 extension, lambda x: isinstance(x, type) and issubclass(x, Extension)
             ):
-                self.remove(ext_name)
+
+                if ext_name != "Extension":
+                    _extension = self._extensions.get(ext_name)
+                    try:
+                        self._loop.create_task(
+                            _extension.teardown()
+                        )  # made for Extension, usable by others
+                    except AttributeError:
+                        pass
 
             del sys.modules[_name]
+
+        else:
+            try:
+                self._loop.create_task(extension.teardown())  # made for Extension, usable by others
+            except AttributeError:
+                pass
 
         del self._extensions[_name]
 
@@ -1290,6 +1331,9 @@ class Client:
     ) -> Optional["Extension"]:
         r"""
         "Reloads" an extension off of current client from an import resolve.
+
+        .. warning::
+            This will remove and re-add application commands, counting towards your daily application command creation limit.
 
         :param name: The name of the extension.
         :type name: str
@@ -1307,8 +1351,7 @@ class Client:
 
         if extension is None:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
-            self.load(name, package)
-            return
+            return self.load(name, package)
 
         self.remove(name, package)
         return self.load(name, package, *args, **kwargs)
@@ -1429,7 +1472,6 @@ class Extension:
         # This gets every coroutine in a way that we can easily change them
         # cls
         for name, func in getmembers(self, predicate=iscoroutinefunction):
-
             # TODO we can make these all share the same list, might make it easier to load/unload
             if hasattr(func, "__listener_name__"):  # set by extension_listener
                 func = client.event(
@@ -1497,32 +1539,24 @@ class Extension:
 
         client._extensions[cls.__name__] = self
 
+        if client._websocket.ready.is_set() and client._automate_sync:
+            client._loop.create_task(client._Client__sync())
+
         return self
 
-    def teardown(self):
+    async def teardown(self):
         for event, funcs in self._listeners.items():
             for func in funcs:
                 self.client._websocket._dispatch.events[event].remove(func)
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
+                _index = self.client._Client__command_coroutines.index(func)
+                self.client._Client__command_coroutines.pop(_index)
                 self.client._websocket._dispatch.events[cmd].remove(func)
 
-        clean_cmd_names = [cmd[7:] for cmd in self._commands.keys()]
-        cmds = filter(
-            lambda cmd_data: cmd_data["name"] in clean_cmd_names,
-            self.client._http.cache.interactions.view,
-        )
-
         if self.client._automate_sync:
-            [
-                self.client._loop.create_task(
-                    self.client._http.delete_application_command(
-                        cmd["application_id"], cmd["id"], cmd["guild_id"]
-                    )
-                )
-                for cmd in cmds
-            ]
+            await self.client._Client__sync()
 
 
 @wraps(command)
