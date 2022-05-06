@@ -1539,7 +1539,7 @@ class Extension:
 
         client._extensions[cls.__name__] = self
 
-        if client._websocket.ready.is_set() and Client._automate_sync:
+        if client._websocket.ready.is_set() and client._automate_sync:
             client._loop.create_task(client._Client__sync())
 
         return self
