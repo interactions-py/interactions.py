@@ -156,8 +156,7 @@ class Client:
             for name in ApplicationCommand.__slots__
             if not name.startswith("_")
             and not name.endswith("id")
-            and name != "version"
-            and name != "default_permission"
+            and name not in {"version", "default_permission"}
         ]
 
         option_attrs: List[str] = [name for name in Option.__slots__ if not name.startswith("_")]
