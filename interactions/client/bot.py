@@ -288,7 +288,7 @@ class Client:
                         and data.get(attr) == True  # noqa: E712
                         and command.get(attr) == None  # noqa: E711
                     ):
-                        # idk it encountered to me and synced unintentional
+                        # idk, it encountered me and synced unintentionally
                         continue
 
                     # elif data.get(attr, None) and command.get(attr) == data.get(attr):
