@@ -4,7 +4,7 @@ from ...api.cache import Cache
 from .request import _Request
 
 
-class _WebhookRequest:
+class WebhookRequest:
 
     _req: _Request
     cache: Cache

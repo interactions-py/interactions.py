@@ -1,0 +1,7 @@
+include README.rst
+include LICENSE
+include requirements.txt
+include requirements-docs.txt
+include requirements-lint.txt
+include interactions/py.typed
+recursive-include interactions *.pyi

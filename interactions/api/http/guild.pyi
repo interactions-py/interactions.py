@@ -4,7 +4,7 @@ from ..models.role import Role
 from .request import _Request
 
 
-class _GuildRequest:
+class GuildRequest:
 
     _req: _Request
     cache: Cache
@@ -64,8 +64,8 @@ class _GuildRequest:
     async def create_guild_role(
         self, guild_id: int, payload: dict, reason: Optional[str] = None
     ) -> dict: ...
-    async def modify_guild_role_position(
-        self, guild_id: int, role_id: int, position: int, reason: Optional[str] = None
+    async def modify_guild_role_positions(
+        self, guild_id: int, payload: List[dict], reason: Optional[str] = None
     ) -> List[dict]: ...
     async def modify_guild_role(
         self, guild_id: int, role_id: int, payload: dict, reason: Optional[str] = None

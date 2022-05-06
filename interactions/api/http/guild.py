@@ -10,7 +10,7 @@ from .request import _Request
 from .route import Route
 
 
-class _GuildRequest:
+class GuildRequest:
 
     _req: _Request
     cache: Cache
@@ -111,7 +111,7 @@ class _GuildRequest:
         """
         Get an url representing a png image widget for the guild.
 
-        ..note::
+        .. note::
             See _<https://discord.com/developers/docs/resources/guild#get-guild-widget-image> for list of styles.
 
         :param guild_id: Guild ID snowflake.
@@ -259,7 +259,7 @@ class _GuildRequest:
         """
         Create a new guild based on a template.
 
-        ..note::
+        .. note::
             This endpoint can only be used by bots in less than 10 guilds.
 
         :param template_code: The code of the template to use.
@@ -404,21 +404,20 @@ class _GuildRequest:
 
         return request
 
-    async def modify_guild_role_position(
-        self, guild_id: int, role_id: int, position: int, reason: Optional[str] = None
+    async def modify_guild_role_positions(
+        self, guild_id: int, payload: List[dict], reason: Optional[str] = None
     ) -> List[dict]:
         """
         Modify the position of a role in the guild.
 
         :param guild_id: Guild ID snowflake.
-        :param role_id: Role ID snowflake.
-        :param position: The new position of the associated role.
+        :param payload: A list of dicts containing the role IDs and new positions for all the roles to be moved.
         :param reason: The reason for this action, if given.
         :return: List of guild roles with updated hierarchy.
         """
         return await self._req.request(
             Route("PATCH", f"/guilds/{guild_id}/roles"),
-            json={"id": role_id, "position": position},
+            json=payload,
             reason=reason,
         )
 

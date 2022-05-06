@@ -1,3 +1,2 @@
-aiohttp
-colorama
+aiohttp >= 3.8.1
 orjson

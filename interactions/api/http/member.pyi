@@ -3,7 +3,7 @@ from typing import List, Optional
 from ...api.cache import Cache
 from .request import _Request
 
-class _MemberRequest:
+class MemberRequest:
 
     __slots__ = ("_req", "cache")
 

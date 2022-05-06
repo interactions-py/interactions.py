@@ -3,7 +3,7 @@ from typing import List, Optional
 from ...api.cache import Cache
 from .request import _Request
 
-class _ThreadRequest:
+class ThreadRequest:
 
     _req: _Request
     cache: Cache

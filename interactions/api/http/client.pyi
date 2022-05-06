@@ -1,15 +1,39 @@
 from typing import Optional, Tuple
 
-from .request import _Request
 from ...api.cache import Cache
+from .channel import ChannelRequest
+from .emoji import EmojiRequest
+from .guild import GuildRequest
+from .interaction import InteractionRequest
+from .member import MemberRequest
+from .message import MessageRequest
+from .reaction import ReactionRequest
+from .request import _Request
+from .scheduledEvent import ScheduledEventRequest
+from .sticker import StickerRequest
+from .thread import ThreadRequest
+from .user import UserRequest
+from .webhook import WebhookRequest
 
 
-class HTTPClient:
+class HTTPClient(
+    ChannelRequest,
+    EmojiRequest,
+    GuildRequest,
+    InteractionRequest,
+    MemberRequest,
+    MessageRequest,
+    ReactionRequest,
+    ScheduledEventRequest,
+    StickerRequest,
+    ThreadRequest,
+    UserRequest,
+    WebhookRequest,
+):
+
     token: str
     _req: _Request
     cache: Cache
-
-
 
     def __init__(self, token: str): ...
 

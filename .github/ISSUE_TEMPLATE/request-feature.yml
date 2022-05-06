@@ -3,9 +3,10 @@ description: Create an Issue to suggest or propose implementing something(s).
 title: "[REQUEST] "
 labels: ["documentation", "enhancement"]
 assignees:
-  - goverfl0w
   - DeltaXWizard
   - EdVraz
+  - Astrea49
+  - Toricane
 body:
   - type: markdown
     id: thanks

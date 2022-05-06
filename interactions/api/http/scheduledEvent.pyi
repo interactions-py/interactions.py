@@ -6,7 +6,7 @@ from ..models import Snowflake
 from .request import _Request
 
 
-class _ScheduledEventRequest:
+class ScheduledEventRequest:
 
     __slots__ = ("_req", "cache")
 

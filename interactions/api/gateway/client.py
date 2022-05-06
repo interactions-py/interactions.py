@@ -239,7 +239,7 @@ class WebSocketClient:
                 #    self.sequence = None
                 # self._closed = True
 
-                if bool(data) is False and op == OpCodeType.INVALIDATE_SESSION:
+                if not bool(data) and op == OpCodeType.INVALIDATE_SESSION:
                     self.session_id = None
 
                 await self.__restart()
@@ -272,11 +272,7 @@ class WebSocketClient:
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
-            if not data.get("type"):
-                log.warning(
-                    "Context is being created for the interaction, but no type is specified. Skipping..."
-                )
-            else:
+            if data.get("type"):
                 # sourcery skip: extract-method
                 _context = self.__contextualize(data)
                 _name: str = ""
@@ -315,11 +311,14 @@ class WebSocketClient:
 
                     if _context.data._json.get("options"):
                         for option in _context.data.options:
-                            __name, _value = self.__sub_command_context(option, _context)
-                            _name += f"_{__name}" if __name else ""
 
-                            if _value:
-                                __args.append(_value)
+                            if option.focused:
+                                __name, _value = self.__sub_command_context(option, _context)
+                                _name += f"_{__name}" if __name else ""
+
+                                if _value:
+                                    __args.append(_value)
+                            break
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
@@ -339,6 +338,10 @@ class WebSocketClient:
                 self._dispatch.dispatch(_name, *__args, **__kwargs)
                 self._dispatch.dispatch("on_interaction", _context)
                 self._dispatch.dispatch("on_interaction_create", _context)
+            else:
+                log.warning(
+                    "Context is being created for the interaction, but no type is specified. Skipping..."
+                )
         elif event != "TYPING_START":
             name: str = event.lower()
             try:
@@ -465,7 +468,7 @@ class WebSocketClient:
             # sub_command_groups must have options so there is no extra check needed for those
             __kwargs["sub_command"] = _data["name"]
 
-        elif _data.get("value") and _data.get("name"):
+        elif _data.get("value") is not None and _data.get("name") is not None:
             __kwargs[_data["name"]] = _data["value"]
 
         return __kwargs
