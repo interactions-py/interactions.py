@@ -140,7 +140,9 @@ class Client:
             )
 
     @staticmethod
-    async def __compare_sync(data: dict, pool: List[dict]) -> Tuple[bool, dict]:  # sourcery no-metrics
+    async def __compare_sync(
+        data: dict, pool: List[dict]
+    ) -> Tuple[bool, dict]:  # sourcery no-metrics
         """
         Compares an application command during the synchronization process.
 
