@@ -1306,7 +1306,9 @@ class Client:
                 if ext_name != "Extension":
                     _extension = self._extensions.get(ext_name)
                     try:
-                        self._loop.create_task(_extension.teardown())  # made for Extension, usable by others
+                        self._loop.create_task(
+                            _extension.teardown()
+                        )  # made for Extension, usable by others
                     except AttributeError:
                         pass
 
