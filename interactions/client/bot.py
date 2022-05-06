@@ -139,8 +139,8 @@ class Client:
                 name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}",
             )
 
-    async def __compare_sync(self, data: dict, pool: List[dict]) -> Tuple[bool, dict]:
-        # sourcery skip: none-compare
+    @staticmethod
+    async def __compare_sync(data: dict, pool: List[dict]) -> Tuple[bool, dict]:  # sourcery no-metrics
         """
         Compares an application command during the synchronization process.
 
@@ -152,6 +152,7 @@ class Client:
         :rtype: bool
         """
 
+        # sourcery skip: none-compare
         attrs: List[str] = [
             name
             for name in ApplicationCommand.__slots__
