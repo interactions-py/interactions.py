@@ -151,6 +151,7 @@ class Client:
         :return: Whether the command has changed or not.
         :rtype: bool
         """
+
         attrs: List[str] = [
             name
             for name in ApplicationCommand.__slots__
@@ -727,26 +728,26 @@ class Client:
         def __check_coro():
             __indent = 4
             log.debug(f"{' ' * __indent}Checking coroutine: '{coro.__name__}'")
-            _isMethod = hasattr(coro, "__func__")
+            _ismethod = hasattr(coro, "__func__")
             if not len(coro.__code__.co_varnames) ^ (
-                _isMethod and len(coro.__code__.co_varnames) == 1
+                _ismethod and len(coro.__code__.co_varnames) == 1
             ):
                 raise InteractionException(
                     11, message="Your command needs at least one argument to return context."
                 )
             elif "kwargs" in coro.__code__.co_varnames:
                 return
-            elif _sub_cmds_present and len(coro.__code__.co_varnames) < (3 if _isMethod else 2):
+            elif _sub_cmds_present and len(coro.__code__.co_varnames) < (3 if _ismethod else 2):
                 raise InteractionException(
                     11, message="Your command needs one argument for the sub_command."
                 )
-            elif _sub_groups_present and len(coro.__code__.co_varnames) < (4 if _isMethod else 3):
+            elif _sub_groups_present and len(coro.__code__.co_varnames) < (4 if _ismethod else 3):
                 raise InteractionException(
                     11,
                     message="Your command needs one argument for the sub_command and one for the sub_command_group.",
                 )
             add: int = (
-                1 + abs(_sub_cmds_present) + abs(_sub_groups_present) + 1 if _isMethod else +0
+                1 + abs(_sub_cmds_present) + abs(_sub_groups_present) + 1 if _ismethod else +0
             )
 
             if len(coro.__code__.co_varnames) - add < len(set(_options_names)):
@@ -1276,7 +1277,7 @@ class Client:
             self._extensions[_name] = module
             return extension
 
-    async def remove(self, name: str, package: Optional[str] = None) -> None:
+    def remove(self, name: str, package: Optional[str] = None) -> None:
         """
         Removes an extension out of the current client from an import resolve.
 
@@ -1304,7 +1305,7 @@ class Client:
                 if ext_name != "Extension":
                     _extension = self._extensions.get(ext_name)
                     try:
-                        await _extension.teardown()  # made for Extension, usable by others
+                        self._loop.create_task(_extension.teardown())  # made for Extension, usable by others
                     except AttributeError:
                         pass
 
@@ -1312,7 +1313,7 @@ class Client:
 
         else:
             try:
-                await extension.teardown()  # made for Extension, usable by others
+                self._loop.create_task(extension.teardown())  # made for Extension, usable by others
             except AttributeError:
                 pass
 
@@ -1320,7 +1321,7 @@ class Client:
 
         log.debug(f"Removed extension {name}.")
 
-    async def reload(
+    def reload(
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]:
         r"""
@@ -1345,10 +1346,9 @@ class Client:
 
         if extension is None:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
-            self.load(name, package)
-            return
+            return self.load(name, package)
 
-        await self.remove(name, package)
+        self.remove(name, package)
         return self.load(name, package, *args, **kwargs)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
@@ -1533,6 +1533,9 @@ class Extension:
                 self._listeners[modal_name] = listeners
 
         client._extensions[cls.__name__] = self
+
+        if client._websocket.ready.is_set():
+            client._loop.create_task(client._Client__sync())
 
         return self
 
