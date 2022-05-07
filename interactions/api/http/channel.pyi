@@ -4,7 +4,7 @@ from ...api.cache import Cache
 from .request import _Request
 
 
-class _ChannelRequest:
+class ChannelRequest:
 
     _req: _Request
     cache: Cache

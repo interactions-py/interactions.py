@@ -5,7 +5,7 @@ from .request import _Request
 from .route import Route
 
 
-class _ThreadRequest:
+class ThreadRequest:
 
     _req: _Request
     cache: Cache

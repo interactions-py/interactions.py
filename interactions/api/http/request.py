@@ -190,7 +190,7 @@ class _Request:
                         log.warning(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
                         )
-                        self._loop.call_later(reset_after, _limiter.release_lock())
+                        self._loop.call_later(reset_after, _limiter.release_lock)
 
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
 
