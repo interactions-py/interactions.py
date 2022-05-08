@@ -398,7 +398,7 @@ class Client:
                 application_id=self.me.id, guild_id=_id, with_localizations=True
             )
 
-            if _cmds.get("code"):
+            if isinstance(_cmds, dict) and _cmds.get("code"):
                 # Error exists.
                 raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
 
@@ -442,6 +442,10 @@ class Client:
             _cmds = await self._http.get_application_commands(
                 application_id=self.me.id, guild_id=_id, with_localizations=True
             )
+
+            if isinstance(_cmds, dict) and if _cmds.get("code"):
+                # Error exists.
+                raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
 
             for command in _cmds:
                 if command.get("code"):
