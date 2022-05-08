@@ -313,7 +313,10 @@ class WebSocketClient:
                         for option in _context.data.options:
                             if isinstance(option, dict):
                                 option = Option(**option)
-                            if option.type not in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
+                            if option.type not in (
+                                OptionType.SUB_COMMAND,
+                                OptionType.SUB_COMMAND_GROUP,
+                            ):
                                 if option.focused:
                                     __name, _value = self.__sub_command_context(option, _context)
                                     _name += f"_{__name}" if __name else ""
@@ -325,7 +328,9 @@ class WebSocketClient:
                                     if isinstance(_option, dict):
                                         _option = Option(**_option)
                                     if _option.focused:
-                                        __name, _value = self.__sub_command_context(_option, _context)
+                                        __name, _value = self.__sub_command_context(
+                                            _option, _context
+                                        )
                                         _name += f"_{__name}" if __name else ""
                                         if _value:
                                             __args.append(_value)
@@ -339,14 +344,15 @@ class WebSocketClient:
                                         if isinstance(__option, dict):
                                             __option = Option(**__option)
                                         if __option.focused:
-                                            __name, _value = self.__sub_command_context(__option, _context)
+                                            __name, _value = self.__sub_command_context(
+                                                __option, _context
+                                            )
                                             _name += f"_{__name}" if __name else ""
                                             if _value:
                                                 __args.append(_value)
                                         break
                                     break
                             break
-
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
