@@ -443,7 +443,7 @@ class Client:
                 application_id=self.me.id, guild_id=_id, with_localizations=True
             )
 
-            if isinstance(_cmds, dict) and if _cmds.get("code"):
+            if isinstance(_cmds, dict) and _cmds.get("code"):
                 # Error exists.
                 raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
 
