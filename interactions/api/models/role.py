@@ -54,6 +54,7 @@ class Role(DictSerializerMixin):
         "managed",
         "mentionable",
         "tags",
+        "flags",
         "permissions",
         "_client",
     )

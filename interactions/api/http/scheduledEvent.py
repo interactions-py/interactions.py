@@ -6,7 +6,7 @@ from .request import _Request
 from .route import Route
 
 
-class _ScheduledEventRequest:
+class ScheduledEventRequest:
 
     _req: _Request
     cache: Cache
@@ -54,7 +54,7 @@ class _ScheduledEventRequest:
         guild_id, event_id = int(guild_id), int(guild_scheduled_event_id)
         params = {}
         if with_user_count:
-            params["with_user_count"] = with_user_count
+            params["with_user_count"] = str(with_user_count)
 
         return await self._req.request(
             Route(

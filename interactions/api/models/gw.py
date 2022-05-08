@@ -23,7 +23,7 @@ class ApplicationCommandPermissions(DictSerializerMixin):
     :ivar List[Permission] permissions: The updated permissions of the associated command/event.
     """
 
-    __slots__ = ("_json", "application_id", "guild_id", "id", "permissions")
+    __slots__ = ("_json", "application_id", "guild_id", "id", "permissions", "_client")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

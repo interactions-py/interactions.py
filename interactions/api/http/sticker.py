@@ -7,7 +7,7 @@ from .request import _Request
 from .route import Route
 
 
-class _StickerRequest:
+class StickerRequest:
 
     _req: _Request
     cache: Cache

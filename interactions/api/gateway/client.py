@@ -311,11 +311,14 @@ class WebSocketClient:
 
                     if _context.data._json.get("options"):
                         for option in _context.data.options:
-                            __name, _value = self.__sub_command_context(option, _context)
-                            _name += f"_{__name}" if __name else ""
 
-                            if _value:
-                                __args.append(_value)
+                            if option.focused:
+                                __name, _value = self.__sub_command_context(option, _context)
+                                _name += f"_{__name}" if __name else ""
+
+                                if _value:
+                                    __args.append(_value)
+                            break
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:

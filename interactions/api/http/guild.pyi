@@ -4,7 +4,7 @@ from ..models.role import Role
 from .request import _Request
 
 
-class _GuildRequest:
+class GuildRequest:
 
     _req: _Request
     cache: Cache
