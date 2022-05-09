@@ -790,7 +790,6 @@ class Emoji(DictSerializerMixin):
             guild_id=guild_id, emoji_id=int(self.id), reason=reason
         )
 
-
     @property
     def url(self) -> Optional[str]:
         """
