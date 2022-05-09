@@ -269,6 +269,7 @@ class Client:
                             return clean, _command
 
                         elif command.get("options") and data.get("options"):
+
                             clean, _command = __check_options(command, data)
 
                         if not clean:
