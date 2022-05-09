@@ -155,6 +155,7 @@ class Client:
         """
 
         # sourcery skip: none-compare
+
         attrs: List[str] = [
             name
             for name in ApplicationCommand.__slots__
@@ -169,6 +170,90 @@ class Client:
         clean: bool = True
 
         _command: dict = {}
+
+        def __check_options(command, data):
+            # sourcery skip: none-compare
+            # sourcery no-metrics
+            _command_option_names = [_["name"] for _ in command.get("options")]
+            _data_option_names = [_["name"] for _ in data.get("options")]
+
+            if any(
+                    _ not in _command_option_names for _ in _data_option_names
+            ) or len(_data_option_names) != len(_command_option_names):
+                return False, command
+
+            for option in command.get("options"):
+                for _option in data.get("options"):
+                    if _option["name"] == option["name"]:
+                        for option_attr in option_attrs:
+                            if (
+                                    option.get(option_attr)
+                                    and not _option.get(option_attr)
+                                    or not option.get(option_attr)
+                                    and _option.get(option_attr)
+                            ):
+                                return False, command
+                            elif option_attr == "choices":
+                                if not option.get("choices") or not _option.get(
+                                        "choices"
+                                ):
+                                    continue
+
+                                _option_choice_names = [
+                                    _["name"] for _ in option.get("choices")
+                                ]
+                                _data_choice_names = [
+                                    _["name"] for _ in _option.get("choices")
+                                ]
+
+                                if any(
+                                        _ not in _option_choice_names
+                                        for _ in _data_choice_names
+                                ) or len(_data_choice_names) != len(
+                                    _option_choice_names
+                                ):
+                                    return False, command
+
+                                for choice in option.get("choices"):
+                                    for _choice in _option.get("choices"):
+                                        if choice["name"] == _choice["name"]:
+                                            for choice_attr in choice_attrs:
+                                                if (
+                                                        choice.get(choice_attr)
+                                                        and not _choice.get(choice_attr)
+                                                        or not choice.get(choice_attr)
+                                                        and _choice.get(choice_attr)
+                                                ):
+                                                    return False, command
+                                                elif choice.get(
+                                                        choice_attr
+                                                ) != _choice.get(choice_attr):
+                                                    return False, command
+                                                else:
+                                                    continue
+                            elif option_attr == "required":
+                                if (
+                                        option.get(option_attr) == None  # noqa: E711
+                                        and _option.get(option_attr)
+                                        == False  # noqa: E712
+                                ):
+                                    # API not including if False
+                                    continue
+
+                            elif option_attr == "options":
+                                if not option.get(option_attr) and not option.get("options"):
+                                    continue
+                                _clean, _command = __check_options(option, _option)
+                                if not _clean:
+                                    return _clean, _command
+
+                            elif option.get(option_attr) != _option.get(
+                                    option_attr
+                            ):
+                                return False, command
+                            else:
+                                continue
+            return True, command
 
         for command in pool:
             if command["name"] == data["name"]:
@@ -196,84 +281,7 @@ class Client:
                             return clean, _command
 
                         elif command.get("options") and data.get("options"):
-
-                            _command_option_names = [_["name"] for _ in command.get("options")]
-                            _data_option_names = [_["name"] for _ in data.get("options")]
-
-                            if any(
-                                _ not in _command_option_names for _ in _data_option_names
-                            ) or len(_data_option_names) != len(_command_option_names):
-                                clean = False
-                                return clean, _command
-
-                            for option in command.get("options"):
-                                for _option in data.get("options"):
-                                    if _option["name"] == option["name"]:
-                                        for option_attr in option_attrs:
-                                            if (
-                                                option.get(option_attr)
-                                                and not _option.get(option_attr)
-                                                or not option.get(option_attr)
-                                                and _option.get(option_attr)
-                                            ):
-                                                clean = False
-                                                return clean, _command
-                                            elif option_attr == "choices":
-                                                if not option.get("choices") or not _option.get(
-                                                    "choices"
-                                                ):
-                                                    continue
-
-                                                _option_choice_names = [
-                                                    _["name"] for _ in option.get("choices")
-                                                ]
-                                                _data_choice_names = [
-                                                    _["name"] for _ in _option.get("choices")
-                                                ]
-
-                                                if any(
-                                                    _ not in _option_choice_names
-                                                    for _ in _data_choice_names
-                                                ) or len(_data_choice_names) != len(
-                                                    _option_choice_names
-                                                ):
-                                                    clean = False
-                                                    return clean, _command
-
-                                                for choice in option.get("choices"):
-                                                    for _choice in _option.get("choices"):
-                                                        if choice["name"] == _choice["name"]:
-                                                            for choice_attr in choice_attrs:
-                                                                if (
-                                                                    choice.get(choice_attr)
-                                                                    and not _choice.get(choice_attr)
-                                                                    or not choice.get(choice_attr)
-                                                                    and _choice.get(choice_attr)
-                                                                ):
-                                                                    clean = False
-                                                                    return clean, _command
-                                                                elif choice.get(
-                                                                    choice_attr
-                                                                ) != _choice.get(choice_attr):
-                                                                    clean = False
-                                                                    return clean, _command
-                                                                else:
-                                                                    continue
-                                            elif option_attr == "required":
-                                                if (
-                                                    option.get(option_attr) == None  # noqa: E711
-                                                    and _option.get(option_attr)
-                                                    == False  # noqa: E712
-                                                ):
-                                                    # API not including if False
-                                                    continue
-                                            elif option.get(option_attr) != _option.get(
-                                                option_attr
-                                            ):
-                                                clean = False
-                                                return clean, _command
-                                            else:
-                                                continue
+                            clean, _command = __check_options(command, data)
 
                         if not clean:
                             return clean, _command
@@ -355,6 +363,7 @@ class Client:
 
             ready = True
         except Exception as error:
+            raise error
             log.critical(f"Could not prepare the client: {error}")
         finally:
             if ready:
@@ -402,7 +411,7 @@ class Client:
                 if int(_cmds.get("code")) != 50001:
                     raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
 
-                log.warning(
+                log.info(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
                     "Syncing commands will not be possible until it is invited with "
                     "`application.commands` scope!"
@@ -442,6 +451,7 @@ class Client:
 
         __check_global_commands: List[str] = [cmd["name"] for cmd in _cmds]
         __check_guild_commands: Dict[int, List[str]] = {}
+        __blocked_guilds: set = set()
 
         # responsible for checking if a command is in the cache but not a coro -> allowing removal
 
@@ -452,7 +462,16 @@ class Client:
 
             if isinstance(_cmds, dict) and _cmds.get("code"):
                 # Error exists.
-                raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
+                if int(_cmds.get("code")) != 50001:
+                    raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
+
+                log.warning(
+                    f"Your bot is missing access to guild with corresponding id {_id}! "
+                    "Adding commands will not be possible until it is invited with "
+                    "`application.commands` scope!"
+                )
+                __blocked_guilds.add(_id)
+                continue
 
             for command in _cmds:
                 if command.get("code"):
@@ -468,7 +487,9 @@ class Client:
                     _guild_command: dict
                     for _guild_command in coro._command_data:
                         _guild_id = _guild_command.get("guild_id")
-
+                        if _guild_id in __blocked_guilds:
+                            log.fatal(f"Cannot sync commands on guild with id {_guild_id}!")
+                            raise JSONException(50001, message='Missing Access |')
                         if _guild_command["name"] not in __check_guild_commands[_guild_id]:
                             self.__guild_commands[_guild_id]["clean"] = False
                             self.__guild_commands[_guild_id]["commands"].append(_guild_command)
