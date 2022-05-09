@@ -351,8 +351,8 @@ class Client:
             await self.__register_name_autocomplete()
 
             ready = True
-        except Exception as error:
-            log.exception(f"Could not prepare the client:")
+        except Exception:
+            log.exception("Could not prepare the client:")
         finally:
             if ready:
                 log.debug("Client is now ready.")
