@@ -231,7 +231,7 @@ class Client:
                                     continue
 
                             elif option_attr == "options":
-                                if not option.get(option_attr) and not option.get("options"):
+                                if not option.get(option_attr) and not _option.get("options"):
                                     continue
                                 _clean, _command = __check_options(option, _option)
                                 if not _clean:
