@@ -352,8 +352,7 @@ class Client:
 
             ready = True
         except Exception as error:
-            raise error
-            log.critical(f"Could not prepare the client: {error}")
+            log.exception(f"Could not prepare the client:")
         finally:
             if ready:
                 log.debug("Client is now ready.")
