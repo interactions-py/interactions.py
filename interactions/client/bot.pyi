@@ -116,6 +116,14 @@ class Client:
     async def raw_guild_create(self, guild) -> dict: ...
     def _find_command(self, command: str) -> ApplicationCommand: ...
 
+class AutocompleteManager:
+
+    client: Client
+    command_name: str
+    def __init__(self, client: Client, command_name: str) -> None: ...
+    def __call__(self, name: str) -> Callable[..., Coroutine]: ....
+
+
 class Extension:
     client: Client
     _commands: dict
