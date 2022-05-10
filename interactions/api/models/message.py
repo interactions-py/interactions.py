@@ -791,7 +791,7 @@ class Emoji(DictSerializerMixin):
         )
 
     @property
-    def url(self) -> Optional[str]:
+    def url(self) -> str:
         """
         Returns the emoji's url.
         :return URL of the emoji
