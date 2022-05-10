@@ -800,7 +800,7 @@ class Emoji(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         url = f"https://cdn.discordapp.com/emojis/{self.id}"
-        url += ".gif" if self.animated is True else ".png"
+        url += ".gif" if self.animated else ".png"
         return url
 
 
