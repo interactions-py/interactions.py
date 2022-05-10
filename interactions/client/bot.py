@@ -1023,7 +1023,11 @@ class Client:
                 ),
                 coro=coro,
             )
-            coro._command_data = commands
+            if hasattr(coro, "__func__"):
+                coro.__func__._command_data = commands
+            else:
+                coro._command_data = commands
+
             self.__command_coroutines.append(coro)
 
             return self.event(coro, name=f"command_{name}")
@@ -1088,7 +1092,11 @@ class Client:
                 ),
                 coro=coro,
             )
-            coro._command_data = commands
+            if hasattr(coro, "__func__"):
+                coro.__func__._command_data = commands
+            else:
+                coro._command_data = commands
+
             self.__command_coroutines.append(coro)
 
             return self.event(coro, name=f"command_{name}")
