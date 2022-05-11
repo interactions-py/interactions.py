@@ -197,8 +197,12 @@ class Client:
                                 if not option.get("choices") or not _option.get("choices"):
                                     continue
 
-                                _option_choice_names = [choice["name"] for choice in option.get("choices")]
-                                _data_choice_names = [choice["name"] for choice in _option.get("choices")]
+                                _option_choice_names = [
+                                    choice["name"] for choice in option.get("choices")
+                                ]
+                                _data_choice_names = [
+                                    choice["name"] for choice in _option.get("choices")
+                                ]
 
                                 if any(
                                     _ not in _option_choice_names for _ in _data_choice_names
