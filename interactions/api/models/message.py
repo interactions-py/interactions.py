@@ -384,10 +384,11 @@ class Message(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         if self.flags == 64:
             raise TypeError("You cannot edit a hidden message!")
+        _flags = self.flags
         if suppress_embeds is not MISSING and suppress_embeds:
-            self.flags |= 1 << 2
+            _flags |= 1 << 2
         elif suppress_embeds is not MISSING:
-            self.flags &= ~1 << 2
+            _flags &= ~1 << 2
 
         from ...client.models.component import _build_components
 
