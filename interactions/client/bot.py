@@ -174,8 +174,8 @@ class Client:
         def __check_options(command, data):
             # sourcery skip: none-compare
             # sourcery no-metrics
-            _command_option_names = [_["name"] for _ in command.get("options")]
-            _data_option_names = [_["name"] for _ in data.get("options")]
+            _command_option_names = [option["name"] for option in command.get("options")]
+            _data_option_names = [option["name"] for option in data.get("options")]
 
             if any(_ not in _command_option_names for _ in _data_option_names) or len(
                 _data_option_names
