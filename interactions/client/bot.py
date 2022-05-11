@@ -399,7 +399,7 @@ class Client:
                 if int(_cmds.get("code")) != 50001:
                     raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
 
-                log.info(
+                log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
                     "Syncing commands will not be possible until it is invited with "
                     "`application.commands` scope!"
