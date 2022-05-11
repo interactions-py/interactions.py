@@ -839,7 +839,7 @@ class Guild(DictSerializerMixin):
         )
         _nsfw = ch.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
-            [_._json for _ in ch.permission_overwrites]
+            [overwrite._json for overwrite in ch.permission_overwrites]
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )
