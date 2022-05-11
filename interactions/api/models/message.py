@@ -793,8 +793,9 @@ class Emoji(DictSerializerMixin):
     @property
     def url(self) -> str:
         """
-        Returns the emoji's url.
-        :return URL of the emoji
+        Returns the emoji's URL.
+
+        :return: URL of the emoji
         :rtype: str
         """
         url = f"https://cdn.discordapp.com/emojis/{self.id}"
