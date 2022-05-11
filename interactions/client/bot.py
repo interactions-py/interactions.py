@@ -447,7 +447,7 @@ class Client:
 
         # responsible for checking if a command is in the cache but not a coro -> allowing removal
 
-        for _id in _guild_ids:
+        for _id in _guild_ids.copy():
             _cmds = await self._http.get_application_commands(
                 application_id=self.me.id, guild_id=_id, with_localizations=True
             )
@@ -463,6 +463,7 @@ class Client:
                     "`application.commands` scope!"
                 )
                 __blocked_guilds.add(_id)
+                _guild_ids.remove(_id)
                 continue
 
             for command in _cmds:
