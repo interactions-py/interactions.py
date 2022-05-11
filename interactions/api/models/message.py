@@ -428,7 +428,7 @@ class Message(DictSerializerMixin):
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
             components=_components,
-            flags=self.flags,
+            flags=_flags,
         )
 
         _dct = await self._client.edit_message(
