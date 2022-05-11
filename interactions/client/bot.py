@@ -177,7 +177,7 @@ class Client:
             _command_option_names = [option["name"] for option in command.get("options")]
             _data_option_names = [option["name"] for option in data.get("options")]
 
-            if any(_ not in _command_option_names for _ in _data_option_names) or len(
+            if any(option not in _command_option_names for option in _data_option_names) or len(
                 _data_option_names
             ) != len(_command_option_names):
                 return False, command
