@@ -1,6 +1,5 @@
 from asyncio import AbstractEventLoop
 from types import ModuleType
-from asyncio import AbstractEventLoop
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union, overload, Type
 
 from ..api import Cache
@@ -17,7 +16,6 @@ from ..api.models.presence import ClientPresence
 from ..api.models.role import Role
 from ..api.models.team import Application
 from ..api.models.user import User
-from .decor import component as _component
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Modal, SelectMenu
