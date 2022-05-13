@@ -1421,7 +1421,7 @@ class Client:
 
         return User(**data)
 
-    async def get(self, obj: Type[_T] = MISSING, **kwargs) -> _T:
+    async def get(self, obj: Type[_T], **kwargs) -> _T:
         """
         A helper method for retrieving data from the Discord API in its object representation.
 
