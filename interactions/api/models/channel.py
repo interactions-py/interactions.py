@@ -181,7 +181,10 @@ class Channel(DictSerializerMixin):
             else None
         )
         self.permission_overwrites = (
-            [Overwrite(**overwrite) for overwrite in self._json.get("permission_overwrites")]
+            [
+                Overwrite(**overwrite) if isinstance(overwrite, dict) else overwrite
+                for overwrite in self._json.get("permission_overwrites")
+            ]
             if self._json.get("permission_overwrites")
             else None
         )
@@ -349,10 +352,14 @@ class Channel(DictSerializerMixin):
             self.rate_limit_per_user if rate_limit_per_user is MISSING else rate_limit_per_user
         )
         _position = self.position if position is MISSING else position
-        _parent_id = int(self.parent_id) if parent_id is MISSING else int(parent_id)
+        _parent_id = (
+            (int(self.parent_id) if self.parent_id else None)
+            if parent_id is MISSING
+            else int(parent_id)
+        )
         _nsfw = self.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
-            self.permission_overwrites
+            [overwrite._json for overwrite in self.permission_overwrites]
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )
