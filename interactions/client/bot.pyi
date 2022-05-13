@@ -1,6 +1,7 @@
-from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union, overload, Type, Tuple
 from asyncio import AbstractEventLoop
+from types import ModuleType
+from asyncio import AbstractEventLoop
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union, overload, Type
 
 from ..api import Cache
 from ..api import Item as Build
