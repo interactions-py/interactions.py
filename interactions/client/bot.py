@@ -1433,9 +1433,6 @@ class Client:
         :rtype: object
         """
 
-        if obj is MISSING:
-            raise ValueError("The object is required!")
-
         if isinstance(obj, (Channel, Emoji, Guild, Member, Message, Role, Sticker, User)):
             raise TypeError("The object must not be an instance of a class!")
 
