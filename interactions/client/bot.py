@@ -1422,13 +1422,13 @@ class Client:
         return User(**data)
 
     async def get(self, obj: Type[_T], **kwargs) -> _T:
-        """
+        r"""
         A helper method for retrieving data from the Discord API in its object representation.
 
         :param obj: The object to get. Should be a class object (not an instance!). For example: `interactions.Channel`.
         :type obj: object
-        :param **kwargs: The arguments to pass to the HTTP method.
-        :type **kwargs: dict
+        :param \**kwargs: The arguments to pass to the HTTP method.
+        :type \**kwargs: dict
         :return: The object we're trying to get.
         :rtype: object
         """
