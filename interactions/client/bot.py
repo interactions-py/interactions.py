@@ -1442,11 +1442,9 @@ class Client:
             _guild = Guild(**await self._http.get_guild(kwargs.pop("guild_id")), _client=self._http)
             _func = getattr(_guild, _name)
             return await _func(**kwargs)
-
-        else:
-            _func = getattr(self._http, _name)
-            _obj = await _func(**kwargs)
-            return obj(**_obj, _client=self._http)
+        _func = getattr(self._http, _name)
+        _obj = await _func(**kwargs)
+        return obj(**_obj, _client=self._http)
 
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
