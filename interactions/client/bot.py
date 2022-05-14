@@ -1433,7 +1433,7 @@ class Client:
         :rtype: object
         """
 
-        if isinstance(obj, (Channel, Emoji, Guild, Member, Message, Role, Sticker, User)):
+        if not isinstance(obj, type):
             raise TypeError("The object must not be an instance of a class!")
 
         _name = f"get_{obj.__name__.lower()}"
