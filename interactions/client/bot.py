@@ -447,7 +447,7 @@ class Client:
 
         # responsible for checking if a command is in the cache but not a coro -> allowing removal
 
-        for _id in _guild_ids:
+        for _id in _guild_ids.copy():
             _cmds = await self._http.get_application_commands(
                 application_id=self.me.id, guild_id=_id, with_localizations=True
             )
@@ -463,6 +463,7 @@ class Client:
                     "`application.commands` scope!"
                 )
                 __blocked_guilds.add(_id)
+                _guild_ids.remove(_id)
                 continue
 
             for command in _cmds:
@@ -954,8 +955,12 @@ class Client:
 
             if hasattr(coro, "__func__"):
                 coro.__func__._command_data = commands
+                if type == ApplicationCommandType.CHAT_INPUT:
+                    coro.__func__.autocomplete = AutocompleteManager(self, name)
             else:
                 coro._command_data = commands
+                if type == ApplicationCommandType.CHAT_INPUT:
+                    coro.autocomplete = AutocompleteManager(self, name)
 
             self.__command_coroutines.append(coro)
 
@@ -1467,6 +1472,32 @@ class Client:
         self._http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
+
+
+class AutocompleteManager:
+
+    __slots__ = (
+        "client",
+        "command_name",
+    )
+
+    def __init__(self, client: Client, command_name: str) -> None:
+        self.client = client
+        self.command_name = command_name
+
+    def __call__(self, name: str) -> Callable[..., Coroutine]:
+        """
+        Registers an autocomplete callback for the given command. See also :meth:`Client.autocomplete`
+
+        :param name: The name of the option to autocomplete
+        :type name: str
+        """
+
+        def decorator(coro: Coroutine):
+            self.client._Client__name_autocomplete[self.command_name] = {"coro": coro, "name": name}
+            return coro
+
+        return decorator
 
 
 # TODO: Implement the rest of cog behaviour when possible.
