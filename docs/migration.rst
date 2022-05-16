@@ -61,4 +61,4 @@ portal and add the intent to your current intents when connecting:
 
     from interactions import Client, Intents
 
-    bot = Client("TOKEN", intents=Intents.DEFAULT | Intents.MESSAGE_CONTENT)
+    bot = Client("TOKEN", intents=Intents.DEFAULT | Intents.GUILD_MESSAGE_CONTENT)
