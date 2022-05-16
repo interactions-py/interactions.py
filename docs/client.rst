@@ -3,6 +3,6 @@
 Bot Client
 ==========
 
-.. automodule:: interactions.client
+.. automodule:: interactions.client.Client
     :members:
     :noindex:
