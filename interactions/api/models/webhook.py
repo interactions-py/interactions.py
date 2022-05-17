@@ -172,13 +172,13 @@ class Webhook(DictSerializerMixin):
         allowed_mentions: Any = MISSING,
         components: Optional[
             Union[
-                "ActionRow",
-                "Button",
-                "SelectMenu",
-                List["ActionRow"],
-                List["Button"],
-                List["SelectMenu"],
-            ]  # noqa
+                "ActionRow",  # noqa 
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List["ActionRow"],  # noqa 
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
+            ]
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
@@ -212,7 +212,7 @@ class Webhook(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
+        from ...client.models.component import _build_components
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
