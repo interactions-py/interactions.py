@@ -224,6 +224,10 @@ class Guild(DictSerializerMixin):
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
+    async def clone_channel(
+        self,
+        channel_id: int
+    ) -> Channel: ...
     async def modify_channel(
         self,
         channel_id: int,
