@@ -1,7 +1,6 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-
 from .message import Embed, Message
 from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
 from .user import User
