@@ -17,3 +17,4 @@ Model Objects
     api.models.role.rst
     api.models.team.rst
     api.models.user.rst
+    api.models.wbhook.rst
