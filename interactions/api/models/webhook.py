@@ -97,8 +97,10 @@ class Webhook(DictSerializerMixin):
 
     @classmethod
     async def get(
-        cls, client: "HTTPClient",  # noqa
-        webhook_id: int, webhook_token: Optional[str] = MISSING  # noqa
+        cls,
+        client: "HTTPClient",  # noqa
+        webhook_id: int,
+        webhook_token: Optional[str] = MISSING,  # noqa
     ) -> "Webhook":
         """
         Gets an existing webhook.
