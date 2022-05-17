@@ -171,7 +171,14 @@ class Webhook(DictSerializerMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Any = MISSING,
         components: Optional[
-            Union["ActionRow", "Button", "SelectMenu", List["ActionRow"], List["Button"], List["SelectMenu"]]  # noqa
+            Union[
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
+            ]  # noqa
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
