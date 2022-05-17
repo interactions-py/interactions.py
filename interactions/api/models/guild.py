@@ -781,9 +781,7 @@ class Guild(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_channel(channel_id=channel_id)
 
-        res["permission_overwrites"] = [
-            Overwrite(**_) for _ in res["permission_overwrites"]
-        ]
+        res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
         [
             res.pop(attr, None)
             for attr in {"flags", "last_pin_timestamp", "guild_id", "id", "last_message_id"}
