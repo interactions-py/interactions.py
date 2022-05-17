@@ -1,8 +1,7 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from .channel import Channel
-from .guild import Guild
+
 from .message import Embed, Message
 from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
 from .user import User
@@ -51,6 +50,11 @@ class Webhook(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        # circular imports suck
+        from .channel import Channel
+        from .guild import Guild
+
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.type = WebhookType(self.type) if self._json.get("type") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
