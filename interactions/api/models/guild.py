@@ -779,17 +779,17 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
-        ch = Channel(**await self._client.get_channel(channel_id=channel_id))
+        res = await self._client.get_channel(channel_id=channel_id)
 
-        ch._json["permission_overwrites"] = [
-            Overwrite(**_) for _ in ch._json["permission_overwrites"]
+        res["permission_overwrites"] = [
+            Overwrite(**_) for _ in res["permission_overwrites"]
         ]
         [
-            ch._json.pop(attr, None)
+            res.pop(attr, None)
             for attr in {"flags", "last_pin_timestamp", "guild_id", "id", "last_message_id"}
         ]
 
-        return await self.create_channel(**ch._json)
+        return await self.create_channel(**res)
 
     async def modify_channel(
         self,
