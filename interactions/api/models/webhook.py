@@ -172,10 +172,10 @@ class Webhook(DictSerializerMixin):
         allowed_mentions: Any = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa 
+                "ActionRow",  # noqa
                 "Button",  # noqa
                 "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa 
+                List["ActionRow"],  # noqa
                 List["Button"],  # noqa
                 List["SelectMenu"],  # noqa
             ]
