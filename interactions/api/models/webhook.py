@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from .message import Embed, Message
+
 from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
 from .user import User
 
@@ -174,7 +174,7 @@ class Webhook(DictSerializerMixin):
         username: Optional[str] = MISSING,
         avatar_url: Optional[str] = MISSING,
         tts: Optional[bool] = MISSING,
-        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Any = MISSING,
         components: Optional[
             Union[
@@ -218,6 +218,7 @@ class Webhook(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
+        from .message import Message
         from ...client.models.component import _build_components
 
         _content: str = "" if content is MISSING else content
