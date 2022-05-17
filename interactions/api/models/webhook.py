@@ -1,7 +1,6 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
 from ..http.client import HTTPClient
 from .channel import Channel
 from .guild import Guild
@@ -172,7 +171,7 @@ class Webhook(DictSerializerMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Any = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+            Union["ActionRow", "Button", "SelectMenu", List["ActionRow"], List["Button"], List["SelectMenu"]]  # noqa
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
@@ -205,6 +204,8 @@ class Webhook(DictSerializerMixin):
 
         if not self._client:
             raise AttributeError("HTTPClient not found!")
+
+	from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
