@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from ..http.client import HTTPClient
+
 from .channel import Channel
 from .guild import Guild
 from .message import Embed, Message
@@ -67,7 +67,8 @@ class Webhook(DictSerializerMixin):
 
     @classmethod
     async def create(
-        cls, client: HTTPClient, channel_id: int, name: str, avatar: Optional[Image] = MISSING
+        cls, client: HTTPClient,  # noqa
+        channel_id: int, name: str, avatar: Optional[Image] = MISSING
     ) -> "Webhook":
         """
         Creates a webhook in a channel.
@@ -92,7 +93,8 @@ class Webhook(DictSerializerMixin):
 
     @classmethod
     async def get(
-        cls, client: HTTPClient, webhook_id: int, webhook_token: Optional[str] = MISSING
+        cls, client: "HTTPClient",  # noqa
+        webhook_id: int, webhook_token: Optional[str] = MISSING
     ) -> "Webhook":
         """
         Gets an existing webhook.
