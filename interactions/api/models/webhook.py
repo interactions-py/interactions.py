@@ -1,7 +1,6 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-
 from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
 from .user import User
 
@@ -218,8 +217,8 @@ class Webhook(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        from .message import Message
         from ...client.models.component import _build_components
+        from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
