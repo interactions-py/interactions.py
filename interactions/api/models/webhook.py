@@ -187,7 +187,7 @@ class Webhook(DictSerializerMixin):
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
-    ) -> Message:
+    ) -> "Message":  # noqa
         """
         Executes the webhook. All parameters to this function are optional.
 
