@@ -1,10 +1,12 @@
 from enum import IntEnum
-from .misc import DictSerializerMixin, Snowflake, Image, MISSING
+from .misc import DictSerializerMixin, Snowflake, Image, MISSING, File
 from .channel import Channel
 from .guild import Guild
-from typing import Union, Optional
+from typing import Union, Optional, Any, List
 from .user import User
 from ..http.client import HTTPClient
+from ...client.models.component import Button, SelectMenu, ActionRow
+from .message import Message
 
 class WebhookType(IntEnum):
     Incoming: int
@@ -38,5 +40,19 @@ class Webhook(DictSerializerMixin):
     async def modify(
         self, name: str = MISSING, channel_id: int = MISSING, avatar: Optional[Image] = MISSING
     ) -> "Webhook": ...
+    async def execute(
+        self,
+        content: Optional[str] = MISSING,
+        username: Optional[str] = MISSING,
+        avatar_url: Optional[str] = MISSING,
+        tts: Optional[bool] = MISSING,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Any = MISSING,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
+        thread_id: Optional[int] = MISSING,
+    ) -> Message: ...
     @property
     def avatar_url(self) -> Optional[str]: ...

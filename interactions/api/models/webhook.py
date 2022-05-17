@@ -1,11 +1,13 @@
 from enum import IntEnum
-from typing import Optional
+from typing import Optional, Union, List, Any
 
-from ..http.client import HTTPClient
 from .channel import Channel
 from .guild import Guild
-from .misc import MISSING, DictSerializerMixin, Image, Snowflake
+from .message import Message, Embed
+from .misc import MISSING, DictSerializerMixin, Image, Snowflake, File
 from .user import User
+from ..http.client import HTTPClient
+from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
 
 
 class WebhookType(IntEnum):
@@ -17,6 +19,8 @@ class WebhookType(IntEnum):
 class Webhook(DictSerializerMixin):
     """
     A class object representing a Webhook.
+
+    TODO DOCUMENT
     """
 
     __slots__ = (
@@ -96,7 +100,7 @@ class Webhook(DictSerializerMixin):
 
         res = await client.get_webhook(webhook_id=webhook_id, webhook_token=_token)
 
-        return cls(**res)
+        return cls(**res, _client=client)
 
     async def modify(
         self,
@@ -140,12 +144,102 @@ class Webhook(DictSerializerMixin):
             webhook_token=None if channel_id else self.token,
         )
 
-        webhook = Webhook(**res)
+        webhook = Webhook(**res, _client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(webhook, attr))
 
         return webhook
+
+    async def execute(
+        self,
+        content: Optional[str] = MISSING,
+        username: Optional[str] = MISSING,
+        avatar_url: Optional[str] = MISSING,
+        tts: Optional[bool] = MISSING,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Any = MISSING,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
+        thread_id: Optional[int] = MISSING,
+    ) -> Message:
+        """
+        Executes the webhook. All parameters to this function are optional.
+
+        .. important::
+            The ``components`` argument requires an application-owned webhook.
+
+        :param content: the message contents (up to 2000 characters)
+        :type content: str
+        :param username: override the default username of the webhook
+        :type username: str
+        :param avatar_url: override the default avatar of the webhook
+        :type avatar_url: str
+        :param tts: true if this is a TTS message
+        :type tts: bool
+        :param embeds: embedded ``rich`` content
+        :type embeds: Union[Embed, List[Embed]]
+        :param allowed_mentions: allowed mentions for the message
+        :type allowed_mentions: dict
+        :param components: the components to include with the message
+        :type components: Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        :param files: The files to attach to the message
+        :type files: Union[File, List[File]]
+        :param thread_id: Send a message to a specified thread within a webhook's channel. The thread will automatically be unarchived
+        :type thread_id: int
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _content: str = "" if content is MISSING else content
+        _tts: bool = False if tts is MISSING else tts
+        # _attachments = [] if attachments else None
+        _embeds: list = (
+            []
+            if not embeds or embeds is MISSING
+            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+        )
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+
+        if not components or components is MISSING:
+            _components = []
+        else:
+            _components = _build_components(components=components)
+
+        if not files or files is MISSING:
+            _files = []
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
+
+        msg = Message(
+            content=_content,
+            tts=_tts,
+            attachments=_files,
+            embeds=_embeds,
+            components=_components,
+            allowed_mentions=_allowed_mentions,
+        )
+
+        payload = msg._json
+
+        if username is not MISSING:
+            payload["username"] = username
+
+        if avatar_url is not MISSING:
+            payload["avatar_url"] = avatar_url
+
+        res = await self._client.execute_webhook(
+            webhook_id=int(self.id), webhook_token=self.token,
+            files=files, payload=payload, thread_id=thread_id if thread_id is not MISSING else None
+        )
+
+        return Message(**res, _client=self._client)
 
     @property
     def avatar_url(self) -> Optional[str]:
