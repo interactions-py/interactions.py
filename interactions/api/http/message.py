@@ -82,8 +82,9 @@ class MessageRequest:
                 part = data.append(
                     file._fp,
                 )
-                part.set_content_disposition("form-data", name=f"files[{str(id)}]", filename=file._filename)
-
+                part.set_content_disposition(
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
+                )
 
         request = await self._req.request(
             Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id),

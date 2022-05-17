@@ -1873,7 +1873,6 @@ class Guild(DictSerializerMixin):
 
         return [Webhook(**_) for _ in res]
 
-
     @property
     def icon_url(self) -> Optional[str]:
         """

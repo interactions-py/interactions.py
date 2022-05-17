@@ -3,9 +3,9 @@ from typing import List, Optional
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
+from ..models.misc import MISSING, File
 from .request import _Request
 from .route import Route
-from ..models.misc import File, MISSING
 
 
 class WebhookRequest:
@@ -111,7 +111,7 @@ class WebhookRequest:
         :param webhook_id: Webhook ID snowflake.
         :param webhook_token: The token for the webhook.
         :param payload: Payload consisting of the message.
-        :param files:
+        :param files: The files to upload to the message.
         :param wait: A bool that signifies waiting for server confirmation of a send before responding.
         :param thread_id: Optional, sends a message to the specified thread.
         :return: The message sent, if wait=True, else None.
@@ -129,7 +129,9 @@ class WebhookRequest:
                 part = data.append(
                     file._fp,
                 )
-                part.set_content_disposition("form-data", name=f"files[{str(id)}]", filename=file._filename)
+                part.set_content_disposition(
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
+                )
 
         params = {"wait": "true" if wait else "false"}
         if thread_id:

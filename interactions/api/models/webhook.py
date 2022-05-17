@@ -1,10 +1,11 @@
-from .misc import Snowflake, DictSerializerMixin, Image, MISSING
-from .guild import Guild
-from .channel import Channel
-from .user import User
 from enum import IntEnum
 from typing import Optional
+
 from ..http.client import HTTPClient
+from .channel import Channel
+from .guild import Guild
+from .misc import MISSING, DictSerializerMixin, Image, Snowflake
+from .user import User
 
 
 class WebhookType(IntEnum):
@@ -20,8 +21,7 @@ class Webhook(DictSerializerMixin):
 
     __slots__ = (
         "_json",
-        "_client"
-        "id",
+        "_client" "id",
         "type",
         "guild_id",
         "channel_id",
@@ -32,7 +32,7 @@ class Webhook(DictSerializerMixin):
         "application_id",
         "source_guild",
         "source_channel",
-        "url"
+        "url",
     )
 
     def __init__(self, **kwargs):
@@ -42,9 +42,13 @@ class Webhook(DictSerializerMixin):
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
         self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
         self.user = User(**self.user) if self._json.get("user") else None
-        self.application_id = Snowflake(self.application_id) if self._json.get("application_id") else None
+        self.application_id = (
+            Snowflake(self.application_id) if self._json.get("application_id") else None
+        )
         self.source_guild = Guild(**self.source_guild) if self._json.get("source_guild") else None
-        self.source_channel = Channel(**self.source_channel) if self._json.get("source_channel") else None
+        self.source_channel = (
+            Channel(**self.source_channel) if self._json.get("source_channel") else None
+        )
 
     @classmethod
     async def create(
@@ -72,7 +76,9 @@ class Webhook(DictSerializerMixin):
         return cls(**res, _client=client)
 
     @classmethod
-    async def get(cls, client: HTTPClient, webhook_id: int, webhook_token: Optional[str] = MISSING) -> "Webhook":
+    async def get(
+        cls, client: HTTPClient, webhook_id: int, webhook_token: Optional[str] = MISSING
+    ) -> "Webhook":
         """
         Gets an existing webhook.
 
@@ -88,12 +94,15 @@ class Webhook(DictSerializerMixin):
 
         _token = webhook_token if webhook_token is not MISSING else None
 
-        res = await client.get_webhook(webhook_id=webhook_id, webhook_token=webhook_token)
+        res = await client.get_webhook(webhook_id=webhook_id, webhook_token=_token)
 
         return cls(**res)
 
     async def modify(
-        self, name: Optional[str] = MISSING, channel_id: int = MISSING, avatar: Optional[Image] = MISSING
+        self,
+        name: Optional[str] = MISSING,
+        channel_id: int = MISSING,
+        avatar: Optional[Image] = MISSING,
     ) -> "Webhook":
         """
         Modifies the current webhook.
@@ -126,7 +135,9 @@ class Webhook(DictSerializerMixin):
             payload["channel_id"] = channel_id
 
         res = await self._client.modify_webhook(
-            webhook_id=int(self.id), payload=payload, webhook_token=None if channel_id else self.token
+            webhook_id=int(self.id),
+            payload=payload,
+            webhook_token=None if channel_id else self.token,
         )
 
         webhook = Webhook(**res)
@@ -135,7 +146,6 @@ class Webhook(DictSerializerMixin):
             setattr(self, attr, getattr(webhook, attr))
 
         return webhook
-
 
     @property
     def avatar_url(self) -> Optional[str]:
