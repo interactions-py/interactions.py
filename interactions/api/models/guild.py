@@ -10,6 +10,7 @@ from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
+from .webhook import Webhook
 
 
 class VerificationLevel(IntEnum):
@@ -1863,6 +1864,15 @@ class Guild(DictSerializerMixin):
         _all_members.extend(_members)
 
         return [Member(**_, _client=self._client) for _ in _all_members]
+
+    async def get_webhooks(self) -> List[Webhook]:
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        res = await self._client.get_guild_webhooks(int(self.id))
+
+        return [Webhook(**_) for _ in res]
+
 
     @property
     def icon_url(self) -> Optional[str]:

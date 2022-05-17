@@ -4,6 +4,7 @@ from typing import List, Optional, Union, Callable
 
 from .guild import Invite, InviteTargetType
 from .message import Message, Embed, MessageInteraction
+from .webhook import Webhook
 from ...models.component import ActionRow, Button, SelectMenu
 from .misc import DictSerializerMixin, Overwrite, Snowflake, MISSING, File
 from .user import User
@@ -225,5 +226,6 @@ class Channel(DictSerializerMixin):
         target_application_id: int = MISSING,
     ) -> Invite: ...
     async def get_history(self, limit: int = 100) -> List["Message"]: ...
+    async def get_webhooks(self) -> List[Webhook]: ...
 
 class Thread(Channel): ...
