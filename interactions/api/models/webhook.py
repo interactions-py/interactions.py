@@ -1,13 +1,13 @@
 from enum import IntEnum
-from typing import Optional, Union, List, Any
+from typing import Any, List, Optional, Union
 
+from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
+from ..http.client import HTTPClient
 from .channel import Channel
 from .guild import Guild
-from .message import Message, Embed
-from .misc import MISSING, DictSerializerMixin, Image, Snowflake, File
+from .message import Embed, Message
+from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
 from .user import User
-from ..http.client import HTTPClient
-from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
 
 
 class WebhookType(IntEnum):
@@ -25,7 +25,8 @@ class Webhook(DictSerializerMixin):
 
     __slots__ = (
         "_json",
-        "_client" "id",
+        "_client",
+        "id",
         "type",
         "guild_id",
         "channel_id",
@@ -235,8 +236,11 @@ class Webhook(DictSerializerMixin):
             payload["avatar_url"] = avatar_url
 
         res = await self._client.execute_webhook(
-            webhook_id=int(self.id), webhook_token=self.token,
-            files=files, payload=payload, thread_id=thread_id if thread_id is not MISSING else None
+            webhook_id=int(self.id),
+            webhook_token=self.token,
+            files=files,
+            payload=payload,
+            thread_id=thread_id if thread_id is not MISSING else None,
         )
 
         return Message(**res, _client=self._client)
