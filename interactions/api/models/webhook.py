@@ -20,7 +20,18 @@ class Webhook(DictSerializerMixin):
     """
     A class object representing a Webhook.
 
-    TODO DOCUMENT
+    :ivar Snowflake id: the id of the webhook
+    :ivar WebhookType type: the type of the webhook
+    :ivar Snowflake guild_id?: the guild id this webhook is for, if any
+    :ivar Snowflake channel_id?: the channel id this webhook is for, if any
+    :ivar User user?: the user this webhook was created by (not returned when getting a webhook with its token)
+    :ivar str name: the default name of the webhook
+    :ivar str avatar: the default user avatar hash of the webhook
+    :ivar str token: the secure token of the webhook (returned for Incoming Webhooks)
+    :ivar Snowflake application_id: the bot/OAuth2 application that created this webhook
+    :ivar Guild source_guild?: the guild of the channel that this webhook is following (returned for Channel Follower Webhooks)
+    :ivar Channel source_channel?: the channel that this webhook is following (returned for Channel Follower Webhooks)
+    :ivar str url?: the url used for executing the webhook (returned by the webhooks OAuth2 flow)
     """
 
     __slots__ = (
@@ -248,9 +259,9 @@ class Webhook(DictSerializerMixin):
     @property
     def avatar_url(self) -> Optional[str]:
         """
-        Returns the URL of the user's avatar
+        Returns the URL of the webhook's avatar
 
-        :return: URL of the user's avatar.
+        :return: URL of the webhook's avatar.
         :rtype: str
         """
         if not self.avatar:
