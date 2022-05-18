@@ -1,11 +1,6 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
-from ..http.client import HTTPClient
-from .channel import Channel
-from .guild import Guild
-from .message import Embed, Message
 from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
 from .user import User
 
@@ -53,6 +48,11 @@ class Webhook(DictSerializerMixin):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        # circular imports suck
+        from .channel import Channel
+        from .guild import Guild
+
         self.id = Snowflake(self.id) if self._json.get("id") else None
         self.type = WebhookType(self.type) if self._json.get("type") else None
         self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
@@ -68,7 +68,11 @@ class Webhook(DictSerializerMixin):
 
     @classmethod
     async def create(
-        cls, client: HTTPClient, channel_id: int, name: str, avatar: Optional[Image] = MISSING
+        cls,
+        client: "HTTPClient",  # noqa
+        channel_id: int,
+        name: str,
+        avatar: Optional[Image] = MISSING,
     ) -> "Webhook":
         """
         Creates a webhook in a channel.
@@ -93,7 +97,10 @@ class Webhook(DictSerializerMixin):
 
     @classmethod
     async def get(
-        cls, client: HTTPClient, webhook_id: int, webhook_token: Optional[str] = MISSING
+        cls,
+        client: "HTTPClient",  # noqa
+        webhook_id: int,
+        webhook_token: Optional[str] = MISSING,  # noqa
     ) -> "Webhook":
         """
         Gets an existing webhook.
@@ -169,14 +176,21 @@ class Webhook(DictSerializerMixin):
         username: Optional[str] = MISSING,
         avatar_url: Optional[str] = MISSING,
         tts: Optional[bool] = MISSING,
-        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Any = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+            Union[
+                "ActionRow",  # noqa
+                "Button",  # noqa
+                "SelectMenu",  # noqa
+                List["ActionRow"],  # noqa
+                List["Button"],  # noqa
+                List["SelectMenu"],  # noqa
+            ]
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
-    ) -> Message:
+    ) -> "Message":  # noqa
         """
         Executes the webhook. All parameters to this function are optional.
 
@@ -205,6 +219,9 @@ class Webhook(DictSerializerMixin):
 
         if not self._client:
             raise AttributeError("HTTPClient not found!")
+
+        from ...client.models.component import _build_components
+        from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -266,9 +283,9 @@ class Webhook(DictSerializerMixin):
     @property
     def avatar_url(self) -> Optional[str]:
         """
-        Returns the URL of the webhook's avatar
+        Returns the URL of the webhook's avatar.
 
-        :return: URL of the webhook's avatar.
+        :return: URL of the webhook's avatar
         :rtype: str
         """
         if not self.avatar:
