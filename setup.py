@@ -34,7 +34,7 @@ setup(
     install_requires=requirements,
     license="GPL-3.0 License",
     long_description=README,
-    long_description_content_type="text/x-rst",
+    # long_description_content_type="text/x-rst",
     url="https://github.com/interactions-py/library",
     packages=find_packages(),
     include_package_data=True,
