@@ -6,7 +6,7 @@ from typing import Union, Optional, Any, List
 from .user import User
 from ..http.client import HTTPClient
 from ...client.models.component import Button, SelectMenu, ActionRow
-from .message import Message
+from .message import Message, Embed
 
 class WebhookType(IntEnum):
     Incoming: int
@@ -54,5 +54,6 @@ class Webhook(DictSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
     ) -> Message: ...
+    async def delete(self) -> None: ...
     @property
     def avatar_url(self) -> Optional[str]: ...
