@@ -25,7 +25,7 @@ extras = {
 extras["dev"] = extras["lint"] + extras["readthedocs"]
 requirements = read_requirements("requirements.txt")
 setup(
-    name="discord-py-slash-command",
+    name="discord-py-interactions",
     version=VERSION,
     author="goverfl0w",
     author_email="james.discord.interactions@gmail.com",
