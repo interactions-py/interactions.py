@@ -1,32 +1,19 @@
-===============
 interactions.py
 ===============
 
 **Easy, simple, scalable and modular: a Python API wrapper for interactions.**
 
 .. image:: https://img.shields.io/pypi/dm/discord-py-slash-command.svg
-    :target: https://pypi.python.org/pypi/discord-py-interactions/
-    :alt: PyPI Monthly Downloads
 
 .. image:: https://img.shields.io/github/license/goverfl0w/discord-interactions.svg
-    :target: https://github.com/goverfl0w/discord-interactions/blob/master/LICENSE
-    :alt: License
 
 .. image:: https://img.shields.io/pypi/pyversions/discord-py-interactions.svg
-    :target: https://pypi.python.org/pypi/discord-py-interactions/
-    :alt: PyPI Versions
 
 .. image:: https://img.shields.io/pypi/v/discord-py-interactions.svg
-    :target: https://pypi.python.org/pypi/discord-py-interactions/
-    :alt: PyPI Version
 
 .. image:: https://readthedocs.org/projects/discord-interactions/badge/?version=latest
-    :target: http://discord-interactions.readthedocs.io/?badge=latest
-    :alt: Documentation Status
 
 .. image:: https://discord.com/api/guilds/789032594456576001/embed.png
-    :target: https://discord.gg/KkgMBVuEkx
-    :alt: Discord
 
 ----
 
