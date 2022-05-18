@@ -256,6 +256,13 @@ class Webhook(DictSerializerMixin):
 
         return Message(**res, _client=self._client)
 
+    async def delete(self) -> None:
+        """
+        Deletes the webhook.
+        """
+
+        await self._client.delete_webhook(webhook_id=int(self.id), webhook_token=self.token)
+
     @property
     def avatar_url(self) -> Optional[str]:
         """
