@@ -276,9 +276,9 @@ class Webhook(DictSerializerMixin):
     @property
     def avatar_url(self) -> Optional[str]:
         """
-        Returns the URL of the webhook's avatar
+        Returns the URL of the webhook's avatar.
 
-        :return: URL of the webhook's avatar.
+        :return: URL of the webhook's avatar
         :rtype: str
         """
         if not self.avatar:
