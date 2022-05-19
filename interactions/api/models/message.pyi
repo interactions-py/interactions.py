@@ -203,6 +203,8 @@ class Emoji(DictSerializerMixin):
         guild_id: int,
         reason: Optional[str] = None,
     ) -> None: ...
+    @property
+    def url(self) -> str: ...
 
 class ReactionObject(DictSerializerMixin):
     _json: dict

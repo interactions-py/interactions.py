@@ -790,6 +790,18 @@ class Emoji(DictSerializerMixin):
             guild_id=guild_id, emoji_id=int(self.id), reason=reason
         )
 
+    @property
+    def url(self) -> str:
+        """
+        Returns the emoji's URL.
+
+        :return: URL of the emoji
+        :rtype: str
+        """
+        url = f"https://cdn.discordapp.com/emojis/{self.id}"
+        url += ".gif" if self.animated else ".png"
+        return url
+
 
 class ReactionObject(DictSerializerMixin):
     """The reaction object.
