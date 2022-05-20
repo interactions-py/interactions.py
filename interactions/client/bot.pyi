@@ -94,7 +94,7 @@ class Client:
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
-        self, name: str, command: Union[ApplicationCommand, int, str]
+        self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
     ) -> Callable[..., Any]: ...
     def modal(self, modal: Union[Modal, str]) -> Callable[..., Any]: ...
     def load(
@@ -116,6 +116,14 @@ class Client:
     async def raw_guild_create(self, guild) -> dict: ...
     def _find_command(self, command: str) -> ApplicationCommand: ...
 
+class AutocompleteManager:
+
+    client: Client
+    command_name: str
+    def __init__(self, client: Client, command_name: str) -> None: ...
+    def __call__(self, name: str) -> Callable[..., Coroutine]: ...
+
+
 class Extension:
     client: Client
     _commands: dict
@@ -130,23 +138,27 @@ def extension_command(
     description: Optional[str] = None,
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
     options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
-    default_permission: Optional[bool] = None,
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
+    default_member_permissions: Optional[Union[int, Permissions]] = None,
+    dm_permission: Optional[bool] = None
 ): ...
 def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None) -> Callable[..., Any]: ...
 def extension_component(component: Union[Button, SelectMenu, str]) -> Callable[..., Any]: ...
-def extension_autocomplete(
-    name: str, command: Union[ApplicationCommand, int]
-) -> Callable[..., Any]: ...
+def extension_autocomplete(command: Union[ApplicationCommand, int, str, Snowflake], name: str,) -> Callable[..., Any]: ...
 def extension_modal(modal: Union[Modal, str]) -> Callable[..., Any]: ...
 def extension_message_command(
     *,
     name: Optional[str] = None,
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-    default_permission: Optional[bool] = None,
+    name_localizations: Optional[Dict[Union[str, Locale], Any]] = None,
+    default_member_permissions: Optional[Union[int, Permissions]] = None,
+    dm_permission: Optional[bool] = None,
 ) -> Callable[..., Any]: ...
 def extension_user_command(
     *,
     name: Optional[str] = None,
-    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-    default_permission: Optional[bool] = None,
+    name_localizations: Optional[Dict[Union[str, Locale], Any]] = None,
+    default_member_permissions: Optional[Union[int, Permissions]] = None,
+    dm_permission: Optional[bool] = None,
 ) -> Callable[..., Any]: ...

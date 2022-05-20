@@ -311,13 +311,47 @@ class WebSocketClient:
 
                     if _context.data._json.get("options"):
                         for option in _context.data.options:
+                            if isinstance(option, dict):
+                                option = Option(**option)
+                            if option.type not in (
+                                OptionType.SUB_COMMAND,
+                                OptionType.SUB_COMMAND_GROUP,
+                            ):
+                                if option.focused:
+                                    __name, _value = self.__sub_command_context(option, _context)
+                                    _name += f"_{__name}" if __name else ""
+                                    if _value:
+                                        __args.append(_value)
 
-                            if option.focused:
-                                __name, _value = self.__sub_command_context(option, _context)
-                                _name += f"_{__name}" if __name else ""
+                            elif option.type == OptionType.SUB_COMMAND:
+                                for _option in option.options:
+                                    if isinstance(_option, dict):
+                                        _option = Option(**_option)
+                                    if _option.focused:
+                                        __name, _value = self.__sub_command_context(
+                                            _option, _context
+                                        )
+                                        _name += f"_{__name}" if __name else ""
+                                        if _value:
+                                            __args.append(_value)
+                                    break
 
-                                if _value:
-                                    __args.append(_value)
+                            elif option.type == OptionType.SUB_COMMAND_GROUP:
+                                for _option in option.options:
+                                    if isinstance(_option, dict):
+                                        _option = Option(**_option)
+                                    for __option in _option.options:
+                                        if isinstance(__option, dict):
+                                            __option = Option(**__option)
+                                        if __option.focused:
+                                            __name, _value = self.__sub_command_context(
+                                                __option, _context
+                                            )
+                                            _name += f"_{__name}" if __name else ""
+                                            if _value:
+                                                __args.append(_value)
+                                        break
+                                    break
                             break
 
                     self._dispatch.dispatch("on_autocomplete", _context)

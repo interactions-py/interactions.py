@@ -112,7 +112,7 @@ tidbit then we highly recommend using our library, especially as **discord-compo
 want something way more open and versatile, then we recommend these sources:
 
 - `Pycord`_ (the most actively maintained).
-- `dis-snek`_ (high level, "hackable" API wrapper with ease of modification).
+- `NAFF`_ (high level, "hackable" API wrapper with ease of modification).
 - `nextcord`_ (more abstract and fast approach to the Discord API).
 
 It's personally recommended from the library developer to seek these paths instead of sticking to an older version of a library,
@@ -173,5 +173,5 @@ Please join our Discord server for any further support regarding our library and
 
 .. _already admitted: https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1#whats-going-to-happen-to-my-bot
 .. _Pycord: https://github.com/Pycord-Development/pycord
-.. _dis-snek: https://github.com/Discord-Snake-Pit/Dis-Snek
+.. _NAFF: https://github.com/Discord-Snake-Pit/NAFF
 .. _nextcord: https://github.com/nextcord/nextcord

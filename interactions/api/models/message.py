@@ -239,6 +239,18 @@ class Emoji(DictSerializerMixin):
             guild_id=guild_id, emoji_id=int(self.id), reason=reason
         )
 
+    @property
+    def url(self) -> str:
+        """
+        Returns the emoji's URL.
+
+        :return: URL of the emoji
+        :rtype: str
+        """
+        url = f"https://cdn.discordapp.com/emojis/{self.id}"
+        url += ".gif" if self.animated else ".png"
+        return url
+
 
 @define()
 class EmbedImageStruct(DictSerializerMixin):
@@ -260,11 +272,6 @@ class EmbedImageStruct(DictSerializerMixin):
     :ivar Optional[int] height?: Height of the object.
     :ivar Optional[int] width?: Width of the object.
     """
-
-    url: Optional[str] = field(default=None)
-    proxy_url: Optional[str] = field(default=None)
-    height: Optional[str] = field(default=None)
-    width: Optional[str] = field(default=None)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
@@ -510,9 +517,6 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-        fields = self.fields or []
-        fields.insert(index, EmbedField(name=name, value=value, inline=inline))
-        self.fields = fields
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
@@ -867,8 +871,9 @@ class Message(DictSerializerMixin):
         *,
         tts: Optional[bool] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
-        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        suppress_embeds: Optional[bool] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
             Union[
@@ -903,6 +908,11 @@ class Message(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         if self.flags == 64:
             raise TypeError("You cannot edit a hidden message!")
+        _flags = self.flags
+        if suppress_embeds is not MISSING and suppress_embeds:
+            _flags |= 1 << 2
+        elif suppress_embeds is not MISSING:
+            _flags &= ~1 << 2
 
         from ...client.models.component import _build_components
 
@@ -942,6 +952,7 @@ class Message(DictSerializerMixin):
             allowed_mentions=_allowed_mentions,
             message_reference=_message_reference,
             components=_components,
+            flags=_flags,
         )
 
         _dct = await self._client.edit_message(
@@ -958,6 +969,7 @@ class Message(DictSerializerMixin):
             setattr(self, key, value)
 
         return self
+
 
     async def reply(
         self,

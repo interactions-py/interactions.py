@@ -798,10 +798,12 @@ class Guild(DictSerializerMixin):
             ch.rate_limit_per_user if rate_limit_per_user is MISSING else rate_limit_per_user
         )
         _position = ch.position if position is MISSING else position
-        _parent_id = ch.parent_id if parent_id is MISSING else parent_id
+        _parent_id = (
+            (int(ch.parent_id) if ch.parent_id else None) if parent_id is MISSING else parent_id
+        )
         _nsfw = ch.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
-            ch.permission_overwrites
+            [overwrite._json for overwrite in ch.permission_overwrites]
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )

@@ -9,9 +9,6 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from ..http.client import HTTPClient
-
-
 class MessageType(IntEnum):
     DEFAULT: int
     RECIPIENT_ADD: int
@@ -59,7 +56,6 @@ class Attachment(DictSerializerMixin):
     ephemeral: Optional[bool]
 
 class MessageInteraction(DictSerializerMixin):
-    _client: HTTPClient
     id: Snowflake
     type: int
     name: str
@@ -72,10 +68,10 @@ class ChannelMention(DictSerializerMixin):
     name: str
 
 class Emoji(DictSerializerMixin):
-    _client: HTTPClient
     id: Optional[Snowflake]
     name: Optional[str]
     roles: Optional[List[Role]]
+    user: Optional[User]
     require_colons: Optional[bool]
     managed: Optional[bool]
     animated: Optional[bool]
@@ -85,12 +81,10 @@ class Emoji(DictSerializerMixin):
     @classmethod
     async def get_all_of_guild(cls, guild_id: int, client: HTTPClient) -> List['Emoji']: ...
     async def delete(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
+    @property
+    def url(self) -> str: ...
 
 class EmbedImageStruct(DictSerializerMixin):
-    url: Optional[str]
-    proxy_url: Optional[str]
-    height: Optional[str]
-    width: Optional[str]
     def __setattr__(self, key, value) -> None: ...
 
 class EmbedProvider(DictSerializerMixin):
@@ -169,7 +163,6 @@ class ReactionObject(DictSerializerMixin):
     emoji: Emoji
 
 class Message(DictSerializerMixin):
-    _client: HTTPClient
     id: Snowflake
     channel_id: Snowflake
     guild_id: Optional[Snowflake]
@@ -204,7 +197,7 @@ class Message(DictSerializerMixin):
     async def get_channel(self) -> Channel: ...
     async def get_guild(self): ...
     async def delete(self, reason: Optional[str] = ...) -> None: ...
-    async def edit(self, content: Optional[str] = ..., *, tts: Optional[bool] = ..., files: Optional[Union[File, List[File]]] = ..., embeds: Optional[Union[Embed, List[Embed]]] = ..., allowed_mentions: Optional[MessageInteraction] = ..., message_reference: Optional[MessageReference] = ..., components: Optional[Union['ActionRow', 'Button', 'SelectMenu', List['ActionRow'], List['Button'], List['SelectMenu']]] = ...) -> Message: ...
+    async def edit(self, content: Optional[str] = ..., *, tts: Optional[bool] = ..., files: Optional[Union[File, List[File]]] = ..., embeds: Optional[Union['Embed', List['Embed']]] = ..., suppress_embeds: Optional[bool] = ..., allowed_mentions: Optional['MessageInteraction'] = ..., message_reference: Optional[MessageReference] = ..., components: Optional[Union['ActionRow', 'Button', 'SelectMenu', List['ActionRow'], List['Button'], List['SelectMenu']]] = ...) -> Message: ...
     async def reply(self, content: Optional[str] = ..., *, tts: Optional[bool] = ..., embeds: Optional[Union['Embed', List['Embed']]] = ..., files: Optional[Union[File, List[File]]] = ..., allowed_mentions: Optional['MessageInteraction'] = ..., components: Optional[Union['ActionRow', 'Button', 'SelectMenu', List['ActionRow'], List['Button'], List['SelectMenu']]] = ...) -> Message: ...
     async def pin(self) -> None: ...
     async def unpin(self) -> None: ...
