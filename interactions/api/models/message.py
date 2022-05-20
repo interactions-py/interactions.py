@@ -517,7 +517,6 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
@@ -969,7 +968,6 @@ class Message(DictSerializerMixin):
             setattr(self, key, value)
 
         return self
-
 
     async def reply(
         self,
