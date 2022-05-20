@@ -92,7 +92,7 @@ class MessageRequest:
             data=data,
         )
         if request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+            self.cache.messages.add(Item(id=request["id"], value=Message(**request, client=self)))
 
         return request
 

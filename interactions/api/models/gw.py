@@ -1,16 +1,27 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
 from .channel import Channel, ThreadMember
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import MISSING, ClientStatus, DictSerializerMixin, File, Snowflake
+from .misc import (
+    MISSING,
+    ClientStatus,
+    DictSerializerMixin,
+    File,
+    Snowflake,
+    convert_list,
+    define,
+    field,
+)
 from .presence import PresenceActivity
 from .role import Role
+from .team import Application
 from .user import User
 
 
+@define()
 class ApplicationCommandPermissions(DictSerializerMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
@@ -23,26 +34,15 @@ class ApplicationCommandPermissions(DictSerializerMixin):
     :ivar List[Permission] permissions: The updated permissions of the associated command/event.
     """
 
-    __slots__ = ("_json", "application_id", "guild_id", "id", "permissions", "_client")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        # TODO: fix the circular import hell from this.
-        # self.permissions = (
-        #     [
-        #         Permission(**_permission) if isinstance(_permission, dict) else _permission
-        #         for _permission in self._json.get("permissions")
-        #     ]
-        #     if self._json.get("permissions")
-        #     else None
-        # )
+    application_id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    id: Snowflake = field(converter=Snowflake)
+    # permissions: List[Permission] = field(converter=convert_list(Permission))  # TODO fix circular import
+    permissions = field()
+    _client = field()
 
 
+@define()
 class ChannelPins(DictSerializerMixin):
     """
     A class object representing the gateway event ``CHANNEL_PINS_UPDATE``.
@@ -52,19 +52,12 @@ class ChannelPins(DictSerializerMixin):
     :ivar datetime last_pin_timestamp: The time that the event took place.
     """
 
-    __slots__ = ("_json", "guild_id", "channel_id", "last_pin_timestamp")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.last_pin_timestamp = (
-            datetime.fromisoformat(self._json.get("last_pin_timestamp"))
-            if self._json.get("last_pin_timestamp")
-            else None
-        )
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    channel_id: Snowflake = field(converter=Snowflake)
+    last_pin_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
 
 
+@define()
 class EmbeddedActivity(DictSerializerMixin):
     """
     A class object representing the event ``EMBEDDED_ACTIVITY_UPDATE``.
@@ -78,24 +71,13 @@ class EmbeddedActivity(DictSerializerMixin):
     :ivar Snowflake channel_id: The channel ID of the event.
     """
 
-    __slots__ = ("_json", "users", "guild_id", "embedded_activity", "channel_id")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.users = (
-            [Snowflake(user) for user in self._json.get("users")]
-            if self._json.get("users")
-            else None
-        )
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.embedded_activity = (
-            PresenceActivity(**self.embedded_activity)
-            if self._json.get("embedded_activity")
-            else None
-        )
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+    users: List[Snowflake] = field(converter=convert_list(Snowflake))
+    guild_id: Snowflake = field(converter=Snowflake)
+    embedded_activity: PresenceActivity = field(converter=PresenceActivity)
+    channel_id: Snowflake = field(converter=Snowflake)
 
 
+@define()
 class GuildBan(DictSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_BAN_ADD``.
@@ -104,14 +86,12 @@ class GuildBan(DictSerializerMixin):
     :ivar User user: The user of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "user", "_client")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.user = User(**self.user) if self._json.get("user") else None
+    guild_id: Snowflake = field(converter=Snowflake)
+    user: User = field(converter=User)
+    _client = field()
 
 
+@define()
 class GuildEmojis(DictSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_EMOJIS_UPDATE``.
@@ -120,16 +100,11 @@ class GuildEmojis(DictSerializerMixin):
     :ivar List[Emoji] emojis: The emojis of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "emojis")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.emojis = (
-            [Emoji(**emoji) for emoji in self.emojis] if self._json.get("emojis") else None
-        )
+    guild_id: Snowflake = field(converter=Snowflake)
+    emojis: List[Emoji] = field(converter=convert_list(Emoji))
 
 
+@define()
 class GuildIntegrations(DictSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_INTEGRATIONS_UPDATE``.
@@ -137,13 +112,10 @@ class GuildIntegrations(DictSerializerMixin):
     :ivar Snowflake guild_id: The guild ID of the event.
     """
 
-    __slots__ = ("_json", "guild_id")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+    guild_id: Snowflake = field(converter=Snowflake)
 
 
+@define()
 class GuildJoinRequest(DictSerializerMixin):
     """
     A class object representing the gateway events ``GUILD_JOIN_REQUEST_CREATE``, ``GUILD_JOIN_REQUEST_UPDATE``, and ``GUILD_JOIN_REQUEST_DELETE``
@@ -155,14 +127,11 @@ class GuildJoinRequest(DictSerializerMixin):
     :ivar Snowflake guild_id: The guild ID of the event.
     """
 
-    __slots__ = ("_json", "user_id", "guild_id")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+    user_id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
 
 
+@define()
 class GuildMember(DictSerializerMixin):
     """
     A class object representing the gateway events ``GUILD_MEMBER_ADD``, ``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``.
@@ -179,38 +148,17 @@ class GuildMember(DictSerializerMixin):
     :ivar Optional[bool] pending?: Whether the member of the event is still pending -- pass membership screening -- or not.
     """
 
-    __slots__ = (
-        "_json",
-        "_client",
-        "guild_id",
-        "roles",
-        "user",
-        "nick",
-        "avatar",
-        "joined_at",
-        "premium_since",
-        "is_pending",  # TODO: investigate what this is.
-        "communication_disabled_until",  # TODO: investigate what this is.
-        "deaf",
-        "mute",
-        "pending",
-        "hoisted_role",  # TODO: investigate what this is.
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.user = User(**self.user) if self._json.get("user") else None
-        self.joined_at = (
-            datetime.fromisoformat(self._json.get("joined_at"))
-            if self._json.get("joined_at")
-            else None
-        )
-        self.premium_since = (
-            datetime.fromisoformat(self._json.get("premium_since"))
-            if self._json.get("premium_since")
-            else None
-        )
+    guild_id: Snowflake = field(converter=Snowflake)
+    roles: Optional[List[str]] = field(default=None)
+    user: Optional[User] = field(converter=User, default=None, add_client=True)
+    nick: Optional[str] = field(default=None)
+    avatar: Optional[str] = field(default=None)
+    joined_at: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    deaf: Optional[bool] = field(default=None)
+    mute: Optional[bool] = field(default=None)
+    pending: Optional[bool] = field(default=None)
+    _client = field()
 
     @property
     def id(self) -> Snowflake:
@@ -394,7 +342,7 @@ class GuildMember(DictSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        payload = Message(
+        payload = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -403,12 +351,14 @@ class GuildMember(DictSerializerMixin):
             allowed_mentions=_allowed_mentions,
         )
 
-        channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
+        channel = Channel(
+            **await self._client.create_dm(recipient_id=int(self.user.id)), client=self._client
+        )
         res = await self._client.create_message(
-            channel_id=int(channel.id), payload=payload._json, files=files
+            channel_id=int(channel.id), payload=payload, files=files
         )
 
-        return Message(**res, _client=self._client)
+        return Message(**res, client=self._client)
 
     async def modify(
         self,
@@ -467,7 +417,7 @@ class GuildMember(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return GuildMember(**res, _client=self._client, guild_id=self.guild_id)
+        return GuildMember(**res, client=self._client, guild_id=self.guild_id)
 
     async def add_to_thread(
         self,
@@ -487,6 +437,7 @@ class GuildMember(DictSerializerMixin):
         )
 
 
+@define()
 class GuildMembers(DictSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_MEMBERS_CHUNK``.
@@ -500,32 +451,18 @@ class GuildMembers(DictSerializerMixin):
     :ivar str nonce: The "nonce" of the event.
     """
 
-    __slots__ = (
-        "_json",
-        "guild_id",
-        "members",
-        "chunk_index",
-        "chunk_count",
-        "not_found",
-        "presences",
-        "nonce",
+    guild_id: Snowflake = field(converter=Snowflake)
+    members: List[GuildMember] = field(converter=convert_list(GuildMember))
+    chunk_index: int = field()
+    chunk_count: int = field()
+    not_found: Optional[list] = field(default=None)
+    presences: Optional[List[PresenceActivity]] = field(
+        converter=convert_list(PresenceActivity), default=None
     )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.members = (
-            [GuildMember(**member, guild_id=self.guild_id) for member in self.members]
-            if self._json.get("members")
-            else None
-        )
-        self.presences = (
-            [PresenceActivity(**presence) for presence in self.presences]
-            if self._json.get("presences")
-            else None
-        )
+    nonce: Optional[str] = field(default=None)
 
 
+@define()
 class GuildRole(DictSerializerMixin):
     """
     A class object representing the gateway events ``GUILD_ROLE_CREATE``, ``GUILD_ROLE_UPDATE`` and ``GUILD_ROLE_DELETE``.
@@ -535,22 +472,14 @@ class GuildRole(DictSerializerMixin):
     :ivar Optional[Snowflake] role_id?: The role ID of the event.
     """
 
-    __slots__ = (
-        "_json",
-        "guild_id",
-        "role",
-        "role_id",
-        "_client",
-        "guild_hashes",  # TODO: investigate what this is.
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.role_id = Snowflake(self.role_id) if self._json.get("role_id") else None
-        self.role = Role(**self.role) if self._json.get("role") else None
+    guild_id: Snowflake = field(converter=Snowflake)
+    role: Role = field(converter=Role)
+    role_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    _client = field()
+    guild_hashes = field()  # TODO: investigate what this is.
 
 
+@define()
 class GuildStickers(DictSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_STICKERS_UPDATE``.
@@ -559,18 +488,11 @@ class GuildStickers(DictSerializerMixin):
     :ivar List[Sticker] stickers: The stickers of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "stickers")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.stickers = (
-            [Sticker(**sticker) for sticker in self.stickers]
-            if self._json.get("stickers")
-            else None
-        )
+    guild_id: Snowflake = field(converter=Snowflake)
+    stickers: List[Sticker] = field(converter=convert_list(Sticker))
 
 
+@define()
 class Integration(DictSerializerMixin):
     """
     A class object representing the gateway events ``INTEGRATION_CREATE``, ``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``.
@@ -598,36 +520,48 @@ class Integration(DictSerializerMixin):
     :ivar Snowflake guild_id: The guild ID of the event.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "type",
-        "enabled",
-        "syncing",
-        "role_id",
-        "enable_emoticons",
-        "expire_behavior",
-        "expire_grace_period",
-        "user",
-        "account",
-        "synced_at",
-        "subscriber_count",
-        "revoked",
-        "application",
-        "guild_id",
-        # TODO: Document these when Discord does.
-        "guild_hashes",
-        "application_id",
-    )
+    # __slots__ = (
+    #     "_json",
+    #     "id",
+    #     "name",
+    #     "type",
+    #     "enabled",
+    #     "syncing",
+    #     "role_id",
+    #     "enable_emoticons",
+    #     "expire_behavior",
+    #     "expire_grace_period",
+    #     "user",
+    #     "account",
+    #     "synced_at",
+    #     "subscriber_count",
+    #     "revoked",
+    #     "application",
+    #     "guild_id",
+    #     # TODO: Document these when Discord does.
+    #     "guild_hashes",
+    #     "application_id",
+    # )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.role_id = Snowflake(self.role_id) if self._json.get("role_id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    type: str = field()
+    enabled: bool = field()
+    syncing: bool = field()
+    role_id: Snowflake = field(converter=Snowflake)
+    enable_emoticons: bool = field()
+    expire_behavior: int = field()
+    expire_grace_period: int = field()
+    user: User = field(converter=User)
+    account: Any = field()
+    synced_at: datetime = field(converter=datetime.fromisoformat)
+    subscriber_count: int = field()
+    revoked: bool = field()
+    application: Application = field(converter=Application)
+    guild_id: Snowflake = field(converter=Snowflake)
 
 
+@define()
 class Presence(DictSerializerMixin):
     """
     A class object representing the gateway event ``PRESENCE_UPDATE``.
@@ -639,22 +573,15 @@ class Presence(DictSerializerMixin):
     :ivar ClientStatus client_status: The client status across platforms in the event.
     """
 
-    __slots__ = ("_json", "user", "guild_id", "status", "activities", "client_status", "_client")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.user = User(**self.user) if self._json.get("user") else None
-        self.activities = (
-            [PresenceActivity(**activity) for activity in self.activities]
-            if self._json.get("activities")
-            else None
-        )
-        self.client_status = (
-            ClientStatus(**self.client_status) if self._json.get("client_status") else None
-        )
+    _client = field()
+    user: User = field(converter=User)
+    guild_id: Snowflake = field(converter=Snowflake)
+    status: str = field()
+    activities: List[PresenceActivity] = field(converter=convert_list(PresenceActivity))
+    client_status: ClientStatus = field(converter=ClientStatus)
 
 
+@define()
 class MessageReaction(DictSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD``.
@@ -667,25 +594,12 @@ class MessageReaction(DictSerializerMixin):
     :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
-    __slots__ = (
-        "_json",
-        "_client",
-        "user_id",
-        "channel_id",
-        "message_id",
-        "guild_id",
-        "member",
-        "emoji",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.message_id = Snowflake(self.message_id) if self._json.get("message_id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.member = Member(**self.member) if self._json.get("member") else None
-        self.emoji = Emoji(**self.emoji) if self._json.get("emoji") else None
+    user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    channel_id: Snowflake = field(converter=Snowflake)
+    message_id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    member: Optional[Member] = field(converter=Member, default=None)
+    emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
 
 class ReactionRemove(MessageReaction):
@@ -703,17 +617,10 @@ class ReactionRemove(MessageReaction):
     :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
-    __slots__ = ("_json", "_client", "user_id", "channel_id", "message_id", "guild_id", "emoji")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.user_id = Snowflake(self.user_id) if self.user_id else None
-        self.channel_id = Snowflake(self.channel_id)
-        self.message_id = Snowflake(self.message_id)
-        self.guild_id = Snowflake(self.guild_id) if self.guild_id else None
-        self.emoji = Emoji(**self.emoji) if self._json.get("emoji") else None
+    # todo see if the missing member attribute affects anything
 
 
+@define()
 class ThreadList(DictSerializerMixin):
     """
     A class object representing the gateway event ``THREAD_LIST_SYNC``.
@@ -724,26 +631,13 @@ class ThreadList(DictSerializerMixin):
     :ivar List[ThreadMember] members: The members of the thread of the event.
     """
 
-    __slots__ = ("_json", "guild_id", "channel_ids", "threads", "members")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_ids = (
-            [Snowflake(channel_id) for channel_id in self.channel_ids]
-            if self._json.get("channel_ids")
-            else None
-        )
-        self.threads = (
-            [Channel(**channel) for channel in self.threads] if self._json.get("threads") else None
-        )
-        self.members = (
-            [ThreadMember(**member) for member in self.members]
-            if self._json.get("members")
-            else None
-        )
+    guild_id: Snowflake = field(converter=Snowflake)
+    channel_ids: Optional[List[Snowflake]] = field(converter=convert_list(Snowflake), default=None)
+    threads: List[Channel] = field(converter=convert_list(Channel))
+    members: List[ThreadMember] = field(converter=convert_list(ThreadMember))
 
 
+@define()
 class ThreadMembers(DictSerializerMixin):
     """
     A class object representing the gateway event ``THREAD_MEMBERS_UPDATE``.
@@ -755,24 +649,18 @@ class ThreadMembers(DictSerializerMixin):
     :ivar Optional[List[Snowflake]] removed_member_ids?: The removed IDs of members of the thread of the event.
     """
 
-    __slots__ = ("_json", "id", "guild_id", "member_count", "added_members", "removed_member_ids")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.removed_member_ids = (
-            [Snowflake(removed_member_id) for removed_member_id in self.removed_member_ids]
-            if self._json.get("removed_member_ids")
-            else None
-        )
-        self.added_members = (
-            [ThreadMember(**member) for member in self.added_members]
-            if self._json.get("added_members")
-            else None
-        )
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    member_count: int = field()
+    added_members: Optional[List[ThreadMember]] = field(
+        converter=convert_list(ThreadMember), default=None
+    )
+    removed_member_ids: Optional[List[Snowflake]] = field(
+        converter=convert_list(Snowflake), default=None
+    )
 
 
+@define()
 class Webhooks(DictSerializerMixin):
     """
     A class object representing the gateway event ``WEBHOOKS_UPDATE``.
@@ -781,9 +669,5 @@ class Webhooks(DictSerializerMixin):
     :ivar Snowflake guild_id: The guild ID of the associated event.
     """
 
-    __slots__ = ("_json", "channel_id", "guild_id")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+    channel_id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)

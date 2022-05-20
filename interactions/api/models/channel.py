@@ -1,8 +1,22 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Callable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
-from .misc import MISSING, DictSerializerMixin, File, Overwrite, Snowflake
+from .misc import (
+    MISSING,
+    DictSerializerMixin,
+    File,
+    Overwrite,
+    Snowflake,
+    convert_list,
+    define,
+    field,
+)
+from .user import User
+
+if TYPE_CHECKING:
+    from ..http.client import HTTPClient
+    from .message import Message
 
 
 class ChannelType(IntEnum):
@@ -21,6 +35,7 @@ class ChannelType(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 
+@define()
 class ThreadMetadata(DictSerializerMixin):
     """
     A class object representing the metadata of a thread.
@@ -36,24 +51,14 @@ class ThreadMetadata(DictSerializerMixin):
     :ivar Optional[bool] invitable?: The ability to invite users to the thread.
     """
 
-    __slots__ = (
-        "_json",
-        "archived",
-        "auto_archive_duration",
-        "archive_timestamp",
-        "locked",
-        "invitable",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.archive_timestamp = (
-            datetime.fromisoformat(self._json.get("archive_timestamp"))
-            if self._json.get("archive_timestamp")
-            else datetime.now(timezone.utc)
-        )
+    archived: bool = field()
+    auto_archive_duration: int = field()
+    archive_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
+    locked: bool = field()
+    invitable: Optional[bool] = field(default=None)
 
 
+@define()
 class ThreadMember(DictSerializerMixin):
     """
     A class object representing a member in a thread.
@@ -66,32 +71,19 @@ class ThreadMember(DictSerializerMixin):
     :ivar Snowflake user_id: The user ID of the member.
     :ivar datetime join_timestamp: The timestamp of when the member joined the thread.
     :ivar int flags: The bitshift flags for the member in the thread.
+    :ivar bool muted: Whether the member is muted or not.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "user_id",
-        "join_timestamp",
-        "flags",
-        # TODO: Document below attributes.
-        "user",
-        "team_id",
-        "membership_state",
-        "permissions",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
-        self.join_timestamp = (
-            datetime.fromisoformat(self._json.get("join_timestamp"))
-            if self._json.get("join_timestamp")
-            else None
-        )
+    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    join_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
+    flags: int = field()
+    muted: bool = field()
+    mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
+    _client = field()
 
 
+@define()
 class Channel(DictSerializerMixin):
     """
     A class object representing all types of channels.
@@ -129,62 +121,42 @@ class Channel(DictSerializerMixin):
     """
 
     __slots__ = (
-        "_json",
-        "id",
-        "type",
-        "guild_id",
-        "position",
-        "permission_overwrites",
-        "name",
-        "topic",
-        "nsfw",
-        "last_message_id",
-        "bitrate",
-        "user_limit",
-        "rate_limit_per_user",
-        "recipients",
-        "icon",
-        "owner_id",
-        "application_id",
-        "parent_id",
-        "last_pin_timestamp",
-        "rtc_region",
-        "video_quality_mode",
-        "message_count",
-        "member_count",
-        "thread_metadata",
-        "member",
-        "default_auto_archive_duration",
-        "permissions",
-        "_client",
         # TODO: Document banner when Discord officially documents them.
         "banner",
         "guild_hashes",
     )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.type = ChannelType(self.type)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.last_message_id = (
-            Snowflake(self.last_message_id) if self._json.get("last_message_id") else None
-        )
-        self.owner_id = Snowflake(self.owner_id) if self._json.get("owner_id") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.parent_id = Snowflake(self.parent_id) if self._json.get("parent_id") else None
-        self.last_pin_timestamp = (
-            datetime.fromisoformat(self._json.get("last_pin_timestamp"))
-            if self._json.get("last_pin_timestamp")
-            else None
-        )
-        self.permission_overwrites = (
-            [Overwrite(**overwrite) for overwrite in self._json.get("permission_overwrites")]
-            if self._json.get("permission_overwrites")
-            else None
-        )
+    _client: "HTTPClient" = field()
+
+    type: ChannelType = field(converter=ChannelType)
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    position: Optional[int] = field(default=None)
+    permission_overwrites: Optional[List[Overwrite]] = field(
+        converter=convert_list(Overwrite), default=None
+    )
+    name: str = field(factory=str)
+    topic: Optional[str] = field(default=None)
+    nsfw: Optional[bool] = field(default=None)
+    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    bitrate: Optional[int] = field(default=None)
+    user_limit: Optional[int] = field(default=None)
+    rate_limit_per_user: Optional[int] = field(default=None)
+    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None)
+    icon: Optional[str] = field(default=None)
+    owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    parent_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    last_pin_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    rtc_region: Optional[str] = field(default=None)
+    video_quality_mode: Optional[int] = field(default=None)
+    message_count: Optional[int] = field(default=None)
+    member_count: Optional[int] = field(default=None)
+    thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
+    member: Optional[ThreadMember] = field(converter=ThreadMember, default=None, add_client=True)
+    default_auto_archive_duration: Optional[int] = field(default=None)
+    permissions: Optional[str] = field(default=None)
+    flags: Optional[int] = field(default=None)
 
     def __repr__(self) -> str:
         return self.name
@@ -266,7 +238,7 @@ class Channel(DictSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        payload = Message(
+        payload = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -276,9 +248,15 @@ class Channel(DictSerializerMixin):
         )
 
         res = await self._client.create_message(
-            channel_id=int(self.id), payload=payload._json, files=files
+            channel_id=int(self.id), payload=payload, files=files
         )
-        return Message(**res, _client=self._client)
+
+        # dumb hack, discord doesn't send the full author data
+        author = {"id": None, "username": None, "discriminator": None}
+        author.update(res["author"])
+        res["author"] = author
+
+        return Message(**res, client=self._client)
 
     async def delete(self) -> None:
         """
@@ -358,7 +336,7 @@ class Channel(DictSerializerMixin):
         )
         _type = self.type
 
-        payload = Channel(
+        payload = dict(
             name=_name,
             type=_type,
             topic=_topic,
@@ -370,8 +348,6 @@ class Channel(DictSerializerMixin):
             nsfw=_nsfw,
             permission_overwrites=_permission_overwrites,
         )
-
-        payload = payload._json
 
         if (
             archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
@@ -390,7 +366,7 @@ class Channel(DictSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        ch = Channel(**res, _client=self._client)
+        ch = Channel(**res, client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(ch, attr))
@@ -677,7 +653,7 @@ class Channel(DictSerializerMixin):
 
         res = await self._client.publish_message(channel_id=int(self.id), message_id=message_id)
 
-        return Message(**res, _client=self._client)
+        return Message(**res, client=self._client)
 
     async def get_pinned_messages(self) -> List["Message"]:  # noqa
         """
@@ -691,7 +667,7 @@ class Channel(DictSerializerMixin):
         from .message import Message
 
         res = await self._client.get_pinned_messages(int(self.id))
-        return [Message(**message, _client=self._client) for message in res]
+        return [Message(**message, client=self._client) for message in res]
 
     async def get_message(
         self,
@@ -709,7 +685,7 @@ class Channel(DictSerializerMixin):
         )
         from .message import Message
 
-        return Message(**res, _client=self._client)
+        return Message(**res, client=self._client)
 
     async def purge(
         self,
@@ -963,7 +939,7 @@ class Channel(DictSerializerMixin):
             reason=reason,
         )
 
-        return Channel(**res, _client=self._client)
+        return Channel(**res, client=self._client)
 
     @property
     def url(self) -> str:
@@ -1047,7 +1023,7 @@ class Channel(DictSerializerMixin):
 
         from .guild import Invite
 
-        return Invite(**res, _client=self._client)
+        return Invite(**res, client=self._client)
 
     async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
         """
@@ -1068,7 +1044,7 @@ class Channel(DictSerializerMixin):
         _before: int = None
         while limit > 100:
             _msgs = [
-                Message(**res, _client=self._client)
+                Message(**res, client=self._client)
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id),
                     limit=100,
@@ -1086,7 +1062,7 @@ class Channel(DictSerializerMixin):
 
         if limit > 0:
             _msgs = [
-                Message(**res, _client=self._client)
+                Message(**res, client=self._client)
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id), limit=limit, before=_before
                 )
@@ -1100,6 +1076,7 @@ class Channel(DictSerializerMixin):
         return _messages
 
 
+@define()
 class Thread(Channel):
     """An object representing a thread.
 

@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from .misc import MISSING, DictSerializerMixin, Snowflake, define, field
 
 
+@define()
 class RoleTags(DictSerializerMixin):
     """
     A class object representing the tags of a role.
@@ -12,19 +13,14 @@ class RoleTags(DictSerializerMixin):
     :ivar Optional[Any] premium_subscriber?: Whether if this is the guild's premium subscriber role
     """
 
-    __slots__ = ("_json", "id", "bot_id", "integration_id", "premium_subscriber")
+    bot_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    integration_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    premium_subscriber: Optional[Any] = field(default=None)
 
     # TODO: Figure out what actual type it returns, all it says is null.
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.bot_id = Snowflake(self.bot_id) if self._json.get("bot_id") else None
-        self.integration_id = (
-            Snowflake(self.integration_id) if self._json.get("integration_id") else None
-        )
 
-
+@define()
 class Role(DictSerializerMixin):
     """
     A class object representing a role.
@@ -42,27 +38,18 @@ class Role(DictSerializerMixin):
     :ivar Optional[RoleTags] tags?: The tags this role has
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "color",
-        "hoist",
-        "icon",
-        "unicode_emoji",
-        "position",
-        "managed",
-        "mentionable",
-        "tags",
-        "flags",
-        "permissions",
-        "_client",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.tags = RoleTags(**self.tags) if self._json.get("tags") else None
+    _client = field()
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    color: int = field()
+    hoist: bool = field()
+    icon: Optional[str] = field(default=None)
+    unicode_emoji: Optional[str] = field(default=None)
+    position: int = field()
+    permissions: str = field()
+    managed: bool = field()
+    mentionable: bool = field()
+    tags: Optional[RoleTags] = field(converter=RoleTags, default=None)
 
     @property
     def mention(self) -> str:
@@ -138,7 +125,7 @@ class Role(DictSerializerMixin):
             payload=payload._json,
             reason=reason,
         )
-        role = Role(**res, _client=self._client)
+        role = Role(**res, client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(role, attr))
@@ -170,4 +157,4 @@ class Role(DictSerializerMixin):
             payload=[{"position": position, "id": int(self.id)}],
             reason=reason,
         )
-        return [Role(**role, _client=self._client) for role in res]
+        return [Role(**role, client=self._client) for role in res]

@@ -1,10 +1,12 @@
+from .flags import UserFlags as UserFlags
+from .misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake, define as define, field as field
 from typing import Optional
 
-from .misc import DictSerializerMixin, Snowflake
-from .flags import UserFlags
+from ..http.client import HTTPClient
+
 
 class User(DictSerializerMixin):
-    _json: dict
+    _client: HTTPClient
     id: Snowflake
     username: str
     discriminator: str
@@ -21,8 +23,7 @@ class User(DictSerializerMixin):
     flags: Optional[UserFlags]
     premium_type: Optional[int]
     public_flags: Optional[UserFlags]
-    def __init__(self, **kwargs): ...
-    def __repr__(self) -> str: ...
+    bio: Optional[str]
     @property
     def mention(self) -> str: ...
     @property

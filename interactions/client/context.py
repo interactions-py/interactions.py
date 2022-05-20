@@ -6,7 +6,7 @@ from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
 from ..api.models.message import Embed, Message, MessageInteraction, MessageReference
-from ..api.models.misc import MISSING, DictSerializerMixin, Snowflake
+from ..api.models.misc import MISSING, DictSerializerMixin, Snowflake, define, field
 from ..api.models.user import User
 from ..base import get_logger
 from .enums import InteractionCallbackType, InteractionType
@@ -17,6 +17,7 @@ from .models.misc import InteractionData
 log: Logger = get_logger("context")
 
 
+@define()
 class _Context(DictSerializerMixin):
     """
     The base class of "context" for dispatched event data
@@ -32,67 +33,36 @@ class _Context(DictSerializerMixin):
     :ivar Optional[Guild] guild: The guild data model.
     """
 
-    __slots__ = (
-        "message",
-        "member",
-        "author",
-        "user",
-        "channel",
-        "channel_id",
-        "guild",
-        "guild_id",
-        "client",
-        "id",
-        "application_id",
-        "type",
-        "data",
-        "token",
+    client = field()
+    message: Optional[Message] = field(converter=Message, default=None, add_client=True)
+    author: Member = field(converter=Member, default=None, add_client=True)
+    member: Member = field(converter=Member, add_client=True)
+    user: User = field(converter=User, default=None, add_client=True)
+    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
+    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
+    id: Snowflake = field(converter=Snowflake)
+    application_id: Snowflake = field(converter=Snowflake)
+    type: InteractionType = field(converter=InteractionType)
+    callback: Optional[InteractionCallbackType] = field(
+        converter=InteractionCallbackType, default=None
     )
+    data: InteractionData = field(converter=InteractionData)
+    version: int = field()
+    token: str = field()
+    guild_id: Snowflake = field(converter=Snowflake)
+    channel_id: Snowflake = field(converter=Snowflake)
+    responded: bool = field(default=False)
+    deferred: bool = field(default=False)
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.message = (
-            Message(**self.message, _client=self.client) if self._json.get("message") else None
-        )
-        self.member = (
-            Member(**self.member, _client=self.client) if self._json.get("member") else None
-        )
-        self.author = self.member
-        if self._json.get("user"):
-            self.user = User(**self.user)
-        elif self.member:
-            self.user = self.member.user
-        else:
-            self.user = None
+    def __attrs_post_init__(self) -> None:
+        if self.user is None:
+            self.user = self.member.user if self.member else None
 
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.callback = None
-        self.type = InteractionType(self.type)
-        self.data = InteractionData(**self.data) if self._json.get("data") else None
+        if self.guild is None and self.guild_id is not None:
+            self.guild = self.client.cache.guilds.get(self.guild_id, MISSING)
 
-        if guild := self._json.get("guild"):
-            self.guild = Guild(**guild)
-        elif self.guild_id is None:
-            self.guild = None
-        elif guild := self.client.cache.guilds.get(self.guild_id):
-            self.guild = guild
-        else:
-            self.guild = MISSING
-
-        if channel := self._json.get("channel"):
-            self.channel = Channel(**channel)
-        elif channel := self.client.cache.channels.get(self.channel_id):
-            self.channel = channel
-        else:
-            self.channel = MISSING
-
-        self.responded = False
-        self.deferred = False
+        if self.channel is None:
+            self.channel = self.client.cache.channels.get(self.channel_id, MISSING)
 
     async def get_channel(self) -> Channel:
         """
@@ -103,7 +73,7 @@ class _Context(DictSerializerMixin):
         """
 
         res = await self.client.get_channel(int(self.channel_id))
-        self.channel = Channel(**res, _client=self.client)
+        self.channel = Channel(**res, client=self.client)
         return self.channel
 
     async def get_guild(self) -> Guild:
@@ -115,7 +85,7 @@ class _Context(DictSerializerMixin):
         """
 
         res = await self.client.get_guild(int(self.guild_id))
-        self.guild = Guild(**res, _client=self.client)
+        self.guild = Guild(**res, client=self.client)
         return self.guild
 
     async def send(
@@ -130,7 +100,7 @@ class _Context(DictSerializerMixin):
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         ephemeral: Optional[bool] = False,
-    ) -> Message:
+    ) -> dict:
         """
         This allows the invocation state described in the "context"
         to send an interaction response.
@@ -196,18 +166,14 @@ class _Context(DictSerializerMixin):
         _ephemeral: int = (1 << 6) if ephemeral else 0
 
         # TODO: post-v4: Add attachments into Message obj.
-        payload: Message = Message(
+        payload: dict = dict(
             content=_content,
             tts=_tts,
-            # file=file,
-            # attachments=_attachments,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
             flags=_ephemeral,
         )
-        self.message = payload
-        self.message._client = self.client
         return payload
 
     async def edit(
@@ -272,7 +238,7 @@ class _Context(DictSerializerMixin):
 
             payload["components"] = _components
 
-        payload = Message(**payload)
+        payload = Message(**payload, client=self.client)
         self.message._client = self.client
 
         return payload
@@ -305,6 +271,7 @@ class _Context(DictSerializerMixin):
         return payload
 
 
+@define()
 class CommandContext(_Context):
     """
     A derivation of :class:`interactions.context.Context`
@@ -322,6 +289,7 @@ class CommandContext(_Context):
         ``interactions.Guild(**data)`` for an object or continue
         with a dictionary for your own purposes.
 
+    :ivar _client: the HTTP client
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
@@ -336,47 +304,20 @@ class CommandContext(_Context):
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     """
 
-    __slots__ = (
-        "message",
-        "member",
-        "author",
-        "user",
-        "channel",
-        "guild",
-        "client",
-        "id",
-        "application_id",
-        "callback",
-        "type",
-        "data",
-        "target",
-        "version",
-        "token",
-        "guild_id",
-        "channel_id",
-        "responded",
-        "deferred",
-        "locale",
-        "guild_locale",
-    )
+    target: Optional[Union[Message, Member, User]] = field(default=None)
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
-        if self._json.get("data").get("target_id"):
-            self.target = str(self.data.target_id)
+    def __attrs_post_init__(self) -> None:
+        if self.data.target_id:
+            target = self.data.target_id
 
             if self.data.type == 2:
-                if (
-                    self._json.get("guild_id")
-                    and str(self.data.target_id) in self.data.resolved.members
-                ):
+                if self.guild_id and str(self.data.target_id) in self.data.resolved.members:
                     # member id would have potential to exist, and therefore have target def priority.
-                    self.target = self.data.resolved.members[self.target]
+                    self.target = self.data.resolved.members[target]
                 else:
-                    self.target = self.data.resolved.users[self.target]
+                    self.target = self.data.resolved.users[target]
             elif self.data.type == 3:
-                self.target = self.data.resolved.messages[self.target]
+                self.target = self.data.resolved.messages[target]
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
@@ -388,7 +329,7 @@ class CommandContext(_Context):
                 res = await self.client.edit_message(
                     int(self.channel_id), int(self.message.id), payload=payload._json
                 )
-                self.message = msg = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, client=self.client)
             else:
                 res = await self.client.edit_interaction_response(
                     token=self.token,
@@ -404,7 +345,7 @@ class CommandContext(_Context):
                     await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
-                    self.message = msg = Message(**res, _client=self.client)
+                    self.message = msg = Message(**res, client=self.client)
         else:
             res = await self.client.edit_interaction_response(
                 token=self.token,
@@ -417,7 +358,7 @@ class CommandContext(_Context):
                 await self.client.edit_message(
                     int(self.channel_id), res["id"], payload=payload._json
                 )
-                self.message = msg = Message(**res, _client=self.client)
+                self.message = msg = Message(**res, client=self.client)
 
         if msg is not None:
             return msg
@@ -447,24 +388,24 @@ class CommandContext(_Context):
         if not self.deferred:
             self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
-        _payload: dict = {"type": self.callback.value, "data": payload._json}
+        _payload: dict = {"type": self.callback.value, "data": payload}
 
         msg = None
         if self.responded or self.deferred:
             if self.deferred:
                 res = await self.client.edit_interaction_response(
-                    data=payload._json,
+                    data=payload,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
                 self.responded = True
             else:
                 res = await self.client._post_followup(
-                    data=payload._json,
+                    data=payload,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
-            self.message = msg = Message(**res, _client=self.client)
+            self.message = msg = Message(**res, client=self.client)
         else:
             await self.client.create_interaction_response(
                 token=self.token,
@@ -478,12 +419,17 @@ class CommandContext(_Context):
             )
             if not __newdata.get("code"):
                 # if sending message fails somehow
-                msg = Message(**__newdata, _client=self.client)
+                msg = Message(**__newdata, client=self.client)
                 self.message = msg
             self.responded = True
         if msg is not None:
             return msg
-        return payload
+
+        return Message(
+            **payload,
+            client=self.client,
+            author={"client": self.client, "id": None, "username": None, "discriminator": None},
+        )
 
     async def delete(self) -> None:
         """
@@ -552,40 +498,12 @@ class CommandContext(_Context):
         return await func()
 
 
+@define()
 class ComponentContext(_Context):
     """
     A derivation of :class:`interactions.context.CommandContext`
     designed specifically for component data.
     """
-
-    __slots__ = (
-        "message",
-        "member",
-        "author",
-        "user",
-        "channel",
-        "guild",
-        "client",
-        "id",
-        "application_id",
-        "callback",
-        "type",
-        "data",
-        "target",
-        "version",
-        "token",
-        "guild_id",
-        "channel_id",
-        "responded",
-        "deferred",
-        "locale",
-        "guild_locale",
-    )
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.responded = False  # remind components that it was not responded to.
-        self.deferred = False  # remind components they not have been deferred
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
@@ -614,7 +532,7 @@ class ComponentContext(_Context):
                 application_id=str(self.application_id),
             )
             self.responded = True
-            self.message = msg = Message(**res, _client=self.client)
+            self.message = msg = Message(**res, client=self.client)
 
         if msg is not None:
             return msg
@@ -627,7 +545,7 @@ class ComponentContext(_Context):
         if not self.deferred:
             self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
-        _payload: dict = {"type": self.callback.value, "data": payload._json}
+        _payload: dict = {"type": self.callback.value, "data": payload}
 
         msg = None
         if (
@@ -637,18 +555,18 @@ class ComponentContext(_Context):
         ):
             if self.deferred:
                 res = await self.client.edit_interaction_response(
-                    data=payload._json,
+                    data=payload,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
                 self.responded = True
             else:
                 res = await self.client._post_followup(
-                    data=payload._json,
+                    data=payload,
                     token=self.token,
                     application_id=str(self.application_id),
                 )
-            self.message = msg = Message(**res, _client=self.client)
+            self.message = msg = Message(**res, client=self.client)
 
         else:
             await self.client.create_interaction_response(
@@ -663,13 +581,13 @@ class ComponentContext(_Context):
             )
             if not __newdata.get("code"):
                 # if sending message fails somehow
-                msg = Message(**__newdata, _client=self.client)
+                msg = Message(**__newdata, client=self.client)
                 self.message = msg
             self.responded = True
 
         if msg is not None:
             return msg
-        return payload
+        return Message(**payload)
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False

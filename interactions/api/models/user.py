@@ -1,9 +1,10 @@
 from typing import Optional
 
 from .flags import UserFlags
-from .misc import DictSerializerMixin, Snowflake
+from .misc import DictSerializerMixin, Snowflake, define, field
 
 
+@define()
 class User(DictSerializerMixin):
     """
     A class object representing a user.
@@ -27,40 +28,25 @@ class User(DictSerializerMixin):
     :ivar Optional[UserFlags] public_flags?: The user's public flags
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "username",
-        "discriminator",
-        "avatar",
-        "bot",
-        "system",
-        "mfa_enabled",
-        "banner",
-        "accent_color",
-        "banner_color",
-        "locale",
-        "verified",
-        "email",
-        "flags",
-        "premium_type",
-        "public_flags",
-        # TODO: document
-        "bio",
-        "banner_color",
-    )
+    _client = field()
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-
-        self.public_flags = (
-            UserFlags(int(self._json.get("public_flags")))
-            if self._json.get("public_flags")
-            else None
-        )
-
-        self.flags = UserFlags(int(self._json.get("flags"))) if self._json.get("flags") else None
+    id: Snowflake = field(converter=Snowflake)
+    username: str = field()
+    discriminator: str = field()
+    avatar: Optional[str] = field(default=None)
+    bot: Optional[bool] = field(default=None)
+    system: Optional[bool] = field(default=None)
+    mfa_enabled: Optional[bool] = field(default=None)
+    banner: Optional[str] = field(default=None)
+    accent_color: Optional[int] = field(default=None)
+    banner_color: Optional[str] = field(default=None)
+    locale: Optional[str] = field(default=None)
+    verified: Optional[bool] = field(default=None)
+    email: Optional[str] = field(default=None)
+    flags: Optional[UserFlags] = field(converter=UserFlags, default=None)
+    premium_type: Optional[int] = field(default=None)
+    public_flags: Optional[UserFlags] = field(converter=UserFlags, default=None)
+    bio: Optional[str] = field(default=None)
 
     def __repr__(self) -> str:
         return self.username

@@ -1,28 +1,28 @@
+from .flags import AppFlags as AppFlags
+from .misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
+from .user import User as User
 from typing import Any, List, Optional
 
-from .misc import DictSerializerMixin, Snowflake
-from .user import User
-from .flags import AppFlags
+from ..http.client import HTTPClient
+
 
 class TeamMember(DictSerializerMixin):
-    _json: dict
+    _client: HTTPClient
     membership_state: int
     permissions: List[str]
     team_id: Snowflake
     user: User
-    def __init__(self, **kwargs): ...
 
 class Team(DictSerializerMixin):
-    _json: dict
+    _client: HTTPClient
     icon: Optional[str]
     id: Snowflake
     members: List[TeamMember]
     name: str
     owner_user_id: int
-    def __init__(self, **kwargs): ...
 
 class Application(DictSerializerMixin):
-    _json: dict
+    _client: HTTPClient
     id: Snowflake
     name: str
     icon: Optional[str]
@@ -43,6 +43,5 @@ class Application(DictSerializerMixin):
     flags: Optional[AppFlags]
     type: Optional[Any]
     hook: Optional[Any]
-    def __init__(self, **kwargs): ...
     @property
     def icon_url(self) -> str: ...

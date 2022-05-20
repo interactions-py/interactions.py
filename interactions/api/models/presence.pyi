@@ -1,43 +1,32 @@
+from ...ext import converter as converter
+from ..models import StatusType as StatusType
+from ..models.message import Emoji as Emoji
+from .misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
 from enum import IntEnum
-from typing import List, Optional, Union
-
-from .message import Emoji
-from .misc import DictSerializerMixin, Snowflake
-from ..models import StatusType
-
+from typing import Any, List, Optional
 
 class PresenceParty(DictSerializerMixin):
-    _json: dict
     id: Optional[Snowflake]
     size: Optional[List[int]]
-    def __init__(self, **kwargs): ...
 
 class PresenceAssets(DictSerializerMixin):
-    _json: dict
     large_image: Optional[str]
     large_text: Optional[str]
     small_image: Optional[str]
     small_text: Optional[str]
-    def __init__(self, **kwargs): ...
 
 class PresenceSecrets(DictSerializerMixin):
-    _json: dict
     join: Optional[str]
     spectate: Optional[str]
     match: Optional[str]
-    def __init__(self, **kwargs): ...
 
 class PresenceButtons(DictSerializerMixin):
-    _json: dict
     label: str
     url: str
-    def __init__(self, **kwargs): ...
 
 class PresenceTimestamp(DictSerializerMixin):
-    _json: dict
     start: Optional[int]
     end: Optional[int]
-    def __init__(self, **kwargs): ...
 
 class PresenceActivityType(IntEnum):
     GAME: int
@@ -48,9 +37,8 @@ class PresenceActivityType(IntEnum):
     COMPETING: int
 
 class PresenceActivity(DictSerializerMixin):
-    _json: dict
     name: str
-    type: Union[int, PresenceActivityType]
+    type: PresenceActivityType
     url: Optional[str]
     created_at: Snowflake
     timestamps: Optional[PresenceTimestamp]
@@ -64,14 +52,19 @@ class PresenceActivity(DictSerializerMixin):
     instance: Optional[bool]
     flags: Optional[int]
     buttons: Optional[List[PresenceButtons]]
-    def __init__(self, **kwargs): ...
+    user: Optional[Any]
+    users: Optional[Any]
+    status: Optional[Any]
+    client_status: Optional[Any]
+    activities: Optional[Any]
+    sync_id: Optional[Any]
+    session_id: Optional[Any]
+    id: Optional[Any]
     @property
     def gateway_json(self) -> dict: ...
 
 class ClientPresence(DictSerializerMixin):
-    _json: dict
     since: Optional[int]
     activities: Optional[List[PresenceActivity]]
-    status: Union[str, StatusType]
+    status: StatusType
     afk: bool
-    def __init__(self, **kwargs): ...

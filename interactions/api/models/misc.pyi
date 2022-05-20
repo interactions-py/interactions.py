@@ -1,32 +1,40 @@
-import logging
-from datetime import datetime
-from typing import Optional, Union
-from io import IOBase, FileIO
+import datetime
+from interactions.base import get_logger as get_logger
+from io import FileIO, IOBase
+from logging import Logger
+from typing import Any, Optional, Union
 
-log: logging.Logger
+log: Logger
 
-class DictSerializerMixin(object):
+class MISSING: ...
+
+class DictSerializerMixin:
     _json: dict
-    def __init__(self, **kwargs): ...
+    extras: dict
+    def __init__(self, kwargs_dict: dict = ..., **other_kwargs) -> None: ...
+
+def convert_list(converter): ...
+def convert_int(converter): ...
+
+define_defaults: Any
+define: Any
+
+def field(converter: Any | None = ..., default=..., add_client: bool = ..., discord_name: str = ..., **kwargs): ...
 
 class Overwrite(DictSerializerMixin):
-    _json: dict
     id: int
     type: int
     allow: str
     deny: str
-    def __init__(self, **kwargs): ...
 
 class ClientStatus(DictSerializerMixin):
-    _json: dict
-    desktop: Optional[str]
+    dektop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
-    def __init__(self, **kwargs): ...
 
-class Snowflake(object):
-    _snowflake: str
-    def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...
+class Snowflake:
+    def __init__(self, snowflake: Union[int, str, 'Snowflake']) -> None: ...
+    def __int__(self): ...
     @property
     def increment(self) -> int: ...
     @property
@@ -36,13 +44,9 @@ class Snowflake(object):
     @property
     def epoch(self) -> float: ...
     @property
-    def timestamp(self) -> datetime: ...
-    # By inheritance logic, __str__ and __hash__ are already defined in headers.
-    # Just because we can :)
-    def __hash__(self) -> int: ...
-    def __str__(self) -> str: ...
-    def __int__(self) -> int: ...
-    def __eq__(self, other) -> Union[bool, NotImplemented]: ...
+    def timestamp(self) -> datetime.datetime: ...
+    def __hash__(self): ...
+    def __eq__(self, other): ...
 
 class Color:
     @property
@@ -60,43 +64,11 @@ class Color:
     @property
     def black(self) -> hex: ...
 
-class Format:
-    USER: str
-    USER_NICK: str
-    CHANNEL: str
-    ROLE: str
-    EMOJI: str
-    EMOJI_ANIMATED: str
-    TIMESTAMP: str
-    TIMESTAMP_SHORT_T: str
-    TIMESTAMP_LONG_T: str
-    TIMESTAMP_SHORT_D: str
-    TIMESTAMP_LONG_D: str
-    TIMESTAMP_SHORT_DT: str
-    TIMESTAMP_LONG_DT: str
-    TIMESTAMP_RELATIVE: str
-    def stylize(self, format: str, **kwargs) -> str: ...
+class File:
+    def __init__(self, filename: str, fp: Optional[IOBase] = ..., description: Optional[str] = ...) -> None: ...
 
-class MISSING: ...
-
-class File(object):
-    _filename: str
-    _fp: IOBase
-    _description: str
-    def __init__(
-        self,
-        filename: str,
-        fp: Optional[IOBase] = MISSING,
-        description: Optional[str] = MISSING
-    ) -> None: ...
-    def _json_payload(self, id) -> dict: ...
-
-class Image(object):
-
-    _URI: str
-    _name: str
-
-    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING): ...
+class Image:
+    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = ...) -> None: ...
     @property
     def data(self) -> str: ...
     @property

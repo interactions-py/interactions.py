@@ -1,15 +1,16 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from ...api.models.channel import Channel
 from ...api.models.member import Member
 from ...api.models.message import Attachment, Message
-from ...api.models.misc import DictSerializerMixin, Snowflake
+from ...api.models.misc import DictSerializerMixin, Snowflake, convert_list, define, field
 from ...api.models.role import Role
 from ...api.models.user import User
-from ..enums import ApplicationCommandType, ComponentType, InteractionType
+from ..enums import ApplicationCommandType, ComponentType, InteractionType, PermissionType
 from ..models.command import Option
 
 
+@define()
 class InteractionResolvedData(DictSerializerMixin):
     """
     A class representing the resolved information of an interaction data.
@@ -22,16 +23,14 @@ class InteractionResolvedData(DictSerializerMixin):
     :ivar Dict[str, Attachment] attachments: The resolved attachments data.
     """
 
-    __slots__ = ("_json", "users", "members", "roles", "channels", "messages", "attachments")
-    users: Dict[str, User]
+    users: Dict[str, User] = field()  # todo dict converters
     members: Dict[str, Member]
     roles: Dict[str, Role]
     channels: Dict[str, Channel]
     messages: Dict[str, Message]
     attachments: Dict[str, Attachment]
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __attrs_post_init__(self):  # left unchanged for now, since the converter isn't done yet
 
         if self._json.get("users"):
             [
@@ -79,6 +78,7 @@ class InteractionResolvedData(DictSerializerMixin):
             self.attachments = {}
 
 
+@define()
 class InteractionData(DictSerializerMixin):
     """
     A class object representing the data of an interaction.
@@ -94,32 +94,22 @@ class InteractionData(DictSerializerMixin):
     :ivar Optional[str] target_id?: The targeted ID of the interaction.
     """
 
-    id: Snowflake
-    name: str
-    type: ApplicationCommandType
-    resolved: Optional[InteractionResolvedData]
-    options: Optional[List[Option]]
-    custom_id: Optional[str]
-    component_type: Optional[ComponentType]
-    values: Optional[List[str]]
-    target_id: Optional[Snowflake]
-
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "type",
-        "resolved",
-        "options",
-        "custom_id",
-        "components",
-        "component_type",
-        "values",
-        "target_id",
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    type: ApplicationCommandType = field(converter=ApplicationCommandType)
+    resolved: Optional[InteractionResolvedData] = field(
+        converter=InteractionResolvedData, default=None
     )
+    options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
+    custom_id: Optional[str] = field(default=None)
+    component_type: Optional[ComponentType] = field(
+        converter=convert_list(ComponentType), default=None
+    )
+    values: Optional[List[str]] = field(default=None)
+    target_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    components: Any = field(default=None)  # todo check this type
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __attrs_post_init__(self, **kwargs):
         if self._json.get("type"):
             self.type = ApplicationCommandType(self.type)
             self._json.update({"type": self.type.value})
@@ -139,6 +129,7 @@ class InteractionData(DictSerializerMixin):
             self._json.update({"component_type": self.component_type.value})
 
 
+@define()
 class Interaction(DictSerializerMixin):
     """
     A class object representing an interaction.
@@ -156,42 +147,39 @@ class Interaction(DictSerializerMixin):
     :ivar Optional[Message] message?: The message of the interaction.
     """
 
-    id: Snowflake
-    application_id: Snowflake
-    type: InteractionType
-    data: Optional[InteractionData]
-    guild_id: Optional[Snowflake]
-    channel_id: Optional[Snowflake]
-    member: Optional[Member]
-    user: Optional[User]
-    token: str
-    version: int
-    message: Optional[Message]
+    id: Snowflake = field(converter=Snowflake)
+    application_id: Snowflake = field(converter=Snowflake)
+    type: InteractionType = field(converter=InteractionType)
+    data: Optional[InteractionData] = field(converter=InteractionData, default=None)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
+    user: Optional[User] = field(converter=User, default=None, add_client=True)
+    token: str = field()
+    version: int = field()
+    message: Optional[Message] = field(converter=Message, default=None, add_client=True)
 
-    __slots__ = (
-        "_json",
-        "id",
-        "application_id",
-        "type",
-        "data",
-        "guild_id",
-        "channel_id",
-        "member",
-        "user",
-        "token",
-        "version",
-        "message",
-    )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.type = InteractionType(self.type)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
+@define()
+class Permission(DictSerializerMixin):
+    """
+    A class object representing the permission of an application command.
+
+    The structure for a permission:
+
+    .. code-block:: python
+
+        interactions.Permission(
+            id=1234567890,
+            type=interactions.PermissionType.USER,
+            permission=True,
         )
-        self.data = InteractionData(**self.data) if self._json.get("data") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.member = Member(**self.member) if self._json.get("member") else None
-        self.user = User(**self.user) if self._json.get("user") else None
+
+    :ivar int id: The ID of the permission.
+    :ivar PermissionType type: The type of permission.
+    :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
+    """
+
+    id: int = field()
+    type: PermissionType = field(converter=PermissionType)
+    permission: bool = field()

@@ -20,7 +20,7 @@ will need it appended as a key-word argument. The example below shows this chang
 
     # 4.0.2
     ...
-    channel = interactions.Channel(**data, _client=bot.http)
+    channel = interactions.Channel(**data, client=bot.http)
 
 This change was added in favor for being able to use endpoints in an abstracted state.
 

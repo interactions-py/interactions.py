@@ -102,14 +102,14 @@ class Client:
             self._automate_sync = True
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data)
+        self.me = Application(**data, client=self._http)
 
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
 
         return [
-            Guild(**_) if _.get("_client") else Guild(**_, _client=self._http)
+            Guild(**_) if _.get("_client") else Guild(**_, client=self._http)
             for _ in self._http.cache.self_guilds.view
         ]
 
