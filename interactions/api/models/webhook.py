@@ -277,6 +277,8 @@ class Webhook(DictSerializerMixin):
         """
         Deletes the webhook.
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
 
         await self._client.delete_webhook(webhook_id=int(self.id), webhook_token=self.token)
 
