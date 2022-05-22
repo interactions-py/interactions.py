@@ -152,8 +152,8 @@ class Locale(str, Enum):
     An enumerable object representing Discord locales.
     """
 
-    ENGLISH_US = "en_US"
-    ENGLISH_GB = "en_GB"
+    ENGLISH_US = "en-US"
+    ENGLISH_GB = "en-GB"
     BULGARIAN = "bg"
     CHINESE_CHINA = "zh-CN"
     CHINESE_TAIWAN = "zh-TW"
