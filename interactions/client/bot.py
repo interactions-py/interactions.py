@@ -1377,7 +1377,7 @@ class Client:
         self,
         name: str,
         package: Optional[str] = None,
-        remove_commands: Optional[bool] = True,
+        remove_commands: bool = True,
         *args,
         **kwargs,
     ) -> Optional["Extension"]:
