@@ -70,11 +70,7 @@ exclude_patterns = ["_build"]
 # autodoc_member_order = "bysource"
 
 # This autodocs private attrs and also fixes wrong sort
-autodoc_default_options = {
-    'member-order': "bysource",
-    'private-members': True
-}
-
+autodoc_default_options = {"member-order": "bysource", "private-members": True}
 
 
 # -- Options for HTML output -------------------------------------------------
