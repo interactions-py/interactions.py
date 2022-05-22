@@ -299,4 +299,3 @@ msgstr ""
 #: interactions.client.context.ComponentContext.defer:6 of
 msgid "Whether you want to edit the original message or send a followup message"
 msgstr ""
-

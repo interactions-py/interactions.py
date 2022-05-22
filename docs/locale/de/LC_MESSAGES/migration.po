@@ -99,4 +99,3 @@ msgid ""
 "works still, you will need to enable this intent in your bot's developer "
 "portal and add the intent to your current intents when connecting:"
 msgstr ""
-

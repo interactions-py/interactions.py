@@ -48,4 +48,3 @@ msgid ""
 " provide out of the box, but you can also create some of your own. We'll "
 "be covering each one of these tools in great detail."
 msgstr ""
-

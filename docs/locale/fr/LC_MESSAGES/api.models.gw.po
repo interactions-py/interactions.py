@@ -576,4 +576,3 @@ msgstr ""
 #: interactions.api.models.gw.Webhooks:4 of
 msgid "The guild ID of the associated event."
 msgstr ""
-
