@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: discord-interactions 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-05-22 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,4 +20,197 @@ msgstr ""
 
 #: ../../api.models.presence.rst:4
 msgid "Presence Models"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceParty:1 of
+msgid "A class object representing the party data of a presence."
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence
+#: interactions.api.models.presence.PresenceActivity
+#: interactions.api.models.presence.PresenceAssets
+#: interactions.api.models.presence.PresenceButtons
+#: interactions.api.models.presence.PresenceParty
+#: interactions.api.models.presence.PresenceSecrets
+#: interactions.api.models.presence.PresenceTimestamp of
+msgid "Variablen"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceParty:3 of
+msgid "ID of the party."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceParty:4 of
+msgid "An array denoting the party's current and max size"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceAssets:1 of
+msgid "A class object representing the assets of a presence."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceAssets:3 of
+msgid "ID for a large asset of the activity"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceAssets:4 of
+msgid "Text associated with the large asset"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceAssets:5 of
+msgid "ID for a small asset of the activity"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceAssets:6 of
+msgid "Text associated with the small asset"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceSecrets:1 of
+msgid "A class object representing \"secret\" join information of a presence."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceSecrets:3 of
+msgid "Join secret"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceSecrets:4 of
+msgid "Spectate secret"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceSecrets:5 of
+msgid "Instanced match secret"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceButtons:1 of
+msgid "A class object representing the buttons of a presence."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceButtons:3 of
+msgid "Text of the button"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceButtons:4 of
+msgid "URL of the button"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceTimestamp:1 of
+msgid "A class object representing the timestamp data of a presence."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceTimestamp:3 of
+msgid "Unix time in ms when the activity started"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceTimestamp:4 of
+msgid "Unix time in ms when the activity ended"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivityType:1 of
+msgid "A class object representing all supported Discord activity types."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:1 of
+msgid "A class object representing the current activity data of a presence."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:4 of
+msgid ""
+"When using this model to instantiate alongside the client, if you provide"
+" a type 1 ( or PresenceActivityType.STREAMING ), then the ``url`` "
+"attribute is necessary."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:7 of
+msgid "The activity name"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:8 of
+msgid "The activity type"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:9 of
+msgid "stream url (if type is 1)"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:10 of
+msgid "Unix timestamp of when the activity was created to the User's session"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:11 of
+msgid "Unix timestamps for start and/or end of the game"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:12 of
+msgid "Application ID for the game"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:13 of
+msgid "What the player is currently doing"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:14 of
+msgid "Current party status"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:15 of
+msgid "The emoji used for the custom status"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:16 of
+msgid "Info for the current players' party"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:17 of
+msgid "Images for the presence and their associated hover texts"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:18 of
+msgid "for RPC join/spectate"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:19 of
+msgid "A status denoting if the activity is a game session"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:20 of
+msgid "activity flags"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:21 of
+msgid "Custom buttons shown in the RPC."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity.gateway_json:1 of
+msgid ""
+"This returns the JSON representing the ClientPresence sending via the "
+"Gateway."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity.gateway_json:4 of
+msgid ""
+"This is NOT used for standard presence activity reading by other users, "
+"i.e. User activity reading. You can use the `_json` attribute instead."
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence:1 of
+msgid ""
+"An object that symbolizes the presence of the current client's session "
+"upon creation."
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence:3 of
+msgid ""
+"Unix time in milliseconds of when the client went idle. None if it is not"
+" idle."
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence:4 of
+msgid "Array of activity objects."
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence:5 of
+msgid "The client's new status."
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence:6 of
+msgid "Whether the client is afk or not."
 msgstr ""

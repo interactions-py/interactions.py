@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: discord-interactions 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-05-22 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,28 +30,21 @@ msgstr ""
 
 #: ../../faq.rst:8
 msgid ""
-"This page is maintained by the Helpers of the Discord server, and updated"
-" by the library developer at their discretion. For any comments, feedback"
-" or concerns please consider joining our server and bringing it up in our"
-" support channels."
+"This page is maintained by the Helpers of the Discord server, and "
+"developers at their discretion. For any comments, feedback or concerns "
+"please consider joining our server and bringing it up in our support "
+"channels."
 msgstr ""
 
-#: ../../faq.rst:15
-msgid ""
-"This FAQ list currently reflects v4.0 as of the time of this writing, all"
-" other versions are considered deprecated. Because of this, there will "
-"not be any answers for questions regarding v3.0 and below."
-msgstr ""
-
-#: ../../faq.rst:20
+#: ../../faq.rst:14
 msgid "discord.py is dead! Will this library die too?"
 msgstr ""
 
-#: ../../faq.rst:21 ../../faq.rst:31
+#: ../../faq.rst:15 ../../faq.rst:25
 msgid "The short answer is: **no**."
 msgstr ""
 
-#: ../../faq.rst:23
+#: ../../faq.rst:17
 msgid ""
 "The decision to become a standalone library that is now an API wrapper "
 "for the Discord API was made before Danny posted his gist on GitHub about"
@@ -59,24 +52,24 @@ msgid ""
 "the library developer regarding this:"
 msgstr ""
 
-#: ../../faq.rst:30
+#: ../../faq.rst:24
 msgid "Are you going to/will/consider fork(ing) discord.py?"
 msgstr ""
 
-#: ../../faq.rst:33
+#: ../../faq.rst:27
 msgid ""
 "The long answer is a list of numerous reasons as to why this decision was"
 " made:"
 msgstr ""
 
-#: ../../faq.rst:35
+#: ../../faq.rst:29
 msgid ""
 "There are/will be numerous forks out there for discord.py, and because of"
 " that, we cannot safely guarantee our ability to help users out who may "
 "be using their own form of modified code."
 msgstr ""
 
-#: ../../faq.rst:36
+#: ../../faq.rst:30
 msgid ""
 "The original purpose of this library was to act as an extension of "
 "discord.py, but due to the issue of constantly having to monkeypatch "
@@ -85,7 +78,7 @@ msgid ""
 "not change anything from our issue of avoiding this."
 msgstr ""
 
-#: ../../faq.rst:37
+#: ../../faq.rst:31
 msgid ""
 "The goal of this library is to solely implement support and integrate the"
 " use of interactions from the Discord API. Making this library unique in "
@@ -93,7 +86,7 @@ msgid ""
 "standards at the time."
 msgstr ""
 
-#: ../../faq.rst:38
+#: ../../faq.rst:32
 msgid ""
 "The message intent will inevitably be forced as a privileged intent in "
 "April 2022. The practicality of trying to support message commands will "
@@ -102,7 +95,7 @@ msgid ""
 "reason for applying for this privileged intent."
 msgstr ""
 
-#: ../../faq.rst:39
+#: ../../faq.rst:33
 msgid ""
 "Forking discord.py would be a massive change to our current codebase, "
 "throwing away all of the effort we've put into it so far, and basically "
@@ -112,39 +105,51 @@ msgid ""
 " this is pointless."
 msgstr ""
 
-#: ../../faq.rst:42
+#: ../../faq.rst:36
 msgid "Will discord.py be able to work with this library?"
 msgstr ""
 
-#: ../../faq.rst:43
+#: ../../faq.rst:37
 msgid "The short answer is: **yes.**"
 msgstr ""
 
-#: ../../faq.rst:45
+#: ../../faq.rst:39
 msgid ""
 "However, the term \"work\" is loosely structured here. Imagine it like "
 "taping a hole in the wall instead of repairing the wall. We're "
 "essentially \"plastering\" support for discord.py instead of doing the "
 "surgery on its internal organs to make it work well with our library. As "
-"it currently stands, **discord-interactions and discord.py** are API "
-"wrappers. You will be able to run code *alongside* one another, and you "
-"will be able to plug in some classes, but the data conversion **must be "
-"exact.**"
+"it currently stands, **interactions.py and discord.py** are API wrappers."
+" You will be able to run code *alongside* one another, and you will be "
+"able to plug in some classes, but the data conversion **must be exact.**"
 msgstr ""
 
-#: ../../faq.rst:50
+#: ../../faq.rst:44
 msgid "What does that mean? Well, we'll show you:"
 msgstr ""
 
-#: ../../faq.rst:74
+#: ../../faq.rst:73
 msgid ""
 "Both of these variables ``interactions`` and ``dpy`` will be able to run "
 "in the same established environment, and additionally will both function "
-"properly as their respective libraries intend them to. What about the "
-"models, though? That's a simple answer:"
+"properly as their respective libraries intend them to. This "
+"implementation uses asyncio.gather to execute both starts simultaneously "
+"as asyncio tasks, and runs them under one singular loop."
 msgstr ""
 
-#: ../../faq.rst:90
+#: ../../faq.rst:77
+msgid ""
+"Compared to traditional startup commands, ``interactions.ready()`` and "
+"``dpy.start()`` is used instead of the typical ``interactions.start()`` "
+"and ``dpy.run()`` methods because of synchronous/async functions. "
+"``asyncio.gather()`` works with coroutines, hence the transition."
+msgstr ""
+
+#: ../../faq.rst:81
+msgid "What about the models, though? That's a simple answer:"
+msgstr ""
+
+#: ../../faq.rst:96
 msgid ""
 "Both of these will be able to both run and give their proper value. It is"
 " *very* important to note here, though, that you **must** be returning "
@@ -153,22 +158,78 @@ msgid ""
 "that is going on here."
 msgstr ""
 
-#: ../../faq.rst:95
+#: ../../faq.rst:101
+msgid "Where should we go with discord.py being gone?"
+msgstr ""
+
+#: ../../faq.rst:102
+msgid ""
+"The most *biased* answer would be to, of course, *use interactions.py.* "
+"We already offer a lot of the integral API wrapper aspects as discord.py "
+"does, however, we only specialize in interactions. Which means things "
+"such as these won't be supported officially by us (but might be available"
+" as 3rd parties):"
+msgstr ""
+
+#: ../../faq.rst:106
+msgid "Cooldowns"
+msgstr ""
+
+#: ../../faq.rst:107
+msgid "Message commands"
+msgstr ""
+
+#: ../../faq.rst:108
+msgid "Voice clients"
+msgstr ""
+
+#: ../../faq.rst:110
+msgid ""
+"There are other libraries of course though. As a general rule of thumb, "
+"if you're looking to do mainly slash commands and that tidbit then we "
+"highly recommend using our library, especially as **discord-components** "
+"merges as of version 4.0. But if you want something way more open and "
+"versatile, then we recommend these sources:"
+msgstr ""
+
+#: ../../faq.rst:114
+msgid "`Pycord`_ (the most actively maintained)."
+msgstr ""
+
+#: ../../faq.rst:115
+msgid ""
+"`dis-snek`_ (high level, \"hackable\" API wrapper with ease of "
+"modification)."
+msgstr ""
+
+#: ../../faq.rst:116
+msgid "`nextcord`_ (more abstract and fast approach to the Discord API)."
+msgstr ""
+
+#: ../../faq.rst:118
+msgid ""
+"It's personally recommended from the library developer to seek these "
+"paths instead of sticking to an older version of a library, e.g. "
+"discord.py 1.7.3 or 2.0.0a as they can eventually become deprecated with "
+"more pending changes to the API by Discord engineers."
+msgstr ""
+
+#: ../../faq.rst:122
 msgid "Why are you not supporting cooldowns?"
 msgstr ""
 
-#: ../../faq.rst:96
+#: ../../faq.rst:123
 msgid ""
 "Cooldowns aren't really an actual feature of the Discord API itself, but "
 "rather more of a convienent feature implemented in discord.py in order to"
 " avoid spamming of commands."
 msgstr ""
 
-#: ../../faq.rst:99
+#: ../../faq.rst:126
 msgid "**What if people spam slash/sub commands?**"
 msgstr ""
 
-#: ../../faq.rst:101
+#: ../../faq.rst:128
 msgid ""
 "That's the neat part: it's really hard to do that, and most of the time, "
 "they won't. Unless they copy the exact string that was used when you open"
@@ -181,11 +242,11 @@ msgid ""
 "library."
 msgstr ""
 
-#: ../../faq.rst:108
+#: ../../faq.rst:135
 msgid "Will we not be able to create message commands?"
 msgstr ""
 
-#: ../../faq.rst:109
+#: ../../faq.rst:136
 msgid ""
 "This is a tricky question to really answer. If you want the *technical* "
 "answer: you can definitely create them with our library, however, you'll "
@@ -197,16 +258,98 @@ msgid ""
 "handler framework before in their entire life."
 msgstr ""
 
-#: ../../faq.rst:118
+#: ../../faq.rst:144
+msgid ""
+"I'm getting \"``AttributeError: HTTPClient not found!``\" when I try to "
+"execute helper methods!"
+msgstr ""
+
+#: ../../faq.rst:145
+msgid "Probably you are doing something like this:"
+msgstr ""
+
+#: ../../faq.rst:152
+msgid ""
+"And the error occurs in the line where you try to send something. You can"
+" fix this easy by adding one argument:"
+msgstr ""
+
+#: ../../faq.rst:159
+msgid ""
+"You have to add this extra argument for every object you instantiate by "
+"yourself if you want to use it's methods"
+msgstr ""
+
+#: ../../faq.rst:163
+msgid ""
+"Context and Messages don't have the ``Channel`` and ``Guild`` attributes!"
+" Why?"
+msgstr ""
+
+#: ../../faq.rst:164
+msgid ""
+"At the moment the Discord API does *not* include them into their "
+"responses. You can get those object via the ``get_channel()`` and "
+"``get_guild()`` methods of the Context and Message model."
+msgstr ""
+
+#: ../../faq.rst:169
 msgid "My question is not answered on here!"
 msgstr ""
 
-#: ../../faq.rst:119
+#: ../../faq.rst:170
 msgid ""
 "Please join our Discord server for any further support regarding our "
 "library and/or any integration code depending on it."
 msgstr ""
 
-#: ../../faq.rst:121
+#: ../../faq.rst:172
 msgid "Invite Link: https://discord.gg/KkgMBVuEkx"
 msgstr ""
+
+#~ msgid ""
+#~ "This page is maintained by the "
+#~ "Helpers of the Discord server, and "
+#~ "updated by the library developer at "
+#~ "their discretion. For any comments, "
+#~ "feedback or concerns please consider "
+#~ "joining our server and bringing it "
+#~ "up in our support channels."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This FAQ list currently reflects v4.0"
+#~ " as of the time of this "
+#~ "writing, all other versions are "
+#~ "considered deprecated. Because of this, "
+#~ "there will not be any answers for"
+#~ " questions regarding v3.0 and below."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "However, the term \"work\" is loosely"
+#~ " structured here. Imagine it like "
+#~ "taping a hole in the wall instead"
+#~ " of repairing the wall. We're "
+#~ "essentially \"plastering\" support for "
+#~ "discord.py instead of doing the surgery"
+#~ " on its internal organs to make "
+#~ "it work well with our library. As"
+#~ " it currently stands, **discord-"
+#~ "interactions and discord.py** are API "
+#~ "wrappers. You will be able to run"
+#~ " code *alongside* one another, and "
+#~ "you will be able to plug in "
+#~ "some classes, but the data conversion"
+#~ " **must be exact.**"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Both of these variables ``interactions`` "
+#~ "and ``dpy`` will be able to run"
+#~ " in the same established environment, "
+#~ "and additionally will both function "
+#~ "properly as their respective libraries "
+#~ "intend them to. What about the "
+#~ "models, though? That's a simple answer:"
+#~ msgstr ""

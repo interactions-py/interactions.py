@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: discord-interactions 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-05-22 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgid "A class representing how events become dispatched and listened to."
 msgstr ""
 
 #: interactions.api.dispatch.Listener of
-msgid "Variables"
+msgid "Variablen"
 msgstr ""
 
 #: interactions.api.dispatch.Listener:3 of
@@ -44,7 +44,7 @@ msgstr ""
 
 #: interactions.api.dispatch.Listener.dispatch
 #: interactions.api.dispatch.Listener.register of
-msgid "Parameters"
+msgid "Parameter"
 msgstr ""
 
 #: interactions.api.dispatch.Listener.dispatch:3 of
@@ -57,16 +57,6 @@ msgstr ""
 
 #: interactions.api.dispatch.Listener.dispatch:7 of
 msgid "Keyword-only arguments of the coroutine."
-msgstr ""
-
-#: interactions.api.dispatch.Listener.dispatch
-#: interactions.api.dispatch.Listener.register of
-msgid "Returns"
-msgstr ""
-
-#: interactions.api.dispatch.Listener.dispatch:9
-#: interactions.api.dispatch.Listener.register:9 of
-msgid "None"
 msgstr ""
 
 #: interactions.api.dispatch.Listener.register:1 of
@@ -83,3 +73,19 @@ msgstr ""
 #: interactions.api.dispatch.Listener.register:7 of
 msgid "The coroutine to register as an event."
 msgstr ""
+
+#: interactions.api.dispatch.Listener.register:9 of
+msgid "The name to associate the coroutine with. Defaults to None."
+msgstr ""
+
+#~ msgid "Variables"
+#~ msgstr ""
+
+#~ msgid "Parameters"
+#~ msgstr ""
+
+#~ msgid "Returns"
+#~ msgstr ""
+
+#~ msgid "None"
+#~ msgstr ""

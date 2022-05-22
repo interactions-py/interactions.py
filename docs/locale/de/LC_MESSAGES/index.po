@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: discord-interactions 4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-05-22 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,114 +18,324 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: ../../index.rst:38
+#: ../../index.rst:47
 msgid "Pages:"
 msgstr ""
 
 #: ../../index.rst:4
-msgid "discord-interactions"
+msgid "interactions.py"
 msgstr ""
 
 #: ../../index.rst:5
 msgid ""
-"No more hassle with trying to get interactions to work with your Python "
-"Discord bot -- **discord-interactions** is now here."
+"Ever since December 2019, this open-source project has become the "
+"culmination of dedication and research towards figuring out the best way "
+"to bring **interactions from Discord to you:** we are an easy, simple, "
+"scalable and modular library for Discord interactions."
 msgstr ""
-"Kein Ärger mehr, Interaktionen mit Ihrem Python Discord Bot "
-"zum Laufen zu bringen -- **discord-interactions** ist jetzt da."
+
+#: ../../index.rst:7
+msgid ""
+"Tired of using numerous module dependencies for slash commands and "
+"buttons?"
+msgstr ""
 
 #: ../../index.rst:8
-msgid ""
-"**discord-interactions** is a simple API wrapper for Discord "
-"interactions. We're not here to replace discord.py or any other fork, but"
-" we are here to be the very best Python Discord library there is that "
-"implements interactions very well. This is what our library is all about."
+msgid "Looking for a compatible library that implements all interactions?"
 msgstr ""
-"**discord-interactions** ist ein einfacher API-Wrapper für Discord "
-"Interaktionen. Wir sind nicht hier, um discord.py oder einen anderen Fork zu ersetzen, aber"
-"Wir sind hier, um die beste Python Discord-Bibliothek zu sein, die es gibt"
-"Implementiert Interaktionen sehr gut. Darum geht es in unserer Bibliothek."
+
+#: ../../index.rst:9
+msgid "Itching to get your hands on slash commands, but in a simple manner?"
+msgstr ""
+
+#: ../../index.rst:11
+msgid ""
+"Look no more! The goal of this library is to make all three of these "
+"questions go from possibilites to trivial matters."
+msgstr ""
 
 #: ../../index.rst:14
-msgid "What are we good for?"
+#, fuzzy
+msgid "What can we do?"
 msgstr "Wofür sind wir gut?"
 
 #: ../../index.rst:15
-msgid "We offer a **lot** of benefits with using our library:"
-msgstr "Wir bieten **viele** Vorteile bei der Nutzung unserer Bibliothek:"
+msgid ""
+"Our library---inside and out, offers numerous benefits and presents "
+"itself as a worthy module in your bot's dependencies:"
+msgstr ""
 
 #: ../../index.rst:17
-msgid "Modern pythonic design that is scalable and modular."
-msgstr "Modernes Python-Design, das skalierbar und modular ist."
-
-#: ../../index.rst:18
-msgid "Asynchronous coroutines and multi-threading capabilities."
-msgstr "Asynchrone Coroutinen und Multithreading-Fähigkeiten."
+msgid "The base features of our library, built with our API include:"
+msgstr ""
 
 #: ../../index.rst:19
-msgid "Optimal class object reference with little overhead."
-msgstr "Optimale Klassenobjektreferenz mit geringem Overhead."
+msgid ""
+"**Dynamic object data generation**: all event data dispatched from the "
+"Gateway is dynamically transformed and generated into two-way "
+"serializable JSON objects."
+msgstr ""
 
 #: ../../index.rst:20
-msgid "Easily accessible codebase source."
+msgid ""
+"**Sane rate limiting**: our HTTP client implements pre-emptive rate limit"
+" avoidance, so your bot is guaranteed to never hit HTTP ``429``."
 msgstr ""
 
 #: ../../index.rst:21
-msgid "Stable/unstable branches for managing module stability when importing."
+msgid ""
+"**On-demand cache**: every HTTP request and Gateway event made is cached "
+"when needed, so you never have to save information yourself."
+msgstr ""
+
+#: ../../index.rst:22
+msgid ""
+"**Simplified data models**: every object presented is accessible as "
+"either a raw dictionary/``application/json`` or list of recursive "
+"attributes."
 msgstr ""
 
 #: ../../index.rst:24
-msgid "What does that mean?"
+msgid "Some more unique features that are exclusive to our interactions include:"
 msgstr ""
 
-#: ../../index.rst:25
-msgid "Basically, we're good and bad for these things:"
+#: ../../index.rst:26
+msgid ""
+"**Event-triggered callbacks**: whether a component, application command "
+"or interaction response, you'll never need to worry about bridging "
+"responses."
 msgstr ""
 
 #: ../../index.rst:27
-msgid "✔️ Working with application commands."
+msgid ""
+"**Dual-way decorator logic**: a decorator can act as both a constructor "
+"for an interaction, as well as a callback."
 msgstr ""
 
 #: ../../index.rst:28
-msgid "✔️ Handling contextual data cached from all channels."
+msgid ""
+"**API-strict naming**: no more confusion with the naming approach of many"
+" libraries; we follow the naming style of interactions from the "
+"officially curated Discord Developers documentation."
 msgstr ""
 
 #: ../../index.rst:29
-msgid "✔️ General/basic assignment of guild properties to members."
-msgstr ""
-
-#: ../../index.rst:30
-msgid "✔️ Responsive callbacks for buttons and select menus."
-msgstr ""
-
-#: ../../index.rst:31
-msgid "✔️ Voice client capabilities."
+msgid ""
+"**Extensive framework structure**: build your own tools and technologies "
+"for our library to develop and integrate community creations."
 msgstr ""
 
 #: ../../index.rst:32
-msgid "❌ Cooldowns/bucket types."
-msgstr ""
+#, fuzzy
+msgid "What do we not offer?"
+msgstr "Wofür sind wir gut?"
 
-#: ../../index.rst:35
-msgid "Where do I start?"
+#: ../../index.rst:33
+msgid ""
+"While we certainly offer a lot of benefits, we unfortunately have our own"
+" downsides:"
 msgstr ""
 
 #: ../../index.rst:36
-msgid "Please look at our pages below to find out where to go further."
+msgid ""
+"This list is subject to change as time goes on: some of these items may "
+"be added to the core of the library in the future."
 msgstr ""
 
-#: ../../index.rst:47
+#: ../../index.rst:40
+msgid "No native cooldown decorator/method."
+msgstr ""
+
+#: ../../index.rst:41
+msgid "Lack of automatic sharding and voice clients."
+msgstr ""
+
+#: ../../index.rst:44
+msgid "Where do I start?"
+msgstr ""
+
+#: ../../index.rst:45
+msgid "Please look at our pages below to find out where to go."
+msgstr ""
+
+#: ../../index.rst:57
+msgid "How can I contribute?"
+msgstr ""
+
+#: ../../index.rst:58
+msgid ""
+"Please read up on our `contribution requirements`_ for the project. This "
+"open-source project also enforces the `MIT License`_."
+msgstr ""
+
+#: ../../index.rst:60
+msgid "This open-source project utilizes the following workflows for development:"
+msgstr ""
+
+#: ../../index.rst:62
+msgid ""
+"**pre-commit** ``2.16.0``: the architecture uses this before every commit"
+" to format and check for severity/QOL-breaking changes."
+msgstr ""
+
+#: ../../index.rst:64
+msgid "**black** ``21.11b1``"
+msgstr ""
+
+#: ../../index.rst:65
+msgid "**flake8** ``3.9.2``"
+msgstr ""
+
+#: ../../index.rst:66
+msgid "**isort** ``5.9.3``"
+msgstr ""
+
+#: ../../index.rst:68
+msgid ""
+"**Sphinx** ``4.1.2``: all of our documentation is powered off of "
+"autogenerated documentation of the Sphinx engine."
+msgstr ""
+
+#: ../../index.rst:69
+msgid ""
+"**colorama** ``0.4.4``: our internal logger uses a customized coloring "
+"formatter to make looking for specific conditions easier when running "
+"tests."
+msgstr ""
+
+#: ../../index.rst:70
+msgid ""
+"**Conventional Commits** ``1.0.0``: every commit that we make to our "
+"branches use the official specification of CC 1.0.0 to make git graphs "
+"easier when improving and refining communication between code reviews, "
+"Pull Requests and commits."
+msgstr ""
+
+#: ../../index.rst:73
+msgid "When can I start?"
+msgstr ""
+
+#: ../../index.rst:74
+msgid ""
+"We also have some extra ground rules about making any specific "
+"contributions involving:"
+msgstr ""
+
+#: ../../index.rst:76
+msgid ""
+"We do not accept abstraction-based requests. (e.g. ``colour`` for "
+"``color``)"
+msgstr ""
+
+#: ../../index.rst:77
+msgid "A request has to be approved by at least one developer."
+msgstr ""
+
+#: ../../index.rst:78
+msgid ""
+"You must be willing to change/adhere to reviews from participants **where"
+" necessary.**"
+msgstr ""
+
+#: ../../index.rst:81
+msgid "I think I'm all ready!"
+msgstr ""
+
+#: ../../index.rst:82
+msgid "Feel free to begin making `Pull Requests`_ and `Issues`_ on our GitHub!"
+msgstr ""
+
+#: ../../index.rst:85
 msgid "Advanced Search"
 msgstr ""
 
-#: ../../index.rst:49
+#: ../../index.rst:87
 msgid ":ref:`genindex`"
 msgstr ""
 
-#: ../../index.rst:50
+#: ../../index.rst:88
 msgid ":ref:`modindex`"
 msgstr ""
 
-#: ../../index.rst:51
+#: ../../index.rst:89
 msgid ":ref:`search`"
 msgstr ""
+
+#~ msgid "discord-interactions"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "No more hassle with trying to get"
+#~ " interactions to work with your "
+#~ "Python Discord bot -- **discord-"
+#~ "interactions** is now here."
+#~ msgstr ""
+#~ "Kein Ärger mehr, Interaktionen mit Ihrem"
+#~ " Python Discord Bot zum Laufen zu "
+#~ "bringen -- **discord-interactions** ist "
+#~ "jetzt da."
+
+#~ msgid ""
+#~ "**discord-interactions** is a simple API"
+#~ " wrapper for Discord interactions. We're"
+#~ " not here to replace discord.py or"
+#~ " any other fork, but we are "
+#~ "here to be the very best Python"
+#~ " Discord library there is that "
+#~ "implements interactions very well. This "
+#~ "is what our library is all about."
+#~ msgstr ""
+#~ "**discord-interactions** ist ein einfacher "
+#~ "API-Wrapper für Discord Interaktionen. "
+#~ "Wir sind nicht hier, um discord.py "
+#~ "oder einen anderen Fork zu ersetzen, "
+#~ "aberWir sind hier, um die beste "
+#~ "Python Discord-Bibliothek zu sein, die"
+#~ " es gibtImplementiert Interaktionen sehr "
+#~ "gut. Darum geht es in unserer "
+#~ "Bibliothek."
+
+#~ msgid "We offer a **lot** of benefits with using our library:"
+#~ msgstr "Wir bieten **viele** Vorteile bei der Nutzung unserer Bibliothek:"
+
+#~ msgid "Modern pythonic design that is scalable and modular."
+#~ msgstr "Modernes Python-Design, das skalierbar und modular ist."
+
+#~ msgid "Asynchronous coroutines and multi-threading capabilities."
+#~ msgstr "Asynchrone Coroutinen und Multithreading-Fähigkeiten."
+
+#~ msgid "Optimal class object reference with little overhead."
+#~ msgstr "Optimale Klassenobjektreferenz mit geringem Overhead."
+
+#~ msgid "Easily accessible codebase source."
+#~ msgstr ""
+
+#~ msgid "Stable/unstable branches for managing module stability when importing."
+#~ msgstr ""
+
+#~ msgid "What does that mean?"
+#~ msgstr ""
+
+#~ msgid "Basically, we're good and bad for these things:"
+#~ msgstr ""
+
+#~ msgid "✔️ Working with application commands."
+#~ msgstr ""
+
+#~ msgid "✔️ Handling contextual data cached from all channels."
+#~ msgstr ""
+
+#~ msgid "✔️ General/basic assignment of guild properties to members."
+#~ msgstr ""
+
+#~ msgid "✔️ Responsive callbacks for buttons and select menus."
+#~ msgstr ""
+
+#~ msgid "✔️ Voice client capabilities."
+#~ msgstr ""
+
+#~ msgid "❌ Cooldowns/bucket types."
+#~ msgstr ""
+
+#~ msgid "Please look at our pages below to find out where to go further."
+#~ msgstr ""
