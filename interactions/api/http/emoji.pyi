@@ -3,7 +3,6 @@ from typing import List, Optional
 from .request import _Request
 from ...api.cache import Cache
 
-
 class EmojiRequest:
 
     _req: _Request

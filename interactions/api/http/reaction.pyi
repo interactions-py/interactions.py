@@ -3,7 +3,6 @@ from typing import List
 from ...api.cache import Cache
 from .request import _Request
 
-
 class ReactionRequest:
 
     _req: _Request

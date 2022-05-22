@@ -3,7 +3,6 @@ from ...api.cache import Cache
 from ..models.role import Role
 from .request import _Request
 
-
 class GuildRequest:
 
     _req: _Request

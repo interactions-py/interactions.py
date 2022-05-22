@@ -5,7 +5,6 @@ from .message import Emoji
 from .misc import DictSerializerMixin, Snowflake
 from ..models import StatusType
 
-
 class PresenceParty(DictSerializerMixin):
     _json: dict
     id: Optional[Snowflake]

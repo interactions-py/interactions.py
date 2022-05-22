@@ -11,7 +11,6 @@ from ..http.client import HTTPClient
 from ...models.component import ActionRow, Button, SelectMenu
 from .guild import Guild
 
-
 class MessageActivity(DictSerializerMixin):
     _json: dict
     type: int
@@ -114,7 +113,6 @@ class Message(DictSerializerMixin):
             ]
         ] = MISSING,
     ) -> "Message": ...
-
     async def reply(
         self,
         content: Optional[str] = MISSING,
@@ -160,9 +158,7 @@ class Message(DictSerializerMixin):
         emoji: Union[str, "Emoji"],
     ) -> None: ...
     async def remove_reaction_from(
-        self,
-        emoji: Union[str, "Emoji"],
-        user: Union[Member, User, int]
+        self, emoji: Union[str, "Emoji"], user: Union[Member, User, int]
     ) -> None: ...
     @classmethod
     async def get_from_url(
@@ -291,12 +287,42 @@ class Embed(DictSerializerMixin):
     def __setattr__(self, key, value) -> None: ...
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None: ...
     def clear_fields(self) -> None: ...
-    def insert_field_at(self, index: int,  name: str, value: str, inline: Optional[bool] = False) -> None: ...
-    def set_field_at(self, index: int, name: str, value: str, inline: Optional[bool] = False) -> None: ...
+    def insert_field_at(
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
+    ) -> None: ...
+    def set_field_at(
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
+    ) -> None: ...
     def remove_field(self, index: int) -> None: ...
     def remove_author(self) -> None: ...
-    def set_author(self, name: str, url: Optional[str] = None, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None: ...
-    def set_footer(self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None) -> None: ...
-    def set_image(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None: ...
-    def set_video(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None: ...
-    def set_thumbnail(self, url: str, proxy_url: Optional[str] = None, height: Optional[int] = None, width: Optional[int] = None) -> None: ...
+    def set_author(
+        self,
+        name: str,
+        url: Optional[str] = None,
+        icon_url: Optional[str] = None,
+        proxy_icon_url: Optional[str] = None,
+    ) -> None: ...
+    def set_footer(
+        self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
+    ) -> None: ...
+    def set_image(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None: ...
+    def set_video(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None: ...
+    def set_thumbnail(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None: ...

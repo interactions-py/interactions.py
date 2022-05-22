@@ -53,14 +53,16 @@ class Client:
     async def wait_until_ready(self) -> None: ...
     async def __get_all_commands(self) -> None: ...
     async def __sync(self) -> None: ...
-    def event(self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = None) -> Callable[..., Any]: ...
+    def event(
+        self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = None
+    ) -> Callable[..., Any]: ...
     def change_presence(self, presence: ClientPresence) -> None: ...
     def __check_command(
         self,
         command: ApplicationCommand,
         coro: Coroutine,
         regex: str = r"^[a-z0-9_-]{1,32}$",
-    )-> None: ...
+    ) -> None: ...
     def command(
         self,
         *,
@@ -70,27 +72,27 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         options: Optional[List[Option]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-        description_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
-        dm_permission: Optional[bool] = MISSING
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
-        dm_permission: Optional[bool] = MISSING
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
-        dm_permission: Optional[bool] = MISSING
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
@@ -133,11 +135,16 @@ def extension_command(
     name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     default_member_permissions: Optional[Union[int, Permissions]] = None,
-    dm_permission: Optional[bool] = None
+    dm_permission: Optional[bool] = None,
 ): ...
-def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None) -> Callable[..., Any]: ...
+def extension_listener(
+    func: Optional[Coroutine] = None, name: Optional[str] = None
+) -> Callable[..., Any]: ...
 def extension_component(component: Union[Button, SelectMenu, str]) -> Callable[..., Any]: ...
-def extension_autocomplete(command: Union[ApplicationCommand, int, str, Snowflake], name: str,) -> Callable[..., Any]: ...
+def extension_autocomplete(
+    command: Union[ApplicationCommand, int, str, Snowflake],
+    name: str,
+) -> Callable[..., Any]: ...
 def extension_modal(modal: Union[Modal, str]) -> Callable[..., Any]: ...
 def extension_message_command(
     *,

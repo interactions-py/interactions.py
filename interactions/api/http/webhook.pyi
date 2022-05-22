@@ -3,7 +3,6 @@ from typing import Any, List, Optional
 from ...api.cache import Cache
 from .request import _Request
 
-
 class WebhookRequest:
 
     _req: _Request
@@ -46,4 +45,6 @@ class WebhookRequest:
     async def delete_webhook_message(
         self, webhook_id: int, webhook_token: str, message_id: int
     ) -> None: ...
-    async def delete_original_webhook_message(self, webhook_id: int, webhook_token: str) -> None: ...
+    async def delete_original_webhook_message(
+        self, webhook_id: int, webhook_token: str
+    ) -> None: ...

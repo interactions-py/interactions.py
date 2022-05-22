@@ -84,10 +84,7 @@ class File(object):
     _fp: IOBase
     _description: str
     def __init__(
-        self,
-        filename: str,
-        fp: Optional[IOBase] = MISSING,
-        description: Optional[str] = MISSING
+        self, filename: str, fp: Optional[IOBase] = MISSING, description: Optional[str] = MISSING
     ) -> None: ...
     def _json_payload(self, id) -> dict: ...
 

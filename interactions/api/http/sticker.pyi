@@ -5,7 +5,6 @@ from aiohttp import FormData
 from ...api.cache import Cache
 from .request import _Request
 
-
 class StickerRequest:
 
     _req: _Request
