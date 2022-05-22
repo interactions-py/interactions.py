@@ -1,0 +1,226 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../ext.gettingstarted.rst:2
+msgid "Getting started."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:5
+msgid "Developing a 3rd party."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:7
+msgid ""
+"Getting started with making a 3rd party library is pretty hard. Most of "
+"the time, you'll find yourself often checking the source code and "
+"directly making changes to the library. We want to make a change to that,"
+" and additionally, make it easier for developers to find creativity in "
+"the simplicity of our overengineered product."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:14
+msgid ""
+"If you're not familiar with the source code of the library, you should "
+"probably read the documentation first."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:17
+msgid ""
+"Basing your 3rd party libraries off of our ``unstable`` branch is a bad "
+"practice as this is regarded as our development branch. Breaking changes "
+"may become common, and as a result pose a risk in affecting your 3rd "
+"party. For this reason, we recommend you use the latest PyPI release or "
+"``stable`` branch."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:24
+msgid "Installing"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:26
+msgid ""
+"Installing the external framework is a rather trivial process. You do not"
+" need to run any special installation on the library, as this comes built"
+" into our main core. However, you will need to install the dependencies "
+"involved with the library."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:31
+msgid ""
+"If you do not already have this library installed, you can do with this "
+"line below:"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:39
+msgid "Creating the base."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:41
+msgid ""
+"For every official 3rd party library of interactions.py, we have a "
+"\"core\" for it, otherwise known as the base. This base is what we use to"
+" allow developers to easily setup their project onto PyPI and build, as "
+"well as storing additional information that bot developers can read off "
+"of for their bots."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:46
+msgid "This code shows a basic example for creating the base of a 3rd party:"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:71
+msgid ""
+"This configures the base of the library in a rather simple manner: you "
+"give the name and description of the 3rd party, as well as its own "
+"official version and link for reference. This is all that is required to "
+"build the library. The rest of the field that can be filled in are "
+"optional. You can look at the :ref:`Base class <ext.base:Core Model>` for"
+" more information."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:78
+msgid "Defining a version."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:80
+msgid ""
+"As you may have noticed in the ``Base`` class, we have a ``Version`` "
+"class that helps define the version of the 3rd party. This is required to"
+" be written in our class for numerous reasons:"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:83
+msgid "To help enforce consistency in the formatting of 3rd party versions."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:84
+msgid "To allow for easy version comparison."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:85
+msgid "Forced semantic versioning."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:87
+msgid ""
+"This class is our most advanced and complicated one due to the abundant "
+"nature in emphasising a proper versioning system. We have a few options "
+"for versioning, and we have a few rules to follow."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:90
+msgid ""
+"Major, minor and patch versions **must** be declared as either their "
+"respective key-word arguments, or under the ``version`` kwarg."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:91
+msgid ""
+"The version should not be author-less. Every library has an author behind"
+" a version."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:92
+msgid ""
+"The version should not be a pre-release. Pre-releases are not supported "
+"by the official PyPI. To release as alpha or beta, use the "
+"``extend_version()`` method."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:93
+msgid ""
+"A version cannot contain more than 1 main author. If you have multiple "
+"authors, you should label them as co-authors instead."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:94
+msgid "An alphanumeric version can only contain one instance of its own."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:96
+msgid ""
+"With these rules out of the way, let's look at a simple implementation of"
+" the ``Version`` class alongside its brother, ``VersionAuthor`` for "
+"adding authors of a version:"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:120
+msgid ""
+"This code example can also show you the ways of retreiving information "
+"from a version. As seen here, this is a highly versatile class. These "
+"following are the shown methods and their purposes:"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:124
+msgid "The ``version`` attribute is the version string."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:125
+msgid "The ``major`` attribute is the major version number, e.g. \"x.0.0\""
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:126
+msgid "The ``minor`` attribute is the minor version number, e.g. \"0.x.0\""
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:127
+msgid "The ``patch`` attribute is the patch version number, e.g. \"0.0.x\""
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:128
+msgid ""
+"The ``authors`` property method is a list of authors, regardless of if "
+"one is a co-author or not."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:129
+msgid ""
+"The ``is_alphanumeric`` property method is a boolean that indicates if "
+"the version is alphanumeric."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:132
+msgid "Converting models from one to another."
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:134
+msgid ""
+"The term \"conversion\" is a gross exaggeration of what we're actually "
+"doing here. The problem that we've found with bot developers cross-"
+"referencing from different libraries is that their data models are simply"
+" different in design and structure. In order to combat against this, we "
+"have decided to create a conversion tool that will allow us to convert "
+"between models. This tool also allows for better comparison that will "
+"save the average developer many lines of code from having to be written. "
+"This is a basic example of how we \"convert\" these models:"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:162
+msgid "What about errors?"
+msgstr ""
+
+#: ../../ext.gettingstarted.rst:164
+msgid ""
+"Don't worry---we've got you covered there. Each of our tools will raise "
+"special error exceptions that you can listen to. Since this is a pretty "
+"self-explanitory subject, we recommend :ref:`reading the documentation "
+"<ext.error:Error Exceptions>` on this."
+msgstr ""
+
