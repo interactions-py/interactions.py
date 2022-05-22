@@ -1,11 +1,11 @@
 from typing import Optional
 
 from .flags import UserFlags
-from .misc import DictSerializerMixin, Snowflake, define, field
+from .misc import ClientSerializerMixin, Snowflake, define, field
 
 
 @define()
-class User(DictSerializerMixin):
+class User(ClientSerializerMixin):
     """
     A class object representing a user.
 
@@ -27,8 +27,6 @@ class User(DictSerializerMixin):
     :ivar Optional[int] premium_type?: The type of Nitro subscription the user has
     :ivar Optional[UserFlags] public_flags?: The user's public flags
     """
-
-    _client = field()
 
     id: Snowflake = field(converter=Snowflake)
     username: str = field()

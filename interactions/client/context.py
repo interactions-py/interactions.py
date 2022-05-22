@@ -73,7 +73,7 @@ class _Context(DictSerializerMixin):
         """
 
         res = await self.client.get_channel(int(self.channel_id))
-        self.channel = Channel(**res, client=self.client)
+        self.channel = Channel(**res, _client=self.client)
         return self.channel
 
     async def get_guild(self) -> Guild:
@@ -85,7 +85,7 @@ class _Context(DictSerializerMixin):
         """
 
         res = await self.client.get_guild(int(self.guild_id))
-        self.guild = Guild(**res, client=self.client)
+        self.guild = Guild(**res, _client=self.client)
         return self.guild
 
     async def send(
@@ -238,7 +238,7 @@ class _Context(DictSerializerMixin):
 
             payload["components"] = _components
 
-        payload = Message(**payload, client=self.client)
+        payload = Message(**payload, _client=self.client)
         self.message._client = self.client
 
         return payload
@@ -329,7 +329,7 @@ class CommandContext(_Context):
                 res = await self.client.edit_message(
                     int(self.channel_id), int(self.message.id), payload=payload._json
                 )
-                self.message = msg = Message(**res, client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
             else:
                 res = await self.client.edit_interaction_response(
                     token=self.token,
@@ -345,7 +345,7 @@ class CommandContext(_Context):
                     await self.client.edit_message(
                         int(self.channel_id), res["id"], payload=payload._json
                     )
-                    self.message = msg = Message(**res, client=self.client)
+                    self.message = msg = Message(**res, _client=self.client)
         else:
             res = await self.client.edit_interaction_response(
                 token=self.token,
@@ -358,7 +358,7 @@ class CommandContext(_Context):
                 await self.client.edit_message(
                     int(self.channel_id), res["id"], payload=payload._json
                 )
-                self.message = msg = Message(**res, client=self.client)
+                self.message = msg = Message(**res, _client=self.client)
 
         if msg is not None:
             return msg
@@ -405,7 +405,7 @@ class CommandContext(_Context):
                     token=self.token,
                     application_id=str(self.application_id),
                 )
-            self.message = msg = Message(**res, client=self.client)
+            self.message = msg = Message(**res, _client=self.client)
         else:
             await self.client.create_interaction_response(
                 token=self.token,
@@ -419,7 +419,7 @@ class CommandContext(_Context):
             )
             if not __newdata.get("code"):
                 # if sending message fails somehow
-                msg = Message(**__newdata, client=self.client)
+                msg = Message(**__newdata, _client=self.client)
                 self.message = msg
             self.responded = True
         if msg is not None:
@@ -427,7 +427,7 @@ class CommandContext(_Context):
 
         return Message(
             **payload,
-            client=self.client,
+            _client=self.client,
             author={"client": self.client, "id": None, "username": None, "discriminator": None},
         )
 
@@ -532,7 +532,7 @@ class ComponentContext(_Context):
                 application_id=str(self.application_id),
             )
             self.responded = True
-            self.message = msg = Message(**res, client=self.client)
+            self.message = msg = Message(**res, _client=self.client)
 
         if msg is not None:
             return msg
@@ -566,7 +566,7 @@ class ComponentContext(_Context):
                     token=self.token,
                     application_id=str(self.application_id),
                 )
-            self.message = msg = Message(**res, client=self.client)
+            self.message = msg = Message(**res, _client=self.client)
 
         else:
             await self.client.create_interaction_response(
@@ -581,7 +581,7 @@ class ComponentContext(_Context):
             )
             if not __newdata.get("code"):
                 # if sending message fails somehow
-                msg = Message(**__newdata, client=self.client)
+                msg = Message(**__newdata, _client=self.client)
                 self.message = msg
             self.responded = True
 

@@ -1,12 +1,12 @@
 from typing import Any, List, Optional
 
 from .flags import AppFlags
-from .misc import DictSerializerMixin, Snowflake, convert_list, define, field
+from .misc import ClientSerializerMixin, Snowflake, convert_list, define, field
 from .user import User
 
 
 @define()
-class TeamMember(DictSerializerMixin):
+class TeamMember(ClientSerializerMixin):
     """
     A class object representing the member of a team.
 
@@ -20,7 +20,6 @@ class TeamMember(DictSerializerMixin):
     :ivar User user: The user object.
     """
 
-    _client = field()
     membership_state: int = field()
     permissions: List[str] = field()
     team_id: Snowflake = field(converter=Snowflake)
@@ -28,7 +27,7 @@ class TeamMember(DictSerializerMixin):
 
 
 @define()
-class Team(DictSerializerMixin):
+class Team(ClientSerializerMixin):
     """
     A class object representing a team.
 
@@ -39,7 +38,6 @@ class Team(DictSerializerMixin):
     :ivar Snowflake owner_user_id: The User ID of the current team owner
     """
 
-    _client = field()
     icon: Optional[str] = field(default=None)
     id: Snowflake = field(converter=Snowflake)
     members: List[TeamMember] = field(converter=convert_list(TeamMember), add_client=True)
@@ -48,7 +46,7 @@ class Team(DictSerializerMixin):
 
 
 @define()
-class Application(DictSerializerMixin):
+class Application(ClientSerializerMixin):
     """
     A class object representing an application.
 
@@ -75,7 +73,6 @@ class Application(DictSerializerMixin):
     :ivar Optional[AppFlags] flags?: The application's public flags
     """
 
-    _client = field()
     id: Snowflake = field(converter=Snowflake)
     name: str = field()
     icon: Optional[str] = field(default=None)

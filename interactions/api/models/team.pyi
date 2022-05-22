@@ -1,28 +1,26 @@
 from .flags import AppFlags as AppFlags
-from .misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
+from .misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake, convert_list as convert_list, \
+    define as define, field as field, ClientSerializerMixin
 from .user import User as User
 from typing import Any, List, Optional
 
 from ..http.client import HTTPClient
 
 
-class TeamMember(DictSerializerMixin):
-    _client: HTTPClient
+class TeamMember(ClientSerializerMixin):
     membership_state: int
     permissions: List[str]
     team_id: Snowflake
     user: User
 
-class Team(DictSerializerMixin):
-    _client: HTTPClient
+class Team(ClientSerializerMixin):
     icon: Optional[str]
     id: Snowflake
     members: List[TeamMember]
     name: str
     owner_user_id: int
 
-class Application(DictSerializerMixin):
-    _client: HTTPClient
+class Application(ClientSerializerMixin):
     id: Snowflake
     name: str
     icon: Optional[str]

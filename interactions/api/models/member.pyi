@@ -1,16 +1,15 @@
 from .channel import Channel as Channel
 from .flags import Permissions as Permissions
-from .misc import DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Snowflake as Snowflake, convert_int as convert_int, define as define, field as field
+from .message import Message
+from .misc import DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Snowflake as Snowflake, \
+    convert_int as convert_int, define as define, field as field, ClientSerializerMixin
 from .role import Role as Role
 from .user import User as User
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from ..http.client import HTTPClient
 
-
-class Member(DictSerializerMixin):
-    _client: HTTPClient
+class Member(ClientSerializerMixin):
     user: Optional[User]
     nick: Optional[str]
     roles: List[int]

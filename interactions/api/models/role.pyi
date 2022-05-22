@@ -1,4 +1,5 @@
-from .misc import DictSerializerMixin as DictSerializerMixin, MISSING as MISSING, Snowflake as Snowflake, define as define, field as field
+from .misc import DictSerializerMixin as DictSerializerMixin, MISSING as MISSING, Snowflake as Snowflake, \
+    define as define, field as field, ClientSerializerMixin
 from typing import Any, List, Optional
 
 from ..http.client import HTTPClient
@@ -9,8 +10,7 @@ class RoleTags(DictSerializerMixin):
     integration_id: Optional[Snowflake]
     premium_subscriber: Optional[Any]
 
-class Role(DictSerializerMixin):
-    _client: HTTPClient
+class Role(ClientSerializerMixin):
     id: Snowflake
     name: str
     color: int

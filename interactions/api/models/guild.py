@@ -7,6 +7,7 @@ from .member import Member
 from .message import Emoji, Sticker
 from .misc import (
     MISSING,
+    ClientSerializerMixin,
     DictSerializerMixin,
     Image,
     Overwrite,
@@ -176,7 +177,7 @@ class UnavailableGuild(DictSerializerMixin):
 
 
 @define()
-class Guild(DictSerializerMixin):
+class Guild(ClientSerializerMixin):
     """
     A class object representing how a guild is registered.
 
@@ -235,8 +236,6 @@ class Guild(DictSerializerMixin):
     :ivar Optional[List[Sticker]] stickers?: The list of stickers from the guild.
     :ivar Optional[bool] premium_progress_bar_enabled?: Whether the guild has the boost progress bar enabled.
     """
-
-    _client = field()
 
     id: Snowflake = field(converter=Snowflake)
     name: str = field()
@@ -476,7 +475,7 @@ class Guild(DictSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        return Role(**res, client=self._client)
+        return Role(**res, _client=self._client)
 
     async def get_member(
         self,
@@ -496,7 +495,7 @@ class Guild(DictSerializerMixin):
             guild_id=int(self.id),
             member_id=member_id,
         )
-        return Member(**res, client=self._client)
+        return Member(**res, _client=self._client)
 
     async def delete_channel(
         self,
@@ -583,7 +582,7 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Role(**res, client=self._client)
+        return Role(**res, _client=self._client)
 
     async def create_thread(
         self,
@@ -638,7 +637,7 @@ class Guild(DictSerializerMixin):
             reason=reason,
         )
 
-        return Channel(**res, client=self._client)
+        return Channel(**res, _client=self._client)
 
     async def create_channel(
         self,
@@ -730,7 +729,7 @@ class Guild(DictSerializerMixin):
             payload=payload,
         )
 
-        return Channel(**res, client=self._client)
+        return Channel(**res, _client=self._client)
 
     async def modify_channel(
         self,
@@ -841,7 +840,7 @@ class Guild(DictSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        return Channel(**res, client=self._client)
+        return Channel(**res, _client=self._client)
 
     async def modify_member(
         self,
@@ -903,7 +902,7 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Member(**res, client=self._client)
+        return Member(**res, _client=self._client)
 
     async def get_preview(self) -> "GuildPreview":
 
@@ -1075,7 +1074,7 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        guild = Guild(**res, client=self._client)
+        guild = Guild(**res, _client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(guild, attr))
@@ -1518,7 +1517,7 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_all_channels(int(self.id))
-        return [Channel(**channel, client=self._client) for channel in res]
+        return [Channel(**channel, _client=self._client) for channel in res]
 
     async def get_all_roles(self) -> List[Role]:
         """
@@ -1530,7 +1529,7 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_all_roles(int(self.id))
-        return [Role(**role, client=self._client) for role in res]
+        return [Role(**role, _client=self._client) for role in res]
 
     async def get_role(
         self,
@@ -1603,7 +1602,7 @@ class Guild(DictSerializerMixin):
             ],
             reason=reason,
         )
-        return [Role(**role, client=self._client) for role in res]
+        return [Role(**role, _client=self._client) for role in res]
 
     async def get_bans(
         self,
@@ -1682,7 +1681,7 @@ class Guild(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
 
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
-        return Emoji(**res, client=self._client)
+        return Emoji(**res, _client=self._client)
 
     async def get_all_emoji(self) -> List[Emoji]:
         """
@@ -1694,7 +1693,7 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_all_emoji(guild_id=int(self.id))
-        return [Emoji(**emoji, client=self._client) for emoji in res]
+        return [Emoji(**emoji, _client=self._client) for emoji in res]
 
     async def create_emoji(
         self,
@@ -1780,7 +1779,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.get_list_of_members(
             guild_id=int(self.id), limit=limit, after=_after
         )
-        return [Member(**member, client=self._client) for member in res]
+        return [Member(**member, _client=self._client) for member in res]
 
     async def search_members(self, query: str, limit: Optional[int] = 1) -> List[Member]:
         """
@@ -1798,7 +1797,7 @@ class Guild(DictSerializerMixin):
         res = await self._client.search_guild_members(
             guild_id=int(self.id), query=query, limit=limit
         )
-        return [Member(**member, client=self._client) for member in res]
+        return [Member(**member, _client=self._client) for member in res]
 
     async def get_all_members(self) -> List[Member]:
         """
@@ -1826,7 +1825,7 @@ class Guild(DictSerializerMixin):
                 )
         _all_members.extend(_members)
 
-        return [Member(**_, client=self._client) for _ in _all_members]
+        return [Member(**_, _client=self._client) for _ in _all_members]
 
     @property
     def icon_url(self) -> Optional[str]:
@@ -1952,7 +1951,7 @@ class Integration(DictSerializerMixin):
 
 
 @define()
-class Invite(DictSerializerMixin):
+class Invite(ClientSerializerMixin):
     """
     The invite object.
 
@@ -1974,7 +1973,6 @@ class Invite(DictSerializerMixin):
     :ivar Optional[Channel] channel: The channel of this invite.
     """
 
-    _client = field()
     uses: int = field()
     max_uses: int = field()
     max_age: int = field()
@@ -1989,8 +1987,8 @@ class Invite(DictSerializerMixin):
     target_user_type: Optional[int] = field(default=None)
     target_user: Optional[User] = field(converter=User, default=None)
     target_type: Optional[int] = field(default=None)
-    guild: Optional[Guild] = field(converter=Guild, default=None)
-    channel: Optional[Channel] = field(converter=Channel, default=None)
+    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
+    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
     async def delete(self) -> None:
         """Deletes the invite"""

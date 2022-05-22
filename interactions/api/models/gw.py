@@ -7,6 +7,7 @@ from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
 from .misc import (
     MISSING,
+    ClientSerializerMixin,
     ClientStatus,
     DictSerializerMixin,
     File,
@@ -22,7 +23,7 @@ from .user import User
 
 
 @define()
-class ApplicationCommandPermissions(DictSerializerMixin):
+class ApplicationCommandPermissions(ClientSerializerMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
 
@@ -39,7 +40,6 @@ class ApplicationCommandPermissions(DictSerializerMixin):
     id: Snowflake = field(converter=Snowflake)
     # permissions: List[Permission] = field(converter=convert_list(Permission))  # TODO fix circular import
     permissions = field()
-    _client = field()
 
 
 @define()
@@ -78,7 +78,7 @@ class EmbeddedActivity(DictSerializerMixin):
 
 
 @define()
-class GuildBan(DictSerializerMixin):
+class GuildBan(ClientSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_BAN_ADD``.
 
@@ -88,11 +88,10 @@ class GuildBan(DictSerializerMixin):
 
     guild_id: Snowflake = field(converter=Snowflake)
     user: User = field(converter=User)
-    _client = field()
 
 
 @define()
-class GuildEmojis(DictSerializerMixin):
+class GuildEmojis(ClientSerializerMixin):
     """
     A class object representing the gateway event ``GUILD_EMOJIS_UPDATE``.
 
@@ -132,7 +131,7 @@ class GuildJoinRequest(DictSerializerMixin):
 
 
 @define()
-class GuildMember(DictSerializerMixin):
+class GuildMember(ClientSerializerMixin):
     """
     A class object representing the gateway events ``GUILD_MEMBER_ADD``, ``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``.
 
@@ -158,7 +157,6 @@ class GuildMember(DictSerializerMixin):
     deaf: Optional[bool] = field(default=None)
     mute: Optional[bool] = field(default=None)
     pending: Optional[bool] = field(default=None)
-    _client = field()
 
     @property
     def id(self) -> Snowflake:
@@ -352,13 +350,13 @@ class GuildMember(DictSerializerMixin):
         )
 
         channel = Channel(
-            **await self._client.create_dm(recipient_id=int(self.user.id)), client=self._client
+            **await self._client.create_dm(recipient_id=int(self.user.id)), _client=self._client
         )
         res = await self._client.create_message(
             channel_id=int(channel.id), payload=payload, files=files
         )
 
-        return Message(**res, client=self._client)
+        return Message(**res, _client=self._client)
 
     async def modify(
         self,
@@ -417,7 +415,7 @@ class GuildMember(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return GuildMember(**res, client=self._client, guild_id=self.guild_id)
+        return GuildMember(**res, _client=self._client, guild_id=self.guild_id)
 
     async def add_to_thread(
         self,
@@ -463,7 +461,7 @@ class GuildMembers(DictSerializerMixin):
 
 
 @define()
-class GuildRole(DictSerializerMixin):
+class GuildRole(ClientSerializerMixin):
     """
     A class object representing the gateway events ``GUILD_ROLE_CREATE``, ``GUILD_ROLE_UPDATE`` and ``GUILD_ROLE_DELETE``.
 
@@ -475,7 +473,6 @@ class GuildRole(DictSerializerMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     role: Role = field(converter=Role)
     role_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    _client = field()
     guild_hashes = field()  # TODO: investigate what this is.
 
 
@@ -562,7 +559,7 @@ class Integration(DictSerializerMixin):
 
 
 @define()
-class Presence(DictSerializerMixin):
+class Presence(ClientSerializerMixin):
     """
     A class object representing the gateway event ``PRESENCE_UPDATE``.
 
@@ -573,7 +570,6 @@ class Presence(DictSerializerMixin):
     :ivar ClientStatus client_status: The client status across platforms in the event.
     """
 
-    _client = field()
     user: User = field(converter=User)
     guild_id: Snowflake = field(converter=Snowflake)
     status: str = field()

@@ -3,13 +3,13 @@ from typing import Any, List, Optional, Union
 
 from .channel import Channel
 from .flags import Permissions
-from .misc import MISSING, DictSerializerMixin, File, Snowflake, convert_int, define, field
+from .misc import MISSING, ClientSerializerMixin, File, Snowflake, convert_int, define, field
 from .role import Role
 from .user import User
 
 
 @define()
-class Member(DictSerializerMixin):
+class Member(ClientSerializerMixin):
     """
     A class object representing the user of a guild, known as a "member."
 
@@ -31,7 +31,6 @@ class Member(DictSerializerMixin):
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    _client = field()
     user: Optional[User] = field(converter=User, default=None, add_client=True)
     nick: Optional[str] = field(default=None)
     _avatar: Optional[str] = field(default=None, discord_name="avatar")
@@ -279,7 +278,7 @@ class Member(DictSerializerMixin):
             channel_id=int(channel.id), payload=payload, files=files
         )
 
-        return Message(**res, client=self._client)
+        return Message(**res, _client=self._client)
 
     async def modify(
         self,
@@ -341,7 +340,7 @@ class Member(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        member = Member(**res, client=self._client)
+        member = Member(**res, _client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(member, attr))

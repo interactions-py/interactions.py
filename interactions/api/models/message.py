@@ -7,7 +7,16 @@ from attrs import converters, setters
 from ..error import JSONException
 from .channel import Channel
 from .member import Member
-from .misc import MISSING, DictSerializerMixin, File, Snowflake, convert_list, define, field
+from .misc import (
+    MISSING,
+    ClientSerializerMixin,
+    DictSerializerMixin,
+    File,
+    Snowflake,
+    convert_list,
+    define,
+    field,
+)
 from .role import Role
 from .team import Application
 from .user import User
@@ -117,7 +126,7 @@ class Attachment(DictSerializerMixin):
 
 
 @define()
-class MessageInteraction(DictSerializerMixin):
+class MessageInteraction(ClientSerializerMixin):
     """
     A class object that resembles the interaction used to generate
     the associated message.
@@ -129,7 +138,6 @@ class MessageInteraction(DictSerializerMixin):
     """
 
     # TODO: document member attr.
-    _client = field()
     id: Snowflake = field(converter=Snowflake)
     type: int = field()  # replace with Enum
     name: str = field()
@@ -155,7 +163,7 @@ class ChannelMention(DictSerializerMixin):
 
 
 @define()
-class Emoji(DictSerializerMixin):
+class Emoji(ClientSerializerMixin):
     """
     A class objecting representing an emoji.
 
@@ -169,7 +177,6 @@ class Emoji(DictSerializerMixin):
     :ivar Optional[bool] available?: Status denoting if this emoji can be used. (Can be false via server boosting)
     """
 
-    _client = field()
     id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     name: Optional[str] = field(default=None)
     roles: Optional[List[Role]] = field(converter=convert_list(Role), default=None)
@@ -199,7 +206,7 @@ class Emoji(DictSerializerMixin):
         :rtype: Emoji
         """
         res = await client.get_guild_emoji(guild_id=guild_id, emoji_id=emoji_id)
-        return cls(**res, client=client)
+        return cls(**res, _client=client)
 
     @classmethod
     async def get_all_of_guild(
@@ -218,7 +225,7 @@ class Emoji(DictSerializerMixin):
         :rtype: List[Emoji]
         """
         res = await client.get_all_emoji(guild_id=guild_id)
-        return [cls(**emoji, client=client) for emoji in res]
+        return [cls(**emoji, _client=client) for emoji in res]
 
     async def delete(
         self,
@@ -741,7 +748,7 @@ class ReactionObject(DictSerializerMixin):
 
 
 @define()
-class Message(DictSerializerMixin):
+class Message(ClientSerializerMixin):
     """
     A class object representing a message.
 
@@ -777,7 +784,6 @@ class Message(DictSerializerMixin):
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
     """
 
-    _client = field()
     id: Snowflake = field(converter=Snowflake)
     channel_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -836,7 +842,7 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_channel(channel_id=int(self.channel_id))
-        return Channel(**res, client=self._client)
+        return Channel(**res, _client=self._client)
 
     async def get_guild(self):
         """
@@ -849,7 +855,7 @@ class Message(DictSerializerMixin):
         from .guild import Guild
 
         res = await self._client.get_guild(guild_id=int(self.guild_id))
-        return Guild(**res, client=self._client)
+        return Guild(**res, _client=self._client)
 
     async def delete(self, reason: Optional[str] = None) -> None:
         """
@@ -1054,7 +1060,7 @@ class Message(DictSerializerMixin):
         author.update(res["author"])
         res["author"] = author
 
-        return Message(**res, client=self._client)
+        return Message(**res, _client=self._client)
 
     async def pin(self) -> None:
         """Pins the message to its channel"""
@@ -1079,7 +1085,7 @@ class Message(DictSerializerMixin):
         res = await self._client.publish_message(
             channel_id=int(self.channel_id), message_id=int(self.id)
         )
-        return Message(**res, client=self._client)
+        return Message(**res, _client=self._client)
 
     async def create_thread(
         self,
@@ -1115,7 +1121,7 @@ class Message(DictSerializerMixin):
             invitable=_invitable,
             auto_archive_duration=_auto_archive_duration,
         )
-        return Channel(**res, client=self._client)
+        return Channel(**res, _client=self._client)
 
     async def create_reaction(
         self,
@@ -1210,7 +1216,7 @@ class Message(DictSerializerMixin):
 
         :param url: The full url of the message
         :type url: str
-        :param client: The HTTPClient of your bot. Set ``client=botvar._http``
+        :param client: The HTTPClient of your bot. Set ` _client=botvar._http``
         :type client: HTTPClient
         :return: The message the URL points to
         :rtype: Message
@@ -1223,7 +1229,7 @@ class Message(DictSerializerMixin):
             channel_id=_channel_id,
             message_id=_message_id,
         )
-        return cls(**_message, client=client)
+        return cls(**_message, _client=client)
 
     @property
     def url(self) -> str:

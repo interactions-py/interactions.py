@@ -35,12 +35,9 @@ class DictSerializerMixin:
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
         kwargs = kwargs_dict or other_kwargs
+        client = kwargs.pop("_client", None)
         self._json = kwargs.copy()
         passed_kwargs = {}
-
-        client = self._json.pop("client", None)
-        if client:
-            passed_kwargs["client"] = client
 
         attribs: Tuple[attrs.Attribute, ...] = self.__attrs_attrs__  # type: ignore
         for attrib in attribs:
@@ -59,14 +56,24 @@ class DictSerializerMixin:
                     if value is not None and attrib.metadata.get("add_client"):
                         if isinstance(value, list):
                             for item in value:
-                                item["client"] = client
+                                item["_client"] = client
                         else:
-                            value["client"] = client
+                            value["_client"] = client
 
                     passed_kwargs[attrib_name] = value
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
+
+
+@attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
+class ClientSerializerMixin(DictSerializerMixin):
+    _client = attrs.field(init=False, repr=False)
+
+    def __init__(self, kwargs_dict: dict = None, **other_kwargs):
+        kwargs = kwargs_dict or other_kwargs
+        self._client = kwargs.get("_client", None)
+        super().__init__(**kwargs)
 
 
 def convert_list(converter):

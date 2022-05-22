@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 from .misc import (
     MISSING,
+    ClientSerializerMixin,
     DictSerializerMixin,
     File,
     Overwrite,
@@ -13,10 +14,6 @@ from .misc import (
     field,
 )
 from .user import User
-
-if TYPE_CHECKING:
-    from ..http.client import HTTPClient
-    from .message import Message
 
 
 class ChannelType(IntEnum):
@@ -59,7 +56,7 @@ class ThreadMetadata(DictSerializerMixin):
 
 
 @define()
-class ThreadMember(DictSerializerMixin):
+class ThreadMember(ClientSerializerMixin):
     """
     A class object representing a member in a thread.
 
@@ -80,11 +77,10 @@ class ThreadMember(DictSerializerMixin):
     flags: int = field()
     muted: bool = field()
     mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
-    _client = field()
 
 
 @define()
-class Channel(DictSerializerMixin):
+class Channel(ClientSerializerMixin):
     """
     A class object representing all types of channels.
 
@@ -125,8 +121,6 @@ class Channel(DictSerializerMixin):
         "banner",
         "guild_hashes",
     )
-
-    _client: "HTTPClient" = field()
 
     type: ChannelType = field(converter=ChannelType)
     id: Snowflake = field(converter=Snowflake)
@@ -256,7 +250,7 @@ class Channel(DictSerializerMixin):
         author.update(res["author"])
         res["author"] = author
 
-        return Message(**res, client=self._client)
+        return Message(**res, _client=self._client)
 
     async def delete(self) -> None:
         """
@@ -370,7 +364,7 @@ class Channel(DictSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        ch = Channel(**res, client=self._client)
+        ch = Channel(**res, _client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(ch, attr))
@@ -657,7 +651,7 @@ class Channel(DictSerializerMixin):
 
         res = await self._client.publish_message(channel_id=int(self.id), message_id=message_id)
 
-        return Message(**res, client=self._client)
+        return Message(**res, _client=self._client)
 
     async def get_pinned_messages(self) -> List["Message"]:  # noqa
         """
@@ -671,7 +665,7 @@ class Channel(DictSerializerMixin):
         from .message import Message
 
         res = await self._client.get_pinned_messages(int(self.id))
-        return [Message(**message, client=self._client) for message in res]
+        return [Message(**message, _client=self._client) for message in res]
 
     async def get_message(
         self,
@@ -689,7 +683,7 @@ class Channel(DictSerializerMixin):
         )
         from .message import Message
 
-        return Message(**res, client=self._client)
+        return Message(**res, _client=self._client)
 
     async def purge(
         self,
@@ -943,7 +937,7 @@ class Channel(DictSerializerMixin):
             reason=reason,
         )
 
-        return Channel(**res, client=self._client)
+        return Channel(**res, _client=self._client)
 
     @property
     def url(self) -> str:
@@ -1027,7 +1021,7 @@ class Channel(DictSerializerMixin):
 
         from .guild import Invite
 
-        return Invite(**res, client=self._client)
+        return Invite(**res, _client=self._client)
 
     async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
         """
@@ -1048,7 +1042,7 @@ class Channel(DictSerializerMixin):
         _before: int = None
         while limit > 100:
             _msgs = [
-                Message(**res, client=self._client)
+                Message(**res, _client=self._client)
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id),
                     limit=100,
@@ -1066,7 +1060,7 @@ class Channel(DictSerializerMixin):
 
         if limit > 0:
             _msgs = [
-                Message(**res, client=self._client)
+                Message(**res, _client=self._client)
                 for res in await self._client.get_channel_messages(
                     channel_id=int(self.id), limit=limit, before=_before
                 )

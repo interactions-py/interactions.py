@@ -1,6 +1,8 @@
+from .guild import Invite
 from ..http.client import HTTPClient as HTTPClient
 from .message import Message as Message
-from .misc import DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Overwrite as Overwrite, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
+from .misc import DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Overwrite as Overwrite, \
+    Snowflake as Snowflake, convert_list as convert_list, define as define, field as field, ClientSerializerMixin
 from .user import User as User
 from datetime import datetime
 from enum import IntEnum
@@ -19,15 +21,16 @@ class ChannelType(IntEnum):
     GUILD_PRIVATE_THREAD: int
     GUILD_STAGE_VOICE: int
 
-class ThreadMetadata(DictSerializerMixin):
+@define()
+class ThreadMetadata(ClientSerializerMixin):
     archived: bool
     auto_archive_duration: int
     archive_timestamp: datetime.timestamp
     locked: bool
     invitable: Optional[bool]
 
-class ThreadMember(DictSerializerMixin):
-    _client: HTTPClient
+@define()
+class ThreadMember(ClientSerializerMixin):
     id: Optional[Snowflake]
     user_id: Optional[Snowflake]
     join_timestamp: datetime.timestamp
@@ -35,8 +38,8 @@ class ThreadMember(DictSerializerMixin):
     muted: bool
     mute_config: Optional[Any]
 
-class Channel(DictSerializerMixin):
-    _client: HTTPClient
+@define()
+class Channel(ClientSerializerMixin):
     type: ChannelType
     id: Snowflake
     guild_id: Optional[Snowflake]
@@ -84,13 +87,14 @@ class Channel(DictSerializerMixin):
     async def pin_message(self, message_id: int) -> None: ...
     async def unpin_message(self, message_id: int) -> None: ...
     async def publish_message(self, message_id: int) -> Message: ...
-    async def get_pinned_messages(self) -> List['Message']: ...
+    async def get_pinned_messages(self) -> List[Message]: ...
     async def get_message(self, message_id: int) -> Message: ...
-    async def purge(self, amount: int, check: Callable = ..., before: Optional[int] = ..., reason: Optional[str] = ..., bulk: Optional[bool] = ...) -> List['Message']: ...
+    async def purge(self, amount: int, check: Callable = ..., before: Optional[int] = ..., reason: Optional[str] = ..., bulk: Optional[bool] = ...) -> List[Message]: ...
     async def create_thread(self, name: str, type: Optional[ChannelType] = ..., auto_archive_duration: Optional[int] = ..., invitable: Optional[bool] = ..., message_id: Optional[int] = ..., reason: Optional[str] = ...) -> Channel: ...
     @property
     def url(self) -> str: ...
     async def create_invite(self, max_age: Optional[int] = ..., max_uses: Optional[int] = ..., temporary: Optional[bool] = ..., unique: Optional[bool] = ..., target_type: Optional['InviteTargetType'] = ..., target_user_id: Optional[int] = ..., target_application_id: Optional[int] = ..., reason: Optional[str] = ...) -> Invite: ...
-    async def get_history(self, limit: int = ...) -> List['Message']: ...
+    async def get_history(self, limit: int = ...) -> List[Message]: ...
 
+@define()
 class Thread(Channel): ...

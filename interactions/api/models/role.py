@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from .misc import MISSING, DictSerializerMixin, Snowflake, define, field
+from .misc import MISSING, ClientSerializerMixin, DictSerializerMixin, Snowflake, define, field
 
 
 @define()
@@ -21,7 +21,7 @@ class RoleTags(DictSerializerMixin):
 
 
 @define()
-class Role(DictSerializerMixin):
+class Role(ClientSerializerMixin):
     """
     A class object representing a role.
 
@@ -38,7 +38,6 @@ class Role(DictSerializerMixin):
     :ivar Optional[RoleTags] tags?: The tags this role has
     """
 
-    _client = field()
     id: Snowflake = field(converter=Snowflake)
     name: str = field()
     color: int = field()
@@ -125,7 +124,7 @@ class Role(DictSerializerMixin):
             payload=payload._json,
             reason=reason,
         )
-        role = Role(**res, client=self._client)
+        role = Role(**res, _client=self._client)
 
         for attr in self.__slots__:
             setattr(self, attr, getattr(role, attr))
@@ -157,4 +156,4 @@ class Role(DictSerializerMixin):
             payload=[{"position": position, "id": int(self.id)}],
             reason=reason,
         )
-        return [Role(**role, client=self._client) for role in res]
+        return [Role(**role, _client=self._client) for role in res]

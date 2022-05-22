@@ -1,7 +1,9 @@
 from .channel import Channel as Channel, ChannelType as ChannelType, Thread as Thread
 from .member import Member as Member
 from .message import Emoji as Emoji, Sticker as Sticker
-from .misc import DictSerializerMixin as DictSerializerMixin, Image as Image, MISSING as MISSING, Overwrite as Overwrite, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
+from .misc import DictSerializerMixin as DictSerializerMixin, Image as Image, MISSING as MISSING, \
+    Overwrite as Overwrite, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field, \
+    ClientSerializerMixin
 from .presence import PresenceActivity as PresenceActivity
 from .role import Role as Role
 from .team import Application as Application
@@ -9,8 +11,6 @@ from .user import User as User
 from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Any, Dict, List, Optional, Union
-
-from ..http.client import HTTPClient
 
 
 class VerificationLevel(IntEnum):
@@ -89,8 +89,7 @@ class UnavailableGuild(DictSerializerMixin):
     id: Snowflake
     unavailable: bool
 
-class Guild(DictSerializerMixin):
-    _client: HTTPClient
+class Guild(ClientSerializerMixin):
     id: Snowflake
     name: str
     icon: Optional[str]
@@ -228,8 +227,7 @@ class Integration(DictSerializerMixin):
     revoked: bool
     application: Application
 
-class Invite(DictSerializerMixin):
-    _client: HTTPClient
+class Invite(ClientSerializerMixin):
     uses: int
     max_uses: int
     max_age: int

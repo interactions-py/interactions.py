@@ -1,13 +1,17 @@
 from ..error import JSONException as JSONException
 from .channel import Channel as Channel
 from .member import Member as Member
-from .misc import DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
+from .misc import DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Snowflake as Snowflake, \
+    convert_list as convert_list, define as define, field as field, ClientSerializerMixin
 from .role import Role as Role
 from .team import Application as Application
 from .user import User as User
 from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
+
+from ..http.client import HTTPClient
+
 
 class MessageType(IntEnum):
     DEFAULT: int
@@ -55,7 +59,7 @@ class Attachment(DictSerializerMixin):
     width: Optional[int]
     ephemeral: Optional[bool]
 
-class MessageInteraction(DictSerializerMixin):
+class MessageInteraction(ClientSerializerMixin):
     id: Snowflake
     type: int
     name: str
@@ -67,7 +71,7 @@ class ChannelMention(DictSerializerMixin):
     type: int
     name: str
 
-class Emoji(DictSerializerMixin):
+class Emoji(ClientSerializerMixin):
     id: Optional[Snowflake]
     name: Optional[str]
     roles: Optional[List[Role]]
@@ -162,7 +166,7 @@ class ReactionObject(DictSerializerMixin):
     me: bool
     emoji: Emoji
 
-class Message(DictSerializerMixin):
+class Message(ClientSerializerMixin):
     id: Snowflake
     channel_id: Snowflake
     guild_id: Optional[Snowflake]

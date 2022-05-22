@@ -3,7 +3,9 @@ from ...client.models.component import ActionRow as ActionRow, Button as Button,
 from .channel import Channel as Channel, ThreadMember as ThreadMember
 from .member import Member as Member
 from .message import Embed as Embed, Emoji as Emoji, Message as Message, MessageInteraction as MessageInteraction, Sticker as Sticker
-from .misc import ClientStatus as ClientStatus, DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
+from .misc import ClientStatus as ClientStatus, DictSerializerMixin as DictSerializerMixin, File as File, \
+    MISSING as MISSING, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field, \
+    ClientSerializerMixin
 from .presence import PresenceActivity as PresenceActivity
 from .role import Role as Role
 from .team import Application as Application
@@ -11,8 +13,7 @@ from .user import User as User
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-class ApplicationCommandPermissions(DictSerializerMixin):
-    _client: HTTPClient
+class ApplicationCommandPermissions(ClientSerializerMixin):
     application_id: Snowflake
     guild_id: Snowflake
     id: Snowflake
@@ -29,12 +30,11 @@ class EmbeddedActivity(DictSerializerMixin):
     embedded_activity: PresenceActivity
     channel_id: Snowflake
 
-class GuildBan(DictSerializerMixin):
+class GuildBan(ClientSerializerMixin):
     guild_id: Snowflake
     user: User
-    _client: HTTPClient
 
-class GuildEmojis(DictSerializerMixin):
+class GuildEmojis(ClientSerializerMixin):
     guild_id: Snowflake
     emojis: List[Emoji]
 
@@ -45,7 +45,7 @@ class GuildJoinRequest(DictSerializerMixin):
     user_id: Snowflake
     guild_id: Snowflake
 
-class GuildMember(DictSerializerMixin):
+class GuildMember(ClientSerializerMixin):
     guild_id: Snowflake
     roles: Optional[List[str]]
     user: Optional[User]
@@ -56,7 +56,6 @@ class GuildMember(DictSerializerMixin):
     deaf: Optional[bool]
     mute: Optional[bool]
     pending: Optional[bool]
-    _client: HTTPClient
     @property
     def id(self) -> Snowflake: ...
     @property
@@ -78,12 +77,11 @@ class GuildMembers(DictSerializerMixin):
     presences: Optional[List[PresenceActivity]]
     nonce: Optional[str]
 
-class GuildRole(DictSerializerMixin):
+class GuildRole(ClientSerializerMixin):
     guild_id: Snowflake
     role: Role
     role_id: Optional[Snowflake]
     guild_hashes: Any
-    _client: HTTPClient
 
 class GuildStickers(DictSerializerMixin):
     guild_id: Snowflake
@@ -107,8 +105,7 @@ class Integration(DictSerializerMixin):
     application: Application
     guild_id: Snowflake
 
-class Presence(DictSerializerMixin):
-    _client: HTTPClient
+class Presence(ClientSerializerMixin):
     user: User
     guild_id: Snowflake
     status: str
