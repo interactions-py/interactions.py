@@ -1322,7 +1322,7 @@ class Client:
             return extension
 
     def remove(
-        self, name: str, remove_commands: Optional[bool] = True, package: Optional[str] = None
+        self, name: str, remove_commands: bool = True, package: Optional[str] = None
     ) -> None:
         """
         Removes an extension out of the current client from an import resolve.
