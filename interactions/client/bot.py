@@ -1330,7 +1330,7 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param remove_commands?: Whether to remove commands before reloading. Defaults to True.
-        :type remove_commands: Optional[bool]
+        :type remove_commands: bool
         :param package?: The package of the extension.
         :type package: Optional[str]
         """
