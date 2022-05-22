@@ -1394,7 +1394,7 @@ class Client:
         :param package?: The package of the extension
         :type package: Optional[str]
         :param remove_commands?: Whether to remove commands before reloading. Defaults to True
-        :type remove_commands: Optional[bool]
+        :type remove_commands: bool
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
