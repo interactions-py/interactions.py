@@ -1321,7 +1321,9 @@ class Client:
             self._extensions[_name] = module
             return extension
 
-    def remove(self, name: str, remove_commands: Optional[bool] = True, package: Optional[str] = None) -> None:
+    def remove(
+        self, name: str, remove_commands: Optional[bool] = True, package: Optional[str] = None
+    ) -> None:
         """
         Removes an extension out of the current client from an import resolve.
 
@@ -1361,7 +1363,9 @@ class Client:
 
         else:
             try:
-                self._loop.create_task(extension.teardown(remove_commands=remove_commands))  # made for Extension, usable by others
+                self._loop.create_task(
+                    extension.teardown(remove_commands=remove_commands)
+                )  # made for Extension, usable by others
             except AttributeError:
                 pass
 
@@ -1370,7 +1374,12 @@ class Client:
         log.debug(f"Removed extension {name}.")
 
     def reload(
-        self, name: str, package: Optional[str] = None, remove_commands: Optional[bool] = True, *args, **kwargs,
+        self,
+        name: str,
+        package: Optional[str] = None,
+        remove_commands: Optional[bool] = True,
+        *args,
+        **kwargs,
     ) -> Optional["Extension"]:
         r"""
         "Reloads" an extension off of current client from an import resolve.
