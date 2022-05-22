@@ -1,7 +1,8 @@
 from typing import Any, List, Optional
 
+from .attrs_utils import ClientSerializerMixin, convert_list, define, field
 from .flags import AppFlags
-from .misc import ClientSerializerMixin, Snowflake, convert_list, define, field
+from .misc import Snowflake
 from .user import User
 
 

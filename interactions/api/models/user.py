@@ -1,7 +1,8 @@
 from typing import Optional
 
+from .attrs_utils import ClientSerializerMixin, define, field
 from .flags import UserFlags
-from .misc import ClientSerializerMixin, Snowflake, define, field
+from .misc import Snowflake
 
 
 @define()

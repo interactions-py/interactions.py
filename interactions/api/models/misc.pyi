@@ -1,37 +1,11 @@
 import datetime
-
-import attrs
-
-from interactions.api.http.client import HTTPClient
+from interactions.api.models.attrs_utils import DictSerializerMixin
 from interactions.base import get_logger as get_logger
 from io import FileIO, IOBase
 from logging import Logger
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 log: Logger
-
-class MISSING: ...
-
-@attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
-class DictSerializerMixin:
-    _json: dict
-    _extras: dict
-    def __init__(self, kwargs_dict: dict = ..., **other_kwargs) -> None: ...
-
-@attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
-class ClientSerializerMixin(DictSerializerMixin):
-    _client: HTTPClient
-
-    def __init__(self, kwargs_dict: dict = ..., **other_kwargs):
-        ...
-
-def convert_list(converter): ...
-def convert_int(converter): ...
-
-define_defaults: Any
-define: Any
-
-def field(converter: Any | None = ..., default=..., add_client: bool = ..., discord_name: str = ..., **kwargs): ...
 
 class Overwrite(DictSerializerMixin):
     id: int

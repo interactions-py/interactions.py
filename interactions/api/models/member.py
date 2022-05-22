@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
+from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from .channel import Channel
 from .flags import Permissions
-from .misc import MISSING, ClientSerializerMixin, File, Snowflake, convert_int, define, field
+from .misc import File, Snowflake
 from .role import Role
 from .user import User
 

@@ -1,7 +1,8 @@
 from typing import Dict, List, Optional, Union
 
+from ...api.models.attrs_utils import DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import ChannelType
-from ...api.models.misc import DictSerializerMixin, Snowflake, convert_list, define, field
+from ...api.models.misc import Snowflake
 from ..enums import ApplicationCommandType, Locale, OptionType
 
 

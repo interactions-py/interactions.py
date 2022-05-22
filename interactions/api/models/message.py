@@ -2,21 +2,20 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from attrs import converters, setters
+from attrs import converters
 
 from ..error import JSONException
-from .channel import Channel
-from .member import Member
-from .misc import (
+from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
     DictSerializerMixin,
-    File,
-    Snowflake,
     convert_list,
     define,
     field,
 )
+from .channel import Channel
+from .member import Member
+from .misc import File, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
@@ -412,7 +411,7 @@ class EmbedField(DictSerializerMixin):
                 del self._json[key]
 
 
-@define(on_setattr=setters.NO_OP)
+@define()
 class Embed(DictSerializerMixin):
     """
     A class object representing an embed.

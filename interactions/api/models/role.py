@@ -1,6 +1,7 @@
 from typing import Any, List, Optional
 
-from .misc import MISSING, ClientSerializerMixin, DictSerializerMixin, Snowflake, define, field
+from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
+from .misc import Snowflake
 
 
 @define()

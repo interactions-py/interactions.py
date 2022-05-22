@@ -1,14 +1,12 @@
 from typing import List, Optional
 
-from attrs.setters import NO_OP
-
 from ...api.error import InteractionException
+from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.message import Emoji
-from ...api.models.misc import MISSING, DictSerializerMixin, convert_list, define, field
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 
-@define(on_setattr=NO_OP)
+@define()
 class ComponentMixin(DictSerializerMixin):
     """
     A mixin designed to let subclasses attribute changes be mirrored to their _json

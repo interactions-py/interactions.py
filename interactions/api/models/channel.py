@@ -2,17 +2,15 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Any, Callable, List, Optional, Union
 
-from .misc import (
+from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
     DictSerializerMixin,
-    File,
-    Overwrite,
-    Snowflake,
     convert_list,
     define,
     field,
 )
+from .misc import File, Overwrite, Snowflake
 from .user import User
 
 

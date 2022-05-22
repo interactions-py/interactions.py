@@ -3,7 +3,8 @@ from typing import Any, List, Optional
 
 from ..models import StatusType
 from ..models.message import Emoji
-from .misc import DictSerializerMixin, Snowflake, convert_list, define, field
+from .attrs_utils import DictSerializerMixin, convert_list, define, field
+from .misc import Snowflake
 
 
 @define()

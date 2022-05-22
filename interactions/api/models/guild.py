@@ -2,20 +2,18 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Any, Dict, List, Optional, Union
 
-from .channel import Channel, ChannelType, Thread
-from .member import Member
-from .message import Emoji, Sticker
-from .misc import (
+from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
     DictSerializerMixin,
-    Image,
-    Overwrite,
-    Snowflake,
     convert_list,
     define,
     field,
 )
+from .channel import Channel, ChannelType, Thread
+from .member import Member
+from .message import Emoji, Sticker
+from .misc import Image, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
