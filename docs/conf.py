@@ -57,7 +57,11 @@ templates_path = ["_templates"]
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = "de"
+
+# Language is commented out because of PR reviews. In a RTD-hosted case,
+# the variable seems to be skipped.
+# language = "de"
+
 locale_dirs = ["locale/"]
 gettext_compact = True
 
@@ -66,15 +70,8 @@ gettext_compact = True
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build"]
 
-# This should fix wrong sort
-# autodoc_member_order = "bysource"
-
 # This autodocs private attrs and also fixes wrong sort
-autodoc_default_options = {
-    'member-order': "bysource",
-    'private-members': True
-}
-
+autodoc_default_options = {"member-order": "bysource", "private-members": True}
 
 
 # -- Options for HTML output -------------------------------------------------

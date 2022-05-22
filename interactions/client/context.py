@@ -226,9 +226,8 @@ class _Context(DictSerializerMixin):
         """
         This allows the invocation state described in the "context"
         to send an interaction response. This inherits the arguments
-        of the ``.send()`` method.
+        of the Context ``.send()`` method.
 
-        :inherit:`interactions.context.CommandContext.send()`
         :return: The edited message as an object.
         :rtype: Message
         """
