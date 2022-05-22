@@ -1626,7 +1626,7 @@ class Extension:
 
         return self
 
-    async def teardown(self, remove_commands: Optional[bool] = True):
+    async def teardown(self, remove_commands: bool = True):
         for event, funcs in self._listeners.items():
             for func in funcs:
                 self.client._websocket._dispatch.events[event].remove(func)
