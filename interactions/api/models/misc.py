@@ -30,7 +30,7 @@ class MISSING:
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class DictSerializerMixin:
     _json: dict = attrs.field(init=False, repr=False)
-    extras: dict = attrs.field(init=False, repr=False)
+    _extras: dict = attrs.field(init=False, repr=False)
     """A dict containing values that were not serialized from Discord."""
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
@@ -65,7 +65,7 @@ class DictSerializerMixin:
 
                     passed_kwargs[attrib_name] = value
 
-        self.extras = kwargs
+        self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
 
 
