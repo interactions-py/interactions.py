@@ -768,6 +768,25 @@ class Guild(DictSerializerMixin):
 
         return Channel(**res, _client=self._client)
 
+    async def clone_channel(self, channel_id: int) -> Channel:
+        """
+        Clones a channel of the guild.
+
+        :param channel_id: The id of the channel to clone
+        :type channel_id: int
+        :return: The cloned channel
+        :rtype: Channel
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        res = await self._client.get_channel(channel_id=channel_id)
+
+        res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
+        for attr in {"flags", "guild_id", "id", "last_message_id", "last_pin_timestamp"}:
+            res.pop(attr, None)
+
+        return await self.create_channel(**res)
+
     async def modify_channel(
         self,
         channel_id: int,
