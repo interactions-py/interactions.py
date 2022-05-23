@@ -13,9 +13,7 @@ class Choice(DictSerializerMixin):
         ``value`` allows ``float`` as a passable value type,
         whereas it's supposed to be ``double``.
 
-    The structure for a choice:
-
-    .. code-block:: python
+    The structure for a choice: ::
 
         interactions.Choice(name="Choose me! :(", value="choice_one")
 
@@ -57,9 +55,7 @@ class Option(DictSerializerMixin):
         ``min_values`` and ``max_values`` are useful primarily for
         integer based options.
 
-    The structure for an option:
-
-    .. code-block:: python
+    The structure for an option: ::
 
         interactions.Option(
             type=interactions.OptionType.STRING,
@@ -172,9 +168,7 @@ class Permission(DictSerializerMixin):
     """
     A class object representing the permission of an application command.
 
-    The structure for a permission:
-
-    .. code-block:: python
+    The structure for a permission: ::
 
         interactions.Permission(
             id=1234567890,

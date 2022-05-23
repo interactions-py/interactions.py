@@ -16,7 +16,6 @@ class User(DictSerializerMixin):
     :ivar Optional[bool] system?: A status denoting if the user is an Official Discord System user
     :ivar Optional[bool] mfa_enabled?: A status denoting if the user has 2fa on their account
     :ivar Optional[str] banner?: The user's banner hash, if any
-    # TODO: change banner_color to discord's description when documented
     :ivar Optional[str] banner_color?: The user's banner color as a hex, if any
     :ivar Optional[int] accent_color?: The user's banner color as an integer represented of hex color codes
     :ivar Optional[str] locale?: The user's chosen language option
@@ -26,6 +25,8 @@ class User(DictSerializerMixin):
     :ivar Optional[int] premium_type?: The type of Nitro subscription the user has
     :ivar Optional[UserFlags] public_flags?: The user's public flags
     """
+
+    # TODO: change banner_color to discord's description when documented
 
     __slots__ = (
         "_json",
@@ -95,6 +96,7 @@ class User(DictSerializerMixin):
     def banner_url(self) -> Optional[str]:
         """
         Returns the URL of the user's banner.
+
         :return: URL of the user's banner (None will be returned if no banner is set)
         :rtype: str
         """

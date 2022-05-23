@@ -9,8 +9,7 @@ from ..enums import ButtonStyle, ComponentType, TextStyleType
 class SelectOption(DictSerializerMixin):
     """
     A class object representing the select option of a select menu.
-    The structure for a select option:
-    .. code-block:: python
+    The structure for a select option: ::
         interactions.SelectOption(
             label="I'm a cool option. :)",
             value="internal_option_value",
@@ -56,8 +55,7 @@ class SelectOption(DictSerializerMixin):
 class SelectMenu(DictSerializerMixin):
     """
     A class object representing the select menu of a component.
-    The structure for a select menu:
-    .. code-block:: python
+    The structure for a select menu: ::
         interactions.SelectMenu(
             options=[interactions.SelectOption(...)],
             placeholder="Check out my options. :)",
@@ -122,8 +120,7 @@ class SelectMenu(DictSerializerMixin):
 class Button(DictSerializerMixin):
     """
     A class object representing the button of a component.
-    The structure for a button:
-    .. code-block:: python
+    The structure for a button: ::
         interactions.Button(
             style=interactions.ButtonStyle.DANGER,
             label="Delete",
@@ -265,8 +262,7 @@ class Component(DictSerializerMixin):
 class TextInput(DictSerializerMixin):
     """
     A class object representing the text input of a modal.
-    The structure for a text input:
-    .. code-block:: python
+    The structure for a text input: ::
         interactions.TextInput(
             style=interactions.TextStyleType.SHORT,
             label="Let's get straight to it: what's 1 + 1?",
@@ -330,8 +326,7 @@ class TextInput(DictSerializerMixin):
 class Modal(DictSerializerMixin):
     """
     A class object representing a modal.
-    The structure for a modal:
-    .. code-block:: python
+    The structure for a modal: ::
         interactions.Modal(
             title="Application Form",
             custom_id="mod_app_form",
@@ -382,8 +377,7 @@ class ActionRow(DictSerializerMixin):
         A message cannot have more than 5 ActionRow's supported.
         An ActionRow may also support only 1 text input component
         only.
-    The structure for an action row:
-    .. code-block:: python
+    The structure for an action row: ::
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
