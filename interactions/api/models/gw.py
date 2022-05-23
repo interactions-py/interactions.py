@@ -644,6 +644,10 @@ class GuildScheduledEvent(DictSerializerMixin):
 class GuildScheduledEventUser(DictSerializerMixin):
     """
     A class object representing the gateway events ``GUILD_SCHEDULED_EVENT_USER_ADD`` and ``GUILD_SCHEDULED_EVENT_USER_REMOVE``
+
+    :ivar Snowflake guild_scheduled_event_id: The ID of the guild scheduled event.
+    :ivar Snowflake guild_id: The ID of the guild associated with this event.
+    :ivar Snowflake user_id: The ID of the user associated with this event.
     """
 
     __slots__ = ("_json", "guild_scheduled_event_id", "user_id", "guild_id")
