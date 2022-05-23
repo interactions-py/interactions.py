@@ -774,7 +774,7 @@ class Guild(DictSerializerMixin):
 
         :param channel_id: The id of the channel to clone
         :type channel_id: int
-        :return: The created (cloned) channel
+        :return: The cloned channel
         :rtype: Channel
         """
         if not self._client:
