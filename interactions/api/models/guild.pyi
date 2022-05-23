@@ -1,16 +1,16 @@
+from datetime import datetime
+from enum import Enum, IntEnum
+from typing import Any, Dict, List, Optional, Union
+
+from .attrs_utils import DictSerializerMixin, ClientSerializerMixin, define
 from .channel import Channel as Channel, ChannelType as ChannelType, Thread as Thread
 from .member import Member as Member
 from .message import Emoji as Emoji, Sticker as Sticker
-from .misc import DictSerializerMixin as DictSerializerMixin, Image as Image, MISSING as MISSING, \
-    Overwrite as Overwrite, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field, \
-    ClientSerializerMixin
+from .misc import Image, Overwrite, Snowflake
 from .presence import PresenceActivity as PresenceActivity
 from .role import Role as Role
 from .team import Application as Application
 from .user import User as User
-from datetime import datetime
-from enum import Enum, IntEnum
-from typing import Any, Dict, List, Optional, Union
 
 
 class VerificationLevel(IntEnum):
@@ -67,16 +67,22 @@ class GuildFeatures(Enum):
     VIP_REGIONS: str
     WELCOME_SCREEN_ENABLED: str
 
+
+@define()
 class WelcomeChannels(DictSerializerMixin):
     channel_id: int
     description: str
     emoji_id: Optional[Snowflake]
     emoji_name: Optional[str]
 
+
+@define()
 class WelcomeScreen(DictSerializerMixin):
     description: Optional[str]
     welcome_channels: Optional[List[WelcomeChannels]]
 
+
+@define()
 class StageInstance(DictSerializerMixin):
     id: Snowflake
     guild_id: Snowflake
@@ -85,10 +91,14 @@ class StageInstance(DictSerializerMixin):
     privacy_level: int
     discoverable_disabled: bool
 
+
+@define()
 class UnavailableGuild(DictSerializerMixin):
     id: Snowflake
     unavailable: bool
 
+
+@define()
 class Guild(ClientSerializerMixin):
     id: Snowflake
     name: str
@@ -198,6 +208,8 @@ class Guild(ClientSerializerMixin):
     @property
     def discovery_splash_url(self) -> Optional[str]: ...
 
+
+@define()
 class GuildPreview(DictSerializerMixin):
     id: Snowflake
     emojis: Optional[List[Emoji]]
@@ -210,6 +222,8 @@ class GuildPreview(DictSerializerMixin):
     approximate_presence_count: int
     description: Optional[str]
 
+
+@define()
 class Integration(DictSerializerMixin):
     id: Snowflake
     name: str
@@ -227,6 +241,8 @@ class Integration(DictSerializerMixin):
     revoked: bool
     application: Application
 
+
+@define()
 class Invite(ClientSerializerMixin):
     uses: int
     max_uses: int
@@ -246,6 +262,8 @@ class Invite(ClientSerializerMixin):
     channel: Optional[Channel]
     async def delete(self) -> None: ...
 
+
+@define()
 class GuildTemplate(DictSerializerMixin):
     code: str
     name: str
@@ -259,9 +277,13 @@ class GuildTemplate(DictSerializerMixin):
     serialized_source_guild: Guild
     is_dirty: Optional[bool]
 
+
+@define()
 class EventMetadata(DictSerializerMixin):
     location: Optional[str]
 
+
+@define()
 class ScheduledEvents(DictSerializerMixin):
     id: Snowflake
     guild_id: Snowflake

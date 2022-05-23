@@ -1,12 +1,12 @@
-from .guild import Invite
-from ..http.client import HTTPClient as HTTPClient
-from .message import Message as Message
-from .misc import DictSerializerMixin as DictSerializerMixin, File as File, MISSING as MISSING, Overwrite as Overwrite, \
-    Snowflake as Snowflake, convert_list as convert_list, define as define, field as field, ClientSerializerMixin
-from .user import User as User
 from datetime import datetime
 from enum import IntEnum
 from typing import Any, Callable, List, Optional, Union
+
+from .attrs_utils import ClientSerializerMixin, define
+from .guild import Invite
+from .message import Message as Message
+from .misc import File, Overwrite, Snowflake
+from .user import User as User
 
 class ChannelType(IntEnum):
     GUILD_TEXT: int
@@ -69,19 +69,56 @@ class Channel(ClientSerializerMixin):
     flags: Optional[int]
     @property
     def mention(self) -> str: ...
-    async def send(self, content: Optional[str] = ..., *, tts: Optional[bool] = ..., files: Optional[Union[File, List[File]]] = ..., embeds: Optional[Union['Embed', List['Embed']]] = ..., allowed_mentions: Optional['MessageInteraction'] = ..., components: Optional[Union['ActionRow', 'Button', 'SelectMenu', List['ActionRow'], List['Button'], List['SelectMenu']]] = ...) -> Message: ...
+    async def send(
+        self,
+        content: Optional[str] = ...,
+        *,
+        tts: Optional[bool] = ...,
+        files: Optional[Union[File, List[File]]] = ...,
+        embeds: Optional[Union["Embed", List["Embed"]]] = ...,
+        allowed_mentions: Optional["MessageInteraction"] = ...,
+        components: Optional[
+            Union[
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
+            ]
+        ] = ...
+    ) -> Message: ...
     async def delete(self) -> None: ...
-    async def modify(self, name: Optional[str] = ..., topic: Optional[str] = ..., bitrate: Optional[int] = ..., user_limit: Optional[int] = ..., rate_limit_per_user: Optional[int] = ..., position: Optional[int] = ..., permission_overwrites: Optional[List[Overwrite]] = ..., parent_id: Optional[int] = ..., nsfw: Optional[bool] = ..., archived: Optional[bool] = ..., auto_archive_duration: Optional[int] = ..., locked: Optional[bool] = ..., reason: Optional[str] = ...) -> Channel: ...
+    async def modify(
+        self,
+        name: Optional[str] = ...,
+        topic: Optional[str] = ...,
+        bitrate: Optional[int] = ...,
+        user_limit: Optional[int] = ...,
+        rate_limit_per_user: Optional[int] = ...,
+        position: Optional[int] = ...,
+        permission_overwrites: Optional[List[Overwrite]] = ...,
+        parent_id: Optional[int] = ...,
+        nsfw: Optional[bool] = ...,
+        archived: Optional[bool] = ...,
+        auto_archive_duration: Optional[int] = ...,
+        locked: Optional[bool] = ...,
+        reason: Optional[str] = ...,
+    ) -> Channel: ...
     async def set_name(self, name: str, *, reason: Optional[str] = ...) -> Channel: ...
     async def set_topic(self, topic: str, *, reason: Optional[str] = ...) -> Channel: ...
     async def set_bitrate(self, bitrate: int, *, reason: Optional[str] = ...) -> Channel: ...
     async def set_user_limit(self, user_limit: int, *, reason: Optional[str] = ...) -> Channel: ...
-    async def set_rate_limit_per_user(self, rate_limit_per_user: int, *, reason: Optional[str] = ...) -> Channel: ...
+    async def set_rate_limit_per_user(
+        self, rate_limit_per_user: int, *, reason: Optional[str] = ...
+    ) -> Channel: ...
     async def set_position(self, position: int, *, reason: Optional[str] = ...) -> Channel: ...
     async def set_parent_id(self, parent_id: int, *, reason: Optional[str] = ...) -> Channel: ...
     async def set_nsfw(self, nsfw: bool, *, reason: Optional[str] = ...) -> Channel: ...
     async def archive(self, archived: bool = ..., *, reason: Optional[str] = ...) -> Channel: ...
-    async def set_auto_archive_duration(self, auto_archive_duration: int, *, reason: Optional[str] = ...) -> Channel: ...
+    async def set_auto_archive_duration(
+        self, auto_archive_duration: int, *, reason: Optional[str] = ...
+    ) -> Channel: ...
     async def lock(self, locked: bool = ..., *, reason: Optional[str] = ...) -> Channel: ...
     async def add_member(self, member_id: int) -> None: ...
     async def pin_message(self, message_id: int) -> None: ...
@@ -89,11 +126,36 @@ class Channel(ClientSerializerMixin):
     async def publish_message(self, message_id: int) -> Message: ...
     async def get_pinned_messages(self) -> List[Message]: ...
     async def get_message(self, message_id: int) -> Message: ...
-    async def purge(self, amount: int, check: Callable = ..., before: Optional[int] = ..., reason: Optional[str] = ..., bulk: Optional[bool] = ...) -> List[Message]: ...
-    async def create_thread(self, name: str, type: Optional[ChannelType] = ..., auto_archive_duration: Optional[int] = ..., invitable: Optional[bool] = ..., message_id: Optional[int] = ..., reason: Optional[str] = ...) -> Channel: ...
+    async def purge(
+        self,
+        amount: int,
+        check: Callable = ...,
+        before: Optional[int] = ...,
+        reason: Optional[str] = ...,
+        bulk: Optional[bool] = ...,
+    ) -> List[Message]: ...
+    async def create_thread(
+        self,
+        name: str,
+        type: Optional[ChannelType] = ...,
+        auto_archive_duration: Optional[int] = ...,
+        invitable: Optional[bool] = ...,
+        message_id: Optional[int] = ...,
+        reason: Optional[str] = ...,
+    ) -> Channel: ...
     @property
     def url(self) -> str: ...
-    async def create_invite(self, max_age: Optional[int] = ..., max_uses: Optional[int] = ..., temporary: Optional[bool] = ..., unique: Optional[bool] = ..., target_type: Optional['InviteTargetType'] = ..., target_user_id: Optional[int] = ..., target_application_id: Optional[int] = ..., reason: Optional[str] = ...) -> Invite: ...
+    async def create_invite(
+        self,
+        max_age: Optional[int] = ...,
+        max_uses: Optional[int] = ...,
+        temporary: Optional[bool] = ...,
+        unique: Optional[bool] = ...,
+        target_type: Optional["InviteTargetType"] = ...,
+        target_user_id: Optional[int] = ...,
+        target_application_id: Optional[int] = ...,
+        reason: Optional[str] = ...,
+    ) -> Invite: ...
     async def get_history(self, limit: int = ...) -> List[Message]: ...
 
 @define()

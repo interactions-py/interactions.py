@@ -1,9 +1,11 @@
-from .flags import UserFlags as UserFlags
-from .misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake, define as define, field as field, \
-    ClientSerializerMixin
 from typing import Optional
 
+from attrs_utils import define, ClientSerializerMixin
+from .flags import UserFlags as UserFlags
+from .misc import Snowflake
 
+
+@define()
 class User(ClientSerializerMixin):
     id: Snowflake
     username: str

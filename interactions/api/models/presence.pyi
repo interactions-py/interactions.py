@@ -1,29 +1,40 @@
-from ...ext import converter as converter
-from ..models import StatusType as StatusType
-from ..models.message import Emoji as Emoji
-from .misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake, convert_list as convert_list, define as define, field as field
 from enum import IntEnum
 from typing import Any, List, Optional
 
+from .attrs_utils import DictSerializerMixin, define
+from .misc import Snowflake
+from ..models import StatusType as StatusType
+from ..models.message import Emoji as Emoji
+
+
+@define()
 class PresenceParty(DictSerializerMixin):
     id: Optional[Snowflake]
     size: Optional[List[int]]
 
+
+@define()
 class PresenceAssets(DictSerializerMixin):
     large_image: Optional[str]
     large_text: Optional[str]
     small_image: Optional[str]
     small_text: Optional[str]
 
+
+@define()
 class PresenceSecrets(DictSerializerMixin):
     join: Optional[str]
     spectate: Optional[str]
     match: Optional[str]
 
+
+@define()
 class PresenceButtons(DictSerializerMixin):
     label: str
     url: str
 
+
+@define()
 class PresenceTimestamp(DictSerializerMixin):
     start: Optional[int]
     end: Optional[int]
@@ -36,6 +47,8 @@ class PresenceActivityType(IntEnum):
     CUSTOM: int
     COMPETING: int
 
+
+@define()
 class PresenceActivity(DictSerializerMixin):
     name: str
     type: PresenceActivityType
@@ -63,6 +76,8 @@ class PresenceActivity(DictSerializerMixin):
     @property
     def gateway_json(self) -> dict: ...
 
+
+@define()
 class ClientPresence(DictSerializerMixin):
     since: Optional[int]
     activities: Optional[List[PresenceActivity]]

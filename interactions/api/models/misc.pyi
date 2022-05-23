@@ -1,18 +1,22 @@
 import datetime
-from interactions.api.models.attrs_utils import DictSerializerMixin
-from interactions.base import get_logger as get_logger
 from io import FileIO, IOBase
 from logging import Logger
 from typing import Optional, Union
 
+from interactions.api.models.attrs_utils import DictSerializerMixin, define
+
 log: Logger
 
+
+@define()
 class Overwrite(DictSerializerMixin):
     id: int
     type: int
     allow: str
     deny: str
 
+
+@define()
 class ClientStatus(DictSerializerMixin):
     dektop: Optional[str]
     mobile: Optional[str]
