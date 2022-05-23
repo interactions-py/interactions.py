@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
 from .channel import Channel, ThreadMember
+from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
 from .misc import MISSING, ClientStatus, DictSerializerMixin, File, Snowflake
@@ -569,6 +570,93 @@ class GuildStickers(DictSerializerMixin):
             if self._json.get("stickers")
             else None
         )
+
+
+class GuildScheduledEvent(DictSerializerMixin):
+    """
+    A class object representing gateway events ``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, ``GUILD_SCHEDULED_EVENT_DELETE``.
+
+    .. note::
+        Some attributes are optional via creator_id/creator implementation by the API:
+        "`creator_id` will be null and `creator` will not be included for events created before October 25th, 2021, when the concept of `creator_id` was introduced and tracked."
+
+    :ivar Snowflake id: The ID of the scheduled event.
+    :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
+    :ivar Optional[Snowflake] channel_id?: The channel ID in which the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] creator_id?: The ID of the user that created the scheduled event.
+    :ivar str name: The name of the scheduled event.
+    :ivar str description: The description of the scheduled event.
+    :ivar datetime scheduled_start_time?: The scheduled event start time.
+    :ivar Optional[datetime] scheduled_end_time?: The scheduled event end time, if any.
+    :ivar int privacy_level: The privacy level of the scheduled event.
+    :ivar int entity_type: The type of the scheduled event.
+    :ivar Optional[Snowflake] entity_id?: The ID of the entity associated with the scheduled event.
+    :ivar Optional[EventMetadata] entity_metadata?: Additional metadata associated with the scheduled event.
+    :ivar Optional[User] creator?: The user that created the scheduled event.
+    :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
+    :ivar int status: The status of the scheduled event
+    :ivar Optional[str] image: The hash containing the image of an event, if applicable.
+    """
+
+    __slots__ = (
+        "_json",
+        "id",
+        "guild_id",
+        "channel_id",
+        "creator_id",
+        "name",
+        "description",
+        "scheduled_start_time",
+        "scheduled_end_time",
+        "privacy_level",
+        "entity_type",
+        "entity_id",
+        "entity_metadata",
+        "creator",
+        "user_count",
+        "status",
+        "image",
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.creator_id = Snowflake(self.creator_id) if self._json.get("creator_id") else None
+        self.entity_id = Snowflake(self.entity_id) if self._json.get("entity_id") else None
+        self.scheduled_start_time = (
+            datetime.fromisoformat(self._json.get("scheduled_start_time"))
+            if self._json.get("scheduled_start_time")
+            else None
+        )
+        self.scheduled_end_time = (
+            datetime.fromisoformat(self._json.get("scheduled_end_time"))
+            if self._json.get("scheduled_end_time")
+            else None
+        )
+        self.entity_metadata = (
+            EventMetadata(**self.entity_metadata) if self._json.get("entity_metadata") else None
+        )
+        self.creator = User(**self.creator) if self._json.get("creator") else None
+
+
+class GuildScheduledEventUser(DictSerializerMixin):
+    """
+    A class object representing the gateway events ``GUILD_SCHEDULED_EVENT_USER_ADD`` and ``GUILD_SCHEDULED_EVENT_USER_REMOVE``
+    """
+
+    __slots__ = ("_json", "guild_scheduled_event_id", "user_id", "guild_id")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.guild_scheduled_event_id = (
+            Snowflake(self.guild_scheduled_event_id)
+            if self._json.get("guild_scheduled_event_id")
+            else None
+        )
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
 
 
 class Integration(DictSerializerMixin):
