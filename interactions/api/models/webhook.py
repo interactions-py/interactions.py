@@ -89,7 +89,7 @@ class Webhook(DictSerializerMixin):
         :rtype: Webhook
         """
 
-        _avatar = avatar if avatar is not MISSING else None
+        _avatar = avatar.data if avatar is not MISSING else None
 
         res = await client.create_webhook(channel_id=channel_id, name=name, avatar=_avatar)
 
