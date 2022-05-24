@@ -154,7 +154,7 @@ class Webhook(DictSerializerMixin):
         if avatar is not MISSING:
             payload["avatar"] = avatar.data
 
-        if not self.token:
+        if channel_id is not MISSING:
             payload["channel_id"] = channel_id
 
         res = await self._client.modify_webhook(
@@ -190,7 +190,7 @@ class Webhook(DictSerializerMixin):
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
-    ) -> "Message":  # noqa
+    ) -> Optional["Message"]:  # noqa
         """
         Executes the webhook. All parameters to this function are optional.
 
@@ -270,6 +270,9 @@ class Webhook(DictSerializerMixin):
             payload=payload,
             thread_id=thread_id if thread_id is not MISSING else None,
         )
+
+        if not isinstance(res, dict):
+            return res
 
         return Message(**res, _client=self._client)
 
