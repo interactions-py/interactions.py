@@ -1321,12 +1321,16 @@ class Client:
             self._extensions[_name] = module
             return extension
 
-    def remove(self, name: str, package: Optional[str] = None) -> None:
+    def remove(
+        self, name: str, remove_commands: bool = True, package: Optional[str] = None
+    ) -> None:
         """
         Removes an extension out of the current client from an import resolve.
 
         :param name: The name of the extension.
         :type name: str
+        :param remove_commands?: Whether to remove commands before reloading. Defaults to True.
+        :type remove_commands: bool
         :param package?: The package of the extension.
         :type package: Optional[str]
         """
@@ -1350,7 +1354,7 @@ class Client:
                     _extension = self._extensions.get(ext_name)
                     try:
                         self._loop.create_task(
-                            _extension.teardown()
+                            _extension.teardown(remove_commands=remove_commands)
                         )  # made for Extension, usable by others
                     except AttributeError:
                         pass
@@ -1359,7 +1363,9 @@ class Client:
 
         else:
             try:
-                self._loop.create_task(extension.teardown())  # made for Extension, usable by others
+                self._loop.create_task(
+                    extension.teardown(remove_commands=remove_commands)
+                )  # made for Extension, usable by others
             except AttributeError:
                 pass
 
@@ -1368,18 +1374,27 @@ class Client:
         log.debug(f"Removed extension {name}.")
 
     def reload(
-        self, name: str, package: Optional[str] = None, *args, **kwargs
+        self,
+        name: str,
+        package: Optional[str] = None,
+        remove_commands: bool = True,
+        *args,
+        **kwargs,
     ) -> Optional["Extension"]:
         r"""
         "Reloads" an extension off of current client from an import resolve.
 
         .. warning::
-            This will remove and re-add application commands, counting towards your daily application command creation limit.
+            This will remove and re-add application commands, counting towards your daily application
+            command creation limit, as long as you have the ``remove_commands`` argument set to ``True``, what it is by
+            default.
 
-        :param name: The name of the extension.
+        :param name: The name of the extension
         :type name: str
-        :param package?: The package of the extension.
+        :param package?: The package of the extension
         :type package: Optional[str]
+        :param remove_commands?: Whether to remove commands before reloading. Defaults to True
+        :type remove_commands: bool
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
@@ -1394,7 +1409,7 @@ class Client:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
             return self.load(name, package)
 
-        self.remove(name, package)
+        self.remove(name, package, remove_commands)
         return self.load(name, package, *args, **kwargs)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
@@ -1611,7 +1626,7 @@ class Extension:
 
         return self
 
-    async def teardown(self):
+    async def teardown(self, remove_commands: bool = True):
         for event, funcs in self._listeners.items():
             for func in funcs:
                 self.client._websocket._dispatch.events[event].remove(func)
@@ -1622,7 +1637,7 @@ class Extension:
                 self.client._Client__command_coroutines.pop(_index)
                 self.client._websocket._dispatch.events[cmd].remove(func)
 
-        if self.client._automate_sync:
+        if self.client._automate_sync and remove_commands:
             await self.client._Client__sync()
 
 

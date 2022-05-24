@@ -11,6 +11,7 @@ from .attrs_utils import (
     field,
 )
 from .channel import Channel, ThreadMember
+from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
 from .misc import ClientStatus, File, Snowflake
@@ -485,6 +486,66 @@ class GuildStickers(DictSerializerMixin):
 
     guild_id: Snowflake = field(converter=Snowflake)
     stickers: List[Sticker] = field(converter=convert_list(Sticker))
+
+
+@define()
+class GuildScheduledEvent(ClientSerializerMixin):
+    """
+    A class object representing gateway events ``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, ``GUILD_SCHEDULED_EVENT_DELETE``.
+
+    .. note::
+        Some attributes are optional via creator_id/creator implementation by the API:
+        "`creator_id` will be null and `creator` will not be included for events created before October 25th, 2021, when the concept of `creator_id` was introduced and tracked."
+
+    :ivar Snowflake id: The ID of the scheduled event.
+    :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
+    :ivar Optional[Snowflake] channel_id?: The channel ID in which the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] creator_id?: The ID of the user that created the scheduled event.
+    :ivar str name: The name of the scheduled event.
+    :ivar str description: The description of the scheduled event.
+    :ivar datetime scheduled_start_time?: The scheduled event start time.
+    :ivar Optional[datetime] scheduled_end_time?: The scheduled event end time, if any.
+    :ivar int privacy_level: The privacy level of the scheduled event.
+    :ivar int entity_type: The type of the scheduled event.
+    :ivar Optional[Snowflake] entity_id?: The ID of the entity associated with the scheduled event.
+    :ivar Optional[EventMetadata] entity_metadata?: Additional metadata associated with the scheduled event.
+    :ivar Optional[User] creator?: The user that created the scheduled event.
+    :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
+    :ivar int status: The status of the scheduled event
+    :ivar Optional[str] image: The hash containing the image of an event, if applicable.
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    creator_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    name: str = field()
+    description: str = field()
+    scheduled_start_time: datetime = field(converter=datetime.fromisoformat)
+    scheduled_end_time: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    privacy_level: int = field()
+    entity_type: int = field()
+    entity_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    entity_metadata: Optional[EventMetadata] = field(converter=EventMetadata, default=None)
+    creator: Optional[User] = field(converter=User, default=None, add_client=True)
+    user_count: Optional[int] = field(default=None)
+    status: int = field()
+    image: Optional[str] = field(default=None)
+
+
+@define()
+class GuildScheduledEventUser(DictSerializerMixin):
+    """
+    A class object representing the gateway events ``GUILD_SCHEDULED_EVENT_USER_ADD`` and ``GUILD_SCHEDULED_EVENT_USER_REMOVE``
+
+    :ivar Snowflake guild_scheduled_event_id: The ID of the guild scheduled event.
+    :ivar Snowflake guild_id: The ID of the guild associated with this event.
+    :ivar Snowflake user_id: The ID of the user associated with this event.
+    """
+    
+    guild_scheduled_event_id: Snowflake = field(converter=Snowflake, default=None)
+    self.guild_id: Snowflake = field(converter=Snowflake, default=None)
+    self.user_id: Snowflake = field(converter=Snowflake, default=None)
 
 
 @define()

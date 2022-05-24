@@ -149,20 +149,139 @@ class Guild(ClientSerializerMixin):
     stage_instances: Optional[List[StageInstance]]
     stickers: Optional[List[Sticker]]
     features: List[str]
-    async def ban(self, member_id: int, reason: Optional[str] = ..., delete_message_days: Optional[int] = ...) -> None: ...
-    async def remove_ban(self, user_id: int, reason: Optional[str] = ...) -> None: ...
-    async def kick(self, member_id: int, reason: Optional[str] = ...) -> None: ...
-    async def add_member_role(self, role: Union[Role, int], member_id: int, reason: Optional[str] = ...) -> None: ...
-    async def remove_member_role(self, role: Union[Role, int], member_id: int, reason: Optional[str] = ...) -> None: ...
-    async def create_role(self, name: str, color: Optional[int] = ..., hoist: Optional[bool] = ..., mentionable: Optional[bool] = ..., reason: Optional[str] = ...) -> Role: ...
-    async def get_member(self, member_id: int) -> Member: ...
-    async def delete_channel(self, channel_id: int) -> None: ...
-    async def delete_role(self, role_id: int, reason: Optional[str] = ...) -> None: ...
-    async def modify_role(self, role_id: int, name: Optional[str] = ..., color: Optional[int] = ..., hoist: Optional[bool] = ..., mentionable: Optional[bool] = ..., reason: Optional[str] = ...) -> Role: ...
-    async def create_thread(self, name: str, channel_id: int, type: Optional[ChannelType] = ..., auto_archive_duration: Optional[int] = ..., invitable: Optional[bool] = ..., message_id: Optional[int] = ..., reason: Optional[str] = ...) -> Channel: ...
-    async def create_channel(self, name: str, type: ChannelType, topic: Optional[str] = ..., bitrate: Optional[int] = ..., user_limit: Optional[int] = ..., rate_limit_per_user: Optional[int] = ..., position: Optional[int] = ..., permission_overwrites: Optional[List[Overwrite]] = ..., parent_id: Optional[int] = ..., nsfw: Optional[bool] = ..., reason: Optional[str] = ...) -> Channel: ...
-    async def modify_channel(self, channel_id: int, name: Optional[str] = ..., topic: Optional[str] = ..., bitrate: Optional[int] = ..., user_limit: Optional[int] = ..., rate_limit_per_user: Optional[int] = ..., position: Optional[int] = ..., permission_overwrites: Optional[List[Overwrite]] = ..., parent_id: Optional[int] = ..., nsfw: Optional[bool] = ..., archived: Optional[bool] = ..., auto_archive_duration: Optional[int] = ..., locked: Optional[bool] = ..., reason: Optional[str] = ...) -> Channel: ...
-    async def modify_member(self, member_id: int, nick: Optional[str] = ..., roles: Optional[List[int]] = ..., mute: Optional[bool] = ..., deaf: Optional[bool] = ..., channel_id: Optional[int] = ..., communication_disabled_until: Optional[datetime.isoformat] = ..., reason: Optional[str] = ...) -> Member: ...
+
+    # TODO: post-v4: Investigate all of these once Discord has them all documented.
+    guild_hashes: Any
+    embedded_activities: Any
+    guild_scheduled_events: Any
+    nsfw: Any
+    application_command_count: Any
+    premium_progress_bar_enabled: Any
+    hub_type: Any
+    lazy: Any
+    application_command_counts: Any
+    def __init__(self, **kwargs): ...
+    def __repr__(self) -> str: ...
+    async def ban(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
+    ) -> None: ...
+    async def remove_ban(
+        self,
+        user_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def kick(
+        self,
+        member_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def add_member_role(
+        self,
+        role: Union[Role, int],
+        member_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def remove_member_role(
+        self,
+        role: Union[Role, int],
+        member_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def create_role(
+        self,
+        name: str,
+        # permissions,
+        color: Optional[int] = 0,
+        hoist: Optional[bool] = False,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = False,
+        reason: Optional[str] = None,
+    ) -> Role: ...
+    async def get_member(
+        self,
+        member_id: int,
+    ) -> Member: ...
+    async def delete_channel(
+        self,
+        channel_id: int,
+    ) -> None: ...
+    async def delete_role(
+        self,
+        role_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def modify_role(
+        self,
+        role_id: int,
+        name: Optional[str] = MISSING,
+        # permissions,
+        color: Optional[int] = MISSING,
+        hoist: Optional[bool] = MISSING,
+        # icon,
+        # unicode_emoji,
+        mentionable: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Role: ...
+    async def create_thread(
+        self,
+        name: str,
+        channel_id: int,
+        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        message_id: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
+    async def create_channel(
+        self,
+        name: str,
+        type: ChannelType,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
+    async def clone_channel(
+        self,
+        channel_id: int
+    ) -> Channel: ...
+    async def modify_channel(
+        self,
+        channel_id: int,
+        name: Optional[str] = MISSING,
+        topic: Optional[str] = MISSING,
+        bitrate: Optional[int] = MISSING,
+        user_limit: Optional[int] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        position: Optional[int] = MISSING,
+        permission_overwrites: Optional[List[Overwrite]] = MISSING,
+        parent_id: Optional[int] = MISSING,
+        nsfw: Optional[bool] = MISSING,
+        archived: Optional[bool] = MISSING,
+        auto_archive_duration: Optional[int] = MISSING,
+        locked: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
+    async def modify_member(
+        self,
+        member_id: int,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[int]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Member: ...
     async def get_preview(self) -> GuildPreview: ...
     async def leave(self) -> None: ...
     async def modify(self, name: Optional[str] = ..., verification_level: Optional[VerificationLevel] = ..., default_message_notifications: Optional[DefaultMessageNotificationLevel] = ..., explicit_content_filter: Optional[ExplicitContentFilterLevel] = ..., afk_channel_id: Optional[int] = ..., afk_timeout: Optional[int] = ..., icon: Optional[Image] = ..., owner_id: Optional[int] = ..., splash: Optional[Image] = ..., discovery_splash: Optional[Image] = ..., banner: Optional[Image] = ..., system_channel_id: Optional[int] = ..., suppress_join_notifications: Optional[bool] = ..., suppress_premium_subscriptions: Optional[bool] = ..., suppress_guild_reminder_notifications: Optional[bool] = ..., suppress_join_notification_replies: Optional[bool] = ..., rules_channel_id: Optional[int] = ..., public_updates_channel_id: Optional[int] = ..., preferred_locale: Optional[str] = ..., description: Optional[str] = ..., premium_progress_bar_enabled: Optional[bool] = ..., reason: Optional[str] = ...) -> Guild: ...

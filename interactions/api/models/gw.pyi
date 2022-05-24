@@ -2,16 +2,18 @@ from datetime import datetime
 from typing import Any, List, Optional, Union
 
 from .attrs_utils import DictSerializerMixin, ClientSerializerMixin, define
-from .channel import Channel as Channel, ThreadMember as ThreadMember
-from .member import Member as Member
-from .message import Embed as Embed, Emoji as Emoji, Message as Message, MessageInteraction as MessageInteraction, \
-    Sticker as Sticker
+from .channel import Channel, ThreadMember
+from .guild import EventMetadata
+from .member import Member
+from .message import Embed, Emoji, Message, MessageInteraction, Sticker
 from .misc import ClientStatus, File, Snowflake
-from .presence import PresenceActivity as PresenceActivity
-from .role import Role as Role
-from .team import Application as Application
-from .user import User as User
-from ...client.models.component import ActionRow as ActionRow, Button as Button, SelectMenu as SelectMenu
+from .presence import PresenceActivity
+from .role import Role
+from .team import Application
+from .user import User
+from ..http.client import HTTPClient
+from ...client.models.component import ActionRow, Button, SelectMenu
+from ...models.command import Permission
 
 
 @define()
@@ -123,6 +125,33 @@ class GuildRole(ClientSerializerMixin):
 class GuildStickers(DictSerializerMixin):
     guild_id: Snowflake
     stickers: List[Sticker]
+
+
+@define()
+class GuildScheduledEvent(ClientSerializerMixin):
+    id: Snowflake
+    guild_id: Snowflake
+    channel_id: Optional[Snowflake]
+    creator_id: Optional[Snowflake]
+    name: str
+    description: str
+    scheduled_start_time: datetime
+    scheduled_end_time: Optional[datetime]
+    privacy_level: int
+    entity_type: int
+    entity_id: Optional[Snowflake]
+    entity_metadata: Optional[EventMetadata]
+    creator: Optional[User]
+    user_count: Optional[int]
+    status: int
+    image: Optional[str]
+
+
+@define()
+class GuildScheduledEventUser(DictSerializerMixin):
+    guild_scheduled_event_id: Snowflake
+    user_id: Snowflake
+    guild_id: Snowflake
 
 
 @define()
