@@ -542,7 +542,7 @@ class GuildScheduledEventUser(DictSerializerMixin):
     :ivar Snowflake guild_id: The ID of the guild associated with this event.
     :ivar Snowflake user_id: The ID of the user associated with this event.
     """
-    
+
     guild_scheduled_event_id: Snowflake = field(converter=Snowflake, default=None)
     self.guild_id: Snowflake = field(converter=Snowflake, default=None)
     self.user_id: Snowflake = field(converter=Snowflake, default=None)
