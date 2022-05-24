@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "hoverxref.extension",
     "karma_sphinx_theme",
+    "sphinx_search.extension"
 ]
 
 # Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.

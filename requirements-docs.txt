@@ -1,3 +1,4 @@
 karma_sphinx_theme
 Sphinx
 sphinx-hoverxref
+readthedocs-sphinx-search
