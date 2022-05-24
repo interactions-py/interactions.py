@@ -77,6 +77,23 @@ def convert_int(converter):
     return inner_convert_int
 
 
+def convert_dict(key_converter=None, value_converter=None):
+    """A helper function to convert the keys and values of a dictionary with the specified converters"""
+
+    def _return_same(value):
+        return value
+
+    if key_converter is None:
+        key_converter = _return_same
+    if value_converter is None:
+        value_converter = _return_same
+
+    def inner_convert_dict(dict):
+        return {key_converter(key): value_converter(value) for key, value in dict.items()}
+
+    return inner_convert_dict
+
+
 define_defaults = dict(
     repr=False, kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP
 )

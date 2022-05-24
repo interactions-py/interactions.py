@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from ...api.models.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...api.models.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
 from ...api.models.channel import Channel
 from ...api.models.member import Member
 from ...api.models.message import Attachment, Message
@@ -24,59 +24,12 @@ class InteractionResolvedData(DictSerializerMixin):
     :ivar Dict[str, Attachment] attachments: The resolved attachments data.
     """
 
-    users: Dict[str, User] = field()  # todo dict converters
-    members: Dict[str, Member]
-    roles: Dict[str, Role]
-    channels: Dict[str, Channel]
-    messages: Dict[str, Message]
-    attachments: Dict[str, Attachment]
-
-    def __attrs_post_init__(self):  # left unchanged for now, since the converter isn't done yet
-
-        if self._json.get("users"):
-            [
-                self.users.update({user: User(**self.users[user])})
-                for user in self._json.get("users")
-            ]
-        else:
-            self.users = {}
-        if self._json.get("members"):
-            [
-                self.members.update(
-                    {member: Member(**self.members[member], user=self.users[member])}
-                )
-                for member in self._json.get("members")
-            ]  # members have User, user may not have Member. /shrug
-        else:
-            self.members = {}
-        if self._json.get("roles"):
-            [
-                self.roles.update({role: Role(**self.roles[role])})
-                for role in self._json.get("roles")
-            ]
-        else:
-            self.roles = {}
-        if self._json.get("channels"):
-            [
-                self.channels.update({channel: Channel(**self.channels[channel])})
-                for channel in self._json.get("channels")
-            ]
-        else:
-            self.channels = {}
-        if self._json.get("messages"):
-            [
-                self.messages.update({message: Message(**self.messages[message])})
-                for message in self._json.get("messages")
-            ]
-        else:
-            self.messages = {}
-        if self._json.get("attachments"):
-            [
-                self.attachments.update({attachment: Attachment(**self.attachments[attachment])})
-                for attachment in self._json.get("attachments")
-            ]
-        else:
-            self.attachments = {}
+    users: Dict[str, User] = field(converter=convert_dict(value_converter=User))
+    members: Dict[str, Member] = field(converter=convert_dict(value_converter=Member))
+    roles: Dict[str, Role] = field(converter=convert_dict(value_converter=Role))
+    channels: Dict[str, Channel] = field(converter=convert_dict(value_converter=Channel))
+    messages: Dict[str, Message] = field(converter=convert_dict(value_converter=Message))
+    attachments: Dict[str, Attachment] = field(converter=convert_dict(value_converter=Attachment))
 
 
 @define()

@@ -1,11 +1,12 @@
-from typing import Any, TypeVar, Callable, Tuple, Union, Dict
+from typing import Any, TypeVar, Callable, Tuple, Union, Dict, Optional
 
 import attrs
-from attr import Attribute
 
 from interactions.api.http.client import HTTPClient
 
 _T = TypeVar("_T")
+_P = TypeVar("_P")
+
 
 class MISSING:
     """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
@@ -39,12 +40,24 @@ def __dataclass_transform__(
 
 def field(**kwargs) -> Any: ...
 
+
 define_defaults: Dict[str, Union[bool, object]] = ...
+
+
 @__dataclass_transform__(eq_default=False, kw_only_default=True, field_descriptors=(field, attrs.field))
 def define(**kwargs) -> Callable[[_T], _T]: ...
+
 
 def convert_list(converter):
     """A helper function to convert items in a list with the specified converter"""
 
+
 def convert_int(converter):
     """A helper function to pass an int to the converter, e.x. for Enums"""
+
+
+def convert_dict(
+        key_converter: Optional[Callable[[Any], _T]] = None,
+        value_converter: Optional[Callable[[Any], _P]] = None,
+) -> Callable[[Dict[Any, Any]], Dict[_T, _P]]:
+    """A helper function to convert the keys and values of a dictionary with the specified converters"""
