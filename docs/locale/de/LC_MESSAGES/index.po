@@ -1,13 +1,13 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-22 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -55,9 +55,8 @@ msgid ""
 msgstr ""
 
 #: ../../index.rst:14
-#, fuzzy
 msgid "What can we do?"
-msgstr "Wofür sind wir gut?"
+msgstr ""
 
 #: ../../index.rst:15
 msgid ""
@@ -126,9 +125,8 @@ msgid ""
 msgstr ""
 
 #: ../../index.rst:32
-#, fuzzy
 msgid "What do we not offer?"
-msgstr "Wofür sind wir gut?"
+msgstr ""
 
 #: ../../index.rst:33
 msgid ""
@@ -260,82 +258,3 @@ msgstr ""
 #: ../../index.rst:89
 msgid ":ref:`search`"
 msgstr ""
-
-#~ msgid "discord-interactions"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "No more hassle with trying to get"
-#~ " interactions to work with your "
-#~ "Python Discord bot -- **discord-"
-#~ "interactions** is now here."
-#~ msgstr ""
-#~ "Kein Ärger mehr, Interaktionen mit Ihrem"
-#~ " Python Discord Bot zum Laufen zu "
-#~ "bringen -- **discord-interactions** ist "
-#~ "jetzt da."
-
-#~ msgid ""
-#~ "**discord-interactions** is a simple API"
-#~ " wrapper for Discord interactions. We're"
-#~ " not here to replace discord.py or"
-#~ " any other fork, but we are "
-#~ "here to be the very best Python"
-#~ " Discord library there is that "
-#~ "implements interactions very well. This "
-#~ "is what our library is all about."
-#~ msgstr ""
-#~ "**discord-interactions** ist ein einfacher "
-#~ "API-Wrapper für Discord Interaktionen. "
-#~ "Wir sind nicht hier, um discord.py "
-#~ "oder einen anderen Fork zu ersetzen, "
-#~ "aberWir sind hier, um die beste "
-#~ "Python Discord-Bibliothek zu sein, die"
-#~ " es gibtImplementiert Interaktionen sehr "
-#~ "gut. Darum geht es in unserer "
-#~ "Bibliothek."
-
-#~ msgid "We offer a **lot** of benefits with using our library:"
-#~ msgstr "Wir bieten **viele** Vorteile bei der Nutzung unserer Bibliothek:"
-
-#~ msgid "Modern pythonic design that is scalable and modular."
-#~ msgstr "Modernes Python-Design, das skalierbar und modular ist."
-
-#~ msgid "Asynchronous coroutines and multi-threading capabilities."
-#~ msgstr "Asynchrone Coroutinen und Multithreading-Fähigkeiten."
-
-#~ msgid "Optimal class object reference with little overhead."
-#~ msgstr "Optimale Klassenobjektreferenz mit geringem Overhead."
-
-#~ msgid "Easily accessible codebase source."
-#~ msgstr ""
-
-#~ msgid "Stable/unstable branches for managing module stability when importing."
-#~ msgstr ""
-
-#~ msgid "What does that mean?"
-#~ msgstr ""
-
-#~ msgid "Basically, we're good and bad for these things:"
-#~ msgstr ""
-
-#~ msgid "✔️ Working with application commands."
-#~ msgstr ""
-
-#~ msgid "✔️ Handling contextual data cached from all channels."
-#~ msgstr ""
-
-#~ msgid "✔️ General/basic assignment of guild properties to members."
-#~ msgstr ""
-
-#~ msgid "✔️ Responsive callbacks for buttons and select menus."
-#~ msgstr ""
-
-#~ msgid "✔️ Voice client capabilities."
-#~ msgstr ""
-
-#~ msgid "❌ Cooldowns/bucket types."
-#~ msgstr ""
-
-#~ msgid "Please look at our pages below to find out where to go further."
-#~ msgstr ""

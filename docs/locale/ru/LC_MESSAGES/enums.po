@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,7 +34,7 @@ msgstr ""
 #: interactions.client.enums.OptionType
 #: interactions.client.enums.PermissionType
 #: interactions.client.enums.TextStyleType of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
 #: interactions.client.enums.ApplicationCommandType:3
@@ -159,74 +159,3 @@ msgid ""
 "count: the number of existing members last_value: the last value assigned"
 " or None"
 msgstr ""
-
-#~ msgid ""
-#~ "Enumerable object of literal integers "
-#~ "holding equivocal values of a slash "
-#~ "command's option(s)."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Equivalent of `ApplicationCommandOptionType "
-#~ "<https://discord.com/developers/docs/interactions/application-"
-#~ "commands#application-command-object-application-"
-#~ "command-option-type>`_ in the Discord"
-#~ " API."
-#~ msgstr ""
-
-#~ msgid "Get a specific enumerable from a type or object."
-#~ msgstr ""
-
-#~ msgid "Parameters"
-#~ msgstr ""
-
-#~ msgid "The type or object to get an enumerable integer for."
-#~ msgstr ""
-
-#~ msgid "Returns"
-#~ msgstr ""
-
-#~ msgid "enum.IntEnum."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Equivalent of `ApplicationCommandPermissionType "
-#~ "<https://discord.com/developers/docs/interactions/application-"
-#~ "commands#application-command-permissions-object-"
-#~ "application-command-permission-type>`_ in "
-#~ "the Discord API."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Get a specific enumerable from a "
-#~ "type or object. :param _type: The "
-#~ "type or object to get an "
-#~ "enumerable integer for. :type _type: "
-#~ "type :return: enum.IntEnum."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Enumerable object of literal integers "
-#~ "holding equivocal values of a "
-#~ "component(s) type."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Equivalent of `Component Types "
-#~ "<https://discord.com/developers/docs/interactions/message-"
-#~ "components#component-object-component-types>`_ "
-#~ "in the Discord API."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Enumerable object of literal integers "
-#~ "holding equivocal values of a button(s)"
-#~ " type."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Equivalent of `Button Styles "
-#~ "<https://discord.com/developers/docs/interactions/message-"
-#~ "components#button-object-button-styles>`_ in"
-#~ " the Discord API."
-#~ msgstr ""

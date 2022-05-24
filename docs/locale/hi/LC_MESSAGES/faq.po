@@ -1,13 +1,13 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-22 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -306,50 +306,3 @@ msgstr ""
 #: ../../faq.rst:172
 msgid "Invite Link: https://discord.gg/KkgMBVuEkx"
 msgstr ""
-
-#~ msgid ""
-#~ "This page is maintained by the "
-#~ "Helpers of the Discord server, and "
-#~ "updated by the library developer at "
-#~ "their discretion. For any comments, "
-#~ "feedback or concerns please consider "
-#~ "joining our server and bringing it "
-#~ "up in our support channels."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This FAQ list currently reflects v4.0"
-#~ " as of the time of this "
-#~ "writing, all other versions are "
-#~ "considered deprecated. Because of this, "
-#~ "there will not be any answers for"
-#~ " questions regarding v3.0 and below."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "However, the term \"work\" is loosely"
-#~ " structured here. Imagine it like "
-#~ "taping a hole in the wall instead"
-#~ " of repairing the wall. We're "
-#~ "essentially \"plastering\" support for "
-#~ "discord.py instead of doing the surgery"
-#~ " on its internal organs to make "
-#~ "it work well with our library. As"
-#~ " it currently stands, **discord-"
-#~ "interactions and discord.py** are API "
-#~ "wrappers. You will be able to run"
-#~ " code *alongside* one another, and "
-#~ "you will be able to plug in "
-#~ "some classes, but the data conversion"
-#~ " **must be exact.**"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Both of these variables ``interactions`` "
-#~ "and ``dpy`` will be able to run"
-#~ " in the same established environment, "
-#~ "and additionally will both function "
-#~ "properly as their respective libraries "
-#~ "intend them to. What about the "
-#~ "models, though? That's a simple answer:"
-#~ msgstr ""

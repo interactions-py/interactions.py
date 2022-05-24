@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgid "An enumerable object representing the type of error responses raised."
 msgstr ""
 
 #: interactions.ext.error.ErrorType of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
 #: interactions.ext.error.ErrorType:3 of

@@ -1,13 +1,13 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-22 12:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -455,106 +455,3 @@ msgid ""
 "Just to note that this argument's mainly used for global commands. Guild "
 "commands with this argument will have no effect."
 msgstr ""
-
-#~ msgid ""
-#~ "Looking into trying to get started "
-#~ "with our library? Well, you've come "
-#~ "to the right page then!"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This quickstart guide is extremely rough"
-#~ " and contains experimental code. Do "
-#~ "not follow us strictly until v4.0 "
-#~ "is released! Everything is subject to"
-#~ " change in here due to the "
-#~ "development of the API wrapper "
-#~ "continuously being reflected."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "**discord-interactions** is a Python "
-#~ "library for the Discord Artificial "
-#~ "Programming Interface. (API) A library "
-#~ "in Python has to be installed "
-#~ "through the `pip` file. Run this "
-#~ "in your terminal/command line in order"
-#~ " to install our library:"
-#~ msgstr ""
-
-#~ msgid "``pip install -U discord-interactions``"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "If you're unable to run it through"
-#~ " your terminal/command line, you need "
-#~ "to make sure that it's accessible "
-#~ "as an Environment Path. Search more "
-#~ "on Google for how to do this."
-#~ msgstr ""
-
-#~ msgid "Minimal Bot"
-#~ msgstr ""
-
-#~ msgid "This code block below shows a simple bot being created:"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "There's quite a lot of things that"
-#~ " are going on here, so let's "
-#~ "break it down step-by-step:"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "``import interactions`` -- This is the"
-#~ " import line. If this returns a "
-#~ "``ModuleNotFoundError``, please look at our"
-#~ " `Installing`_ section here."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "``bot = interactions.Client(token=\"...\")`` -- "
-#~ "This is the ``bot`` variable that "
-#~ "defines our bot. This basically "
-#~ "instantiates the `Client`_ class, which "
-#~ "requires a ``token`` keyword-argument to"
-#~ " be passed. In order to get a"
-#~ " token, please look at the image "
-#~ "given below."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "``@bot.application_command()`` -- This is "
-#~ "something known as a *decorator* in "
-#~ "Python. This decorator is in charge "
-#~ "and responsible of making sure that "
-#~ "the Discord API is told about the"
-#~ " slash/sub command that you wish to"
-#~ " create, and sends an HTTP request"
-#~ " correspondingly. Any changes to the "
-#~ "information contained in this decorator "
-#~ "will be synchronously updated with the"
-#~ " API automatically for you."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "``await ctx.send(\"Hello world!\")`` -- This"
-#~ " is what lets us send a "
-#~ "\"message\", or otherwise known as an"
-#~ " interaction response back to the "
-#~ "Discord API for us. ``ctx`` is "
-#~ "abbreviated as the \"context\" of the"
-#~ " command, so numerous fields and "
-#~ "attributes such as channels, guilds; and"
-#~ " etc. are able to be inputted."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "And it's really as simple as that!"
-#~ " If you would like to learn "
-#~ "more about what our library offers, "
-#~ "or see more examples of our code,"
-#~ " please be sure to check out "
-#~ "our `coding examples`_ page on our "
-#~ "docs!"
-#~ msgstr ""

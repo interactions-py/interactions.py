@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,7 @@ msgstr ""
 
 #: interactions.api.cache.Cache interactions.api.cache.Item
 #: interactions.api.cache.Storage of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
 #: interactions.api.cache.Item:3 interactions.api.cache.Storage.get:3 of
@@ -57,7 +57,7 @@ msgstr ""
 
 #: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
 #: interactions.api.cache.Storage.update of
-msgid "Parameter"
+msgid "Parameters"
 msgstr ""
 
 #: interactions.api.cache.Storage.add:3 of
@@ -66,7 +66,7 @@ msgstr ""
 
 #: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
 #: interactions.api.cache.Storage.update of
-msgid "Rückgabe"
+msgid "Returns"
 msgstr ""
 
 #: interactions.api.cache.Storage.add:5 of
@@ -75,7 +75,7 @@ msgstr ""
 
 #: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
 #: interactions.api.cache.Storage.update of
-msgid "Rückgabetyp"
+msgid "Return type"
 msgstr ""
 
 #: interactions.api.cache.Storage.get:1 of
@@ -143,120 +143,3 @@ msgstr ""
 #: interactions.api.cache.Cache:12 of
 msgid "The cached interactions upon interaction."
 msgstr ""
-
-#~ msgid "Variables"
-#~ msgstr ""
-
-#~ msgid "Parameters"
-#~ msgstr ""
-
-#~ msgid "Returns"
-#~ msgstr ""
-
-#~ msgid "typing.List[interactions.api.cache.Item]"
-#~ msgstr ""
-
-#~ msgid "Adds a DM to the cache."
-#~ msgstr ""
-
-#~ msgid "The Direct Message to add."
-#~ msgstr ""
-
-#~ msgid "interactions.api.cache.Item"
-#~ msgstr ""
-
-#~ msgid "Gets a DM from the cache."
-#~ msgstr ""
-
-#~ msgid "The ID of the Direct Message."
-#~ msgstr ""
-
-#~ msgid "Adds a combed guild from the gateway to the cache."
-#~ msgstr ""
-
-#~ msgid "The guild to add."
-#~ msgstr ""
-
-#~ msgid "Gets a combed guild from the cache."
-#~ msgstr ""
-
-#~ msgid "The ID of the guild."
-#~ msgstr ""
-
-#~ msgid "Adds a guild after the ready event to the cache."
-#~ msgstr ""
-
-#~ msgid "Gets a new guild from the cache."
-#~ msgstr ""
-
-#~ msgid "Adds a channel to the cache."
-#~ msgstr ""
-
-#~ msgid "The channel to add."
-#~ msgstr ""
-
-#~ msgid "Gets a channel from the cache."
-#~ msgstr ""
-
-#~ msgid "The ID of the channel."
-#~ msgstr ""
-
-#~ msgid "Adds a role to the cache."
-#~ msgstr ""
-
-#~ msgid "The role to add."
-#~ msgstr ""
-
-#~ msgid "Gets a role from the cache."
-#~ msgstr ""
-
-#~ msgid "The ID of the member."
-#~ msgstr ""
-
-#~ msgid "The ID of the role."
-#~ msgstr ""
-
-#~ msgid "Adds a member to the cache."
-#~ msgstr ""
-
-#~ msgid "The member to add."
-#~ msgstr ""
-
-#~ msgid "Gets a member from the cache."
-#~ msgstr ""
-
-#~ msgid "Adds a message to the cache."
-#~ msgstr ""
-
-#~ msgid "The message to add."
-#~ msgstr ""
-
-#~ msgid "Gets a message from the cache."
-#~ msgstr ""
-
-#~ msgid "The ID of the message."
-#~ msgstr ""
-
-#~ msgid "Adds a user to the cache."
-#~ msgstr ""
-
-#~ msgid "The user to add."
-#~ msgstr ""
-
-#~ msgid "Gets a user from the cache."
-#~ msgstr ""
-
-#~ msgid "The ID of the user."
-#~ msgstr ""
-
-#~ msgid "Gets an application command/interaction from the cache."
-#~ msgstr ""
-
-#~ msgid "The application ID of the command."
-#~ msgstr ""
-
-#~ msgid "Adds an application command/interaction to the cache."
-#~ msgstr ""
-
-#~ msgid "The application command to add."
-#~ msgstr ""

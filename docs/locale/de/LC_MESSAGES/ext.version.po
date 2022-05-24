@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,7 +42,7 @@ msgid "A class representing the author involved in a version."
 msgstr ""
 
 #: interactions.ext.version.Version interactions.ext.version.VersionAuthor of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
 #: interactions.ext.version.VersionAuthor:3 of
@@ -125,7 +125,7 @@ msgstr ""
 #: interactions.ext.version.Version.author
 #: interactions.ext.version.Version.authors
 #: interactions.ext.version.Version.extend_version of
-msgid "Rückgabe"
+msgid "Returns"
 msgstr ""
 
 #: interactions.ext.version.Version.author:4 of
@@ -135,12 +135,12 @@ msgstr ""
 #: interactions.ext.version.Version.author
 #: interactions.ext.version.Version.authors
 #: interactions.ext.version.Version.extend_version of
-msgid "Rückgabetyp"
+msgid "Return type"
 msgstr ""
 
 #: interactions.ext.version.Version.author
 #: interactions.ext.version.Version.extend_version of
-msgid "Verursacht"
+msgid "Raises"
 msgstr ""
 
 #: interactions.ext.version.Version.author:6 of
@@ -164,7 +164,7 @@ msgid "Allows the version to be extended upon with an alphanumeric format."
 msgstr ""
 
 #: interactions.ext.version.Version.extend_version of
-msgid "Parameter"
+msgid "Parameters"
 msgstr ""
 
 #: interactions.ext.version.Version.extend_version:3 of

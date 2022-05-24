@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgid "A class representing the base structure of a 3rd party."
 msgstr ""
 
 #: interactions.ext.base.Base of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
 #: interactions.ext.base.Base:3 of
@@ -69,7 +69,7 @@ msgstr ""
 #: interactions.ext.base.Base._check_service
 #: interactions.ext.base.Base.add_service
 #: interactions.ext.base.Base.remove_service of
-msgid "Parameter"
+msgid "Parameters"
 msgstr ""
 
 #: interactions.ext.base.Base._check_service:3 of
@@ -80,7 +80,7 @@ msgstr ""
 #: interactions.ext.base.Base.add_service
 #: interactions.ext.base.Base.remove_service
 #: interactions.ext.base.Base.services of
-msgid "Rückgabe"
+msgid "Returns"
 msgstr ""
 
 #: interactions.ext.base.Base._check_service:5 of
@@ -91,7 +91,7 @@ msgstr ""
 #: interactions.ext.base.Base.add_service
 #: interactions.ext.base.Base.remove_service
 #: interactions.ext.base.Base.services of
-msgid "Rückgabetyp"
+msgid "Return type"
 msgstr ""
 
 #: interactions.ext.base.Base.add_service:1 of
@@ -128,7 +128,7 @@ msgid "If the service has been removed or not."
 msgstr ""
 
 #: interactions.ext.base.Base.remove_service of
-msgid "Verursacht"
+msgid "Raises"
 msgstr ""
 
 #: interactions.ext.base.Base.remove_service:8 of

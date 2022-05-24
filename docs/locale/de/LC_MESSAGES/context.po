@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,7 +32,7 @@ msgstr ""
 
 #: interactions.client.context.CommandContext
 #: interactions.client.context._Context of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
 #: interactions.client.context._Context:7 of
@@ -59,26 +59,32 @@ msgstr ""
 msgid "This gets the channel the context was invoked in."
 msgstr ""
 
+#: interactions.client.context.CommandContext.edit
 #: interactions.client.context.CommandContext.populate
 #: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext.edit
 #: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context.edit
 #: interactions.client.context._Context.get_channel
 #: interactions.client.context._Context.get_guild
 #: interactions.client.context._Context.send of
-msgid "Rückgabe"
+msgid "Returns"
 msgstr ""
 
 #: interactions.client.context._Context.get_channel:3 of
 msgid "The channel as object"
 msgstr ""
 
+#: interactions.client.context.CommandContext.edit
 #: interactions.client.context.CommandContext.populate
 #: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext.edit
 #: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context.edit
 #: interactions.client.context._Context.get_channel
 #: interactions.client.context._Context.get_guild
 #: interactions.client.context._Context.send of
-msgid "Rückgabetyp"
+msgid "Return type"
 msgstr ""
 
 #: interactions.client.context._Context.get_guild:1 of
@@ -104,7 +110,7 @@ msgstr ""
 #: interactions.client.context.ComponentContext.send
 #: interactions.client.context._Context.popup
 #: interactions.client.context._Context.send of
-msgid "Parameter"
+msgid "Parameters"
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:4
@@ -154,16 +160,14 @@ msgstr ""
 #: interactions.client.context._Context.edit:1 of
 msgid ""
 "This allows the invocation state described in the \"context\" to send an "
-"interaction response. This inherits the arguments of the ``.send()`` "
-"method."
+"interaction response. This inherits the arguments of the Context "
+"``.send()`` method."
 msgstr ""
 
 #: interactions.client.context.CommandContext.edit:5
 #: interactions.client.context.ComponentContext.edit:5
 #: interactions.client.context._Context.edit:5 of
-msgid ""
-":inherit:`interactions.context.CommandContext.send()` :return: The edited"
-" message as an object. :rtype: Message"
+msgid "The edited message as an object."
 msgstr ""
 
 #: interactions.client.context._Context.popup:1 of

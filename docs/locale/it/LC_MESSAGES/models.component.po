@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,25 +25,7 @@ msgstr ""
 #: interactions.client.models.component.SelectOption:1 of
 msgid ""
 "A class object representing the select option of a select menu. The "
-"structure for a select option: .. code-block:: python"
-msgstr ""
-
-#: interactions.client.models.component.SelectOption:6 of
-msgid "interactions.SelectOption("
-msgstr ""
-
-#: interactions.client.models.component.SelectOption:5 of
-msgid ""
-"label=\"I'm a cool option. :)\", value=\"internal_option_value\", "
-"description=\"some extra info about me! :D\","
-msgstr ""
-
-#: interactions.client.models.component.Button:8
-#: interactions.client.models.component.Modal:8
-#: interactions.client.models.component.SelectMenu:8
-#: interactions.client.models.component.SelectOption:8
-#: interactions.client.models.component.TextInput:10 of
-msgid ")"
+"structure for a select option: ::"
 msgstr ""
 
 #: interactions.client.models.component.ActionRow
@@ -53,116 +35,96 @@ msgstr ""
 #: interactions.client.models.component.SelectMenu
 #: interactions.client.models.component.SelectOption
 #: interactions.client.models.component.TextInput of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
-#: interactions.client.models.component.SelectOption:9 of
+#: interactions.client.models.component.SelectOption:8 of
 msgid "The label of the select option."
 msgstr ""
 
-#: interactions.client.models.component.SelectOption:10 of
+#: interactions.client.models.component.SelectOption:9 of
 msgid "The returned value of the select option."
 msgstr ""
 
-#: interactions.client.models.component.SelectOption:11 of
+#: interactions.client.models.component.SelectOption:10 of
 msgid "The description of the select option."
 msgstr ""
 
-#: interactions.client.models.component.SelectOption:12 of
+#: interactions.client.models.component.SelectOption:11 of
 msgid "The emoji used alongside the label of the select option."
 msgstr ""
 
-#: interactions.client.models.component.SelectOption:13 of
+#: interactions.client.models.component.SelectOption:12 of
 msgid "Whether the select option is the default for the select menu."
 msgstr ""
 
 #: interactions.client.models.component.SelectMenu:1 of
 msgid ""
 "A class object representing the select menu of a component. The structure"
-" for a select menu: .. code-block:: python"
+" for a select menu: ::"
 msgstr ""
 
-#: interactions.client.models.component.SelectMenu:6 of
-msgid "interactions.SelectMenu("
-msgstr ""
-
-#: interactions.client.models.component.SelectMenu:5 of
-msgid ""
-"options=[interactions.SelectOption(...)], placeholder=\"Check out my "
-"options. :)\", custom_id=\"menu_component\","
-msgstr ""
-
-#: interactions.client.models.component.SelectMenu:9 of
+#: interactions.client.models.component.SelectMenu:8 of
 msgid "The type of select menu. Always defaults to ``3``."
 msgstr ""
 
-#: interactions.client.models.component.SelectMenu:10 of
+#: interactions.client.models.component.SelectMenu:9 of
 msgid "The customized \"ID\" of the select menu."
 msgstr ""
 
-#: interactions.client.models.component.SelectMenu:11 of
+#: interactions.client.models.component.SelectMenu:10 of
 msgid "The list of select options in the select menu."
 msgstr ""
 
-#: interactions.client.models.component.SelectMenu:12 of
+#: interactions.client.models.component.SelectMenu:11 of
 msgid "The placeholder of the select menu."
 msgstr ""
 
 #: interactions.client.models.component.Component:17
-#: interactions.client.models.component.SelectMenu:13 of
+#: interactions.client.models.component.SelectMenu:12 of
 msgid "The minimum \"options\"/values to choose from the component."
 msgstr ""
 
 #: interactions.client.models.component.Component:18
-#: interactions.client.models.component.SelectMenu:14 of
+#: interactions.client.models.component.SelectMenu:13 of
 msgid "The maximum \"options\"/values to choose from the component."
 msgstr ""
 
-#: interactions.client.models.component.SelectMenu:15 of
+#: interactions.client.models.component.SelectMenu:14 of
 msgid "Whether the select menu is unable to be used."
 msgstr ""
 
 #: interactions.client.models.component.Button:1 of
 msgid ""
 "A class object representing the button of a component. The structure for "
-"a button: .. code-block:: python"
+"a button: ::"
 msgstr ""
 
-#: interactions.client.models.component.Button:6 of
-msgid "interactions.Button("
-msgstr ""
-
-#: interactions.client.models.component.Button:5 of
-msgid ""
-"style=interactions.ButtonStyle.DANGER, label=\"Delete\", "
-"custom_id=\"delete_message\","
-msgstr ""
-
-#: interactions.client.models.component.Button:9 of
+#: interactions.client.models.component.Button:8 of
 msgid "The type of button. Always defaults to ``2``."
 msgstr ""
 
-#: interactions.client.models.component.Button:10 of
+#: interactions.client.models.component.Button:9 of
 msgid "The style of the button."
 msgstr ""
 
-#: interactions.client.models.component.Button:11 of
+#: interactions.client.models.component.Button:10 of
 msgid "The label of the button."
 msgstr ""
 
-#: interactions.client.models.component.Button:12 of
+#: interactions.client.models.component.Button:11 of
 msgid "The emoji used alongside the label of the button."
 msgstr ""
 
-#: interactions.client.models.component.Button:13 of
+#: interactions.client.models.component.Button:12 of
 msgid "The customized \"ID\" of the button."
 msgstr ""
 
-#: interactions.client.models.component.Button:14 of
+#: interactions.client.models.component.Button:13 of
 msgid "The URL route/path of the button."
 msgstr ""
 
-#: interactions.client.models.component.Button:15 of
+#: interactions.client.models.component.Button:14 of
 msgid "Whether the button is unable to be used."
 msgstr ""
 
@@ -238,81 +200,58 @@ msgstr ""
 #: interactions.client.models.component.TextInput:1 of
 msgid ""
 "A class object representing the text input of a modal. The structure for "
-"a text input: .. code-block:: python"
+"a text input: ::"
 msgstr ""
 
-#: interactions.client.models.component.TextInput:8 of
-msgid "interactions.TextInput("
-msgstr ""
-
-#: interactions.client.models.component.TextInput:5 of
-msgid ""
-"style=interactions.TextStyleType.SHORT, label=\"Let's get straight to it:"
-" what's 1 + 1?\", custom_id=\"text_input_response\", min_length=2, "
-"max_length=3,"
-msgstr ""
-
-#: interactions.client.models.component.TextInput:11 of
+#: interactions.client.models.component.TextInput:10 of
 msgid "The type of input. Always defaults to ``4``."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:12 of
+#: interactions.client.models.component.TextInput:11 of
 msgid "The style of the input."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:13 of
+#: interactions.client.models.component.TextInput:12 of
 msgid "The custom Id of the input."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:14 of
+#: interactions.client.models.component.TextInput:13 of
 msgid "The label of the input."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:15 of
+#: interactions.client.models.component.TextInput:14 of
 msgid "The pre-filled value of the input."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:16 of
+#: interactions.client.models.component.TextInput:15 of
 msgid "Whether the input is required or not."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:17 of
+#: interactions.client.models.component.TextInput:16 of
 msgid "The placeholder of the input."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:18 of
+#: interactions.client.models.component.TextInput:17 of
 msgid "The minimum length of the input."
 msgstr ""
 
-#: interactions.client.models.component.TextInput:19 of
+#: interactions.client.models.component.TextInput:18 of
 msgid "The maximum length of the input."
 msgstr ""
 
 #: interactions.client.models.component.Modal:1 of
-msgid ""
-"A class object representing a modal. The structure for a modal: .. code-"
-"block:: python"
+msgid "A class object representing a modal. The structure for a modal: ::"
 msgstr ""
 
-#: interactions.client.models.component.Modal:6 of
-msgid "interactions.Modal("
-msgstr ""
-
-#: interactions.client.models.component.Modal:5 of
-msgid ""
-"title=\"Application Form\", custom_id=\"mod_app_form\", "
-"components=[interactions.TextInput(...)],"
-msgstr ""
-
-#: interactions.client.models.component.Modal:9 of
+#: interactions.client.models.component.Modal:8 of
 msgid "The custom ID of the modal."
 msgstr ""
 
-#: interactions.client.models.component.Modal:10 of
+#: interactions.client.models.component.Modal:9 of
 msgid "The title of the modal."
 msgstr ""
 
-#: interactions.client.models.component.Modal:11 of
+#: interactions.client.models.component.Modal:10 of
 msgid "The components of the modal."
 msgstr ""
 
@@ -322,55 +261,21 @@ msgid ""
 "holding components. .. note::"
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:6 of
-msgid "The structure for an action row: .. code-block:: python"
+#: interactions.client.models.component.ActionRow:10 of
+msgid "The structure for an action row: ::"
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:8 of
+#: interactions.client.models.component.ActionRow:7 of
 msgid ""
 "# \"...\" represents a component object. # Method 1: "
 "interactions.ActionRow(...) # Method 2: "
 "interactions.ActionRow(components=[...])"
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:13 of
+#: interactions.client.models.component.ActionRow:12 of
 msgid "The type of component. Always defaults to ``1``."
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:14 of
+#: interactions.client.models.component.ActionRow:13 of
 msgid "A list of components the ActionRow has, if any."
 msgstr ""
-
-#~ msgid "A class object representing the select option of a select menu."
-#~ msgstr ""
-
-#~ msgid "Variables"
-#~ msgstr ""
-
-#~ msgid "A class object representing the select menu of a component."
-#~ msgstr ""
-
-#~ msgid "The type of select menu."
-#~ msgstr ""
-
-#~ msgid "A class object representing the button of a component."
-#~ msgstr ""
-
-#~ msgid "The type of button."
-#~ msgstr ""
-
-#~ msgid "The emoji used alongside the laebl of the button."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "A class object representing the "
-#~ "componeent in an interaction "
-#~ "response/followup."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "``components`` is only applicable if an"
-#~ " ActionRow is supported, otherwise "
-#~ "ActionRow-less will be opted. ``list`` "
-#~ "is in reference to the class."
-#~ msgstr ""

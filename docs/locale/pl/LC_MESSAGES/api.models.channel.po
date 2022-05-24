@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-05-24 14:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,7 +39,7 @@ msgstr ""
 #: interactions.api.models.channel.Channel
 #: interactions.api.models.channel.ThreadMember
 #: interactions.api.models.channel.ThreadMetadata of
-msgid "Variablen"
+msgid "Variables"
 msgstr ""
 
 #: interactions.api.models.channel.ThreadMetadata:7 of
@@ -228,7 +228,7 @@ msgstr ""
 #: interactions.api.models.channel.Channel.set_rate_limit_per_user
 #: interactions.api.models.channel.Channel.set_topic
 #: interactions.api.models.channel.Channel.set_user_limit of
-msgid "Rückgabe"
+msgid "Returns"
 msgstr ""
 
 #: interactions.api.models.channel.Channel.mention:3 of
@@ -255,7 +255,7 @@ msgstr ""
 #: interactions.api.models.channel.Channel.set_rate_limit_per_user
 #: interactions.api.models.channel.Channel.set_topic
 #: interactions.api.models.channel.Channel.set_user_limit of
-msgid "Rückgabetyp"
+msgid "Return type"
 msgstr ""
 
 #: interactions.api.models.channel.Channel.send:1 of
@@ -283,7 +283,7 @@ msgstr ""
 #: interactions.api.models.channel.Channel.set_topic
 #: interactions.api.models.channel.Channel.set_user_limit
 #: interactions.api.models.channel.Channel.unpin_message of
-msgid "Parameter"
+msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.channel.Channel.send:3 of
@@ -711,33 +711,3 @@ msgid ""
 "This is a derivation of the base Channel, since a thread can be its own "
 "event."
 msgstr ""
-
-#~ msgid ".. note::"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "While all of them are listed, not"
-#~ " all of them will be used at"
-#~ " this library's scope."
-#~ msgstr ""
-
-#~ msgid "Variables"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is a derivation of "
-#~ ":class:`interactions.api.models.channel.Channel` but for"
-#~ " text channels."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is a derivation of "
-#~ ":class:`interactions.api.models.channel.Channel` but for"
-#~ " DM channels."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is a derivation of "
-#~ ":class:`interactions.api.models.channel.Channel` but for"
-#~ " thread channels."
-#~ msgstr ""
