@@ -544,8 +544,8 @@ class GuildScheduledEventUser(DictSerializerMixin):
     """
 
     guild_scheduled_event_id: Snowflake = field(converter=Snowflake, default=None)
-    self.guild_id: Snowflake = field(converter=Snowflake, default=None)
-    self.user_id: Snowflake = field(converter=Snowflake, default=None)
+    guild_id: Snowflake = field(converter=Snowflake, default=None)
+    user_id: Snowflake = field(converter=Snowflake, default=None)
 
 
 @define()
