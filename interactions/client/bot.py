@@ -14,11 +14,11 @@ from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
-from ..api.models.flags import Intents, Permissions
 from ..api.models.channel import Channel
+from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Message, Emoji, Sticker
+from ..api.models.message import Emoji, Message, Sticker
 from ..api.models.misc import MISSING, Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.role import Role
@@ -960,12 +960,8 @@ class Client:
 
             if hasattr(coro, "__func__"):
                 coro.__func__._command_data = commands
-                if type == ApplicationCommandType.CHAT_INPUT:
-                    coro.__func__.autocomplete = AutocompleteManager(self, name)
             else:
                 coro._command_data = commands
-                if type == ApplicationCommandType.CHAT_INPUT:
-                    coro.autocomplete = AutocompleteManager(self, name)
 
             self.__command_coroutines.append(coro)
 
@@ -1326,16 +1322,12 @@ class Client:
             self._extensions[_name] = module
             return extension
 
-    def remove(
-        self, name: str, remove_commands: bool = True, package: Optional[str] = None
-    ) -> None:
+    def remove(self, name: str, package: Optional[str] = None) -> None:
         """
         Removes an extension out of the current client from an import resolve.
 
         :param name: The name of the extension.
         :type name: str
-        :param remove_commands?: Whether to remove commands before reloading. Defaults to True.
-        :type remove_commands: bool
         :param package?: The package of the extension.
         :type package: Optional[str]
         """
@@ -1359,7 +1351,7 @@ class Client:
                     _extension = self._extensions.get(ext_name)
                     try:
                         self._loop.create_task(
-                            _extension.teardown(remove_commands=remove_commands)
+                            _extension.teardown()
                         )  # made for Extension, usable by others
                     except AttributeError:
                         pass
@@ -1368,9 +1360,7 @@ class Client:
 
         else:
             try:
-                self._loop.create_task(
-                    extension.teardown(remove_commands=remove_commands)
-                )  # made for Extension, usable by others
+                self._loop.create_task(extension.teardown())  # made for Extension, usable by others
             except AttributeError:
                 pass
 
@@ -1379,27 +1369,18 @@ class Client:
         log.debug(f"Removed extension {name}.")
 
     def reload(
-        self,
-        name: str,
-        package: Optional[str] = None,
-        remove_commands: bool = True,
-        *args,
-        **kwargs,
+        self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]:
         r"""
         "Reloads" an extension off of current client from an import resolve.
 
         .. warning::
-            This will remove and re-add application commands, counting towards your daily application
-            command creation limit, as long as you have the ``remove_commands`` argument set to ``True``, what it is by
-            default.
+            This will remove and re-add application commands, counting towards your daily application command creation limit.
 
-        :param name: The name of the extension
+        :param name: The name of the extension.
         :type name: str
-        :param package?: The package of the extension
+        :param package?: The package of the extension.
         :type package: Optional[str]
-        :param remove_commands?: Whether to remove commands before reloading. Defaults to True
-        :type remove_commands: bool
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
@@ -1414,7 +1395,7 @@ class Client:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
             return self.load(name, package)
 
-        self.remove(name, package, remove_commands)
+        self.remove(name, package)
         return self.load(name, package, *args, **kwargs)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
@@ -1429,8 +1410,7 @@ class Client:
         Modify the bot user account settings.
 
         :param username?: The new username of the bot
-        :type
-        username?: Optional[str]
+        :type username?: Optional[str]
         :param avatar?: The new avatar of the bot
         :type avatar?: Optional[Image]
         :return: The modified User object
@@ -1441,8 +1421,8 @@ class Client:
 
         return User(**data)
 
-    async def get(self, obj: Type[_T] = MISSING, **kwargs) -> _T:
-        """
+    async def get(self, obj: Type[_T], **kwargs) -> _T:
+        r"""
         A helper method for retrieving data from the Discord API in its object representation.
 
         :param obj: The object to get. Should be a class object (not an instance!). For example: `interactions.Channel`.
@@ -1453,10 +1433,7 @@ class Client:
         :rtype: object
         """
 
-        if obj is MISSING:
-            raise ValueError("The object is required!")
-
-        if isinstance(obj, (Channel, Emoji, Guild, Member, Message, Role, Sticker, User)):
+        if not isinstance(obj, type):
             raise TypeError("The object must not be an instance of a class!")
 
         _name = f"get_{obj.__name__.lower()}"
@@ -1465,11 +1442,9 @@ class Client:
             _guild = Guild(**await self._http.get_guild(kwargs.pop("guild_id")), _client=self._http)
             _func = getattr(_guild, _name)
             return await _func(**kwargs)
-
-        else:
-            _func = getattr(self._http, _name)
-            _obj = await _func(**kwargs)
-            return obj(**_obj, _client=self._http)
+        _func = getattr(self._http, _name)
+        _obj = await _func(**kwargs)
+        return obj(**_obj, _client=self._http)
 
     async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
         """
@@ -1523,32 +1498,6 @@ class Client:
         self._http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
 
         return guild._json
-
-
-class AutocompleteManager:
-
-    __slots__ = (
-        "client",
-        "command_name",
-    )
-
-    def __init__(self, client: Client, command_name: str) -> None:
-        self.client = client
-        self.command_name = command_name
-
-    def __call__(self, name: str) -> Callable[..., Coroutine]:
-        """
-        Registers an autocomplete callback for the given command. See also :meth:`Client.autocomplete`
-
-        :param name: The name of the option to autocomplete
-        :type name: str
-        """
-
-        def decorator(coro: Coroutine):
-            self.client._Client__name_autocomplete[self.command_name] = {"coro": coro, "name": name}
-            return coro
-
-        return decorator
 
 
 # TODO: Implement the rest of cog behaviour when possible.
@@ -1662,7 +1611,7 @@ class Extension:
 
         return self
 
-    async def teardown(self, remove_commands: bool = True):
+    async def teardown(self):
         for event, funcs in self._listeners.items():
             for func in funcs:
                 self.client._websocket._dispatch.events[event].remove(func)
@@ -1673,7 +1622,7 @@ class Extension:
                 self.client._Client__command_coroutines.pop(_index)
                 self.client._websocket._dispatch.events[cmd].remove(func)
 
-        if self.client._automate_sync and remove_commands:
+        if self.client._automate_sync:
             await self.client._Client__sync()
 
 
