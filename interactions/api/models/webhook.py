@@ -216,7 +216,7 @@ class Webhook(DictSerializerMixin):
         :param thread_id: Send a message to a specified thread within a webhook's channel. The thread will automatically be unarchived
         :type thread_id: int
         :return: The sent message, if present
-        :rtype: Optional[Message
+        :rtype: Optional[Message]
         """
 
         if not self._client:
