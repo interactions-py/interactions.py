@@ -1116,7 +1116,7 @@ class Channel(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
 
         res = await self._client.get_channel_webhooks(int(self.id))
-        return [Webhook(**_) for _ in res]
+        return [Webhook(**_, _client=self._client) for _ in res]
 
 
 class Thread(Channel):

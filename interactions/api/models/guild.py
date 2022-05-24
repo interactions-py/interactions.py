@@ -1871,7 +1871,7 @@ class Guild(DictSerializerMixin):
 
         res = await self._client.get_guild_webhooks(int(self.id))
 
-        return [Webhook(**_) for _ in res]
+        return [Webhook(**_, _client=self._client) for _ in res]
 
     @property
     def icon_url(self) -> Optional[str]:
