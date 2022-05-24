@@ -9,6 +9,7 @@ from .misc import DictSerializerMixin, MISSING, Snowflake, Overwrite, Image
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
+from .webhook import Webhook
 from ..http.client import HTTPClient
 
 class VerificationLevel(IntEnum):
@@ -460,6 +461,7 @@ class Guild(DictSerializerMixin):
         limit: Optional[int] = 1
     ) -> List[Member]: ...
     async def get_all_members(self) -> List[Member]: ...
+    async def get_webhooks(self) -> List[Webhook]: ...
     @property
     def icon_url(self) -> Optional[str]: ...
     @property

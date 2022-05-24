@@ -83,7 +83,7 @@ class MessageRequest:
                     file._fp,
                 )
                 part.set_content_disposition(
-                    "form-data", name="files[" + str(id) + "]", filename=file._filename
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
                 )
 
         request = await self._req.request(

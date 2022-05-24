@@ -3,6 +3,7 @@ from enum import IntEnum
 from typing import Callable, List, Optional, Union
 
 from .misc import MISSING, DictSerializerMixin, File, Overwrite, Snowflake
+from .webhook import Webhook
 
 
 class ChannelType(IntEnum):
@@ -1105,6 +1106,17 @@ class Channel(DictSerializerMixin):
                     _messages.append(msg)
 
         return _messages
+
+    async def get_webhooks(self) -> List[Webhook]:
+        """
+        Gets a list of webhooks of that channel
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        res = await self._client.get_channel_webhooks(int(self.id))
+        return [Webhook(**_, _client=self._client) for _ in res]
 
 
 class Thread(Channel):
