@@ -385,7 +385,7 @@ class WebSocketClient:
 
                 # name in {"_create", "_add"} returns False (tested w message_create)
                 if any(_ in name for _ in {"_create", "_update", "_add", "_remove", "_delete"}):
-                    data["client"] = self._http
+                    data["_client"] = self._http
 
                 self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
 
