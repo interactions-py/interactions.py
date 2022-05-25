@@ -59,6 +59,29 @@ class DictSerializerMixin(object):
                     setattr(self, _attr, None)
 
 
+class AutoModAction(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``AUTO_MODERATION_ACTION_EXECUTION``
+
+    .. note::
+        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
+        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
+        ``AutoModerationAction``
+
+    .. note::
+        The metadata can be an empty dict, depending on the action. But this isn't an optional, as the dictionary
+        is always present according to Discord.
+
+    :ivar int type: Action type.
+    :ivar Dict[str, str] metadata: Additional metadata needed during execution for this specific action type.
+    """
+
+    __slots__ = ("_json", "type", "metadata")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class Overwrite(DictSerializerMixin):
     """
     This is used for the PermissionOverride object.

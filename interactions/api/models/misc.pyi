@@ -1,12 +1,18 @@
 import logging
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional, Union, Dict
 from io import IOBase, FileIO
 
 log: logging.Logger
 
 class DictSerializerMixin(object):
     _json: dict
+    def __init__(self, **kwargs): ...
+
+class AutoModAction(DictSerializerMixin):
+    _json: dict
+    type: int
+    metadata: Dict[str, str]
     def __init__(self, **kwargs): ...
 
 class Overwrite(DictSerializerMixin):

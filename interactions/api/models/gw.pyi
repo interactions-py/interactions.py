@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import List, Optional, Union, Any
+from typing import List, Optional, Union, Any, Dict
 
 from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import MISSING, ClientStatus, DictSerializerMixin, Snowflake, File
+from .misc import MISSING, ClientStatus, DictSerializerMixin, Snowflake, File, AutoModAction
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
@@ -13,6 +13,36 @@ from .team import Application
 
 from ..http.client import HTTPClient
 from ...models.command import Permission
+
+class AutoModerationAction(DictSerializerMixin):
+    _json: dict
+    guild_id: Snowflake
+    action: AutoModAction
+    rule_id: Snowflake
+    rule_trigger_type: int
+    channel_id: Optional[Snowflake]
+    message_id: Optional[Snowflake]
+    alert_system_message_id: Optional[Snowflake]
+    content: str
+    matched_keyword: Optional[str]
+    matched_content: Optional[str]
+    def __init__(self, **kwargs): ...
+
+class AutoModerationRule(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    guild_id: Snowflake
+    name: str
+    creator_id: str
+    event_type: int
+    trigger_type: int
+    trigger_metadata: Dict[str, List[str]]
+    actions: List[AutoModAction]
+    enabled: bool
+    exempt_roles: List[Snowflake]
+    exempt_channels: List[Snowflake]
+    def __init__(self, **kwargs): ...
+
 
 class ApplicationCommandPermissions(DictSerializerMixin):
     _json: dict

@@ -5,10 +5,116 @@ from ...client.models.component import ActionRow, Button, SelectMenu, _build_com
 from .channel import Channel, ThreadMember
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import MISSING, ClientStatus, DictSerializerMixin, File, Snowflake
+from .misc import MISSING, AutoModAction, ClientStatus, DictSerializerMixin, File, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .user import User
+
+
+class AutoModerationAction(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``AUTO_MODERATION_ACTION_EXECUTION``.
+
+    :ivar Snowflake guild_id: The ID of the guild in which the action was executed.
+    :ivar AutoModAction action: The action which was executed.
+    :ivar Snowflake rule_id: The rule ID that the action belongs to.
+    :ivar int rule_trigger_type: The trigger rule type.
+    :ivar Optional[Snowflake] channel_id: The id of the channel in which user content was posted.
+    :ivar Optional[Snowflake] message_id: The id of any user message which content belongs to.
+    :ivar Optional[Snowflake] alert_system_message_id: The id of any system automoderation messages posted as a result of this action.
+    :ivar str content: The user-generated text content in question.
+    :ivar Optional[str] matched_keyword: The word/phrase configured in rule that triggered rule.
+    :ivar Optional[str] matched_content: The substring in content that triggered rule.
+    """
+
+    __slots__ = (
+        "_json",
+        "guild_id",
+        "action",
+        "rule_id",
+        "rule_trigger_type",
+        "channel_id",
+        "message_id",
+        "alert_system_message_id",
+        "content",
+        "matched_keyword",
+        "matched_content",
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.rule_id = Snowflake(self.rule_id) if self._json.get("rule_id") else None
+        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+        self.message_id = Snowflake(self.message_id) if self._json.get("message_id") else None
+        self.alert_system_message_id = (
+            Snowflake(self.alert_system_message_id)
+            if self._json.get("alert_system_message_id")
+            else None
+        )
+
+
+class AutoModerationRule(DictSerializerMixin):
+    """
+    A class object representing the gateway events ``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and ``AUTO_MODERATION_RULE_DELETE``
+
+    .. note::
+        This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
+
+    .. note::
+        ``event_type`` at the moment is only ``1``, which represents message sending.
+
+    :ivar Snowflake id: The ID of the rule.
+    :ivar Snowflake guild_id: The guild ID associated with the rule.
+    :ivar str name: The rule name.
+    :ivar Snowflake creator_id: The user ID that first created this rule.
+    :ivar int event_type: The rule type in which automod checks.
+    :ivar int trigger_type: The automod type. It characterises what type of information that is checked.
+    :ivar Dict[str, List[str]] trigger_metadata: Additional data needed to figure out whether this rule should be triggered.
+    :ivar List[AutoModerationAction] actions: The actions that may be executed when the rule is triggered.
+    :ivar bool enabled: Whether the rule is enabled.
+    :ivar List[Snowflake] exempt_roles: The role IDs that should not be affected by this rule. (Max 20)
+    :ivar List[Snowflake] exempt_channels: The channel IDs that should not be affected by this rule. (Max 20)
+    """
+
+    __slots__ = (
+        "_json",
+        "id",
+        "guild_id",
+        "name",
+        "creator_id",
+        "event_type",
+        "trigger_type",
+        "trigger_metadata",
+        "actions",
+        "enabled",
+        "exempt_roles",
+        "exempt_channels",
+    )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.id = Snowflake(self.id) if self._json.get("id") else None
+        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+        self.creator_id = Snowflake(self.creator_id) if self._json.get("creator_id") else None
+        # Note, the docs does not say this is optional.
+        # Though, these are failsafes.
+        self.actions = [
+            AutoModAction(**_action) if isinstance(_action, dict) else _action
+            for _action in self._json.get("actions", [])
+        ]
+        self.exempt_roles = (
+            [Snowflake(_id) for _id in self._json.get("exempt_roles", [])]
+            if self._json.get("exempt_roles")
+            else []
+        )
+        self.exempt_channels = (
+            [Snowflake(_id) for _id in self._json.get("exempt_channels", [])]
+            if self._json.get("exempt_channels")
+            else []
+        )
 
 
 class ApplicationCommandPermissions(DictSerializerMixin):
