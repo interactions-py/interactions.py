@@ -71,6 +71,7 @@ class AutoModAction(DictSerializerMixin):
     .. note::
         The metadata can be an empty dict, depending on the action. But this isn't an optional, as the dictionary
         is always present according to Discord.
+        Moreover, this currently represents a dict of, if any, ``{"channel_id": <snowflake as string>}``
 
     :ivar int type: Action type.
     :ivar Dict[str, str] metadata: Additional metadata needed during execution for this specific action type.
