@@ -12,6 +12,7 @@ from .attrs_utils import (
 )
 from .misc import File, Overwrite, Snowflake
 from .user import User
+from .webhook import Webhook
 
 
 class ChannelType(IntEnum):
@@ -1070,6 +1071,17 @@ class Channel(ClientSerializerMixin):
                     _messages.append(msg)
 
         return _messages
+
+    async def get_webhooks(self) -> List[Webhook]:
+        """
+        Gets a list of webhooks of that channel
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        res = await self._client.get_channel_webhooks(int(self.id))
+        return [Webhook(**_, _client=self._client) for _ in res]
 
 
 @define()

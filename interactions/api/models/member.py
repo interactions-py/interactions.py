@@ -223,7 +223,7 @@ class Member(ClientSerializerMixin):
         :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
+        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
@@ -242,7 +242,6 @@ class Member(ClientSerializerMixin):
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
         # _attachments = [] if attachments else None
         _embeds: list = (
             []

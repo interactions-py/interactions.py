@@ -3,14 +3,15 @@ from enum import Enum, IntEnum
 from typing import Any, Dict, List, Optional, Union
 
 from .attrs_utils import DictSerializerMixin, ClientSerializerMixin, define
-from .channel import Channel as Channel, ChannelType as ChannelType, Thread as Thread
-from .member import Member as Member
-from .message import Emoji as Emoji, Sticker as Sticker
+from .channel import Channel, ChannelType, Thread
+from .member import Member
+from .message import Emoji, Sticker
 from .misc import Image, Overwrite, Snowflake
-from .presence import PresenceActivity as PresenceActivity
-from .role import Role as Role
-from .team import Application as Application
-from .user import User as User
+from .presence import PresenceActivity
+from .role import Role
+from .team import Application
+from .user import User
+from .webhook import Webhook
 
 
 class VerificationLevel(IntEnum):
@@ -318,6 +319,7 @@ class Guild(ClientSerializerMixin):
     async def get_list_of_members(self, limit: Optional[int] = ..., after: Optional[Union[Member, int]] = ...) -> List[Member]: ...
     async def search_members(self, query: str, limit: Optional[int] = ...) -> List[Member]: ...
     async def get_all_members(self) -> List[Member]: ...
+    async def get_webhooks(self) -> List[Webhook]: ...
     @property
     def icon_url(self) -> Optional[str]: ...
     @property

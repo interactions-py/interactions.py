@@ -2,11 +2,13 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Any, Callable, List, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, define
-from .guild import Invite
-from .message import Message as Message
+from .attrs_utils import ClientSerializerMixin, define, MISSING
+from .guild import Invite, InviteTargetType
+from .message import Message, Embed, MessageInteraction
 from .misc import File, Overwrite, Snowflake
-from .user import User as User
+from .user import User
+from ..http.client import HTTPClient
+
 
 class ChannelType(IntEnum):
     GUILD_TEXT: int
@@ -75,8 +77,8 @@ class Channel(ClientSerializerMixin):
         *,
         tts: Optional[bool] = ...,
         files: Optional[Union[File, List[File]]] = ...,
-        embeds: Optional[Union["Embed", List["Embed"]]] = ...,
-        allowed_mentions: Optional["MessageInteraction"] = ...,
+        embeds: Optional[Union[Embed, List[Embed]]] = ...,
+        allowed_mentions: Optional[MessageInteraction] = ...,
         components: Optional[
             Union[
                 "ActionRow",
@@ -151,12 +153,14 @@ class Channel(ClientSerializerMixin):
         max_uses: Optional[int] = ...,
         temporary: Optional[bool] = ...,
         unique: Optional[bool] = ...,
-        target_type: Optional["InviteTargetType"] = ...,
+        target_type: Optional[InviteTargetType] = ...,
         target_user_id: Optional[int] = ...,
         target_application_id: Optional[int] = ...,
         reason: Optional[str] = ...,
     ) -> Invite: ...
     async def get_history(self, limit: int = ...) -> List[Message]: ...
+    async def get_webhooks(self) -> List[Webhook]: ...
+
 
 @define()
 class Thread(Channel): ...
