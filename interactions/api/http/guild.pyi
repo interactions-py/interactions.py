@@ -110,3 +110,37 @@ class _GuildRequest:
         before: Optional[int] = None,
         limit: int = 50,
     ) -> dict: ...
+
+    async def list_auto_moderation_rules(self, guild_id: int) -> List[dict]: ...
+
+    async def get_auto_moderation_rule(self, guild_id: int, rule_id: int) -> dict: ...
+
+    async def create_auto_moderation_rule(
+            self,
+            guild_id: int,
+            name: str,
+            event_type: int,
+            trigger_type: int,
+            trigger_metadata: dict,
+            actions: List[dict],
+            enabled: Optional[bool] = False,
+            exempt_roles: Optional[List[str]] = None,
+            exempt_channels: Optional[List[str]] = None,
+            reason: Optional[str] = None
+    ) -> dict: ...
+
+    async def modify_auto_moderation_rule(
+            self,
+            guild_id: int,
+            rule_id: int,
+            name: Optional[str] = None,
+            event_type: Optional[int] = None,
+            trigger_metadata: Optional[dict] = None,
+            actions: Optional[List[dict]] = None,
+            enabled: Optional[bool] = None,
+            exempt_roles: Optional[List[str]] = None,
+            exempt_channels: Optional[List[str]] = None,
+            reason: Optional[str] = None
+    ) -> dict: ...
+
+    async def delete_auto_moderation_rule(self, guild_id: int, rule_id: int, reason: Optional[str] = None) -> None: ...
