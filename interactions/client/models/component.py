@@ -168,12 +168,14 @@ class Button(DictSerializerMixin):
 class Component(DictSerializerMixin):
     """
     A class object representing the component in an interaction response/followup.
+
     .. note::
         ``components`` is only applicable if an ActionRow is supported, otherwise
         ActionRow-less will be opted. ``list`` is in reference to the class.
     .. warning::
         This object class is only inferred upon when the gateway is processing
         back information involving a component. Do not use this object for sending.
+
     :ivar ComponentType type: The type of component.
     :ivar Optional[str] custom_id?: The customized "ID" of the component.
     :ivar Optional[bool] disabled?: Whether the component is unable to be used.
