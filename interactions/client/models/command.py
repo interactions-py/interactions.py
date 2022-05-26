@@ -89,7 +89,7 @@ class Option(DictSerializerMixin):
 
     type: OptionType = field(converter=OptionType)
     name: str = field()
-    description: str = field()
+    description: str = field(default=None)
     focused: bool = field(default=False)
     required: Optional[bool] = field(default=None)
     value: Optional[str] = field(default=None)
