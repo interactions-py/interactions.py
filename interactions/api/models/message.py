@@ -829,9 +829,6 @@ class Message(ClientSerializerMixin):
         converter=convert_list(Sticker), default=None
     )  # deprecated
 
-    def __repr__(self) -> str:
-        return self.content
-
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
