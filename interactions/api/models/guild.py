@@ -321,10 +321,10 @@ class Guild(DictSerializerMixin):
             else None
         )
         if (
-            not self.members
-            and self._client
-            and self._client.cache.self_guilds.values.get(str(self.id))
-            and self._client.cache.self_guilds.values[str(self.id)].members
+                not self.members
+                and self._client
+                and self._client.cache.self_guilds.values.get(str(self.id))
+                and self._client.cache.self_guilds.values[str(self.id)].members
         ):
             members = self._client.cache.self_guilds.values[str(self.id)].members
             if all(isinstance(member, Member) for member in members):
@@ -341,10 +341,10 @@ class Guild(DictSerializerMixin):
         return self.name
 
     async def ban(
-        self,
-        member_id: int,
-        reason: Optional[str] = None,
-        delete_message_days: Optional[int] = 0,
+            self,
+            member_id: int,
+            reason: Optional[str] = None,
+            delete_message_days: Optional[int] = 0,
     ) -> None:
         """
         Bans a member from the guild.
@@ -366,9 +366,9 @@ class Guild(DictSerializerMixin):
         )
 
     async def remove_ban(
-        self,
-        user_id: int,
-        reason: Optional[str] = None,
+            self,
+            user_id: int,
+            reason: Optional[str] = None,
     ) -> None:
         """
         Removes the ban of a user.
@@ -387,9 +387,9 @@ class Guild(DictSerializerMixin):
         )
 
     async def kick(
-        self,
-        member_id: int,
-        reason: Optional[str] = None,
+            self,
+            member_id: int,
+            reason: Optional[str] = None,
     ) -> None:
         """
         Kicks a member from the guild.
@@ -408,10 +408,10 @@ class Guild(DictSerializerMixin):
         )
 
     async def add_member_role(
-        self,
-        role: Union[Role, int],
-        member_id: int,
-        reason: Optional[str] = None,
+            self,
+            role: Union[Role, int],
+            member_id: int,
+            reason: Optional[str] = None,
     ) -> None:
         """
         This method adds a role to a member.
@@ -441,10 +441,10 @@ class Guild(DictSerializerMixin):
             )
 
     async def remove_member_role(
-        self,
-        role: Union[Role, int],
-        member_id: int,
-        reason: Optional[str] = None,
+            self,
+            role: Union[Role, int],
+            member_id: int,
+            reason: Optional[str] = None,
     ) -> None:
         """
         This method removes a or multiple role(s) from a member.
@@ -474,15 +474,15 @@ class Guild(DictSerializerMixin):
             )
 
     async def create_role(
-        self,
-        name: str,
-        # permissions,
-        color: Optional[int] = 0,
-        hoist: Optional[bool] = False,
-        # icon,
-        # unicode_emoji,
-        mentionable: Optional[bool] = False,
-        reason: Optional[str] = None,
+            self,
+            name: str,
+            # permissions,
+            color: Optional[int] = 0,
+            hoist: Optional[bool] = False,
+            # icon,
+            # unicode_emoji,
+            mentionable: Optional[bool] = False,
+            reason: Optional[str] = None,
     ) -> Role:
         """
         Creates a new role in the guild.
@@ -516,8 +516,8 @@ class Guild(DictSerializerMixin):
         return Role(**res, _client=self._client)
 
     async def get_member(
-        self,
-        member_id: int,
+            self,
+            member_id: int,
     ) -> Member:
         """
         Searches for the member with specified id in the guild and returns the member as member object.
@@ -536,8 +536,8 @@ class Guild(DictSerializerMixin):
         return Member(**res, _client=self._client)
 
     async def delete_channel(
-        self,
-        channel_id: int,
+            self,
+            channel_id: int,
     ) -> None:
         """
         Deletes a channel from the guild.
@@ -550,9 +550,9 @@ class Guild(DictSerializerMixin):
         await self._client.delete_channel(channel_id=channel_id)
 
     async def delete_role(
-        self,
-        role_id: int,
-        reason: Optional[str] = None,
+            self,
+            role_id: int,
+            reason: Optional[str] = None,
     ) -> None:
         """
         Deletes a role from the guild.
@@ -571,16 +571,16 @@ class Guild(DictSerializerMixin):
         )
 
     async def modify_role(
-        self,
-        role_id: int,
-        name: Optional[str] = MISSING,
-        # permissions,
-        color: Optional[int] = MISSING,
-        hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
-        mentionable: Optional[bool] = MISSING,
-        reason: Optional[str] = None,
+            self,
+            role_id: int,
+            name: Optional[str] = MISSING,
+            # permissions,
+            color: Optional[int] = MISSING,
+            hoist: Optional[bool] = MISSING,
+            # icon,
+            # unicode_emoji,
+            mentionable: Optional[bool] = MISSING,
+            reason: Optional[str] = None,
     ) -> Role:
         """
         Edits a role in the guild.
@@ -623,14 +623,14 @@ class Guild(DictSerializerMixin):
         return Role(**res, _client=self._client)
 
     async def create_thread(
-        self,
-        name: str,
-        channel_id: int,
-        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
-        auto_archive_duration: Optional[int] = MISSING,
-        invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
-        reason: Optional[str] = None,
+            self,
+            name: str,
+            channel_id: int,
+            type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+            auto_archive_duration: Optional[int] = MISSING,
+            invitable: Optional[bool] = MISSING,
+            message_id: Optional[int] = MISSING,
+            reason: Optional[str] = None,
     ) -> Channel:
         """
         Creates a thread in the specified channel.
@@ -678,18 +678,18 @@ class Guild(DictSerializerMixin):
         return Channel(**res, _client=self._client)
 
     async def create_channel(
-        self,
-        name: str,
-        type: ChannelType,
-        topic: Optional[str] = MISSING,
-        bitrate: Optional[int] = MISSING,
-        user_limit: Optional[int] = MISSING,
-        rate_limit_per_user: Optional[int] = MISSING,
-        position: Optional[int] = MISSING,
-        permission_overwrites: Optional[List[Overwrite]] = MISSING,
-        parent_id: Optional[int] = MISSING,
-        nsfw: Optional[bool] = MISSING,
-        reason: Optional[str] = None,
+            self,
+            name: str,
+            type: ChannelType,
+            topic: Optional[str] = MISSING,
+            bitrate: Optional[int] = MISSING,
+            user_limit: Optional[int] = MISSING,
+            rate_limit_per_user: Optional[int] = MISSING,
+            position: Optional[int] = MISSING,
+            permission_overwrites: Optional[List[Overwrite]] = MISSING,
+            parent_id: Optional[int] = MISSING,
+            nsfw: Optional[bool] = MISSING,
+            reason: Optional[str] = None,
     ) -> Channel:
         """
         Creates a channel in the guild.
@@ -728,7 +728,8 @@ class Guild(DictSerializerMixin):
             ChannelType.GROUP_DM.value,
         ]:
             raise ValueError(
-                "ChannelType must not be a direct-message when creating Guild Channels!"  # TODO: move to custom error formatter
+                "ChannelType must not be a direct-message when creating Guild Channels!"
+                # TODO: move to custom error formatter
             )
 
         if type in [
@@ -789,21 +790,21 @@ class Guild(DictSerializerMixin):
         return await self.create_channel(**res)
 
     async def modify_channel(
-        self,
-        channel_id: int,
-        name: Optional[str] = MISSING,
-        topic: Optional[str] = MISSING,
-        bitrate: Optional[int] = MISSING,
-        user_limit: Optional[int] = MISSING,
-        rate_limit_per_user: Optional[int] = MISSING,
-        position: Optional[int] = MISSING,
-        permission_overwrites: Optional[List[Overwrite]] = MISSING,
-        parent_id: Optional[int] = MISSING,
-        nsfw: Optional[bool] = MISSING,
-        archived: Optional[bool] = MISSING,
-        auto_archive_duration: Optional[int] = MISSING,
-        locked: Optional[bool] = MISSING,
-        reason: Optional[str] = None,
+            self,
+            channel_id: int,
+            name: Optional[str] = MISSING,
+            topic: Optional[str] = MISSING,
+            bitrate: Optional[int] = MISSING,
+            user_limit: Optional[int] = MISSING,
+            rate_limit_per_user: Optional[int] = MISSING,
+            position: Optional[int] = MISSING,
+            permission_overwrites: Optional[List[Overwrite]] = MISSING,
+            parent_id: Optional[int] = MISSING,
+            nsfw: Optional[bool] = MISSING,
+            archived: Optional[bool] = MISSING,
+            auto_archive_duration: Optional[int] = MISSING,
+            locked: Optional[bool] = MISSING,
+            reason: Optional[str] = None,
     ) -> Channel:
         """
         Edits a channel of the guild.
@@ -881,7 +882,7 @@ class Guild(DictSerializerMixin):
         payload = payload._json
 
         if (
-            archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
+                archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
         ) and not ch.thread_metadata:
             raise ValueError("The specified channel is not a Thread!")
 
@@ -900,15 +901,15 @@ class Guild(DictSerializerMixin):
         return Channel(**res, _client=self._client)
 
     async def modify_member(
-        self,
-        member_id: int,
-        nick: Optional[str] = MISSING,
-        roles: Optional[List[int]] = MISSING,
-        mute: Optional[bool] = MISSING,
-        deaf: Optional[bool] = MISSING,
-        channel_id: Optional[int] = MISSING,
-        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
-        reason: Optional[str] = None,
+            self,
+            member_id: int,
+            nick: Optional[str] = MISSING,
+            roles: Optional[List[int]] = MISSING,
+            mute: Optional[bool] = MISSING,
+            deaf: Optional[bool] = MISSING,
+            channel_id: Optional[int] = MISSING,
+            communication_disabled_until: Optional[datetime.isoformat] = MISSING,
+            reason: Optional[str] = None,
     ) -> Member:
         """
         Modifies a member of the guild.
@@ -982,29 +983,29 @@ class Guild(DictSerializerMixin):
         await self._client.leave_guild(guild_id=int(self.id))
 
     async def modify(
-        self,
-        name: Optional[str] = MISSING,
-        verification_level: Optional[VerificationLevel] = MISSING,
-        default_message_notifications: Optional[DefaultMessageNotificationLevel] = MISSING,
-        explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
-        afk_channel_id: Optional[int] = MISSING,
-        afk_timeout: Optional[int] = MISSING,
-        icon: Optional[Image] = MISSING,
-        owner_id: Optional[int] = MISSING,
-        splash: Optional[Image] = MISSING,
-        discovery_splash: Optional[Image] = MISSING,
-        banner: Optional[Image] = MISSING,
-        system_channel_id: Optional[int] = MISSING,
-        suppress_join_notifications: Optional[bool] = MISSING,
-        suppress_premium_subscriptions: Optional[bool] = MISSING,
-        suppress_guild_reminder_notifications: Optional[bool] = MISSING,
-        suppress_join_notification_replies: Optional[bool] = MISSING,
-        rules_channel_id: Optional[int] = MISSING,
-        public_updates_channel_id: Optional[int] = MISSING,
-        preferred_locale: Optional[str] = MISSING,
-        description: Optional[str] = MISSING,
-        premium_progress_bar_enabled: Optional[bool] = MISSING,
-        reason: Optional[str] = None,
+            self,
+            name: Optional[str] = MISSING,
+            verification_level: Optional[VerificationLevel] = MISSING,
+            default_message_notifications: Optional[DefaultMessageNotificationLevel] = MISSING,
+            explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
+            afk_channel_id: Optional[int] = MISSING,
+            afk_timeout: Optional[int] = MISSING,
+            icon: Optional[Image] = MISSING,
+            owner_id: Optional[int] = MISSING,
+            splash: Optional[Image] = MISSING,
+            discovery_splash: Optional[Image] = MISSING,
+            banner: Optional[Image] = MISSING,
+            system_channel_id: Optional[int] = MISSING,
+            suppress_join_notifications: Optional[bool] = MISSING,
+            suppress_premium_subscriptions: Optional[bool] = MISSING,
+            suppress_guild_reminder_notifications: Optional[bool] = MISSING,
+            suppress_join_notification_replies: Optional[bool] = MISSING,
+            rules_channel_id: Optional[int] = MISSING,
+            public_updates_channel_id: Optional[int] = MISSING,
+            preferred_locale: Optional[str] = MISSING,
+            description: Optional[str] = MISSING,
+            premium_progress_bar_enabled: Optional[bool] = MISSING,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Modifies the current guild.
@@ -1059,10 +1060,10 @@ class Guild(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
         if (
-            suppress_join_notifications is MISSING
-            and suppress_premium_subscriptions is MISSING
-            and suppress_guild_reminder_notifications is MISSING
-            and suppress_join_notification_replies is MISSING
+                suppress_join_notifications is MISSING
+                and suppress_premium_subscriptions is MISSING
+                and suppress_guild_reminder_notifications is MISSING
+                and suppress_join_notification_replies is MISSING
         ):
             system_channel_flags = None
         else:
@@ -1079,10 +1080,10 @@ class Guild(DictSerializerMixin):
                 (1 << 3) if suppress_join_notification_replies is not MISSING else 0
             )
             system_channel_flags = (
-                _suppress_join_notifications
-                | _suppress_premium_subscriptions
-                | _suppress_guild_reminder_notifications
-                | _suppress_join_notification_replies
+                    _suppress_join_notifications
+                    | _suppress_premium_subscriptions
+                    | _suppress_guild_reminder_notifications
+                    | _suppress_join_notification_replies
             )
 
         payload = {}
@@ -1139,10 +1140,10 @@ class Guild(DictSerializerMixin):
         return guild
 
     async def set_name(
-        self,
-        name: str,
-        *,
-        reason: Optional[str] = None,
+            self,
+            name: str,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the name of the guild.
@@ -1155,10 +1156,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(name=name, reason=reason)
 
     async def set_verification_level(
-        self,
-        verification_level: VerificationLevel,
-        *,
-        reason: Optional[str] = None,
+            self,
+            verification_level: VerificationLevel,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the verification level of the guild.
@@ -1171,10 +1172,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(verification_level=verification_level, reason=reason)
 
     async def set_default_message_notifications(
-        self,
-        default_message_notifications: DefaultMessageNotificationLevel,
-        *,
-        reason: Optional[str] = None,
+            self,
+            default_message_notifications: DefaultMessageNotificationLevel,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the default message notifications level of the guild.
@@ -1189,10 +1190,10 @@ class Guild(DictSerializerMixin):
         )
 
     async def set_explicit_content_filter(
-        self,
-        explicit_content_filter: ExplicitContentFilterLevel,
-        *,
-        reason: Optional[str] = None,
+            self,
+            explicit_content_filter: ExplicitContentFilterLevel,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the explicit content filter level of the guild.
@@ -1205,10 +1206,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(explicit_content_filter=explicit_content_filter, reason=reason)
 
     async def set_afk_channel(
-        self,
-        afk_channel_id: int,
-        *,
-        reason: Optional[str] = None,
+            self,
+            afk_channel_id: int,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the afk channel of the guild.
@@ -1221,10 +1222,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(afk_channel_id=afk_channel_id, reason=reason)
 
     async def set_afk_timeout(
-        self,
-        afk_timeout: int,
-        *,
-        reason: Optional[str] = None,
+            self,
+            afk_timeout: int,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the afk timeout of the guild.
@@ -1237,10 +1238,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(afk_timeout=afk_timeout, reason=reason)
 
     async def set_system_channel(
-        self,
-        system_channel_id: int,
-        *,
-        reason: Optional[str] = None,
+            self,
+            system_channel_id: int,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the system channel of the guild.
@@ -1253,10 +1254,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(system_channel_id=system_channel_id, reason=reason)
 
     async def set_rules_channel(
-        self,
-        rules_channel_id: int,
-        *,
-        reason: Optional[str] = None,
+            self,
+            rules_channel_id: int,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the rules channel of the guild.
@@ -1269,10 +1270,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(rules_channel_id=rules_channel_id, reason=reason)
 
     async def set_public_updates_channel(
-        self,
-        public_updates_channel_id: int,
-        *,
-        reason: Optional[str] = None,
+            self,
+            public_updates_channel_id: int,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the public updates channel of the guild.
@@ -1285,10 +1286,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(public_updates_channel_id=public_updates_channel_id, reason=reason)
 
     async def set_preferred_locale(
-        self,
-        preferred_locale: str,
-        *,
-        reason: Optional[str] = None,
+            self,
+            preferred_locale: str,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the preferred locale of the guild.
@@ -1301,10 +1302,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(preferred_locale=preferred_locale, reason=reason)
 
     async def set_description(
-        self,
-        description: str,
-        *,
-        reason: Optional[str] = None,
+            self,
+            description: str,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the description of the guild.
@@ -1317,10 +1318,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(description=description, reason=reason)
 
     async def set_premium_progress_bar_enabled(
-        self,
-        premium_progress_bar_enabled: bool,
-        *,
-        reason: Optional[str] = None,
+            self,
+            premium_progress_bar_enabled: bool,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the visibility of the premium progress bar of the guild.
@@ -1335,10 +1336,10 @@ class Guild(DictSerializerMixin):
         )
 
     async def set_icon(
-        self,
-        icon: Image,
-        *,
-        reason: Optional[str] = None,
+            self,
+            icon: Image,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the icon of the guild.
@@ -1351,10 +1352,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(icon=icon, reason=reason)
 
     async def set_splash(
-        self,
-        splash: Image,
-        *,
-        reason: Optional[str] = None,
+            self,
+            splash: Image,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the splash of the guild.
@@ -1367,10 +1368,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(splash=splash, reason=reason)
 
     async def set_discovery_splash(
-        self,
-        discovery_splash: Image,
-        *,
-        reason: Optional[str] = None,
+            self,
+            discovery_splash: Image,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the discovery_splash of the guild.
@@ -1383,10 +1384,10 @@ class Guild(DictSerializerMixin):
         return await self.modify(discovery_splash=discovery_splash, reason=reason)
 
     async def set_banner(
-        self,
-        banner: Image,
-        *,
-        reason: Optional[str] = None,
+            self,
+            banner: Image,
+            *,
+            reason: Optional[str] = None,
     ) -> "Guild":
         """
         Sets the banner of the guild.
@@ -1399,16 +1400,16 @@ class Guild(DictSerializerMixin):
         return await self.modify(banner=banner, reason=reason)
 
     async def create_scheduled_event(
-        self,
-        name: str,
-        entity_type: EntityType,
-        scheduled_start_time: datetime.isoformat,
-        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
-        entity_metadata: Optional["EventMetadata"] = MISSING,
-        channel_id: Optional[int] = MISSING,
-        description: Optional[str] = MISSING,
-        image: Optional[Image] = MISSING,
-        # privacy_level, TODO: implement when more levels available
+            self,
+            name: str,
+            entity_type: EntityType,
+            scheduled_start_time: datetime.isoformat,
+            scheduled_end_time: Optional[datetime.isoformat] = MISSING,
+            entity_metadata: Optional["EventMetadata"] = MISSING,
+            channel_id: Optional[int] = MISSING,
+            description: Optional[str] = MISSING,
+            image: Optional[Image] = MISSING,
+            # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
         creates a scheduled event for the guild.
@@ -1472,18 +1473,18 @@ class Guild(DictSerializerMixin):
         return ScheduledEvents(**res)
 
     async def modify_scheduled_event(
-        self,
-        event_id: int,
-        name: Optional[str] = MISSING,
-        entity_type: Optional[EntityType] = MISSING,
-        scheduled_start_time: Optional[datetime.isoformat] = MISSING,
-        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
-        entity_metadata: Optional["EventMetadata"] = MISSING,
-        channel_id: Optional[int] = MISSING,
-        description: Optional[str] = MISSING,
-        status: Optional[EventStatus] = MISSING,
-        image: Optional[Image] = MISSING,
-        # privacy_level, TODO: implement when more levels available
+            self,
+            event_id: int,
+            name: Optional[str] = MISSING,
+            entity_type: Optional[EntityType] = MISSING,
+            scheduled_start_time: Optional[datetime.isoformat] = MISSING,
+            scheduled_end_time: Optional[datetime.isoformat] = MISSING,
+            entity_metadata: Optional["EventMetadata"] = MISSING,
+            channel_id: Optional[int] = MISSING,
+            description: Optional[str] = MISSING,
+            status: Optional[EventStatus] = MISSING,
+            image: Optional[Image] = MISSING,
+            # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
         Edits a scheduled event of the guild.
@@ -1589,8 +1590,8 @@ class Guild(DictSerializerMixin):
         return [Role(**role, _client=self._client) for role in res]
 
     async def get_role(
-        self,
-        role_id: int,
+            self,
+            role_id: int,
     ) -> Role:
         """
         Gets a role of the guild.
@@ -1611,10 +1612,10 @@ class Guild(DictSerializerMixin):
         return role
 
     async def modify_role_position(
-        self,
-        role_id: Union[Role, int],
-        position: int,
-        reason: Optional[str] = None,
+            self,
+            role_id: Union[Role, int],
+            position: int,
+            reason: Optional[str] = None,
     ) -> List[Role]:
         """
         Modifies the position of a role in the guild.
@@ -1633,9 +1634,9 @@ class Guild(DictSerializerMixin):
         )
 
     async def modify_role_positions(
-        self,
-        changes: List[dict],
-        reason: Optional[str] = None,
+            self,
+            changes: List[dict],
+            reason: Optional[str] = None,
     ) -> List[Role]:
         """
         Modifies the positions of multiple roles in the guild.
@@ -1662,10 +1663,10 @@ class Guild(DictSerializerMixin):
         return [Role(**role, _client=self._client) for role in res]
 
     async def get_bans(
-        self,
-        limit: Optional[int] = 1000,
-        before: Optional[int] = MISSING,
-        after: Optional[int] = MISSING,
+            self,
+            limit: Optional[int] = 1000,
+            before: Optional[int] = MISSING,
+            after: Optional[int] = MISSING,
     ) -> List[Dict[str, User]]:
         """
         Gets a list of banned users.
@@ -1723,8 +1724,8 @@ class Guild(DictSerializerMixin):
         return res
 
     async def get_emoji(
-        self,
-        emoji_id: int,
+            self,
+            emoji_id: int,
     ) -> Emoji:
         """
         Gets an emoji of the guild and returns it.
@@ -1753,11 +1754,11 @@ class Guild(DictSerializerMixin):
         return [Emoji(**emoji, _client=self._client) for emoji in res]
 
     async def create_emoji(
-        self,
-        image: Image,
-        name: Optional[str] = MISSING,
-        roles: Optional[Union[List[Role], List[int]]] = MISSING,
-        reason: Optional[str] = None,
+            self,
+            image: Image,
+            name: Optional[str] = MISSING,
+            roles: Optional[Union[List[Role], List[int]]] = MISSING,
+            reason: Optional[str] = None,
     ) -> Emoji:
         """
         Creates an Emoji in the guild.
@@ -1791,9 +1792,9 @@ class Guild(DictSerializerMixin):
         return Emoji(**res)
 
     async def delete_emoji(
-        self,
-        emoji: Union[Emoji, int],
-        reason: Optional[str] = None,
+            self,
+            emoji: Union[Emoji, int],
+            reason: Optional[str] = None,
     ) -> None:
         """
         Deletes an emoji of the guild.
@@ -1813,9 +1814,9 @@ class Guild(DictSerializerMixin):
         )
 
     async def get_list_of_members(
-        self,
-        limit: Optional[int] = 1,
-        after: Optional[Union[Member, int]] = MISSING,
+            self,
+            limit: Optional[int] = 1,
+            after: Optional[Union[Member, int]] = MISSING,
     ) -> List[Member]:
         """
         Lists the members of a guild.
@@ -2056,6 +2057,9 @@ class Invite(DictSerializerMixin):
     :ivar Optional[int] target_type: The target type of this invite.
     :ivar Optional[Guild] guild: The guild of this invite.
     :ivar Optional[Channel] channel: The channel of this invite.
+    :ivar Optional[int] approximate_member_count: The aproximate amount of members in the guild.
+    :ivar Optional[int] approximate_presence_count: The aproximate amount of online members in the guild.
+    :ivar Optional[] guild_scheduled_event: The scheduled event included in the invite.
     """
 
     __slots__ = (
@@ -2110,8 +2114,8 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
-        self.approximate_member_count = self._json["approximate_presence_count"] if self._json.get("approximate_member_count") else None
-        self.approximate_presence_count = self._json["approximate_presence_count"] if self._json.get("approximate_presence_count") else None
+        self.guild_scheduled_event = ScheduledEvents(
+            **self._json.get("guild_scheduled_event") if self._json.get("guild_scheduled_event") else None)
 
     async def delete(self) -> None:
         """Deletes the invite"""
