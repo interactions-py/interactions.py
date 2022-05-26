@@ -66,9 +66,10 @@ class User(DictSerializerMixin):
         return self.username
 
     def has_public_flag(self, flag: UserFlags) -> bool:
+        int(flag)
         if self.public_flags == 0 or self.public_flags is None:
             return False
-        return (int(self.public_flags) & int(flag)) == int(flag)
+        return (int(self.public_flags) & flag) == flag
 
     @property
     def mention(self) -> str:
