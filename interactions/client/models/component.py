@@ -328,12 +328,14 @@ class TextInput(DictSerializerMixin):
 class Modal(DictSerializerMixin):
     """
     A class object representing a modal.
+
     The structure for a modal: ::
         interactions.Modal(
             title="Application Form",
             custom_id="mod_app_form",
             components=[interactions.TextInput(...)],
         )
+
     :ivar str custom_id: The custom ID of the modal.
     :ivar str title: The title of the modal.
     :ivar List[Component] components: The components of the modal.
@@ -375,16 +377,19 @@ class Modal(DictSerializerMixin):
 class ActionRow(DictSerializerMixin):
     """
     A class object representing the action row for interaction responses holding components.
+
     .. note::
         A message cannot have more than 5 ActionRow's supported.
         An ActionRow may also support only 1 text input component
         only.
+
     The structure for an action row: ::
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
         # Method 2:
         interactions.ActionRow(components=[...])
+
     :ivar int type: The type of component. Always defaults to ``1``.
     :ivar Optional[List[Component]] components?: A list of components the ActionRow has, if any.
     """

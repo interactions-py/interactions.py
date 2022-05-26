@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-05-25 22:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -80,12 +80,12 @@ msgstr ""
 msgid "The placeholder of the select menu."
 msgstr ""
 
-#: interactions.client.models.component.Component:17
+#: interactions.client.models.component.Component:19
 #: interactions.client.models.component.SelectMenu:12 of
 msgid "The minimum \"options\"/values to choose from the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:18
+#: interactions.client.models.component.Component:20
 #: interactions.client.models.component.SelectMenu:13 of
 msgid "The maximum \"options\"/values to choose from the component."
 msgstr ""
@@ -131,69 +131,75 @@ msgstr ""
 #: interactions.client.models.component.Component:1 of
 msgid ""
 "A class object representing the component in an interaction "
-"response/followup. .. note::"
+"response/followup."
 msgstr ""
 
-#: interactions.client.models.component.Component:6 of
+#: interactions.client.models.component.Component:4 of
+msgid ""
+"``components`` is only applicable if an ActionRow is supported, otherwise"
+" ActionRow-less will be opted. ``list`` is in reference to the class."
+msgstr ""
+
+#: interactions.client.models.component.Component:7 of
 msgid ""
 "This object class is only inferred upon when the gateway is processing "
 "back information involving a component. Do not use this object for "
 "sending."
 msgstr ""
 
-#: interactions.client.models.component.Component:8 of
+#: interactions.client.models.component.Component:10 of
 msgid "The type of component."
 msgstr ""
 
-#: interactions.client.models.component.Component:9 of
+#: interactions.client.models.component.Component:11 of
 msgid "The customized \"ID\" of the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:10 of
+#: interactions.client.models.component.Component:12 of
 msgid "Whether the component is unable to be used."
 msgstr ""
 
-#: interactions.client.models.component.Component:11 of
+#: interactions.client.models.component.Component:13 of
 msgid "The style of the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:12 of
+#: interactions.client.models.component.Component:14 of
 msgid "The label of the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:13 of
+#: interactions.client.models.component.Component:15 of
 msgid "The emoji used alongside the label of the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:14 of
+#: interactions.client.models.component.Component:16 of
 msgid "The URl route/path of the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:15 of
+#: interactions.client.models.component.Component:17 of
 msgid "The \"choices\"/options of the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:16 of
+#: interactions.client.models.component.Component:18 of
 msgid "The placeholder text/value of the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:19 of
+#: interactions.client.models.component.Component:21 of
 msgid "A list of components nested in the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:20 of
+#: interactions.client.models.component.Component:22 of
 msgid "The minimum input length to choose from the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:21 of
+#: interactions.client.models.component.Component:23 of
 msgid "The maximum input length to choose from the component."
 msgstr ""
 
-#: interactions.client.models.component.Component:22 of
+#: interactions.client.models.component.Component:24 of
 msgid "Whether this component is required to be filled."
 msgstr ""
 
-#: interactions.client.models.component.Component:23 of
+#: interactions.client.models.component.Component:25 of
 msgid "The pre-filled value of the component."
 msgstr ""
 
@@ -240,42 +246,66 @@ msgid "The maximum length of the input."
 msgstr ""
 
 #: interactions.client.models.component.Modal:1 of
-msgid "A class object representing a modal. The structure for a modal: ::"
+msgid "A class object representing a modal."
 msgstr ""
 
 #: interactions.client.models.component.Modal:8 of
-msgid "The custom ID of the modal."
+msgid "The structure for a modal: ::"
 msgstr ""
 
-#: interactions.client.models.component.Modal:9 of
-msgid "The title of the modal."
+#: interactions.client.models.component.Modal:6 of
+msgid "interactions.Modal("
+msgstr ""
+
+#: interactions.client.models.component.Modal:5 of
+msgid ""
+"title=\"Application Form\", custom_id=\"mod_app_form\", "
+"components=[interactions.TextInput(...)],"
+msgstr ""
+
+#: interactions.client.models.component.Modal:8 of
+msgid ")"
 msgstr ""
 
 #: interactions.client.models.component.Modal:10 of
+msgid "The custom ID of the modal."
+msgstr ""
+
+#: interactions.client.models.component.Modal:11 of
+msgid "The title of the modal."
+msgstr ""
+
+#: interactions.client.models.component.Modal:12 of
 msgid "The components of the modal."
 msgstr ""
 
 #: interactions.client.models.component.ActionRow:1 of
 msgid ""
 "A class object representing the action row for interaction responses "
-"holding components. .. note::"
+"holding components."
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:10 of
+#: interactions.client.models.component.ActionRow:4 of
+msgid ""
+"A message cannot have more than 5 ActionRow's supported. An ActionRow may"
+" also support only 1 text input component only."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow:13 of
 msgid "The structure for an action row: ::"
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:7 of
+#: interactions.client.models.component.ActionRow:9 of
 msgid ""
 "# \"...\" represents a component object. # Method 1: "
 "interactions.ActionRow(...) # Method 2: "
 "interactions.ActionRow(components=[...])"
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:12 of
+#: interactions.client.models.component.ActionRow:15 of
 msgid "The type of component. Always defaults to ``1``."
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:13 of
+#: interactions.client.models.component.ActionRow:16 of
 msgid "A list of components the ActionRow has, if any."
 msgstr ""

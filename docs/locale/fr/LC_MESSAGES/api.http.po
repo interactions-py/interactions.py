@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-05-25 22:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -257,10 +257,16 @@ msgstr ""
 #: interactions.api.http.message.MessageRequest.edit_message
 #: interactions.api.http.message.MessageRequest.get_message
 #: interactions.api.http.message.MessageRequest.publish_message
+#: interactions.api.http.reaction.ReactionRequest.get_reactions_of_emoji
 #: interactions.api.http.request._Request.request
 #: interactions.api.http.route.Route.endpoint
 #: interactions.api.http.route.Route.get_bucket
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.create_scheduled_event
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.delete_scheduled_event
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event_users
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.modify_scheduled_event
 #: interactions.api.http.sticker.StickerRequest.create_guild_sticker
 #: interactions.api.http.sticker.StickerRequest.delete_guild_sticker
 #: interactions.api.http.sticker.StickerRequest.get_guild_sticker
@@ -283,6 +289,7 @@ msgstr ""
 #: interactions.api.http.webhook.WebhookRequest.execute_github_webhook
 #: interactions.api.http.webhook.WebhookRequest.execute_slack_webhook
 #: interactions.api.http.webhook.WebhookRequest.execute_webhook
+#: interactions.api.http.webhook.WebhookRequest.get_channel_webhooks
 #: interactions.api.http.webhook.WebhookRequest.get_guild_webhooks
 #: interactions.api.http.webhook.WebhookRequest.get_webhook_message
 #: interactions.api.http.webhook.WebhookRequest.modify_webhook of
@@ -1855,7 +1862,7 @@ msgid "The emoji to get (format: `name:id`)"
 msgstr ""
 
 #: interactions.api.http.reaction.ReactionRequest.get_reactions_of_emoji:6 of
-msgid ":return A list of users who sent that emoji."
+msgid "A list of users who sent that emoji."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.create_scheduled_event:1
@@ -1873,9 +1880,7 @@ msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.create_scheduled_event:5
 #: of
-msgid ""
-":return A dictionary containing the new guild scheduled event object on "
-"success."
+msgid "A dictionary containing the new guild scheduled event object on success."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event:1
@@ -1900,9 +1905,7 @@ msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event:6
 #: of
-msgid ""
-":return A dictionary containing the guild scheduled event object on "
-"success."
+msgid "A dictionary containing the guild scheduled event object on success."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events:1
@@ -1913,8 +1916,8 @@ msgstr ""
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events:5
 #: of
 msgid ""
-":return A List of a dictionary containing the guild scheduled event "
-"objects on success."
+"A List of a dictionary containing the guild scheduled event objects on "
+"success."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.modify_scheduled_event:1
@@ -1925,8 +1928,8 @@ msgstr ""
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.modify_scheduled_event:6
 #: of
 msgid ""
-":return A dictionary containing the updated guild scheduled event object "
-"on success."
+"A dictionary containing the updated guild scheduled event object on "
+"success."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.delete_scheduled_event:1
@@ -1936,7 +1939,7 @@ msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.delete_scheduled_event:5
 #: of
-msgid ":return Nothing on success."
+msgid "Nothing on success."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event_users:1
@@ -2306,16 +2309,13 @@ msgstr ""
 msgid "Return a list of channel webhook objects."
 msgstr ""
 
-#: interactions.api.http.webhook.WebhookRequest.get_channel_webhooks:4 of
-msgid ":return:List of webhook objects"
+#: interactions.api.http.webhook.WebhookRequest.get_channel_webhooks:4
+#: interactions.api.http.webhook.WebhookRequest.get_guild_webhooks:4 of
+msgid "List of webhook objects"
 msgstr ""
 
 #: interactions.api.http.webhook.WebhookRequest.get_guild_webhooks:1 of
 msgid "Return a list of guild webhook objects."
-msgstr ""
-
-#: interactions.api.http.webhook.WebhookRequest.get_guild_webhooks:5 of
-msgid "List of webhook objects"
 msgstr ""
 
 #: interactions.api.http.webhook.WebhookRequest.get_webhook:1 of
