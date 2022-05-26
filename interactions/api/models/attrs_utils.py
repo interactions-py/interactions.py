@@ -94,9 +94,7 @@ def convert_dict(key_converter=None, value_converter=None):
     return inner_convert_dict
 
 
-define_defaults = dict(
-    repr=False, kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP
-)
+define_defaults = dict(kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 
 
 @wraps(attrs.define)
@@ -108,6 +106,7 @@ def define(**kwargs):
 def field(
     converter=None,
     default=attrs.NOTHING,
+    repr=False,
     add_client: bool = False,
     discord_name: str = None,
     **kwargs,
@@ -121,4 +120,4 @@ def field(
     if discord_name is not None:
         metadata["discord_name"] = discord_name
 
-    return attrs.field(converter=converter, default=default, metadata=metadata, **kwargs)
+    return attrs.field(converter=converter, default=default, repr=repr, metadata=metadata, **kwargs)

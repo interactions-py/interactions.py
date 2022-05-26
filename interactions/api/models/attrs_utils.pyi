@@ -1,3 +1,4 @@
+from functools import wraps
 from typing import Any, TypeVar, Callable, Tuple, Union, Dict, Optional
 
 import attrs
@@ -38,7 +39,15 @@ def __dataclass_transform__(
 ) -> Callable[[_T], _T]: ...
 
 
-def field(**kwargs) -> Any: ...
+@wraps(attrs.field())
+def field(
+        converter=None,
+        default=attrs.NOTHING,
+        repr=False,
+        add_client: bool = False,
+        discord_name: str = None,
+        **kwargs,
+) -> Any: ...
 
 
 define_defaults: Dict[str, Union[bool, object]] = ...
