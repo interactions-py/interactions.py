@@ -30,6 +30,7 @@ class InviteRequest:
             f"/invites/{invite_code}{'?' + final if final is not None else ''}"
         ))
 
+
     async def delete_invite(self, invite_code: str) -> Invite:
         """
         Deletes an invite.
