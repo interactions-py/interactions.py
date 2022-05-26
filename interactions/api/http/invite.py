@@ -19,22 +19,30 @@ class InviteRequest:
             with_expiration: bool = None,
             guild_scheduled_event_id: int = None
     ) -> dict:
+        """
+        Gets an invite using its code.
+
+        :param invite_code: A string representing the invite code.
+        :param with_counts: Whether approximate_member_count and approximate_presence_count are returned.
+        :param with_expiration: Whether the invite's expiration is returned.
+        :param guild_scheduled_event_id: A guild scheduled event's ID.
+        """
         params_set = {"with_counts=true" if with_counts is True else None,
                       "with_expiration=false" if with_expiration is False else None,
                       f"guild_scheduled_event_id={guild_scheduled_event_id}" if guild_scheduled_event_id else None}
         final = "&".join([item for item in params_set if item is not None])
 
-        # print(f"/invites/{invite_code}{'?' + final if final is not None else ''}")
         return await self._req.request(Route(
             "GET",
             f"/invites/{invite_code}{'?' + final if final is not None else ''}"
         ))
 
-
-    async def delete_invite(self, invite_code: str) -> Invite:
+    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
         """
         Deletes an invite.
-        :param invite_code: Invite code string
-        :return: If successful, an Invite object is returned.
+
+        :param invite_code: Invite code string.
+        :param reason: Reason to send to the audit log, if given.
+        :return: If successful, a dict representing an invite object is returned.
         """
-        return await self._req.request(Route("DELETE", f"/invites/{invite_code}"))
+        return await self._req.request(Route("DELETE", f"/invites/{invite_code}"), reason=reason)

@@ -2056,6 +2056,7 @@ class Invite(DictSerializerMixin):
     :ivar Optional[int] target_type: The target type of this invite.
     :ivar Optional[Guild] guild: The guild of this invite.
     :ivar Optional[Channel] channel: The channel of this invite.
+
     """
 
     __slots__ = (
@@ -2110,8 +2111,8 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
-        self.approximate_member_count = self._json["approximate_presence_count"] if self._json.get("approximate_member_count") else None
-        self.approximate_presence_count = self._json["approximate_presence_count"] if self._json.get("approximate_presence_count") else None
+        self.scheduled_guild_event = ScheduledEvents(
+            **self._json.get("scheduled_guild_event") if self._json.get("scheduled_guild_event") else None)
 
     async def delete(self) -> None:
         """Deletes the invite"""
