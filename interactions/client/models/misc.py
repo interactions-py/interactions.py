@@ -63,25 +63,6 @@ class InteractionData(DictSerializerMixin):
     target_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     components: Any = field(default=None)  # todo check this type
 
-    def __attrs_post_init__(self, **kwargs):
-        if self._json.get("type"):
-            self.type = ApplicationCommandType(self.type)
-            self._json.update({"type": self.type.value})
-        else:
-            self.type = 0
-        self.resolved = (
-            InteractionResolvedData(**self.resolved) if self._json.get("resolved") else None
-        )
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.target_id = Snowflake(self.target_id) if self._json.get("target_id") else None
-        self.options = (
-            [Option(**option) for option in self.options] if self._json.get("options") else None
-        )
-        self.values = self.values if self._json.get("values") else None
-        if self._json.get("component_type"):
-            self.component_type = ComponentType(self.component_type)
-            self._json.update({"component_type": self.component_type.value})
-
 
 @define()
 class Interaction(DictSerializerMixin):
