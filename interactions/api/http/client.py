@@ -4,6 +4,7 @@ import interactions.api.cache
 
 from ...api.cache import Cache
 from .channel import ChannelRequest
+from .invite import InviteRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
 from .interaction import InteractionRequest
@@ -24,6 +25,7 @@ class HTTPClient(
     EmojiRequest,
     GuildRequest,
     InteractionRequest,
+    InviteRequest,
     MemberRequest,
     MessageRequest,
     ReactionRequest,
@@ -59,6 +61,7 @@ class HTTPClient(
         MessageRequest.__init__(self)
         GuildRequest.__init__(self)
         ChannelRequest.__init__(self)
+        InviteRequest.__init__(self)
         ThreadRequest.__init__(self)
         ReactionRequest.__init__(self)
         StickerRequest.__init__(self)

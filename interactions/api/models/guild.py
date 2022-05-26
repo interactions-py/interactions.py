@@ -782,7 +782,7 @@ class Guild(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         res = await self._client.get_channel(channel_id=channel_id)
 
-        res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
+        # res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
         for attr in {"flags", "guild_id", "id", "last_message_id", "last_pin_timestamp"}:
             res.pop(attr, None)
 
@@ -2077,6 +2077,9 @@ class Invite(DictSerializerMixin):
         "target_type",
         "guild",
         "channel",
+        "approximate_member_count",
+        "approximate_presence_count",
+        "guild_scheduled_event"
     )
 
     def __init__(self, **kwargs):
@@ -2107,6 +2110,8 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
+        self.approximate_member_count = self._json["approximate_presence_count"] if self._json.get("approximate_member_count") else None
+        self.approximate_presence_count = self._json["approximate_presence_count"] if self._json.get("approximate_presence_count") else None
 
     async def delete(self) -> None:
         """Deletes the invite"""
