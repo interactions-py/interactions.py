@@ -1057,7 +1057,7 @@ class Channel(DictSerializerMixin):
 
         return Invite(**res, _client=self._client)
 
-    async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
+    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:  # noqa
         """
         Gets messages from the channel's history.
 
@@ -1084,7 +1084,9 @@ class Channel(DictSerializerMixin):
                 )
             ]
             limit -= 100
-            _before = int(_messages[-1].id)
+            if not _msgs:
+                return _messages
+            _before = int(_msgs[-1].id)
 
             for msg in _msgs:
                 if msg in _messages:
@@ -1099,6 +1101,8 @@ class Channel(DictSerializerMixin):
                     channel_id=int(self.id), limit=limit, before=_before
                 )
             ]
+            if not _msgs:
+                return _messages
             for msg in _msgs:
                 if msg in _messages:
                     return _messages
