@@ -29,8 +29,8 @@ class InviteRequest:
         :param with_expiration: Whether the invite's expiration is returned.
         :param guild_scheduled_event_id: A guild scheduled event's ID.
         """
-        params_set = {"with_counts=true" if with_counts is True else None,
-                      "with_expiration=false" if with_expiration is False else None,
+        params_set = {"with_counts=true" if with_counts else None,
+                      "with_expiration=false" if not with_expiration else None,
                       f"guild_scheduled_event_id={guild_scheduled_event_id}" if guild_scheduled_event_id else None}
         final = "&".join([item for item in params_set if item is not None])
 
