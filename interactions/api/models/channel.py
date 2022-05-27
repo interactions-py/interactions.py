@@ -1102,7 +1102,7 @@ class Channel(DictSerializerMixin):
                 )
             ]
             if not _msgs:
-                return []
+                return _messages
             for msg in _msgs:
                 if msg in _messages:
                     return _messages
