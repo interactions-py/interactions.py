@@ -1,8 +1,9 @@
-from typing import Union, Optional
+from typing import Optional, Union
+
+from ...api.cache import Cache
+from ..models.guild import Invite
 from .request import _Request
 from .route import Route
-from ..models.guild import Invite
-from ...api.cache import Cache
 
 
 class InviteRequest:
@@ -13,11 +14,11 @@ class InviteRequest:
         pass
 
     async def get_invite(
-            self,
-            invite_code: str,
-            with_counts: bool = None,
-            with_expiration: bool = None,
-            guild_scheduled_event_id: int = None
+        self,
+        invite_code: str,
+        with_counts: bool = None,
+        with_expiration: bool = None,
+        guild_scheduled_event_id: int = None,
     ) -> dict:
         """
         Gets an invite using its code.
@@ -29,15 +30,18 @@ class InviteRequest:
         :param with_expiration: Whether the invite's expiration is returned.
         :param guild_scheduled_event_id: A guild scheduled event's ID.
         """
-        params_set = {"with_counts=true" if with_counts else None,
-                      "with_expiration=false" if not with_expiration else None,
-                      f"guild_scheduled_event_id={guild_scheduled_event_id}" if guild_scheduled_event_id else None}
+        params_set = {
+            "with_counts=true" if with_counts else None,
+            "with_expiration=false" if not with_expiration else None,
+            f"guild_scheduled_event_id={guild_scheduled_event_id}"
+            if guild_scheduled_event_id
+            else None,
+        }
         final = "&".join([item for item in params_set if item is not None])
 
-        return await self._req.request(Route(
-            "GET",
-            f"/invites/{invite_code}{'?' + final if final is not None else ''}"
-        ))
+        return await self._req.request(
+            Route("GET", f"/invites/{invite_code}{'?' + final if final is not None else ''}")
+        )
 
     async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
         """

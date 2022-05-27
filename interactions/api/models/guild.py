@@ -2083,7 +2083,7 @@ class Invite(DictSerializerMixin):
         "channel",
         "approximate_member_count",
         "approximate_presence_count",
-        "guild_scheduled_event"
+        "guild_scheduled_event",
     )
 
     def __init__(self, **kwargs):
@@ -2115,7 +2115,10 @@ class Invite(DictSerializerMixin):
             else None
         )
         self.guild_scheduled_event = ScheduledEvents(
-            **self._json.get("guild_scheduled_event") if self._json.get("guild_scheduled_event") else None)
+            **self._json.get("guild_scheduled_event")
+            if self._json.get("guild_scheduled_event")
+            else None
+        )
 
     async def delete(self) -> None:
         """Deletes the invite"""
