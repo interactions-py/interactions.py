@@ -2125,6 +2125,10 @@ class Invite(DictSerializerMixin):
 
         await self._client.delete_invite(self.code)
 
+    @property
+    def url(self):
+        return f"https://discord.gg/{self.code}" if self.code is not None else None
+
 
 class GuildTemplate(DictSerializerMixin):
     """
