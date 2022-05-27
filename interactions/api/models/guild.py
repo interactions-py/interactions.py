@@ -2127,7 +2127,7 @@ class Invite(DictSerializerMixin):
 
     @property
     def url(self):
-        return f"https://discord.gg/{self.code}" if self.code is not None else None
+        return f"https://discord.gg/{self.code}" if self.code else None
 
 
 class GuildTemplate(DictSerializerMixin):
