@@ -39,10 +39,10 @@ class InviteRequest:
 
     async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
         """
-        Deletes an invite.
+        Delete an invite.
 
-        :param invite_code: Invite code string.
-        :param reason: Reason to send to the audit log, if given.
-        :return: If successful, a dict representing an invite object is returned.
+        :param invite_code: The code of the invite to delete
+        :param reason: Reason to show in the audit log, if any.
+        :return: The deleted invite object
         """
         return await self._req.request(Route("DELETE", f"/invites/{invite_code}"), reason=reason)
