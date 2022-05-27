@@ -80,7 +80,7 @@ class HTTPClient(
         try:
             _url = f'{url["url"]}?v=10&encoding=json'
         except TypeError:  # seen a few times
-            _url = 'wss://gateway.discord.gg?v=10&encoding=json'
+            _url = "wss://gateway.discord.gg?v=10&encoding=json"
         return _url
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
@@ -94,7 +94,7 @@ class HTTPClient(
         try:
             _url = f'{data["url"]}?v=10&encoding=json'
         except TypeError:  # seen a few times
-            _url = 'wss://gateway.discord.gg?v=10&encoding=json'
+            _url = "wss://gateway.discord.gg?v=10&encoding=json"
         return data["shards"], _url
 
     async def login(self) -> Optional[dict]:
