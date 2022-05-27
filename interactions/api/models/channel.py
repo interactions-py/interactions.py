@@ -1085,7 +1085,7 @@ class Channel(DictSerializerMixin):
             ]
             limit -= 100
             if not _msgs:
-                return []
+                return _messages
             _before = int(_msgs[-1].id)
 
             for msg in _msgs:
