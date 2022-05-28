@@ -147,7 +147,7 @@ class WebSocketClient:
             self.__task.cancel()
         self._client = None  # clear pending waits
         self.__heartbeater.event.clear()
-        await self._establish_connection()
+        await self._establish_connection(self.__shard, self.__presence)
 
     async def _establish_connection(
         self,
@@ -172,7 +172,7 @@ class WebSocketClient:
             self._closed = self._client.closed
 
             if self._closed:
-                await self._establish_connection()
+                await self._establish_connection(self.__shard, self.__presence)
 
             while not self._closed:
                 stream = await self.__receive_packet_stream
@@ -180,7 +180,7 @@ class WebSocketClient:
                 if stream is None:
                     continue
                 if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
-                    await self._establish_connection()
+                    await self._establish_connection(self.__shard, self.__presence)
                     break
 
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
