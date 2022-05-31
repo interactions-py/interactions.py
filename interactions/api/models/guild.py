@@ -1735,13 +1735,13 @@ class Guild(DictSerializerMixin):
         _after = None
         _all: list = []
 
-        res = await self._client.get_guild_bans(int(self.id), limit=1000)
+        res: list = await self._client.get_guild_bans(int(self.id), limit=1000)
 
-        while res >= 1000:
+        while len(res) >= 1000:
 
             for ban in res:
                 ban["user"] = User(**ban["user"])
-            _all.append(res)
+            _all.extend(res)
             _after = int(res[-1]["user"].id)
 
             res = await self._client.get_guild_bans(
