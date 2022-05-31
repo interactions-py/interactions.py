@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from .misc import DictSerializerMixin, Snowflake
 from .flags import UserFlags
@@ -23,6 +23,7 @@ class User(DictSerializerMixin):
     public_flags: Optional[UserFlags]
     def __init__(self, **kwargs): ...
     def __repr__(self) -> str: ...
+    def has_public_flag(self, flag: Union[UserFlags, int]) -> bool: ...
     @property
     def mention(self) -> str: ...
     @property
