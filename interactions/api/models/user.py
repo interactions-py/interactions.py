@@ -3,6 +3,8 @@ from typing import Optional
 from .flags import UserFlags
 from .misc import DictSerializerMixin, Snowflake
 
+__all__ = ["User"]
+
 
 class User(DictSerializerMixin):
     """

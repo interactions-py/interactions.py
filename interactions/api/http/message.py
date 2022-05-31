@@ -8,6 +8,8 @@ from ..models.misc import MISSING, File, Snowflake
 from .request import _Request
 from .route import Route
 
+__all__ = ["MessageRequest"]
+
 
 class MessageRequest:
 

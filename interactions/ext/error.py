@@ -1,5 +1,13 @@
 from enum import Enum
 
+__all__ = [
+    "ErrorType",
+    "IncorrectAlphanumeric",
+    "MissingNumeric",
+    "TooManyAuthors",
+    "UnknownService"
+]
+
 
 class ErrorType(str, Enum):
     """

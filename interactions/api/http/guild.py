@@ -9,6 +9,7 @@ from ..models.role import Role
 from .request import _Request
 from .route import Route
 
+__all__ = ["GuildRequest"]
 
 class GuildRequest:
 
