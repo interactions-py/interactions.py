@@ -634,8 +634,15 @@ class Guild(DictSerializerMixin):
         _icon = role.icon if role.icon is MISSING else icon
         _unicode_emoji = role.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
 
-        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable, permissions=_permissions,
-                       unicode_emoji=_unicode_emoji, icon=_icon)
+        payload = Role(
+            name=_name,
+            color=_color,
+            hoist=_hoist,
+            mentionable=_mentionable,
+            permissions=_permissions,
+            unicode_emoji=_unicode_emoji,
+            icon=_icon,
+        )
 
         res = await self._client.modify_guild_role(
             guild_id=int(self.id),
