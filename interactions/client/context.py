@@ -238,9 +238,6 @@ class _Context(DictSerializerMixin):
 
             payload["components"] = _components
 
-        payload = Message(**payload, _client=self.client)
-        self.message._client = self.client
-
         return payload
 
     async def popup(self, modal: Modal) -> None:
@@ -327,14 +324,14 @@ class CommandContext(_Context):
         if self.deferred:
             if hasattr(self.message, "id") and self.message.id is not None:
                 res = await self.client.edit_message(
-                    int(self.channel_id), int(self.message.id), payload=payload._json
+                    int(self.channel_id), int(self.message.id), payload=payload
                 )
                 self.message = msg = Message(**res, _client=self.client)
             else:
                 res = await self.client.edit_interaction_response(
                     token=self.token,
                     application_id=str(self.id),
-                    data={"type": self.callback.value, "data": payload._json},
+                    data={"type": self.callback.value, "data": payload},
                     message_id=self.message.id if self.message else "@original",
                 )
                 if res["flags"] == 64:
@@ -342,27 +339,23 @@ class CommandContext(_Context):
                     self.message = payload
                     self.message._client = self.client
                 else:
-                    await self.client.edit_message(
-                        int(self.channel_id), res["id"], payload=payload._json
-                    )
+                    await self.client.edit_message(int(self.channel_id), res["id"], payload=payload)
                     self.message = msg = Message(**res, _client=self.client)
         else:
             res = await self.client.edit_interaction_response(
                 token=self.token,
                 application_id=str(self.application_id),
-                data={"type": self.callback.value, "data": payload._json},
+                data={"type": self.callback.value, "data": payload},
             )
             if res["flags"] == 64:
                 log.warning("You can't edit hidden messages.")
             else:
-                await self.client.edit_message(
-                    int(self.channel_id), res["id"], payload=payload._json
-                )
+                await self.client.edit_message(int(self.channel_id), res["id"], payload=payload)
                 self.message = msg = Message(**res, _client=self.client)
 
         if msg is not None:
             return msg
-        return payload
+        return Message(**payload, _client=self.client)
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
         """
@@ -508,36 +501,36 @@ class ComponentContext(_Context):
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
         payload = await super().edit(content, **kwargs)
-        msg = None
 
         if not self.deferred:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
             await self.client.create_interaction_response(
-                data={"type": self.callback.value, "data": payload._json},
+                data={"type": self.callback.value, "data": payload},
                 token=self.token,
                 application_id=int(self.id),
             )
-            self.message = payload
+            # self.message = payload
             self.responded = True
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-            await self.client._post_followup(
-                data=payload._json,
+            res = await self.client._post_followup(
+                data=payload,
                 token=self.token,
                 application_id=str(self.application_id),
             )
+            self.message = Message(**res, _client=self.client)
         else:
             res = await self.client.edit_interaction_response(
-                data=payload._json,
+                data=payload,
                 token=self.token,
                 application_id=str(self.application_id),
             )
             self.responded = True
-            self.message = msg = Message(**res, _client=self.client)
+            self.message = Message(**res, _client=self.client)
 
-        if msg is not None:
-            return msg
+        if self.message is None:
+            self.message = Message(**payload, _client=self.client)
 
-        return payload
+        return self.message
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)

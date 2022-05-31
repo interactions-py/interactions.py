@@ -1,23 +1,23 @@
-from ..api import InteractionException as InteractionException
-from ..api.models.channel import Channel as Channel
-from ..api.models.guild import Guild as Guild
-from ..api.models.member import Member as Member
-from ..api.models.message import Embed as Embed, Message as Message, MessageInteraction as MessageInteraction, MessageReference as MessageReference
-from ..api.models.misc import DictSerializerMixin as DictSerializerMixin, MISSING as MISSING, Snowflake as Snowflake, define as define, field as field
-from ..api.models.user import User as User
-from ..base import get_logger as get_logger
-from ..ext import converter as converter
+from typing import Any, List, Optional, Union
+
 from .enums import InteractionCallbackType as InteractionCallbackType, InteractionType as InteractionType
 from .models.command import Choice as Choice
 from .models.component import ActionRow as ActionRow, Button as Button, Modal as Modal, SelectMenu as SelectMenu
 from .models.misc import InteractionData as InteractionData
-from logging import Logger
-from typing import Any, List, Optional, Union
+from ..api.http.client import HTTPClient
+from ..api.models.channel import Channel as Channel
+from ..api.models.guild import Guild as Guild
+from ..api.models.member import Member as Member
+from ..api.models.message import Embed as Embed, Message as Message, MessageInteraction as MessageInteraction, \
+    MessageReference as MessageReference
+from ..api.models.misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake
+from ..api.models.user import User as User
 
 log: Logger
 
+
 class _Context(DictSerializerMixin):
-    client: Any
+    client: HTTPClient
     message: Optional[Message]
     author: Member
     member: Member
@@ -38,8 +38,19 @@ class _Context(DictSerializerMixin):
     def __attrs_post_init__(self) -> None: ...
     async def get_channel(self) -> Channel: ...
     async def get_guild(self) -> Guild: ...
-    async def send(self, content: Optional[str] = ..., *, tts: Optional[bool] = ..., embeds: Optional[Union[Embed, List[Embed]]] = ..., allowed_mentions: Optional[MessageInteraction] = ..., components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ..., ephemeral: Optional[bool] = ...) -> dict: ...
-    async def edit(self, content: Optional[str] = ..., *, tts: Optional[bool] = ..., embeds: Optional[Union[Embed, List[Embed]]] = ..., allowed_mentions: Optional[MessageInteraction] = ..., message_reference: Optional[MessageReference] = ..., components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...) -> Message: ...
+
+    async def send(self, content: Optional[str] = ..., *, tts: Optional[bool] = ...,
+                   embeds: Optional[Union[Embed, List[Embed]]] = ...,
+                   allowed_mentions: Optional[MessageInteraction] = ..., components: Optional[
+                Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...,
+                   ephemeral: Optional[bool] = ...) -> dict: ...
+
+    async def edit(self, content: Optional[str] = ..., *, tts: Optional[bool] = ...,
+                   embeds: Optional[Union[Embed, List[Embed]]] = ...,
+                   allowed_mentions: Optional[MessageInteraction] = ...,
+                   message_reference: Optional[MessageReference] = ..., components: Optional[Union[
+                ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...) -> dict: ...
+
     async def popup(self, modal: Modal) -> None: ...
 
 class CommandContext(_Context):
