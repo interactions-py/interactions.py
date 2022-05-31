@@ -631,7 +631,7 @@ class Guild(DictSerializerMixin):
         _hoist = role.hoist if hoist is MISSING else hoist
         _mentionable = role.mentionable if mentionable is MISSING else mentionable
         _permissions = role.permissions if permissions is MISSING else permissions
-        _icon = role.icon if role.icon is MISSING else icon
+        _icon = role.icon if icon is MISSING else icon
         _unicode_emoji = role.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
 
         payload = Role(
@@ -1659,7 +1659,10 @@ class Guild(DictSerializerMixin):
         :rtype: List[Role]
         """
         return await self.modify_role_positions(
-            changes=[{"id": role_id, "position": position}], reason=reason
+            changes=[
+                {"id": role_id.id if isinstance(role_id, Role) else role_id, "position": position}
+            ],
+            reason=reason,
         )
 
     async def modify_role_positions(
