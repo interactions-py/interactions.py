@@ -5,10 +5,7 @@ from setuptools import setup
 from .error import UnknownService
 from .version import Version
 
-__all__ = [
-    "Base",
-    "build"
-]
+__all__ = ["Base", "build"]
 
 
 class Base:

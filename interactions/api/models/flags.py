@@ -1,12 +1,6 @@
 from enum import Enum, IntFlag
 
-__all__ = [
-    "Intents",
-    "AppFlags",
-    "StatusType",
-    "UserFlags",
-    "Permissions"
-]
+__all__ = ["Intents", "AppFlags", "StatusType", "UserFlags", "Permissions"]
 
 
 class Intents(IntFlag):

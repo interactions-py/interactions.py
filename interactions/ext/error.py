@@ -5,7 +5,7 @@ __all__ = [
     "IncorrectAlphanumeric",
     "MissingNumeric",
     "TooManyAuthors",
-    "UnknownService"
+    "UnknownService",
 ]
 
 

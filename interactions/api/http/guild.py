@@ -11,6 +11,7 @@ from .route import Route
 
 __all__ = ["GuildRequest"]
 
+
 class GuildRequest:
 
     _req: _Request

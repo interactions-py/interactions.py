@@ -9,7 +9,7 @@ __all__ = [
     "ComponentType",
     "ButtonStyle",
     "TextStyleType",
-    "Locale"
+    "Locale",
 ]
 
 

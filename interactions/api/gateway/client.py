@@ -35,6 +35,7 @@ log = get_logger("gateway")
 
 __all__ = ["WebSocketClient"]
 
+
 class WebSocketClient:
     """
     A class representing the client's connection to the Gateway via. WebSocket.

@@ -13,7 +13,7 @@ __all__ = [
     "TextInput",
     "Modal",
     "ActionRow",
-    "_build_components"
+    "_build_components",
 ]
 
 

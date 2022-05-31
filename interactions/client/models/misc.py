@@ -9,11 +9,7 @@ from ...api.models.user import User
 from ..enums import ApplicationCommandType, ComponentType, InteractionType
 from ..models.command import Option
 
-__all__ = [
-    "InteractionResolvedData",
-    "InteractionData",
-    "Interaction"
-]
+__all__ = ["InteractionResolvedData", "InteractionData", "Interaction"]
 
 
 class InteractionResolvedData(DictSerializerMixin):
