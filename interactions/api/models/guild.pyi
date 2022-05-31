@@ -165,14 +165,15 @@ class Guild(DictSerializerMixin):
         member_id: int,
         reason: Optional[str] = None,
     ) -> None: ...
+
     async def create_role(
         self,
         name: str,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = 0,
         hoist: Optional[bool] = False,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> Role: ...
@@ -189,15 +190,16 @@ class Guild(DictSerializerMixin):
         role_id: int,
         reason: Optional[str] = None,
     ) -> None: ...
+
     async def modify_role(
         self,
         role_id: int,
         name: Optional[str] = MISSING,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role: ...

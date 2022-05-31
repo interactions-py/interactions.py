@@ -476,11 +476,11 @@ class Guild(DictSerializerMixin):
     async def create_role(
         self,
         name: str,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = 0,
         hoist: Optional[bool] = False,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> Role:
@@ -491,8 +491,14 @@ class Guild(DictSerializerMixin):
         :type name: str
         :param color?: RGB color value as integer, default ``0``
         :type color: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions
+        :type permissions: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, default ``False``
         :type hoist: Optional[bool]
+        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature)
+        :type icon: Optional[Image]
+        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
+        :type unicode_emoji: Optional[str]
         :param mentionable?: Whether the role should be mentionable, default ``False``
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is created, default ``None``
@@ -502,8 +508,14 @@ class Guild(DictSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
+        _permissions = permissions if permissions is not MISSING else None
+        _icon = icon if icon is not MISSING else None
+        _unicode_emoji = unicode_emoji if unicode_emoji is not MISSING else None
         payload = Role(
             name=name,
+            permissions=_permissions,
+            icon=_icon,
+            unicode_emoji=_unicode_emoji,
             color=color,
             hoist=hoist,
             mentionable=mentionable,
@@ -574,11 +586,11 @@ class Guild(DictSerializerMixin):
         self,
         role_id: int,
         name: Optional[str] = MISSING,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role:
@@ -591,8 +603,14 @@ class Guild(DictSerializerMixin):
         :type name: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
         :type color: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :type permissions: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
         :type hoist: Optional[bool]
+        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type icon: Optional[Image]
+        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type unicode_emoji: Optional[str]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is edited, default ``None``
@@ -607,12 +625,17 @@ class Guild(DictSerializerMixin):
             if int(i["id"]) == role_id:
                 role = Role(**i)
                 break
+
         _name = role.name if name is MISSING else name
         _color = role.color if color is MISSING else color
         _hoist = role.hoist if hoist is MISSING else hoist
         _mentionable = role.mentionable if mentionable is MISSING else mentionable
+        _permissions = role.permissions if permissions is MISSING else permissions
+        _icon = role.icon if role.icon is MISSING else icon
+        _unicode_emoji = role.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
 
-        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable, permissions=_permissions,
+                       unicode_emoji=_unicode_emoji, icon=_icon)
 
         res = await self._client.modify_guild_role(
             guild_id=int(self.id),
