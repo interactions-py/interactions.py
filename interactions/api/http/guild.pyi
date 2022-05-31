@@ -84,8 +84,15 @@ class GuildRequest:
     async def remove_guild_ban(
         self, guild_id: int, user_id: int, reason: Optional[str] = None
     ) -> None: ...
-    async def get_guild_bans(self, guild_id: int) -> List[dict]: ...
-    async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]: ...
+
+    async def get_guild_bans(
+        self,
+        guild_id: int,
+        limit: Optional[int] = 1000,
+        before: Optional[int] = None,
+        after: Optional[int] = None,
+    ) -> List[dict]: ...
+    def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]: ...
     async def add_guild_member(
         self,
         guild_id: int,
