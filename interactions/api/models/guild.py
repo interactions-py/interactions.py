@@ -2114,10 +2114,10 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
-        self.guild_scheduled_event = ScheduledEvents(
-            **self._json.get("guild_scheduled_event")
-            if self._json.get("guild_scheduled_event")
-            else None
+        self.guild_scheduled_event = ( ScheduledEvents(
+            **self._json.get("guild_scheduled_event"))
+            if isinstance(self._json.get("guild_scheduled_event") , dict)
+            else self._json.get("guild_scheduled_event")
         )
 
     async def delete(self) -> None:
