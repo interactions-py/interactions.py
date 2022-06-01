@@ -1,7 +1,6 @@
-from typing import Optional, Union
+from typing import Optional
 
 from ...api.cache import Cache
-from ..models.guild import Invite
 from .request import _Request
 from .route import Route
 
