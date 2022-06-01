@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Tuple
+from typing import Mapping, Tuple
 
 import attrs
 
@@ -63,7 +63,25 @@ def convert_list(converter):
     """A helper function to convert items in a list with the specified converter"""
 
     def inner_convert_list(list):
-        return [converter(**item) for item in list] if list is not None else None
+        if list is None:
+            return None
+
+        # empty lists need no conversion
+        if len(list) == 0:
+            return list
+
+        # all items should be of the same type
+        if isinstance(list[0], Mapping):
+            return [converter(**item) for item in list]
+
+        # check if all are from the mixin and have been converted
+        elif issubclass(converter, DictSerializerMixin) and isinstance(
+            list[0], DictSerializerMixin
+        ):
+            return list
+
+        else:
+            return [converter(item) for item in list]
 
     return inner_convert_list
 
