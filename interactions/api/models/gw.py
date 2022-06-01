@@ -465,13 +465,13 @@ class GuildRole(ClientSerializerMixin):
     A class object representing the gateway events ``GUILD_ROLE_CREATE``, ``GUILD_ROLE_UPDATE`` and ``GUILD_ROLE_DELETE``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Role role: The role of the event.
-    :ivar Optional[Snowflake] role_id?: The role ID of the event.
+    :ivar Optional[Role] role: The role of the event.
+    :ivar Snowflake role_id?: The role ID of the event.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    role: Role = field(converter=Role)
-    role_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    role: Optional[Role] = field(converter=Role, default=None)
+    role_id: Snowflake = field(converter=Snowflake)
     guild_hashes = field()  # TODO: investigate what this is.
 
 

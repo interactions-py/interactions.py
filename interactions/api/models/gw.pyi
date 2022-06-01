@@ -116,8 +116,8 @@ class GuildMembers(DictSerializerMixin):
 @define()
 class GuildRole(ClientSerializerMixin):
     guild_id: Snowflake
-    role: Role
-    role_id: Optional[Snowflake]
+    role: Optional[Role]
+    role_id: Snowflake
     guild_hashes: Any
 
 
