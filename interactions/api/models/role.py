@@ -117,20 +117,19 @@ class Role(ClientSerializerMixin):
         _hoist = self.hoist if hoist is MISSING else hoist
         _mentionable = self.mentionable if mentionable is MISSING else mentionable
 
-        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+        payload = dict(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
 
         res = await self._client.modify_guild_role(
             guild_id=guild_id,
             role_id=int(self.id),
-            payload=payload._json,
+            payload=payload,
             reason=reason,
         )
-        role = Role(**res, _client=self._client)
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(role, attr))
+        for key, value in res.items():
+            setattr(self, key, value)
 
-        return role
+        return self
 
     async def modify_position(
         self,
