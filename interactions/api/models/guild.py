@@ -2056,6 +2056,10 @@ class Invite(DictSerializerMixin):
     :ivar Optional[int] target_type: The target type of this invite.
     :ivar Optional[Guild] guild: The guild of this invite.
     :ivar Optional[Channel] channel: The channel of this invite.
+    :ivar Optional[int] approximate_member_count: The approximate amount of total members in a guild.
+    :ivar Optional[int] approximate_presence_count: The aprpoximate amount of online members in a guild.
+    :ivar Optional[ScheduledEvents] guild_scheduled_event: A scheduled guild event object included in the invite.
+
     """
 
     __slots__ = (
@@ -2077,6 +2081,9 @@ class Invite(DictSerializerMixin):
         "target_type",
         "guild",
         "channel",
+        "approximate_member_count",
+        "approximate_presence_count",
+        "guild_scheduled_event",
     )
 
     def __init__(self, **kwargs):
@@ -2107,6 +2114,11 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
+        self.guild_scheduled_event = (
+            ScheduledEvents(**self._json.get("guild_scheduled_event"))
+            if isinstance(self._json.get("guild_scheduled_event"), dict)
+            else self._json.get("guild_scheduled_event")
+        )
 
     async def delete(self) -> None:
         """Deletes the invite"""
@@ -2115,6 +2127,10 @@ class Invite(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
 
         await self._client.delete_invite(self.code)
+
+    @property
+    def url(self):
+        return f"https://discord.gg/{self.code}" if self.code else None
 
 
 class GuildTemplate(DictSerializerMixin):
