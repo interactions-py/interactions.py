@@ -1,6 +1,6 @@
 from typing import ClassVar, Optional
 
-__all__ = ("Route") 
+__all__ = ("Route",)
 
 
 class Route:
