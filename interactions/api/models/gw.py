@@ -32,7 +32,7 @@ __all__ = (
     "GuildJoinRequest",
     "GuildEmojis",
     "GuildRole",
-) 
+)
 
 
 class ApplicationCommandPermissions(DictSerializerMixin):
