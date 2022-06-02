@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-__all__ = ["OpCodeType"]
+__all__ = ("OpCodeType") 
 
 # TODO: post-v4: Implement this into the new error system at a later point.
 # class DefaultErrorType(IntEnum):
