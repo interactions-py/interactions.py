@@ -322,6 +322,7 @@ class WebSocketClient:
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND:
                                 for _option in option.options:
@@ -334,7 +335,7 @@ class WebSocketClient:
                                         _name += f"_{__name}" if __name else ""
                                         if _value:
                                             __args.append(_value)
-                                    break
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND_GROUP:
                                 for _option in option.options:
@@ -350,9 +351,8 @@ class WebSocketClient:
                                             _name += f"_{__name}" if __name else ""
                                             if _value:
                                                 __args.append(_value)
-                                        break
+                                            break
                                     break
-                            break
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
