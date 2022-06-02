@@ -32,7 +32,7 @@ _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
 
-__all__ = [
+__all__ = (
     "Client",
     "Extension",
     "extension_listener",
@@ -42,7 +42,7 @@ __all__ = [
     "extension_autocomplete",
     "extension_user_command",
     "extension_message_command",
-]
+) 
 
 
 class Client:
