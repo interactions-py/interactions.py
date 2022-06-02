@@ -5,7 +5,7 @@ from .misc import MISSING, DictSerializerMixin, Snowflake
 __all__ = (
     "Role",
     "RoleTags",
-) 
+)
 
 
 class RoleTags(DictSerializerMixin):
