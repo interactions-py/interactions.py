@@ -39,7 +39,6 @@ class ChannelRequest:
     async def create_channel_invite(
         self, channel_id: int, payload: dict, reason: Optional[str] = None
     ) -> dict: ...
-    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict: ...
     async def edit_channel_permission(
         self,
         channel_id: int,

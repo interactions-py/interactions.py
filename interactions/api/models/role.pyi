@@ -1,6 +1,6 @@
 from typing import Any, Optional, List
 
-from .misc import DictSerializerMixin, MISSING, Snowflake
+from .misc import DictSerializerMixin, MISSING, Snowflake, Image
 from ..http.client import HTTPClient
 
 class RoleTags(DictSerializerMixin):
@@ -36,11 +36,11 @@ class Role(DictSerializerMixin):
         self,
         guild_id: int,
         name: Optional[str] = MISSING,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Role": ...

@@ -361,6 +361,8 @@ class Channel(DictSerializerMixin):
         _nsfw = self.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
             [overwrite._json for overwrite in self.permission_overwrites]
+            if self.permission_overwrites
+            else None
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )
