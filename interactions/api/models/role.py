@@ -2,10 +2,10 @@ from typing import List, Optional
 
 from .misc import MISSING, DictSerializerMixin, Snowflake
 
-__all__ = [
+__all__ = (
     "Role",
     "RoleTags",
-]
+) 
 
 
 class RoleTags(DictSerializerMixin):
