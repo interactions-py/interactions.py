@@ -7,7 +7,7 @@ from .user import User
 __all__ = (
     "Webhook",
     "WebhookType",
-) 
+)
 
 
 class WebhookType(IntEnum):
