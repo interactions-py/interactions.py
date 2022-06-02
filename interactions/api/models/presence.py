@@ -4,7 +4,7 @@ from enum import IntEnum
 from ..models import StatusType
 from .misc import DictSerializerMixin, Snowflake
 
-__all__ = [
+__all__ = (
     "PresenceParty",
     "PresenceAssets",
     "PresenceSecrets",
@@ -13,7 +13,7 @@ __all__ = [
     "PresenceActivityType",
     "PresenceButtons",
     "ClientPresence",
-]
+) 
 
 
 class PresenceParty(DictSerializerMixin):
