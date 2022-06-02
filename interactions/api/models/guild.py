@@ -30,7 +30,7 @@ __all__ = (
     "Guild",
     "GuildPreview",
     "Invite",
-) 
+)
 
 
 class VerificationLevel(IntEnum):
