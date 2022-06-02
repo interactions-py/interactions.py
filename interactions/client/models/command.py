@@ -9,7 +9,7 @@ __all__ = (
     "Option",
     "Permission",
     "ApplicationCommand",
-) 
+)
 
 
 class Choice(DictSerializerMixin):
