@@ -1,11 +1,11 @@
 from collections import OrderedDict
 from typing import Any, List, Optional
 
-__all__ = [
+__all__ = (
     "Item",
     "Storage",
     "Cache",
-]
+) 
 
 
 class Item(object):
