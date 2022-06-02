@@ -7,7 +7,7 @@ from .misc import MISSING, DictSerializerMixin, File, Snowflake
 from .role import Role
 from .user import User
 
-__all__ = ("Member") 
+__all__ = ("Member",)
 
 
 class Member(DictSerializerMixin):
