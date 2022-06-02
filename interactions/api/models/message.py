@@ -8,7 +8,7 @@ from .misc import MISSING, DictSerializerMixin, File, Snowflake
 from .team import Application
 from .user import User
 
-__all__ = [
+__all__ = (
     "MessageType",
     "Message",
     "MessageReference",
@@ -26,7 +26,7 @@ __all__ = [
     "ReactionObject",
     "PartialSticker",
     "Sticker",
-]
+) 
 
 
 class MessageType(IntEnum):
