@@ -2,13 +2,13 @@ from enum import IntEnum
 from string import Formatter
 from typing import Any, Optional, Union
 
-__all__ = [
+__all__ = (
     "ErrorFormatter",
     "InteractionException",
     "GatewayException",
     "HTTPException",
     "JSONException",
-]
+) 
 
 
 class ErrorFormatter(Formatter):
