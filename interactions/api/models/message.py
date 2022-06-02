@@ -667,12 +667,43 @@ class Message(DictSerializerMixin):
         :param user: The user or user_id to remove the reaction of
         :type user: Union[Member, user, int]
         """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
         _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
 
         _user_id = user if isinstance(user, int) else user.id
         return await self._client.remove_user_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
         )
+
+    async def get_users_from_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> List[User]:
+        """
+        Retrieves all users that reacted to the message with the given emoji
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        :return: A list of user objects
+        :rtype: List[User]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _emoji = (
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
+
+        res = await self._client.get_reactions_of_emoji(
+            channel_id=int(self.channel_id),
+            message_id=int(self.id),
+            emoji=_emoji,
+        )
+        return [User(**_) for _ in res]
 
     @classmethod
     async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,
