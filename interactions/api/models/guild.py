@@ -2070,6 +2070,7 @@ class EventMetadata(DictSerializerMixin):
     location: Optional[str] = field(default=None)
 
 
+@define()
 class ScheduledEvents(DictSerializerMixin):
     """
     A class object representing the scheduled events of a guild.
