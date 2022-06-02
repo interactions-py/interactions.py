@@ -24,7 +24,7 @@ __all__ = (
     "File",
     "Overwrite",
     "MISSING",
-) 
+)
 
 log: Logger = get_logger("mixin")
 
