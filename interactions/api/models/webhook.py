@@ -168,12 +168,8 @@ class Webhook(DictSerializerMixin):
             webhook_token=None if channel_id else self.token,
         )
 
-        webhook = Webhook(**res, _client=self._client)
-
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(webhook, attr))
-
-        return webhook
+        self.update(res)
+        return self
 
     async def execute(
         self,

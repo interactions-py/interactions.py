@@ -1144,12 +1144,9 @@ class Guild(ClientSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        guild = Guild(**res, _client=self._client)
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(guild, attr))
-
-        return guild
+        self.update(res)
+        return self
 
     async def set_name(
         self,

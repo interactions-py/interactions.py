@@ -148,8 +148,7 @@ class Role(ClientSerializerMixin):
             reason=reason,
         )
 
-        for key, value in res.items():
-            setattr(self, key, value)
+        self.update(res)
 
         return self
 

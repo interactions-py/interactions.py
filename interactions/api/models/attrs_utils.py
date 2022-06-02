@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Mapping, Tuple
+from typing import Dict, Mapping, Tuple
 
 import attrs
 
@@ -47,6 +47,29 @@ class DictSerializerMixin:
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
+
+    def update(self, kwargs_dict: dict = None, /, **other_kwargs):
+        """
+        Update an object with new attributes.
+        All data will be converted, and any extra attributes will be put in _extras
+
+        :param dict kwargs_dict: The dictionary to update from
+        """
+        kwargs = kwargs_dict or other_kwargs
+        attribs: Dict[str, attrs.Attribute] = {
+            attrib.name: attrib for attrib in self.__attrs_attrs__
+        }
+
+        for name, value in kwargs.items():
+            if name not in attribs:
+                self._extras[name] = value
+                continue
+
+            if converter := attribs[name].converter:
+                value = converter(value)
+
+            self._json[name] = value
+            setattr(self, name, value)
 
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)

@@ -134,7 +134,7 @@ class Channel(ClientSerializerMixin):
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     position: Optional[int] = field(default=None)
     permission_overwrites: Optional[List[Overwrite]] = field(
-        converter=convert_list(Overwrite), default=None
+        converter=convert_list(Overwrite), factory=list
     )
     name: str = field(factory=str)
     topic: Optional[str] = field(default=None)
@@ -373,12 +373,10 @@ class Channel(ClientSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        ch = Channel(**res, _client=self._client)
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(ch, attr))
+        self.update(res)
 
-        return ch
+        return self
 
     async def set_name(
         self,
