@@ -5,11 +5,11 @@ from typing import List, Optional, Union
 
 from .error import IncorrectAlphanumeric, TooManyAuthors
 
-__all__ = [
+__all__ = (
     "VersionAuthor",
     "VersionAlphanumericType",
     "Version",
-]
+) 
 
 
 class VersionAlphanumericType(str, Enum):
