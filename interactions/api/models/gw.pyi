@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional, Union, Any
 
+from .guild import EventMetadata
 from ...models.component import ActionRow, Button, SelectMenu
 from .channel import Channel, ThreadMember
 from .member import Member
@@ -157,6 +158,33 @@ class GuildStickers(DictSerializerMixin):
     _json: dict
     guild_id: Snowflake
     stickers: List[Sticker]
+    def __init__(self, **kwargs): ...
+
+class GuildScheduledEvent(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    guild_id: Snowflake
+    channel_id: Optional[Snowflake]
+    creator_id: Optional[Snowflake]
+    name: str
+    description: str
+    scheduled_start_time: datetime
+    scheduled_end_time: Optional[datetime]
+    privacy_level: int
+    entity_type: int
+    entity_id: Optional[Snowflake]
+    entity_metadata: Optional[EventMetadata]
+    creator: Optional[User]
+    user_count: Optional[int]
+    status: int
+    image: Optional[str]
+    def __init__(self, **kwargs): ...
+
+class GuildScheduledEventUser(DictSerializerMixin):
+    _json: dict
+    guild_scheduled_event_id: Snowflake
+    user_id: Snowflake
+    guild_id: Snowflake
     def __init__(self, **kwargs): ...
 
 class Integration(DictSerializerMixin):

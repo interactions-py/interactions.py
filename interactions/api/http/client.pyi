@@ -5,6 +5,7 @@ from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
 from .interaction import InteractionRequest
+from .invite import InviteRequest
 from .member import MemberRequest
 from .message import MessageRequest
 from .reaction import ReactionRequest
@@ -21,6 +22,7 @@ class HTTPClient(
     EmojiRequest,
     GuildRequest,
     InteractionRequest,
+    InviteRequest,
     MemberRequest,
     MessageRequest,
     ReactionRequest,

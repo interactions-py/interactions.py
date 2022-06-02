@@ -1,5 +1,6 @@
-from typing import Any, List, Optional
+from typing import List, Optional
 
+from ..models.misc import MISSING, File
 from ...api.cache import Cache
 from .request import _Request
 
@@ -10,16 +11,14 @@ class WebhookRequest:
     cache: Cache
 
     def __init__(self) -> None: ...
-    async def create_webhook(self, channel_id: int, name: str, avatar: Any = None) -> dict: ...
+    async def create_webhook(self, channel_id: int, name: str, avatar: str = None) -> dict: ...
     async def get_channel_webhooks(self, channel_id: int) -> List[dict]: ...
     async def get_guild_webhooks(self, guild_id: int) -> List[dict]: ...
     async def get_webhook(self, webhook_id: int, webhook_token: str = None) -> dict: ...
     async def modify_webhook(
         self,
         webhook_id: int,
-        name: str,
-        avatar: Any,
-        channel_id: int,
+        payload: dict,
         webhook_token: str = None,
     ) -> dict: ...
     async def delete_webhook(self, webhook_id: int, webhook_token: str = None): ...
@@ -28,6 +27,7 @@ class WebhookRequest:
         webhook_id: int,
         webhook_token: str,
         payload: dict,
+        files: Optional[List[File]] = MISSING,
         wait: bool = False,
         thread_id: Optional[int] = None,
     ) -> Optional[dict]: ...

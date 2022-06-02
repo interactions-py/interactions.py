@@ -10,6 +10,7 @@ from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
+from .webhook import Webhook
 
 
 class VerificationLevel(IntEnum):
@@ -767,6 +768,25 @@ class Guild(DictSerializerMixin):
         )
 
         return Channel(**res, _client=self._client)
+
+    async def clone_channel(self, channel_id: int) -> Channel:
+        """
+        Clones a channel of the guild.
+
+        :param channel_id: The id of the channel to clone
+        :type channel_id: int
+        :return: The cloned channel
+        :rtype: Channel
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        res = await self._client.get_channel(channel_id=channel_id)
+
+        res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
+        for attr in {"flags", "guild_id", "id", "last_message_id", "last_pin_timestamp"}:
+            res.pop(attr, None)
+
+        return await self.create_channel(**res)
 
     async def modify_channel(
         self,
@@ -1864,6 +1884,14 @@ class Guild(DictSerializerMixin):
 
         return [Member(**_, _client=self._client) for _ in _all_members]
 
+    async def get_webhooks(self) -> List[Webhook]:
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        res = await self._client.get_guild_webhooks(int(self.id))
+
+        return [Webhook(**_, _client=self._client) for _ in res]
+
     @property
     def icon_url(self) -> Optional[str]:
         """
@@ -2028,6 +2056,10 @@ class Invite(DictSerializerMixin):
     :ivar Optional[int] target_type: The target type of this invite.
     :ivar Optional[Guild] guild: The guild of this invite.
     :ivar Optional[Channel] channel: The channel of this invite.
+    :ivar Optional[int] approximate_member_count: The approximate amount of total members in a guild.
+    :ivar Optional[int] approximate_presence_count: The aprpoximate amount of online members in a guild.
+    :ivar Optional[ScheduledEvents] guild_scheduled_event: A scheduled guild event object included in the invite.
+
     """
 
     __slots__ = (
@@ -2049,6 +2081,9 @@ class Invite(DictSerializerMixin):
         "target_type",
         "guild",
         "channel",
+        "approximate_member_count",
+        "approximate_presence_count",
+        "guild_scheduled_event",
     )
 
     def __init__(self, **kwargs):
@@ -2079,6 +2114,11 @@ class Invite(DictSerializerMixin):
             if self._json.get("channel")
             else None
         )
+        self.guild_scheduled_event = (
+            ScheduledEvents(**self._json.get("guild_scheduled_event"))
+            if isinstance(self._json.get("guild_scheduled_event"), dict)
+            else self._json.get("guild_scheduled_event")
+        )
 
     async def delete(self) -> None:
         """Deletes the invite"""
@@ -2087,6 +2127,10 @@ class Invite(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
 
         await self._client.delete_invite(self.code)
+
+    @property
+    def url(self):
+        return f"https://discord.gg/{self.code}" if self.code else None
 
 
 class GuildTemplate(DictSerializerMixin):

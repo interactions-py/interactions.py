@@ -3,6 +3,7 @@ from enum import IntEnum
 from typing import Callable, List, Optional, Union
 
 from .misc import MISSING, DictSerializerMixin, File, Overwrite, Snowflake
+from .webhook import Webhook
 
 
 class ChannelType(IntEnum):
@@ -1056,7 +1057,7 @@ class Channel(DictSerializerMixin):
 
         return Invite(**res, _client=self._client)
 
-    async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
+    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:  # noqa
         """
         Gets messages from the channel's history.
 
@@ -1083,7 +1084,9 @@ class Channel(DictSerializerMixin):
                 )
             ]
             limit -= 100
-            _before = int(_messages[-1].id)
+            if not _msgs:
+                return _messages
+            _before = int(_msgs[-1].id)
 
             for msg in _msgs:
                 if msg in _messages:
@@ -1098,6 +1101,8 @@ class Channel(DictSerializerMixin):
                     channel_id=int(self.id), limit=limit, before=_before
                 )
             ]
+            if not _msgs:
+                return _messages
             for msg in _msgs:
                 if msg in _messages:
                     return _messages
@@ -1105,6 +1110,17 @@ class Channel(DictSerializerMixin):
                     _messages.append(msg)
 
         return _messages
+
+    async def get_webhooks(self) -> List[Webhook]:
+        """
+        Gets a list of webhooks of that channel
+        """
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        res = await self._client.get_channel_webhooks(int(self.id))
+        return [Webhook(**_, _client=self._client) for _ in res]
 
 
 class Thread(Channel):
