@@ -329,18 +329,18 @@ class Client:
             if self.me.flags is not None:
                 # This can be None.
                 if bool(Intents.GUILD_PRESENCES.value & self._intents.value) and not (
-                        bool(AppFlags.GATEWAY_PRESENCE.value & self.me.flags)
-                        or bool(AppFlags.GATEWAY_PRESENCE_LIMITED.value & self.me.flags)
+                    bool(AppFlags.GATEWAY_PRESENCE.value & self.me.flags)
+                    or bool(AppFlags.GATEWAY_PRESENCE_LIMITED.value & self.me.flags)
                 ):
                     raise RuntimeError("Client not authorised for the GUILD_PRESENCES intent.")
                 if bool(Intents.GUILD_MEMBERS & self._intents) and not (
-                        bool(AppFlags.GATEWAY_GUILD_MEMBERS & self.me.flags)
-                        or bool(AppFlags.GATEWAY_GUILD_MEMBERS_LIMITED.value & self.me.flags)
+                    bool(AppFlags.GATEWAY_GUILD_MEMBERS & self.me.flags)
+                    or bool(AppFlags.GATEWAY_GUILD_MEMBERS_LIMITED.value & self.me.flags)
                 ):
                     raise RuntimeError("Client not authorised for the GUILD_MEMBERS intent.")
                 if bool(Intents.GUILD_MESSAGE_CONTENT.value & self._intents.value) and not (
-                        bool(AppFlags.GATEWAY_MESSAGE_CONTENT.value & self.me.flags)
-                        or bool(AppFlags.GATEWAY_MESSAGE_CONTENT_LIMITED.value & self.me.flags)
+                    bool(AppFlags.GATEWAY_MESSAGE_CONTENT.value & self.me.flags)
+                    or bool(AppFlags.GATEWAY_MESSAGE_CONTENT_LIMITED.value & self.me.flags)
                 ):
                     log.critical("Client not authorised for the MESSAGE_CONTENT intent.")
             elif self._intents.value != Intents.DEFAULT.value:
