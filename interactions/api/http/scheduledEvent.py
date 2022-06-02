@@ -5,7 +5,7 @@ from ..models import Snowflake
 from .request import _Request
 from .route import Route
 
-__all__ = ["ScheduledEventRequest"]
+__all__ = ("ScheduledEventRequest") 
 
 
 class ScheduledEventRequest:
