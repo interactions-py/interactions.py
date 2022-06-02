@@ -161,6 +161,9 @@ class Message(DictSerializerMixin):
     async def remove_reaction_from(
         self, emoji: Union[str, "Emoji"], user: Union[Member, User, int]
     ) -> None: ...
+    async def get_users_from_reaction(
+        self, emoji: Union[str, "Emoji"],
+    ) -> List[User]: ...
     @classmethod
     async def get_from_url(
         cls,
