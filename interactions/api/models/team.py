@@ -7,7 +7,7 @@ __all__ = (
     "Team",
     "TeamMember",
     "Application",
-) 
+)
 
 
 class TeamMember(DictSerializerMixin):
