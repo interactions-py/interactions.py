@@ -678,7 +678,8 @@ class Message(DictSerializerMixin):
         )
 
     async def get_users_from_reaction(
-        self, emoji: Union[str, "Emoji"],
+        self,
+        emoji: Union[str, "Emoji"],
     ) -> List[User]:
         """
         Retrieves all users that reacted to the message with the given emoji
@@ -691,7 +692,11 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if isinstance(emoji, Emoji) else emoji
+        _emoji = (
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
 
         res = await self._client.get_reactions_of_emoji(
             channel_id=int(self.channel_id),
