@@ -11,7 +11,7 @@ class DictSerializerMixin(object):
 
 class Overwrite(DictSerializerMixin):
     _json: dict
-    id: int
+    id: str
     type: int
     allow: str
     deny: str
