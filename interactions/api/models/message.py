@@ -26,7 +26,7 @@ __all__ = (
     "ReactionObject",
     "PartialSticker",
     "Sticker",
-) 
+)
 
 
 class MessageType(IntEnum):
