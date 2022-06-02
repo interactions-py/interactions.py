@@ -4,7 +4,7 @@ __all__ = (
     "get_logger",
     "__version__",
     "__authors__",
-) 
+)
 
 __version__ = "4.2.1"
 __authors__ = {
