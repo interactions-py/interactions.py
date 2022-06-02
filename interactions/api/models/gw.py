@@ -11,7 +11,7 @@ from .presence import PresenceActivity
 from .role import Role
 from .user import User
 
-__all__ = [
+__all__ = (
     "ApplicationCommandPermissions",
     "EmbeddedActivity",
     "Integration",
@@ -32,7 +32,7 @@ __all__ = [
     "GuildJoinRequest",
     "GuildEmojis",
     "GuildRole",
-]
+) 
 
 
 class ApplicationCommandPermissions(DictSerializerMixin):
