@@ -42,7 +42,7 @@ __all__ = (
     "extension_autocomplete",
     "extension_user_command",
     "extension_message_command",
-) 
+)
 
 
 class Client:
