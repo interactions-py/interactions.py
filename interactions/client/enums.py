@@ -10,7 +10,7 @@ __all__ = (
     "ButtonStyle",
     "TextStyleType",
     "Locale",
-) 
+)
 
 
 class ApplicationCommandType(IntEnum):
