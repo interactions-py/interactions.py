@@ -4,7 +4,7 @@ from ...api.cache import Cache
 from .request import _Request
 from .route import Route
 
-__all__ = ["ReactionRequest"]
+__all__ = ("ReactionRequest") 
 
 
 class ReactionRequest:
