@@ -48,6 +48,7 @@ class PresenceAssets(DictSerializerMixin):
     small_text: Optional[str] = field(default=None)
 
 
+@define()
 class PresenceSecrets(DictSerializerMixin):
     """
     A class object representing "secret" join information of a presence.

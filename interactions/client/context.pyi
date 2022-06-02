@@ -5,17 +5,19 @@ from .models.command import Choice as Choice
 from .models.component import ActionRow as ActionRow, Button as Button, Modal as Modal, SelectMenu as SelectMenu
 from .models.misc import InteractionData as InteractionData
 from ..api.http.client import HTTPClient
+from ..api.models.attrs_utils import DictSerializerMixin, define
 from ..api.models.channel import Channel as Channel
 from ..api.models.guild import Guild as Guild
 from ..api.models.member import Member as Member
 from ..api.models.message import Embed as Embed, Message as Message, MessageInteraction as MessageInteraction, \
     MessageReference as MessageReference
-from ..api.models.misc import DictSerializerMixin as DictSerializerMixin, Snowflake as Snowflake
+from ..api.models.misc import Snowflake as Snowflake
 from ..api.models.user import User as User
 
 log: Logger
 
 
+@define()
 class _Context(DictSerializerMixin):
     client: HTTPClient
     message: Optional[Message]
