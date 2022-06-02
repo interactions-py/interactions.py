@@ -16,7 +16,7 @@ from ...api.error import HTTPException
 from .limiter import Limiter
 from .route import Route
 
-__all__ = ["_Request"]
+__all__ = ("_Request") 
 log: Logger = get_logger("http")
 _session: ClientSession = ClientSession()
 
