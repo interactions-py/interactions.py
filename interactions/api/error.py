@@ -8,7 +8,7 @@ __all__ = (
     "GatewayException",
     "HTTPException",
     "JSONException",
-) 
+)
 
 
 class ErrorFormatter(Formatter):
