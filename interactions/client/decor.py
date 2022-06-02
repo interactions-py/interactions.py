@@ -7,7 +7,7 @@ from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu
 
-__all__ = ["command", "component"]
+__all__ = ("command", "component") 
 
 
 def command(
