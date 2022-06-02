@@ -6,7 +6,7 @@ from ..models.user import User
 from .request import _Request
 from .route import Route
 
-__all__ = ("UserRequest") 
+__all__ = ("UserRequest",)
 
 
 class UserRequest:
