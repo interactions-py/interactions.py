@@ -1,7 +1,7 @@
 from asyncio import AbstractEventLoop, Event
 from sys import version_info
 
-__all__ = ["_Heartbeat"]
+__all__ = ("_Heartbeat") 
 
 
 class _Heartbeat:
