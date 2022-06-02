@@ -9,7 +9,7 @@ __all__ = (
     "VersionAuthor",
     "VersionAlphanumericType",
     "Version",
-) 
+)
 
 
 class VersionAlphanumericType(str, Enum):
