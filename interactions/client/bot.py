@@ -14,7 +14,7 @@ from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
-from ..api.models.flags import Intents, Permissions
+from ..api.models.flags import AppFlags, Intents, Permissions
 from ..api.models.guild import Guild
 from ..api.models.misc import MISSING, Image, Snowflake
 from ..api.models.presence import ClientPresence
@@ -328,19 +328,19 @@ class Client:
         try:
             if self.me.flags is not None:
                 # This can be None.
-                if self._intents.GUILD_PRESENCES in self._intents and not (
-                    self.me.flags.GATEWAY_PRESENCE in self.me.flags
-                    or self.me.flags.GATEWAY_PRESENCE_LIMITED in self.me.flags
+                if bool(Intents.GUILD_PRESENCES.value & self._intents.value) and not (
+                        bool(AppFlags.GATEWAY_PRESENCE.value & self.me.flags)
+                        or bool(AppFlags.GATEWAY_PRESENCE_LIMITED.value & self.me.flags)
                 ):
                     raise RuntimeError("Client not authorised for the GUILD_PRESENCES intent.")
-                if self._intents.GUILD_MEMBERS in self._intents and not (
-                    self.me.flags.GATEWAY_GUILD_MEMBERS in self.me.flags
-                    or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED in self.me.flags
+                if bool(Intents.GUILD_MEMBERS & self._intents) and not (
+                        bool(AppFlags.GATEWAY_GUILD_MEMBERS & self.me.flags)
+                        or bool(AppFlags.GATEWAY_GUILD_MEMBERS_LIMITED.value & self.me.flags)
                 ):
                     raise RuntimeError("Client not authorised for the GUILD_MEMBERS intent.")
-                if self._intents.GUILD_MESSAGES in self._intents and not (
-                    self.me.flags.GATEWAY_MESSAGE_CONTENT in self.me.flags
-                    or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED in self.me.flags
+                if bool(Intents.GUILD_MESSAGE_CONTENT.value & self._intents.value) and not (
+                        bool(AppFlags.GATEWAY_MESSAGE_CONTENT.value & self.me.flags)
+                        or bool(AppFlags.GATEWAY_MESSAGE_CONTENT_LIMITED.value & self.me.flags)
                 ):
                     log.critical("Client not authorised for the MESSAGE_CONTENT intent.")
             elif self._intents.value != Intents.DEFAULT.value:
