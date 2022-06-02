@@ -3,7 +3,7 @@ from typing import Optional
 
 from interactions.api.models.misc import MISSING
 
-__all__ = ["Limiter"]
+__all__ = ("Limiter") 
 
 
 class Limiter:
