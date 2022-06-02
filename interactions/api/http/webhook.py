@@ -7,7 +7,7 @@ from ..models.misc import MISSING, File
 from .request import _Request
 from .route import Route
 
-__all__ = ("WebhookRequest") 
+__all__ = ("WebhookRequest",)
 
 
 class WebhookRequest:
