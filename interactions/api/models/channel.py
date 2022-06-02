@@ -5,13 +5,13 @@ from typing import Callable, List, Optional, Union
 from .misc import MISSING, DictSerializerMixin, File, Overwrite, Snowflake
 from .webhook import Webhook
 
-__all__ = [
+__all__ = (
     "ChannelType",
     "Thread",
     "Channel",
     "ThreadMember",
     "ThreadMetadata",
-]
+)
 
 
 class ChannelType(IntEnum):
