@@ -1,6 +1,6 @@
 from enum import Enum, IntEnum
 
-__all__ = [
+__all__ = (
     "ApplicationCommandType",
     "InteractionType",
     "InteractionCallbackType",
@@ -10,7 +10,7 @@ __all__ = [
     "ButtonStyle",
     "TextStyleType",
     "Locale",
-]
+) 
 
 
 class ApplicationCommandType(IntEnum):
