@@ -13,7 +13,7 @@ __all__ = (
     "PresenceActivityType",
     "PresenceButtons",
     "ClientPresence",
-) 
+)
 
 
 class PresenceParty(DictSerializerMixin):
