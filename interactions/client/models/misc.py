@@ -50,17 +50,15 @@ class InteractionData(DictSerializerMixin):
     :ivar Optional[str] target_id?: The targeted ID of the interaction.
     """
 
-    id: Snowflake = field(converter=Snowflake)
-    name: str = field()
-    type: ApplicationCommandType = field(converter=ApplicationCommandType)
+    id: Snowflake = field(converter=Snowflake, default=None)
+    name: str = field(default=None)
+    type: ApplicationCommandType = field(converter=ApplicationCommandType, default=None)
     resolved: Optional[InteractionResolvedData] = field(
         converter=InteractionResolvedData, default=None
     )
     options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
     custom_id: Optional[str] = field(default=None)
-    component_type: Optional[ComponentType] = field(
-        converter=convert_list(ComponentType), default=None
-    )
+    component_type: Optional[ComponentType] = field(converter=ComponentType, default=None)
     values: Optional[List[str]] = field(default=None)
     target_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     components: Any = field(default=None)  # todo check this type

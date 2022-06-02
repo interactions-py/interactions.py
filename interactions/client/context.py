@@ -65,10 +65,10 @@ class _Context(DictSerializerMixin):
             self.user = self.member.user if self.member else None
 
         if self.guild is None and self.guild_id is not None:
-            self.guild = self.client.cache.guilds.get(self.guild_id, MISSING)
+            self.guild = self.client.cache.guilds.values.get(self.guild_id, MISSING)
 
         if self.channel is None:
-            self.channel = self.client.cache.channels.get(self.channel_id, MISSING)
+            self.channel = self.client.cache.channels.values.get(self.channel_id, MISSING)
 
     async def get_channel(self) -> Channel:
         """
@@ -194,7 +194,7 @@ class _Context(DictSerializerMixin):
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
-    ) -> Message:
+    ) -> dict:
         """
         This allows the invocation state described in the "context"
         to send an interaction response. This inherits the arguments
