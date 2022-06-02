@@ -4,10 +4,10 @@ from typing import Any, List, Optional, Union
 from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
 from .user import User
 
-__all__ = [
+__all__ = (
     "Webhook",
     "WebhookType",
-]
+) 
 
 
 class WebhookType(IntEnum):
