@@ -6,7 +6,7 @@ __all__ = (
     "MissingNumeric",
     "TooManyAuthors",
     "UnknownService",
-) 
+)
 
 
 class ErrorType(str, Enum):
