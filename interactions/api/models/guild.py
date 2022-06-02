@@ -12,7 +12,7 @@ from .team import Application
 from .user import User
 from .webhook import Webhook
 
-__all__ = [
+__all__ = (
     "VerificationLevel",
     "EntityType",
     "DefaultMessageNotificationLevel",
@@ -30,7 +30,7 @@ __all__ = [
     "Guild",
     "GuildPreview",
     "Invite",
-]
+) 
 
 
 class VerificationLevel(IntEnum):
