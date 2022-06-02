@@ -20,7 +20,7 @@ __all__ = (
     "_Context",
     "CommandContext",
     "ComponentContext",
-) 
+)
 
 
 class _Context(DictSerializerMixin):
