@@ -15,7 +15,7 @@ from typing import Optional, Union
 
 from interactions.base import get_logger
 
-__all__ = [
+__all__ = (
     "DictSerializerMixin",
     "Snowflake",
     "Color",
@@ -24,7 +24,7 @@ __all__ = [
     "File",
     "Overwrite",
     "MISSING",
-]
+) 
 
 log: Logger = get_logger("mixin")
 
