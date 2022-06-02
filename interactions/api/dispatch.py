@@ -4,7 +4,7 @@ from typing import Coroutine, Optional
 
 from interactions.base import get_logger
 
-__all__ = ("Listener") 
+__all__ = ("Listener",)
 
 log: Logger = get_logger("dispatch")
 
