@@ -19,6 +19,8 @@ from .thread import ThreadRequest
 from .user import UserRequest
 from .webhook import WebhookRequest
 
+__all__ = ("HTTPClient",)
+
 
 class HTTPClient(
     ChannelRequest,

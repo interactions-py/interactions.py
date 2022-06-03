@@ -3,6 +3,12 @@ from .flags import AppFlags
 from .misc import DictSerializerMixin, Snowflake
 from .user import User
 
+__all__ = (
+    "Team",
+    "TeamMember",
+    "Application",
+)
+
 
 class TeamMember(DictSerializerMixin):
     """

@@ -1,5 +1,7 @@
 from typing import List
 
+__all__ = ("Converter",)
+
 
 class Converter:
     """

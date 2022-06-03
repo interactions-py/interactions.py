@@ -16,6 +16,12 @@ from .models.misc import InteractionData
 
 log: Logger = get_logger("context")
 
+__all__ = (
+    "_Context",
+    "CommandContext",
+    "ComponentContext",
+)
+
 
 class _Context(DictSerializerMixin):
     """

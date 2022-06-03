@@ -11,6 +11,29 @@ from .presence import PresenceActivity
 from .role import Role
 from .user import User
 
+__all__ = (
+    "ApplicationCommandPermissions",
+    "EmbeddedActivity",
+    "Integration",
+    "ChannelPins",
+    "ThreadMembers",
+    "ThreadList",
+    "ReactionRemove",
+    "MessageReaction",
+    "GuildIntegrations",
+    "GuildBan",
+    "Webhooks",
+    "GuildMembers",
+    "GuildMember",
+    "GuildStickers",
+    "GuildScheduledEventUser",
+    "GuildScheduledEvent",
+    "Presence",
+    "GuildJoinRequest",
+    "GuildEmojis",
+    "GuildRole",
+)
+
 
 class ApplicationCommandPermissions(DictSerializerMixin):
     """

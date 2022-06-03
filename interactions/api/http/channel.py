@@ -6,6 +6,8 @@ from ..models.message import Message
 from .request import _Request
 from .route import Route
 
+__all__ = ("ChannelRequest",)
+
 
 class ChannelRequest:
 

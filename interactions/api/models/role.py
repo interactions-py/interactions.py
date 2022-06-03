@@ -2,6 +2,11 @@ from typing import List, Optional
 
 from .misc import MISSING, DictSerializerMixin, Image, Snowflake
 
+__all__ = (
+    "Role",
+    "RoleTags",
+)
+
 
 class RoleTags(DictSerializerMixin):
     """
