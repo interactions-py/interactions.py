@@ -128,18 +128,18 @@ class ReactionRequest:
         :return A list of users who sent that emoji.
         """
 
-        params = {"limit": str(limit)}
-
-        if after:
-            params["after"] = str(after)
+        params_set = {
+            f"after={after}" if after else None,
+            f"limit={limit}",
+        }
+        final = "&".join([item for item in params_set if item is not None])
 
         return await self._req.request(
             Route(
                 "GET",
-                "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
+                "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}" + f"{'?' + final if final is not None else ''}",
                 channel_id=channel_id,
                 message_id=message_id,
                 emoji=emoji,
-                params=params,
             )
         )
