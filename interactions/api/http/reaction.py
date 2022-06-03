@@ -128,10 +128,10 @@ class ReactionRequest:
         :return A list of users who sent that emoji.
         """
 
-        params = {"limit": limit}
+        params = {"limit": str(limit)}
 
         if after:
-            params["after"] = after
+            params["after"] = str(after)
 
         return await self._req.request(
             Route(
