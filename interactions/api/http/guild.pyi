@@ -84,7 +84,6 @@ class GuildRequest:
     async def remove_guild_ban(
         self, guild_id: int, user_id: int, reason: Optional[str] = None
     ) -> None: ...
-
     async def get_guild_bans(
         self,
         guild_id: int,

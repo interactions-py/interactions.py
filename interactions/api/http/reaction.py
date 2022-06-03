@@ -110,7 +110,7 @@ class ReactionRequest:
         )
 
     async def get_reactions_of_emoji(
-        self, channel_id: int, message_id: int, emoji: str
+        self, channel_id: int, message_id: int, emoji: str, limit: int = 25, after: int = None,
     ) -> List[dict]:
         """
         Gets the users who reacted to the emoji.
@@ -118,8 +118,16 @@ class ReactionRequest:
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to get (format: `name:id`)
+        :param limit: Max number of users to return (1-100)
+        :param after: Get users after this user ID
         :return A list of users who sent that emoji.
         """
+
+        params = {"limit": limit}
+
+        if after:
+            params["after"] = after
+
         return await self._req.request(
             Route(
                 "GET",
@@ -127,5 +135,6 @@ class ReactionRequest:
                 channel_id=channel_id,
                 message_id=message_id,
                 emoji=emoji,
+                params=params,
             )
         )

@@ -727,18 +727,35 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
+        _all_users: List[User] = []
+
         _emoji = (
             f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
             if isinstance(emoji, Emoji)
             else emoji
         )
 
-        res = await self._client.get_reactions_of_emoji(
+        res: List[dict] = await self._client.get_reactions_of_emoji(
             channel_id=int(self.channel_id),
             message_id=int(self.id),
             emoji=_emoji,
+            limit=100
         )
-        return [User(**_) for _ in res]
+
+        while len(res) == 100:
+            _after = int(res[-1]["id"])
+            _all_users.extend(User(**_) for _ in res)
+            res: List[dict] = await self._client.get_reactions_of_emoji(
+                channel_id=int(self.channel_id),
+                message_id=int(self.id),
+                emoji=_emoji,
+                limit=100,
+                after=_after,
+            )
+
+        _all_users.extend(User(**_) for _ in res)
+
+        return _all_users
 
     @classmethod
     async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,

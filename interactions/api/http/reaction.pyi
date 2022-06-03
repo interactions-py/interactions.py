@@ -20,5 +20,5 @@ class ReactionRequest:
         self, channel_id: int, message_id: int, emoji: str
     ) -> None: ...
     async def get_reactions_of_emoji(
-        self, channel_id: int, message_id: int, emoji: str
+        self, channel_id: int, message_id: int, emoji: str, limit: int = 25, after: int = None,
     ) -> List[dict]: ...
