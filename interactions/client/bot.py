@@ -134,10 +134,12 @@ class Client:
         for key in self.__name_autocomplete.keys():
             _command_obj = self._find_command(key)
             _command: Union[Snowflake, int] = int(_command_obj.id)
-            self.event(
-                self.__name_autocomplete[key]["coro"],
-                name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}",
-            )
+            for _ in self.__name_autocomplete[key]:
+                # _ contains {"coro" : coro, "name": <name_as_string>}
+                self.event(
+                    _["coro"],
+                    name=f"autocomplete_{_command}_{_['name']}",
+                )
 
     @staticmethod
     async def __compare_sync(
@@ -1235,7 +1237,9 @@ class Client:
 
         def decorator(coro: Coroutine) -> Any:
             if isinstance(_command, str):
-                self.__name_autocomplete[_command] = {"coro": coro, "name": name}
+                curr_autocomplete = self.__name_autocomplete.get(_command, [])
+                curr_autocomplete.append({"coro": coro, "name": name})
+                self.__name_autocomplete[_command] = curr_autocomplete
                 return
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
@@ -1591,21 +1595,23 @@ class Extension:
                 self._listeners[comp_name] = listeners
 
             if hasattr(func, "__autocomplete_data__"):
-                args, kwargs = func.__autocomplete_data__
-                func = client.autocomplete(*args, **kwargs)(func)
+                all_args_kwargs = func.__autocomplete_data__
+                for _ in all_args_kwargs:
+                    args, kwargs = _[0], _[1]
+                    func = client.autocomplete(*args, **kwargs)(func)
 
-                name = kwargs.get("name") or args[0]
-                _command = kwargs.get("command") or args[1]
+                    name = kwargs.get("name") or args[0]
+                    _command = kwargs.get("command") or args[1]
 
-                _command: Union[Snowflake, int] = (
-                    _command.id if isinstance(_command, ApplicationCommand) else _command
-                )
+                    _command: Union[Snowflake, int] = (
+                        _command.id if isinstance(_command, ApplicationCommand) else _command
+                    )
 
-                auto_name = f"autocomplete_{_command}_{name}"
+                    auto_name = f"autocomplete_{_command}_{name}"
 
-                listeners = self._listeners.get(auto_name, [])
-                listeners.append(func)
-                self._listeners[auto_name] = listeners
+                    listeners = self._listeners.get(auto_name, [])
+                    listeners.append(func)
+                    self._listeners[auto_name] = listeners
 
             if hasattr(func, "__modal_data__"):
                 args, kwargs = func.__modal_data__
@@ -1676,8 +1682,13 @@ def extension_component(*args, **kwargs):
 @wraps(Client.autocomplete)
 def extension_autocomplete(*args, **kwargs):
     def decorator(func):
-        func.__autocomplete_data__ = (args, kwargs)
-        return func
+        try:
+            if getattr(func, "__autocomplete_data__"):
+                func.__autocomplete_data__.append((args, kwargs))
+        except AttributeError:
+            func.__autocomplete_data__ = [(args, kwargs)]
+        finally:
+            return func
 
     return decorator
 
