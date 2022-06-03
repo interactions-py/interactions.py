@@ -706,7 +706,6 @@ class Message(DictSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-
         _user_id = user if isinstance(user, int) else user.id
         return await self._client.remove_user_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
@@ -736,10 +735,7 @@ class Message(DictSerializerMixin):
         )
 
         res: List[dict] = await self._client.get_reactions_of_emoji(
-            channel_id=int(self.channel_id),
-            message_id=int(self.id),
-            emoji=_emoji,
-            limit=100
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji, limit=100
         )
 
         while len(res) == 100:

@@ -110,7 +110,12 @@ class ReactionRequest:
         )
 
     async def get_reactions_of_emoji(
-        self, channel_id: int, message_id: int, emoji: str, limit: int = 25, after: int = None,
+        self,
+        channel_id: int,
+        message_id: int,
+        emoji: str,
+        limit: int = 25,
+        after: int = None,
     ) -> List[dict]:
         """
         Gets the users who reacted to the emoji.
