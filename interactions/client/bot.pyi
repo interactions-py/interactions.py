@@ -32,7 +32,7 @@ class Client:
     __command_coroutines: List[Coroutine]
     __global_commands: Dict[str, Union[List[dict], bool]]
     __guild_commands: Dict[int, Dict[str, Union[List[dict], bool]]]
-    __name_autocomplete: dict
+    __name_autocomplete: Dict[str, List[Dict]]
     me: Optional[Application]
     def __init__(
         self,
