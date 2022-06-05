@@ -615,8 +615,6 @@ class WebSocketClient:
         if isinstance(presence, ClientPresence):
             payload["d"]["presence"] = presence._json
 
-            print(presence._json)
-
         log.debug(f"IDENTIFYING: {payload}")
         await self._send_packet(payload)
         log.debug("IDENTIFY")
