@@ -2162,7 +2162,9 @@ class Invite(ClientSerializerMixin):
     channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
     approximate_member_count: Optional[int] = field(default=None)
     approximate_presence_count: Optional[int] = field(default=None)
-    guild_scheduled_event: Optional[ScheduledEvents] = field(converter=ScheduledEvents, default=None)
+    guild_scheduled_event: Optional[ScheduledEvents] = field(
+        converter=ScheduledEvents, default=None
+    )
 
     async def delete(self) -> None:
         """Deletes the invite"""
