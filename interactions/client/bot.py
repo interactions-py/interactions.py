@@ -115,7 +115,7 @@ class Client:
             self._automate_sync = True
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data)
+        self.me = Application(**data, _client=self._http)
 
     @property
     def guilds(self) -> List[Guild]:

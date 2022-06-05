@@ -30,7 +30,7 @@ class GuildRequest:
 
         for guild in request:
             if guild.get("id"):
-                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild)))
+                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild, _client=self)))
 
         return request
 
@@ -42,7 +42,7 @@ class GuildRequest:
         :return: The guild object associated, if any.
         """
         request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
-        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request)))
+        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request, _client=self)))
 
         return request
 
@@ -366,7 +366,9 @@ class GuildRequest:
 
         for channel in request:
             if channel.get("id"):
-                self.cache.channels.add(Item(id=channel["id"], value=Channel(**channel)))
+                self.cache.channels.add(
+                    Item(id=channel["id"], value=Channel(**channel, _client=self))
+                )
 
         return request
 

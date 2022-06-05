@@ -3,12 +3,10 @@ from typing import List, Optional
 from ...api.cache import Cache
 from .request import _Request
 
-
 class ChannelRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def get_channel(self, channel_id: int) -> dict: ...
     async def delete_channel(self, channel_id: int) -> None: ...
@@ -64,4 +62,6 @@ class ChannelRequest:
         privacy_level: Optional[int] = None,
         reason: Optional[str] = None,
     ) -> dict: ...
-    async def delete_stage_instance(self, channel_id: int, reason: Optional[str] = None) -> None: ...
+    async def delete_stage_instance(
+        self, channel_id: int, reason: Optional[str] = None
+    ) -> None: ...

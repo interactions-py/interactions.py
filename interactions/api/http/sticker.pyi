@@ -5,12 +5,10 @@ from aiohttp import FormData
 from ...api.cache import Cache
 from .request import _Request
 
-
 class StickerRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def get_sticker(self, sticker_id: int) -> dict: ...
     async def list_nitro_sticker_packs(self) -> List[dict]: ...

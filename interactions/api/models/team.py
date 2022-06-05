@@ -1,6 +1,8 @@
-from .channel import ThreadMember
+from typing import Any, List, Optional
+
+from .attrs_utils import ClientSerializerMixin, convert_list, define, field
 from .flags import AppFlags
-from .misc import DictSerializerMixin, Snowflake
+from .misc import Snowflake
 from .user import User
 
 __all__ = (
@@ -10,7 +12,8 @@ __all__ = (
 )
 
 
-class TeamMember(DictSerializerMixin):
+@define()
+class TeamMember(ClientSerializerMixin):
     """
     A class object representing the member of a team.
 
@@ -24,15 +27,14 @@ class TeamMember(DictSerializerMixin):
     :ivar User user: The user object.
     """
 
-    __slots__ = ("_json", "membership_state", "permissions", "team_id", "user")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.team_id = Snowflake(self.team_id) if self._json.get("team_id") else None
-        self.user = User(**self.user) if self._json.get("user") else None
+    membership_state: int = field()
+    permissions: List[str] = field()
+    team_id: Snowflake = field(converter=Snowflake)
+    user: User = field(converter=User, add_client=True)
 
 
-class Team(DictSerializerMixin):
+@define()
+class Team(ClientSerializerMixin):
     """
     A class object representing a team.
 
@@ -43,22 +45,15 @@ class Team(DictSerializerMixin):
     :ivar Snowflake owner_user_id: The User ID of the current team owner
     """
 
-    __slots__ = ("_json", "icon", "id", "members", "name", "owner_user_id")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.owner_user_id = (
-            Snowflake(self.owner_user_id) if self._json.get("owner_user_id") else None
-        )
-        self.members = (
-            [ThreadMember(**member) for member in self.members]
-            if self._json.get("members")
-            else None
-        )
+    icon: Optional[str] = field(default=None)
+    id: Snowflake = field(converter=Snowflake)
+    members: List[TeamMember] = field(converter=convert_list(TeamMember), add_client=True)
+    name: str = field()
+    owner_user_id: int = field()
 
 
-class Application(DictSerializerMixin):
+@define()
+class Application(ClientSerializerMixin):
     """
     A class object representing an application.
 
@@ -85,44 +80,26 @@ class Application(DictSerializerMixin):
     :ivar Optional[AppFlags] flags?: The application's public flags
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "icon",
-        "description",
-        "rpc_origins",
-        "bot_public",
-        "bot_require_code_grant",
-        "terms_of_service_url",
-        "privacy_policy_url",
-        "owner",
-        "summary",
-        "verify_key",
-        "team",
-        "guild_id",
-        "primary_sku_id",
-        "slug",
-        "cover_image",
-        "flags",
-        "type",
-        "hook",
-        "tags",  # TODO: document/investigate what it does.
-        "install_params",
-        "custom_install_url",
-    )
-
-    def __init__(self, **kwargs):
-
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.primary_sku_id = (
-            Snowflake(self.primary_sku_id) if self._json.get("primary_sku_id") else None
-        )
-        self.owner = User(**self.owner) if self._json.get("owner") else None
-        self.team = Team(**self.team) if self._json.get("team") else None
-        self.flags = AppFlags(self.flags) if self._json.get("flags") else None
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    icon: Optional[str] = field(default=None)
+    description: str = field()
+    rpc_origins: Optional[List[str]] = field(default=None)
+    bot_public: bool = field()
+    bot_require_code_grant: bool = field()
+    terms_of_service_url: Optional[str] = field(default=None)
+    privacy_policy_url: Optional[str] = field(default=None)
+    owner: Optional[User] = field(converter=User, default=None, add_client=True)
+    summary: str = field()
+    verify_key: str = field()
+    team: Optional[Team] = field(converter=Team, default=None, add_client=True)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    primary_sku_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    slug: Optional[str] = field(default=None)
+    cover_image: Optional[str] = field(default=None)
+    flags: Optional[AppFlags] = field(converter=AppFlags, default=None)
+    type: Optional[Any] = field(default=None)
+    hook: Optional[Any] = field(default=None)
 
     @property
     def icon_url(self) -> str:

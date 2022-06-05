@@ -1,7 +1,8 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from .misc import MISSING, DictSerializerMixin, File, Image, Snowflake
+from .attrs_utils import MISSING, ClientSerializerMixin, define, field
+from .misc import File, Image, Snowflake
 from .user import User
 
 __all__ = (
@@ -16,7 +17,8 @@ class WebhookType(IntEnum):
     Application = 3
 
 
-class Webhook(DictSerializerMixin):
+@define()
+class Webhook(ClientSerializerMixin):
     """
     A class object representing a Webhook.
 
@@ -34,41 +36,33 @@ class Webhook(DictSerializerMixin):
     :ivar str url?: the url used for executing the webhook (returned by the webhooks OAuth2 flow)
     """
 
-    __slots__ = (
-        "_json",
-        "_client",
-        "id",
-        "type",
-        "guild_id",
-        "channel_id",
-        "user",
-        "name",
-        "avatar",
-        "token",
-        "application_id",
-        "source_guild",
-        "source_channel",
-        "url",
-    )
+    id: Snowflake = field(converter=Snowflake)
+    type: Union[WebhookType, int] = field(converter=WebhookType)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    user: Optional[User] = field(converter=User, default=None, add_client=True)
+    name: str = field()
+    avatar: str = field()
+    token: Optional[str] = field(default=None)
+    application_id: Snowflake = field(converter=Snowflake)
+    source_guild: Optional[Any] = field(default=None)
+    source_channel: Optional[Any] = field(default=None)
+    url: Optional[str] = field(default=None)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
+    def __attrs_post_init__(self):
         # circular imports suck
         from .channel import Channel
         from .guild import Guild
 
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.type = WebhookType(self.type) if self._json.get("type") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.user = User(**self.user) if self._json.get("user") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
+        self.source_guild = (
+            Guild(**self.source_guild, _client=self._client)
+            if self._json.get("source_guild")
+            else None
         )
-        self.source_guild = Guild(**self.source_guild) if self._json.get("source_guild") else None
         self.source_channel = (
-            Channel(**self.source_channel) if self._json.get("source_channel") else None
+            Channel(**self.source_channel, _client=self._client)
+            if self._json.get("source_channel")
+            else None
         )
 
     @classmethod
@@ -168,12 +162,8 @@ class Webhook(DictSerializerMixin):
             webhook_token=None if channel_id else self.token,
         )
 
-        webhook = Webhook(**res, _client=self._client)
-
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(webhook, attr))
-
-        return webhook
+        self.update(res)
+        return self
 
     async def execute(
         self,
