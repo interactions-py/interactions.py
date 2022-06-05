@@ -8,6 +8,8 @@ from .misc import File, Snowflake
 from .role import Role
 from .user import User
 
+__all__ = ("Member",)
+
 
 @define()
 class Member(ClientSerializerMixin):
@@ -364,7 +366,7 @@ class Member(ClientSerializerMixin):
             thread_id=thread_id,
         )
 
-    def get_member_avatar_url(self, guild_id: int) -> Optional[str]:
+    def get_avatar_url(self, guild_id: int) -> Optional[str]:
         """
         Returns the URL of the member's avatar for the specified guild.
         :param guild_id: The id of the guild to get the member's avatar from

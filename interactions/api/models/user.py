@@ -1,8 +1,10 @@
-from typing import Optional
+from typing import Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, define, field
 from .flags import UserFlags
 from .misc import Snowflake
+
+__all__ = ("User",)
 
 
 @define()
@@ -49,6 +51,11 @@ class User(ClientSerializerMixin):
 
     def __repr__(self) -> str:
         return self.username
+
+    def has_public_flag(self, flag: Union[UserFlags, int]) -> bool:
+        if self.public_flags == 0 or self.public_flags is None:
+            return False
+        return bool(int(self.public_flags) & flag)
 
     @property
     def mention(self) -> str:

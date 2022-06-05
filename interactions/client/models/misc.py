@@ -10,6 +10,8 @@ from ...api.models.user import User
 from ..enums import ApplicationCommandType, ComponentType, InteractionType, PermissionType
 from ..models.command import Option
 
+__all__ = ("InteractionResolvedData", "InteractionData", "Interaction")
+
 
 @define()
 class InteractionResolvedData(DictSerializerMixin):

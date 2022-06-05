@@ -1,7 +1,8 @@
 from typing import Any, List, Optional
 
-from .attrs_utils import DictSerializerMixin, ClientSerializerMixin, define
-from .misc import Snowflake
+from .attrs_utils import DictSerializerMixin, ClientSerializerMixin, define, MISSING
+from .misc import Snowflake, Image
+from ..http.client import HTTPClient
 
 
 @define()
@@ -26,10 +27,26 @@ class Role(ClientSerializerMixin):
     tags: Optional[RoleTags]
     @property
     def mention(self) -> str: ...
-    async def delete(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
-
-    async def modify(self, guild_id: int, name: Optional[str] = ..., color: Optional[int] = ...,
-                     hoist: Optional[bool] = ..., mentionable: Optional[bool] = ...,
-                     reason: Optional[str] = ...) -> Role: ...
-
-    async def modify_position(self, guild_id: int, position: int, reason: Optional[str] = ...) -> List[Role]: ...
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def modify(
+        self,
+        guild_id: int,
+        name: Optional[str] = MISSING,
+        permissions: Optional[int] = MISSING,
+        color: Optional[int] = MISSING,
+        hoist: Optional[bool] = MISSING,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
+        mentionable: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Role: ...
+    async def modify_position(
+        self,
+        guild_id: int,
+        position: int,
+        reason: Optional[str] = None,
+    ) -> List[Role]: ...

@@ -14,6 +14,14 @@ from .misc import File, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
 
+__all__ = (
+    "ChannelType",
+    "Thread",
+    "Channel",
+    "ThreadMember",
+    "ThreadMetadata",
+)
+
 
 class ChannelType(IntEnum):
     """An enumerable object representing the type of channels."""
@@ -328,6 +336,8 @@ class Channel(ClientSerializerMixin):
         _nsfw = self.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
             [overwrite._json for overwrite in self.permission_overwrites]
+            if self.permission_overwrites
+            else None
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )
@@ -1022,7 +1032,7 @@ class Channel(ClientSerializerMixin):
 
         return Invite(**res, _client=self._client)
 
-    async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
+    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:  # noqa
         """
         Gets messages from the channel's history.
 
@@ -1049,7 +1059,9 @@ class Channel(ClientSerializerMixin):
                 )
             ]
             limit -= 100
-            _before = int(_messages[-1].id)
+            if not _msgs:
+                return _messages
+            _before = int(_msgs[-1].id)
 
             for msg in _msgs:
                 if msg in _messages:
@@ -1064,6 +1076,8 @@ class Channel(ClientSerializerMixin):
                     channel_id=int(self.id), limit=limit, before=_before
                 )
             ]
+            if not _msgs:
+                return _messages
             for msg in _msgs:
                 if msg in _messages:
                     return _messages

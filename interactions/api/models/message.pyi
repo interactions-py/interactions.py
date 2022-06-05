@@ -252,44 +252,84 @@ class Message(ClientSerializerMixin):
     sticker_items: Optional[List[PartialSticker]]
     stickers: Optional[List[Sticker]]
 
+    def __repr__(self) -> str: ...
+    async def delete(self, reason: Optional[str] = None) -> None: ...
+    async def edit(
+        self,
+        content: Optional[str] = MISSING,
+        *,
+        tts: Optional[bool] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        suppress_embeds: Optional[bool] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        message_reference: Optional[MessageReference] = MISSING,
+        components: Optional[
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
+        ] = MISSING,
+    ) -> "Message": ...
+    async def reply(
+        self,
+        content: Optional[str] = MISSING,
+        *,
+        tts: Optional[bool] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        components: Optional[
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
+        ] = MISSING,
+    ) -> "Message": ...
     async def get_channel(self) -> Channel: ...
-
-    async def get_guild(self): ...
-
-    async def delete(self, reason: Optional[str] = ...) -> None: ...
-
-    async def edit(self, content: Optional[str] = ..., *, tts: Optional[bool] = ...,
-                   files: Optional[Union[File, List[File]]] = ..., embeds: Optional[Union[Embed, List[Embed]]] = ...,
-                   suppress_embeds: Optional[bool] = ..., allowed_mentions: Optional[MessageInteraction] = ...,
-                   message_reference: Optional[MessageReference] = ..., components: Optional[Union[
-                ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...) -> Message: ...
-
-    async def reply(self, content: Optional[str] = ..., *, tts: Optional[bool] = ...,
-                    embeds: Optional[Union[Embed, List[Embed]]] = ..., files: Optional[Union[File, List[File]]] = ...,
-                    allowed_mentions: Optional[MessageInteraction] = ..., components: Optional[Union[
-                ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...) -> Message: ...
-
+    async def get_guild(self) -> Guild: ...
     async def pin(self) -> None: ...
-
     async def unpin(self) -> None: ...
-
-    async def publish(self) -> Message: ...
-
-    async def create_thread(self, name: str, auto_archive_duration: Optional[int] = ...,
-                            invitable: Optional[bool] = ..., reason: Optional[str] = ...) -> Channel: ...
-
-    async def create_reaction(self, emoji: Union[str, Emoji]) -> None: ...
-
+    async def publish(self) -> "Message": ...
+    async def create_thread(
+        self,
+        name: str,
+        auto_archive_duration: Optional[int] = MISSING,
+        invitable: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Channel: ...
+    async def create_reaction(
+        self,
+        emoji: Union[str, Emoji],
+    ) -> None: ...
     async def remove_all_reactions(self) -> None: ...
-
-    async def remove_all_reactions_of(self, emoji: Union[str, Emoji]) -> None: ...
-
-    async def remove_own_reaction_of(self, emoji: Union[str, Emoji]) -> None: ...
-
-    async def remove_reaction_from(self, emoji: Union[str, Emoji], user: Union[Member, User, int]) -> None: ...
-
+    async def remove_all_reactions_of(
+        self,
+        emoji: Union[str, Emoji],
+    ) -> None: ...
+    async def remove_own_reaction_of(
+        self,
+        emoji: Union[str, Emoji],
+    ) -> None: ...
+    async def remove_reaction_from(
+        self, emoji: Union[str, Emoji], user: Union[Member, User, int]
+    ) -> None: ...
+    async def get_users_from_reaction(
+        self, emoji: Union[str, Emoji],
+    ) -> List[User]: ...
     @classmethod
-    async def get_from_url(cls, url: str, client: HTTPClient) -> Message: ...
-
+    async def get_from_url(
+        cls,
+        url: str,
+        client: HTTPClient,
+    ) -> "Message": ...
     @property
     def url(self) -> str: ...

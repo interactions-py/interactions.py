@@ -33,6 +33,8 @@ from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
 
+__all__ = ("WebSocketClient",)
+
 
 class WebSocketClient:
     """
@@ -147,7 +149,7 @@ class WebSocketClient:
             self.__task.cancel()
         self._client = None  # clear pending waits
         self.__heartbeater.event.clear()
-        await self._establish_connection()
+        await self._establish_connection(self.__shard, self.__presence)
 
     async def _establish_connection(
         self,
@@ -172,7 +174,7 @@ class WebSocketClient:
             self._closed = self._client.closed
 
             if self._closed:
-                await self._establish_connection()
+                await self._establish_connection(self.__shard, self.__presence)
 
             while not self._closed:
                 stream = await self.__receive_packet_stream
@@ -180,7 +182,7 @@ class WebSocketClient:
                 if stream is None:
                     continue
                 if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
-                    await self._establish_connection()
+                    await self._establish_connection(self.__shard, self.__presence)
                     break
 
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
@@ -322,6 +324,7 @@ class WebSocketClient:
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND:
                                 for _option in option.options:
@@ -334,7 +337,7 @@ class WebSocketClient:
                                         _name += f"_{__name}" if __name else ""
                                         if _value:
                                             __args.append(_value)
-                                    break
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND_GROUP:
                                 for _option in option.options:
@@ -350,9 +353,8 @@ class WebSocketClient:
                                             _name += f"_{__name}" if __name else ""
                                             if _value:
                                                 __args.append(_value)
-                                        break
+                                            break
                                     break
-                            break
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:

@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Any, List, Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, define
-from .flags import Permissions as Permissions
+from .flags import Permissions
 from .message import Message, Embed, MessageInteraction
 from .misc import File, Snowflake
-from .role import Role as Role
-from .user import User as User
+from .role import Role
+from .user import User
 from ... import ActionRow, Button, SelectMenu
 
 
@@ -29,33 +29,65 @@ class Member(ClientSerializerMixin):
     def avatar(self) -> Optional[str]: ...
     @property
     def id(self) -> Snowflake: ...
-
     @property
     def mention(self) -> str: ...
-
     @property
     def name(self) -> str: ...
-
-    async def ban(self, guild_id: int, reason: Optional[str] = ...,
-                  delete_message_days: Optional[int] = ...) -> None: ...
-
-    async def kick(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
-
-    async def add_role(self, role: Union[Role, int], guild_id: int, reason: Optional[str] = ...) -> None: ...
-
-    async def remove_role(self, role: Union[Role, int], guild_id: int, reason: Optional[str] = ...) -> None: ...
-
-    async def send(self, content: Optional[str] = ..., *, components: Optional[
-        Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...,
-                   tts: Optional[bool] = ..., files: Optional[Union[File, List[File]]] = ...,
-                   embeds: Optional[Union[Embed, List[Embed]]] = ...,
-                   allowed_mentions: Optional[MessageInteraction] = ...) -> Message: ...
-
-    async def modify(self, guild_id: int, nick: Optional[str] = ..., roles: Optional[List[int]] = ...,
-                     mute: Optional[bool] = ..., deaf: Optional[bool] = ..., channel_id: Optional[int] = ...,
-                     communication_disabled_until: Optional[datetime.isoformat] = ...,
-                     reason: Optional[str] = ...) -> Member: ...
-
-    async def add_to_thread(self, thread_id: int) -> None: ...
-
-    def get_member_avatar_url(self, guild_id: int) -> Optional[str]: ...
+    async def ban(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+        delete_message_days: Optional[int] = 0,
+    ) -> None: ...
+    async def kick(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def add_role(
+        self,
+        role: Union[Role, int],
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def remove_role(
+        self,
+        role: Union[Role, int],
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None: ...
+    async def send(
+        self,
+        content: Optional[str] = MISSING,
+        *,
+        components: Optional[
+            Union[
+                ActionRow,
+                Button,
+                SelectMenu,
+                List[ActionRow],
+                List[Button],
+                List[SelectMenu],
+            ]
+        ] = MISSING,
+        tts: Optional[bool] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
+        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
+        allowed_mentions: Optional[MessageInteraction] = MISSING,
+    ) -> Message: ...
+    async def modify(
+        self,
+        guild_id: int,
+        nick: Optional[str] = MISSING,
+        roles: Optional[List[int]] = MISSING,
+        mute: Optional[bool] = MISSING,
+        deaf: Optional[bool] = MISSING,
+        channel_id: Optional[int] = MISSING,
+        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Member: ...
+    async def add_to_thread(
+        self,
+        thread_id: int,
+    ) -> None: ...
+    def get_avatar_url(self, guild_id: int) -> Optional[str]: ...

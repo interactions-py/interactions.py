@@ -32,6 +32,19 @@ _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
 
+__all__ = (
+    "Client",
+    "Extension",
+    "extension_listener",
+    "extension_command",
+    "extension_component",
+    "extension_modal",
+    "extension_autocomplete",
+    "extension_user_command",
+    "extension_message_command",
+)
+
+
 class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.

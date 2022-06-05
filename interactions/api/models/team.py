@@ -5,6 +5,12 @@ from .flags import AppFlags
 from .misc import Snowflake
 from .user import User
 
+__all__ = (
+    "Team",
+    "TeamMember",
+    "Application",
+)
+
 
 @define()
 class TeamMember(ClientSerializerMixin):

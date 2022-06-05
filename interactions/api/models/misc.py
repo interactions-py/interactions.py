@@ -16,6 +16,17 @@ from typing import Optional, Union
 from interactions.api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
 from interactions.base import get_logger
 
+__all__ = (
+    "DictSerializerMixin",
+    "Snowflake",
+    "Color",
+    "ClientStatus",
+    "Image",
+    "File",
+    "Overwrite",
+    "MISSING",
+)
+
 log: Logger = get_logger("mixin")
 
 
@@ -24,7 +35,7 @@ class Overwrite(DictSerializerMixin):
     """
     This is used for the PermissionOverride object.
 
-    :ivar int id: Role or User ID
+    :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
     :ivar str allow: Permission bit set.
     :ivar str deny: Permission bit set.

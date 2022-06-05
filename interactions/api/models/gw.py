@@ -20,6 +20,29 @@ from .role import Role
 from .team import Application
 from .user import User
 
+__all__ = (
+    "ApplicationCommandPermissions",
+    "EmbeddedActivity",
+    "Integration",
+    "ChannelPins",
+    "ThreadMembers",
+    "ThreadList",
+    "ReactionRemove",
+    "MessageReaction",
+    "GuildIntegrations",
+    "GuildBan",
+    "Webhooks",
+    "GuildMembers",
+    "GuildMember",
+    "GuildStickers",
+    "GuildScheduledEventUser",
+    "GuildScheduledEvent",
+    "Presence",
+    "GuildJoinRequest",
+    "GuildEmojis",
+    "GuildRole",
+)
+
 
 @define()
 class ApplicationCommandPermissions(ClientSerializerMixin):

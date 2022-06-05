@@ -966,8 +966,7 @@ class Message(ClientSerializerMixin):
         if code := _dct.get("code"):
             raise JSONException(code, message=_dct.get("message"))
 
-        for key, value in _dct.items():
-            setattr(self, key, value)
+        self.update(_dct)
 
         return self
 
@@ -1132,7 +1131,11 @@ class Message(ClientSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+        _emoji = (
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
 
         return await self._client.create_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
@@ -1162,7 +1165,11 @@ class Message(ClientSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+        _emoji = (
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
 
         return await self._client.remove_all_reactions_of_emoji(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
@@ -1181,7 +1188,11 @@ class Message(ClientSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _emoji = f"{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+        _emoji = (
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
 
         return await self._client.remove_self_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji
@@ -1198,7 +1209,11 @@ class Message(ClientSerializerMixin):
         :param user: The user or user_id to remove the reaction of
         :type user: Union[Member, user, int]
         """
-        _emoji = f":{emoji.name.replace(':', '')}:{emoji.id}" if isinstance(emoji, Emoji) else emoji
+        _emoji = (
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
 
         _user_id = user if isinstance(user, int) else user.id
         return await self._client.remove_user_reaction(

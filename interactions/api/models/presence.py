@@ -6,6 +6,17 @@ from ..models.message import Emoji
 from .attrs_utils import DictSerializerMixin, convert_list, define, field
 from .misc import Snowflake
 
+__all__ = (
+    "PresenceParty",
+    "PresenceAssets",
+    "PresenceSecrets",
+    "PresenceTimestamp",
+    "PresenceActivity",
+    "PresenceActivityType",
+    "PresenceButtons",
+    "ClientPresence",
+)
+
 
 @define()
 class PresenceParty(DictSerializerMixin):

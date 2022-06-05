@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from attrs_utils import define, ClientSerializerMixin
 from .flags import UserFlags as UserFlags
@@ -24,6 +24,8 @@ class User(ClientSerializerMixin):
     premium_type: Optional[int]
     public_flags: Optional[UserFlags]
     bio: Optional[str]
+    def __repr__(self) -> str: ...
+    def has_public_flag(self, flag: Union[UserFlags, int]) -> bool: ...
     @property
     def mention(self) -> str: ...
     @property

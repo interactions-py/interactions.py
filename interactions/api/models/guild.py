@@ -20,6 +20,26 @@ from .team import Application
 from .user import User
 from .webhook import Webhook
 
+__all__ = (
+    "VerificationLevel",
+    "EntityType",
+    "DefaultMessageNotificationLevel",
+    "EventMetadata",
+    "EventStatus",
+    "GuildTemplate",
+    "Integration",
+    "InviteTargetType",
+    "StageInstance",
+    "UnavailableGuild",
+    "WelcomeChannels",
+    "ExplicitContentFilterLevel",
+    "ScheduledEvents",
+    "WelcomeScreen",
+    "Guild",
+    "GuildPreview",
+    "Invite",
+)
+
 
 class VerificationLevel(IntEnum):
     """An enumerable object representing the verification level of a guild."""
@@ -437,11 +457,11 @@ class Guild(ClientSerializerMixin):
     async def create_role(
         self,
         name: str,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = 0,
         hoist: Optional[bool] = False,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> Role:
@@ -452,8 +472,14 @@ class Guild(ClientSerializerMixin):
         :type name: str
         :param color?: RGB color value as integer, default ``0``
         :type color: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions
+        :type permissions: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, default ``False``
         :type hoist: Optional[bool]
+        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature)
+        :type icon: Optional[Image]
+        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
+        :type unicode_emoji: Optional[str]
         :param mentionable?: Whether the role should be mentionable, default ``False``
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is created, default ``None``
@@ -463,8 +489,14 @@ class Guild(ClientSerializerMixin):
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
+        _permissions = permissions if permissions is not MISSING else None
+        _icon = icon if icon is not MISSING else None
+        _unicode_emoji = unicode_emoji if unicode_emoji is not MISSING else None
         payload = dict(
             name=name,
+            permissions=_permissions,
+            icon=_icon,
+            unicode_emoji=_unicode_emoji,
             color=color,
             hoist=hoist,
             mentionable=mentionable,
@@ -535,11 +567,11 @@ class Guild(ClientSerializerMixin):
         self,
         role_id: int,
         name: Optional[str] = MISSING,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role:
@@ -552,8 +584,14 @@ class Guild(ClientSerializerMixin):
         :type name: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
         :type color: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :type permissions: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
         :type hoist: Optional[bool]
+        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type icon: Optional[Image]
+        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type unicode_emoji: Optional[str]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is edited, default ``None``
@@ -568,12 +606,24 @@ class Guild(ClientSerializerMixin):
             if int(i["id"]) == role_id:
                 role = Role(**i)
                 break
+
         _name = role.name if name is MISSING else name
         _color = role.color if color is MISSING else color
         _hoist = role.hoist if hoist is MISSING else hoist
         _mentionable = role.mentionable if mentionable is MISSING else mentionable
+        _permissions = role.permissions if permissions is MISSING else permissions
+        _icon = role.icon if icon is MISSING else icon
+        _unicode_emoji = role.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
 
-        payload = dict(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+        payload = dict(
+            name=_name,
+            color=_color,
+            hoist=_hoist,
+            mentionable=_mentionable,
+            permissions=_permissions,
+            unicode_emoji=_unicode_emoji,
+            icon=_icon,
+        )
 
         res = await self._client.modify_guild_role(
             guild_id=int(self.id),
@@ -821,6 +871,8 @@ class Guild(ClientSerializerMixin):
         _nsfw = ch.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
             [overwrite._json for overwrite in ch.permission_overwrites]
+            if ch.permission_overwrites
+            else None
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )
@@ -1590,7 +1642,10 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Role]
         """
         return await self.modify_role_positions(
-            changes=[{"id": role_id, "position": position}], reason=reason
+            changes=[
+                {"id": role_id.id if isinstance(role_id, Role) else role_id, "position": position}
+            ],
+            reason=reason,
         )
 
     async def modify_role_positions(
@@ -1663,13 +1718,13 @@ class Guild(ClientSerializerMixin):
         _after = None
         _all: list = []
 
-        res = await self._client.get_guild_bans(int(self.id), limit=1000)
+        res: list = await self._client.get_guild_bans(int(self.id), limit=1000)
 
-        while res >= 1000:
+        while len(res) >= 1000:
 
             for ban in res:
                 ban["user"] = User(**ban["user"])
-            _all.append(res)
+            _all.extend(res)
             _after = int(res[-1]["user"].id)
 
             res = await self._client.get_guild_bans(
@@ -1977,55 +2032,6 @@ class Integration(DictSerializerMixin):
 
 
 @define()
-class Invite(ClientSerializerMixin):
-    """
-    The invite object.
-
-    :ivar int uses: The amount of uses on this invite.
-    :ivar int max_uses: The amount of maximum uses on this invite.
-    :ivar int max_age: The maximum age of this invite, in seconds.
-    :ivar bool temporary: A detection of whether this invite only grants temporary membership.
-    :ivar datetime created_at: The time when this invite was created.
-    :ivar datetime expires_at: The time when this invite will expire.
-    :ivar int type: The type of this invite.
-    :ivar User inviter: The user who created this invite.
-    :ivar str code: The code of this invite.
-    :ivar Optional[int] guild_id: The guild ID of this invite.
-    :ivar Optional[int] channel_id: The channel ID of this invite.
-    :ivar Optional[int] target_user_type: The type of the target user of this invite.
-    :ivar Optional[User] target_user: The target user of this invite.
-    :ivar Optional[int] target_type: The target type of this invite.
-    :ivar Optional[Guild] guild: The guild of this invite.
-    :ivar Optional[Channel] channel: The channel of this invite.
-    """
-
-    uses: int = field()
-    max_uses: int = field()
-    max_age: int = field()
-    temporary: bool = field()
-    created_at: datetime = field(converter=datetime.fromisoformat)
-    expires_at: datetime = field(converter=datetime.fromisoformat)
-    type: int = field()
-    inviter: User = field(converter=User)
-    code: str = field()
-    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    target_user_type: Optional[int] = field(default=None)
-    target_user: Optional[User] = field(converter=User, default=None)
-    target_type: Optional[int] = field(default=None)
-    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
-    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
-
-    async def delete(self) -> None:
-        """Deletes the invite"""
-
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-
-        await self._client.delete_invite(self.code)
-
-
-@define()
 class GuildTemplate(DictSerializerMixin):
     """
     An object representing the snapshot of an existing guild.
@@ -2109,3 +2115,63 @@ class ScheduledEvents(DictSerializerMixin):
     user_count: Optional[int] = field(default=None)
     status: int = field()
     image: Optional[str] = field(default=None)
+
+
+@define()
+class Invite(ClientSerializerMixin):
+    """
+    The invite object.
+
+    :ivar int uses: The amount of uses on this invite.
+    :ivar int max_uses: The amount of maximum uses on this invite.
+    :ivar int max_age: The maximum age of this invite, in seconds.
+    :ivar bool temporary: A detection of whether this invite only grants temporary membership.
+    :ivar datetime created_at: The time when this invite was created.
+    :ivar datetime expires_at: The time when this invite will expire.
+    :ivar int type: The type of this invite.
+    :ivar User inviter: The user who created this invite.
+    :ivar str code: The code of this invite.
+    :ivar Optional[int] guild_id: The guild ID of this invite.
+    :ivar Optional[int] channel_id: The channel ID of this invite.
+    :ivar Optional[int] target_user_type: The type of the target user of this invite.
+    :ivar Optional[User] target_user: The target user of this invite.
+    :ivar Optional[int] target_type: The target type of this invite.
+    :ivar Optional[Guild] guild: The guild of this invite.
+    :ivar Optional[Channel] channel: The channel of this invite.
+    :ivar Optional[int] approximate_member_count: The approximate amount of total members in a guild.
+    :ivar Optional[int] approximate_presence_count: The aprpoximate amount of online members in a guild.
+    :ivar Optional[ScheduledEvents] guild_scheduled_event: A scheduled guild event object included in the invite.
+
+    """
+
+    uses: int = field()
+    max_uses: int = field()
+    max_age: int = field()
+    temporary: bool = field()
+    created_at: datetime = field(converter=datetime.fromisoformat)
+    expires_at: datetime = field(converter=datetime.fromisoformat)
+    type: int = field()
+    inviter: User = field(converter=User)
+    code: str = field()
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    target_user_type: Optional[int] = field(default=None)
+    target_user: Optional[User] = field(converter=User, default=None)
+    target_type: Optional[int] = field(default=None)
+    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
+    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
+    approximate_member_count: Optional[int] = field(default=None)
+    approximate_presence_count: Optional[int] = field(default=None)
+    guild_scheduled_event: Optional[ScheduledEvents] = field(converter=ScheduledEvents, default=None)
+
+    async def delete(self) -> None:
+        """Deletes the invite"""
+
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        await self._client.delete_invite(self.code)
+
+    @property
+    def url(self):
+        return f"https://discord.gg/{self.code}" if self.code else None

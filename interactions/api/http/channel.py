@@ -6,6 +6,8 @@ from ..models.message import Message
 from .request import _Request
 from .route import Route
 
+__all__ = ("ChannelRequest",)
+
 
 class ChannelRequest:
 
@@ -179,16 +181,6 @@ class ChannelRequest:
         return await self._req.request(
             Route("POST", f"/channels/{channel_id}/invites"), json=payload, reason=reason
         )
-
-    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
-        """
-        Delete an invite.
-
-        :param invite_code: The code of the invite to delete
-        :param reason: Reason to show in the audit log, if any.
-        :return: The deleted invite object
-        """
-        return await self._req.request(Route("DELETE", f"/invites/{invite_code}"), reason=reason)
 
     async def edit_channel_permission(
         self,
