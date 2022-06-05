@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 
 from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
-from .misc import Snowflake
+from .misc import Image, Snowflake
 
 __all__ = (
     "Role",

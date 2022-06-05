@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Union
 from ...api.models.attrs_utils import DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import ChannelType
 from ...api.models.misc import Snowflake
-from ..enums import ApplicationCommandType, Locale, OptionType
+from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 __all__ = (
     "Choice",
@@ -120,6 +120,30 @@ class Option(DictSerializerMixin):
         self.options = (
             [Option(**option) for option in self.options] if self.options is not None else None
         )
+
+
+@define()
+class Permission(DictSerializerMixin):
+    """
+    A class object representing the permission of an application command.
+    The structure for a permission:
+    .. code-block:: python
+        interactions.Permission(
+            id=1234567890,
+            type=interactions.PermissionType.USER,
+            permission=True,
+        )
+    :ivar int id: The ID of the permission.
+    :ivar PermissionType type: The type of permission.
+    :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
+    """
+
+    id: int = field()
+    type: PermissionType = field(converter=PermissionType)
+    permission: bool = field()
+
+    def __attrs_post_init__(self):
+        self._json["type"] = self.type.value
 
 
 @define()
