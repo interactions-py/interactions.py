@@ -4,8 +4,10 @@ from ...api.cache import Cache, Item
 from .request import _Request
 from .route import Route
 
+__all__ = ("ThreadRequest",)
 
-class _ThreadRequest:
+
+class ThreadRequest:
 
     _req: _Request
     cache: Cache

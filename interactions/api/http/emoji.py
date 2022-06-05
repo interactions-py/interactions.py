@@ -4,8 +4,10 @@ from ...api.cache import Cache
 from .request import _Request
 from .route import Route
 
+__all__ = ("EmojiRequest",)
 
-class _EmojiRequest:
+
+class EmojiRequest:
 
     _req: _Request
     cache: Cache

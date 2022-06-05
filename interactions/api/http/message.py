@@ -8,8 +8,10 @@ from ..models.misc import MISSING, File, Snowflake
 from .request import _Request
 from .route import Route
 
+__all__ = ("MessageRequest",)
 
-class _MessageRequest:
+
+class MessageRequest:
 
     _req: _Request
     cache: Cache
@@ -83,7 +85,7 @@ class _MessageRequest:
                     file._fp,
                 )
                 part.set_content_disposition(
-                    "form-data", name="files[" + str(id) + "]", filename=file._filename
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
                 )
 
         request = await self._req.request(
@@ -92,7 +94,7 @@ class _MessageRequest:
             data=data,
         )
         if request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+            self.cache.messages.add(Item(id=request["id"], value=Message(**request, _client=self)))
 
         return request
 

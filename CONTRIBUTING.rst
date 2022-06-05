@@ -34,9 +34,9 @@ the `Code of Conduct`_ from their documentation.
 Where to start
 --------------
 Our contributions start with an **Issue**. The issue should explain what the problem you're having is.
-Issues are our way and methodology of tracking bugs that may be occuring with this library. Every contributor
-must start with an Issue, as this helps numerous contributors and developers on various teams keep track of
-requests, bugs and miscellaneous details.
+Issues are our way and methodology of tracking bugs that may be occurring with this library. Every contributor
+is recommended to start with an Issue, as this helps numerous contributors and developers on various teams keep
+track of requests, bugs and miscellaneous details.
 
 Issue specifications
 ********************
@@ -45,7 +45,7 @@ Whenever there is an Issue created, they must follow the according criterion:
 - An Issue must not be a duplicate of an existing one.
 - A bug Issue must have all fields filled out.
 - A request Issue must have support from a pre-determined amount of users.
-- A miscellanous Issue must:
+- A miscellaneous Issue must:
     - Target a third-party repository if it is an issue correlated between the two.
     - Specify external issues that tie into library installation or performance.
 
@@ -60,7 +60,7 @@ In order to create create in relevance to the issue, you start a **Pull Request*
 to be changed in the source, and allow other developers to contribute where needed.
 
 When a PR is made, you **must** be targeting the ``unstable`` branch. This is our development branch
-that we use whenever we're working on any bugfixing, breaking changes and/or overall new features. Our
+that we use whenever we're working on any bug-fixing, breaking changes and/or overall new features. Our
 development workflow for changes is from this branch to ``stable``, and then from there to a release.
 
 A pull request must additionally adhere to these following requirements:

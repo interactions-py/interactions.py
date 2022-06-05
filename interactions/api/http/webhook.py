@@ -1,11 +1,16 @@
-from typing import Any, List, Optional
+from typing import List, Optional
+
+from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
+from ..models.misc import MISSING, File
 from .request import _Request
 from .route import Route
 
+__all__ = ("WebhookRequest",)
 
-class _WebhookRequest:
+
+class WebhookRequest:
 
     _req: _Request
     cache: Cache
@@ -13,10 +18,7 @@ class _WebhookRequest:
     def __init__(self) -> None:
         pass
 
-    # TODO: Not sure why, but there's no webhook models? Will rectify later.
-    # Also, todo: figure out what avatar is
-
-    async def create_webhook(self, channel_id: int, name: str, avatar: Any = None) -> dict:
+    async def create_webhook(self, channel_id: int, name: str, avatar: str = None) -> dict:
         """
         Create a new webhook.
 
@@ -24,7 +26,7 @@ class _WebhookRequest:
         :param name: Name of the webhook (1-80 characters)
         :param avatar: The image for the default webhook avatar, if given.
 
-        :return Webhook object
+        :return: Webhook object
         """
         return await self._req.request(
             Route("POST", f"/channels/{channel_id}/webhooks"), json={"name": name, "avatar": avatar}
@@ -65,18 +67,14 @@ class _WebhookRequest:
     async def modify_webhook(
         self,
         webhook_id: int,
-        name: str,
-        avatar: Any,
-        channel_id: int,
+        payload: dict,
         webhook_token: str = None,
     ) -> dict:
         """
         Modify a webhook.
 
         :param webhook_id: Webhook ID snowflake
-        :param name: the default name of the webhook
-        :param avatar: image for the default webhook avatar
-        :param channel_id: Channel ID snowflake of new destination
+        :param payload: The payload for the webhook
         :param webhook_token: The token for the webhook, if given.
 
         :return: Modified webhook object.
@@ -85,7 +83,7 @@ class _WebhookRequest:
 
         return await self._req.request(
             Route("PATCH", endpoint),
-            json={"name": name, "avatar": avatar, "channel_id": channel_id},
+            json=payload,
         )
 
     async def delete_webhook(self, webhook_id: int, webhook_token: str = None):
@@ -105,6 +103,7 @@ class _WebhookRequest:
         webhook_id: int,
         webhook_token: str,
         payload: dict,
+        files: Optional[List[File]] = MISSING,
         wait: Optional[bool] = False,
         thread_id: Optional[int] = None,
     ) -> Optional[dict]:
@@ -114,10 +113,27 @@ class _WebhookRequest:
         :param webhook_id: Webhook ID snowflake.
         :param webhook_token: The token for the webhook.
         :param payload: Payload consisting of the message.
+        :param files: The files to upload to the message.
         :param wait: A bool that signifies waiting for server confirmation of a send before responding.
         :param thread_id: Optional, sends a message to the specified thread.
         :return: The message sent, if wait=True, else None.
         """
+
+        data = None
+        if files is not MISSING and len(files) > 0:
+
+            data = MultipartWriter("form-data")
+            part = data.append_json(payload)
+            part.set_content_disposition("form-data", name="payload_json")
+            payload = None
+
+            for id, file in enumerate(files):
+                part = data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
+                )
 
         params = {"wait": "true" if wait else "false"}
         if thread_id:
@@ -127,6 +143,7 @@ class _WebhookRequest:
             Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"),
             params=params,
             json=payload,
+            data=data,
         )
 
     async def execute_slack_webhook(
@@ -166,7 +183,7 @@ class _WebhookRequest:
         """
 
         return await self._req.request(
-            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}/slack"), json=payload
+            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}/github"), json=payload
         )
 
     async def get_webhook_message(

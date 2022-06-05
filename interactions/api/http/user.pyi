@@ -3,11 +3,10 @@ from typing import Optional
 from ...api.cache import Cache
 from .request import _Request
 
-class _UserRequest:
+class UserRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def get_self(self) -> dict: ...
     async def get_user(self, user_id: Optional[int] = None) -> dict: ...
