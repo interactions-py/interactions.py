@@ -1,21 +1,26 @@
 from typing import Any, List, Optional, Union
 
-from .enums import InteractionCallbackType as InteractionCallbackType, InteractionType as InteractionType
-from .models.command import Choice as Choice
-from .models.component import ActionRow as ActionRow, Button as Button, Modal as Modal, SelectMenu as SelectMenu
-from .models.misc import InteractionData as InteractionData
 from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import DictSerializerMixin, define
 from ..api.models.channel import Channel as Channel
 from ..api.models.guild import Guild as Guild
 from ..api.models.member import Member as Member
-from ..api.models.message import Embed as Embed, Message as Message, MessageInteraction as MessageInteraction, \
-    MessageReference as MessageReference
+from ..api.models.message import Embed as Embed
+from ..api.models.message import Message as Message
+from ..api.models.message import MessageInteraction as MessageInteraction
+from ..api.models.message import MessageReference as MessageReference
 from ..api.models.misc import Snowflake as Snowflake
 from ..api.models.user import User as User
+from .enums import InteractionCallbackType as InteractionCallbackType
+from .enums import InteractionType as InteractionType
+from .models.command import Choice as Choice
+from .models.component import ActionRow as ActionRow
+from .models.component import Button as Button
+from .models.component import Modal as Modal
+from .models.component import SelectMenu as SelectMenu
+from .models.misc import InteractionData as InteractionData
 
 log: Logger
-
 
 @define()
 class _Context(DictSerializerMixin):
@@ -40,19 +45,30 @@ class _Context(DictSerializerMixin):
     def __attrs_post_init__(self) -> None: ...
     async def get_channel(self) -> Channel: ...
     async def get_guild(self) -> Guild: ...
-
-    async def send(self, content: Optional[str] = ..., *, tts: Optional[bool] = ...,
-                   embeds: Optional[Union[Embed, List[Embed]]] = ...,
-                   allowed_mentions: Optional[MessageInteraction] = ..., components: Optional[
-                Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...,
-                   ephemeral: Optional[bool] = ...) -> dict: ...
-
-    async def edit(self, content: Optional[str] = ..., *, tts: Optional[bool] = ...,
-                   embeds: Optional[Union[Embed, List[Embed]]] = ...,
-                   allowed_mentions: Optional[MessageInteraction] = ...,
-                   message_reference: Optional[MessageReference] = ..., components: Optional[Union[
-                ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...) -> dict: ...
-
+    async def send(
+        self,
+        content: Optional[str] = ...,
+        *,
+        tts: Optional[bool] = ...,
+        embeds: Optional[Union[Embed, List[Embed]]] = ...,
+        allowed_mentions: Optional[MessageInteraction] = ...,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = ...,
+        ephemeral: Optional[bool] = ...
+    ) -> dict: ...
+    async def edit(
+        self,
+        content: Optional[str] = ...,
+        *,
+        tts: Optional[bool] = ...,
+        embeds: Optional[Union[Embed, List[Embed]]] = ...,
+        allowed_mentions: Optional[MessageInteraction] = ...,
+        message_reference: Optional[MessageReference] = ...,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = ...
+    ) -> dict: ...
     async def popup(self, modal: Modal) -> None: ...
 
 class CommandContext(_Context):
@@ -75,7 +91,9 @@ class ComponentContext(_Context):
     async def edit(self, content: Optional[str] = ..., **kwargs) -> Message: ...
     async def send(self, content: Optional[str] = ..., **kwargs) -> Message: ...
     deferred: bool
-    async def defer(self, ephemeral: Optional[bool] = ..., edit_origin: Optional[bool] = ...) -> None: ...
+    async def defer(
+        self, ephemeral: Optional[bool] = ..., edit_origin: Optional[bool] = ...
+    ) -> None: ...
     @property
     def custom_id(self) -> Optional[str]: ...
     @property

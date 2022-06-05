@@ -1,9 +1,9 @@
 from typing import Optional, Union
 
-from attrs_utils import define, ClientSerializerMixin
+from attrs_utils import ClientSerializerMixin, define
+
 from .flags import UserFlags as UserFlags
 from .misc import Snowflake
-
 
 @define()
 class User(ClientSerializerMixin):

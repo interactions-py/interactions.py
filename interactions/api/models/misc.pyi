@@ -7,14 +7,12 @@ from interactions.api.models.attrs_utils import DictSerializerMixin, define
 
 log: Logger
 
-
 @define()
 class Overwrite(DictSerializerMixin):
     id: int
     type: int
     allow: str
     deny: str
-
 
 @define()
 class ClientStatus(DictSerializerMixin):
@@ -23,7 +21,7 @@ class ClientStatus(DictSerializerMixin):
     web: Optional[str]
 
 class Snowflake:
-    def __init__(self, snowflake: Union[int, str, 'Snowflake']) -> None: ...
+    def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...
     def __int__(self): ...
     @property
     def increment(self) -> int: ...
@@ -55,7 +53,9 @@ class Color:
     def black(self) -> hex: ...
 
 class File:
-    def __init__(self, filename: str, fp: Optional[IOBase] = ..., description: Optional[str] = ...) -> None: ...
+    def __init__(
+        self, filename: str, fp: Optional[IOBase] = ..., description: Optional[str] = ...
+    ) -> None: ...
 
 class Image:
     def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = ...) -> None: ...

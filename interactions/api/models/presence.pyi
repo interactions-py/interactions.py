@@ -1,17 +1,15 @@
 from enum import IntEnum
 from typing import Any, List, Optional
 
-from .attrs_utils import DictSerializerMixin, define
-from .misc import Snowflake
 from ..models import StatusType as StatusType
 from ..models.message import Emoji as Emoji
-
+from .attrs_utils import DictSerializerMixin, define
+from .misc import Snowflake
 
 @define()
 class PresenceParty(DictSerializerMixin):
     id: Optional[Snowflake]
     size: Optional[List[int]]
-
 
 @define()
 class PresenceAssets(DictSerializerMixin):
@@ -20,19 +18,16 @@ class PresenceAssets(DictSerializerMixin):
     small_image: Optional[str]
     small_text: Optional[str]
 
-
 @define()
 class PresenceSecrets(DictSerializerMixin):
     join: Optional[str]
     spectate: Optional[str]
     match: Optional[str]
 
-
 @define()
 class PresenceButtons(DictSerializerMixin):
     label: str
     url: str
-
 
 @define()
 class PresenceTimestamp(DictSerializerMixin):
@@ -46,7 +41,6 @@ class PresenceActivityType(IntEnum):
     WATCHING: int
     CUSTOM: int
     COMPETING: int
-
 
 @define()
 class PresenceActivity(DictSerializerMixin):
@@ -75,7 +69,6 @@ class PresenceActivity(DictSerializerMixin):
     id: Optional[Any]
     @property
     def gateway_json(self) -> dict: ...
-
 
 @define()
 class ClientPresence(DictSerializerMixin):

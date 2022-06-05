@@ -2,16 +2,16 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from .attrs_utils import DictSerializerMixin, ClientSerializerMixin, define
+from ... import ActionRow, Button, Component, SelectMenu
+from ..http.client import HTTPClient
+from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define
 from .channel import Channel as Channel
+from .guild import Guild
 from .member import Member as Member
 from .misc import File, Snowflake
 from .role import Role as Role
 from .team import Application as Application
 from .user import User as User
-from ..http.client import HTTPClient
-from ... import Component, ActionRow, Button, SelectMenu
-
 
 class MessageType(IntEnum):
     DEFAULT: int
@@ -38,12 +38,10 @@ class MessageType(IntEnum):
     GUILD_INVITE_REMINDER: int
     CONTEXT_MENU_COMMAND: int
 
-
 @define()
 class MessageActivity(DictSerializerMixin):
     type: int
     party_id: Optional[Snowflake]
-
 
 @define()
 class MessageReference(DictSerializerMixin):
@@ -51,7 +49,6 @@ class MessageReference(DictSerializerMixin):
     channel_id: Optional[Snowflake]
     guild_id: Optional[Snowflake]
     fail_if_not_exists: Optional[bool]
-
 
 @define()
 class Attachment(DictSerializerMixin):
@@ -65,7 +62,6 @@ class Attachment(DictSerializerMixin):
     width: Optional[int]
     ephemeral: Optional[bool]
 
-
 @define()
 class MessageInteraction(ClientSerializerMixin):
     id: Snowflake
@@ -73,14 +69,12 @@ class MessageInteraction(ClientSerializerMixin):
     name: str
     user: User
 
-
 @define()
 class ChannelMention(DictSerializerMixin):
     id: Snowflake
     guild_id: Snowflake
     type: int
     name: str
-
 
 @define()
 class Emoji(ClientSerializerMixin):
@@ -92,31 +86,23 @@ class Emoji(ClientSerializerMixin):
     managed: Optional[bool]
     animated: Optional[bool]
     available: Optional[bool]
-
     @classmethod
     async def get(cls, guild_id: int, emoji_id: int, client: HTTPClient) -> Emoji: ...
-
     @classmethod
     async def get_all_of_guild(cls, guild_id: int, client: HTTPClient) -> List[Emoji]: ...
-
     async def delete(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
-
     @property
     def url(self) -> str: ...
-
 
 @define()
 class EmbedImageStruct(DictSerializerMixin):
     def __setattr__(self, key, value) -> None: ...
 
-
 @define()
 class EmbedProvider(DictSerializerMixin):
     name: Optional[str]
     url: Optional[str]
-
     def __setattr__(self, key, value) -> None: ...
-
 
 @define()
 class EmbedAuthor(DictSerializerMixin):
@@ -124,27 +110,21 @@ class EmbedAuthor(DictSerializerMixin):
     url: Optional[str]
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
-
     def __setattr__(self, key, value) -> None: ...
-
 
 @define()
 class EmbedFooter(DictSerializerMixin):
     text: str
     icon_url: Optional[str]
     proxy_icon_url: Optional[str]
-
     def __setattr__(self, key, value) -> None: ...
-
 
 @define()
 class EmbedField(DictSerializerMixin):
     name: str
     inline: Optional[bool]
     value: str
-
     def __setattr__(self, key, value) -> None: ...
-
 
 @define()
 class Embed(DictSerializerMixin):
@@ -164,36 +144,51 @@ class Embed(DictSerializerMixin):
     def __setattr__(self, key, value) -> None: ...
     def add_field(self, name: str, value: str, inline: Optional[bool] = ...) -> None: ...
     def clear_fields(self) -> None: ...
-
-    def insert_field_at(self, index: int, name: str = ..., value: str = ..., inline: Optional[bool] = ...) -> None: ...
-
-    def set_field_at(self, index: int, name: str, value: str, inline: Optional[bool] = ...) -> None: ...
-
+    def insert_field_at(
+        self, index: int, name: str = ..., value: str = ..., inline: Optional[bool] = ...
+    ) -> None: ...
+    def set_field_at(
+        self, index: int, name: str, value: str, inline: Optional[bool] = ...
+    ) -> None: ...
     def remove_field(self, index: int) -> None: ...
-
     def remove_author(self) -> None: ...
-
-    def set_author(self, name: str, url: Optional[str] = ..., icon_url: Optional[str] = ...,
-                   proxy_icon_url: Optional[str] = ...) -> None: ...
-
-    def set_footer(self, text: str, icon_url: Optional[str] = ..., proxy_icon_url: Optional[str] = ...) -> None: ...
-
-    def set_image(self, url: str, proxy_url: Optional[str] = ..., height: Optional[int] = ...,
-                  width: Optional[int] = ...) -> None: ...
-
-    def set_video(self, url: str, proxy_url: Optional[str] = ..., height: Optional[int] = ...,
-                  width: Optional[int] = ...) -> None: ...
-
-    def set_thumbnail(self, url: str, proxy_url: Optional[str] = ..., height: Optional[int] = ...,
-                      width: Optional[int] = ...) -> None: ...
-
+    def set_author(
+        self,
+        name: str,
+        url: Optional[str] = ...,
+        icon_url: Optional[str] = ...,
+        proxy_icon_url: Optional[str] = ...,
+    ) -> None: ...
+    def set_footer(
+        self, text: str, icon_url: Optional[str] = ..., proxy_icon_url: Optional[str] = ...
+    ) -> None: ...
+    def set_image(
+        self,
+        url: str,
+        proxy_url: Optional[str] = ...,
+        height: Optional[int] = ...,
+        width: Optional[int] = ...,
+    ) -> None: ...
+    def set_video(
+        self,
+        url: str,
+        proxy_url: Optional[str] = ...,
+        height: Optional[int] = ...,
+        width: Optional[int] = ...,
+    ) -> None: ...
+    def set_thumbnail(
+        self,
+        url: str,
+        proxy_url: Optional[str] = ...,
+        height: Optional[int] = ...,
+        width: Optional[int] = ...,
+    ) -> None: ...
 
 @define()
 class PartialSticker(DictSerializerMixin):
     id: Snowflake
     name: str
     format_type: int
-
 
 @define()
 class Sticker(PartialSticker):
@@ -210,13 +205,11 @@ class Sticker(PartialSticker):
     user: Optional[User]
     sort_value: Optional[int]
 
-
 @define()
 class ReactionObject(DictSerializerMixin):
     count: int
     me: bool
     emoji: Emoji
-
 
 @define()
 class Message(ClientSerializerMixin):
@@ -251,7 +244,6 @@ class Message(ClientSerializerMixin):
     components: Optional[Union[Component, List[Component]]]
     sticker_items: Optional[List[PartialSticker]]
     stickers: Optional[List[Sticker]]
-
     def __repr__(self) -> str: ...
     async def delete(self, reason: Optional[str] = None) -> None: ...
     async def edit(
@@ -274,7 +266,7 @@ class Message(ClientSerializerMixin):
                 List[SelectMenu],
             ]
         ] = MISSING,
-    ) -> "Message": ...
+    ) -> Message: ...
     async def reply(
         self,
         content: Optional[str] = MISSING,
@@ -293,7 +285,7 @@ class Message(ClientSerializerMixin):
                 List[SelectMenu],
             ]
         ] = MISSING,
-    ) -> "Message": ...
+    ) -> Message: ...
     async def get_channel(self) -> Channel: ...
     async def get_guild(self) -> Guild: ...
     async def pin(self) -> None: ...
@@ -323,13 +315,14 @@ class Message(ClientSerializerMixin):
         self, emoji: Union[str, Emoji], user: Union[Member, User, int]
     ) -> None: ...
     async def get_users_from_reaction(
-        self, emoji: Union[str, Emoji],
+        self,
+        emoji: Union[str, Emoji],
     ) -> List[User]: ...
     @classmethod
     async def get_from_url(
         cls,
         url: str,
         client: HTTPClient,
-    ) -> "Message": ...
+    ) -> Message: ...
     @property
     def url(self) -> str: ...

@@ -1,21 +1,19 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, MISSING, define
+from ...client.models.component import ActionRow, Button, SelectMenu
+from ..http.client import HTTPClient
+from .attrs_utils import MISSING, ClientSerializerMixin, define
 from .channel import Channel
 from .guild import Guild
 from .message import Embed, Message
 from .misc import File, Image, Snowflake
 from .user import User
-from ..http.client import HTTPClient
-from ...client.models.component import ActionRow, Button, SelectMenu
-
 
 class WebhookType(IntEnum):
     Incoming: int
     Channel_Follower: int
     Application: int
-
 
 @define()
 class Webhook(ClientSerializerMixin):
@@ -31,15 +29,15 @@ class Webhook(ClientSerializerMixin):
     source_guild: Optional[Guild]
     source_channel: Optional[Channel]
     url: Optional[str]
-
     def __attrs_post_init__(self): ...
-
     @classmethod
     async def create(
-            cls, client: HTTPClient, channel_id: int, name: str, avatar: Optional[Image] = MISSING
+        cls, client: HTTPClient, channel_id: int, name: str, avatar: Optional[Image] = MISSING
     ) -> "Webhook": ...
     @classmethod
-    async def get(cls, client: HTTPClient, webhook_id: int, webhook_token: Optional[str] = MISSING) -> "Webhook": ...
+    async def get(
+        cls, client: HTTPClient, webhook_id: int, webhook_token: Optional[str] = MISSING
+    ) -> "Webhook": ...
     async def modify(
         self, name: str = MISSING, channel_id: int = MISSING, avatar: Optional[Image] = MISSING
     ) -> "Webhook": ...

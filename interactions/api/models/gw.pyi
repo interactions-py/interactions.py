@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from .attrs_utils import DictSerializerMixin, ClientSerializerMixin, define
+from ...client.models.component import ActionRow, Button, SelectMenu
+from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
 from .channel import Channel, ThreadMember
 from .guild import EventMetadata
 from .member import Member
@@ -11,10 +12,6 @@ from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
-from ..http.client import HTTPClient
-from ...client.models.component import ActionRow, Button, SelectMenu
-from ...models.command import Permission
-
 
 @define()
 class ApplicationCommandPermissions(ClientSerializerMixin):
@@ -23,13 +20,11 @@ class ApplicationCommandPermissions(ClientSerializerMixin):
     id: Snowflake
     permissions: Any
 
-
 @define()
 class ChannelPins(DictSerializerMixin):
     guild_id: Optional[Snowflake]
     channel_id: Snowflake
     last_pin_timestamp: Optional[datetime]
-
 
 @define()
 class EmbeddedActivity(DictSerializerMixin):
@@ -38,29 +33,24 @@ class EmbeddedActivity(DictSerializerMixin):
     embedded_activity: PresenceActivity
     channel_id: Snowflake
 
-
 @define()
 class GuildBan(ClientSerializerMixin):
     guild_id: Snowflake
     user: User
-
 
 @define()
 class GuildEmojis(ClientSerializerMixin):
     guild_id: Snowflake
     emojis: List[Emoji]
 
-
 @define()
 class GuildIntegrations(DictSerializerMixin):
     guild_id: Snowflake
-
 
 @define()
 class GuildJoinRequest(DictSerializerMixin):
     user_id: Snowflake
     guild_id: Snowflake
-
 
 @define()
 class GuildMember(ClientSerializerMixin):
@@ -76,31 +66,37 @@ class GuildMember(ClientSerializerMixin):
     pending: Optional[bool]
     @property
     def id(self) -> Snowflake: ...
-
     @property
     def mention(self) -> str: ...
-
-    async def ban(self, reason: Optional[str] = ..., delete_message_days: Optional[int] = ...) -> None: ...
-
+    async def ban(
+        self, reason: Optional[str] = ..., delete_message_days: Optional[int] = ...
+    ) -> None: ...
     async def kick(self, reason: Optional[str] = ...) -> None: ...
-
     async def add_role(self, role: Union[Role, int], reason: Optional[str]) -> None: ...
-
     async def remove_role(self, role: Union[Role, int], reason: Optional[str]) -> None: ...
-
-    async def send(self, content: Optional[str] = ..., *, components: Optional[
-        Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] = ...,
-                   tts: Optional[bool] = ..., files: Optional[Union[File, List[File]]] = ...,
-                   embeds: Optional[Union[Embed, List[Embed]]] = ...,
-                   allowed_mentions: Optional[MessageInteraction] = ...) -> Message: ...
-
-    async def modify(self, nick: Optional[str] = ..., roles: Optional[List[int]] = ..., mute: Optional[bool] = ...,
-                     deaf: Optional[bool] = ..., channel_id: Optional[int] = ...,
-                     communication_disabled_until: Optional[datetime.isoformat] = ...,
-                     reason: Optional[str] = ...) -> GuildMember: ...
-
+    async def send(
+        self,
+        content: Optional[str] = ...,
+        *,
+        components: Optional[
+            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+        ] = ...,
+        tts: Optional[bool] = ...,
+        files: Optional[Union[File, List[File]]] = ...,
+        embeds: Optional[Union[Embed, List[Embed]]] = ...,
+        allowed_mentions: Optional[MessageInteraction] = ...
+    ) -> Message: ...
+    async def modify(
+        self,
+        nick: Optional[str] = ...,
+        roles: Optional[List[int]] = ...,
+        mute: Optional[bool] = ...,
+        deaf: Optional[bool] = ...,
+        channel_id: Optional[int] = ...,
+        communication_disabled_until: Optional[datetime.isoformat] = ...,
+        reason: Optional[str] = ...,
+    ) -> GuildMember: ...
     async def add_to_thread(self, thread_id: int) -> None: ...
-
 
 @define()
 class GuildMembers(DictSerializerMixin):
@@ -112,7 +108,6 @@ class GuildMembers(DictSerializerMixin):
     presences: Optional[List[PresenceActivity]]
     nonce: Optional[str]
 
-
 @define()
 class GuildRole(ClientSerializerMixin):
     guild_id: Snowflake
@@ -121,12 +116,10 @@ class GuildRole(ClientSerializerMixin):
     guild_hashes: Any
     def __attrs_post_init__(self): ...
 
-
 @define()
 class GuildStickers(DictSerializerMixin):
     guild_id: Snowflake
     stickers: List[Sticker]
-
 
 @define()
 class GuildScheduledEvent(ClientSerializerMixin):
@@ -147,13 +140,11 @@ class GuildScheduledEvent(ClientSerializerMixin):
     status: int
     image: Optional[str]
 
-
 @define()
 class GuildScheduledEventUser(DictSerializerMixin):
     guild_scheduled_event_id: Snowflake
     user_id: Snowflake
     guild_id: Snowflake
-
 
 @define()
 class Integration(DictSerializerMixin):
@@ -174,7 +165,6 @@ class Integration(DictSerializerMixin):
     application: Application
     guild_id: Snowflake
 
-
 @define()
 class Presence(ClientSerializerMixin):
     user: User
@@ -182,7 +172,6 @@ class Presence(ClientSerializerMixin):
     status: str
     activities: List[PresenceActivity]
     client_status: ClientStatus
-
 
 @define()
 class MessageReaction(DictSerializerMixin):
@@ -193,10 +182,8 @@ class MessageReaction(DictSerializerMixin):
     member: Optional[Member]
     emoji: Optional[Emoji]
 
-
 @define()
 class ReactionRemove(MessageReaction): ...
-
 
 @define()
 class ThreadList(DictSerializerMixin):
@@ -205,7 +192,6 @@ class ThreadList(DictSerializerMixin):
     threads: List[Channel]
     members: List[ThreadMember]
 
-
 @define()
 class ThreadMembers(DictSerializerMixin):
     id: Snowflake
@@ -213,7 +199,6 @@ class ThreadMembers(DictSerializerMixin):
     member_count: int
     added_members: Optional[List[ThreadMember]]
     removed_member_ids: Optional[List[Snowflake]]
-
 
 @define()
 class Webhooks(DictSerializerMixin):

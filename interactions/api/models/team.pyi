@@ -5,14 +5,12 @@ from .flags import AppFlags as AppFlags
 from .misc import Snowflake
 from .user import User as User
 
-
 @define()
 class TeamMember(ClientSerializerMixin):
     membership_state: int
     permissions: List[str]
     team_id: Snowflake
     user: User
-
 
 @define()
 class Team(ClientSerializerMixin):
@@ -21,7 +19,6 @@ class Team(ClientSerializerMixin):
     members: List[TeamMember]
     name: str
     owner_user_id: int
-
 
 @define()
 class Application(ClientSerializerMixin):
