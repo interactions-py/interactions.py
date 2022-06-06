@@ -8,6 +8,7 @@ from ..models.member import Member
 from ..models.role import Role
 from .request import _Request
 from .route import Route
+from ..error import HTTPException
 
 __all__ = ("GuildRequest",)
 
@@ -27,6 +28,9 @@ class GuildRequest:
         :return a list of partial guild objects the current bot user is a part of.
         """
         request = await self._req.request(Route("GET", "/users/@me/guilds"))
+
+        if isinstance(request, dict):
+            raise HTTPException(request["code"])
 
         for guild in request:
             if guild.get("id"):
