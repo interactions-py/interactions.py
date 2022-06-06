@@ -2,13 +2,13 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import quote
 
 from ...api.cache import Cache, Item
+from ..error import HTTPException
 from ..models.channel import Channel
 from ..models.guild import Guild
 from ..models.member import Member
 from ..models.role import Role
 from .request import _Request
 from .route import Route
-from ..error import HTTPException
 
 __all__ = ("GuildRequest",)
 
