@@ -659,16 +659,6 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
-            if (
-                _sub_group.name_localizations is not MISSING
-                and _sub_group.name_localizations is not None
-            ):
-                for __name in command.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The sub command group name does not match the regex for valid names ('{regex}')",
-                        )
 
             if not _sub_group.options:
                 raise InteractionException(11, message="sub command groups must have subcommands!")
@@ -705,16 +695,6 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
-            if (
-                _sub_command.name_localizations is not MISSING
-                and _sub_command.name_localizations is not None
-            ):
-                for __name in command.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The sub command name does not match the regex for valid names ('{regex}')",
-                        )
 
             if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
@@ -762,14 +742,6 @@ class Client:
                 raise InteractionException(
                     11, message="You must not have two options with the same name in a command!"
                 )
-            if _option.name_localizations is not MISSING and _option.name_localizations is not None:
-                for __name in _option.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The option name does not match the regex for valid names ('{regex}')",
-                        )
-
             _names.append(_option.name)
 
         def __check_coro():
@@ -831,14 +803,6 @@ class Client:
 
         elif command.description is not MISSING and len(command.description) > 100:
             raise InteractionException(11, message="Descriptions must be less than 100 characters.")
-
-        if command.name_localizations is not MISSING and command.name_localizations is not None:
-            for __name in command.name_localizations.values():
-                if not re.fullmatch(reg, __name):
-                    raise InteractionException(
-                        11,
-                        message=f"One of your command name localisations does not match the regex for valid names ('{regex}')",
-                    )
 
         if command.options and command.options is not MISSING:
             if len(command.options) > 25:
