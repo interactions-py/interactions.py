@@ -262,7 +262,7 @@ implementation of a component:
 
 .. code-block:: python
 
-    button = interactions.Button(
+    button1 = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
         label="hello world!",
         custom_id="hello"
