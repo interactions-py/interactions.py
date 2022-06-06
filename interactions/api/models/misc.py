@@ -5,15 +5,15 @@
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 # pycharm says serializer for me /shrug
 
+import colorsys
 import datetime
+import random
 from base64 import b64encode
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
 from typing import Optional, Union
-import colorsys
-import random
 
 from interactions.api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
 from interactions.base import get_logger
@@ -163,6 +163,7 @@ class Color(object):
     """
     An object representing colors.
     """
+
     __slots__ = ("value",)
 
     def __init__(self, value):
@@ -396,8 +397,7 @@ class File(object):
 
         if not isinstance(filename, str):
             raise TypeError(
-                "File's first parameter 'filename' must be a string, not " +
-                str(type(filename))
+                "File's first parameter 'filename' must be a string, not " + str(type(filename))
             )
 
         self._fp = open(filename, "rb") if not fp or fp is MISSING else fp
