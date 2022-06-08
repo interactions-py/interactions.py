@@ -2,11 +2,12 @@ from logging import Logger
 from typing import List, Optional, Union
 
 from ..api import InteractionException
+from ..api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
 from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
 from ..api.models.message import Embed, Message, MessageInteraction, MessageReference
-from ..api.models.misc import MISSING, DictSerializerMixin, Snowflake, define, field
+from ..api.models.misc import Snowflake
 from ..api.models.user import User
 from ..base import get_logger
 from .enums import InteractionCallbackType, InteractionType

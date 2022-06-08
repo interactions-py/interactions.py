@@ -14,9 +14,10 @@ from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
+from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Image, Snowflake
+from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
