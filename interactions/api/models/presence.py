@@ -187,7 +187,7 @@ class ClientPresence(DictSerializerMixin):
         converter=convert_list(PresenceActivity), default=None
     )
     status: StatusType = field(converter=StatusType)
-    afk: bool = field()
+    afk: bool = field(default=False)
 
     def __attrs_post_init__(self):
         if not self._json.get("since"):
