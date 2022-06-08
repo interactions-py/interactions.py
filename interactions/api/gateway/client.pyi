@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from aiohttp import ClientWebSocketResponse
 
-from ...api.models.misc import MISSING
+from ...api.models.attrs_utils import MISSING
 from ...api.models.presence import ClientPresence
 from ...client.models import Option
 from ..dispatch import Listener

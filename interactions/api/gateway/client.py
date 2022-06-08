@@ -26,8 +26,8 @@ from ..dispatch import Listener
 from ..enums import OpCodeType
 from ..error import GatewayException
 from ..http.client import HTTPClient
+from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
-from ..models.misc import MISSING
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
 
