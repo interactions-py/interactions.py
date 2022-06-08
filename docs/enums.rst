@@ -3,6 +3,6 @@
 Enumerable Objects
 ==================
 
-.. automodule:: interactions.enums
+.. automodule:: interactions.client.enums
     :members:
     :noindex:

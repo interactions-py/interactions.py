@@ -118,7 +118,7 @@ class ReactionRequest:
         :param channel_id: Channel snowflake ID.
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to get (format: `name:id`)
-        :return A list of users who sent that emoji.
+        :return: A list of users who sent that emoji.
         """
         return await self._req.request(
             Route(

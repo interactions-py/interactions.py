@@ -26,7 +26,7 @@ Some more unique features that are exclusive to our interactions include:
 - **Event-triggered callbacks**: whether a component, application command or interaction response, you'll never need to worry about bridging responses.
 - **Dual-way decorator logic**: a decorator can act as both a constructor for an interaction, as well as a callback.
 - **API-strict naming**: no more confusion with the naming approach of many libraries; we follow the naming style of interactions from the officially curated Discord Developers documentation.
-- **Extensive framework structure**: (**pending in** ``4.1.0``) build your own tools and technologies for our library to develop and integrate community creations.
+- **Extensive framework structure**: build your own tools and technologies for our library to develop and integrate community creations.
 
 What do we not offer?
 *********************
@@ -88,7 +88,7 @@ Advanced Search
 * :ref:`modindex`
 * :ref:`search`
 
-.. _contribution requirements: https://github.com/interactions-py/library/blob/stable/CONTRIBUTING.md
+.. _contribution requirements: https://github.com/interactions-py/library/blob/stable/CONTRIBUTING.rst
 .. _MIT License: https://github.com/interactions-py/library/blob/stable/LICENSE
 .. _Pull Requests: https://github.com/interactions-py/library/pulls
 .. _Issues: https://github.com/interactions-py/library/issues

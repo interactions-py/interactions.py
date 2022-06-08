@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,48 +22,134 @@ msgstr ""
 msgid "Quickstart"
 msgstr ""
 
-#: ../../quickstart.rst:4
-msgid ""
-"Looking into trying to get started with our library? Well, you've come to"
-" the right page then!"
+#: ../../quickstart.rst:5
+msgid "Installing"
 msgstr ""
 
-#: ../../quickstart.rst:8
+#: ../../quickstart.rst:7
 msgid ""
-"This quickstart guide is extremely rough and contains experimental code. "
-"Do not follow us strictly until v4.0 is released! Everything is subject "
-"to change in here due to the development of the API wrapper continuously "
-"being reflected."
+"**discord-interactions** is a :ref:`Python library <index:discord-"
+"interactions>` for the Discord Application Programming Interface. (API) A"
+" library in Python has to be installed through the `pip` file. Run this "
+"in your terminal/command line in order to install our library:"
+msgstr ""
+
+#: ../../quickstart.rst:11
+msgid "``pip install -U discord-py-interactions``"
 msgstr ""
 
 #: ../../quickstart.rst:14
-msgid "Installing"
+msgid "Creating a Bot"
 msgstr ""
 
 #: ../../quickstart.rst:16
 msgid ""
-"**discord-interactions** is a Python library for the Discord Artificial "
-"Programming Interface. (API) A library in Python has to be installed "
-"through the `pip` file. Run this in your terminal/command line in order "
-"to install our library:"
+"Before you can run your Bot, you have to create it first. If you did it "
+"already, make sure you :ref:`invited <quickstart:Invite the Bot to your "
+"guild>` your Bot properly."
 msgstr ""
 
-#: ../../quickstart.rst:20
-msgid "``pip install -U discord-interactions``"
-msgstr ""
-
-#: ../../quickstart.rst:22
+#: ../../quickstart.rst:18
 msgid ""
-"If you're unable to run it through your terminal/command line, you need "
-"to make sure that it's accessible as an Environment Path. Search more on "
-"Google for how to do this."
+"In order to create your Bot, you need to create an application first. Go "
+"to the `discord applications page`_ for that. After you logged in, you "
+"will see this at the top:"
 msgstr ""
 
-#: ../../quickstart.rst:26
-msgid "Minimal Bot"
+#: ../../quickstart.rst:23
+msgid ""
+"Click the ``New Application`` button, enter a name and then click "
+"``create``."
 msgstr ""
 
-#: ../../quickstart.rst:28
+#: ../../quickstart.rst:25
+msgid "The name you choose is going to be your Bots name."
+msgstr ""
+
+#: ../../quickstart.rst:27
+msgid "You will be redirected to a new page. On the left you will see this:"
+msgstr ""
+
+#: ../../quickstart.rst:31
+msgid ""
+"Click on ``Bot``. You again will be redirected to another page, looking "
+"like this:"
+msgstr ""
+
+#: ../../quickstart.rst:35
+msgid "Click on ``Add Bot`` and then on ``Yes, do it!``."
+msgstr ""
+
+#: ../../quickstart.rst:37
+msgid "And that's it! You created your Bot!"
+msgstr ""
+
+#: ../../quickstart.rst:40
+msgid ""
+"You will see a field called ``TOKEN``. This is the access token, used to "
+"run your bot. You will need this later to start your Bot."
+msgstr ""
+
+#: ../../quickstart.rst:43
+msgid ""
+"**Do NOT give this to other persons! They can get full control over your "
+"Bot with your token and execute what they want!**"
+msgstr ""
+
+#: ../../quickstart.rst:45
+msgid ""
+"If you revealed your token, you should **immediately** go to your Bots "
+"application page and click the ``Regenerate`` Button under your token. "
+"This will delete the old token, so your bot can't be run with it anymore."
+msgstr ""
+
+#: ../../quickstart.rst:49
+msgid "Invite the Bot to your guild"
+msgstr ""
+
+#: ../../quickstart.rst:50
+msgid ""
+"Now you have a Bot, but you can't create commands because it isn't in any"
+" guilds. So, let's invite it to your guild!"
+msgstr ""
+
+#: ../../quickstart.rst:54
+msgid "Click on ``OAuth2``, then on ``URL Generator``."
+msgstr ""
+
+#: ../../quickstart.rst:56
+msgid ""
+"You have to enable the ``bot`` and ``application.commands`` scope, to "
+"allow your bot to create slash commands."
+msgstr ""
+
+#: ../../quickstart.rst:60
+msgid ""
+"After setting that up, a ``BOT PERMISSIONS`` field will appear. You can "
+"choose permissions you want to have your bot there."
+msgstr ""
+
+#: ../../quickstart.rst:62
+msgid ""
+"When you are done with choosing the permissions, go to the bottom of the "
+"page, copy the the url and open it in a new window."
+msgstr ""
+
+#: ../../quickstart.rst:64
+msgid ""
+"You will be prompted to a new page. Select your guild, click "
+"``Authorise`` and your Bot should show up in your guild."
+msgstr ""
+
+#: ../../quickstart.rst:66
+msgid "Now you can go on with running your bot and creating your first commands!"
+msgstr ""
+
+#: ../../quickstart.rst:71
+msgid "Running the Bot and creating commands"
+msgstr ""
+
+#: ../../quickstart.rst:73
 msgid ""
 "Bots can be a little confusing to create. That's why we've decided to try"
 " and make the process as streamlined as humanly possible, in order for it"
@@ -73,58 +159,299 @@ msgid ""
 "first before this, as a Discord bot is not exactly beginner-friendly."
 msgstr ""
 
-#: ../../quickstart.rst:34
-msgid "This code block below shows a simple bot being created:"
+#: ../../quickstart.rst:81
+msgid "First, let's run the bot:"
 msgstr ""
 
-#: ../../quickstart.rst:52
-msgid ""
-"There's quite a lot of things that are going on here, so let's break it "
-"down step-by-step:"
+#: ../../quickstart.rst:92
+msgid "And that's it! Your bot should now turn online in discord!"
 msgstr ""
 
-#: ../../quickstart.rst:54
+#: ../../quickstart.rst:94
+msgid "Let's take a look now at what is happening here:"
+msgstr ""
+
+#: ../../quickstart.rst:96
 msgid ""
 "``import interactions`` -- This is the import line. If this returns a "
-"``ModuleNotFoundError``, please look at our `Installing`_ section here."
+"``ModuleNotFoundError``, please look at our section on how to "
+":ref:`install <quickstart:Installing>` here."
 msgstr ""
 
-#: ../../quickstart.rst:55
+#: ../../quickstart.rst:97
 msgid ""
-"``bot = interactions.Client(token=\"...\")`` -- This is the ``bot`` "
-"variable that defines our bot. This basically instantiates the `Client`_ "
-"class, which requires a ``token`` keyword-argument to be passed. In order"
-" to get a token, please look at the image given below."
+"``bot = interactions.Client(token=\"your_secret_bot_token\")`` -- This is"
+" the ``bot`` variable that defines our bot. This basically instantiates "
+"the :ref:`application client <client:Bot Client>`, which requires a "
+"``token`` keyword-argument to be passed. You have to put in your "
+"(previously mentioned) secret token here."
 msgstr ""
 
-#: ../../quickstart.rst:56
-msgid ""
-"``@bot.application_command()`` -- This is something known as a "
-"*decorator* in Python. This decorator is in charge and responsible of "
-"making sure that the Discord API is told about the slash/sub command that"
-" you wish to create, and sends an HTTP request correspondingly. Any "
-"changes to the information contained in this decorator will be "
-"synchronously updated with the API automatically for you."
-msgstr ""
-
-#: ../../quickstart.rst:57
-msgid ""
-"``await ctx.send(\"Hello world!\")`` -- This is what lets us send a "
-"\"message\", or otherwise known as an interaction response back to the "
-"Discord API for us. ``ctx`` is abbreviated as the \"context\" of the "
-"command, so numerous fields and attributes such as channels, guilds; and "
-"etc. are able to be inputted."
-msgstr ""
-
-#: ../../quickstart.rst:58
+#: ../../quickstart.rst:98
 msgid ""
 "``bot.start()`` -- Finally, this is what tells our library to turn your "
 "bot from offline to online."
 msgstr ""
 
-#: ../../quickstart.rst:62
+#: ../../quickstart.rst:102
+msgid "Now, let's create our first slash command:"
+msgstr ""
+
+#: ../../quickstart.rst:120
+msgid "Now, let's look what the new parts of the code are doing:"
+msgstr ""
+
+#: ../../quickstart.rst:122
 msgid ""
-"And it's really as simple as that! If you would like to learn more about "
-"what our library offers, or see more examples of our code, please be sure"
-" to check out our `coding examples`_ page on our docs!"
+"``@bot.command()`` -- This is something known as a *decorator* in Python."
+" This decorator is in charge and responsible of making sure that the "
+"Discord API is told about the slash/sub command that you wish to create, "
+"and sends an HTTP request correspondingly. Any changes to the information"
+" contained in this decorator will be synchronously updated with the API "
+"automatically for you. The ``scope`` field shown here is optional, which "
+"represents a guild command if you wish to have a command appear in only "
+"specific servers that bot is in. This can be a guild object or the ID."
+msgstr ""
+
+#: ../../quickstart.rst:123
+msgid "``name`` -- This is the name of your command."
+msgstr ""
+
+#: ../../quickstart.rst:124
+msgid "``description`` -- This is the description of your command."
+msgstr ""
+
+#: ../../quickstart.rst:125
+msgid ""
+"``async def my_first_command(ctx: interactions.CommandContext):`` -- This"
+" here is called our \"command coroutine,\" or what our library internally"
+" calls upon each time it recognizes an interaction event from the Discord"
+" API that affiliates with the data we've put into the decorator above it."
+" Please note that ``ctx`` is an abbreviation for :ref:`context "
+"<context:Event Context>`."
+msgstr ""
+
+#: ../../quickstart.rst:126
+msgid ""
+"``await ctx.send(\"Hi there!\")`` -- This sends the response to your "
+"command."
+msgstr ""
+
+#: ../../quickstart.rst:128
+msgid "``name`` and ``description`` are required."
+msgstr ""
+
+#: ../../quickstart.rst:131
+msgid "Difference between global and guild slash commands:"
+msgstr ""
+
+#: ../../quickstart.rst:133
+msgid ""
+"guild slash commands are instantly available in the guild with the given "
+"id. In order to copy your guild ID you have to enable the developer mode "
+"in discord and then right-click on the guild. This is also shown in the "
+"pictures beyond."
+msgstr ""
+
+#: ../../quickstart.rst:134
+msgid ""
+"global commands are created by *not* including the ``scope`` argument "
+"into the ``@bot.command`` decorator. They will appear in all guilds your "
+"Bot is in. This process can take up to one hour to be completed on all "
+"guilds."
+msgstr ""
+
+#: ../../quickstart.rst:141
+msgid "Next, let's create an Option"
+msgstr ""
+
+#: ../../quickstart.rst:143
+msgid ""
+":ref:`Options <models.command:Application Command Models>` are extra "
+"arguments of a command, filled in by the user executing the command."
+msgstr ""
+
+#: ../../quickstart.rst:171
+msgid "The limit for options per command is 25."
+msgstr ""
+
+#: ../../quickstart.rst:174
+msgid "Nested commands: subcommands"
+msgstr ""
+
+#: ../../quickstart.rst:218
+msgid "You can add a SUB_COMMAND_GROUP in between the base and command."
+msgstr ""
+
+#: ../../quickstart.rst:222
+msgid "Special type of commands: Context menus"
+msgstr ""
+
+#: ../../quickstart.rst:224
+msgid ""
+"While, granted that application commands are way more intuitive and "
+"easier to work with as both a bot developer and user from a UX approach, "
+"some may not want to always type the same command over and over again to "
+"repeat a repetitive task. Introducing: **context menus.** Also known as "
+"\"user\" and \"message\" respectively, this simple switch in command "
+"structure allows you to quickly empower your bot with the ability to make"
+" right-click actions with menial effort."
+msgstr ""
+
+#: ../../quickstart.rst:230
+msgid ""
+"In order to create a menu-based command, all you need to do is simply add"
+" this one line into your ``@command`` decorator:"
+msgstr ""
+
+#: ../../quickstart.rst:245
+msgid ""
+"The structure of a menu command differs significantly from that of a "
+"regular one:"
+msgstr ""
+
+#: ../../quickstart.rst:247
+msgid "You cannot have any options or choices."
+msgstr ""
+
+#: ../../quickstart.rst:248
+msgid "You cannot have a description."
+msgstr ""
+
+#: ../../quickstart.rst:249
+msgid "The ``name`` filter follows a different regex pattern."
+msgstr ""
+
+#: ../../quickstart.rst:252
+msgid "Creating and sending Components"
+msgstr ""
+
+#: ../../quickstart.rst:254
+msgid ""
+"Being able to run your own commands is very useful for a lot of "
+"automation-related purposes as a bot developer, however, we also have "
+"something that we're able to introduce for both the developer and a user "
+"to use that will be the \"sprinkles\" on top of a cupcake, so-to-speak: "
+"components."
+msgstr ""
+
+#: ../../quickstart.rst:259
+msgid ""
+"Components are ways of being able to select pre-defined data, or define "
+"your own. They're very simple but quite powerful when put into practice "
+"This code block below shows a simplified implementation of a component:"
+msgstr ""
+
+#: ../../quickstart.rst:285
+msgid ""
+"This is a design that we ended up choosing to simplify responding to "
+"buttons when someone presses on one, and to allow bot developers to plug "
+"in *which* button they want a response to. No more ``wait_for_component``"
+" and ``wait_for`` functions with huge if-else chains; this removes "
+"redundancy in your code and overall eases into the practice of "
+"modularity."
+msgstr ""
+
+#: ../../quickstart.rst:292
+msgid "What kinds of components are there?"
+msgstr ""
+
+#: ../../quickstart.rst:294
+msgid ""
+"As a bot developer, this may be fairly important for you to want to know."
+" Different components provide difference user experiences, interactions "
+"and results. Currently you can choose between three components that "
+"Discord provides: a ``Button``, ``SelectMenu`` and ``TextInput``. You're "
+"able to `find these component types`_ here."
+msgstr ""
+
+#: ../../quickstart.rst:301
+msgid "How do I send components in a row?"
+msgstr ""
+
+#: ../../quickstart.rst:303
+msgid ""
+"You are also able to organize these components into rows, which are "
+"defined as ``ActionRow``'s. It is worth noting that you can have only a "
+"maximum of 5 per message that you send. This code block below shows how:"
+msgstr ""
+
+#: ../../quickstart.rst:330
+msgid ""
+"By default, the ``components`` keyword-argument field in the context "
+"sending method will always support ``ActionRow``-less sending: you only "
+"need to declare rows whenever you need or want to. This field will also "
+"support raw arrays and tables, if you so wish to choose to not use our "
+"class objects instead."
+msgstr ""
+
+#: ../../quickstart.rst:336
+msgid ""
+"You cannot use ``TextInput`` with the above shown method. Look :ref:`here"
+" <quickstart:Creating a TextInput>` how to create and send them."
+msgstr ""
+
+#: ../../quickstart.rst:341
+msgid "Creating a TextInput"
+msgstr ""
+
+#: ../../quickstart.rst:342
+msgid "You want to get a Text from a user? You can use ``TextInput`` for that."
+msgstr ""
+
+#: ../../quickstart.rst:354
+msgid ""
+"But how to send it? You can't use ``ctx.send`` for it. Take a look at "
+":ref:`Modals <quickstart:Modals>` for that."
+msgstr ""
+
+#: ../../quickstart.rst:358
+msgid "Modals"
+msgstr ""
+
+#: ../../quickstart.rst:359
+msgid ""
+"Modals are a new way to interact with a user. Currently only a "
+"``TextInput`` component is supported. You can have up to five "
+"``TextInput`` in a Modal."
+msgstr ""
+
+#: ../../quickstart.rst:372
+msgid "with the ``TextInput`` example from above we get:"
+msgstr ""
+
+#: ../../quickstart.rst:377
+msgid "Responding to a Modal interaction"
+msgstr ""
+
+#: ../../quickstart.rst:385
+msgid ""
+"You can respond to a modal the same way as you would respond to a normal "
+"``chat-input`` command, except your function has an extra argument for "
+"the text what was put into the modal."
+msgstr ""
+
+#: ../../quickstart.rst:388
+msgid "Adding v2 Permissions"
+msgstr ""
+
+#: ../../quickstart.rst:390
+msgid ""
+"v2 permissions consist of the ``default_member_permissions`` and "
+"``dm_permission`` keyword arguments. Similar to adding privileged "
+"intents, you add permissions (like admin-only, ``BAN_MEMBERS``-only, "
+"etc.) as follows:"
+msgstr ""
+
+#: ../../quickstart.rst:429
+msgid ""
+"Adding guild-only commands is easier as the only thing it takes is a "
+"boolean. Here's an example of a guild-only command:"
+msgstr ""
+
+#: ../../quickstart.rst:448
+msgid ""
+"Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. "
+"Just to note that this argument's mainly used for global commands. Guild "
+"commands with this argument will have no effect."
 msgstr ""

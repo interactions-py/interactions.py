@@ -1,0 +1,678 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.models.gw.rst:4
+msgid "Gateway-specific Event Models"
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:1 of
+msgid ""
+"A class object representing the gateway event "
+"``APPLICATION_COMMAND_PERMISSIONS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:3 of
+msgid ""
+"This is undocumented by the Discord API, so these attribute docs may or "
+"may not be finalised."
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions
+#: interactions.api.models.gw.ChannelPins
+#: interactions.api.models.gw.EmbeddedActivity
+#: interactions.api.models.gw.GuildBan interactions.api.models.gw.GuildEmojis
+#: interactions.api.models.gw.GuildIntegrations
+#: interactions.api.models.gw.GuildJoinRequest
+#: interactions.api.models.gw.GuildMember
+#: interactions.api.models.gw.GuildMembers interactions.api.models.gw.GuildRole
+#: interactions.api.models.gw.GuildScheduledEvent
+#: interactions.api.models.gw.GuildScheduledEventUser
+#: interactions.api.models.gw.GuildStickers
+#: interactions.api.models.gw.Integration
+#: interactions.api.models.gw.MessageReaction
+#: interactions.api.models.gw.Presence
+#: interactions.api.models.gw.ReactionRemove
+#: interactions.api.models.gw.ThreadList
+#: interactions.api.models.gw.ThreadMembers interactions.api.models.gw.Webhooks
+#: of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:5 of
+msgid "The application ID associated with the event."
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:6 of
+msgid "The guild ID associated with the event."
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:7 of
+msgid "The ID of the command associated with the event. (?)"
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:8 of
+msgid "The updated permissions of the associated command/event."
+msgstr ""
+
+#: interactions.api.models.gw.EmbeddedActivity:1 of
+msgid "A class object representing the event ``EMBEDDED_ACTIVITY_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.EmbeddedActivity:4
+#: interactions.api.models.gw.GuildJoinRequest:4 of
+msgid "This is entirely undocumented by the API."
+msgstr ""
+
+#: interactions.api.models.gw.EmbeddedActivity:6 of
+msgid "The list of users of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ChannelPins:3
+#: interactions.api.models.gw.EmbeddedActivity:7
+#: interactions.api.models.gw.GuildBan:3
+#: interactions.api.models.gw.GuildEmojis:3
+#: interactions.api.models.gw.GuildIntegrations:3
+#: interactions.api.models.gw.GuildJoinRequest:7
+#: interactions.api.models.gw.GuildMember:3
+#: interactions.api.models.gw.GuildMembers:3
+#: interactions.api.models.gw.GuildRole:3
+#: interactions.api.models.gw.GuildStickers:3
+#: interactions.api.models.gw.Integration:23
+#: interactions.api.models.gw.MessageReaction:6
+#: interactions.api.models.gw.Presence:4
+#: interactions.api.models.gw.ReactionRemove:10
+#: interactions.api.models.gw.ThreadList:3
+#: interactions.api.models.gw.ThreadMembers:4 of
+msgid "The guild ID of the event."
+msgstr ""
+
+#: interactions.api.models.gw.EmbeddedActivity:8 of
+msgid "The embedded presence activity of the associated event."
+msgstr ""
+
+#: interactions.api.models.gw.ChannelPins:4
+#: interactions.api.models.gw.EmbeddedActivity:9
+#: interactions.api.models.gw.MessageReaction:4
+#: interactions.api.models.gw.ReactionRemove:8 of
+msgid "The channel ID of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:1 of
+msgid ""
+"A class object representing the gateway events ``INTEGRATION_CREATE``, "
+"``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:4 of
+msgid ""
+"The documentation of this event is the same as "
+":class:`interactions.api.models.guild.Guild`. The only key missing "
+"attribute is ``guild_id``. Likewise, the documentation below reflects "
+"this."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:8
+#: interactions.api.models.gw.ThreadMembers:3 of
+msgid "The ID of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:9 of
+msgid "The name of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:10 of
+msgid "The type of integration in the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:11 of
+msgid "Whether the integration of the event is enabled or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:12 of
+msgid "Whether the integration of the event is syncing or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:13 of
+msgid ""
+"The role ID that the integration in the event uses for \"subscribed\" "
+"users."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:14 of
+msgid "Whether emoticons of the integration's event should be enabled or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:15 of
+msgid "The expiration behavior of the integration of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:16 of
+msgid ""
+"The \"grace period\" of the integration of the event when expired -- how "
+"long it can still be used."
+msgstr ""
+
+#: interactions.api.models.gw.GuildBan:4
+#: interactions.api.models.gw.GuildMember:5
+#: interactions.api.models.gw.Integration:17
+#: interactions.api.models.gw.Presence:3 of
+msgid "The user of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:18 of
+msgid "The account of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:19 of
+msgid "The time that the integration of the event was last synced."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:20 of
+msgid "The current subscriber count of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:21 of
+msgid "Whether the integration of the event was revoked for use or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:22 of
+msgid "The application used for the integration of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ChannelPins:1 of
+msgid "A class object representing the gateway event ``CHANNEL_PINS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.ChannelPins:5 of
+msgid "The time that the event took place."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:1 of
+msgid "A class object representing the gateway event ``THREAD_MEMBERS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:5 of
+msgid "The member count of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:6 of
+msgid "The added members of the thread of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:7 of
+msgid "The removed IDs of members of the thread of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:1 of
+msgid "A class object representing the gateway event ``THREAD_LIST_SYNC``."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:4 of
+msgid "The channel IDs of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:5 of
+msgid "The threads of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:6 of
+msgid "The members of the thread of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ReactionRemove:1 of
+msgid ""
+"A class object representing the gateway events "
+"``MESSAGE_REACTION_REMOVE``, ``MESSAGE_REACTION_REMOVE_ALL`` and "
+"``MESSAGE_REACTION_REMOVE_EMOJI``."
+msgstr ""
+
+#: interactions.api.models.gw.ReactionRemove:4 of
+msgid ""
+"This class inherits the already existing attributes of "
+":class:`interactions.api.models.gw.Reaction`. The main missing attribute "
+"is ``member``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildJoinRequest:6
+#: interactions.api.models.gw.MessageReaction:3
+#: interactions.api.models.gw.ReactionRemove:7 of
+msgid "The user ID of the event."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:5
+#: interactions.api.models.gw.ReactionRemove:9 of
+msgid "The message ID of the event."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:8
+#: interactions.api.models.gw.ReactionRemove:11 of
+msgid "The emoji of the event."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:1 of
+msgid "A class object representing the gateway event ``MESSAGE_REACTION_ADD``."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:7 of
+msgid "The member of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildIntegrations:1 of
+msgid ""
+"A class object representing the gateway event "
+"``GUILD_INTEGRATIONS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildBan:1 of
+msgid "A class object representing the gateway event ``GUILD_BAN_ADD``."
+msgstr ""
+
+#: interactions.api.models.gw.Webhooks:1 of
+msgid "A class object representing the gateway event ``WEBHOOKS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.Webhooks:3 of
+msgid "The channel ID of the associated event."
+msgstr ""
+
+#: interactions.api.models.gw.Webhooks:4 of
+msgid "The guild ID of the associated event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:1 of
+msgid "A class object representing the gateway event ``GUILD_MEMBERS_CHUNK``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:4 of
+msgid "The members of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:5 of
+msgid "The current chunk index of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:6 of
+msgid "The total chunk count of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:7 of
+msgid "A list of not found members in the event if an invalid request was made."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:8 of
+msgid "A list of presences in the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:9 of
+msgid "The \"nonce\" of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:1 of
+msgid ""
+"A class object representing the gateway events ``GUILD_MEMBER_ADD``, "
+"``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:4 of
+msgid "The roles of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:6 of
+msgid "The nickname of the user of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:7 of
+msgid "The avatar URL of the user of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:8 of
+msgid "The time that the user of the event joined at."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:9 of
+msgid "The time that the user of the event has since had \"premium.\""
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:10 of
+msgid "Whether the member of the event is deafened or not."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:11 of
+msgid "Whether the member of the event is muted or not."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember:12 of
+msgid ""
+"Whether the member of the event is still pending -- pass membership "
+"screening -- or not."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.id:1 of
+msgid "Returns the ID of the user."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.id
+#: interactions.api.models.gw.GuildMember.mention
+#: interactions.api.models.gw.GuildMember.modify
+#: interactions.api.models.gw.GuildMember.send of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.id:3 of
+msgid "The ID of the user"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.id
+#: interactions.api.models.gw.GuildMember.mention
+#: interactions.api.models.gw.GuildMember.modify
+#: interactions.api.models.gw.GuildMember.send of
+msgid "Return type"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.mention:1 of
+msgid "Returns a string that allows you to mention the given member."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.mention:3 of
+msgid "The string of the mentioned member."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.ban:1 of
+msgid "Bans the member from a guild."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.add_role
+#: interactions.api.models.gw.GuildMember.add_to_thread
+#: interactions.api.models.gw.GuildMember.ban
+#: interactions.api.models.gw.GuildMember.kick
+#: interactions.api.models.gw.GuildMember.modify
+#: interactions.api.models.gw.GuildMember.remove_role
+#: interactions.api.models.gw.GuildMember.send of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.ban:3 of
+msgid "The reason of the ban"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.ban:5 of
+msgid "Number of days to delete messages, from 0 to 7. Defaults to 0"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.kick:1 of
+msgid "Kicks the member from a guild."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.kick:3 of
+msgid "The reason for the kick"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.add_role:1 of
+msgid "This method adds a role to a member."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.add_role:3 of
+msgid "The role to add. Either ``Role`` object or role_id"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.add_role:5 of
+msgid "The reason why the roles are added"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.remove_role:1 of
+msgid "This method removes a role from a member."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.remove_role:3 of
+msgid "The role to remove. Either ``Role`` object or role_id"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.remove_role:5 of
+msgid "The reason why the roles are removed"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:1 of
+msgid "Sends a DM to the member."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:3 of
+msgid "The contents of the message as a string or string-converted value."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:5 of
+msgid "A component, or list of components for the message."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:7 of
+msgid "Whether the message utilizes the text-to-speech Discord programme or not."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:9 of
+msgid "A file or list of files to be attached to the message."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:11 of
+msgid "An embed, or list of embeds for the message."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:13 of
+msgid "The message interactions/mention limits that the message can refer to."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.send:15 of
+msgid "The sent message as an object."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:1 of
+msgid "Modifies the member of a guild."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:3 of
+msgid "The nickname of the member"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:5 of
+msgid "A list of all role ids the member has"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:7 of
+msgid "whether the user is muted in voice channels"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:9 of
+msgid "whether the user is deafened in voice channels"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:11 of
+msgid "id of channel to move user to (if they are connected to voice)"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:13 of
+msgid ""
+"when the user's timeout will expire and the user will be able to "
+"communicate in the guild again (up to 28 days in the future)"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:15 of
+msgid "The reason of the modifying"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.modify:17 of
+msgid "The modified member object"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.add_to_thread:1 of
+msgid "Adds the member to a thread."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.add_to_thread:3 of
+msgid "The id of the thread to add the member to"
+msgstr ""
+
+#: interactions.api.models.gw.GuildStickers:1 of
+msgid "A class object representing the gateway event ``GUILD_STICKERS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildStickers:4 of
+msgid "The stickers of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEventUser:1 of
+msgid ""
+"A class object representing the gateway events "
+"``GUILD_SCHEDULED_EVENT_USER_ADD`` and "
+"``GUILD_SCHEDULED_EVENT_USER_REMOVE``"
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEventUser:3 of
+msgid "The ID of the guild scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEventUser:4 of
+msgid "The ID of the guild associated with this event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEventUser:5 of
+msgid "The ID of the user associated with this event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:1 of
+msgid ""
+"A class object representing gateway events "
+"``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, "
+"``GUILD_SCHEDULED_EVENT_DELETE``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:4 of
+msgid ""
+"Some attributes are optional via creator_id/creator implementation by the"
+" API: \"`creator_id` will be null and `creator` will not be included for "
+"events created before October 25th, 2021, when the concept of "
+"`creator_id` was introduced and tracked.\""
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:7 of
+msgid "The ID of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:8 of
+msgid "The ID of the guild that this scheduled event belongs to."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:9 of
+msgid "The channel ID in which the scheduled event belongs to, if any."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:10 of
+msgid "The ID of the user that created the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:11 of
+msgid "The name of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:12 of
+msgid "The description of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:13 of
+msgid "The scheduled event start time."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:14 of
+msgid "The scheduled event end time, if any."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:15 of
+msgid "The privacy level of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:16 of
+msgid "The type of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:17 of
+msgid "The ID of the entity associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:18 of
+msgid "Additional metadata associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:19 of
+msgid "The user that created the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:20 of
+msgid "The number of users subscribed to the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:21 of
+msgid "The status of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:22 of
+msgid "The hash containing the image of an event, if applicable."
+msgstr ""
+
+#: interactions.api.models.gw.Presence:1 of
+msgid "A class object representing the gateway event ``PRESENCE_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.Presence:5 of
+msgid "The status of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Presence:6 of
+msgid "The activities of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Presence:7 of
+msgid "The client status across platforms in the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildJoinRequest:1 of
+msgid ""
+"A class object representing the gateway events "
+"``GUILD_JOIN_REQUEST_CREATE``, ``GUILD_JOIN_REQUEST_UPDATE``, and "
+"``GUILD_JOIN_REQUEST_DELETE``"
+msgstr ""
+
+#: interactions.api.models.gw.GuildEmojis:1 of
+msgid "A class object representing the gateway event ``GUILD_EMOJIS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildEmojis:4 of
+msgid "The emojis of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildRole:1 of
+msgid ""
+"A class object representing the gateway events ``GUILD_ROLE_CREATE``, "
+"``GUILD_ROLE_UPDATE`` and ``GUILD_ROLE_DELETE``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildRole:4 of
+msgid "The role of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildRole:5 of
+msgid "The role ID of the event."
+msgstr ""

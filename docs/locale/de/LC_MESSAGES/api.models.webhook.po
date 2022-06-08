@@ -1,0 +1,239 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.models.webhook.rst:4
+msgid "Webhook Models"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:1 of
+msgid "A class object representing a Webhook."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:3 of
+msgid "the id of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:4 of
+msgid "the type of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:5 of
+msgid "the guild id this webhook is for, if any"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:6 of
+msgid "the channel id this webhook is for, if any"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:7 of
+msgid ""
+"the user this webhook was created by (not returned when getting a webhook"
+" with its token)"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:8 of
+msgid "the default name of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:9 of
+msgid "the default user avatar hash of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:10 of
+msgid "the secure token of the webhook (returned for Incoming Webhooks)"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:11 of
+msgid "the bot/OAuth2 application that created this webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:12 of
+msgid ""
+"the guild of the channel that this webhook is following (returned for "
+"Channel Follower Webhooks)"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:13 of
+msgid ""
+"the channel that this webhook is following (returned for Channel Follower"
+" Webhooks)"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook:14 of
+msgid ""
+"the url used for executing the webhook (returned by the webhooks OAuth2 "
+"flow)"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:1 of
+msgid "Creates a webhook in a channel."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create
+#: interactions.api.models.webhook.Webhook.execute
+#: interactions.api.models.webhook.Webhook.get
+#: interactions.api.models.webhook.Webhook.modify of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:3
+#: interactions.api.models.webhook.Webhook.get:3 of
+msgid "The HTTPClient of the bot, has to be set to `bot._http`."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:5 of
+msgid "The ID of the channel to create the webhook in."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:7 of
+msgid "The name of the webhook."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:9 of
+msgid "The avatar of the Webhook, if any."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.avatar_url
+#: interactions.api.models.webhook.Webhook.create
+#: interactions.api.models.webhook.Webhook.execute
+#: interactions.api.models.webhook.Webhook.get
+#: interactions.api.models.webhook.Webhook.modify of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:11 of
+msgid "The created webhook as object"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.avatar_url
+#: interactions.api.models.webhook.Webhook.create
+#: interactions.api.models.webhook.Webhook.execute
+#: interactions.api.models.webhook.Webhook.get
+#: interactions.api.models.webhook.Webhook.modify of
+msgid "Return type"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.get:1 of
+msgid "Gets an existing webhook."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.get:5 of
+msgid "The ID of the webhook."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.get:7 of
+msgid "The token of the webhook, optional"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.get:9 of
+msgid "The Webhook object"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.modify:1 of
+msgid "Modifies the current webhook."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.modify:3 of
+msgid "The new name of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.modify:5 of
+msgid ""
+"The channel id of the webhook. If not provided, the webhook token will be"
+" used for authentication"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.modify:7 of
+msgid "The new avatar of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.modify:9 of
+msgid "The modified webhook object"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:1 of
+msgid "Executes the webhook. All parameters to this function are optional."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:4 of
+msgid "The ``components`` argument requires an application-owned webhook."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:6 of
+msgid "the message contents (up to 2000 characters)"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:8 of
+msgid "override the default username of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:10 of
+msgid "override the default avatar of the webhook"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:12 of
+msgid "true if this is a TTS message"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:14 of
+msgid "embedded ``rich`` content"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:16 of
+msgid "allowed mentions for the message"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:18 of
+msgid "the components to include with the message"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:20 of
+msgid "The files to attach to the message"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:22 of
+msgid ""
+"Send a message to a specified thread within a webhook's channel. The "
+"thread will automatically be unarchived"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:24 of
+msgid "The sent message, if present"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.delete:1 of
+msgid "Deletes the webhook."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.avatar_url:1 of
+msgid "Returns the URL of the webhook's avatar."
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.avatar_url:3 of
+msgid "URL of the webhook's avatar"
+msgstr ""
+
+#: interactions.api.models.webhook.WebhookType:1 of
+msgid "An enumeration."
+msgstr ""
