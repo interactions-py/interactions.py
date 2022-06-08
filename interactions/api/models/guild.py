@@ -770,7 +770,9 @@ class Guild(ClientSerializerMixin):
         if position is not MISSING:
             payload["position"] = position
         if parent_id is not MISSING:
-            payload["parent_id"] = int(parent_id.id) if isinstance(parent_id, Channel) else (parent_id.id)
+            payload["parent_id"] = (
+                int(parent_id.id) if isinstance(parent_id, Channel) else (parent_id.id)
+            )
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
         if permission_overwrites is not MISSING:
@@ -798,7 +800,11 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        res = channel_id._json if isinstance(channel_id, Channel) else await self._client.get_channel(channel_id=int(channel_id))
+        res = (
+            channel_id._json
+            if isinstance(channel_id, Channel)
+            else await self._client.get_channel(channel_id=int(channel_id))
+        )
 
         res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
         for attr in {"flags", "guild_id", "id", "last_message_id", "last_pin_timestamp"}:
@@ -1575,7 +1581,9 @@ class Guild(ClientSerializerMixin):
         )
         return ScheduledEvents(**res)
 
-    async def delete_scheduled_event(self, event_id: Union[int, "ScheduledEvents", Snowflake]) -> None:
+    async def delete_scheduled_event(
+        self, event_id: Union[int, "ScheduledEvents", Snowflake]
+    ) -> None:
         """
         Deletes a scheduled event of the guild.
 
