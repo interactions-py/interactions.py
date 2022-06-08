@@ -1,7 +1,9 @@
 from asyncio import AbstractEventLoop
 from typing import Any, Dict, Optional
+
 from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
+
 from .limiter import Limiter
 from .route import Route
 
@@ -14,7 +16,6 @@ class _Request:
     _headers: dict
     _session: ClientSession
     _global_lock: Limiter
-
     def __init__(self, token: str) -> None: ...
     def _check_session(self) -> None: ...
     async def _check_lock(self) -> None: ...

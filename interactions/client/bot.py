@@ -32,6 +32,19 @@ _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
 
+__all__ = (
+    "Client",
+    "Extension",
+    "extension_listener",
+    "extension_command",
+    "extension_component",
+    "extension_modal",
+    "extension_autocomplete",
+    "extension_user_command",
+    "extension_message_command",
+)
+
+
 class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
@@ -102,7 +115,7 @@ class Client:
             self._automate_sync = True
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data)
+        self.me = Application(**data, _client=self._http)
 
     @property
     def guilds(self) -> List[Guild]:
@@ -134,10 +147,12 @@ class Client:
         for key in self.__name_autocomplete.keys():
             _command_obj = self._find_command(key)
             _command: Union[Snowflake, int] = int(_command_obj.id)
-            self.event(
-                self.__name_autocomplete[key]["coro"],
-                name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}",
-            )
+            for _ in self.__name_autocomplete[key]:
+                # _ contains {"coro" : coro, "name": <name_as_string>}
+                self.event(
+                    _["coro"],
+                    name=f"autocomplete_{_command}_{_['name']}",
+                )
 
     @staticmethod
     async def __compare_sync(
@@ -955,8 +970,12 @@ class Client:
 
             if hasattr(coro, "__func__"):
                 coro.__func__._command_data = commands
+                if type == ApplicationCommandType.CHAT_INPUT:
+                    coro.__func__.autocomplete = AutocompleteManager(self, name)
             else:
                 coro._command_data = commands
+                if type == ApplicationCommandType.CHAT_INPUT:
+                    coro.autocomplete = AutocompleteManager(self, name)
 
             self.__command_coroutines.append(coro)
 
@@ -1231,7 +1250,9 @@ class Client:
 
         def decorator(coro: Coroutine) -> Any:
             if isinstance(_command, str):
-                self.__name_autocomplete[_command] = {"coro": coro, "name": name}
+                curr_autocomplete = self.__name_autocomplete.get(_command, [])
+                curr_autocomplete.append({"coro": coro, "name": name})
+                self.__name_autocomplete[_command] = curr_autocomplete
                 return
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
@@ -1312,12 +1333,16 @@ class Client:
             self._extensions[_name] = module
             return extension
 
-    def remove(self, name: str, package: Optional[str] = None) -> None:
+    def remove(
+        self, name: str, remove_commands: bool = True, package: Optional[str] = None
+    ) -> None:
         """
         Removes an extension out of the current client from an import resolve.
 
         :param name: The name of the extension.
         :type name: str
+        :param remove_commands?: Whether to remove commands before reloading. Defaults to True.
+        :type remove_commands: bool
         :param package?: The package of the extension.
         :type package: Optional[str]
         """
@@ -1341,7 +1366,7 @@ class Client:
                     _extension = self._extensions.get(ext_name)
                     try:
                         self._loop.create_task(
-                            _extension.teardown()
+                            _extension.teardown(remove_commands=remove_commands)
                         )  # made for Extension, usable by others
                     except AttributeError:
                         pass
@@ -1350,7 +1375,9 @@ class Client:
 
         else:
             try:
-                self._loop.create_task(extension.teardown())  # made for Extension, usable by others
+                self._loop.create_task(
+                    extension.teardown(remove_commands=remove_commands)
+                )  # made for Extension, usable by others
             except AttributeError:
                 pass
 
@@ -1359,18 +1386,27 @@ class Client:
         log.debug(f"Removed extension {name}.")
 
     def reload(
-        self, name: str, package: Optional[str] = None, *args, **kwargs
+        self,
+        name: str,
+        package: Optional[str] = None,
+        remove_commands: bool = True,
+        *args,
+        **kwargs,
     ) -> Optional["Extension"]:
         r"""
         "Reloads" an extension off of current client from an import resolve.
 
         .. warning::
-            This will remove and re-add application commands, counting towards your daily application command creation limit.
+            This will remove and re-add application commands, counting towards your daily application
+            command creation limit, as long as you have the ``remove_commands`` argument set to ``True``, what it is by
+            default.
 
-        :param name: The name of the extension.
+        :param name: The name of the extension
         :type name: str
-        :param package?: The package of the extension.
+        :param package?: The package of the extension
         :type package: Optional[str]
+        :param remove_commands?: Whether to remove commands before reloading. Defaults to True
+        :type remove_commands: bool
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
@@ -1385,7 +1421,7 @@ class Client:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
             return self.load(name, package)
 
-        self.remove(name, package)
+        self.remove(name, package, remove_commands)
         return self.load(name, package, *args, **kwargs)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
@@ -1465,6 +1501,32 @@ class Client:
         return guild._json
 
 
+class AutocompleteManager:
+
+    __slots__ = (
+        "client",
+        "command_name",
+    )
+
+    def __init__(self, client: Client, command_name: str) -> None:
+        self.client = client
+        self.command_name = command_name
+
+    def __call__(self, name: str) -> Callable[..., Coroutine]:
+        """
+        Registers an autocomplete callback for the given command. See also :meth:`Client.autocomplete`
+
+        :param name: The name of the option to autocomplete
+        :type name: str
+        """
+
+        def decorator(coro: Coroutine):
+            self.client._Client__name_autocomplete[self.command_name] = {"coro": coro, "name": name}
+            return coro
+
+        return decorator
+
+
 # TODO: Implement the rest of cog behaviour when possible.
 class Extension:
     """
@@ -1541,21 +1603,23 @@ class Extension:
                 self._listeners[comp_name] = listeners
 
             if hasattr(func, "__autocomplete_data__"):
-                args, kwargs = func.__autocomplete_data__
-                func = client.autocomplete(*args, **kwargs)(func)
+                all_args_kwargs = func.__autocomplete_data__
+                for _ in all_args_kwargs:
+                    args, kwargs = _[0], _[1]
+                    func = client.autocomplete(*args, **kwargs)(func)
 
-                name = kwargs.get("name") or args[0]
-                _command = kwargs.get("command") or args[1]
+                    name = kwargs.get("name") or args[0]
+                    _command = kwargs.get("command") or args[1]
 
-                _command: Union[Snowflake, int] = (
-                    _command.id if isinstance(_command, ApplicationCommand) else _command
-                )
+                    _command: Union[Snowflake, int] = (
+                        _command.id if isinstance(_command, ApplicationCommand) else _command
+                    )
 
-                auto_name = f"autocomplete_{_command}_{name}"
+                    auto_name = f"autocomplete_{_command}_{name}"
 
-                listeners = self._listeners.get(auto_name, [])
-                listeners.append(func)
-                self._listeners[auto_name] = listeners
+                    listeners = self._listeners.get(auto_name, [])
+                    listeners.append(func)
+                    self._listeners[auto_name] = listeners
 
             if hasattr(func, "__modal_data__"):
                 args, kwargs = func.__modal_data__
@@ -1576,7 +1640,7 @@ class Extension:
 
         return self
 
-    async def teardown(self):
+    async def teardown(self, remove_commands: bool = True):
         for event, funcs in self._listeners.items():
             for func in funcs:
                 self.client._websocket._dispatch.events[event].remove(func)
@@ -1587,7 +1651,7 @@ class Extension:
                 self.client._Client__command_coroutines.pop(_index)
                 self.client._websocket._dispatch.events[cmd].remove(func)
 
-        if self.client._automate_sync:
+        if self.client._automate_sync and remove_commands:
             await self.client._Client__sync()
 
 
@@ -1626,8 +1690,13 @@ def extension_component(*args, **kwargs):
 @wraps(Client.autocomplete)
 def extension_autocomplete(*args, **kwargs):
     def decorator(func):
-        func.__autocomplete_data__ = (args, kwargs)
-        return func
+        try:
+            if getattr(func, "__autocomplete_data__"):
+                func.__autocomplete_data__.append((args, kwargs))
+        except AttributeError:
+            func.__autocomplete_data__ = [(args, kwargs)]
+        finally:
+            return func
 
     return decorator
 
