@@ -292,7 +292,7 @@ class WebSocketClient:
                             )
                             if _type:
                                 if isinstance(option, dict):
-                                    _type[option["value"]].client = self._http
+                                    _type[option["value"]]._client = self._http
                                     option.update({"value": _type[option["value"]]})
                                 else:
                                     _type[option.value]._client = self._http
@@ -463,10 +463,10 @@ class WebSocketClient:
 
                     if _type:
                         if isinstance(sub_option, dict):
-                            _type[sub_option["value"]].client = self._http
+                            _type[sub_option["value"]]._client = self._http
                             sub_option.update({"value": _type[sub_option["value"]]})
                         else:
-                            _type[sub_option.value].client = self._http
+                            _type[sub_option.value]._client = self._http
                             sub_option._json.update({"value": _type[sub_option.value]})
                     if _check:
                         return _check
@@ -491,10 +491,10 @@ class WebSocketClient:
 
                         if _type:
                             if isinstance(sub_option, dict):
-                                _type[sub_option["value"]].client = self._http
+                                _type[sub_option["value"]]._client = self._http
                                 sub_option.update({"value": _type[sub_option["value"]]})
                             else:
-                                _type[sub_option.value].client = self._http
+                                _type[sub_option.value]._client = self._http
                                 sub_option._json.update({"value": _type[sub_option.value]})
                         if _check:
                             return _check
