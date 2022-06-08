@@ -47,7 +47,7 @@ class PresenceActivity(DictSerializerMixin):
     name: str
     type: PresenceActivityType
     url: Optional[str]
-    created_at: Snowflake
+    created_at: int
     timestamps: Optional[PresenceTimestamp]
     application_id: Optional[Snowflake]
     details: Optional[str]
