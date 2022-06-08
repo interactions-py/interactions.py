@@ -53,7 +53,9 @@ class DictSerializerMixin:
 
                     passed_kwargs[attrib_name] = value
                 else:
-                    passed_kwargs[attrib_name] = None
+                    passed_kwargs[attrib_name] = (
+                        attrib.default if attrib.default is not attrs.NOTHING else None
+                    )
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
