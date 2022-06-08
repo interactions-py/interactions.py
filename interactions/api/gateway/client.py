@@ -295,7 +295,7 @@ class WebSocketClient:
                                     _type[option["value"]].client = self._http
                                     option.update({"value": _type[option["value"]]})
                                 else:
-                                    _type[option.value].client = self._http
+                                    _type[option.value]._client = self._http
                                     option._json.update({"value": _type[option.value]})
                             _option = self.__sub_command_context(option, _context)
                             __kwargs.update(_option)
