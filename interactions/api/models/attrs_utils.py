@@ -52,10 +52,18 @@ class DictSerializerMixin:
                         self._json[attrib_name] = value._json  # type: ignore
 
                     passed_kwargs[attrib_name] = value
+
+                elif attrib.default:
+                    # handle defaults like attrs does
+                    default = attrib.default
+                    if isinstance(default, attrs.Factory):  # type: ignore
+                        passed_kwargs[attrib_name] = (
+                            default.factory(self) if default.takes_self else default.factory()
+                        )
+                    else:
+                        passed_kwargs[attrib_name] = default
                 else:
-                    passed_kwargs[attrib_name] = (
-                        attrib.default if attrib.default is not attrs.NOTHING else None
-                    )
+                    passed_kwargs[attrib_name] = None
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
