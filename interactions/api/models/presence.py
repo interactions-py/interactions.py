@@ -1,3 +1,4 @@
+import time
 from enum import IntEnum
 from typing import Any, List, Optional
 
@@ -187,3 +188,9 @@ class ClientPresence(DictSerializerMixin):
     )
     status: StatusType = field(converter=StatusType)
     afk: bool = field()
+
+    def __attrs_post_init__(self):
+        if not self._json.get("since"):
+            # If since is not provided by the developer...
+            self.since = int(time.time() * 1000) if self.status == "idle" else 0
+            self._json["since"] = self.since
