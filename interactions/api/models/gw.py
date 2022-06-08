@@ -14,7 +14,7 @@ from .channel import Channel, ThreadMember
 from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import AutoModAction, ClientStatus, File, Snowflake
+from .misc import AutoModAction, AutoModTriggerMetadata, ClientStatus, File, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -64,11 +64,15 @@ class AutoModerationAction(DictSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-
+    action: AutoModAction = field(converter=AutoModAction)
     rule_id: Snowflake = field(converter=Snowflake)
+    rule_trigger_type: int = field()
     channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     alert_system_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    content: str = field()
+    matched_keyword: Optional[str] = field(default=None)
+    matched_content: Optional[str] = field(default=None)
 
 
 @define()
@@ -97,9 +101,13 @@ class AutoModerationRule(DictSerializerMixin):
 
     id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
+    name: str = field()
     creator_id: Snowflake = field(converter=Snowflake)
-
+    event_type: int = field()
+    trigger_type: str = field()
+    trigger_metadata: AutoModTriggerMetadata = field(converter=AutoModTriggerMetadata)
     actions: List[AutoModAction] = field(converter=convert_list(AutoModAction))
+    enabled: bool = field()
     exempt_roles: List[Snowflake] = field(converter=convert_list(Snowflake))
     exempt_channels: List[Snowflake] = field(converter=convert_list(Snowflake))
 

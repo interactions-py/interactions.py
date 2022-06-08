@@ -1,15 +1,26 @@
 import datetime
 from io import FileIO, IOBase
 from logging import Logger
-from typing import Dict, Optional, Union
+from typing import Optional, Union, List
 
 from interactions.api.models.attrs_utils import DictSerializerMixin, define
 
 log: Logger
 
+@define()
+class AutoModMetaData(DictSerializerMixin):
+    channel_id: Snowflake
+    duration_seconds: Optional[int]
+
+@define()
 class AutoModAction(DictSerializerMixin):
     type: int
-    metadata: Dict[str, str]
+    metadata: AutoModMetaData
+
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    keyword_filter: Optional[List[str]]
+    keyword_lists: Optional[List[str]]
 
 @define()
 class Overwrite(DictSerializerMixin):
@@ -20,7 +31,7 @@ class Overwrite(DictSerializerMixin):
 
 @define()
 class ClientStatus(DictSerializerMixin):
-    dektop: Optional[str]
+    desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
 

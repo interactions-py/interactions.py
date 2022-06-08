@@ -7,7 +7,7 @@ from .channel import Channel, ThreadMember
 from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import  AutoModAction, ClientStatus, File, Snowflake
+from .misc import AutoModAction, ClientStatus, File, Snowflake, AutoModTriggerMetadata
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -34,12 +34,11 @@ class AutoModerationRule(DictSerializerMixin):
     creator_id: str
     event_type: int
     trigger_type: int
-    trigger_metadata: Dict[str, List[str]]
+    trigger_metadata: AutoModTriggerMetadata
     actions: List[AutoModAction]
     enabled: bool
     exempt_roles: List[Snowflake]
     exempt_channels: List[Snowflake]
-    def __init__(self, **kwargs): ...
 
 
 @define()

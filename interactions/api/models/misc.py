@@ -11,12 +11,15 @@ from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
-from typing import Dict, Optional, Union
+from typing import List, Optional, Union
 
 from interactions.api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
 from interactions.base import get_logger
 
 __all__ = (
+    "AutoModMetaData",
+    "AutoModAction",
+    "AutoModTriggerMetadata",
     "DictSerializerMixin",
     "Snowflake",
     "Color",
@@ -28,27 +31,6 @@ __all__ = (
 )
 
 log: Logger = get_logger("mixin")
-
-
-@define()
-class AutoModAction(DictSerializerMixin):
-    """
-    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
-    .. note::
-        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
-        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
-        ``AutoModerationAction``
-    .. note::
-        The metadata can be an empty dict, depending on the action. But this isn't an optional, as the dictionary
-        is always present according to Discord.
-        Moreover, this currently represents a dict of, if any, ``{"channel_id": <snowflake as string>}``
-
-    :ivar int type: Action type.
-    :ivar Dict[str, str] metadata: Additional metadata needed during execution for this specific action type.
-    """
-
-    type: id = field()
-    metadata: Dict[str, str] = field()
 
 
 @define()
@@ -176,6 +158,54 @@ class Snowflake(object):
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self._snowflake})"
+
+
+@define()
+class AutoModMetaData(DictSerializerMixin):
+    """
+    A class object used to represent the AutoMod Action Metadata.
+    .. note::
+        This is not meant to be instantiated outside the Gateway.
+
+    :ivar Snowflake channel_id: Channel to which user content should be logged.
+    :ivar int duration_seconds: Timeout duration in seconds.
+    """
+
+    channel_id: Snowflake = field(converter=Snowflake)
+    duration_seconds: Optional[int] = field(default=None)
+
+
+@define()
+class AutoModAction(DictSerializerMixin):
+    """
+    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+    .. note::
+        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
+        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
+        ``AutoModerationAction``
+    .. note::
+        The metadata can be an empty dict, depending on the action. But this isn't an optional, as the dictionary
+        is always present according to Discord.
+
+    :ivar int type: Action type.
+    :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
+    """
+
+    type: int = field()
+    metadata: AutoModMetaData = field(converter=AutoModMetaData)
+
+
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    """
+    A class object used to represent the trigger metadata from the AutoMod rule object.
+
+    :ivar Optional[List[str]] keyword_filter: Words to match against content.
+    :ivar Optional[List[str]] keyword_lists: Which pre-defined lists of words to try to match in content.
+    """
+
+    keyword_filter: Optional[List[str]] = field(default=None)
+    keyword_lists: Optional[List[str]] = field(default=None)
 
 
 class Color(object):
