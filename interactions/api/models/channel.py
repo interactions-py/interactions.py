@@ -147,14 +147,14 @@ class Channel(ClientSerializerMixin):
     :ivar Optional[str] permissions?: The permissions of the channel.
     """
 
-    __slots__ = (
-        # TODO: Document banner when Discord officially documents them.
-        "banner",
-        "guild_hashes",
-        "flags",
-        "template",
-        "available_tags",
-    )
+    # __slots__ = (
+    #     # TODO: Document banner when Discord officially documents them.
+    #     "banner",
+    #     "guild_hashes",
+    #     "flags",
+    #     "template",
+    #     "available_tags",
+    # )
 
     type: ChannelType = field(converter=ChannelType)
     id: Snowflake = field(converter=Snowflake)
