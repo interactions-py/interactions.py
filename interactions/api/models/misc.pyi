@@ -9,18 +9,18 @@ log: Logger
 
 @define()
 class AutoModMetaData(DictSerializerMixin):
-    channel_id: Snowflake
+    channel_id: Optional[Snowflake]
     duration_seconds: Optional[int]
 
 @define()
 class AutoModAction(DictSerializerMixin):
     type: int
-    metadata: AutoModMetaData
+    metadata: Optional[AutoModMetaData]
 
 @define()
 class AutoModTriggerMetadata(DictSerializerMixin):
     keyword_filter: Optional[List[str]]
-    keyword_lists: Optional[List[str]]
+    presets: Optional[List[str]]
 
 @define()
 class Overwrite(DictSerializerMixin):

@@ -93,7 +93,7 @@ class AutoModerationRule(DictSerializerMixin):
     :ivar int event_type: The rule type in which automod checks.
     :ivar int trigger_type: The automod type. It characterises what type of information that is checked.
     :ivar Dict[str, List[str]] trigger_metadata: Additional data needed to figure out whether this rule should be triggered.
-    :ivar List[AutoModerationAction] actions: The actions that may be executed when the rule is triggered.
+    :ivar List[AutoModerationAction] actions: The actions that will be executed when the rule is triggered.
     :ivar bool enabled: Whether the rule is enabled.
     :ivar List[Snowflake] exempt_roles: The role IDs that should not be affected by this rule. (Max 20)
     :ivar List[Snowflake] exempt_channels: The channel IDs that should not be affected by this rule. (Max 20)

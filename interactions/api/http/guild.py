@@ -680,8 +680,8 @@ class GuildRequest:
         name: str,
         event_type: int,
         trigger_type: int,
-        trigger_metadata: dict,
         actions: List[dict],
+        trigger_metadata: Optional[dict] = None,
         enabled: Optional[bool] = False,
         exempt_roles: Optional[List[str]] = None,
         exempt_channels: Optional[List[str]] = None,
@@ -694,7 +694,7 @@ class GuildRequest:
         :param name: The name of the new rule.
         :param event_type: The event type of the new rule.
         :param trigger_type: The trigger type of the new rule.
-        :param trigger_metadata: The trigger metadata payload representation.
+        :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
         :param actions: The actions that will execute when the rule is triggered.
         :param enabled: Whether the rule will be enabled upon creation. False by default.
         :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
@@ -707,10 +707,11 @@ class GuildRequest:
             "name": name,
             "event_type": event_type,
             "trigger_type": trigger_type,
-            "trigger_metadata": trigger_metadata,
             "actions": actions,
             "enabled": enabled,
         }
+        if trigger_metadata:
+            params["trigger_metadata"] = trigger_metadata
         if exempt_roles:
             params["exempt_roles"] = exempt_roles
         if exempt_channels:
@@ -745,7 +746,7 @@ class GuildRequest:
         :param rule_id: Rule ID snowflake.
         :param name: The new name of the rule.
         :param event_type: The new event type of the rule.
-        :param trigger_metadata: The new trigger metadata payload representation.
+        :param trigger_metadata: The new trigger metadata payload representation. This can be omitted based on the trigger type.
         :param actions: The new actions that will execute when the rule is triggered.
         :param enabled: Whether the rule will be enabled upon creation.
         :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.

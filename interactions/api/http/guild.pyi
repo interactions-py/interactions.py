@@ -126,12 +126,12 @@ class GuildRequest:
             name: str,
             event_type: int,
             trigger_type: int,
-            trigger_metadata: dict,
             actions: List[dict],
+            trigger_metadata: Optional[dict] = None,
             enabled: Optional[bool] = False,
             exempt_roles: Optional[List[str]] = None,
             exempt_channels: Optional[List[str]] = None,
-            reason: Optional[str] = None
+            reason: Optional[str] = None,
     ) -> dict: ...
 
     async def modify_auto_moderation_rule(

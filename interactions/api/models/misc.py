@@ -167,11 +167,14 @@ class AutoModMetaData(DictSerializerMixin):
     .. note::
         This is not meant to be instantiated outside the Gateway.
 
-    :ivar Snowflake channel_id: Channel to which user content should be logged.
-    :ivar int duration_seconds: Timeout duration in seconds.
+    .. note::
+        The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
+
+    :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
+    :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
     """
 
-    channel_id: Snowflake = field(converter=Snowflake)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     duration_seconds: Optional[int] = field(default=None)
 
 
@@ -184,15 +187,14 @@ class AutoModAction(DictSerializerMixin):
         This object is not the same as that dispatched object. Moreover, that dispatched object name will be
         ``AutoModerationAction``
     .. note::
-        The metadata can be an empty dict, depending on the action. But this isn't an optional, as the dictionary
-        is always present according to Discord.
+        The metadata can be omitted depending on the action type.
 
     :ivar int type: Action type.
     :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
     """
 
     type: int = field()
-    metadata: AutoModMetaData = field(converter=AutoModMetaData)
+    metadata: Optional[AutoModMetaData] = field(converter=AutoModMetaData, default=None)
 
 
 @define()
@@ -201,11 +203,11 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     A class object used to represent the trigger metadata from the AutoMod rule object.
 
     :ivar Optional[List[str]] keyword_filter: Words to match against content.
-    :ivar Optional[List[str]] keyword_lists: Which pre-defined lists of words to try to match in content.
+    :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
     """
 
     keyword_filter: Optional[List[str]] = field(default=None)
-    keyword_lists: Optional[List[str]] = field(default=None)
+    presets: Optional[List[str]] = field(default=None)
 
 
 class Color(object):
