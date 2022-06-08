@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -138,15 +138,15 @@ msgstr ""
 msgid "The structure for a permission: ::"
 msgstr ""
 
-#: interactions.client.models.command.Permission:11 of
+#: interactions.client.models.command.Permission:10 of
 msgid "The ID of the permission."
 msgstr ""
 
-#: interactions.client.models.command.Permission:12 of
+#: interactions.client.models.command.Permission:11 of
 msgid "The type of permission."
 msgstr ""
 
-#: interactions.client.models.command.Permission:13 of
+#: interactions.client.models.command.Permission:12 of
 msgid "The permission state. ``True`` for allow, ``False`` for disallow."
 msgstr ""
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,10 +26,8 @@ msgstr ""
 msgid "An enumerable object representing the verification level of a guild."
 msgstr ""
 
-#: interactions.api.models.guild.ExplicitContentFilterLevel:1 of
-msgid ""
-"An enumerable object representing the explicit content filter level of a "
-"guild."
+#: interactions.api.models.guild.EntityType:1 of
+msgid "An enumerable object representing the type of event."
 msgstr ""
 
 #: interactions.api.models.guild.DefaultMessageNotificationLevel:1 of
@@ -38,26 +36,8 @@ msgid ""
 "of a guild."
 msgstr ""
 
-#: interactions.api.models.guild.EntityType:1 of
-msgid "An enumerable object representing the type of event."
-msgstr ""
-
-#: interactions.api.models.guild.EventStatus:1 of
-msgid "An enumerable object representing the status of an event."
-msgstr ""
-
-#: interactions.api.models.guild.InviteTargetType:1 of
-msgid "An enumerable object representing the different invite target types"
-msgstr ""
-
-#: interactions.api.models.guild.WelcomeChannels:1 of
-msgid "A class object representing a welcome channel on the welcome screen."
-msgstr ""
-
-#: interactions.api.models.guild.WelcomeChannels:4 of
-msgid ""
-"``emoji_id`` and ``emoji_name`` are given values respectively if the "
-"welcome channel uses an emoji."
+#: interactions.api.models.guild.EventMetadata:1 of
+msgid "A class object representing the metadata of an event entity."
 msgstr ""
 
 #: interactions.api.models.guild.EventMetadata
@@ -74,40 +54,130 @@ msgstr ""
 msgid "Variables"
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeChannels:7 of
-msgid "The ID of the welcome channel."
+#: interactions.api.models.guild.EventMetadata:3 of
+msgid "The location of the event, if any."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeChannels:8 of
-msgid "The description of the welcome channel."
+#: interactions.api.models.guild.EventStatus:1 of
+msgid "An enumerable object representing the status of an event."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeChannels:9 of
-msgid "The ID of the emoji of the welcome channel."
+#: interactions.api.models.guild.GuildTemplate:1 of
+msgid "An object representing the snapshot of an existing guild."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeChannels:10 of
-msgid "The name of the emoji of the welcome channel."
+#: interactions.api.models.guild.GuildTemplate:3 of
+msgid "The code of the guild template."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeScreen:1 of
-msgid "A class object representing the welcome screen shown for community guilds."
+#: interactions.api.models.guild.GuildTemplate:4 of
+msgid "The name of the guild template."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeScreen:4 of
-msgid "``description`` is ambiguous -- Discord poorly documented this. :)"
+#: interactions.api.models.guild.GuildTemplate:5 of
+msgid "The description of the guild template, if given."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeScreen:6 of
-msgid "We assume it's for the welcome screen topic."
+#: interactions.api.models.guild.GuildTemplate:6 of
+msgid "The amount of uses on the template."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeScreen:8 of
-msgid "The description of the welcome screen."
+#: interactions.api.models.guild.GuildTemplate:7 of
+msgid "User ID of the creator of this template."
 msgstr ""
 
-#: interactions.api.models.guild.WelcomeScreen:9 of
-msgid "A list of welcome channels of the welcome screen."
+#: interactions.api.models.guild.GuildTemplate:8 of
+msgid "The User object of the creator of this template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:9 of
+msgid "The time when this template was created."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:10 of
+msgid "The time when this template was updated."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:11 of
+msgid "The Guild ID that the template sourced from."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:12 of
+msgid "A partial Guild object from the sourced template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:13 of
+msgid "A status that denotes if the changes are unsynced."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:1 of
+msgid "A class object representing an integration in a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:3 of
+msgid "The ID of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:4 of
+msgid "The name of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:5 of
+msgid "The type of integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:6 of
+msgid "Whether the integration is enabled or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:7 of
+msgid "Whether the integration is syncing or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:8 of
+msgid "The role ID that the integration uses for \"subscribed\" users."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:9 of
+msgid "Whether emoticons should be enabled or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:10 of
+msgid "The expiration behavior of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:11 of
+msgid ""
+"The \"grace period\" of the integration when expired -- how long it can "
+"still be used."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:12 of
+msgid "The user of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:13 of
+msgid "The account of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:14 of
+msgid "The time that the integration was last synced."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:15 of
+msgid "The current subscriber count of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:16 of
+msgid "Whether the integration was revoked for use or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:17 of
+msgid "The application used for the integration."
+msgstr ""
+
+#: interactions.api.models.guild.InviteTargetType:1 of
+msgid "An enumerable object representing the different invite target types"
 msgstr ""
 
 #: interactions.api.models.guild.StageInstance:1 of
@@ -155,6 +225,135 @@ msgstr ""
 
 #: interactions.api.models.guild.UnavailableGuild:10 of
 msgid "Whether the guild is unavailable or not."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:1 of
+msgid "A class object representing a welcome channel on the welcome screen."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:4 of
+msgid ""
+"``emoji_id`` and ``emoji_name`` are given values respectively if the "
+"welcome channel uses an emoji."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:7 of
+msgid "The ID of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:8 of
+msgid "The description of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:9 of
+msgid "The ID of the emoji of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:10 of
+msgid "The name of the emoji of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.ExplicitContentFilterLevel:1 of
+msgid ""
+"An enumerable object representing the explicit content filter level of a "
+"guild."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:1 of
+msgid "A class object representing the scheduled events of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:4 of
+msgid ""
+"Some attributes are optional via creator_id/creator implementation by the"
+" API: \"`creator_id` will be null and `creator` will not be included for "
+"events created before October 25th, 2021, when the concept of "
+"`creator_id` was introduced and tracked.\""
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:7 of
+msgid "The ID of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:8 of
+msgid "The ID of the guild that this scheduled event belongs to."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:9 of
+msgid "The channel ID in which the scheduled event belongs to, if any."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:10 of
+msgid "The ID of the user that created the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:11 of
+msgid "The name of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:12 of
+msgid "The description of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:13 of
+msgid "The scheduled event start time."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:14 of
+msgid "The scheduled event end time, if any."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:15 of
+msgid "The privacy level of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:16 of
+msgid "The type of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:17 of
+msgid "The ID of the entity associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:18 of
+msgid "Additional metadata associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:19 of
+msgid "The user that created the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:20 of
+msgid "The number of users subscribed to the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_scheduled_event:19
+#: interactions.api.models.guild.ScheduledEvents:21 of
+msgid "The status of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:22 of
+msgid "The hash containing the image of an event, if applicable."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:1 of
+msgid "A class object representing the welcome screen shown for community guilds."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:4 of
+msgid "``description`` is ambiguous -- Discord poorly documented this. :)"
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:6 of
+msgid "We assume it's for the welcome screen topic."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:8 of
+msgid "The description of the welcome screen."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:9 of
+msgid "A list of welcome channels of the welcome screen."
 msgstr ""
 
 #: interactions.api.models.guild.Guild:1 of
@@ -382,6 +581,7 @@ msgstr ""
 
 #: interactions.api.models.guild.Guild.add_member_role
 #: interactions.api.models.guild.Guild.ban
+#: interactions.api.models.guild.Guild.clone_channel
 #: interactions.api.models.guild.Guild.create_channel
 #: interactions.api.models.guild.Guild.create_emoji
 #: interactions.api.models.guild.Guild.create_role
@@ -506,19 +706,34 @@ msgid "RGB color value as integer, default ``0``"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.create_role:7 of
+msgid "Bitwise value of the enabled/disabled permissions"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:9 of
 msgid ""
 "Whether the role should be displayed separately in the sidebar, default "
 "``False``"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.create_role:9 of
+#: interactions.api.models.guild.Guild.create_role:11 of
+msgid "The role's icon image (if the guild has the ROLE_ICONS feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:13 of
+msgid ""
+"The role's unicode emoji as a standard emoji (if the guild has the "
+"ROLE_ICONS feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:15 of
 msgid "Whether the role should be mentionable, default ``False``"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.create_role:11 of
+#: interactions.api.models.guild.Guild.create_role:17 of
 msgid "The reason why the role is created, default ``None``"
 msgstr ""
 
+#: interactions.api.models.guild.Guild.clone_channel
 #: interactions.api.models.guild.Guild.create_channel
 #: interactions.api.models.guild.Guild.create_role
 #: interactions.api.models.guild.Guild.create_scheduled_event
@@ -545,10 +760,11 @@ msgstr ""
 msgid "Returns"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.create_role:13 of
+#: interactions.api.models.guild.Guild.create_role:19 of
 msgid "The created Role"
 msgstr ""
 
+#: interactions.api.models.guild.Guild.clone_channel
 #: interactions.api.models.guild.Guild.create_channel
 #: interactions.api.models.guild.Guild.create_role
 #: interactions.api.models.guild.Guild.create_scheduled_event
@@ -628,21 +844,39 @@ msgstr ""
 
 #: interactions.api.models.guild.Guild.modify_role:9 of
 msgid ""
+"Bitwise value of the enabled/disabled permissions, defaults to the "
+"current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:11 of
+msgid ""
 "Whether the role should be displayed separately in the sidebar, defaults "
 "to the current value of the role"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.modify_role:11 of
+#: interactions.api.models.guild.Guild.modify_role:13 of
+msgid ""
+"The role's icon image (if the guild has the ROLE_ICONS feature), defaults"
+" to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:15 of
+msgid ""
+"The role's unicode emoji as a standard emoji (if the guild has the "
+"ROLE_ICONS feature), defaults to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:17 of
 msgid ""
 "Whether the role should be mentionable, defaults to the current value of "
 "the role"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.modify_role:13 of
+#: interactions.api.models.guild.Guild.modify_role:19 of
 msgid "The reason why the role is edited, default ``None``"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.modify_role:15 of
+#: interactions.api.models.guild.Guild.modify_role:21 of
 msgid "The modified role object"
 msgstr ""
 
@@ -739,6 +973,18 @@ msgstr ""
 
 #: interactions.api.models.guild.Guild.create_channel:25 of
 msgid "The created channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.clone_channel:1 of
+msgid "Clones a channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.clone_channel:3 of
+msgid "The id of the channel to clone"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.clone_channel:5 of
+msgid "The cloned channel"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.modify_channel:1 of
@@ -1191,11 +1437,6 @@ msgstr ""
 msgid "The id of the event to edit"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.modify_scheduled_event:19
-#: interactions.api.models.guild.ScheduledEvents:21 of
-msgid "The status of the scheduled event"
-msgstr ""
-
 #: interactions.api.models.guild.Guild.modify_scheduled_event:23 of
 msgid "The modified event"
 msgstr ""
@@ -1410,72 +1651,6 @@ msgstr ""
 msgid "A class object representing the preview of a guild."
 msgstr ""
 
-#: interactions.api.models.guild.Integration:1 of
-msgid "A class object representing an integration in a guild."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:3 of
-msgid "The ID of the integration."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:4 of
-msgid "The name of the integration."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:5 of
-msgid "The type of integration."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:6 of
-msgid "Whether the integration is enabled or not."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:7 of
-msgid "Whether the integration is syncing or not."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:8 of
-msgid "The role ID that the integration uses for \"subscribed\" users."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:9 of
-msgid "Whether emoticons should be enabled or not."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:10 of
-msgid "The expiration behavior of the integration."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:11 of
-msgid ""
-"The \"grace period\" of the integration when expired -- how long it can "
-"still be used."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:12 of
-msgid "The user of the integration."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:13 of
-msgid "The account of the integration."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:14 of
-msgid "The time that the integration was last synced."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:15 of
-msgid "The current subscriber count of the integration."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:16 of
-msgid "Whether the integration was revoked for use or not."
-msgstr ""
-
-#: interactions.api.models.guild.Integration:17 of
-msgid "The application used for the integration."
-msgstr ""
-
 #: interactions.api.models.guild.Invite:1 of
 msgid "The invite object."
 msgstr ""
@@ -1544,134 +1719,18 @@ msgstr ""
 msgid "The channel of this invite."
 msgstr ""
 
+#: interactions.api.models.guild.Invite:19 of
+msgid "The approximate amount of total members in a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:20 of
+msgid "The aprpoximate amount of online members in a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:21 of
+msgid "A scheduled guild event object included in the invite."
+msgstr ""
+
 #: interactions.api.models.guild.Invite.delete:1 of
 msgid "Deletes the invite"
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:1 of
-msgid "An object representing the snapshot of an existing guild."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:3 of
-msgid "The code of the guild template."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:4 of
-msgid "The name of the guild template."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:5 of
-msgid "The description of the guild template, if given."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:6 of
-msgid "The amount of uses on the template."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:7 of
-msgid "User ID of the creator of this template."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:8 of
-msgid "The User object of the creator of this template."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:9 of
-msgid "The time when this template was created."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:10 of
-msgid "The time when this template was updated."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:11 of
-msgid "The Guild ID that the template sourced from."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:12 of
-msgid "A partial Guild object from the sourced template."
-msgstr ""
-
-#: interactions.api.models.guild.GuildTemplate:13 of
-msgid "A status that denotes if the changes are unsynced."
-msgstr ""
-
-#: interactions.api.models.guild.EventMetadata:1 of
-msgid "A class object representing the metadata of an event entity."
-msgstr ""
-
-#: interactions.api.models.guild.EventMetadata:3 of
-msgid "The location of the event, if any."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:1 of
-msgid "A class object representing the scheduled events of a guild."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:4 of
-msgid ""
-"Some attributes are optional via creator_id/creator implementation by the"
-" API: \"`creator_id` will be null and `creator` will not be included for "
-"events created before October 25th, 2021, when the concept of "
-"`creator_id` was introduced and tracked.\""
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:7 of
-msgid "The ID of the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:8 of
-msgid "The ID of the guild that this scheduled event belongs to."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:9 of
-msgid "The channel ID in which the scheduled event belongs to, if any."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:10 of
-msgid "The ID of the user that created the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:11 of
-msgid "The name of the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:12 of
-msgid "The description of the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:13 of
-msgid "The scheduled event start time."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:14 of
-msgid "The scheduled event end time, if any."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:15 of
-msgid "The privacy level of the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:16 of
-msgid "The type of the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:17 of
-msgid "The ID of the entity associated with the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:18 of
-msgid "Additional metadata associated with the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:19 of
-msgid "The user that created the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:20 of
-msgid "The number of users subscribed to the scheduled event."
-msgstr ""
-
-#: interactions.api.models.guild.ScheduledEvents:22 of
-msgid "The hash containing the image of an event, if applicable."
 msgstr ""

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -197,9 +197,7 @@ msgid "`Pycord`_ (the most actively maintained)."
 msgstr ""
 
 #: ../../faq.rst:115
-msgid ""
-"`dis-snek`_ (high level, \"hackable\" API wrapper with ease of "
-"modification)."
+msgid "`NAFF`_ (high level, \"hackable\" API wrapper with ease of modification)."
 msgstr ""
 
 #: ../../faq.rst:116

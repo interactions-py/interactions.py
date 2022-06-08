@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,21 +20,6 @@ msgstr ""
 
 #: ../../ext.version.rst:4
 msgid "Versioning Models"
-msgstr ""
-
-#: interactions.ext.version.VersionAlphanumericType:1 of
-msgid "An enumeration."
-msgstr ""
-
-#: enum.Enum._generate_next_value_:1 of
-msgid "Generate the next value when not given."
-msgstr ""
-
-#: enum.Enum._generate_next_value_:3 of
-msgid ""
-"name: the name of the member start: the initial start value or None "
-"count: the number of existing members last_value: the last value assigned"
-" or None"
 msgstr ""
 
 #: interactions.ext.version.VersionAuthor:1 of
@@ -67,6 +52,21 @@ msgstr ""
 
 #: interactions.ext.version.VersionAuthor.is_co_author:1 of
 msgid "Returns whether the author is a co-author or not."
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid "An enumeration."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:1 of
+msgid "Generate the next value when not given."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:3 of
+msgid ""
+"name: the name of the member start: the initial start value or None "
+"count: the number of existing members last_value: the last value assigned"
+" or None"
 msgstr ""
 
 #: interactions.ext.version.Version:1 of

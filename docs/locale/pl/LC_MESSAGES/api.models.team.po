@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,39 +22,13 @@ msgstr ""
 msgid "Team Models"
 msgstr ""
 
-#: interactions.api.models.team.TeamMember:1 of
-msgid "A class object representing the member of a team."
-msgstr ""
-
-#: interactions.api.models.team.TeamMember:4 of
-msgid ""
-"The membership state is either a 1 for invited, or 2 for accepted. At the"
-" moment, permissions will always be [\"*\"]."
+#: interactions.api.models.team.Team:1 of
+msgid "A class object representing a team."
 msgstr ""
 
 #: interactions.api.models.team.Application interactions.api.models.team.Team
 #: interactions.api.models.team.TeamMember of
 msgid "Variables"
-msgstr ""
-
-#: interactions.api.models.team.TeamMember:7 of
-msgid "The user's membership state on the team"
-msgstr ""
-
-#: interactions.api.models.team.TeamMember:8 of
-msgid "Team Member permissions"
-msgstr ""
-
-#: interactions.api.models.team.TeamMember:9 of
-msgid "ID of the team that they're a member of."
-msgstr ""
-
-#: interactions.api.models.team.TeamMember:10 of
-msgid "The user object."
-msgstr ""
-
-#: interactions.api.models.team.Team:1 of
-msgid "A class object representing a team."
 msgstr ""
 
 #: interactions.api.models.team.Team:3 of
@@ -75,6 +49,32 @@ msgstr ""
 
 #: interactions.api.models.team.Team:7 of
 msgid "The User ID of the current team owner"
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:1 of
+msgid "A class object representing the member of a team."
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:4 of
+msgid ""
+"The membership state is either a 1 for invited, or 2 for accepted. At the"
+" moment, permissions will always be [\"*\"]."
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:7 of
+msgid "The user's membership state on the team"
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:8 of
+msgid "Team Member permissions"
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:9 of
+msgid "ID of the team that they're a member of."
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:10 of
+msgid "The user object."
 msgstr ""
 
 #: interactions.api.models.team.Application:1 of

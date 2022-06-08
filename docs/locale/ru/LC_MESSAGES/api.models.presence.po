@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -80,18 +80,6 @@ msgstr ""
 msgid "Instanced match secret"
 msgstr ""
 
-#: interactions.api.models.presence.PresenceButtons:1 of
-msgid "A class object representing the buttons of a presence."
-msgstr ""
-
-#: interactions.api.models.presence.PresenceButtons:3 of
-msgid "Text of the button"
-msgstr ""
-
-#: interactions.api.models.presence.PresenceButtons:4 of
-msgid "URL of the button"
-msgstr ""
-
 #: interactions.api.models.presence.PresenceTimestamp:1 of
 msgid "A class object representing the timestamp data of a presence."
 msgstr ""
@@ -102,10 +90,6 @@ msgstr ""
 
 #: interactions.api.models.presence.PresenceTimestamp:4 of
 msgid "Unix time in ms when the activity ended"
-msgstr ""
-
-#: interactions.api.models.presence.PresenceActivityType:1 of
-msgid "A class object representing all supported Discord activity types."
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:1 of
@@ -189,6 +173,22 @@ msgstr ""
 msgid ""
 "This is NOT used for standard presence activity reading by other users, "
 "i.e. User activity reading. You can use the `_json` attribute instead."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivityType:1 of
+msgid "A class object representing all supported Discord activity types."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceButtons:1 of
+msgid "A class object representing the buttons of a presence."
+msgstr ""
+
+#: interactions.api.models.presence.PresenceButtons:3 of
+msgid "Text of the button"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceButtons:4 of
+msgid "URL of the button"
 msgstr ""
 
 #: interactions.api.models.presence.ClientPresence:1 of

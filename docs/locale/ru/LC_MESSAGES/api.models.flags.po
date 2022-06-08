@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-22 12:31-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,18 +26,6 @@ msgstr ""
 msgid ""
 "An integer flag bitshift object representing flags respective for each "
 "gateway intent type."
-msgstr ""
-
-#: interactions.api.models.flags.Permissions:1 of
-msgid ""
-"An integer flag bitshift object representing the different member "
-"permissions given by Discord."
-msgstr ""
-
-#: interactions.api.models.flags.UserFlags:1 of
-msgid ""
-"An integer flag bitshift object representing the different user flags "
-"given by Discord."
 msgstr ""
 
 #: interactions.api.models.flags.AppFlags:1 of
@@ -61,4 +49,16 @@ msgid ""
 "name: the name of the member start: the initial start value or None "
 "count: the number of existing members last_value: the last value assigned"
 " or None"
+msgstr ""
+
+#: interactions.api.models.flags.UserFlags:1 of
+msgid ""
+"An integer flag bitshift object representing the different user flags "
+"given by Discord."
+msgstr ""
+
+#: interactions.api.models.flags.Permissions:1 of
+msgid ""
+"An integer flag bitshift object representing the different member "
+"permissions given by Discord."
 msgstr ""

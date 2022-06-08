@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -273,7 +273,7 @@ msgstr ""
 msgid "The id of the thread to add the member to"
 msgstr ""
 
-#: interactions.api.models.member.Member.get_member_avatar_url:1 of
+#: interactions.api.models.member.Member.get_avatar_url:1 of
 msgid ""
 "Returns the URL of the member's avatar for the specified guild. :param "
 "guild_id: The id of the guild to get the member's avatar from :type "

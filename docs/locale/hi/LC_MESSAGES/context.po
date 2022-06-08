@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -103,6 +103,7 @@ msgid ""
 "interaction response."
 msgstr ""
 
+#: interactions.api.models.attrs_utils.DictSerializerMixin.update
 #: interactions.client.context.CommandContext.defer
 #: interactions.client.context.CommandContext.populate
 #: interactions.client.context.CommandContext.send
@@ -178,6 +179,16 @@ msgstr ""
 msgid "The components you wish to show."
 msgstr ""
 
+#: interactions.api.models.attrs_utils.DictSerializerMixin.update:1 of
+msgid ""
+"Update an object with new attributes. All data will be converted, and any"
+" extra attributes will be put in _extras"
+msgstr ""
+
+#: interactions.api.models.attrs_utils.DictSerializerMixin.update:4 of
+msgid "The dictionary to update from"
+msgstr ""
+
 #: interactions.client.context.CommandContext:1 of
 msgid ""
 "A derivation of :class:`interactions.context.Context` designed "
@@ -200,50 +211,54 @@ msgid ""
 msgstr ""
 
 #: interactions.client.context.CommandContext:16 of
-msgid "The ID of the interaction."
+msgid "the HTTP client"
 msgstr ""
 
 #: interactions.client.context.CommandContext:17 of
-msgid "The application ID of the interaction."
+msgid "The ID of the interaction."
 msgstr ""
 
 #: interactions.client.context.CommandContext:18 of
-msgid "The type of interaction."
+msgid "The application ID of the interaction."
 msgstr ""
 
 #: interactions.client.context.CommandContext:19 of
-msgid "The application command data."
+msgid "The type of interaction."
 msgstr ""
 
 #: interactions.client.context.CommandContext:20 of
-msgid "The target selected if this interaction is invoked as a context menu."
+msgid "The application command data."
 msgstr ""
 
 #: interactions.client.context.CommandContext:21 of
-msgid "The token of the interaction response."
+msgid "The target selected if this interaction is invoked as a context menu."
 msgstr ""
 
 #: interactions.client.context.CommandContext:22 of
-msgid "The ID of the current guild."
+msgid "The token of the interaction response."
 msgstr ""
 
 #: interactions.client.context.CommandContext:23 of
-msgid "The ID of the current channel."
+msgid "The ID of the current guild."
 msgstr ""
 
 #: interactions.client.context.CommandContext:24 of
-msgid "Whether an original response was made or not."
+msgid "The ID of the current channel."
 msgstr ""
 
 #: interactions.client.context.CommandContext:25 of
-msgid "Whether the response was deferred or not."
+msgid "Whether an original response was made or not."
 msgstr ""
 
 #: interactions.client.context.CommandContext:26 of
-msgid "The selected language of the user invoking the interaction."
+msgid "Whether the response was deferred or not."
 msgstr ""
 
 #: interactions.client.context.CommandContext:27 of
+msgid "The selected language of the user invoking the interaction."
+msgstr ""
+
+#: interactions.client.context.CommandContext:28 of
 msgid "The guild's preferred language, if invoked in a guild."
 msgstr ""
 

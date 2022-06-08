@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-24 14:55-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,6 +42,8 @@ msgstr ""
 #: interactions.api.models.gw.GuildJoinRequest
 #: interactions.api.models.gw.GuildMember
 #: interactions.api.models.gw.GuildMembers interactions.api.models.gw.GuildRole
+#: interactions.api.models.gw.GuildScheduledEvent
+#: interactions.api.models.gw.GuildScheduledEventUser
 #: interactions.api.models.gw.GuildStickers
 #: interactions.api.models.gw.Integration
 #: interactions.api.models.gw.MessageReaction
@@ -69,8 +71,17 @@ msgstr ""
 msgid "The updated permissions of the associated command/event."
 msgstr ""
 
-#: interactions.api.models.gw.ChannelPins:1 of
-msgid "A class object representing the gateway event ``CHANNEL_PINS_UPDATE``."
+#: interactions.api.models.gw.EmbeddedActivity:1 of
+msgid "A class object representing the event ``EMBEDDED_ACTIVITY_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.EmbeddedActivity:4
+#: interactions.api.models.gw.GuildJoinRequest:4 of
+msgid "This is entirely undocumented by the API."
+msgstr ""
+
+#: interactions.api.models.gw.EmbeddedActivity:6 of
+msgid "The list of users of the event."
 msgstr ""
 
 #: interactions.api.models.gw.ChannelPins:3
@@ -92,6 +103,10 @@ msgstr ""
 msgid "The guild ID of the event."
 msgstr ""
 
+#: interactions.api.models.gw.EmbeddedActivity:8 of
+msgid "The embedded presence activity of the associated event."
+msgstr ""
+
 #: interactions.api.models.gw.ChannelPins:4
 #: interactions.api.models.gw.EmbeddedActivity:9
 #: interactions.api.models.gw.MessageReaction:4
@@ -99,29 +114,59 @@ msgstr ""
 msgid "The channel ID of the event."
 msgstr ""
 
-#: interactions.api.models.gw.ChannelPins:5 of
-msgid "The time that the event took place."
+#: interactions.api.models.gw.Integration:1 of
+msgid ""
+"A class object representing the gateway events ``INTEGRATION_CREATE``, "
+"``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``."
 msgstr ""
 
-#: interactions.api.models.gw.EmbeddedActivity:1 of
-msgid "A class object representing the event ``EMBEDDED_ACTIVITY_UPDATE``."
+#: interactions.api.models.gw.Integration:4 of
+msgid ""
+"The documentation of this event is the same as "
+":class:`interactions.api.models.guild.Guild`. The only key missing "
+"attribute is ``guild_id``. Likewise, the documentation below reflects "
+"this."
 msgstr ""
 
-#: interactions.api.models.gw.EmbeddedActivity:4
-#: interactions.api.models.gw.GuildJoinRequest:4 of
-msgid "This is entirely undocumented by the API."
+#: interactions.api.models.gw.Integration:8
+#: interactions.api.models.gw.ThreadMembers:3 of
+msgid "The ID of the event."
 msgstr ""
 
-#: interactions.api.models.gw.EmbeddedActivity:6 of
-msgid "The list of users of the event."
+#: interactions.api.models.gw.Integration:9 of
+msgid "The name of the event."
 msgstr ""
 
-#: interactions.api.models.gw.EmbeddedActivity:8 of
-msgid "The embedded presence activity of the associated event."
+#: interactions.api.models.gw.Integration:10 of
+msgid "The type of integration in the event."
 msgstr ""
 
-#: interactions.api.models.gw.GuildBan:1 of
-msgid "A class object representing the gateway event ``GUILD_BAN_ADD``."
+#: interactions.api.models.gw.Integration:11 of
+msgid "Whether the integration of the event is enabled or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:12 of
+msgid "Whether the integration of the event is syncing or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:13 of
+msgid ""
+"The role ID that the integration in the event uses for \"subscribed\" "
+"users."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:14 of
+msgid "Whether emoticons of the integration's event should be enabled or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:15 of
+msgid "The expiration behavior of the integration of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:16 of
+msgid ""
+"The \"grace period\" of the integration of the event when expired -- how "
+"long it can still be used."
 msgstr ""
 
 #: interactions.api.models.gw.GuildBan:4
@@ -131,12 +176,102 @@ msgstr ""
 msgid "The user of the event."
 msgstr ""
 
-#: interactions.api.models.gw.GuildEmojis:1 of
-msgid "A class object representing the gateway event ``GUILD_EMOJIS_UPDATE``."
+#: interactions.api.models.gw.Integration:18 of
+msgid "The account of the event."
 msgstr ""
 
-#: interactions.api.models.gw.GuildEmojis:4 of
-msgid "The emojis of the event."
+#: interactions.api.models.gw.Integration:19 of
+msgid "The time that the integration of the event was last synced."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:20 of
+msgid "The current subscriber count of the event."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:21 of
+msgid "Whether the integration of the event was revoked for use or not."
+msgstr ""
+
+#: interactions.api.models.gw.Integration:22 of
+msgid "The application used for the integration of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ChannelPins:1 of
+msgid "A class object representing the gateway event ``CHANNEL_PINS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.ChannelPins:5 of
+msgid "The time that the event took place."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:1 of
+msgid "A class object representing the gateway event ``THREAD_MEMBERS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:5 of
+msgid "The member count of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:6 of
+msgid "The added members of the thread of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadMembers:7 of
+msgid "The removed IDs of members of the thread of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:1 of
+msgid "A class object representing the gateway event ``THREAD_LIST_SYNC``."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:4 of
+msgid "The channel IDs of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:5 of
+msgid "The threads of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ThreadList:6 of
+msgid "The members of the thread of the event."
+msgstr ""
+
+#: interactions.api.models.gw.ReactionRemove:1 of
+msgid ""
+"A class object representing the gateway events "
+"``MESSAGE_REACTION_REMOVE``, ``MESSAGE_REACTION_REMOVE_ALL`` and "
+"``MESSAGE_REACTION_REMOVE_EMOJI``."
+msgstr ""
+
+#: interactions.api.models.gw.ReactionRemove:4 of
+msgid ""
+"This class inherits the already existing attributes of "
+":class:`interactions.api.models.gw.Reaction`. The main missing attribute "
+"is ``member``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildJoinRequest:6
+#: interactions.api.models.gw.MessageReaction:3
+#: interactions.api.models.gw.ReactionRemove:7 of
+msgid "The user ID of the event."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:5
+#: interactions.api.models.gw.ReactionRemove:9 of
+msgid "The message ID of the event."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:8
+#: interactions.api.models.gw.ReactionRemove:11 of
+msgid "The emoji of the event."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:1 of
+msgid "A class object representing the gateway event ``MESSAGE_REACTION_ADD``."
+msgstr ""
+
+#: interactions.api.models.gw.MessageReaction:7 of
+msgid "The member of the event."
 msgstr ""
 
 #: interactions.api.models.gw.GuildIntegrations:1 of
@@ -145,17 +280,48 @@ msgid ""
 "``GUILD_INTEGRATIONS_UPDATE``."
 msgstr ""
 
-#: interactions.api.models.gw.GuildJoinRequest:1 of
-msgid ""
-"A class object representing the gateway events "
-"``GUILD_JOIN_REQUEST_CREATE``, ``GUILD_JOIN_REQUEST_UPDATE``, and "
-"``GUILD_JOIN_REQUEST_DELETE``"
+#: interactions.api.models.gw.GuildBan:1 of
+msgid "A class object representing the gateway event ``GUILD_BAN_ADD``."
 msgstr ""
 
-#: interactions.api.models.gw.GuildJoinRequest:6
-#: interactions.api.models.gw.MessageReaction:3
-#: interactions.api.models.gw.ReactionRemove:7 of
-msgid "The user ID of the event."
+#: interactions.api.models.gw.Webhooks:1 of
+msgid "A class object representing the gateway event ``WEBHOOKS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.Webhooks:3 of
+msgid "The channel ID of the associated event."
+msgstr ""
+
+#: interactions.api.models.gw.Webhooks:4 of
+msgid "The guild ID of the associated event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:1 of
+msgid "A class object representing the gateway event ``GUILD_MEMBERS_CHUNK``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:4 of
+msgid "The members of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:5 of
+msgid "The current chunk index of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:6 of
+msgid "The total chunk count of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:7 of
+msgid "A list of not found members in the event if an invalid request was made."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:8 of
+msgid "A list of presences in the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMembers:9 of
+msgid "The \"nonce\" of the event."
 msgstr ""
 
 #: interactions.api.models.gw.GuildMember:1 of
@@ -360,48 +526,6 @@ msgstr ""
 msgid "The id of the thread to add the member to"
 msgstr ""
 
-#: interactions.api.models.gw.GuildMembers:1 of
-msgid "A class object representing the gateway event ``GUILD_MEMBERS_CHUNK``."
-msgstr ""
-
-#: interactions.api.models.gw.GuildMembers:4 of
-msgid "The members of the event."
-msgstr ""
-
-#: interactions.api.models.gw.GuildMembers:5 of
-msgid "The current chunk index of the event."
-msgstr ""
-
-#: interactions.api.models.gw.GuildMembers:6 of
-msgid "The total chunk count of the event."
-msgstr ""
-
-#: interactions.api.models.gw.GuildMembers:7 of
-msgid "A list of not found members in the event if an invalid request was made."
-msgstr ""
-
-#: interactions.api.models.gw.GuildMembers:8 of
-msgid "A list of presences in the event."
-msgstr ""
-
-#: interactions.api.models.gw.GuildMembers:9 of
-msgid "The \"nonce\" of the event."
-msgstr ""
-
-#: interactions.api.models.gw.GuildRole:1 of
-msgid ""
-"A class object representing the gateway events ``GUILD_ROLE_CREATE``, "
-"``GUILD_ROLE_UPDATE`` and ``GUILD_ROLE_DELETE``."
-msgstr ""
-
-#: interactions.api.models.gw.GuildRole:4 of
-msgid "The role of the event."
-msgstr ""
-
-#: interactions.api.models.gw.GuildRole:5 of
-msgid "The role ID of the event."
-msgstr ""
-
 #: interactions.api.models.gw.GuildStickers:1 of
 msgid "A class object representing the gateway event ``GUILD_STICKERS_UPDATE``."
 msgstr ""
@@ -410,79 +534,102 @@ msgstr ""
 msgid "The stickers of the event."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:1 of
+#: interactions.api.models.gw.GuildScheduledEventUser:1 of
 msgid ""
-"A class object representing the gateway events ``INTEGRATION_CREATE``, "
-"``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``."
+"A class object representing the gateway events "
+"``GUILD_SCHEDULED_EVENT_USER_ADD`` and "
+"``GUILD_SCHEDULED_EVENT_USER_REMOVE``"
 msgstr ""
 
-#: interactions.api.models.gw.Integration:4 of
+#: interactions.api.models.gw.GuildScheduledEventUser:3 of
+msgid "The ID of the guild scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEventUser:4 of
+msgid "The ID of the guild associated with this event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEventUser:5 of
+msgid "The ID of the user associated with this event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:1 of
 msgid ""
-"The documentation of this event is the same as "
-":class:`interactions.api.models.guild.Guild`. The only key missing "
-"attribute is ``guild_id``. Likewise, the documentation below reflects "
-"this."
+"A class object representing gateway events "
+"``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, "
+"``GUILD_SCHEDULED_EVENT_DELETE``."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:8
-#: interactions.api.models.gw.ThreadMembers:3 of
-msgid "The ID of the event."
-msgstr ""
-
-#: interactions.api.models.gw.Integration:9 of
-msgid "The name of the event."
-msgstr ""
-
-#: interactions.api.models.gw.Integration:10 of
-msgid "The type of integration in the event."
-msgstr ""
-
-#: interactions.api.models.gw.Integration:11 of
-msgid "Whether the integration of the event is enabled or not."
-msgstr ""
-
-#: interactions.api.models.gw.Integration:12 of
-msgid "Whether the integration of the event is syncing or not."
-msgstr ""
-
-#: interactions.api.models.gw.Integration:13 of
+#: interactions.api.models.gw.GuildScheduledEvent:4 of
 msgid ""
-"The role ID that the integration in the event uses for \"subscribed\" "
-"users."
+"Some attributes are optional via creator_id/creator implementation by the"
+" API: \"`creator_id` will be null and `creator` will not be included for "
+"events created before October 25th, 2021, when the concept of "
+"`creator_id` was introduced and tracked.\""
 msgstr ""
 
-#: interactions.api.models.gw.Integration:14 of
-msgid "Whether emoticons of the integration's event should be enabled or not."
+#: interactions.api.models.gw.GuildScheduledEvent:7 of
+msgid "The ID of the scheduled event."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:15 of
-msgid "The expiration behavior of the integration of the event."
+#: interactions.api.models.gw.GuildScheduledEvent:8 of
+msgid "The ID of the guild that this scheduled event belongs to."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:16 of
-msgid ""
-"The \"grace period\" of the integration of the event when expired -- how "
-"long it can still be used."
+#: interactions.api.models.gw.GuildScheduledEvent:9 of
+msgid "The channel ID in which the scheduled event belongs to, if any."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:18 of
-msgid "The account of the event."
+#: interactions.api.models.gw.GuildScheduledEvent:10 of
+msgid "The ID of the user that created the scheduled event."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:19 of
-msgid "The time that the integration of the event was last synced."
+#: interactions.api.models.gw.GuildScheduledEvent:11 of
+msgid "The name of the scheduled event."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:20 of
-msgid "The current subscriber count of the event."
+#: interactions.api.models.gw.GuildScheduledEvent:12 of
+msgid "The description of the scheduled event."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:21 of
-msgid "Whether the integration of the event was revoked for use or not."
+#: interactions.api.models.gw.GuildScheduledEvent:13 of
+msgid "The scheduled event start time."
 msgstr ""
 
-#: interactions.api.models.gw.Integration:22 of
-msgid "The application used for the integration of the event."
+#: interactions.api.models.gw.GuildScheduledEvent:14 of
+msgid "The scheduled event end time, if any."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:15 of
+msgid "The privacy level of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:16 of
+msgid "The type of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:17 of
+msgid "The ID of the entity associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:18 of
+msgid "Additional metadata associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:19 of
+msgid "The user that created the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:20 of
+msgid "The number of users subscribed to the scheduled event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:21 of
+msgid "The status of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.gw.GuildScheduledEvent:22 of
+msgid "The hash containing the image of an event, if applicable."
 msgstr ""
 
 #: interactions.api.models.gw.Presence:1 of
@@ -501,78 +648,31 @@ msgstr ""
 msgid "The client status across platforms in the event."
 msgstr ""
 
-#: interactions.api.models.gw.MessageReaction:1 of
-msgid "A class object representing the gateway event ``MESSAGE_REACTION_ADD``."
-msgstr ""
-
-#: interactions.api.models.gw.MessageReaction:5
-#: interactions.api.models.gw.ReactionRemove:9 of
-msgid "The message ID of the event."
-msgstr ""
-
-#: interactions.api.models.gw.MessageReaction:7 of
-msgid "The member of the event."
-msgstr ""
-
-#: interactions.api.models.gw.MessageReaction:8
-#: interactions.api.models.gw.ReactionRemove:11 of
-msgid "The emoji of the event."
-msgstr ""
-
-#: interactions.api.models.gw.ReactionRemove:1 of
+#: interactions.api.models.gw.GuildJoinRequest:1 of
 msgid ""
 "A class object representing the gateway events "
-"``MESSAGE_REACTION_REMOVE``, ``MESSAGE_REACTION_REMOVE_ALL`` and "
-"``MESSAGE_REACTION_REMOVE_EMOJI``."
+"``GUILD_JOIN_REQUEST_CREATE``, ``GUILD_JOIN_REQUEST_UPDATE``, and "
+"``GUILD_JOIN_REQUEST_DELETE``"
 msgstr ""
 
-#: interactions.api.models.gw.ReactionRemove:4 of
+#: interactions.api.models.gw.GuildEmojis:1 of
+msgid "A class object representing the gateway event ``GUILD_EMOJIS_UPDATE``."
+msgstr ""
+
+#: interactions.api.models.gw.GuildEmojis:4 of
+msgid "The emojis of the event."
+msgstr ""
+
+#: interactions.api.models.gw.GuildRole:1 of
 msgid ""
-"This class inherits the already existing attributes of "
-":class:`interactions.api.models.gw.Reaction`. The main missing attribute "
-"is ``member``."
+"A class object representing the gateway events ``GUILD_ROLE_CREATE``, "
+"``GUILD_ROLE_UPDATE`` and ``GUILD_ROLE_DELETE``."
 msgstr ""
 
-#: interactions.api.models.gw.ThreadList:1 of
-msgid "A class object representing the gateway event ``THREAD_LIST_SYNC``."
+#: interactions.api.models.gw.GuildRole:4 of
+msgid "The role of the event."
 msgstr ""
 
-#: interactions.api.models.gw.ThreadList:4 of
-msgid "The channel IDs of the event."
-msgstr ""
-
-#: interactions.api.models.gw.ThreadList:5 of
-msgid "The threads of the event."
-msgstr ""
-
-#: interactions.api.models.gw.ThreadList:6 of
-msgid "The members of the thread of the event."
-msgstr ""
-
-#: interactions.api.models.gw.ThreadMembers:1 of
-msgid "A class object representing the gateway event ``THREAD_MEMBERS_UPDATE``."
-msgstr ""
-
-#: interactions.api.models.gw.ThreadMembers:5 of
-msgid "The member count of the event."
-msgstr ""
-
-#: interactions.api.models.gw.ThreadMembers:6 of
-msgid "The added members of the thread of the event."
-msgstr ""
-
-#: interactions.api.models.gw.ThreadMembers:7 of
-msgid "The removed IDs of members of the thread of the event."
-msgstr ""
-
-#: interactions.api.models.gw.Webhooks:1 of
-msgid "A class object representing the gateway event ``WEBHOOKS_UPDATE``."
-msgstr ""
-
-#: interactions.api.models.gw.Webhooks:3 of
-msgid "The channel ID of the associated event."
-msgstr ""
-
-#: interactions.api.models.gw.Webhooks:4 of
-msgid "The guild ID of the associated event."
+#: interactions.api.models.gw.GuildRole:5 of
+msgid "The role ID of the event."
 msgstr ""

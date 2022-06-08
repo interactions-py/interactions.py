@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-25 22:21-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,7 +63,6 @@ msgstr ""
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance
 #: interactions.api.http.channel.ChannelRequest.delete_channel
 #: interactions.api.http.channel.ChannelRequest.delete_channel_permission
-#: interactions.api.http.channel.ChannelRequest.delete_invite
 #: interactions.api.http.channel.ChannelRequest.delete_stage_instance
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission
 #: interactions.api.http.channel.ChannelRequest.get_channel
@@ -201,7 +200,6 @@ msgstr ""
 #: interactions.api.http.channel.ChannelRequest.create_channel
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance
-#: interactions.api.http.channel.ChannelRequest.delete_invite
 #: interactions.api.http.channel.ChannelRequest.get_channel
 #: interactions.api.http.channel.ChannelRequest.get_channel_invites
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages
@@ -285,6 +283,7 @@ msgstr ""
 #: interactions.api.http.user.UserRequest.get_self
 #: interactions.api.http.user.UserRequest.get_user
 #: interactions.api.http.user.UserRequest.modify_self_nick_in_guild
+#: interactions.api.http.webhook.WebhookRequest.create_webhook
 #: interactions.api.http.webhook.WebhookRequest.edit_webhook_message
 #: interactions.api.http.webhook.WebhookRequest.execute_github_webhook
 #: interactions.api.http.webhook.WebhookRequest.execute_slack_webhook
@@ -634,25 +633,12 @@ msgstr ""
 msgid "Data representing the payload/invite attributes."
 msgstr ""
 
-#: interactions.api.http.channel.ChannelRequest.create_channel_invite:8
-#: interactions.api.http.channel.ChannelRequest.delete_invite:4 of
+#: interactions.api.http.channel.ChannelRequest.create_channel_invite:8 of
 msgid "Reason to show in the audit log, if any."
 msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:9 of
 msgid "An invite object."
-msgstr ""
-
-#: interactions.api.http.channel.ChannelRequest.delete_invite:1 of
-msgid "Delete an invite."
-msgstr ""
-
-#: interactions.api.http.channel.ChannelRequest.delete_invite:3 of
-msgid "The code of the invite to delete"
-msgstr ""
-
-#: interactions.api.http.channel.ChannelRequest.delete_invite:5 of
-msgid "The deleted invite object"
 msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:1 of
@@ -2302,7 +2288,7 @@ msgid "The image for the default webhook avatar, if given."
 msgstr ""
 
 #: interactions.api.http.webhook.WebhookRequest.create_webhook:7 of
-msgid ":return Webhook object"
+msgid "Webhook object"
 msgstr ""
 
 #: interactions.api.http.webhook.WebhookRequest.get_channel_webhooks:1 of
@@ -2351,23 +2337,15 @@ msgid "Webhook ID snowflake"
 msgstr ""
 
 #: interactions.api.http.webhook.WebhookRequest.modify_webhook:4 of
-msgid "the default name of the webhook"
-msgstr ""
-
-#: interactions.api.http.webhook.WebhookRequest.modify_webhook:5 of
-msgid "image for the default webhook avatar"
-msgstr ""
-
-#: interactions.api.http.webhook.WebhookRequest.modify_webhook:6 of
-msgid "Channel ID snowflake of new destination"
+msgid "The payload for the webhook"
 msgstr ""
 
 #: interactions.api.http.webhook.WebhookRequest.delete_webhook:4
-#: interactions.api.http.webhook.WebhookRequest.modify_webhook:7 of
+#: interactions.api.http.webhook.WebhookRequest.modify_webhook:5 of
 msgid "The token for the webhook, if given."
 msgstr ""
 
-#: interactions.api.http.webhook.WebhookRequest.modify_webhook:9 of
+#: interactions.api.http.webhook.WebhookRequest.modify_webhook:7 of
 msgid "Modified webhook object."
 msgstr ""
 
@@ -2392,16 +2370,20 @@ msgid "Payload consisting of the message."
 msgstr ""
 
 #: interactions.api.http.webhook.WebhookRequest.execute_webhook:6 of
+msgid "The files to upload to the message."
+msgstr ""
+
+#: interactions.api.http.webhook.WebhookRequest.execute_webhook:7 of
 msgid ""
 "A bool that signifies waiting for server confirmation of a send before "
 "responding."
 msgstr ""
 
-#: interactions.api.http.webhook.WebhookRequest.execute_webhook:7 of
+#: interactions.api.http.webhook.WebhookRequest.execute_webhook:8 of
 msgid "Optional, sends a message to the specified thread."
 msgstr ""
 
-#: interactions.api.http.webhook.WebhookRequest.execute_webhook:8 of
+#: interactions.api.http.webhook.WebhookRequest.execute_webhook:9 of
 msgid "The message sent, if wait=True, else None."
 msgstr ""
 
