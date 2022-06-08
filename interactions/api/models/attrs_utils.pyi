@@ -15,14 +15,14 @@ class MISSING:
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class DictSerializerMixin:
-    _json: dict = ...
-    _extras: dict = ...
+    _json: dict = attrs.field(init=False)
+    _extras: dict = attrs.field(init=False)
     """A dict containing values that were not serialized from Discord."""
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs): ...
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class ClientSerializerMixin(DictSerializerMixin):
-    _client: HTTPClient = ...
+    _client: HTTPClient = attrs.field(init=False)
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs): ...
 
 # This allows pyright to properly interpret the define() class decorator
