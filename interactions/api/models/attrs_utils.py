@@ -44,6 +44,8 @@ class DictSerializerMixin:
                             value["_client"] = client
 
                     passed_kwargs[attrib_name] = value
+                else:
+                    passed_kwargs[attrib_name] = None
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
@@ -152,7 +154,7 @@ def field(
     discord_name: str = None,
     **kwargs,
 ):
-    if converter is not None and default is None:
+    if converter is not None:
         converter = attrs.converters.optional(converter)
 
     metadata = kwargs.get("metadata", {})
