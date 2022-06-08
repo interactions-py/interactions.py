@@ -78,14 +78,14 @@ class ChannelMention(DictSerializerMixin):
 
 @define()
 class Emoji(ClientSerializerMixin):
-    id: Optional[Snowflake]
-    name: Optional[str]
-    roles: Optional[List[Role]]
-    user: Optional[User]
-    require_colons: Optional[bool]
-    managed: Optional[bool]
-    animated: Optional[bool]
-    available: Optional[bool]
+    id: Optional[Snowflake] = None
+    name: Optional[str] = None
+    roles: Optional[List[Role]] = None
+    user: Optional[User] = None
+    require_colons: Optional[bool] = None
+    managed: Optional[bool] = None
+    animated: Optional[bool] = None
+    available: Optional[bool] = None
     @classmethod
     async def get(cls, guild_id: int, emoji_id: int, client: HTTPClient) -> Emoji: ...
     @classmethod
