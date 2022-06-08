@@ -5,9 +5,10 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api.cache import Cache
 from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
-from ..api.models.flags import Intents
+from ..api.models.attrs_utils import MISSING
+from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Snowflake, Image
+from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
@@ -29,6 +30,10 @@ class Client:
     _scopes: set[List[Union[int, Snowflake]]]
     _automate_sync: bool
     _extensions: Optional[Dict[str, Union[ModuleType, Extension]]]
+    __command_coroutines: List[Coroutine]
+    __global_commands: Dict[str, Union[List[dict], bool]]
+    __guild_commands: Dict[int, Dict[str, Union[List[dict], bool]]]
+    __name_autocomplete: Dict[str, List[Dict]]
     me: Optional[Application]
     def __init__(
         self,
@@ -41,23 +46,24 @@ class Client:
     def latency(self) -> float: ...
     def start(self) -> None: ...
     def __register_events(self) -> None: ...
-    async def __compare_sync(self, data: dict) -> None: ...
-    async def __create_sync(self, data: dict) -> None: ...
-    async def __bulk_update_sync(
-        self, data: List[dict], delete: Optional[bool] = False
-    ) -> None: ...
-    async def _synchronize(self, payload: Optional[dict] = None) -> None: ...
+    async def __register_name_autocomplete(self) -> None: ...
+    @staticmethod
+    async def __compare_sync(data: dict, pool: List[dict]) -> Tuple[bool, dict]: ...
     async def _ready(self) -> None: ...
     async def _login(self) -> None: ...
     async def wait_until_ready(self) -> None: ...
-    def event(self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = None) -> Callable[..., Any]: ...
+    async def __get_all_commands(self) -> None: ...
+    async def __sync(self) -> None: ...
+    def event(
+        self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = None
+    ) -> Callable[..., Any]: ...
     def change_presence(self, presence: ClientPresence) -> None: ...
     def __check_command(
         self,
         command: ApplicationCommand,
         coro: Coroutine,
         regex: str = r"^[a-z0-9_-]{1,32}$",
-    )-> None: ...
+    ) -> None: ...
     def command(
         self,
         *,
@@ -66,37 +72,47 @@ class Client:
         description: Optional[str] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         options: Optional[List[Option]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-        description_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        default_permission: Optional[bool] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
-        self, name: str, command: Union[ApplicationCommand, int, str]
+        self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
     ) -> Callable[..., Any]: ...
     def modal(self, modal: Union[Modal, str]) -> Callable[..., Any]: ...
     def load(
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]: ...
-    def remove(self, name: str, package: Optional[str] = None) -> None: ...
+    def remove(
+        self, name: str, package: Optional[str] = None, remove_commands: bool = True
+    ) -> None: ...
     def reload(
-        self, name: str, package: Optional[str] = None, *args, **kwargs
+        self,
+        name: str,
+        package: Optional[str] = None,
+        remove_commands: bool = True,
+        *args,
+        **kwargs,
     ) -> Optional["Extension"]: ...
     def get_extension(self, name: str) -> Union[ModuleType, "Extension"]: ...
     async def modify(
@@ -108,15 +124,21 @@ class Client:
     async def raw_channel_create(self, message) -> dict: ...
     async def raw_message_create(self, message) -> dict: ...
     async def raw_guild_create(self, guild) -> dict: ...
-    @staticmethod
-    def _find_command(commands: List[Dict], command: str) -> ApplicationCommand: ...
+    def _find_command(self, command: str) -> ApplicationCommand: ...
+
+class AutocompleteManager:
+
+    client: Client
+    command_name: str
+    def __init__(self, client: Client, command_name: str) -> None: ...
+    def __call__(self, name: str) -> Callable[..., Coroutine]: ...
 
 class Extension:
     client: Client
     _commands: dict
     _listeners: dict
     def __new__(cls, client: Client, *args, **kwargs) -> Extension: ...
-    def teardown(self) -> None: ...
+    async def teardown(self, remove_commands: bool = True) -> None: ...
 
 def extension_command(
     *,
@@ -125,23 +147,32 @@ def extension_command(
     description: Optional[str] = None,
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
     options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] = None,
-    default_permission: Optional[bool] = None,
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
+    default_member_permissions: Optional[Union[int, Permissions]] = None,
+    dm_permission: Optional[bool] = None,
 ): ...
-def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None) -> Callable[..., Any]: ...
+def extension_listener(
+    func: Optional[Coroutine] = None, name: Optional[str] = None
+) -> Callable[..., Any]: ...
 def extension_component(component: Union[Button, SelectMenu, str]) -> Callable[..., Any]: ...
 def extension_autocomplete(
-    name: str, command: Union[ApplicationCommand, int]
+    command: Union[ApplicationCommand, int, str, Snowflake],
+    name: str,
 ) -> Callable[..., Any]: ...
 def extension_modal(modal: Union[Modal, str]) -> Callable[..., Any]: ...
 def extension_message_command(
     *,
     name: Optional[str] = None,
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-    default_permission: Optional[bool] = None,
+    name_localizations: Optional[Dict[Union[str, Locale], Any]] = None,
+    default_member_permissions: Optional[Union[int, Permissions]] = None,
+    dm_permission: Optional[bool] = None,
 ) -> Callable[..., Any]: ...
 def extension_user_command(
     *,
     name: Optional[str] = None,
-    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = None,
-    default_permission: Optional[bool] = None,
+    name_localizations: Optional[Dict[Union[str, Locale], Any]] = None,
+    default_member_permissions: Optional[Union[int, Permissions]] = None,
+    dm_permission: Optional[bool] = None,
 ) -> Callable[..., Any]: ...

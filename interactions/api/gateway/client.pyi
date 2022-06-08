@@ -1,20 +1,16 @@
-from asyncio import (
-    AbstractEventLoop,
-    Event,
-    Task,
-)
+from asyncio import AbstractEventLoop, Event, Task
 from logging import Logger
-from typing import Any, Dict, List, Optional, Tuple, Union, Iterable
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from aiohttp import ClientWebSocketResponse
 
-from .heartbeat import _Heartbeat
-from ...client.models import Option
-from ...api.models.misc import MISSING
+from ..models.attrs_utils import MISSING
 from ...api.models.presence import ClientPresence
+from ...client.models import Option
 from ..dispatch import Listener
 from ..http.client import HTTPClient
 from ..models.flags import Intents
+from .heartbeat import _Heartbeat
 
 log: Logger
 __all__: Iterable[str]

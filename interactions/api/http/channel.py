@@ -6,8 +6,10 @@ from ..models.message import Message
 from .request import _Request
 from .route import Route
 
+__all__ = ("ChannelRequest",)
 
-class _ChannelRequest:
+
+class ChannelRequest:
 
     _req: _Request
     cache: Cache
@@ -23,7 +25,7 @@ class _ChannelRequest:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request)))
+        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request, _client=self)))
 
         return request
 
@@ -48,7 +50,7 @@ class _ChannelRequest:
         """
         Get messages from a channel.
 
-        ..note::
+        .. note::
             around, before, and after arguments are mutually exclusive.
 
         :param channel_id: Channel ID snowflake.
@@ -81,9 +83,10 @@ class _ChannelRequest:
             Route("GET", f"/channels/{channel_id}/messages"), params=params
         )
 
-        for message in request:
-            if message.get("id"):
-                self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+        if isinstance(request, list):
+            for message in request:
+                if message.get("id"):
+                    self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
 
         return request
 
@@ -93,7 +96,7 @@ class _ChannelRequest:
         """
         Creates a channel within a guild.
 
-        ..note::
+        .. note::
             This does not handle payload in this method. Tread carefully.
 
         :param guild_id: Guild ID snowflake.
@@ -167,7 +170,7 @@ class _ChannelRequest:
         """
         Creates an invite for the given channel.
 
-        ..note::
+        .. note::
             This method does not handle payload. It just sends it.
 
         :param channel_id: Channel ID snowflake.
@@ -178,16 +181,6 @@ class _ChannelRequest:
         return await self._req.request(
             Route("POST", f"/channels/{channel_id}/invites"), json=payload, reason=reason
         )
-
-    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
-        """
-        Delete an invite.
-
-        :param invite_code: The code of the invite to delete
-        :param reason: Reason to show in the audit log, if any.
-        :return: The deleted invite object
-        """
-        return await self._req.request(Route("DELETE", f"/invites/{invite_code}"), reason=reason)
 
     async def edit_channel_permission(
         self,
@@ -232,7 +225,7 @@ class _ChannelRequest:
         """
         Posts "... is typing" in a given channel.
 
-        ..note:
+        .. note::
             By default, this lib doesn't use this endpoint, however, this is listed for third-party implementation.
 
         :param channel_id: Channel ID snowflake.

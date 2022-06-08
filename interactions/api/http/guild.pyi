@@ -1,14 +1,13 @@
 from typing import List, Optional
+
 from ...api.cache import Cache
 from ..models.role import Role
 from .request import _Request
 
-
-class _GuildRequest:
+class GuildRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def get_self_guilds(self) -> List[dict]: ...
     async def get_guild(self, guild_id: int) -> dict: ...
@@ -84,7 +83,13 @@ class _GuildRequest:
     async def remove_guild_ban(
         self, guild_id: int, user_id: int, reason: Optional[str] = None
     ) -> None: ...
-    async def get_guild_bans(self, guild_id: int) -> List[dict]: ...
+    async def get_guild_bans(
+        self,
+        guild_id: int,
+        limit: Optional[int] = 1000,
+        before: Optional[int] = None,
+        after: Optional[int] = None,
+    ) -> List[dict]: ...
     async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]: ...
     async def add_guild_member(
         self,

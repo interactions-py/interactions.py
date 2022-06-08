@@ -1,3 +1,5 @@
+from ..models.attrs_utils import MISSING
+
 try:
     from orjson import dumps, loads
 except ImportError:
@@ -27,11 +29,12 @@ from ..enums import OpCodeType
 from ..error import GatewayException
 from ..http.client import HTTPClient
 from ..models.flags import Intents
-from ..models.misc import MISSING
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
+
+__all__ = ("WebSocketClient",)
 
 
 class WebSocketClient:
@@ -147,7 +150,7 @@ class WebSocketClient:
             self.__task.cancel()
         self._client = None  # clear pending waits
         self.__heartbeater.event.clear()
-        await self._establish_connection()
+        await self._establish_connection(self.__shard, self.__presence)
 
     async def _establish_connection(
         self,
@@ -172,7 +175,7 @@ class WebSocketClient:
             self._closed = self._client.closed
 
             if self._closed:
-                await self._establish_connection()
+                await self._establish_connection(self.__shard, self.__presence)
 
             while not self._closed:
                 stream = await self.__receive_packet_stream
@@ -180,7 +183,7 @@ class WebSocketClient:
                 if stream is None:
                     continue
                 if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
-                    await self._establish_connection()
+                    await self._establish_connection(self.__shard, self.__presence)
                     break
 
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
@@ -290,10 +293,10 @@ class WebSocketClient:
                             )
                             if _type:
                                 if isinstance(option, dict):
-                                    _type[option["value"]]._client = self._http
+                                    _type[option["value"]].client = self._http
                                     option.update({"value": _type[option["value"]]})
                                 else:
-                                    _type[option.value]._client = self._http
+                                    _type[option.value].client = self._http
                                     option._json.update({"value": _type[option.value]})
                             _option = self.__sub_command_context(option, _context)
                             __kwargs.update(_option)
@@ -311,11 +314,48 @@ class WebSocketClient:
 
                     if _context.data._json.get("options"):
                         for option in _context.data.options:
-                            __name, _value = self.__sub_command_context(option, _context)
-                            _name += f"_{__name}" if __name else ""
+                            if isinstance(option, dict):
+                                option = Option(**option)
+                            if option.type not in (
+                                OptionType.SUB_COMMAND,
+                                OptionType.SUB_COMMAND_GROUP,
+                            ):
+                                if option.focused:
+                                    __name, _value = self.__sub_command_context(option, _context)
+                                    _name += f"_{__name}" if __name else ""
+                                    if _value:
+                                        __args.append(_value)
+                                        break
 
-                            if _value:
-                                __args.append(_value)
+                            elif option.type == OptionType.SUB_COMMAND:
+                                for _option in option.options:
+                                    if isinstance(_option, dict):
+                                        _option = Option(**_option)
+                                    if _option.focused:
+                                        __name, _value = self.__sub_command_context(
+                                            _option, _context
+                                        )
+                                        _name += f"_{__name}" if __name else ""
+                                        if _value:
+                                            __args.append(_value)
+                                        break
+
+                            elif option.type == OptionType.SUB_COMMAND_GROUP:
+                                for _option in option.options:
+                                    if isinstance(_option, dict):
+                                        _option = Option(**_option)
+                                    for __option in _option.options:
+                                        if isinstance(__option, dict):
+                                            __option = Option(**__option)
+                                        if __option.focused:
+                                            __name, _value = self.__sub_command_context(
+                                                __option, _context
+                                            )
+                                            _name += f"_{__name}" if __name else ""
+                                            if _value:
+                                                __args.append(_value)
+                                            break
+                                    break
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
@@ -351,6 +391,7 @@ class WebSocketClient:
                     data["_client"] = self._http
 
                 self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
+
             except AttributeError as error:
                 log.fatal(f"An error occured dispatching {name}: {error}")
         self._dispatch.dispatch("raw_socket_create", data)
@@ -423,10 +464,10 @@ class WebSocketClient:
 
                     if _type:
                         if isinstance(sub_option, dict):
-                            _type[sub_option["value"]]._client = self._http
+                            _type[sub_option["value"]].client = self._http
                             sub_option.update({"value": _type[sub_option["value"]]})
                         else:
-                            _type[sub_option.value]._client = self._http
+                            _type[sub_option.value].client = self._http
                             sub_option._json.update({"value": _type[sub_option.value]})
                     if _check:
                         return _check
@@ -451,10 +492,10 @@ class WebSocketClient:
 
                         if _type:
                             if isinstance(sub_option, dict):
-                                _type[sub_option["value"]]._client = self._http
+                                _type[sub_option["value"]].client = self._http
                                 sub_option.update({"value": _type[sub_option["value"]]})
                             else:
-                                _type[sub_option.value]._client = self._http
+                                _type[sub_option.value].client = self._http
                                 sub_option._json.update({"value": _type[sub_option.value]})
                         if _check:
                             return _check

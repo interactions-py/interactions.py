@@ -1,14 +1,12 @@
 from typing import List, Optional
 
-from .request import _Request
 from ...api.cache import Cache
+from .request import _Request
 
-
-class _EmojiRequest:
+class EmojiRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def get_all_emoji(self, guild_id: int) -> List[dict]: ...
     async def get_guild_emoji(self, guild_id: int, emoji_id: int) -> dict: ...

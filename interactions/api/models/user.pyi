@@ -1,10 +1,12 @@
-from typing import Optional
+from typing import Optional, Union
 
-from .misc import DictSerializerMixin, Snowflake
-from .flags import UserFlags
+from attrs_utils import ClientSerializerMixin, define
 
-class User(DictSerializerMixin):
-    _json: dict
+from .flags import UserFlags as UserFlags
+from .misc import Snowflake
+
+@define()
+class User(ClientSerializerMixin):
     id: Snowflake
     username: str
     discriminator: str
@@ -21,8 +23,9 @@ class User(DictSerializerMixin):
     flags: Optional[UserFlags]
     premium_type: Optional[int]
     public_flags: Optional[UserFlags]
-    def __init__(self, **kwargs): ...
+    bio: Optional[str]
     def __repr__(self) -> str: ...
+    def has_public_flag(self, flag: Union[UserFlags, int]) -> bool: ...
     @property
     def mention(self) -> str: ...
     @property

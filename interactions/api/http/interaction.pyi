@@ -1,18 +1,19 @@
 from typing import List, Optional, Union
 
-from ..models import Snowflake
 from ...api.cache import Cache
+from ..models import Snowflake
 from .request import _Request
 
-
-class _InteractionRequest:
+class InteractionRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def get_application_commands(
-        self, application_id: Union[int, Snowflake], guild_id: Optional[int] = None
+        self,
+        application_id: Union[int, Snowflake],
+        guild_id: Optional[int] = None,
+        with_localizations: Optional[bool] = None,
     ) -> List[dict]: ...
     async def create_application_command(
         self, application_id: Union[int, Snowflake], data: dict, guild_id: Optional[int] = None
@@ -33,9 +34,6 @@ class _InteractionRequest:
     async def edit_application_command_permissions(
         self, application_id: int, guild_id: int, command_id: int, data: List[dict]
     ) -> dict: ...
-    async def batch_edit_application_command_permissions(
-        self, application_id: int, guild_id: int, data: List[dict]
-    ) -> List[dict]: ...
     async def get_application_command_permissions(
         self, application_id: int, guild_id: int, command_id: int
     ) -> dict: ...

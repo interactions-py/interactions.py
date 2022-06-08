@@ -4,11 +4,10 @@ from ..models.misc import File
 from ...api.cache import Cache
 from .request import _Request
 
-class _ThreadRequest:
+class ThreadRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def join_thread(self, thread_id: int) -> None: ...
     async def leave_thread(self, thread_id: int) -> None: ...

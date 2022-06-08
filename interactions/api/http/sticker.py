@@ -6,8 +6,10 @@ from ...api.cache import Cache
 from .request import _Request
 from .route import Route
 
+__all__ = ("StickerRequest",)
 
-class _StickerRequest:
+
+class StickerRequest:
 
     _req: _Request
     cache: Cache
