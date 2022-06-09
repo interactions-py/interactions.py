@@ -137,7 +137,8 @@ class ReactionRequest:
         return await self._req.request(
             Route(
                 "GET",
-                "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}" + f"{'?' + final if final is not None else ''}",
+                "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}"
+                + f"{'?' + final if final is not None else ''}",
                 channel_id=channel_id,
                 message_id=message_id,
                 emoji=emoji,
