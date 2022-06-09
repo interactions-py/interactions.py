@@ -26,8 +26,8 @@ from ..dispatch import Listener
 from ..enums import OpCodeType
 from ..error import GatewayException
 from ..http.client import HTTPClient
+from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
-from ..models.misc import MISSING
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
 
@@ -390,6 +390,7 @@ class WebSocketClient:
                     data["_client"] = self._http
 
                 self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
+
             except AttributeError as error:
                 log.fatal(f"An error occured dispatching {name}: {error}")
         self._dispatch.dispatch("raw_socket_create", data)

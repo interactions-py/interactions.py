@@ -1,16 +1,18 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
+from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from .channel import Channel
 from .flags import Permissions
-from .misc import MISSING, DictSerializerMixin, File, Snowflake
+from .misc import File, Snowflake
 from .role import Role
 from .user import User
 
 __all__ = ("Member",)
 
 
-class Member(DictSerializerMixin):
+@define()
+class Member(ClientSerializerMixin):
     """
     A class object representing the user of a guild, known as a "member."
 
@@ -32,60 +34,31 @@ class Member(DictSerializerMixin):
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    __slots__ = (
-        "_json",
-        "user",
-        "nick",
-        "avatar",
-        "roles",
-        "joined_at",
-        "premium_since",
-        "deaf",
-        "mute",
-        "is_pending",
-        "pending",
-        "permissions",
-        "communication_disabled_until",
-        "hoisted_role",
-        "flags",
-        "_client",
+    user: Optional[User] = field(converter=User, default=None, add_client=True)
+    nick: Optional[str] = field(default=None)
+    _avatar: Optional[str] = field(default=None, discord_name="avatar")
+    roles: List[int] = field()
+    joined_at: datetime = field(converter=datetime.fromisoformat)
+    premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    deaf: bool = field()
+    mute: bool = field()
+    is_pending: Optional[bool] = field(default=None)
+    pending: Optional[bool] = field(default=None)
+    permissions: Optional[Permissions] = field(converter=convert_int(Permissions), default=None)
+    communication_disabled_until: Optional[datetime.isoformat] = field(
+        converter=datetime.fromisoformat, default=None
     )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.user = (
-            self.user
-            if isinstance(self.user, User)
-            else (User(**self.user) if self._json.get("user") else None)
-        )
-        self.joined_at = (
-            datetime.fromisoformat(self._json.get("joined_at"))
-            if self._json.get("joined_at")
-            else None
-        )
-        self.premium_since = (
-            datetime.fromisoformat(self._json.get("premium_since"))
-            if self._json.get("premium_since")
-            else None
-        )
-
-        self.permissions = (
-            Permissions(int(self._json.get("permissions")))
-            if self._json.get("permissions")
-            else None
-        )
-
-        self.roles = (
-            [role_id if isinstance(role_id, int) else int(role_id) for role_id in self.roles]
-            if self._json.get("roles")
-            else None
-        )
-
-        if not self.avatar and self.user:
-            self.avatar = self.user.avatar
+    hoisted_role: Optional[Any] = field(
+        default=None
+    )  # TODO: Investigate what this is for when documented by Discord.
+    flags: int = field()  # TODO: Investigate what this is for when documented by Discord.
 
     def __repr__(self) -> str:
         return self.name
+
+    @property
+    def avatar(self) -> Optional[str]:
+        return self._avatar or getattr(self.user, "avatar", None)
 
     @property
     def id(self) -> Snowflake:
@@ -293,7 +266,7 @@ class Member(DictSerializerMixin):
             files = [files]
 
         # TODO: post-v4: Add attachments into Message obj.
-        payload = Message(
+        payload = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -304,7 +277,7 @@ class Member(DictSerializerMixin):
 
         channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
         res = await self._client.create_message(
-            channel_id=int(channel.id), payload=payload._json, files=files
+            channel_id=int(channel.id), payload=payload, files=files
         )
 
         return Message(**res, _client=self._client)
@@ -369,12 +342,9 @@ class Member(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        member = Member(**res, _client=self._client)
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(member, attr))
-
-        return member
+        self.update(res)
+        return self
 
     async def add_to_thread(
         self,

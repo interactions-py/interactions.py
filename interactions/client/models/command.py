@@ -1,7 +1,8 @@
 from typing import Dict, List, Optional, Union
 
+from ...api.models.attrs_utils import DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import ChannelType
-from ...api.models.misc import DictSerializerMixin, Snowflake
+from ...api.models.misc import Snowflake
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 __all__ = (
@@ -12,6 +13,7 @@ __all__ = (
 )
 
 
+@define()
 class Choice(DictSerializerMixin):
     """
     A class object representing the choice of an option.
@@ -20,9 +22,7 @@ class Choice(DictSerializerMixin):
         ``value`` allows ``float`` as a passable value type,
         whereas it's supposed to be ``double``.
 
-    The structure for a choice:
-
-    .. code-block:: python
+    The structure for a choice: ::
 
         interactions.Choice(name="Choose me! :(", value="choice_one")
 
@@ -31,11 +31,10 @@ class Choice(DictSerializerMixin):
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     """
 
-    __slots__ = ("_json", "name", "value", "name_localizations")
-    _json: dict
-    name: str
-    value: Union[str, int, float]
-    name_localizations: Optional[Dict[Union[str, Locale], str]]
+    _json: dict = field()
+    name: str = field()
+    value: Union[str, int, float] = field()
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field()
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -53,6 +52,7 @@ class Choice(DictSerializerMixin):
             }
 
 
+@define()
 class Option(DictSerializerMixin):
     """
     A class object representing the option of an application command.
@@ -64,9 +64,7 @@ class Option(DictSerializerMixin):
         ``min_values`` and ``max_values`` are useful primarily for
         integer based options.
 
-    The structure for an option:
-
-    .. code-block:: python
+    The structure for an option: ::
 
         interactions.Option(
             type=interactions.OptionType.STRING,
@@ -92,120 +90,60 @@ class Option(DictSerializerMixin):
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
     """
 
-    __slots__ = (
-        "_json",
-        "type",
-        "name",
-        "description",
-        "focused",
-        "required",
-        "value",
-        "choices",
-        "options",
-        "channel_types",
-        "min_value",
-        "max_value",
-        "autocomplete",
-        "name_localizations",
-        "description_localizations",
+    type: OptionType = field(converter=OptionType)
+    name: str = field()
+    description: str = field(default=None)
+    focused: bool = field(default=False)
+    required: Optional[bool] = field(default=None)
+    value: Optional[str] = field(default=None)
+    choices: Optional[List[Choice]] = field(converter=convert_list(Choice), default=None)
+    options: Optional[List["Option"]] = field(default=None)
+    channel_types: Optional[List[ChannelType]] = field(
+        converter=convert_list(ChannelType), default=None
     )
-    _json: dict
-    type: OptionType
-    name: str
-    description: str
-    focused: bool
-    required: Optional[bool]
-    value: Optional[str]
-    choices: Optional[List[Choice]]
-    options: Optional[List["Option"]]
-    channel_types: Optional[List[ChannelType]]
-    min_value: Optional[int]
-    max_value: Optional[int]
-    autocomplete: Optional[bool]
-    name_localizations: Optional[Dict[Union[str, Locale], str]]
-    description_localizations: Optional[Dict[Union[str, Locale], str]]
+    min_value: Optional[int] = field(default=None)
+    max_value: Optional[int] = field(default=None)
+    autocomplete: Optional[bool] = field(default=None)
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(
+        default=None
+    )  # this may backfire
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = field(
+        default=None
+    )  # so can this
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.type = OptionType(self.type)
-        self._json.update({"type": self.type.value})
-        if self._json.get("options"):
-            if all(isinstance(option, dict) for option in self.options):
-                self._json["options"] = list(self.options)
-            else:
-                self._json["options"] = [
-                    option if isinstance(option, dict) else option._json for option in self.options
-                ]
-        if self.choices:
-            if all(isinstance(choice, dict) for choice in self.choices):
-                if isinstance(self._json.get("choices"), dict):
-                    self._json["choices"] = list(self.choices)
-                else:
-                    self._json["choices"] = [
-                        choice if isinstance(choice, dict) else choice._json
-                        for choice in self.choices
-                    ]
-            elif all(isinstance(choice, Choice) for choice in self.choices):
-                self._json["choices"] = [choice._json for choice in self.choices]
-
-        if self._json.get("name_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("name_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["name_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["name_localizations"].items()
-                }
-            self.name_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["name_localizations"].items()
-            }
-
-        if self._json.get("description_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("name_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["description_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["description_localizations"].items()
-                }
-            self.description_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["description_localizations"].items()
-            }
+    def __attrs_post_init__(self):
+        # needed for nested classes
+        self.options = (
+            [Option(**option) for option in self.options] if self.options is not None else None
+        )
 
 
+@define()
 class Permission(DictSerializerMixin):
     """
     A class object representing the permission of an application command.
 
-    The structure for a permission:
-
-    .. code-block:: python
+    The structure for a permission: ::
 
         interactions.Permission(
             id=1234567890,
             type=interactions.PermissionType.USER,
             permission=True,
         )
-
     :ivar int id: The ID of the permission.
     :ivar PermissionType type: The type of permission.
     :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
     """
 
-    __slots__ = ("_json", "id", "type", "permission")
-    _json: dict
-    id: int
-    type: PermissionType
-    permission: bool
+    id: int = field()
+    type: PermissionType = field(converter=PermissionType)
+    permission: bool = field()
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.type = PermissionType(self.type)
-        self._json.update({"type": self.type.value})
+    def __attrs_post_init__(self):
+        self._json["type"] = self.type.value
 
 
+@define()
 class ApplicationCommand(DictSerializerMixin):
     """
     A class object representing all types of commands.
@@ -230,70 +168,16 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The localisation dictionary for the application command description, if any.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "type",
-        "application_id",
-        "guild_id",
-        "name",
-        "description",
-        "options",
-        "default_permission",
-        "version",
-        "default_member_permissions",
-        "dm_permission",
-        "name_localizations",
-        "description_localizations",
-    )
-    _json: dict
-    id: Snowflake
-    type: ApplicationCommandType
-    application_id: Optional[Snowflake]
-    guild_id: Optional[Snowflake]
-    name: str
-    description: str
-    options: Optional[List[Option]]
-    default_permission: Optional[bool]
-    version: int
-    default_member_permissions: str
-    dm_permission: bool
-    name_localizations: Optional[Dict[Union[str, Locale], str]]
-    description_localizations: Optional[Dict[Union[str, Locale], str]]
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.options = (
-            [Option(**option) for option in self.options] if self._json.get("options") else None
-        )
-
-        if self._json.get("name_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("name_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["name_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["name_localizations"].items()
-                }
-            self.name_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["name_localizations"].items()
-            }
-
-        if self._json.get("description_localizations"):
-            if any(
-                type(x) != str for x in self._json.get("description_localizations")
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["description_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["description_localizations"].items()
-                }
-            self.description_localizations = {
-                k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["description_localizations"].items()
-            }
+    id: Snowflake = field(converter=Snowflake, default=None)
+    type: ApplicationCommandType = field(converter=ApplicationCommandType)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    name: str = field()
+    description: str = field()
+    options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
+    default_permission: Optional[bool] = field(default=None)
+    version: int = field(default=None)
+    default_member_permissions: str = field()
+    dm_permission: bool = field()
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)

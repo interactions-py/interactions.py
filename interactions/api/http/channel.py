@@ -25,7 +25,7 @@ class ChannelRequest:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request)))
+        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request, _client=self)))
 
         return request
 

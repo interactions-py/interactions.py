@@ -16,7 +16,6 @@ from .thread import ThreadRequest
 from .user import UserRequest
 from .webhook import WebhookRequest
 
-
 class HTTPClient(
     ChannelRequest,
     EmojiRequest,
@@ -36,9 +35,7 @@ class HTTPClient(
     token: str
     _req: _Request
     cache: Cache
-
     def __init__(self, token: str): ...
-
     async def get_gateway(self) -> str: ...
     async def get_bot_gateway(self) -> Tuple[int, str]: ...
     async def login(self) -> Optional[dict]: ...

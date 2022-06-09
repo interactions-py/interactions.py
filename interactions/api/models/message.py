@@ -2,9 +2,21 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from .channel import Channel, ChannelType
+from attrs import converters
+
+from ..error import JSONException
+from .attrs_utils import (
+    MISSING,
+    ClientSerializerMixin,
+    DictSerializerMixin,
+    convert_list,
+    define,
+    field,
+)
+from .channel import Channel
 from .member import Member
-from .misc import MISSING, DictSerializerMixin, File, Snowflake
+from .misc import File, Snowflake
+from .role import Role
 from .team import Application
 from .user import User
 
@@ -57,6 +69,7 @@ class MessageType(IntEnum):
     CONTEXT_MENU_COMMAND = 23
 
 
+@define()
 class MessageActivity(DictSerializerMixin):
     """A class object representing the activity state of a message.
 
@@ -70,13 +83,11 @@ class MessageActivity(DictSerializerMixin):
     :ivar Optional[Snowflake] party_id?: The party ID of the activity.
     """
 
-    __slots__ = ("_json", "type", "party_id")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.party_id = Snowflake(self.party_id) if self._json.get("party_id") else None
+    type: int = field()
+    party_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
 
 
+@define()
 class MessageReference(DictSerializerMixin):
     """
     A class object representing the "referenced"/replied message.
@@ -91,16 +102,14 @@ class MessageReference(DictSerializerMixin):
     :ivar Optional[bool] fail_if_not_exists?: Whether the message reference exists.
     """
 
-    __slots__ = ("_json", "message_id", "channel_id", "guild_id", "fail_if_not_exists")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.message_id = Snowflake(self.message_id) if self._json.get("message_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
+    message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    fail_if_not_exists: Optional[bool] = field(default=None)
 
 
-class Attachment(DictSerializerMixin):
+@define()
+class Attachment(ClientSerializerMixin):
     """
     A class object representing an attachment in a message.
 
@@ -124,26 +133,19 @@ class Attachment(DictSerializerMixin):
     :ivar Optional[bool] ephemeral: Whether the attachment is ephemeral.
     """
 
-    __slots__ = (
-        "_client",
-        "_json",
-        "id",
-        "filename",
-        "content_type",
-        "size",
-        "url",
-        "proxy_url",
-        "height",
-        "width",
-        "ephemeral",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
+    id: Snowflake = field(converter=Snowflake)
+    filename: str = field()
+    content_type: Optional[str] = field(default=None)
+    size: int = field()
+    url: str = field()
+    proxy_url: str = field()
+    height: Optional[int] = field(default=None)
+    width: Optional[int] = field(default=None)
+    ephemeral: Optional[bool] = field(default=None)
 
 
-class MessageInteraction(DictSerializerMixin):
+@define()
+class MessageInteraction(ClientSerializerMixin):
     """
     A class object that resembles the interaction used to generate
     the associated message.
@@ -155,14 +157,13 @@ class MessageInteraction(DictSerializerMixin):
     """
 
     # TODO: document member attr.
-    __slots__ = ("_json", "id", "type", "name", "user", "member")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.user = User(**self.user) if self._json.get("user") else None
+    id: Snowflake = field(converter=Snowflake)
+    type: int = field()  # replace with Enum
+    name: str = field()
+    user: User = field(converter=User, add_client=True)
 
 
+@define()
 class ChannelMention(DictSerializerMixin):
     """
     A class object that resembles the mention of a channel
@@ -174,16 +175,599 @@ class ChannelMention(DictSerializerMixin):
     :ivar str name: The name of the channel.
     """
 
-    __slots__ = ("_json", "id", "type", "name", "guild_id")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.type = ChannelType(self.type)
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    type: int = field()  # Replace with enum from Channel Type, another PR
+    name: str = field()
 
 
-class Message(DictSerializerMixin):
+@define()
+class Emoji(ClientSerializerMixin):
+    """
+    A class objecting representing an emoji.
+
+    :ivar Optional[Snowflake] id?: Emoji id
+    :ivar Optional[str] name?: Emoji name.
+    :ivar Optional[List[Role]] roles?: Roles allowed to use this emoji
+    :ivar Optional[User] user?: User that created this emoji
+    :ivar Optional[bool] require_colons?: Status denoting of this emoji must be wrapped in colons
+    :ivar Optional[bool] managed?: Status denoting if this emoji is managed (by an integration)
+    :ivar Optional[bool] animated?: Status denoting if this emoji is animated
+    :ivar Optional[bool] available?: Status denoting if this emoji can be used. (Can be false via server boosting)
+    """
+
+    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    name: Optional[str] = field(default=None)
+    roles: Optional[List[Role]] = field(converter=convert_list(Role), default=None)
+    user: Optional[User] = field(converter=User, default=None)
+    require_colons: Optional[bool] = field(default=None)
+    managed: Optional[bool] = field(default=None)
+    animated: Optional[bool] = field(default=None)
+    available: Optional[bool] = field(default=None)
+
+    @classmethod
+    async def get(
+        cls,
+        guild_id: int,
+        emoji_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> "Emoji":
+        """
+        Gets an emoji.
+
+        :param guild_id: The id of the guild of the emoji
+        :type guild_id: int
+        :param emoji_id: The id of the emoji
+        :type emoji_id: int
+        :param client: The HTTPClient of your bot. Equals to ``bot._http``
+        :type client: HTTPClient
+        :return: The Emoji as object
+        :rtype: Emoji
+        """
+        res = await client.get_guild_emoji(guild_id=guild_id, emoji_id=emoji_id)
+        return cls(**res, _client=client)
+
+    @classmethod
+    async def get_all_of_guild(
+        cls,
+        guild_id: int,
+        client: "HTTPClient",  # noqa
+    ) -> List["Emoji"]:
+        """
+        Gets all emoji of a guild.
+
+        :param guild_id: The id of the guild to get the emojis of
+        :type guild_id: int
+        :param client: The HTTPClient of your bot. Equals to ``bot._http``
+        :type client: HTTPClient
+        :return: The Emoji as list
+        :rtype: List[Emoji]
+        """
+        res = await client.get_all_emoji(guild_id=guild_id)
+        return [cls(**emoji, _client=client) for emoji in res]
+
+    async def delete(
+        self,
+        guild_id: int,
+        reason: Optional[str] = None,
+    ) -> None:
+        """
+        Deletes the emoji.
+
+        :param guild_id: The guild id to delete the emoji from
+        :type guild_id: int
+        :param reason?: The reason of the deletion
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+        return await self._client.delete_guild_emoji(
+            guild_id=guild_id, emoji_id=int(self.id), reason=reason
+        )
+
+    @property
+    def url(self) -> str:
+        """
+        Returns the emoji's URL.
+
+        :return: URL of the emoji
+        :rtype: str
+        """
+        url = f"https://cdn.discordapp.com/emojis/{self.id}"
+        url += ".gif" if self.animated else ".png"
+        return url
+
+
+@define()
+class EmbedImageStruct(DictSerializerMixin):
+    """
+    A class object representing the structure of an image in an embed.
+
+    The structure of an embed image:
+
+    .. code-block:: python
+
+        interactions.EmbedImageStruct(
+            url="https://example.com/",
+            height=300,
+            width=250,
+        )
+
+    :ivar str url: Source URL of the object.
+    :ivar Optional[str] proxy_url?: Proxied url of the object.
+    :ivar Optional[int] height?: Height of the object.
+    :ivar Optional[int] width?: Width of the object.
+    """
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
+
+@define()
+class EmbedProvider(DictSerializerMixin):
+    """
+    A class object representing the provider of an embed.
+
+    :ivar Optional[str] name?: Name of provider
+    :ivar Optional[str] url?: URL of provider
+    """
+
+    name: Optional[str] = field(default=None)
+    url: Optional[str] = field(default=None)
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
+
+@define()
+class EmbedAuthor(DictSerializerMixin):
+    """
+    A class object representing the author of an embed.
+
+    The structure of an embed author:
+
+    .. code-block:: python
+
+        interactions.EmbedAuthor(
+            name="fl0w#0001",
+        )
+
+    :ivar str name: Name of author
+    :ivar Optional[str] url?: URL of author
+    :ivar Optional[str] icon_url?: URL of author icon
+    :ivar Optional[str] proxy_icon_url?: Proxied URL of author icon
+    """
+
+    name: str = field()
+    url: Optional[str] = field(default=None)
+    icon_url: Optional[str] = field(default=None)
+    proxy_icon_url: Optional[str] = field(default=None)
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
+
+@define()
+class EmbedFooter(DictSerializerMixin):
+    """
+    A class object representing the footer of an embed.
+
+    The structure of an embed footer:
+
+    .. code-block:: python
+
+        interactions.EmbedFooter(
+            text="yo mama so short, she can fit in here",
+        )
+
+    :ivar str text: Footer text
+    :ivar Optional[str] icon_url?: URL of footer icon
+    :ivar Optional[str] proxy_icon_url?: Proxied URL of footer icon
+    """
+
+    text: str = field()
+    icon_url: Optional[str] = field(default=None)
+    proxy_icon_url: Optional[str] = field(default=None)
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
+
+@define()
+class EmbedField(DictSerializerMixin):
+    """
+    A class object representing the field of an embed.
+
+    The structure of an embed field:
+
+    .. code-block:: python
+
+        interactions.EmbedField(
+            name="field title",
+            value="blah blah blah",
+            inline=False,
+        )
+
+    :ivar str name: Name of the field.
+    :ivar str value: Value of the field
+    :ivar Optional[bool] inline?: A status denoting if the field should be displayed inline.
+    """
+
+    name: str = field()
+    inline: Optional[bool] = field(default=None)
+    value: str = field()
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+            if value is not None and value is not MISSING:
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
+
+@define()
+class Embed(DictSerializerMixin):
+    """
+    A class object representing an embed.
+
+    .. note::
+        The example provided below is for a very basic
+        implementation of an embed. Embeds are more unique
+        than what is being shown.
+
+    The structure for an embed:
+
+    .. code-block:: python
+
+        interactions.Embed(
+            title="Embed title",
+            fields=[interaction.EmbedField(...)],
+        )
+
+    :ivar Optional[str] title?: Title of embed
+    :ivar Optional[str] type?: Embed type, relevant by CDN file connected. This is only important to rendering.
+    :ivar Optional[str] description?: Embed description
+    :ivar Optional[str] url?: URL of embed
+    :ivar Optional[datetime] timestamp?: Timestamp of embed content
+    :ivar Optional[int] color?: Color code of embed
+    :ivar Optional[EmbedFooter] footer?: Footer information
+    :ivar Optional[EmbedImageStruct] image?: Image information
+    :ivar Optional[EmbedImageStruct] thumbnail?: Thumbnail information
+    :ivar Optional[EmbedImageStruct] video?: Video information
+    :ivar Optional[EmbedProvider] provider?: Provider information
+    :ivar Optional[EmbedAuthor] author?: Author information
+    :ivar Optional[List[EmbedField]] fields?: A list of fields denoting field information
+    """
+
+    title: Optional[str] = field(default=None)
+    type: Optional[str] = field(default=None)
+    description: Optional[str] = field(default=None)
+    url: Optional[str] = field(default=None)
+    timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    color: Optional[int] = field(default=None)
+    footer: Optional[EmbedFooter] = field(converter=EmbedFooter, default=None)
+    image: Optional[EmbedImageStruct] = field(converter=EmbedImageStruct, default=None)
+    thumbnail: Optional[EmbedImageStruct] = field(converter=EmbedImageStruct, default=None)
+    video: Optional[EmbedImageStruct] = field(converter=EmbedImageStruct, default=None)
+    provider: Optional[EmbedProvider] = field(converter=EmbedProvider, default=None)
+    author: Optional[EmbedAuthor] = field(converter=EmbedAuthor, default=None)
+    fields: Optional[List[EmbedField]] = field(converter=convert_list(EmbedField), default=None)
+
+    def __setattr__(self, key, value) -> None:
+        super().__setattr__(key, value)
+        if key != "_json" and (
+            key not in self._json
+            or (
+                value != self._json.get(key)
+                or not isinstance(value, dict)
+                # we don't need this instance check in components because serialisation works for them
+            )
+        ):
+            if value is not None and value is not MISSING:
+                try:
+                    value = [val._json for val in value] if isinstance(value, list) else value._json
+                except AttributeError:
+                    if isinstance(value, datetime):
+                        value = value.isoformat()
+                self._json.update({key: value})
+
+            elif value is None and key in self._json.keys():
+                del self._json[key]
+
+    def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
+        """
+        Adds a field to the embed
+
+        :param name: The name of the field
+        :type name: str
+        :param value: The value of the field
+        :type value: str
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
+        """
+
+        fields = self.fields or []
+        fields.append(EmbedField(name=name, value=value, inline=inline))
+
+        self.fields = fields
+        # We must use "=" here to call __setattr__. Append does not call any magic, making it impossible to modify the
+        # json when using it, so the object what would be sent wouldn't be modified.
+        # Imo this is still better than doing a `self._json.update({"fields": [field._json for ...]})`
+
+    def clear_fields(self) -> None:
+        """
+        Clears all the fields of the embed
+        """
+
+        self.fields = []
+
+    def insert_field_at(
+        self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
+    ) -> None:
+        """
+        Inserts a field in the embed at the specified index
+
+        :param index: The new field's index
+        :type index: int
+        :param name: The name of the field
+        :type name: str
+        :param value: The value of the field
+        :type value: str
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
+        """
+
+    def set_field_at(
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
+    ) -> None:
+        """
+        Overwrites the field in the embed at the specified index
+
+        :param index: The new field's index
+        :type index: int
+        :param name: The name of the field
+        :type name: str
+        :param value: The value of the field
+        :type value: str
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
+        """
+
+        try:
+            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
+
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
+
+        except IndexError as e:
+            raise IndexError("No fields at this index") from e
+
+    def remove_field(self, index: int) -> None:
+        """
+        Remove field at the specified index
+
+        :param index: The new field's index
+        :type index: int
+        """
+
+        try:
+            fields = self.fields
+            fields.pop(index)
+            self.fields = fields
+
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
+
+        except IndexError as e:
+            raise IndexError("Field not Found at index") from e
+
+    def remove_author(self) -> None:
+        """
+        Removes the embed's author
+        """
+
+        try:
+            del self.author
+        except AttributeError:
+            pass
+
+    def set_author(
+        self,
+        name: str,
+        url: Optional[str] = None,
+        icon_url: Optional[str] = None,
+        proxy_icon_url: Optional[str] = None,
+    ) -> None:
+        """
+        Sets the embed's author
+
+        :param name: The name of the author
+        :type name: str
+        :param url?: Url of author
+        :type url?: Optional[str]
+        :param icon_url?: Url of author icon (only supports http(s) and attachments)
+        :type icon_url?: Optional[str]
+        :param proxy_icon_url?: A proxied url of author icon
+        :type proxy_icon_url?: Optional[str]
+        """
+
+        self.author = EmbedAuthor(
+            name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
+        )
+
+    def set_footer(
+        self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
+    ) -> None:
+        """
+        Sets the embed's footer
+
+        :param text: The text of the footer
+        :type text: str
+        :param icon_url?: Url of footer icon (only supports http(s) and attachments)
+        :type icon_url?: Optional[str]
+        :param proxy_icon_url?: A proxied url of footer icon
+        :type proxy_icon_url?: Optional[str]
+        """
+
+        self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
+
+    def set_image(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None:
+        """
+        Sets the embed's image
+
+        :param url: Url of the image
+        :type url: str
+        :param proxy_url?: A proxied url of the image
+        :type proxy_url?: Optional[str]
+        :param height?: The image's height
+        :type height?: Optional[int]
+        :param width?: The image's width
+        :type width?: Optional[int]
+        """
+
+        self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+
+    def set_video(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None:
+        """
+        Sets the embed's video
+
+        :param url: Url of the video
+        :type url: str
+        :param proxy_url?: A proxied url of the video
+        :type proxy_url?: Optional[str]
+        :param height?: The video's height
+        :type height?: Optional[int]
+        :param width?: The video's width
+        :type width?: Optional[int]
+        """
+
+        self.video = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+
+    def set_thumbnail(
+        self,
+        url: str,
+        proxy_url: Optional[str] = None,
+        height: Optional[int] = None,
+        width: Optional[int] = None,
+    ) -> None:
+        """
+        Sets the embed's thumbnail
+
+        :param url: Url of the thumbnail
+        :type url: str
+        :param proxy_url?: A proxied url of the thumbnail
+        :type proxy_url?: Optional[str]
+        :param height?: The thumbnail's height
+        :type height?: Optional[int]
+        :param width?: The thumbnail's width
+        :type width?: Optional[int]
+        """
+
+        self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+
+
+@define()
+class PartialSticker(DictSerializerMixin):
+    """
+    Partial object for a Sticker.
+
+    :ivar Snowflake id: ID of the sticker
+    :ivar str name: Name of the sticker
+    :ivar int format_type: Type of sticker format
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    format_type: int = field()
+
+
+@define()
+class Sticker(PartialSticker):
+    """
+    A class object representing a full sticker apart from a partial.
+
+    :ivar Snowflake id: ID of the sticker
+    :ivar Optional[Snowflake] pack_id?: ID of the pack the sticker is from.
+    :ivar str name: Name of the sticker
+    :ivar Optional[str] description?: Description of the sticker
+    :ivar str tags: Autocomplete/suggestion tags for the sticker (max 200 characters)
+    :ivar str asset: Previously a sticker asset hash, now an empty string.
+    :ivar int type: Type of sticker
+    :ivar int format_type: Type of sticker format
+    :ivar Optional[bool] available?: Status denoting if this sticker can be used. (Can be false via server boosting)
+    :ivar Optional[Snowflake] guild_id?: Guild ID that owns the sticker.
+    :ivar Optional[User] user?: The user that uploaded the sticker.
+    :ivar Optional[int] sort_value?: The standard sticker's sort order within its pack
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    pack_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    name: str = field()
+    description: Optional[str] = field(default=None)
+    tags: str = field()
+    asset: str = field()
+    type: int = field()
+    format_type: int = field()
+    available: Optional[bool] = field(default=None)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    user: Optional[User] = field(converter=User, default=None)
+    sort_value: Optional[int] = field(default=None)
+
+
+@define()
+class ReactionObject(DictSerializerMixin):
+    """The reaction object.
+
+    :ivar int count: The amount of times this emoji has been used to react
+    :ivar bool me: A status denoting if the current user reacted using this emoji
+    :ivar Emoji emoji: Emoji information
+    """
+
+    count: int = field()
+    me: bool = field()
+    emoji: Emoji = field(converter=Emoji)
+
+
+@define()
+class Message(ClientSerializerMixin):
     """
     A class object representing a message.
 
@@ -219,108 +803,51 @@ class Message(DictSerializerMixin):
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "channel_id",
-        "guild_id",
-        "author",
-        "member",
-        "content",
-        "timestamp",
-        "edited_timestamp",
-        "tts",
-        "mention_everyone",
-        "mentions",
-        "mention_roles",
-        "mention_channels",
-        "attachments",
-        "embeds",
-        "reactions",
-        "nonce",
-        "pinned",
-        "webhook_id",
-        "type",
-        "activity",
-        "application",
-        "application_id",
-        "message_reference",
-        "allowed_mentions",
-        "flags",
-        "referenced_message",
-        "interaction",
-        "thread",
-        "components",
-        "sticker_items",
-        "stickers",
-        "_client",
+    id: Snowflake = field(converter=Snowflake)
+    channel_id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    author: User = field(converter=User, add_client=True, default=None)
+    member: Optional[Member] = field(
+        converter=converters.optional(Member), default=None, add_client=True
     )
+    content: str = field(default=None)
+    timestamp: datetime = field(converter=datetime.fromisoformat, default=None)
+    edited_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    tts: bool = field(default=None)
+    mention_everyone: bool = field(default=None)
+    # mentions: array of Users, and maybe partial members
+    mentions: Optional[List[Union[Member, User]]] = field(
+        default=None
+    )  # todo convert to the right types
+    mention_roles: Optional[List[str]] = field(default=None)
+    mention_channels: Optional[List[ChannelMention]] = field(
+        converter=convert_list(ChannelMention), default=None
+    )
+    attachments: List[Attachment] = field(converter=convert_list(Attachment), default=None)
+    embeds: List[Embed] = field(converter=convert_list(Embed), default=None)
+    reactions: Optional[List[ReactionObject]] = field(
+        converter=convert_list(ReactionObject), default=None
+    )
+    nonce: Optional[Union[int, str]] = field(default=None)
+    pinned: bool = field(default=None)
+    webhook_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    type: int = field(default=None)
+    activity: Optional[MessageActivity] = field(converter=MessageActivity, default=None)
+    application: Optional[Application] = field(converter=Application, default=None)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    message_reference: Optional[MessageReference] = field(converter=MessageReference, default=None)
+    flags: int = field(default=None)
+    referenced_message: Optional[MessageReference] = field(converter=MessageReference, default=None)
+    interaction: Optional[MessageInteraction] = field(
+        converter=MessageInteraction, default=None, add_client=True
+    )
+    thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.webhook_id = Snowflake(self.webhook_id) if self._json.get("webhook_id") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.timestamp = (
-            datetime.fromisoformat(self._json.get("timestamp"))
-            if self._json.get("timestamp")
-            else datetime.utcnow()
-        )
-        self.author = User(**self._json.get("author")) if self._json.get("author") else None
-        self.member = (
-            Member(
-                **self._json.get("member"),
-                _client=self._client,
-                user=self.author._json,
-            )
-            if self._json.get("member")
-            else None
-        )
-        self.type = MessageType(self.type) if self._json.get("type") else None
-        self.edited_timestamp = (
-            datetime.fromisoformat(self._json.get("edited_timestamp"))
-            if self._json.get("edited_timestamp")
-            else datetime.utcnow()
-        )
-        self.mention_channels = (
-            [ChannelMention(**mention) for mention in self.mention_channels]
-            if self._json.get("mention_channels")
-            else None
-        )
-        self.attachments = (
-            [Attachment(**attachment) for attachment in self.attachments]
-            if self._json.get("attachments")
-            else None
-        )
-        self.embeds = (
-            [
-                Embed(**embed) if isinstance(embed, dict) else Embed(**embed._json)
-                for embed in self.embeds
-            ]
-            if self._json.get("embeds")
-            else None
-        )
-        self.activity = MessageActivity(**self.activity) if self._json.get("activity") else None
-        self.application = (
-            Application(**self.application) if self._json.get("application") else None
-        )
-        self.message_reference = (
-            MessageReference(**self.message_reference)
-            if self._json.get("message_reference")
-            else None
-        )
-        self.interaction = (
-            MessageInteraction(**self.interaction) if self._json.get("interaction") else None
-        )
-        self.thread = Channel(**self.thread) if self._json.get("thread") else None
-
-    def __repr__(self) -> str:
-        return self.content
+    components: Optional[Union["Component", List["Component"]]] = field(default=None)  # noqa: F821
+    sticker_items: Optional[List[PartialSticker]] = field(converter=convert_list, default=None)
+    stickers: Optional[List[Sticker]] = field(
+        converter=convert_list(Sticker), default=None
+    )  # deprecated
 
     async def get_channel(self) -> Channel:
         """
@@ -368,7 +895,7 @@ class Message(DictSerializerMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         suppress_embeds: Optional[bool] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
-        message_reference: Optional["MessageReference"] = MISSING,
+        message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
             Union[
                 "ActionRow",  # noqa
@@ -440,7 +967,7 @@ class Message(DictSerializerMixin):
         else:
             _components = _build_components(components=components)
 
-        payload: Message = Message(
+        payload = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -454,16 +981,16 @@ class Message(DictSerializerMixin):
         _dct = await self._client.edit_message(
             channel_id=int(self.channel_id),
             message_id=int(self.id),
-            payload=payload._json,
+            payload=payload,
             files=files,
         )
 
-        msg = payload if _dct.get("code") else Message(**_dct, _client=self._client)
+        if code := _dct.get("code"):
+            raise JSONException(code, message=_dct.get("message"))
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(msg, attr))
+        self.update(_dct)
 
-        return msg
+        return self
 
     async def reply(
         self,
@@ -532,7 +1059,7 @@ class Message(DictSerializerMixin):
             files = [files]
 
         # TODO: post-v4: Add attachments into Message obj.
-        payload = Message(
+        payload = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -543,8 +1070,13 @@ class Message(DictSerializerMixin):
         )
 
         res = await self._client.create_message(
-            channel_id=int(self.channel_id), payload=payload._json, files=files
+            channel_id=int(self.channel_id), payload=payload, files=files
         )
+
+        author = {"id": None, "username": None, "discriminator": None}
+        author.update(res["author"])
+        res["author"] = author
+
         return Message(**res, _client=self._client)
 
     async def pin(self) -> None:
@@ -679,7 +1211,9 @@ class Message(DictSerializerMixin):
             raise AttributeError("HTTPClient not found!")
 
         _emoji = (
-            f"{emoji.name.replace(':', '')}:{emoji.id or ''}" if isinstance(emoji, Emoji) else emoji
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
         )
 
         return await self._client.remove_self_reaction(
@@ -697,7 +1231,6 @@ class Message(DictSerializerMixin):
         :param user: The user or user_id to remove the reaction of
         :type user: Union[Member, user, int]
         """
-
         _emoji = (
             f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
             if isinstance(emoji, Emoji)
@@ -760,7 +1293,7 @@ class Message(DictSerializerMixin):
 
         :param url: The full url of the message
         :type url: str
-        :param client: The HTTPClient of your bot. Set ``client=botvar._http``
+        :param client: The HTTPClient of your bot. Set ` _client=botvar._http``
         :type client: HTTPClient
         :return: The message the URL points to
         :rtype: Message
@@ -786,7 +1319,7 @@ class Message(DictSerializerMixin):
         guild = self.guild_id or "@me"
         return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
 
-
+@define()
 class Emoji(DictSerializerMixin):
     """
     A class objecting representing an emoji.

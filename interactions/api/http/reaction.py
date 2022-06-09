@@ -125,7 +125,7 @@ class ReactionRequest:
         :param emoji: The emoji to get (format: `name:id`)
         :param limit: Max number of users to return (1-100)
         :param after: Get users after this user ID
-        :return A list of users who sent that emoji.
+        :return: A list of users who sent that emoji.
         """
 
         params_set = {

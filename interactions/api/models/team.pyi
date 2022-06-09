@@ -1,28 +1,27 @@
 from typing import Any, List, Optional
 
-from .misc import DictSerializerMixin, Snowflake
-from .user import User
-from .flags import AppFlags
+from .attrs_utils import ClientSerializerMixin, define
+from .flags import AppFlags as AppFlags
+from .misc import Snowflake
+from .user import User as User
 
-class TeamMember(DictSerializerMixin):
-    _json: dict
+@define()
+class TeamMember(ClientSerializerMixin):
     membership_state: int
     permissions: List[str]
     team_id: Snowflake
     user: User
-    def __init__(self, **kwargs): ...
 
-class Team(DictSerializerMixin):
-    _json: dict
+@define()
+class Team(ClientSerializerMixin):
     icon: Optional[str]
     id: Snowflake
     members: List[TeamMember]
     name: str
     owner_user_id: int
-    def __init__(self, **kwargs): ...
 
-class Application(DictSerializerMixin):
-    _json: dict
+@define()
+class Application(ClientSerializerMixin):
     id: Snowflake
     name: str
     icon: Optional[str]
@@ -43,6 +42,5 @@ class Application(DictSerializerMixin):
     flags: Optional[AppFlags]
     type: Optional[Any]
     hook: Optional[Any]
-    def __init__(self, **kwargs): ...
     @property
     def icon_url(self) -> str: ...

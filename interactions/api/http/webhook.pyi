@@ -1,15 +1,14 @@
 from typing import List, Optional
 
-from ..models.misc import MISSING, File
 from ...api.cache import Cache
+from ..models.attrs_utils import MISSING
+from ..models.misc import File
 from .request import _Request
-
 
 class WebhookRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def create_webhook(self, channel_id: int, name: str, avatar: str = None) -> dict: ...
     async def get_channel_webhooks(self, channel_id: int) -> List[dict]: ...
@@ -46,4 +45,6 @@ class WebhookRequest:
     async def delete_webhook_message(
         self, webhook_id: int, webhook_token: str, message_id: int
     ) -> None: ...
-    async def delete_original_webhook_message(self, webhook_id: int, webhook_token: str) -> None: ...
+    async def delete_original_webhook_message(
+        self, webhook_id: int, webhook_token: str
+    ) -> None: ...
