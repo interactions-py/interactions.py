@@ -595,7 +595,7 @@ class Channel(ClientSerializerMixin):
 
     async def add_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake, "Member"],  # noqa
     ) -> None:
         """
         This adds a member to the channel, if the channel is a thread.
@@ -609,46 +609,53 @@ class Channel(ClientSerializerMixin):
             raise TypeError(
                 "The Channel you specified is not a thread!"
             )  # TODO: Move to new error formatter.
-        await self._client.add_member_to_thread(thread_id=int(self.id), user_id=member_id)
+
+        _member_id = int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
+
+        await self._client.add_member_to_thread(thread_id=int(self.id), user_id=_member_id)
 
     async def pin_message(
         self,
-        message_id: int,
+        message_id: Union[int, Snowflake, "Message"],  # noqa
     ) -> None:
         """
         Pins a message to the channel.
 
         :param message_id: The id of the message to pin
-        :type message_id: int
+        :type message_id: Union[int, Snowflake, "Message"]
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        await self._client.pin_message(channel_id=int(self.id), message_id=message_id)
+        _message_id = int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+
+        await self._client.pin_message(channel_id=int(self.id), message_id=_message_id)
 
     async def unpin_message(
         self,
-        message_id: int,
+        message_id: Union[int, Snowflake, "Message"],  # noqa
     ) -> None:
         """
         Unpins a message from the channel.
 
         :param message_id: The id of the message to unpin
-        :type message_id: int
+        :type message_id: Union[int, Snowflake, "Message"]
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        await self._client.unpin_message(channel_id=int(self.id), message_id=message_id)
+        _message_id = int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+
+        await self._client.unpin_message(channel_id=int(self.id), message_id=_message_id)
 
     async def publish_message(
         self,
-        message_id: int,
+        message_id: Union[int, Snowflake, "Message"],  # noqa
     ) -> "Message":  # noqa
         """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
         :param message_id: The id of the message to publish
-        :type message_id: int
+        :type message_id: Union[int, Snowflake, "Message"]
         :return: The message published
         :rtype: Message
         """
@@ -656,7 +663,9 @@ class Channel(ClientSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from .message import Message
 
-        res = await self._client.publish_message(channel_id=int(self.id), message_id=message_id)
+        _message_id = int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+
+        res = await self._client.publish_message(channel_id=int(self.id), message_id=_message_id)
 
         return Message(**res, _client=self._client)
 
@@ -676,17 +685,19 @@ class Channel(ClientSerializerMixin):
 
     async def get_message(
         self,
-        message_id: int,
+        message_id: Union[int, Snowflake],
     ) -> "Message":  # noqa
         """
         Gets a message sent in that channel.
 
+        :param message_id: The ID of the message to get
+        :type message_id: Union[int, Snowflake]
         :return: The message as object
         :rtype: Message
         """
         res = await self._client.get_message(
             channel_id=int(self.id),
-            message_id=message_id,
+            message_id=int(message_id),
         )
         from .message import Message
 
@@ -695,7 +706,7 @@ class Channel(ClientSerializerMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable = MISSING,
+        check: Callable[[...], bool] = MISSING,
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
@@ -900,7 +911,7 @@ class Channel(ClientSerializerMixin):
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> "Channel":
         """
@@ -916,7 +927,7 @@ class Channel(ClientSerializerMixin):
         :param invitable?: Boolean to display if the Thread is open to join or private.
         :type invitable: Optional[bool]
         :param message_id?: An optional message to create a thread from.
-        :type message_id: Optional[int]
+        :type message_id: Optional[Union[int, Snowflake, "Message"]]
         :param reason?: An optional reason for the audit log
         :type reason: Optional[str]
         :return: The created thread
@@ -933,7 +944,9 @@ class Channel(ClientSerializerMixin):
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
-        _message_id = None if message_id is MISSING else message_id
+        _message_id = None if message_id is MISSING else (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )
         res = await self._client.create_thread(
             channel_id=int(self.id),
             thread_type=type.value,
