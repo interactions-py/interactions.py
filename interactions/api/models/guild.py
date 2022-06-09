@@ -644,7 +644,7 @@ class Guild(ClientSerializerMixin):
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> Channel:
         """
@@ -662,7 +662,7 @@ class Guild(ClientSerializerMixin):
         :param invitable?: Boolean to display if the Thread is open to join or private.
         :type invitable: Optional[bool]
         :param message_id?: An optional message to create a thread from.
-        :type message_id: Optional[int]
+        :type message_id: Optional[Union[int, Snowflake, "Message"]]
         :param reason?: An optional reason for the audit log
         :type reason: Optional[str]
         :return: The created thread
@@ -679,8 +679,9 @@ class Guild(ClientSerializerMixin):
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
-        _message_id = None if message_id is MISSING else message_id
-        #  not refactoring this since I don't want to deal w import hell
+        _message_id = None if message_id is MISSING else (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )  # work around Message import
         _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
         res = await self._client.create_thread(
             channel_id=_channel_id,

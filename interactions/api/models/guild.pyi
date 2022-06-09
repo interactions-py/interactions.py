@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Any, Dict, List, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
+from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, MISSING
 from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
@@ -228,7 +228,7 @@ class Guild(ClientSerializerMixin):
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def create_channel(
