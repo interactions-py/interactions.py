@@ -114,7 +114,9 @@ class Option(DictSerializerMixin):
     def __attrs_post_init__(self):
         # needed for nested classes
         self.options = (
-            [Option(**option) for option in self.options] if self.options is not None else None
+            [Option(**option) if isinstance(option, dict) else option for option in self.options]
+            if self.options is not None
+            else None
         )
 
 
