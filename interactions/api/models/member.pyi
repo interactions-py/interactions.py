@@ -8,6 +8,7 @@ from .message import Embed, Message, MessageInteraction
 from .misc import File, Snowflake
 from .role import Role as Role
 from .user import User as User
+from .channel import Channel
 
 @define()
 class Member(ClientSerializerMixin):
@@ -33,14 +34,23 @@ class Member(ClientSerializerMixin):
     @property
     def name(self) -> str: ...
     async def ban(
-        self, guild_id: int, reason: Optional[str] = ..., delete_message_days: Optional[int] = ...
+        self,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        reason: Optional[str] = ...,
+        delete_message_days: Optional[int] = ...
     ) -> None: ...
-    async def kick(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
+    async def kick(self, guild_id: Union[int, Snowflake, "Guild"], reason: Optional[str] = ...) -> None: ...  # noqa
     async def add_role(
-        self, role: Union[Role, int], guild_id: int, reason: Optional[str] = ...
+        self,
+        role: Union[Role, int, Snowflake],
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        reason: Optional[str] = ...
     ) -> None: ...
     async def remove_role(
-        self, role: Union[Role, int], guild_id: int, reason: Optional[str] = ...
+        self,
+        role: Union[Role, int, Snowflake],
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        reason: Optional[str] = ...
     ) -> None: ...
     async def send(
         self,
@@ -56,14 +66,14 @@ class Member(ClientSerializerMixin):
     ) -> Message: ...
     async def modify(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         nick: Optional[str] = ...,
         roles: Optional[List[int]] = ...,
         mute: Optional[bool] = ...,
         deaf: Optional[bool] = ...,
-        channel_id: Optional[int] = ...,
+        channel_id: Optional[Union[Channel, int, Snowflake]] = ...,
         communication_disabled_until: Optional[datetime.isoformat] = ...,
         reason: Optional[str] = ...,
     ) -> Member: ...
-    async def add_to_thread(self, thread_id: int) -> None: ...
-    def get_member_avatar_url(self, guild_id: int) -> Optional[str]: ...
+    async def add_to_thread(self, thread_id: Union[int, Snowflake, Channel]) -> None: ...
+    def get_member_avatar_url(self, guild_id: Union[int, Snowflake, "Guild"]) -> Optional[str]: ...  # noqa
