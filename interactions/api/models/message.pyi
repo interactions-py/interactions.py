@@ -87,7 +87,12 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = None
     available: Optional[bool] = None
     @classmethod
-    async def get(cls, guild_id: int, emoji_id: int, client: HTTPClient) -> Emoji: ...
+    async def get(
+        cls,
+        guild_id: Union[int, Snowflake, "Guild"],
+        emoji_id: Union[int, Snowflake],
+        client: HTTPClient
+    ) -> Emoji: ...
     @classmethod
     async def get_all_of_guild(cls, guild_id: int, client: HTTPClient) -> List[Emoji]: ...
     async def delete(self, guild_id: int, reason: Optional[str] = ...) -> None: ...

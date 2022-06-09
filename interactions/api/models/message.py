@@ -188,61 +188,70 @@ class Emoji(ClientSerializerMixin):
     @classmethod
     async def get(
         cls,
-        guild_id: int,
-        emoji_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        emoji_id: Union[int, Snowflake],
         client: "HTTPClient",  # noqa
     ) -> "Emoji":
         """
         Gets an emoji.
 
         :param guild_id: The id of the guild of the emoji
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param emoji_id: The id of the emoji
-        :type emoji_id: int
+        :type emoji_id: Union[int, Snowflake]
         :param client: The HTTPClient of your bot. Equals to ``bot._http``
         :type client: HTTPClient
         :return: The Emoji as object
         :rtype: Emoji
         """
-        res = await client.get_guild_emoji(guild_id=guild_id, emoji_id=emoji_id)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
+        res = await client.get_guild_emoji(guild_id=_guild_id, emoji_id=int(emoji_id))
         return cls(**res, _client=client)
 
     @classmethod
     async def get_all_of_guild(
         cls,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         client: "HTTPClient",  # noqa
     ) -> List["Emoji"]:
         """
         Gets all emoji of a guild.
 
         :param guild_id: The id of the guild to get the emojis of
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param client: The HTTPClient of your bot. Equals to ``bot._http``
         :type client: HTTPClient
         :return: The Emoji as list
         :rtype: List[Emoji]
         """
-        res = await client.get_all_emoji(guild_id=guild_id)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
+        res = await client.get_all_emoji(guild_id=_guild_id)
         return [cls(**emoji, _client=client) for emoji in res]
 
     async def delete(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         reason: Optional[str] = None,
     ) -> None:
         """
         Deletes the emoji.
 
         :param guild_id: The guild id to delete the emoji from
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason of the deletion
         :type reason?: Optional[str]
         """
         if not self._client:
             raise AttributeError("HTTPClient not found!")
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         return await self._client.delete_guild_emoji(
-            guild_id=guild_id, emoji_id=int(self.id), reason=reason
+            guild_id=_guild_id, emoji_id=int(self.id), reason=reason
         )
 
     @property
