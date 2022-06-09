@@ -3,8 +3,9 @@ from typing import List, Optional, Union
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache, Item
+from ..models.attrs_utils import MISSING
 from ..models.message import Embed, Message
-from ..models.misc import MISSING, File, Snowflake
+from ..models.misc import File, Snowflake
 from .request import _Request
 from .route import Route
 
