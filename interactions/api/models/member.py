@@ -135,7 +135,7 @@ class Member(ClientSerializerMixin):
         _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
 
         await self._client.create_guild_kick(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             user_id=int(self.user.id),
             reason=reason,
         )
