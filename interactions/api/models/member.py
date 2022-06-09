@@ -326,7 +326,9 @@ class Member(ClientSerializerMixin):
             payload["roles"] = roles
 
         if channel_id is not MISSING:
-            payload["channel_id"] = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+            payload["channel_id"] = (
+                int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+            )
 
         if mute is not MISSING:
             payload["mute"] = mute

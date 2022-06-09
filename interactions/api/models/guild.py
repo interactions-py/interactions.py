@@ -679,8 +679,12 @@ class Guild(ClientSerializerMixin):
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
-        _message_id = None if message_id is MISSING else (
-            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        _message_id = (
+            None
+            if message_id is MISSING
+            else (
+                int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+            )
         )  # work around Message import
         _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
         res = await self._client.create_thread(

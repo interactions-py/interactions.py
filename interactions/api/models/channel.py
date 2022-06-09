@@ -610,7 +610,9 @@ class Channel(ClientSerializerMixin):
                 "The Channel you specified is not a thread!"
             )  # TODO: Move to new error formatter.
 
-        _member_id = int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
+        _member_id = (
+            int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
+        )
 
         await self._client.add_member_to_thread(thread_id=int(self.id), user_id=_member_id)
 
@@ -627,7 +629,9 @@ class Channel(ClientSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _message_id = int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        _message_id = (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )
 
         await self._client.pin_message(channel_id=int(self.id), message_id=_message_id)
 
@@ -644,7 +648,9 @@ class Channel(ClientSerializerMixin):
         if not self._client:
             raise AttributeError("HTTPClient not found!")
 
-        _message_id = int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        _message_id = (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )
 
         await self._client.unpin_message(channel_id=int(self.id), message_id=_message_id)
 
@@ -663,7 +669,9 @@ class Channel(ClientSerializerMixin):
             raise AttributeError("HTTPClient not found!")
         from .message import Message
 
-        _message_id = int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        _message_id = (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )
 
         res = await self._client.publish_message(channel_id=int(self.id), message_id=_message_id)
 
@@ -944,8 +952,12 @@ class Channel(ClientSerializerMixin):
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
-        _message_id = None if message_id is MISSING else (
-            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        _message_id = (
+            None
+            if message_id is MISSING
+            else (
+                int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+            )
         )
         res = await self._client.create_thread(
             channel_id=int(self.id),
