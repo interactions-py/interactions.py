@@ -120,13 +120,22 @@ class ComponentType(IntEnum):
     :ivar ACTION_ROW: 1
     :ivar BUTTON: 2
     :ivar SELECT: 3
+    :ivar STRING_SELECT: 3
     :ivar INPUT_TEXT: 4
+    :ivar USER_SELECT: 5
+    :ivar ROLE_SELECT: 6
+    :ivar MENTIONABLE_SELECT: 7
+    :ivar CHANNEL_SELECT: 8
     """
 
     ACTION_ROW = 1
     BUTTON = 2
-    SELECT = 3
+    SELECT = STRING_SELECT = 3
     INPUT_TEXT = 4
+    USER_SELECT = 5
+    ROLE_SELECT = 6
+    MENTIONABLE_SELECT = 7
+    CHANNEL_SELECT = 8
 
 
 class ButtonStyle(IntEnum):

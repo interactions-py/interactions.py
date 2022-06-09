@@ -75,22 +75,26 @@ class SelectMenu(ComponentMixin):
             placeholder="Check out my options. :)",
             custom_id="menu_component",
         )
-    :ivar ComponentType type: The type of select menu. Always defaults to ``3``.
+    :ivar ComponentType type: The type of select menu.
     :ivar str custom_id: The customized "ID" of the select menu.
-    :ivar List[SelectOption] options: The list of select options in the select menu.
+    :ivar Optional[List[SelectOption]] options: The list of select options in the select menu. This only applies to String-based selects.
     :ivar Optional[str] placeholder?: The placeholder of the select menu.
     :ivar Optional[int] min_values?: The minimum "options"/values to choose from the component.
     :ivar Optional[int] max_values?: The maximum "options"/values to choose from the component.
     :ivar Optional[bool] disabled?: Whether the select menu is unable to be used.
+    :ivar Optional[List[int]] channel_types:  Optional channel types to filter/whitelist. Only works with the CHANNEL_SELECT type.
     """
 
     type: ComponentType = field(converter=ComponentType)
     custom_id: str = field()
-    options: List[SelectOption] = field(converter=convert_list(SelectOption))
+    options: Optional[List[SelectOption]] = field(
+        converter=convert_list(SelectOption), default=None
+    )
     placeholder: Optional[str] = field(default=None)
     min_values: Optional[int] = field(default=None)
     max_values: Optional[int] = field(default=None)
     disabled: Optional[bool] = field(default=None)
+    channel_types: Optional[List[int]] = field(default=None)
 
     def __attrs_post_init__(self) -> None:
         self._json.update({"type": self.type.value})
