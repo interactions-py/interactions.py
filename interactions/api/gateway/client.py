@@ -363,9 +363,13 @@ class WebSocketClient:
                     if _context.data._json.get("components"):
                         for component in _context.data.components:
                             if component.get("components"):
-                                __args.append(
-                                    [_value["value"] for _value in component["components"]][0]
-                                )
+                                for _value in component["components"]:
+                                    if _value.get("value"):
+                                        __args.append(_value["value"])
+                                    if _value.get("values"):
+                                        # This part is selects based.
+                                        # TODO: When API evolves for non-string support, convert to appropriate models.
+                                        __args.append(_value["values"])
                             else:
                                 __args.append([_value.value for _value in component.components][0])
 
