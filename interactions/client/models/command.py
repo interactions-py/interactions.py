@@ -31,16 +31,14 @@ class Choice(DictSerializerMixin):
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     """
 
-    _json: dict = field()
     name: str = field()
     value: Union[str, int, float] = field()
-    name_localizations: Optional[Dict[Union[str, Locale], str]] = field()
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
+    def __attrs_post_init__(self):
         if self._json.get("name_localizations"):
             if any(
-                type(x) != str for x in self._json.get("name_localizations")
+                type(x) != str for x in self._json["name_localizations"]
             ):  # check if Locale object is used to create localisation at any certain point.
                 self._json["name_localizations"] = {
                     k.value if isinstance(k, Locale) else k: v
