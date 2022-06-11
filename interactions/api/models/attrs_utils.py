@@ -184,6 +184,8 @@ def field(
     **kwargs,
 ):
     if converter is not None:
+        if isinstance(converter, type):
+            converter = convert_type(converter)
         converter = attrs.converters.optional(converter)
 
     metadata = kwargs.get("metadata", {})
