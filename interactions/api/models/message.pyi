@@ -96,6 +96,10 @@ class Emoji(ClientSerializerMixin):
 
 @define()
 class EmbedImageStruct(DictSerializerMixin):
+    url: str
+    proxy_url: Optional[str]
+    height: Optional[int]
+    width: Optional[int]
     def __setattr__(self, key, value) -> None: ...
 
 @define()

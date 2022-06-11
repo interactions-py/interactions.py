@@ -279,6 +279,11 @@ class EmbedImageStruct(DictSerializerMixin):
     :ivar Optional[int] width?: Width of the object.
     """
 
+    url: str = field()
+    proxy_url: Optional[str] = field(default=None)
+    height: Optional[int] = field(default=None)
+    width: Optional[int] = field(default=None)
+
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
         if key != "_json" and (key not in self._json or value != self._json.get(key)):
