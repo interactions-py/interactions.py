@@ -97,54 +97,54 @@ class Emoji(ClientSerializerMixin):
 @define()
 class EmbedImageStruct(DictSerializerMixin):
     url: str
-    proxy_url: Optional[str]
-    height: Optional[int]
-    width: Optional[int]
+    proxy_url: Optional[str] = None
+    height: Optional[int] = None
+    width: Optional[int] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedProvider(DictSerializerMixin):
-    name: Optional[str]
-    url: Optional[str]
+    name: Optional[str] = None
+    url: Optional[str] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedAuthor(DictSerializerMixin):
     name: str
-    url: Optional[str]
-    icon_url: Optional[str]
-    proxy_icon_url: Optional[str]
+    url: Optional[str] = None
+    icon_url: Optional[str] = None
+    proxy_icon_url: Optional[str] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedFooter(DictSerializerMixin):
     text: str
-    icon_url: Optional[str]
-    proxy_icon_url: Optional[str]
+    icon_url: Optional[str] = None
+    proxy_icon_url: Optional[str] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedField(DictSerializerMixin):
     name: str
-    inline: Optional[bool]
+    inline: Optional[bool] = None
     value: str
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class Embed(DictSerializerMixin):
-    title: Optional[str]
-    type: Optional[str]
-    description: Optional[str]
-    url: Optional[str]
-    timestamp: Optional[datetime]
-    color: Optional[int]
-    footer: Optional[EmbedFooter]
-    image: Optional[EmbedImageStruct]
-    thumbnail: Optional[EmbedImageStruct]
-    video: Optional[EmbedImageStruct]
-    provider: Optional[EmbedProvider]
-    author: Optional[EmbedAuthor]
-    fields: Optional[List[EmbedField]]
+    title: Optional[str] = None
+    type: Optional[str] = None
+    description: Optional[str] = None
+    url: Optional[str] = None
+    timestamp: Optional[datetime] = None
+    color: Optional[int] = None
+    footer: Optional[EmbedFooter] = None
+    image: Optional[EmbedImageStruct] = None
+    thumbnail: Optional[EmbedImageStruct] = None
+    video: Optional[EmbedImageStruct] = None
+    provider: Optional[EmbedProvider] = None
+    author: Optional[EmbedAuthor] = None
+    fields: Optional[List[EmbedField]] = None
     def __setattr__(self, key, value) -> None: ...
     def add_field(self, name: str, value: str, inline: Optional[bool] = ...) -> None: ...
     def clear_fields(self) -> None: ...
