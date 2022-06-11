@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, Type
 
 import attrs
 
@@ -54,6 +54,9 @@ def convert_list(converter: Callable[[_T], _P]) -> Callable[[List[_T]], List[_P]
 
 def convert_int(converter: Callable[[int], _T]) -> Callable[[Any], _T]:
     """A helper function to pass an int to the converter, e.x. for Enums"""
+
+def convert_type(object: Type[_T]) -> Callable[[Any], _T]:
+    """A helper function to convert an input to a specified type."""
 
 def convert_dict(
     key_converter: Optional[Callable[[Any], _T]] = None,
