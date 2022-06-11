@@ -312,6 +312,8 @@ class CommandContext(_Context):
     target: Optional[Union[Message, Member, User]] = field(default=None)
 
     def __attrs_post_init__(self) -> None:
+        super().__attrs_post_init__()
+
         if self.data.target_id:
             target = self.data.target_id
 
