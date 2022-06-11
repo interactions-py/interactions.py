@@ -69,7 +69,19 @@ class LibraryException(Exception):
     @staticmethod
     def lookup(code: int) -> str:
         return {
+            # Default error integer enum
             0: "Unknown error",
+            1: "Request to Discord API has failed.",
+            2: "Some formats are incorrect. See Discord API DOCS for proper format.",
+            3: "There is a duplicate command name.",
+            4: "There is a duplicate component callback.",
+            5: "There are duplicate `Interaction` instances.",  # rewrite to v4's interpretation
+            6: "Command check has failed.",
+            7: "Type passed was incorrect.",
+            8: "Guild ID type passed was incorrect",
+            9: "Incorrect data was passed to a slash command data object.",
+            10: "The interaction was already responded to.",
+            11: "Error creating your command.",
             # HTTP errors
             400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
             401: "Not authorized. Double check your token to see if it's valid.",
