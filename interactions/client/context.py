@@ -62,6 +62,8 @@ class _Context(DictSerializerMixin):
     deferred: bool = field(default=False)
 
     def __attrs_post_init__(self) -> None:
+        self.author = self.member
+
         if self.user is None:
             self.user = self.member.user if self.member else None
 
