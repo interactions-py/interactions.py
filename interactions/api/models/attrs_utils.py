@@ -157,6 +157,15 @@ def convert_dict(key_converter=None, value_converter=None):
     return inner_convert_dict
 
 
+def convert_type(type_: type):
+    """A helper function to convert an input to a specified type."""
+
+    def inner_convert_object(value):
+        return value if isinstance(value, type_) else type_(value)
+
+    return inner_convert_object
+
+
 define_defaults = dict(kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 
 
