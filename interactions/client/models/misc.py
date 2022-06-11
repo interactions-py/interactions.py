@@ -33,6 +33,13 @@ class InteractionResolvedData(DictSerializerMixin):
     messages: Dict[str, Message] = field(converter=convert_dict(value_converter=Message))
     attachments: Dict[str, Attachment] = field(converter=convert_dict(value_converter=Attachment))
 
+    def __attrs_post_init__(self):
+        if self.members:
+            # attrs has near zero way of filling this in automatically, so we have to
+            for snowflake_id in self.members.keys():
+                # members have User, user may not have Member. /shrug
+                self.members[snowflake_id].user = self.users[snowflake_id]
+
 
 @define()
 class InteractionData(DictSerializerMixin):
