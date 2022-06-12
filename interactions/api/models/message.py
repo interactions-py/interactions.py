@@ -21,6 +21,26 @@ from .role import Role
 from .team import Application
 from .user import User
 
+__all__ = (
+    "MessageType",
+    "Message",
+    "MessageReference",
+    "MessageActivity",
+    "MessageInteraction",
+    "ChannelMention",
+    "Embed",
+    "EmbedAuthor",
+    "EmbedProvider",
+    "EmbedImageStruct",
+    "EmbedField",
+    "Attachment",
+    "Emoji",
+    "EmbedFooter",
+    "ReactionObject",
+    "PartialSticker",
+    "Sticker",
+)
+
 
 class MessageType(IntEnum):
     """An enumerable object representing the types of messages."""
@@ -906,6 +926,8 @@ class Message(ClientSerializerMixin):
         :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
+        :param suppress_embeds?: Whether to suppress embeds in the message.
+        :type suppress_embeds: Optional[bool]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
@@ -1222,11 +1244,55 @@ class Message(ClientSerializerMixin):
             if isinstance(emoji, Emoji)
             else emoji
         )
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
 
         _user_id = user if isinstance(user, int) else user.id
         return await self._client.remove_user_reaction(
             channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
         )
+
+    async def get_users_from_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> List[User]:
+        """
+        Retrieves all users that reacted to the message with the given emoji
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        :return: A list of user objects
+        :rtype: List[User]
+        """
+        if not self._client:
+            raise AttributeError("HTTPClient not found!")
+
+        _all_users: List[User] = []
+
+        _emoji = (
+            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
+
+        res: List[dict] = await self._client.get_reactions_of_emoji(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji, limit=100
+        )
+
+        while len(res) == 100:
+            _after = int(res[-1]["id"])
+            _all_users.extend(User(**_) for _ in res)
+            res: List[dict] = await self._client.get_reactions_of_emoji(
+                channel_id=int(self.channel_id),
+                message_id=int(self.id),
+                emoji=_emoji,
+                limit=100,
+                after=_after,
+            )
+
+        _all_users.extend(User(**_) for _ in res)
+
+        return _all_users
 
     @classmethod
     async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,
