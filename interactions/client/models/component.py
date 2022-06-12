@@ -26,7 +26,9 @@ class ComponentMixin(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 try:
                     value = [val._json for val in value] if isinstance(value, list) else value._json
