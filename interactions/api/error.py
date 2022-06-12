@@ -35,9 +35,9 @@ class LibraryException(Exception):
                         if isinstance(v, dict):
                             _inner(v, parent + "." + k)
                         elif isinstance(v, list):
-                            for i in v:
-                                if isinstance(i, dict):
-                                    _errors.append((i["code"], i["message"], parent + "." + k))
+                            for e in v:
+                                if isinstance(e, dict):
+                                    _errors.append((e["code"], e["message"], parent + "." + k))
             elif isinstance(v, list) and parent == "_errors":
                 for _ in v:
                     _errors.append((_["code"], _["message"], parent))
