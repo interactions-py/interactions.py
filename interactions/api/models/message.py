@@ -877,6 +877,20 @@ class Message(ClientSerializerMixin):
         converter=convert_list(Sticker), default=None
     )  # deprecated
 
+    def __attrs_post_init__(self):
+        if self.embeds:
+            # note from astrea49: this dumb fix is necessary to make sure the _json
+            # is correct when using a dict for the embeds when initializing
+            # otherwise, attributes like the footer will be missing or incorrect
+            # i have no idea why this is necessary and i've have tried debugging for hours
+            # to find why it's necessary, but i've came up with nothing
+            # by all means, the converters and json should be correct, but it isn't
+            # this also happens nowhere else as far as i can tell
+
+            # this line should NOT be touched unless you somehow find a solution to
+            # this, or end up modifying how _json works altogether
+            self._json["embeds"] = [e._json for e in self.embeds]
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
