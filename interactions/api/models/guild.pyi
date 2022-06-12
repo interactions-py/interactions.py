@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Any, Dict, List, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
+from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, MISSING
 from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
@@ -159,30 +159,30 @@ class Guild(ClientSerializerMixin):
     def __repr__(self) -> str: ...
     async def ban(
         self,
-        member_id: int,
+        member_id: Union[int, Member, Snowflake],
         reason: Optional[str] = None,
         delete_message_days: Optional[int] = 0,
     ) -> None: ...
     async def remove_ban(
         self,
-        user_id: int,
+        user_id: Union[int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def kick(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def add_member_role(
         self,
-        role: Union[Role, int],
-        member_id: int,
+        role: Union[Role, int, Snowflake],
+        member_id: Union[Member, int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def remove_member_role(
         self,
-        role: Union[Role, int],
-        member_id: int,
+        role: Union[Role, int, Snowflake],
+        member_id: Union[Member, int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def create_role(
@@ -198,20 +198,20 @@ class Guild(ClientSerializerMixin):
     ) -> Role: ...
     async def get_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake],
     ) -> Member: ...
     async def delete_channel(
         self,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
     ) -> None: ...
     async def delete_role(
         self,
-        role_id: int,
+        role_id: Union[int, Snowflake, Role],
         reason: Optional[str] = None,
     ) -> None: ...
     async def modify_role(
         self,
-        role_id: int,
+        role_id: Union[int, Snowflake, Role],
         name: Optional[str] = MISSING,
         permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
@@ -224,11 +224,11 @@ class Guild(ClientSerializerMixin):
     async def create_thread(
         self,
         name: str,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def create_channel(
@@ -241,14 +241,14 @@ class Guild(ClientSerializerMixin):
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
-        parent_id: Optional[int] = MISSING,
+        parent_id: Optional[Union[int, Channel, Snowflake]] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
-    async def clone_channel(self, channel_id: int) -> Channel: ...
+    async def clone_channel(self, channel_id: Union[int, Snowflake, Channel]) -> Channel: ...
     async def modify_channel(
         self,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
         name: Optional[str] = MISSING,
         topic: Optional[str] = MISSING,
         bitrate: Optional[int] = MISSING,
@@ -265,7 +265,7 @@ class Guild(ClientSerializerMixin):
     ) -> Channel: ...
     async def modify_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake, Member],
         nick: Optional[str] = MISSING,
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
@@ -353,7 +353,7 @@ class Guild(ClientSerializerMixin):
     ) -> ScheduledEvents: ...
     async def modify_scheduled_event(
         self,
-        event_id: int,
+        event_id: Union[int, "ScheduledEvents", Snowflake],
         name: Optional[str] = ...,
         entity_type: Optional[EntityType] = ...,
         scheduled_start_time: Optional[datetime.isoformat] = ...,
@@ -364,7 +364,7 @@ class Guild(ClientSerializerMixin):
         status: Optional[EventStatus] = ...,
         image: Optional[Image] = ...,
     ) -> ScheduledEvents: ...
-    async def delete_scheduled_event(self, event_id: int) -> None: ...
+    async def delete_scheduled_event(self, event_id: Union[int, "ScheduledEvents", Snowflake]) -> None: ...
     async def get_all_channels(self) -> List[Channel]: ...
     async def get_all_roles(self) -> List[Role]: ...
     async def get_role(self, role_id: int) -> Role: ...
