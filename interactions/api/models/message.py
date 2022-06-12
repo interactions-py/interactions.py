@@ -316,7 +316,9 @@ class EmbedImageStruct(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -338,7 +340,9 @@ class EmbedProvider(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -372,7 +376,9 @@ class EmbedAuthor(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -404,7 +410,9 @@ class EmbedFooter(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -438,7 +446,9 @@ class EmbedField(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -498,7 +508,8 @@ class Embed(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (
+
+        if key not in {"_json", "_extras"} and (
             key not in self._json
             or (
                 value != self._json.get(key)
