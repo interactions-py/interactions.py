@@ -84,7 +84,7 @@ class SelectMenu(ComponentMixin):
     :ivar Optional[bool] disabled?: Whether the select menu is unable to be used.
     """
 
-    type: ComponentType = field(converter=ComponentType)
+    type: ComponentType = field(converter=ComponentType, default=ComponentType.SELECT)
     custom_id: str = field()
     options: List[SelectOption] = field(converter=convert_list(SelectOption))
     placeholder: Optional[str] = field(default=None)
