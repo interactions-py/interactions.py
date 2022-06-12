@@ -163,14 +163,18 @@ class _Request:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
 
-                    if isinstance(data, dict) and (data.get("errors") or (data.get("code") and data.get("code") != 429)):
+                    if isinstance(data, dict) and (
+                        data.get("errors") or (data.get("code") and data.get("code") != 429)
+                    ):
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
                         )
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
                         if int(data["code"]) in JSONException.lookup().keys():
-                            raise JSONException(data["code"], message=JSONException.lookup()[int(data["code"])])
+                            raise JSONException(
+                                data["code"], message=JSONException.lookup()[int(data["code"])]
+                            )
                         else:
                             raise HTTPException(data["code"], message=data["message"])
 
