@@ -278,7 +278,7 @@ class LibraryException(Exception):
 
         super().__init__(
             f"{self.message} (code: {self.code}, severity {self.severity})\n"
-            + "\n".join([f"Error at {i[2]}: {i[0]} - {i[1]}" for i in _fmt_error])
+            + "\n".join([f"Error at {e[2]}: {e[0]} - {e[1]}" for e in _fmt_error])
             if _fmt_error
             else None
         )
