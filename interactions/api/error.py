@@ -27,9 +27,9 @@ class LibraryException(Exception):
 
         def _inner(v, parent):
             if isinstance(v, dict):
-                if (_ := v.get("_errors")) and isinstance(_, list):
-                    for _ in _:
-                        _errors.append((_["code"], _["message"], parent))
+                if (errs := v.get("_errors")) and isinstance(errs, list):
+                    for err in errs:
+                        _errors.append((err["code"], err["message"], parent))
                 else:
                     for k, v in v.items():
                         if isinstance(v, dict):
