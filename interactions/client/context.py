@@ -1,7 +1,7 @@
 from logging import Logger
 from typing import List, Optional, Union
 
-from ..api import InteractionException
+from ..api.error import LibraryException
 from ..api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
 from ..api.models.channel import Channel
 from ..api.models.guild import Guild
@@ -483,7 +483,7 @@ class CommandContext(_Context):
             ):
                 _choices = list(choices)
             else:
-                raise InteractionException(
+                raise LibraryException(
                     6, message="Autocomplete choice items must be of type Choice"
                 )
 
