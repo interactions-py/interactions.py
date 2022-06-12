@@ -12,7 +12,7 @@ from aiohttp import __version__ as http_version
 
 from interactions.base import __version__, get_logger
 
-from ...api.error import HTTPException, JSONException
+from ...api.error import LibraryException
 from .limiter import Limiter
 from .route import Route
 
@@ -171,12 +171,7 @@ class _Request:
                         )
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
-                        if int(data["code"]) in JSONException.lookup().keys():
-                            raise JSONException(
-                                data["code"], message=JSONException.lookup()[int(data["code"])]
-                            )
-                        else:
-                            raise HTTPException(data["code"], message=data["message"])
+                        raise LibraryException(message=data["message"], code=data["code"])
 
                     if response.status == 429:
                         if not is_global:
