@@ -1,6 +1,10 @@
 from typing import Optional, List
 from logging import getLogger
 
+__all__ = (
+    "LibraryException",
+)
+
 log = getLogger(__name__)
 
 

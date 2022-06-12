@@ -7,6 +7,7 @@ from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
 from .interaction import InteractionRequest
+from .invite import InviteRequest
 from .member import MemberRequest
 from .message import MessageRequest
 from .reaction import ReactionRequest
@@ -18,12 +19,15 @@ from .thread import ThreadRequest
 from .user import UserRequest
 from .webhook import WebhookRequest
 
+__all__ = ("HTTPClient",)
+
 
 class HTTPClient(
     ChannelRequest,
     EmojiRequest,
     GuildRequest,
     InteractionRequest,
+    InviteRequest,
     MemberRequest,
     MessageRequest,
     ReactionRequest,
@@ -59,6 +63,7 @@ class HTTPClient(
         MessageRequest.__init__(self)
         GuildRequest.__init__(self)
         ChannelRequest.__init__(self)
+        InviteRequest.__init__(self)
         ThreadRequest.__init__(self)
         ReactionRequest.__init__(self)
         StickerRequest.__init__(self)

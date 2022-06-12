@@ -16,6 +16,7 @@ from ...api.error import LibraryException
 from .limiter import Limiter
 from .route import Route
 
+__all__ = ("_Request",)
 log: Logger = get_logger("http")
 _session: ClientSession = ClientSession()
 
@@ -162,7 +163,9 @@ class _Request:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
 
-                    if isinstance(data, dict) and data.get("errors"):
+                    if isinstance(data, dict) and (
+                        data.get("errors") or (data.get("code") and data.get("code") != 429)
+                    ):
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
                         )

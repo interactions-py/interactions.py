@@ -7,7 +7,8 @@ from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Snowflake, Image
+from ..api.models.attrs_utils import MISSING
+from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
@@ -32,7 +33,7 @@ class Client:
     __command_coroutines: List[Coroutine]
     __global_commands: Dict[str, Union[List[dict], bool]]
     __guild_commands: Dict[int, Dict[str, Union[List[dict], bool]]]
-    __name_autocomplete: dict
+    __name_autocomplete: Dict[str, List[Dict]]
     me: Optional[Application]
     def __init__(
         self,
@@ -53,14 +54,16 @@ class Client:
     async def wait_until_ready(self) -> None: ...
     async def __get_all_commands(self) -> None: ...
     async def __sync(self) -> None: ...
-    def event(self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = None) -> Callable[..., Any]: ...
+    def event(
+        self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = None
+    ) -> Callable[..., Any]: ...
     def change_presence(self, presence: ClientPresence) -> None: ...
     def __check_command(
         self,
         command: ApplicationCommand,
         coro: Coroutine,
         regex: str = r"^[a-z0-9_-]{1,32}$",
-    )-> None: ...
+    ) -> None: ...
     def command(
         self,
         *,
@@ -70,27 +73,27 @@ class Client:
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         options: Optional[List[Option]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-        description_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
-        dm_permission: Optional[bool] = MISSING
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def message_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
-        dm_permission: Optional[bool] = MISSING
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def user_command(
         self,
         *,
         name: str,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
-        name_localizations: Optional[Dict[Union[str, Locale], str]]  = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
-        dm_permission: Optional[bool] = MISSING
+        dm_permission: Optional[bool] = MISSING,
     ) -> Callable[..., Any]: ...
     def component(self, component: Union[Button, SelectMenu]) -> Callable[..., Any]: ...
     def autocomplete(
@@ -100,9 +103,16 @@ class Client:
     def load(
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]: ...
-    def remove(self, name: str, package: Optional[str] = None, remove_commands: bool = True) -> None: ...
+    def remove(
+        self, name: str, package: Optional[str] = None, remove_commands: bool = True
+    ) -> None: ...
     def reload(
-        self, name: str, package: Optional[str] = None, remove_commands: bool = True, *args, **kwargs,
+        self,
+        name: str,
+        package: Optional[str] = None,
+        remove_commands: bool = True,
+        *args,
+        **kwargs,
     ) -> Optional["Extension"]: ...
     def get_extension(self, name: str) -> Union[ModuleType, "Extension"]: ...
     async def modify(
@@ -123,7 +133,6 @@ class AutocompleteManager:
     def __init__(self, client: Client, command_name: str) -> None: ...
     def __call__(self, name: str) -> Callable[..., Coroutine]: ...
 
-
 class Extension:
     client: Client
     _commands: dict
@@ -141,11 +150,16 @@ def extension_command(
     name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     default_member_permissions: Optional[Union[int, Permissions]] = None,
-    dm_permission: Optional[bool] = None
+    dm_permission: Optional[bool] = None,
 ): ...
-def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None) -> Callable[..., Any]: ...
+def extension_listener(
+    func: Optional[Coroutine] = None, name: Optional[str] = None
+) -> Callable[..., Any]: ...
 def extension_component(component: Union[Button, SelectMenu, str]) -> Callable[..., Any]: ...
-def extension_autocomplete(command: Union[ApplicationCommand, int, str, Snowflake], name: str,) -> Callable[..., Any]: ...
+def extension_autocomplete(
+    command: Union[ApplicationCommand, int, str, Snowflake],
+    name: str,
+) -> Callable[..., Any]: ...
 def extension_modal(modal: Union[Modal, str]) -> Callable[..., Any]: ...
 def extension_message_command(
     *,

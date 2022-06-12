@@ -26,12 +26,14 @@ from ..dispatch import Listener
 from ..enums import OpCodeType
 from ..error import GatewayException
 from ..http.client import HTTPClient
+from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
-from ..models.misc import MISSING
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
+
+__all__ = ("WebSocketClient",)
 
 
 class WebSocketClient:
@@ -322,6 +324,7 @@ class WebSocketClient:
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND:
                                 for _option in option.options:
@@ -334,7 +337,7 @@ class WebSocketClient:
                                         _name += f"_{__name}" if __name else ""
                                         if _value:
                                             __args.append(_value)
-                                    break
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND_GROUP:
                                 for _option in option.options:
@@ -350,9 +353,8 @@ class WebSocketClient:
                                             _name += f"_{__name}" if __name else ""
                                             if _value:
                                                 __args.append(_value)
-                                        break
+                                            break
                                     break
-                            break
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
@@ -388,6 +390,7 @@ class WebSocketClient:
                     data["_client"] = self._http
 
                 self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
+
             except AttributeError as error:
                 log.fatal(f"An error occured dispatching {name}: {error}")
         self._dispatch.dispatch("raw_socket_create", data)

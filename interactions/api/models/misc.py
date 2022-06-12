@@ -13,68 +13,39 @@ from math import floor
 from os.path import basename
 from typing import Optional, Union
 
+from interactions.api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
 from interactions.base import get_logger
+
+__all__ = (
+    "Snowflake",
+    "Color",
+    "ClientStatus",
+    "Image",
+    "File",
+    "Overwrite",
+)
 
 log: Logger = get_logger("mixin")
 
 
-class DictSerializerMixin(object):
-    """
-    The purpose of this mixin is to be subclassed.
-
-    .. note::
-        On subclass, it:
-            -- From kwargs (received from the Discord API response), add it to the `_json` attribute
-            such that it can be reused by other libraries/extensions
-            -- Aids in attributing the kwargs to actual model attributes, i.e. `User.id`
-            -- Dynamically sets attributes not given to kwargs but slotted to None, signifying that it doesn't exist.
-
-    .. warning::
-        This does NOT convert them to its own data types, i.e. timestamps, or User within Member. This is left by
-        the object that's using the mixin.
-    """
-
-    __slots__ = "_json"
-
-    def __init__(self, **kwargs):
-        self._json = kwargs
-        # for key in kwargs:
-        #    setattr(self, key, kwargs[key])
-
-        for key in list(kwargs):
-            if key in self.__slots__ if hasattr(self, "__slots__") else True:
-                # else case if the mixin is used outside of this library and/or SDK.
-                setattr(self, key, kwargs[key])
-            else:
-                log.debug(
-                    f"Attribute {key} is missing from the {self.__class__.__name__} data model, skipping."
-                )
-                # work on message printout? Effective, but I think it should be a little bit more friendly
-                # towards end users
-
-        # if self.__slots__ is not None:  # safeguard, runtime check
-        if hasattr(self, "__slots__"):
-            for _attr in self.__slots__:
-                if not hasattr(self, _attr):
-                    setattr(self, _attr, None)
-
-
+@define()
 class Overwrite(DictSerializerMixin):
     """
     This is used for the PermissionOverride object.
 
-    :ivar int id: Role or User ID
+    :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
     :ivar str allow: Permission bit set.
     :ivar str deny: Permission bit set.
     """
 
-    __slots__ = ("_json", "id", "type", "allow", "deny")
+    id: int = field()
+    type: int = field()
+    allow: str = field()
+    deny: str = field()
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
-
+@define()
 class ClientStatus(DictSerializerMixin):
     """
     An object that symbolizes the status per client device per session.
@@ -84,10 +55,9 @@ class ClientStatus(DictSerializerMixin):
     :ivar Optional[str] web?: User's status set for an active web application session
     """
 
-    __slots__ = ("_json", "desktop", "mobile", "web")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    dektop: Optional[str] = field(default=None)
+    mobile: Optional[str] = field(default=None)
+    web: Optional[str] = field(default=None)
 
 
 class Snowflake(object):
@@ -181,6 +151,9 @@ class Snowflake(object):
 
         return NotImplemented
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self._snowflake})"
+
 
 class Color(object):
     """
@@ -231,12 +204,6 @@ class Color(object):
     def black(self) -> hex:
         """Returns a hexadecimal value of the black color."""
         return 0x000000
-
-
-class MISSING:
-    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
-
-    ...
 
 
 class File(object):
