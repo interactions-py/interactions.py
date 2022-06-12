@@ -1,6 +1,6 @@
 import re
 import sys
-from asyncio import get_event_loop, iscoroutinefunction
+from asyncio import CancelledError, get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -135,7 +135,10 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
-        self._loop.run_until_complete(self._ready())
+        try:
+            self._loop.run_until_complete(self._ready())
+        except (CancelledError, Exception) as e:
+            raise e from e
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
