@@ -139,6 +139,8 @@ class Client:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
             raise e from e
+        except KeyboardInterrupt:
+            log.error("KeyboardInterrupt")
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
