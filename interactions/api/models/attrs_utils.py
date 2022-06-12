@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Dict, Mapping, Tuple
+from typing import Dict, Mapping, Optional, Tuple
 
 import attrs
 
@@ -157,11 +157,14 @@ def convert_dict(key_converter=None, value_converter=None):
     return inner_convert_dict
 
 
-def convert_type(type_: type):
+def convert_type(type_: type, *, classmethod: Optional[str] = None):
     """A helper function to convert an input to a specified type."""
 
     def inner_convert_object(value):
-        return value if isinstance(value, type_) else type_(value)
+        if not classmethod:
+            return value if isinstance(value, type_) else type_(value)
+        else:
+            return value if isinstance(value, type_) else getattr(type_, classmethod)(value)
 
     return inner_convert_object
 

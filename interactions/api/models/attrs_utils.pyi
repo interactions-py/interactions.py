@@ -55,7 +55,7 @@ def convert_list(converter: Callable[[_T], _P]) -> Callable[[List[_T]], List[_P]
 def convert_int(converter: Callable[[int], _T]) -> Callable[[Any], _T]:
     """A helper function to pass an int to the converter, e.x. for Enums"""
 
-def convert_type(object: Type[_T]) -> Callable[[Any], _T]:
+def convert_type(type_: Type[_T], *, classmethod: Optional[str] = None) -> Callable[[Any], _T]:
     """A helper function to convert an input to a specified type."""
 
 def convert_dict(
