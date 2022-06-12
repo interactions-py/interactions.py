@@ -10,6 +10,7 @@ from .attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
+    convert_type,
     define,
     field,
 )
@@ -454,7 +455,9 @@ class Embed(DictSerializerMixin):
     type: Optional[str] = field(default=None)
     description: Optional[str] = field(default=None)
     url: Optional[str] = field(default=None)
-    timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    timestamp: Optional[datetime] = field(
+        converter=convert_type(datetime, classmethod="fromisoformat"), default=None
+    )
     color: Optional[int] = field(default=None)
     footer: Optional[EmbedFooter] = field(converter=EmbedFooter, default=None)
     image: Optional[EmbedImageStruct] = field(converter=EmbedImageStruct, default=None)
