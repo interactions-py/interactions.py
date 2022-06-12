@@ -24,7 +24,7 @@ from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ..dispatch import Listener
 from ..enums import OpCodeType
-from ..error import GatewayException
+from ..error import LibraryException
 from ..http.client import HTTPClient
 from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
@@ -186,7 +186,7 @@ class WebSocketClient:
                     break
 
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
-                    raise GatewayException(self._client.close_code)
+                    raise LibraryException(self._client.close_code)
 
                 await self._handle_connection(stream, shard, presence)
 

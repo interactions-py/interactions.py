@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from ...api.error import InteractionException
+from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.message import Emoji
 from ..enums import ButtonStyle, ComponentType, TextStyleType
@@ -395,7 +395,7 @@ def _build_components(components) -> List[dict]:
             )
             return _components
         else:
-            raise InteractionException(
+            raise LibraryException(
                 11, message="The specified components are invalid and could not be created!"
             )
 
