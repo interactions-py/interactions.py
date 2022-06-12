@@ -657,9 +657,7 @@ class Client:
             elif _sub_group.description is MISSING and not _sub_group.description:
                 raise LibraryException(11, message="A description is required.")
             elif len(_sub_group.description) > 100:
-                raise LibraryException(
-                    11, message="Descriptions must be less than 100 characters."
-                )
+                raise LibraryException(11, message="Descriptions must be less than 100 characters.")
 
             if not _sub_group.options:
                 raise LibraryException(11, message="sub command groups must have subcommands!")
@@ -693,9 +691,7 @@ class Client:
             elif _sub_command.description is MISSING or not _sub_command.description:
                 raise LibraryException(11, message="A description is required.")
             elif len(_sub_command.description) > 100:
-                raise LibraryException(
-                    11, message="Descriptions must be less than 100 characters."
-                )
+                raise LibraryException(11, message="Descriptions must be less than 100 characters.")
 
             if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
@@ -798,18 +794,14 @@ class Client:
         elif command.type != ApplicationCommandType.CHAT_INPUT and (
             command.description is not MISSING and command.description
         ):
-            raise LibraryException(
-                11, message="Only chat-input commands can have a description."
-            )
+            raise LibraryException(11, message="Only chat-input commands can have a description.")
 
         elif command.description is not MISSING and len(command.description) > 100:
             raise LibraryException(11, message="Descriptions must be less than 100 characters.")
 
         if command.options and command.options is not MISSING:
             if len(command.options) > 25:
-                raise LibraryException(
-                    11, message="Your command must have less than 25 options."
-                )
+                raise LibraryException(11, message="Your command must have less than 25 options.")
 
             if command.type != ApplicationCommandType.CHAT_INPUT:
                 raise LibraryException(

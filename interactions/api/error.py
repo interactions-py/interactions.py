@@ -1,9 +1,7 @@
-from typing import Optional, List
 from logging import getLogger
+from typing import List, Optional
 
-__all__ = (
-    "LibraryException",
-)
+__all__ = ("LibraryException",)
 
 log = getLogger(__name__)
 
@@ -12,7 +10,7 @@ class LibraryException(Exception):
     code: Optional[int]
     severity: int
 
-    __slots__ = {'code', 'severity', 'message', 'data'}
+    __slots__ = {"code", "severity", "message", "data"}
 
     @staticmethod
     def _parse(_data: dict) -> List[tuple]:
@@ -159,7 +157,7 @@ class LibraryException(Exception):
             20022: "This message cannot be edited due to announcement rate limits.",
             20028: "The channel you are writing has hit the write rate limit",
             20031: "Your Stage topic, server name, server description, "
-                   "or channel names contain words that are not allowed",
+            "or channel names contain words that are not allowed",
             20035: "Guild premium subscription level too low",
             30001: "Maximum number of guilds reached (100)",
             30002: "Maximum number of friends reached (1000)",
@@ -211,7 +209,7 @@ class LibraryException(Exception):
             50014: "Invalid authentication token provided",
             50015: "Note was too long",
             50016: "Provided too few or too many messages to delete. "
-                   "Must provide at least 2 and fewer than 100 messages to delete",
+            "Must provide at least 2 and fewer than 100 messages to delete",
             50019: "A message can only be pinned to the channel it was sent in",
             50020: "Invite code was either invalid or taken",
             50021: "Cannot execute action on a system message",
@@ -223,7 +221,7 @@ class LibraryException(Exception):
             50033: "Invalid Recipient(s)",
             50034: "A message provided was too old to bulk delete",
             50035: "Invalid form body (returned for both application/json and multipart/form-data bodies),"
-                   " or invalid Content-Type provided",
+            " or invalid Content-Type provided",
             50036: "An invite was accepted to a guild the application's bot is not in",
             50041: "Invalid API version provided",
             50045: "File uploaded exceeds the maximum size",
@@ -235,7 +233,7 @@ class LibraryException(Exception):
             50074: "Cannot delete a channel required for Community guilds",
             50081: "Invalid sticker sent",
             50083: "Tried to perform an operation on an archived thread, such as editing a "
-                   "message or adding a user to the thread",
+            "message or adding a user to the thread",
             50084: "Invalid thread notification settings",
             50085: "'before' value is earlier than the thread creation date",
             50086: "Community server channels must be text channels",
@@ -267,14 +265,20 @@ class LibraryException(Exception):
     def __init__(self, message: str = None, code: int = 0, severity: int = 0, **kwargs):
         self.code: int = code
         self.severity: int = severity
-        self.data: dict = kwargs.pop('data', None)
+        self.data: dict = kwargs.pop("data", None)
         self.message: str = message or self.lookup(self.code)
         _fmt_error: List[tuple] = []
 
-        if self.data and isinstance(self.data, dict) and \
-                isinstance(self.data.get('errors', None), dict):
-            _fmt_error: List[tuple] = [i for i in self._parse(self.data['errors'])]
+        if (
+            self.data
+            and isinstance(self.data, dict)
+            and isinstance(self.data.get("errors", None), dict)
+        ):
+            _fmt_error: List[tuple] = [i for i in self._parse(self.data["errors"])]
 
-        super().__init__(f"{self.message} (code: {self.code}, severity {self.severity})\n" + "\n".join(
-            [f"Error at {i[2]}: {i[0]} - {i[1]}" for i in _fmt_error]
-        ) if _fmt_error else None)
+        super().__init__(
+            f"{self.message} (code: {self.code}, severity {self.severity})\n"
+            + "\n".join([f"Error at {i[2]}: {i[0]} - {i[1]}" for i in _fmt_error])
+            if _fmt_error
+            else None
+        )
