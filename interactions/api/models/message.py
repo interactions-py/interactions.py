@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from attrs import converters
 
-from ..error import JSONException
+from ..error import LibraryException
 from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
@@ -972,7 +972,7 @@ class Message(ClientSerializerMixin):
         )
 
         if code := _dct.get("code"):
-            raise JSONException(code, message=_dct.get("message"))
+            raise LibraryException(code, message=_dct.get("message"))
 
         self.update(_dct)
 
