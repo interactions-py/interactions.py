@@ -714,7 +714,7 @@ class Channel(ClientSerializerMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable[[...], bool] = MISSING,
+        check: Callable[[Any], bool] = MISSING,
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
