@@ -11,6 +11,7 @@ from .attrs_utils import (
     DictSerializerMixin,
     convert_list,
     convert_type,
+    deepcopy_kwargs,
     define,
     field,
 )
@@ -795,6 +796,7 @@ class ReactionObject(DictSerializerMixin):
 
 
 @define()
+@deepcopy_kwargs()
 class Message(ClientSerializerMixin):
     """
     A class object representing a message.
