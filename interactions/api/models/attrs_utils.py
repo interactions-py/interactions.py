@@ -20,6 +20,7 @@ class DictSerializerMixin:
     """A dict containing values that were not serialized from Discord."""
 
     __deepcopy__ = False
+    """Should the kwargs be deepcopied or not?"""
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
         kwargs = kwargs_dict or other_kwargs
