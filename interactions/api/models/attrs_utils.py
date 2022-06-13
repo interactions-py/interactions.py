@@ -19,15 +19,13 @@ class DictSerializerMixin:
     _extras: dict = attrs.field(init=False, repr=False)
     """A dict containing values that were not serialized from Discord."""
 
-    @property
-    def _deepcopy(self):
-        return False
+    __deepcopy__ = False
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
         kwargs = kwargs_dict or other_kwargs
         client = kwargs.pop("_client", None)
 
-        if self._deepcopy:
+        if self.__deepcopy__:
             kwargs = deepcopy(kwargs)
 
         self._json = kwargs.copy()
@@ -184,20 +182,12 @@ def deepcopy_kwargs(cls: Optional[type] = None):
     This can help avoid weird bugs with some objects, though will error out in others.
     """
 
-    @property
-    def _deepcopy(self):
-        return True
-
-    # yes, we really do overwrite a property here
-    # overriding an attribute doesn't work well, and we have no other way
-    # of telling the class to deepcopy the kwargs
-
     def decorator(cls: type):
-        cls._deepcopy = _deepcopy  # type: ignore
+        cls.__deepcopy__ = True  # type: ignore
         return cls
 
     if cls is not None:
-        cls._deepcopy = _deepcopy  # type: ignore
+        cls.__deepcopy__ = True  # type: ignore
         return cls
 
     return decorator
