@@ -18,6 +18,8 @@ class DictSerializerMixin:
     _json: dict = attrs.field(init=False)
     _extras: dict = attrs.field(init=False)
     """A dict containing values that were not serialized from Discord."""
+    __deepcopy__: bool = attrs.field(init=False)
+    """Should the kwargs be deepcopied or not?"""
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs): ...
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
@@ -63,3 +65,9 @@ def convert_dict(
     value_converter: Optional[Callable[[Any], _P]] = None,
 ) -> Callable[[Dict[Any, Any]], Dict[_T, _P]]:
     """A helper function to convert the keys and values of a dictionary with the specified converters"""
+
+def deepcopy_kwargs(cls: Optional[Type[_T]] = None) -> Callable[[Any], _T]:
+    """
+    A decorator to make the DictSerializerMixin deepcopy the kwargs before processing them.
+    This can help avoid weird bugs with some objects, though will error out in others.
+    """
