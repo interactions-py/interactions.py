@@ -417,7 +417,7 @@ class WebSocketClient:
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
 
-            data["client"] = self._http
+            data["_client"] = self._http
             context: object = getattr(__import__("interactions.client.context"), _context)
 
             return context(**data)
