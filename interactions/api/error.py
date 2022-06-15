@@ -293,5 +293,5 @@ class LibraryException(Exception):
         else:
             super().__init__(
                 f"An error occurred:\n"
-                f"{self.message}, with code '{self.code}' and severity {self.severity}'"
+                f"{self.message}, with code '{self.code}' and severity '{self.severity}'"
             )
