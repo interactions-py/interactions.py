@@ -15,6 +15,7 @@ from interactions.base import __version__, get_logger
 from ...api.error import LibraryException
 from .limiter import Limiter
 from .route import Route
+from contextlib import suppress 
 
 __all__ = ("_Request",)
 log: Logger = get_logger("http")
@@ -216,18 +217,16 @@ class _Request:
                 if tries < 4 and e.errno in (54, 10054):
                     await asyncio.sleep(2 * tries + 1)
                     continue
-                try:
+                with suppress(RuntimeError):
                     _limiter.lock.release()
-                except RuntimeError:
-                    pass
                 raise
 
             # For generic exceptions we give a traceback for debug reasons.
             except Exception as e:
-                try:
+                with suppress(RuntimeError):
                     _limiter.lock.release()
-                except RuntimeError:
-                    pass
+                if isinstance(e, LibraryException):
+                    raise
                 log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
                 break
 
