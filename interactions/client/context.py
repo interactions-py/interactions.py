@@ -434,7 +434,7 @@ class CommandContext(_Context):
         return Message(
             **payload,
             _client=self._client,
-            author={"client": self._client, "id": None, "username": None, "discriminator": None},
+            author={"_client": self._client, "id": None, "username": None, "discriminator": None},
         )
 
     async def delete(self) -> None:
