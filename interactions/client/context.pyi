@@ -1,3 +1,4 @@
+from logging import Logger
 from typing import Any, List, Optional, Union
 
 from ..api.http.client import HTTPClient
