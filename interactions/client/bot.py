@@ -140,7 +140,7 @@ class Client:
         except (CancelledError, Exception) as e:
             raise e from e
         except KeyboardInterrupt:
-            log.error("KeyboardInterrupt")
+            log.error("KeyboardInterrupt detected, shutting down the bot.")
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
