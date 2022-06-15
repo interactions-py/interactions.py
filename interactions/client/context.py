@@ -353,7 +353,7 @@ class CommandContext(_Context):
                     await self._client.edit_message(
                         int(self.channel_id), res["id"], payload=payload
                     )
-                    self.message = msg = Message(**res, _client=self.client)
+                    self.message = msg = Message(**res, _client=self._client)
         else:
             res = await self._client.edit_interaction_response(
                 token=self.token,
