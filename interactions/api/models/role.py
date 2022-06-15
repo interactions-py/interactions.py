@@ -2,7 +2,7 @@ from typing import Any, List, Optional, Union
 
 from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
 from .misc import Image, Snowflake
-
+from ..error import LibraryException
 __all__ = (
     "Role",
     "RoleTags",
@@ -80,7 +80,7 @@ class Role(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
@@ -125,7 +125,7 @@ class Role(ClientSerializerMixin):
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _name = self.name if name is MISSING else name
         _color = self.color if color is MISSING else color
         _hoist = self.hoist if hoist is MISSING else hoist
@@ -175,7 +175,7 @@ class Role(ClientSerializerMixin):
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 

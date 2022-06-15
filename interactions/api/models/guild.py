@@ -19,6 +19,7 @@ from .role import Role
 from .team import Application
 from .user import User
 from .webhook import Webhook
+from ..error import LibraryException
 
 __all__ = (
     "VerificationLevel",
@@ -316,7 +317,7 @@ class Guild(ClientSerializerMixin):
     stickers: Optional[List[Sticker]] = field(converter=convert_list(Sticker), default=None)
     features: List[str] = field()
 
-    # todo assing the correct type
+    # todo assign the correct type
 
     def __repr__(self) -> str:
         return self.name
@@ -338,7 +339,7 @@ class Guild(ClientSerializerMixin):
         :type delete_message_days: Optional[int]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
 
@@ -363,7 +364,7 @@ class Guild(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.remove_guild_ban(
             guild_id=int(self.id),
             user_id=user_id,
@@ -384,7 +385,7 @@ class Guild(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
 
@@ -411,7 +412,7 @@ class Guild(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _role_id = int(role.id) if isinstance(role, Role) else int(role)
         _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
@@ -440,7 +441,7 @@ class Guild(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _role_id = int(role.id) if isinstance(role, Role) else int(role)
         _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
@@ -486,7 +487,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _permissions = permissions if permissions is not MISSING else None
         _icon = icon if icon is not MISSING else None
         _unicode_emoji = unicode_emoji if unicode_emoji is not MISSING else None
@@ -519,7 +520,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_member(
             guild_id=int(self.id),
             member_id=int(member_id),
@@ -537,7 +538,7 @@ class Guild(ClientSerializerMixin):
         :type channel_id: Union[int, Snowflake, Channel]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
 
@@ -557,7 +558,7 @@ class Guild(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _role_id = int(role_id.id) if isinstance(role_id, Role) else int(role_id)
 
@@ -604,7 +605,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         if isinstance(role_id, Role):
             role = role_id
@@ -669,13 +670,13 @@ class Guild(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if type not in [
             ChannelType.GUILD_NEWS_THREAD,
             ChannelType.GUILD_PUBLIC_THREAD,
             ChannelType.GUILD_PRIVATE_THREAD,
         ]:
-            raise AttributeError("type must be a thread type!")
+            raise LibraryException(message="type must be a thread type!", code=12)
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
@@ -742,25 +743,25 @@ class Guild(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if type in [
             ChannelType.DM,
             ChannelType.DM.value,
             ChannelType.GROUP_DM,
             ChannelType.GROUP_DM.value,
         ]:
-            raise ValueError(
-                "ChannelType must not be a direct-message when creating Guild Channels!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="ChannelType must not be a direct-message when creating Guild Channels!", code=12
+            )
 
         if type in [
             ChannelType.GUILD_NEWS_THREAD,
             ChannelType.GUILD_PUBLIC_THREAD,
             ChannelType.GUILD_PRIVATE_THREAD,
         ]:
-            raise ValueError(
-                "Please use `create_thread` for creating threads!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="Please use `create_thread` for creating threads!", code=12
+            )
 
         payload = {"name": name, "type": type}
 
@@ -803,7 +804,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         res = (
             channel_id._json
@@ -872,7 +873,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         if isinstance(channel_id, Channel):
             ch = channel_id
@@ -918,7 +919,7 @@ class Guild(ClientSerializerMixin):
         if (
             archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
         ) and not ch.thread_metadata:
-            raise ValueError("The specified channel is not a Thread!")
+            raise LibraryException(message="The specified channel is not a Thread!", code=12)
 
         if archived is not MISSING:
             payload["archived"] = archived
@@ -968,7 +969,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         payload = {}
         if nick is not MISSING:
             payload["nick"] = nick
@@ -1008,14 +1009,14 @@ class Guild(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
         """Removes the bot from the guild."""
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.leave_guild(guild_id=int(self.id))
 
     async def modify(
@@ -1094,7 +1095,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Guild
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if (
             suppress_join_notifications is MISSING
             and suppress_premium_subscriptions is MISSING
@@ -1467,19 +1468,19 @@ class Guild(ClientSerializerMixin):
         :rtype: ScheduledEvents
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if entity_type != EntityType.EXTERNAL and channel_id is MISSING:
-            raise ValueError(
-                "channel_id is required when entity_type is not external!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException(
+                message="channel_id is required when entity_type is not external!", code=12
+            )
         if entity_type == EntityType.EXTERNAL and entity_metadata is MISSING:
-            raise ValueError(
-                "entity_metadata is required for external events!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException(
+                message="entity_metadata is required for external events!", code=12
+            )
         if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
-            raise ValueError(
-                "External events require an end time!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException(
+                message="External events require an end time!", code=12
+            )
 
         payload = {
             "name": name,
@@ -1546,15 +1547,15 @@ class Guild(ClientSerializerMixin):
         :rtype: ScheduledEvents
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if entity_type == EntityType.EXTERNAL and entity_metadata is MISSING:
-            raise ValueError(
-                "entity_metadata is required for external events!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException(
+                "entity_metadata is required for external events!", code=12
+            )
         if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
-            raise ValueError(
+            raise LibraryException(
                 "External events require an end time!"
-            )  # TODO: replace with custom error formatter
+            )
 
         payload = {}
         if name is not MISSING:
@@ -1596,7 +1597,7 @@ class Guild(ClientSerializerMixin):
         :type event_id: Union[int, "ScheduledEvents", Snowflake]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _event_id = event_id.id if isinstance(event_id, ScheduledEvents) else event_id
 
@@ -1613,7 +1614,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Channel]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_all_channels(int(self.id))
         return [Channel(**channel, _client=self._client) for channel in res]
 
@@ -1625,7 +1626,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_all_roles(int(self.id))
         return [Role(**role, _client=self._client) for role in res]
 
@@ -1643,7 +1644,7 @@ class Guild(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         roles = await self._client.get_all_roles(guild_id=int(self.id))
         for i in roles:
             if int(i["id"]) == role_id:
@@ -1692,7 +1693,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.modify_guild_role_positions(
             guild_id=int(self.id),
             payload=[
@@ -1724,7 +1725,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Dict[str, User]]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _before = before if before is not MISSING else None
         _after = after if after is not MISSING else None
         res = await self._client.get_guild_bans(int(self.id), limit, _before, _after)
@@ -1741,7 +1742,7 @@ class Guild(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _after = None
         _all: list = []
@@ -1779,7 +1780,7 @@ class Guild(ClientSerializerMixin):
         :rtype: Emoji
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
         return Emoji(**res, _client=self._client)
@@ -1792,7 +1793,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_all_emoji(guild_id=int(self.id))
         return [Emoji(**emoji, _client=self._client) for emoji in res]
 
@@ -1816,7 +1817,7 @@ class Guild(ClientSerializerMixin):
         :type reason?: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _name = name if name is not MISSING else image.filename
 
@@ -1848,7 +1849,7 @@ class Guild(ClientSerializerMixin):
         :type reason?: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         emoji_id = emoji.id if isinstance(emoji, Emoji) else emoji
         return await self._client.delete_guild_emoji(
             guild_id=int(self.id),
@@ -1872,7 +1873,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Member]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if after is not MISSING:
             _after = after if isinstance(after, int) else int(after.id)
         else:
@@ -1894,7 +1895,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Member]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.search_guild_members(
             guild_id=int(self.id), query=query, limit=limit
         )
@@ -1910,7 +1911,7 @@ class Guild(ClientSerializerMixin):
         :rtype: List[Member]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _all_members: List[dict] = []
         _last_member: Member
@@ -1930,7 +1931,7 @@ class Guild(ClientSerializerMixin):
 
     async def get_webhooks(self) -> List[Webhook]:
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         res = await self._client.get_guild_webhooks(int(self.id))
 
@@ -2199,7 +2200,7 @@ class Invite(ClientSerializerMixin):
         """Deletes the invite"""
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         await self._client.delete_invite(self.code)
 

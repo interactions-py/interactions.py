@@ -130,7 +130,7 @@ class Member(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
 
@@ -157,7 +157,7 @@ class Member(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _role = int(role.id) if isinstance(role, Role) else int(role)
         _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
@@ -186,7 +186,7 @@ class Member(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
         _role = int(role.id) if isinstance(role, Role) else int(role)
@@ -236,7 +236,7 @@ class Member(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from ...client.models.component import _build_components
         from .message import Message
 
@@ -314,7 +314,7 @@ class Member(ClientSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
@@ -360,7 +360,7 @@ class Member(ClientSerializerMixin):
         :type thread_id: Union[int, Snowflake, Channel]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _thread_id = int(thread_id.id) if isinstance(thread_id, Channel) else int(thread_id)
 

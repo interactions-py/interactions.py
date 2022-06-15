@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Union
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
 from .misc import File, Image, Snowflake
 from .user import User
+from ..error import LibraryException
 
 __all__ = (
     "Webhook",
@@ -140,10 +141,10 @@ class Webhook(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         if channel_id in (None, MISSING) and not self.token:
-            raise ValueError("no token was found, please specify a channel id!")
+            raise LibraryException(message="no token was found, please specify a channel id!", code=12)
 
         payload = {}
 
@@ -215,7 +216,7 @@ class Webhook(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         from ...client.models.component import _build_components
         from .message import Message
@@ -278,7 +279,7 @@ class Webhook(ClientSerializerMixin):
         Deletes the webhook.
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         await self._client.delete_webhook(webhook_id=int(self.id), webhook_token=self.token)
 

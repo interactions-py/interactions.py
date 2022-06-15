@@ -13,6 +13,7 @@ from .attrs_utils import (
 from .misc import File, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
+from ..error import LibraryException
 
 __all__ = (
     "ChannelType",
@@ -210,7 +211,7 @@ class Channel(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from ...client.models.component import _build_components
         from .message import Message
 
@@ -264,7 +265,7 @@ class Channel(ClientSerializerMixin):
         Deletes the channel.
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.delete_channel(channel_id=int(self.id))
 
     async def modify(
@@ -319,7 +320,7 @@ class Channel(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _name = self.name if name is MISSING else name
         _topic = self.topic if topic is MISSING else topic
         _bitrate = self.bitrate if bitrate is MISSING else bitrate
@@ -359,7 +360,7 @@ class Channel(ClientSerializerMixin):
         if (
             archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
         ) and not self.thread_metadata:
-            raise ValueError("The specified channel is not a Thread!")
+            raise LibraryException(message="The specified channel is not a Thread!", code=12)
 
         if archived is not MISSING:
             payload["archived"] = archived
@@ -434,7 +435,7 @@ class Channel(ClientSerializerMixin):
         """
 
         if self.type != ChannelType.GUILD_VOICE:
-            raise TypeError("Bitrate is only available for VoiceChannels")
+            raise LibraryException(message="Bitrate is only available for VoiceChannels", code=12)
 
         return await self.modify(bitrate=bitrate, reason=reason)
 
@@ -456,7 +457,7 @@ class Channel(ClientSerializerMixin):
         """
 
         if self.type != ChannelType.GUILD_VOICE:
-            raise TypeError("user_limit is only available for VoiceChannels")
+            raise LibraryException(message="user_limit is only available for VoiceChannels", code=12)
 
         return await self.modify(user_limit=user_limit, reason=reason)
 
@@ -604,11 +605,12 @@ class Channel(ClientSerializerMixin):
         :type member_id: int
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if not self.thread_metadata:
-            raise TypeError(
-                "The Channel you specified is not a thread!"
-            )  # TODO: Move to new error formatter.
+            raise LibraryException(
+                message="The Channel you specified is not a thread!",
+                code=12
+            )
 
         _member_id = (
             int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
@@ -627,7 +629,7 @@ class Channel(ClientSerializerMixin):
         :type message_id: Union[int, Snowflake, "Message"]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _message_id = (
             int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
@@ -646,7 +648,7 @@ class Channel(ClientSerializerMixin):
         :type message_id: Union[int, Snowflake, "Message"]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _message_id = (
             int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
@@ -666,7 +668,7 @@ class Channel(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .message import Message
 
         _message_id = (
@@ -685,7 +687,7 @@ class Channel(ClientSerializerMixin):
         :rtype: List[Message]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .message import Message
 
         res = await self._client.get_pinned_messages(int(self.id))
@@ -744,7 +746,7 @@ class Channel(ClientSerializerMixin):
         :rtype: List[Message]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .message import Message
 
         _before = None if before is MISSING else before
@@ -942,13 +944,13 @@ class Channel(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if type not in [
             ChannelType.GUILD_NEWS_THREAD,
             ChannelType.GUILD_PUBLIC_THREAD,
             ChannelType.GUILD_PRIVATE_THREAD,
         ]:
-            raise AttributeError("type must be a thread type!")
+            raise LibraryException(message="type must be a thread type!", code=12)
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
@@ -1009,7 +1011,7 @@ class Channel(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         payload = {
             "max_age": max_age,
@@ -1021,16 +1023,16 @@ class Channel(ClientSerializerMixin):
         if (target_user_id is not MISSING and target_user_id) and (
             target_application_id is not MISSING and target_application_id
         ):
-            raise ValueError(
-                "target user id and target application are mutually exclusive!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="target user id and target application are mutually exclusive!", code=12
+            )
 
         elif (
             (target_user_id is not MISSING and target_user_id)
             or (target_application_id is not MISSING and target_application_id)
         ) and not target_type:
-            raise ValueError(
-                "you have to specify a target_type if you specify target_user-/target_application_id"
+            raise LibraryException(
+                message="you have to specify a target_type if you specify target_user-/target_application_id", code=12
             )
 
         if target_user_id is not MISSING:
@@ -1066,7 +1068,7 @@ class Channel(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         from .message import Message
 
@@ -1115,7 +1117,7 @@ class Channel(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         res = await self._client.get_channel_webhooks(int(self.id))
         return [Webhook(**_, _client=self._client) for _ in res]

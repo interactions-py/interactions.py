@@ -7,6 +7,11 @@ log = getLogger(__name__)
 
 
 class LibraryException(Exception):
+    """
+    A class object representing all errors.
+    If you want more information on what a specific code means, use `e.lookup(code)`
+    """
+
     code: Optional[int]
     severity: int
 
@@ -33,11 +38,11 @@ class LibraryException(Exception):
                 else:
                     for k, v in v.items():
                         if isinstance(v, dict):
-                            _inner(v, parent + "." + k)
+                            _inner(v, f"{parent}.{k}")
                         elif isinstance(v, list):
                             for e in v:
                                 if isinstance(e, dict):
-                                    _errors.append((e["code"], e["message"], parent + "." + k))
+                                    _errors.append((e["code"], e["message"], f"{parent}.{k}"))
             elif isinstance(v, list) and parent == "_errors":
                 for e in v:
                     _errors.append((e["code"], e["message"], parent))
@@ -84,6 +89,8 @@ class LibraryException(Exception):
             9: "Incorrect data was passed to a slash command data object.",
             10: "The interaction was already responded to.",
             11: "Error creating your command.",
+            12: "Invalid set of arguments specified.",
+            13: "No HTTPClient set!",
             # HTTP errors
             400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
             401: "Not authorized. Double check your token to see if it's valid.",
@@ -276,9 +283,15 @@ class LibraryException(Exception):
         ):
             _fmt_error: List[tuple] = self._parse(self.data["errors"])
 
-        super().__init__(
-            f"{self.message} (code: {self.code}, severity {self.severity})\n"
-            + "\n".join([f"Error at {e[2]}: {e[0]} - {e[1]}" for e in _fmt_error])
-            if _fmt_error
-            else None
-        )
+        self.log(self.message)
+
+        if _fmt_error:
+            super().__init__(
+                f"{self.message} (code: {self.code}, severity {self.severity})\n"
+                + "\n".join([f"Error at {e[2]}: {e[0]} - {e[1]}" for e in _fmt_error])
+            )
+        else:
+            super().__init__(
+                f"An error occurred:\n"
+                f"{self.message}, with code '{self.code}' and severity {self.severity}'"
+            )

@@ -5,6 +5,7 @@ from ..models.channel import Channel
 from ..models.message import Message
 from .request import _Request
 from .route import Route
+from ..error import LibraryException
 
 __all__ = ("ChannelRequest",)
 
@@ -75,8 +76,8 @@ class ChannelRequest:
             params["around"] = around
 
         if params_used > 1:
-            raise ValueError(
-                "`before`, `after` and `around` are mutually exclusive. Please pass only one of them."
+            raise LibraryException(
+                message="`before`, `after` and `around` are mutually exclusive. Please pass only one of them.", code=12
             )
 
         request = await self._req.request(

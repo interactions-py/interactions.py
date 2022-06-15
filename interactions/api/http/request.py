@@ -162,7 +162,6 @@ class _Request:
                     if _bucket is not None:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
-
                     if isinstance(data, dict) and (
                         data.get("errors") or (data.get("code") and data.get("code") != 429)
                     ):
@@ -171,8 +170,17 @@ class _Request:
                         )
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
-                        raise LibraryException(message=data["message"], code=data["code"])
+                        raise LibraryException(message=data["message"], code=data["code"], severity=40, data=data)
+                    elif isinstance(data, dict) and data.get("code") == 0 and data.get("message"):
+                        log.debug(
+                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
+                        )
+                        # This "redundant" debug line is for debug use and tracing back the error codes.
 
+                        raise LibraryException(
+                            message=f"'{data['message']}'. Make sure that your token is set properly.",
+                            severity=50,
+                        )
                     if response.status == 429:
                         if not is_global:
                             log.warning(

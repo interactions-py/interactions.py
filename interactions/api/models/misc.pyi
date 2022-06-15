@@ -58,6 +58,9 @@ class File:
     ) -> None: ...
 
 class Image:
+    _URI: str
+    _name: str
+
     def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = ...) -> None: ...
     @property
     def data(self) -> str: ...

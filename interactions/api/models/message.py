@@ -21,6 +21,7 @@ from .misc import File, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
+from ..error import LibraryException
 
 __all__ = (
     "MessageType",
@@ -268,7 +269,7 @@ class Emoji(ClientSerializerMixin):
         :type reason?: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
@@ -886,7 +887,7 @@ class Message(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_channel(channel_id=int(self.channel_id))
         return Channel(**res, _client=self._client)
 
@@ -897,7 +898,7 @@ class Message(ClientSerializerMixin):
         :rtype: Guild
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .guild import Guild
 
         res = await self._client.get_guild(guild_id=int(self.guild_id))
@@ -911,7 +912,7 @@ class Message(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.delete_message(
             message_id=int(self.id), channel_id=int(self.channel_id), reason=reason
         )
@@ -958,9 +959,9 @@ class Message(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if self.flags == 64:
-            raise TypeError("You cannot edit a hidden message!")
+            raise LibraryException(message="You cannot edit a hidden message!", code=12)
         _flags = self.flags
         if suppress_embeds is not MISSING and suppress_embeds:
             _flags |= 1 << 2
@@ -1060,7 +1061,7 @@ class Message(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from ...client.models.component import _build_components
 
         _content: str = "" if content is MISSING else content
@@ -1112,13 +1113,13 @@ class Message(ClientSerializerMixin):
     async def pin(self) -> None:
         """Pins the message to its channel"""
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.pin_message(channel_id=int(self.channel_id), message_id=int(self.id))
 
     async def unpin(self) -> None:
         """Unpins the message from its channel"""
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.unpin_message(channel_id=int(self.channel_id), message_id=int(self.id))
 
     async def publish(self) -> "Message":
@@ -1128,7 +1129,7 @@ class Message(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.publish_message(
             channel_id=int(self.channel_id), message_id=int(self.id)
         )
@@ -1157,7 +1158,7 @@ class Message(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
         res = await self._client.create_thread(
@@ -1181,7 +1182,7 @@ class Message(ClientSerializerMixin):
         :type emoji: Union[str, Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _emoji = (
             f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
@@ -1198,7 +1199,7 @@ class Message(ClientSerializerMixin):
         Removes all reactions of the message.
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         return await self._client.remove_all_reactions(
             channel_id=int(self.channel_id), message_id=int(self.id)
@@ -1215,7 +1216,7 @@ class Message(ClientSerializerMixin):
         :type emoji: Union[str, Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _emoji = (
             f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
@@ -1238,7 +1239,7 @@ class Message(ClientSerializerMixin):
         :type emoji: Union[str, Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _emoji = (
             f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
@@ -1267,7 +1268,7 @@ class Message(ClientSerializerMixin):
             else emoji
         )
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _user_id = user if isinstance(user, int) else user.id
         return await self._client.remove_user_reaction(
@@ -1287,7 +1288,7 @@ class Message(ClientSerializerMixin):
         :rtype: List[User]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _all_users: List[User] = []
 
@@ -1330,7 +1331,7 @@ class Message(ClientSerializerMixin):
         """
 
         if "channels/" not in url:
-            raise ValueError("You provided an invalid URL!")  # TODO: custom error formatter
+            raise LibraryException(message="You provided an invalid URL!", code=12)
         _, _channel_id, _message_id = url.split("channels/")[1].split("/")
         _message = await client.get_message(
             channel_id=_channel_id,

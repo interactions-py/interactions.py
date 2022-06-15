@@ -60,8 +60,8 @@ class ApplicationCommandPermissions(ClientSerializerMixin):
     application_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
     id: Snowflake = field(converter=Snowflake)
-    # permissions: List[Permission] = field(converter=convert_list(Permission))  # TODO fix circular import
-    permissions = field()
+    from ...client.models.command import Permission
+    permissions: List[Permission] = field(converter=convert_list(Permission))
 
 
 @define()
@@ -231,7 +231,7 @@ class GuildMember(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.create_guild_kick(
             guild_id=int(self.guild_id),
             user_id=int(self.user.id),
@@ -252,7 +252,7 @@ class GuildMember(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if isinstance(role, Role):
             await self._client.add_member_role(
                 guild_id=int(self.guild_id),
@@ -282,7 +282,7 @@ class GuildMember(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if isinstance(role, Role):
             await self._client.remove_member_role(
                 guild_id=int(self.guild_id),
@@ -336,7 +336,7 @@ class GuildMember(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -411,7 +411,7 @@ class GuildMember(ClientSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         payload = {}
         if nick is not MISSING:
             payload["nick"] = nick
@@ -450,7 +450,7 @@ class GuildMember(ClientSerializerMixin):
         :type thread_id: int
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.add_member_to_thread(
             user_id=int(self.user.id),
             thread_id=thread_id,
