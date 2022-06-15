@@ -13,8 +13,9 @@ from math import floor
 from os.path import basename
 from typing import Optional, Union
 
-from interactions.api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
-from interactions.base import get_logger
+from ...base import get_logger
+from ..error import LibraryException
+from .attrs_utils import MISSING, DictSerializerMixin, define, field
 
 __all__ = (
     "Snowflake",
@@ -222,8 +223,9 @@ class File(object):
     ):
 
         if not isinstance(filename, str):
-            raise TypeError(
-                "File's first parameter 'filename' must be a string, not " + str(type(filename))
+            raise LibraryException(
+                message=f"File's first parameter 'filename' must be a string, not {str(type(filename))}",
+                code=12,
             )
 
         self._fp = open(filename, "rb") if not fp or fp is MISSING else fp
@@ -265,7 +267,7 @@ class Image(object):
             and not self._name.endswith(".png")
             and not self._name.endswith(".gif")
         ):
-            raise ValueError("File type must be jpeg, png or gif!")
+            raise LibraryException(message="File type must be jpeg, png or gif!", code=12)
 
         self._URI += f"{'jpeg' if self._name.endswith('jpeg') else self._name[-3:]};"
         self._URI += f"base64,{b64encode(_file).decode('utf-8')}"

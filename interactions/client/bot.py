@@ -1206,9 +1206,10 @@ class Client:
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
         else:
-            raise ValueError(
-                "You can only insert strings, integers and ApplicationCommands here!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="You can only insert strings, integers and ApplicationCommands here!",
+                code=12,
+            )
 
         def decorator(coro: Coroutine) -> Any:
             if isinstance(_command, str):
