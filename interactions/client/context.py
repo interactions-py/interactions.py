@@ -349,8 +349,6 @@ class CommandContext(_Context):
                 )
                 if res["flags"] == 64:
                     log.warning("You can't edit hidden messages.")
-                    self.message = payload
-                    self.message["_client"] = self._client
                 else:
                     await self._client.edit_message(
                         int(self.channel_id), res["id"], payload=payload
