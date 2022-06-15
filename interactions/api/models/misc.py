@@ -224,7 +224,7 @@ class File(object):
 
         if not isinstance(filename, str):
             raise LibraryException(
-                message=f"File's first parameter 'filename' must be a string, not + {str(type(filename))}",
+                message=f"File's first parameter 'filename' must be a string, not {str(type(filename))}",
                 code=12,
             )
 
