@@ -1205,7 +1205,8 @@ class Client:
             _command: Union[Snowflake, int] = int(command)
         else:
             raise LibraryException(
-                message="You can only insert strings, integers and ApplicationCommands here!", code=12
+                message="You can only insert strings, integers and ApplicationCommands here!",
+                code=12,
             )
 
         def decorator(coro: Coroutine) -> Any:

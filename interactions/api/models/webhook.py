@@ -1,10 +1,10 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
 from .misc import File, Image, Snowflake
 from .user import User
-from ..error import LibraryException
 
 __all__ = (
     "Webhook",
@@ -144,7 +144,9 @@ class Webhook(ClientSerializerMixin):
             raise LibraryException(code=13)
 
         if channel_id in (None, MISSING) and not self.token:
-            raise LibraryException(message="no token was found, please specify a channel id!", code=12)
+            raise LibraryException(
+                message="no token was found, please specify a channel id!", code=12
+            )
 
         payload = {}
 

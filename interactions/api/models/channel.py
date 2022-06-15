@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import Any, Callable, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
@@ -13,7 +14,6 @@ from .attrs_utils import (
 from .misc import File, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
-from ..error import LibraryException
 
 __all__ = (
     "ChannelType",
@@ -457,7 +457,9 @@ class Channel(ClientSerializerMixin):
         """
 
         if self.type != ChannelType.GUILD_VOICE:
-            raise LibraryException(message="user_limit is only available for VoiceChannels", code=12)
+            raise LibraryException(
+                message="user_limit is only available for VoiceChannels", code=12
+            )
 
         return await self.modify(user_limit=user_limit, reason=reason)
 
@@ -607,10 +609,7 @@ class Channel(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         if not self.thread_metadata:
-            raise LibraryException(
-                message="The Channel you specified is not a thread!",
-                code=12
-            )
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
 
         _member_id = (
             int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
@@ -1032,7 +1031,8 @@ class Channel(ClientSerializerMixin):
             or (target_application_id is not MISSING and target_application_id)
         ) and not target_type:
             raise LibraryException(
-                message="you have to specify a target_type if you specify target_user-/target_application_id", code=12
+                message="you have to specify a target_type if you specify target_user-/target_application_id",
+                code=12,
             )
 
         if target_user_id is not MISSING:

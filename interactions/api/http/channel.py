@@ -1,11 +1,11 @@
 from typing import Dict, List, Optional, Union
 
 from ...api.cache import Cache, Item
+from ..error import LibraryException
 from ..models.channel import Channel
 from ..models.message import Message
 from .request import _Request
 from .route import Route
-from ..error import LibraryException
 
 __all__ = ("ChannelRequest",)
 
@@ -77,7 +77,8 @@ class ChannelRequest:
 
         if params_used > 1:
             raise LibraryException(
-                message="`before`, `after` and `around` are mutually exclusive. Please pass only one of them.", code=12
+                message="`before`, `after` and `around` are mutually exclusive. Please pass only one of them.",
+                code=12,
             )
 
         request = await self._req.request(

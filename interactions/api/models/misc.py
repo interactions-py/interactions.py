@@ -13,9 +13,10 @@ from math import floor
 from os.path import basename
 from typing import Optional, Union
 
-from .attrs_utils import MISSING, DictSerializerMixin, define, field
 from ...base import get_logger
 from ..error import LibraryException
+from .attrs_utils import MISSING, DictSerializerMixin, define, field
+
 __all__ = (
     "Snowflake",
     "Color",
@@ -223,7 +224,8 @@ class File(object):
 
         if not isinstance(filename, str):
             raise LibraryException(
-                message=f"File's first parameter 'filename' must be a string, not + {str(type(filename))}", code=12
+                message=f"File's first parameter 'filename' must be a string, not + {str(type(filename))}",
+                code=12,
             )
 
         self._fp = open(filename, "rb") if not fp or fp is MISSING else fp

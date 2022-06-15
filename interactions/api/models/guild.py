@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Any, Dict, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
@@ -19,7 +20,6 @@ from .role import Role
 from .team import Application
 from .user import User
 from .webhook import Webhook
-from ..error import LibraryException
 
 __all__ = (
     "VerificationLevel",
@@ -751,7 +751,8 @@ class Guild(ClientSerializerMixin):
             ChannelType.GROUP_DM.value,
         ]:
             raise LibraryException(
-                message="ChannelType must not be a direct-message when creating Guild Channels!", code=12
+                message="ChannelType must not be a direct-message when creating Guild Channels!",
+                code=12,
             )
 
         if type in [
@@ -1478,9 +1479,7 @@ class Guild(ClientSerializerMixin):
                 message="entity_metadata is required for external events!", code=12
             )
         if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
-            raise LibraryException(
-                message="External events require an end time!", code=12
-            )
+            raise LibraryException(message="External events require an end time!", code=12)
 
         payload = {
             "name": name,
@@ -1549,13 +1548,9 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         if entity_type == EntityType.EXTERNAL and entity_metadata is MISSING:
-            raise LibraryException(
-                "entity_metadata is required for external events!", code=12
-            )
+            raise LibraryException("entity_metadata is required for external events!", code=12)
         if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
-            raise LibraryException(
-                "External events require an end time!"
-            )
+            raise LibraryException("External events require an end time!")
 
         payload = {}
         if name is not MISSING:

@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from .channel import Channel
 from .flags import Permissions

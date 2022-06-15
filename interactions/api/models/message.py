@@ -21,7 +21,6 @@ from .misc import File, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
-from ..error import LibraryException
 
 __all__ = (
     "MessageType",

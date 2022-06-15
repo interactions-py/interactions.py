@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
+from ..error import LibraryException
 from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
@@ -61,6 +62,7 @@ class ApplicationCommandPermissions(ClientSerializerMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     id: Snowflake = field(converter=Snowflake)
     from ...client.models.command import Permission
+
     permissions: List[Permission] = field(converter=convert_list(Permission))
 
 

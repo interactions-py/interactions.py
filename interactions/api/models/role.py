@@ -1,8 +1,9 @@
 from typing import Any, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
 from .misc import Image, Snowflake
-from ..error import LibraryException
+
 __all__ = (
     "Role",
     "RoleTags",
