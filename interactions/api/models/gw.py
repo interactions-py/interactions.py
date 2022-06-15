@@ -61,9 +61,10 @@ class ApplicationCommandPermissions(ClientSerializerMixin):
     application_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
     id: Snowflake = field(converter=Snowflake)
-    from ...client.models.command import Permission
+    # from ...client.models.command import Permission
 
-    permissions: List[Permission] = field(converter=convert_list(Permission))
+    # permissions: List[Permission] = field(converter=convert_list(Permission))
+    permissions = field()
 
 
 @define()
