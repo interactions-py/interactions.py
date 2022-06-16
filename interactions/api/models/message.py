@@ -1,8 +1,6 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
-
-from attrs import converters
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import (
@@ -21,6 +19,9 @@ from .misc import File, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
+
+if TYPE_CHECKING:
+    from ...client.models.component import Component
 
 __all__ = (
     "MessageType",
@@ -837,9 +838,7 @@ class Message(ClientSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     author: User = field(converter=User, add_client=True, default=None)
-    member: Optional[Member] = field(
-        converter=converters.optional(Member), default=None, add_client=True
-    )
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     content: str = field(default=None)
     timestamp: datetime = field(converter=datetime.fromisoformat, default=None)
     edited_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
@@ -861,7 +860,7 @@ class Message(ClientSerializerMixin):
     nonce: Optional[Union[int, str]] = field(default=None)
     pinned: bool = field(default=None)
     webhook_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    type: int = field(default=None)
+    type: MessageType = field(converter=MessageType, default=None)
     activity: Optional[MessageActivity] = field(converter=MessageActivity, default=None)
     application: Optional[Application] = field(converter=Application, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -874,7 +873,9 @@ class Message(ClientSerializerMixin):
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
     components: Optional[Union["Component", List["Component"]]] = field(default=None)  # noqa: F821
-    sticker_items: Optional[List[PartialSticker]] = field(converter=convert_list, default=None)
+    sticker_items: Optional[List[PartialSticker]] = field(
+        converter=convert_list(PartialSticker), default=None
+    )
     stickers: Optional[List[Sticker]] = field(
         converter=convert_list(Sticker), default=None
     )  # deprecated
