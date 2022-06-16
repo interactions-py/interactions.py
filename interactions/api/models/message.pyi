@@ -241,7 +241,7 @@ class Message(ClientSerializerMixin):
     nonce: Optional[Union[int, str]]
     pinned: bool
     webhook_id: Optional[Snowflake]
-    type: int
+    type: MessageType
     activity: Optional[MessageActivity]
     application: Optional[Application]
     application_id: Optional[Snowflake]
