@@ -30,11 +30,11 @@ class User(ClientSerializerMixin):
     :ivar Optional[UserFlags] public_flags?: The user's public flags
     """
 
-    id: Snowflake = field(converter=Snowflake)
-    username: str = field()
-    discriminator: str = field()
+    id: Snowflake = field(converter=Snowflake, repr=True)
+    username: str = field(repr=True)
+    discriminator: str = field(repr=True)
     avatar: Optional[str] = field(default=None)
-    bot: Optional[bool] = field(default=None)
+    bot: Optional[bool] = field(default=None, repr=True)
     system: Optional[bool] = field(default=None)
     mfa_enabled: Optional[bool] = field(default=None)
     banner: Optional[str] = field(default=None)
@@ -48,7 +48,7 @@ class User(ClientSerializerMixin):
     public_flags: Optional[UserFlags] = field(converter=UserFlags, default=None)
     bio: Optional[str] = field(default=None)
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return self.username
 
     def has_public_flag(self, flag: Union[UserFlags, int]) -> bool:

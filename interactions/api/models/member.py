@@ -35,8 +35,8 @@ class Member(ClientSerializerMixin):
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    user: Optional[User] = field(converter=User, default=None, add_client=True)
-    nick: Optional[str] = field(default=None)
+    user: Optional[User] = field(converter=User, default=None, add_client=True, repr=True)
+    nick: Optional[str] = field(default=None, repr=True)
     _avatar: Optional[str] = field(default=None, discord_name="avatar")
     roles: List[int] = field()
     joined_at: datetime = field(converter=datetime.fromisoformat)
@@ -54,8 +54,8 @@ class Member(ClientSerializerMixin):
     )  # TODO: Investigate what this is for when documented by Discord.
     flags: int = field()  # TODO: Investigate what this is for when documented by Discord.
 
-    def __repr__(self) -> str:
-        return self.name
+    def __str__(self) -> str:
+        return self.name or ""
 
     @property
     def avatar(self) -> Optional[str]:
