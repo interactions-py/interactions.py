@@ -652,3 +652,140 @@ class GuildRequest:
         return await self._req.request(
             Route("GET", f"/guilds/{guild_id}/audit-logs"), params=payload
         )
+
+    async def list_auto_moderation_rules(self, guild_id: int) -> List[dict]:
+        """
+        Returns a list of all AutoMod rules in a guild.
+        :poram guild_id: Guild ID snowflake.
+        :return: A list of dictionaries containing the automod rules.
+        """
+
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/auto-moderation/rules"))
+
+    async def get_auto_moderation_rule(self, guild_id: int, rule_id: int) -> dict:
+        """
+        Get a single AutoMod rule in a guild.
+        :param guild_id: Guild ID snowflake.
+        :param rule_id: Rule ID snowflake.
+        :return: A dictionary containing the automod rule.
+        """
+
+        return await self._req.request(
+            Route("GET", f"/guilds/{guild_id}/auto-moderation/rules/{rule_id}")
+        )
+
+    async def create_auto_moderation_rule(
+        self,
+        guild_id: int,
+        name: str,
+        event_type: int,
+        trigger_type: int,
+        actions: List[dict],
+        trigger_metadata: Optional[dict] = None,
+        enabled: Optional[bool] = False,
+        exempt_roles: Optional[List[str]] = None,
+        exempt_channels: Optional[List[str]] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        Create a new AutoMod rule in a guild.
+
+        :param guild_id: Guild ID snowflake.
+        :param name: The name of the new rule.
+        :param event_type: The event type of the new rule.
+        :param trigger_type: The trigger type of the new rule.
+        :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
+        :param actions: The actions that will execute when the rule is triggered.
+        :param enabled: Whether the rule will be enabled upon creation. False by default.
+        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :param reason: Reason to send to audit log, if any.
+        :return: A dictionary containing the new automod rule.
+        """
+
+        params = {
+            "name": name,
+            "event_type": event_type,
+            "trigger_type": trigger_type,
+            "actions": actions,
+            "enabled": enabled,
+        }
+        if trigger_metadata:
+            params["trigger_metadata"] = trigger_metadata
+        if exempt_roles:
+            params["exempt_roles"] = exempt_roles
+        if exempt_channels:
+            params["exempt_channels"] = exempt_channels
+
+        return await self._req.request(
+            Route(
+                "POST", f"/guilds/{guild_id}/auto-moderation/rules/", params=params, reason=reason
+            )
+        )
+
+    async def modify_auto_moderation_rule(
+        self,
+        guild_id: int,
+        rule_id: int,
+        name: Optional[str] = None,
+        event_type: Optional[int] = None,
+        trigger_metadata: Optional[dict] = None,
+        actions: Optional[List[dict]] = None,
+        enabled: Optional[bool] = None,
+        exempt_roles: Optional[List[str]] = None,
+        exempt_channels: Optional[List[str]] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        Modify an existing AutoMod rule in a guild.
+
+        .. note ::
+            All parameters besides guild and rule ID are optional.
+
+        :param guild_id: Guild ID snowflake.
+        :param rule_id: Rule ID snowflake.
+        :param name: The new name of the rule.
+        :param event_type: The new event type of the rule.
+        :param trigger_metadata: The new trigger metadata payload representation. This can be omitted based on the trigger type.
+        :param actions: The new actions that will execute when the rule is triggered.
+        :param enabled: Whether the rule will be enabled upon creation.
+        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :param reason: Reason to send to audit log, if any.
+        :return: A dictionary containing the updated automod rule.
+        """
+        payload = {}
+        if name:
+            payload["name"] = name
+        if event_type:
+            payload["event_type"] = event_type
+        if trigger_metadata:
+            payload["trigger_metadata"] = trigger_metadata
+        if actions:
+            payload["actions"] = actions
+        if enabled:
+            payload["enabled"] = enabled
+        if exempt_roles:
+            payload["exempt_roles"] = exempt_roles
+        if exempt_channels:
+            payload["exempt_channels"] = exempt_channels
+
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/auto-moderation/rules/{rule_id}"),
+            json=payload,
+            reason=reason,
+        )
+
+    async def delete_auto_moderation_rule(
+        self, guild_id: int, rule_id: int, reason: Optional[str] = None
+    ) -> None:
+        """
+        Deletes an AutoMod rule.
+        :param guild_id: Guild ID snowflake.
+        :param rule_id: Rule ID snowflake.
+        :param reason: Reason to send to audit log, if any.
+        """
+
+        return await self._req.request(
+            Route("DELETE", f"/guilds/{guild_id}/auto-moderation/rules/{rule_id}"), reason=reason
+        )

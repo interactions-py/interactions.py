@@ -11,13 +11,16 @@ from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from ...base import get_logger
 from ..error import LibraryException
 from .attrs_utils import MISSING, DictSerializerMixin, define, field
 
 __all__ = (
+    "AutoModMetaData",
+    "AutoModAction",
+    "AutoModTriggerMetadata",
     "Snowflake",
     "Color",
     "ClientStatus",
@@ -56,7 +59,7 @@ class ClientStatus(DictSerializerMixin):
     :ivar Optional[str] web?: User's status set for an active web application session
     """
 
-    dektop: Optional[str] = field(default=None)
+    desktop: Optional[str] = field(default=None)
     mobile: Optional[str] = field(default=None)
     web: Optional[str] = field(default=None)
 
@@ -154,6 +157,56 @@ class Snowflake(object):
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self._snowflake})"
+
+
+@define()
+class AutoModMetaData(DictSerializerMixin):
+    """
+    A class object used to represent the AutoMod Action Metadata.
+    .. note::
+        This is not meant to be instantiated outside the Gateway.
+
+    .. note::
+        The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
+
+    :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
+    :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
+    """
+
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    duration_seconds: Optional[int] = field(default=None)
+
+
+@define()
+class AutoModAction(DictSerializerMixin):
+    """
+    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+    .. note::
+        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
+        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
+        ``AutoModerationAction``
+    .. note::
+        The metadata can be omitted depending on the action type.
+
+    :ivar int type: Action type.
+    :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
+    """
+
+    type: int = field()
+    metadata: Optional[AutoModMetaData] = field(converter=AutoModMetaData, default=None)
+
+
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    """
+    A class object used to represent the trigger metadata from the AutoMod rule object.
+
+    :ivar Optional[List[str]] keyword_filter: Words to match against content.
+    :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
+    """
+
+    keyword_filter: Optional[List[str]] = field(default=None)
+    presets: Optional[List[str]] = field(default=None)
 
 
 class Color(object):
