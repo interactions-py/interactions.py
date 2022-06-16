@@ -54,7 +54,7 @@ class Member(ClientSerializerMixin):
     )  # TODO: Investigate what this is for when documented by Discord.
     flags: int = field()  # TODO: Investigate what this is for when documented by Discord.
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return self.name or ""
 
     @property
