@@ -1,3 +1,4 @@
+import time
 from enum import IntEnum
 from typing import Any, List, Optional
 
@@ -114,7 +115,7 @@ class PresenceActivity(DictSerializerMixin):
     :ivar str name: The activity name
     :ivar Union[int, PresenceActivityType] type: The activity type
     :ivar Optional[str] url?: stream url (if type is 1)
-    :ivar Snowflake created_at: Unix timestamp of when the activity was created to the User's session
+    :ivar int created_at: Unix timestamp (in milliseconds) of when the activity was added to the user's session
     :ivar Optional[PresenceTimestamp] timestamps?: Unix timestamps for start and/or end of the game
     :ivar Optional[Snowflake] application_id?: Application ID for the game
     :ivar Optional[str] details?: What the player is currently doing
@@ -131,7 +132,7 @@ class PresenceActivity(DictSerializerMixin):
     name: str = field()
     type: PresenceActivityType = field(converter=PresenceActivityType)
     url: Optional[str] = field(default=None)
-    created_at: Snowflake = field(converter=Snowflake, default=None)
+    created_at: int = field(default=0)  # for manually initializing
     timestamps: Optional[PresenceTimestamp] = field(converter=PresenceTimestamp, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     details: Optional[str] = field(default=None)
@@ -186,4 +187,10 @@ class ClientPresence(DictSerializerMixin):
         converter=convert_list(PresenceActivity), default=None
     )
     status: StatusType = field(converter=StatusType)
-    afk: bool = field(default=None)
+    afk: bool = field(default=False)
+
+    def __attrs_post_init__(self):
+        if not self._json.get("since"):
+            # If since is not provided by the developer...
+            self.since = int(time.time() * 1000) if self.status == "idle" else 0
+            self._json["since"] = self.since

@@ -46,33 +46,33 @@ class PresenceActivityType(IntEnum):
 class PresenceActivity(DictSerializerMixin):
     name: str
     type: PresenceActivityType
-    url: Optional[str]
-    created_at: Snowflake
-    timestamps: Optional[PresenceTimestamp]
-    application_id: Optional[Snowflake]
-    details: Optional[str]
-    state: Optional[str]
-    emoji: Optional[Emoji]
-    party: Optional[PresenceParty]
-    assets: Optional[PresenceAssets]
-    secrets: Optional[PresenceSecrets]
-    instance: Optional[bool]
-    flags: Optional[int]
-    buttons: Optional[List[PresenceButtons]]
-    user: Optional[Any]
-    users: Optional[Any]
-    status: Optional[Any]
-    client_status: Optional[Any]
-    activities: Optional[Any]
-    sync_id: Optional[Any]
-    session_id: Optional[Any]
-    id: Optional[Any]
+    url: Optional[str] = None
+    created_at: int = 0
+    timestamps: Optional[PresenceTimestamp] = None
+    application_id: Optional[Snowflake] = None
+    details: Optional[str] = None
+    state: Optional[str] = None
+    emoji: Optional[Emoji] = None
+    party: Optional[PresenceParty] = None
+    assets: Optional[PresenceAssets] = None
+    secrets: Optional[PresenceSecrets] = None
+    instance: Optional[bool] = None
+    flags: Optional[int] = None
+    buttons: Optional[List[PresenceButtons]] = None
+    user: Optional[Any] = None
+    users: Optional[Any] = None
+    status: Optional[Any] = None
+    client_status: Optional[Any] = None
+    activities: Optional[Any] = None
+    sync_id: Optional[Any] = None
+    session_id: Optional[Any] = None
+    id: Optional[Any] = None
     @property
     def gateway_json(self) -> dict: ...
 
 @define()
 class ClientPresence(DictSerializerMixin):
-    since: Optional[int]
-    activities: Optional[List[PresenceActivity]]
+    since: Optional[int] = None
+    activities: Optional[List[PresenceActivity]] = None
     status: StatusType
-    afk: bool
+    afk: bool = False

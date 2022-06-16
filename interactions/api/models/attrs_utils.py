@@ -3,6 +3,8 @@ from typing import Dict, Mapping, Tuple
 
 import attrs
 
+__all__ = ("MISSING", "DictSerializerMixin", "ClientSerializerMixin")
+
 
 class MISSING:
     """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
@@ -43,7 +45,27 @@ class DictSerializerMixin:
                         else:
                             value["_client"] = client
 
+                    # make sure json is recursively handled
+                    if isinstance(value, list):
+                        self._json[attrib_name] = [
+                            i._json if hasattr(i, "_json") else i for i in value
+                        ]
+                    elif hasattr(value, "_json"):
+                        self._json[attrib_name] = value._json  # type: ignore
+
                     passed_kwargs[attrib_name] = value
+
+                elif attrib.default:
+                    # handle defaults like attrs does
+                    default = attrib.default
+                    if isinstance(default, attrs.Factory):  # type: ignore
+                        passed_kwargs[attrib_name] = (
+                            default.factory(self) if default.takes_self else default.factory()
+                        )
+                    else:
+                        passed_kwargs[attrib_name] = default
+                else:
+                    passed_kwargs[attrib_name] = None
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
@@ -152,7 +174,7 @@ def field(
     discord_name: str = None,
     **kwargs,
 ):
-    if converter is not None and default is None:
+    if converter is not None:
         converter = attrs.converters.optional(converter)
 
     metadata = kwargs.get("metadata", {})

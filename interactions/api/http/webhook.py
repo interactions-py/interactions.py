@@ -3,7 +3,8 @@ from typing import List, Optional
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
-from ..models.misc import MISSING, File
+from ..models.attrs_utils import MISSING
+from ..models.misc import File
 from .request import _Request
 from .route import Route
 
@@ -37,7 +38,7 @@ class WebhookRequest:
         Return a list of channel webhook objects.
 
         :param channel_id: Channel ID snowflake.
-        :return:List of webhook objects
+        :return: List of webhook objects
         """
         return await self._req.request(Route("GET", f"/channels/{channel_id}/webhooks"))
 
@@ -46,7 +47,6 @@ class WebhookRequest:
         Return a list of guild webhook objects.
 
         :param guild_id: Guild ID snowflake
-
         :return: List of webhook objects
         """
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/webhooks"))

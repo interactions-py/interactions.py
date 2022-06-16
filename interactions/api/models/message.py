@@ -90,7 +90,7 @@ class MessageReference(DictSerializerMixin):
 
 
 @define()
-class Attachment(DictSerializerMixin):
+class Attachment(ClientSerializerMixin):
     """
     A class object representing an attachment in a message.
 

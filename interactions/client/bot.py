@@ -14,9 +14,10 @@ from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import InteractionException, JSONException
 from ..api.http.client import HTTPClient
+from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Image, Snowflake
+from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
@@ -659,16 +660,6 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
-            if (
-                _sub_group.name_localizations is not MISSING
-                and _sub_group.name_localizations is not None
-            ):
-                for __name in command.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The sub command group name does not match the regex for valid names ('{regex}')",
-                        )
 
             if not _sub_group.options:
                 raise InteractionException(11, message="sub command groups must have subcommands!")
@@ -677,7 +668,7 @@ class Client:
                     11, message="A sub command group cannot contain more than 25 sub commands!"
                 )
             for _sub_command in _sub_group.options:
-                __check_sub_command(Option(**_sub_command), _sub_group)
+                __check_sub_command(_sub_command, _sub_group)
 
         def __check_sub_command(_sub_command: Option, _sub_group: Option = MISSING):
             nonlocal _sub_cmds_present
@@ -705,16 +696,6 @@ class Client:
                 raise InteractionException(
                     11, message="Descriptions must be less than 100 characters."
                 )
-            if (
-                _sub_command.name_localizations is not MISSING
-                and _sub_command.name_localizations is not None
-            ):
-                for __name in command.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The sub command name does not match the regex for valid names ('{regex}')",
-                        )
 
             if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
@@ -723,7 +704,7 @@ class Client:
                     )
                 _sub_opt_names = []
                 for _opt in _sub_command.options:
-                    __check_options(Option(**_opt), _sub_opt_names, _sub_command)
+                    __check_options(_opt, _sub_opt_names, _sub_command)
                 del _sub_opt_names
 
         def __check_options(_option: Option, _names: list, _sub_command: Option = MISSING):
@@ -762,14 +743,6 @@ class Client:
                 raise InteractionException(
                     11, message="You must not have two options with the same name in a command!"
                 )
-            if _option.name_localizations is not MISSING and _option.name_localizations is not None:
-                for __name in _option.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The option name does not match the regex for valid names ('{regex}')",
-                        )
-
             _names.append(_option.name)
 
         def __check_coro():
@@ -831,14 +804,6 @@ class Client:
 
         elif command.description is not MISSING and len(command.description) > 100:
             raise InteractionException(11, message="Descriptions must be less than 100 characters.")
-
-        if command.name_localizations is not MISSING and command.name_localizations is not None:
-            for __name in command.name_localizations.values():
-                if not re.fullmatch(reg, __name):
-                    raise InteractionException(
-                        11,
-                        message=f"One of your command name localisations does not match the regex for valid names ('{regex}')",
-                    )
 
         if command.options and command.options is not MISSING:
             if len(command.options) > 25:
@@ -1262,11 +1227,6 @@ class Client:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving modals.
-
-        .. error::
-            This feature is currently under experimental/**beta access**
-            to those whitelisted for testing. Currently using this will
-            present you with an error with the modal not working.
 
         The structure for a modal callback:
 
