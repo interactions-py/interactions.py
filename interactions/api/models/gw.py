@@ -15,7 +15,14 @@ from .channel import Channel, ThreadMember
 from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import AutoModAction, AutoModTriggerMetadata, ClientStatus, File, Snowflake
+from .misc import (
+    AutoModAction,
+    AutoModTriggerMetadata,
+    AutoModTriggerType,
+    ClientStatus,
+    File,
+    Snowflake,
+)
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -105,7 +112,7 @@ class AutoModerationRule(DictSerializerMixin):
     name: str = field()
     creator_id: Snowflake = field(converter=Snowflake)
     event_type: int = field()
-    trigger_type: str = field()
+    trigger_type: int = field(converter=AutoModTriggerType)
     trigger_metadata: AutoModTriggerMetadata = field(converter=AutoModTriggerMetadata)
     actions: List[AutoModAction] = field(converter=convert_list(AutoModAction))
     enabled: bool = field()
