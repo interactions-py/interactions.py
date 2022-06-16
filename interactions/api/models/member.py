@@ -55,7 +55,7 @@ class Member(ClientSerializerMixin):
     flags: int = field()  # TODO: Investigate what this is for when documented by Discord.
 
     def __repr__(self) -> str:
-        return self.name
+        return self.name or ""
 
     @property
     def avatar(self) -> Optional[str]:
