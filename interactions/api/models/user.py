@@ -30,11 +30,11 @@ class User(ClientSerializerMixin):
     :ivar Optional[UserFlags] public_flags?: The user's public flags
     """
 
-    id: Snowflake = field(converter=Snowflake)
-    username: str = field()
-    discriminator: str = field()
+    id: Snowflake = field(converter=Snowflake, repr=True)
+    username: str = field(repr=True)
+    discriminator: str = field(repr=True)
     avatar: Optional[str] = field(default=None)
-    bot: Optional[bool] = field(default=None)
+    bot: Optional[bool] = field(default=None, repr=True)
     system: Optional[bool] = field(default=None)
     mfa_enabled: Optional[bool] = field(default=None)
     banner: Optional[str] = field(default=None)
