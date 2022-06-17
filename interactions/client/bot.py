@@ -1,6 +1,6 @@
 import re
 import sys
-from asyncio import get_event_loop, iscoroutinefunction
+from asyncio import CancelledError, get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -12,11 +12,12 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api import Cache
 from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
-from ..api.error import InteractionException, JSONException
+from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
+from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
-from ..api.models.misc import MISSING, Image, Snowflake
+from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
@@ -30,6 +31,19 @@ from .models.component import Button, Modal, SelectMenu
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
+
+
+__all__ = (
+    "Client",
+    "Extension",
+    "extension_listener",
+    "extension_command",
+    "extension_component",
+    "extension_modal",
+    "extension_autocomplete",
+    "extension_user_command",
+    "extension_message_command",
+)
 
 
 class Client:
@@ -102,7 +116,7 @@ class Client:
             self._automate_sync = True
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data)
+        self.me = Application(**data, _client=self._http)
 
     @property
     def guilds(self) -> List[Guild]:
@@ -121,7 +135,12 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
-        self._loop.run_until_complete(self._ready())
+        try:
+            self._loop.run_until_complete(self._ready())
+        except (CancelledError, Exception) as e:
+            raise e from e
+        except KeyboardInterrupt:
+            log.error("KeyboardInterrupt detected, shutting down the bot.")
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
@@ -134,10 +153,12 @@ class Client:
         for key in self.__name_autocomplete.keys():
             _command_obj = self._find_command(key)
             _command: Union[Snowflake, int] = int(_command_obj.id)
-            self.event(
-                self.__name_autocomplete[key]["coro"],
-                name=f"autocomplete_{_command}_{self.__name_autocomplete[key]['name']}",
-            )
+            for _ in self.__name_autocomplete[key]:
+                # _ contains {"coro" : coro, "name": <name_as_string>}
+                self.event(
+                    _["coro"],
+                    name=f"autocomplete_{_command}_{_['name']}",
+                )
 
     @staticmethod
     async def __compare_sync(
@@ -387,7 +408,7 @@ class Client:
         for command in _cmds:
             if command.get("code"):
                 # Error exists.
-                raise JSONException(command["code"], message=f'{command["message"]} |')
+                raise LibraryException(command["code"], message=f'{command["message"]} |')
 
         self.__global_commands = {"commands": _cmds, "clean": True}
         # TODO: add to cache (later)
@@ -401,7 +422,7 @@ class Client:
 
             if isinstance(_cmds, dict) and _cmds.get("code"):
                 if int(_cmds.get("code")) != 50001:
-                    raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
+                    raise LibraryException(_cmds["code"], message=f'{_cmds["message"]} |')
 
                 log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
@@ -413,7 +434,7 @@ class Client:
             for command in _cmds:
                 if command.get("code"):
                     # Error exists.
-                    raise JSONException(command["code"], message=f'{command["message"]} |')
+                    raise LibraryException(command["code"], message=f'{command["message"]} |')
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
 
@@ -436,7 +457,7 @@ class Client:
         for command in _cmds:
             if command.get("code"):
                 # Error exists.
-                raise JSONException(command["code"], message=f'{command["message"]} |')
+                raise LibraryException(command["code"], message=f'{command["message"]} |')
 
         self.__global_commands = {"commands": _cmds, "clean": True}
         # TODO: add to cache (later)
@@ -455,7 +476,7 @@ class Client:
             if isinstance(_cmds, dict) and _cmds.get("code"):
                 # Error exists.
                 if int(_cmds.get("code")) != 50001:
-                    raise JSONException(_cmds["code"], message=f'{_cmds["message"]} |')
+                    raise LibraryException(_cmds["code"], message=f'{_cmds["message"]} |')
 
                 log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
@@ -469,7 +490,7 @@ class Client:
             for command in _cmds:
                 if command.get("code"):
                     # Error exists.
-                    raise JSONException(command["code"], message=f'{command["message"]} |')
+                    raise LibraryException(command["code"], message=f'{command["message"]} |')
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
             __check_guild_commands[_id] = [cmd["name"] for cmd in _cmds] if _cmds else []
@@ -482,7 +503,7 @@ class Client:
                         _guild_id = _guild_command.get("guild_id")
                         if _guild_id in __blocked_guilds:
                             log.fatal(f"Cannot sync commands on guild with id {_guild_id}!")
-                            raise JSONException(50001, message="Missing Access |")
+                            raise LibraryException(50001, message="Missing Access |")
                         if _guild_command["name"] not in __check_guild_commands[_guild_id]:
                             self.__guild_commands[_guild_id]["clean"] = False
                             self.__guild_commands[_guild_id]["commands"].append(_guild_command)
@@ -628,47 +649,35 @@ class Client:
             nonlocal _sub_groups_present
             _sub_groups_present = True
             if _sub_group.name is MISSING:
-                raise InteractionException(11, message="Sub command groups must have a name.")
+                raise LibraryException(11, message="Sub command groups must have a name.")
             __indent = 4
             log.debug(
                 f"{' ' * __indent}checking sub command group '{_sub_group.name}' of command '{command.name}'"
             )
             if not re.fullmatch(reg, _sub_group.name):
-                raise InteractionException(
+                raise LibraryException(
                     11,
                     message=f"The sub command group name does not match the regex for valid names ('{regex}')",
                 )
             elif _sub_group.description is MISSING and not _sub_group.description:
-                raise InteractionException(11, message="A description is required.")
+                raise LibraryException(11, message="A description is required.")
             elif len(_sub_group.description) > 100:
-                raise InteractionException(
-                    11, message="Descriptions must be less than 100 characters."
-                )
-            if (
-                _sub_group.name_localizations is not MISSING
-                and _sub_group.name_localizations is not None
-            ):
-                for __name in command.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The sub command group name does not match the regex for valid names ('{regex}')",
-                        )
+                raise LibraryException(11, message="Descriptions must be less than 100 characters.")
 
             if not _sub_group.options:
-                raise InteractionException(11, message="sub command groups must have subcommands!")
+                raise LibraryException(11, message="sub command groups must have subcommands!")
             if len(_sub_group.options) > 25:
-                raise InteractionException(
+                raise LibraryException(
                     11, message="A sub command group cannot contain more than 25 sub commands!"
                 )
             for _sub_command in _sub_group.options:
-                __check_sub_command(Option(**_sub_command), _sub_group)
+                __check_sub_command(_sub_command, _sub_group)
 
         def __check_sub_command(_sub_command: Option, _sub_group: Option = MISSING):
             nonlocal _sub_cmds_present
             _sub_cmds_present = True
             if _sub_command.name is MISSING:
-                raise InteractionException(11, message="sub commands must have a name!")
+                raise LibraryException(11, message="sub commands must have a name!")
             if _sub_group is not MISSING:
                 __indent = 8
                 log.debug(
@@ -680,35 +689,23 @@ class Client:
                     f"{' ' * __indent}checking sub command '{_sub_command.name}' of command '{command.name}'"
                 )
             if not re.fullmatch(reg, _sub_command.name):
-                raise InteractionException(
+                raise LibraryException(
                     11,
                     message=f"The sub command name does not match the regex for valid names ('{reg}')",
                 )
             elif _sub_command.description is MISSING or not _sub_command.description:
-                raise InteractionException(11, message="A description is required.")
+                raise LibraryException(11, message="A description is required.")
             elif len(_sub_command.description) > 100:
-                raise InteractionException(
-                    11, message="Descriptions must be less than 100 characters."
-                )
-            if (
-                _sub_command.name_localizations is not MISSING
-                and _sub_command.name_localizations is not None
-            ):
-                for __name in command.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The sub command name does not match the regex for valid names ('{regex}')",
-                        )
+                raise LibraryException(11, message="Descriptions must be less than 100 characters.")
 
             if _sub_command.options is not MISSING and _sub_command.options:
                 if len(_sub_command.options) > 25:
-                    raise InteractionException(
+                    raise LibraryException(
                         11, message="Your sub command must have less than 25 options."
                     )
                 _sub_opt_names = []
                 for _opt in _sub_command.options:
-                    __check_options(Option(**_opt), _sub_opt_names, _sub_command)
+                    __check_options(_opt, _sub_opt_names, _sub_command)
                 del _sub_opt_names
 
         def __check_options(_option: Option, _names: list, _sub_command: Option = MISSING):
@@ -716,7 +713,7 @@ class Client:
             if getattr(_option, "autocomplete", False) and getattr(_option, "choices", False):
                 log.warning("Autocomplete may not be set to true if choices are present.")
             if _option.name is MISSING:
-                raise InteractionException(11, message="Options must have a name.")
+                raise LibraryException(11, message="Options must have a name.")
             if _sub_command is not MISSING:
                 __indent = 12 if _sub_groups_present else 8
                 log.debug(
@@ -729,32 +726,24 @@ class Client:
                 )
             _options_names.append(_option.name)
             if not re.fullmatch(reg, _option.name):
-                raise InteractionException(
+                raise LibraryException(
                     11,
                     message=f"The option name does not match the regex for valid names ('{regex}')",
                 )
             if _option.description is MISSING or not _option.description:
-                raise InteractionException(
+                raise LibraryException(
                     11,
                     message="A description is required.",
                 )
             elif len(_option.description) > 100:
-                raise InteractionException(
+                raise LibraryException(
                     11,
                     message="Descriptions must be less than 100 characters.",
                 )
             if _option.name in _names:
-                raise InteractionException(
+                raise LibraryException(
                     11, message="You must not have two options with the same name in a command!"
                 )
-            if _option.name_localizations is not MISSING and _option.name_localizations is not None:
-                for __name in _option.name_localizations.values():
-                    if not re.fullmatch(reg, __name):
-                        raise InteractionException(
-                            11,
-                            message=f"The option name does not match the regex for valid names ('{regex}')",
-                        )
-
             _names.append(_option.name)
 
         def __check_coro():
@@ -764,17 +753,17 @@ class Client:
             if not len(coro.__code__.co_varnames) ^ (
                 _ismethod and len(coro.__code__.co_varnames) == 1
             ):
-                raise InteractionException(
+                raise LibraryException(
                     11, message="Your command needs at least one argument to return context."
                 )
             elif "kwargs" in coro.__code__.co_varnames:
                 return
             elif _sub_cmds_present and len(coro.__code__.co_varnames) < (3 if _ismethod else 2):
-                raise InteractionException(
+                raise LibraryException(
                     11, message="Your command needs one argument for the sub_command."
                 )
             elif _sub_groups_present and len(coro.__code__.co_varnames) < (4 if _ismethod else 3):
-                raise InteractionException(
+                raise LibraryException(
                     11,
                     message="Your command needs one argument for the sub_command and one for the sub_command_group.",
                 )
@@ -787,12 +776,12 @@ class Client:
                     "Coroutine is missing arguments for options:"
                     f" {[_arg for _arg in _options_names if _arg not in coro.__code__.co_varnames]}"
                 )
-                raise InteractionException(
+                raise LibraryException(
                     11, message="You need one argument for every option name in your command!"
                 )
 
         if command.name is MISSING:
-            raise InteractionException(11, message="Your command must have a name.")
+            raise LibraryException(11, message="Your command must have a name.")
 
         else:
             log.debug(f"checking command '{command.name}':")
@@ -800,39 +789,27 @@ class Client:
             not re.fullmatch(reg, command.name)
             and command.type == ApplicationCommandType.CHAT_INPUT
         ):
-            raise InteractionException(
+            raise LibraryException(
                 11, message=f"Your command does not match the regex for valid names ('{regex}')"
             )
         elif command.type == ApplicationCommandType.CHAT_INPUT and (
             command.description is MISSING or not command.description
         ):
-            raise InteractionException(11, message="A description is required.")
+            raise LibraryException(11, message="A description is required.")
         elif command.type != ApplicationCommandType.CHAT_INPUT and (
             command.description is not MISSING and command.description
         ):
-            raise InteractionException(
-                11, message="Only chat-input commands can have a description."
-            )
+            raise LibraryException(11, message="Only chat-input commands can have a description.")
 
         elif command.description is not MISSING and len(command.description) > 100:
-            raise InteractionException(11, message="Descriptions must be less than 100 characters.")
-
-        if command.name_localizations is not MISSING and command.name_localizations is not None:
-            for __name in command.name_localizations.values():
-                if not re.fullmatch(reg, __name):
-                    raise InteractionException(
-                        11,
-                        message=f"One of your command name localisations does not match the regex for valid names ('{regex}')",
-                    )
+            raise LibraryException(11, message="Descriptions must be less than 100 characters.")
 
         if command.options and command.options is not MISSING:
             if len(command.options) > 25:
-                raise InteractionException(
-                    11, message="Your command must have less than 25 options."
-                )
+                raise LibraryException(11, message="Your command must have less than 25 options.")
 
             if command.type != ApplicationCommandType.CHAT_INPUT:
-                raise InteractionException(
+                raise LibraryException(
                     11, message="Only CHAT_INPUT commands can have options/sub-commands!"
                 )
 
@@ -955,8 +932,12 @@ class Client:
 
             if hasattr(coro, "__func__"):
                 coro.__func__._command_data = commands
+                if type == ApplicationCommandType.CHAT_INPUT:
+                    coro.__func__.autocomplete = AutocompleteManager(self, name)
             else:
                 coro._command_data = commands
+                if type == ApplicationCommandType.CHAT_INPUT:
+                    coro.autocomplete = AutocompleteManager(self, name)
 
             self.__command_coroutines.append(coro)
 
@@ -1183,7 +1164,7 @@ class Client:
                     break
 
         if not _command_obj or (hasattr(_command_obj, "id") and not _command_obj.id):
-            raise InteractionException(
+            raise LibraryException(
                 6,
                 message="The command does not exist. Make sure to define"
                 + " your autocomplete callback after your commands",
@@ -1225,13 +1206,16 @@ class Client:
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
         else:
-            raise ValueError(
-                "You can only insert strings, integers and ApplicationCommands here!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="You can only insert strings, integers and ApplicationCommands here!",
+                code=12,
+            )
 
         def decorator(coro: Coroutine) -> Any:
             if isinstance(_command, str):
-                self.__name_autocomplete[_command] = {"coro": coro, "name": name}
+                curr_autocomplete = self.__name_autocomplete.get(_command, [])
+                curr_autocomplete.append({"coro": coro, "name": name})
+                self.__name_autocomplete[_command] = curr_autocomplete
                 return
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
@@ -1241,11 +1225,6 @@ class Client:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving modals.
-
-        .. error::
-            This feature is currently under experimental/**beta access**
-            to those whitelisted for testing. Currently using this will
-            present you with an error with the modal not working.
 
         The structure for a modal callback:
 
@@ -1317,12 +1296,16 @@ class Client:
             self._extensions[_name] = module
             return extension
 
-    def remove(self, name: str, package: Optional[str] = None) -> None:
+    def remove(
+        self, name: str, remove_commands: bool = True, package: Optional[str] = None
+    ) -> None:
         """
         Removes an extension out of the current client from an import resolve.
 
         :param name: The name of the extension.
         :type name: str
+        :param remove_commands?: Whether to remove commands before reloading. Defaults to True.
+        :type remove_commands: bool
         :param package?: The package of the extension.
         :type package: Optional[str]
         """
@@ -1346,7 +1329,7 @@ class Client:
                     _extension = self._extensions.get(ext_name)
                     try:
                         self._loop.create_task(
-                            _extension.teardown()
+                            _extension.teardown(remove_commands=remove_commands)
                         )  # made for Extension, usable by others
                     except AttributeError:
                         pass
@@ -1355,7 +1338,9 @@ class Client:
 
         else:
             try:
-                self._loop.create_task(extension.teardown())  # made for Extension, usable by others
+                self._loop.create_task(
+                    extension.teardown(remove_commands=remove_commands)
+                )  # made for Extension, usable by others
             except AttributeError:
                 pass
 
@@ -1364,18 +1349,27 @@ class Client:
         log.debug(f"Removed extension {name}.")
 
     def reload(
-        self, name: str, package: Optional[str] = None, *args, **kwargs
+        self,
+        name: str,
+        package: Optional[str] = None,
+        remove_commands: bool = True,
+        *args,
+        **kwargs,
     ) -> Optional["Extension"]:
         r"""
         "Reloads" an extension off of current client from an import resolve.
 
         .. warning::
-            This will remove and re-add application commands, counting towards your daily application command creation limit.
+            This will remove and re-add application commands, counting towards your daily application
+            command creation limit, as long as you have the ``remove_commands`` argument set to ``True``, what it is by
+            default.
 
-        :param name: The name of the extension.
+        :param name: The name of the extension
         :type name: str
-        :param package?: The package of the extension.
+        :param package?: The package of the extension
         :type package: Optional[str]
+        :param remove_commands?: Whether to remove commands before reloading. Defaults to True
+        :type remove_commands: bool
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
@@ -1390,7 +1384,7 @@ class Client:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
             return self.load(name, package)
 
-        self.remove(name, package)
+        self.remove(name, package, remove_commands)
         return self.load(name, package, *args, **kwargs)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
@@ -1470,6 +1464,32 @@ class Client:
         return guild._json
 
 
+class AutocompleteManager:
+
+    __slots__ = (
+        "client",
+        "command_name",
+    )
+
+    def __init__(self, client: Client, command_name: str) -> None:
+        self.client = client
+        self.command_name = command_name
+
+    def __call__(self, name: str) -> Callable[..., Coroutine]:
+        """
+        Registers an autocomplete callback for the given command. See also :meth:`Client.autocomplete`
+
+        :param name: The name of the option to autocomplete
+        :type name: str
+        """
+
+        def decorator(coro: Coroutine):
+            self.client._Client__name_autocomplete[self.command_name] = {"coro": coro, "name": name}
+            return coro
+
+        return decorator
+
+
 # TODO: Implement the rest of cog behaviour when possible.
 class Extension:
     """
@@ -1546,21 +1566,23 @@ class Extension:
                 self._listeners[comp_name] = listeners
 
             if hasattr(func, "__autocomplete_data__"):
-                args, kwargs = func.__autocomplete_data__
-                func = client.autocomplete(*args, **kwargs)(func)
+                all_args_kwargs = func.__autocomplete_data__
+                for _ in all_args_kwargs:
+                    args, kwargs = _[0], _[1]
+                    func = client.autocomplete(*args, **kwargs)(func)
 
-                name = kwargs.get("name") or args[0]
-                _command = kwargs.get("command") or args[1]
+                    name = kwargs.get("name") or args[0]
+                    _command = kwargs.get("command") or args[1]
 
-                _command: Union[Snowflake, int] = (
-                    _command.id if isinstance(_command, ApplicationCommand) else _command
-                )
+                    _command: Union[Snowflake, int] = (
+                        _command.id if isinstance(_command, ApplicationCommand) else _command
+                    )
 
-                auto_name = f"autocomplete_{_command}_{name}"
+                    auto_name = f"autocomplete_{_command}_{name}"
 
-                listeners = self._listeners.get(auto_name, [])
-                listeners.append(func)
-                self._listeners[auto_name] = listeners
+                    listeners = self._listeners.get(auto_name, [])
+                    listeners.append(func)
+                    self._listeners[auto_name] = listeners
 
             if hasattr(func, "__modal_data__"):
                 args, kwargs = func.__modal_data__
@@ -1581,7 +1603,7 @@ class Extension:
 
         return self
 
-    async def teardown(self):
+    async def teardown(self, remove_commands: bool = True):
         for event, funcs in self._listeners.items():
             for func in funcs:
                 self.client._websocket._dispatch.events[event].remove(func)
@@ -1592,7 +1614,7 @@ class Extension:
                 self.client._Client__command_coroutines.pop(_index)
                 self.client._websocket._dispatch.events[cmd].remove(func)
 
-        if self.client._automate_sync:
+        if self.client._automate_sync and remove_commands:
             await self.client._Client__sync()
 
 
@@ -1631,8 +1653,13 @@ def extension_component(*args, **kwargs):
 @wraps(Client.autocomplete)
 def extension_autocomplete(*args, **kwargs):
     def decorator(func):
-        func.__autocomplete_data__ = (args, kwargs)
-        return func
+        try:
+            if getattr(func, "__autocomplete_data__"):
+                func.__autocomplete_data__.append((args, kwargs))
+        except AttributeError:
+            func.__autocomplete_data__ = [(args, kwargs)]
+        finally:
+            return func
 
     return decorator
 

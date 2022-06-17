@@ -1,14 +1,13 @@
 from typing import List, Optional
+
 from ...api.cache import Cache
 from ..models.role import Role
 from .request import _Request
-
 
 class GuildRequest:
 
     _req: _Request
     cache: Cache
-
     def __init__(self) -> None: ...
     async def get_self_guilds(self) -> List[dict]: ...
     async def get_guild(self, guild_id: int) -> dict: ...
@@ -84,7 +83,13 @@ class GuildRequest:
     async def remove_guild_ban(
         self, guild_id: int, user_id: int, reason: Optional[str] = None
     ) -> None: ...
-    async def get_guild_bans(self, guild_id: int) -> List[dict]: ...
+    async def get_guild_bans(
+        self,
+        guild_id: int,
+        limit: Optional[int] = 1000,
+        before: Optional[int] = None,
+        after: Optional[int] = None,
+    ) -> List[dict]: ...
     async def get_user_ban(self, guild_id: int, user_id: int) -> Optional[dict]: ...
     async def add_guild_member(
         self,
@@ -110,3 +115,37 @@ class GuildRequest:
         before: Optional[int] = None,
         limit: int = 50,
     ) -> dict: ...
+
+    async def list_auto_moderation_rules(self, guild_id: int) -> List[dict]: ...
+
+    async def get_auto_moderation_rule(self, guild_id: int, rule_id: int) -> dict: ...
+
+    async def create_auto_moderation_rule(
+            self,
+            guild_id: int,
+            name: str,
+            event_type: int,
+            trigger_type: int,
+            actions: List[dict],
+            trigger_metadata: Optional[dict] = None,
+            enabled: Optional[bool] = False,
+            exempt_roles: Optional[List[str]] = None,
+            exempt_channels: Optional[List[str]] = None,
+            reason: Optional[str] = None,
+    ) -> dict: ...
+
+    async def modify_auto_moderation_rule(
+            self,
+            guild_id: int,
+            rule_id: int,
+            name: Optional[str] = None,
+            event_type: Optional[int] = None,
+            trigger_metadata: Optional[dict] = None,
+            actions: Optional[List[dict]] = None,
+            enabled: Optional[bool] = None,
+            exempt_roles: Optional[List[str]] = None,
+            exempt_channels: Optional[List[str]] = None,
+            reason: Optional[str] = None
+    ) -> dict: ...
+
+    async def delete_auto_moderation_rule(self, guild_id: int, rule_id: int, reason: Optional[str] = None) -> None: ...

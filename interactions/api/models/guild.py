@@ -1,15 +1,45 @@
 from datetime import datetime
-from enum import IntEnum
-from typing import Dict, List, Optional, Union
+from enum import Enum, IntEnum
+from typing import Any, Dict, List, Optional, Union
 
-from .channel import Channel, ChannelType
+from ..error import LibraryException
+from .attrs_utils import (
+    MISSING,
+    ClientSerializerMixin,
+    DictSerializerMixin,
+    convert_list,
+    define,
+    field,
+)
+from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import MISSING, DictSerializerMixin, Image, Overwrite, Snowflake
+from .misc import Image, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
+from .webhook import Webhook
+
+__all__ = (
+    "VerificationLevel",
+    "EntityType",
+    "DefaultMessageNotificationLevel",
+    "EventMetadata",
+    "EventStatus",
+    "GuildTemplate",
+    "Integration",
+    "InviteTargetType",
+    "StageInstance",
+    "UnavailableGuild",
+    "WelcomeChannels",
+    "ExplicitContentFilterLevel",
+    "ScheduledEvents",
+    "WelcomeScreen",
+    "Guild",
+    "GuildPreview",
+    "Invite",
+)
 
 
 class VerificationLevel(IntEnum):
@@ -61,6 +91,31 @@ class InviteTargetType(IntEnum):
     EMBEDDED_APPLICATION = 2
 
 
+class GuildFeatures(Enum):
+    ANIMATED_BANNER = "ANIMATED_BANNER"
+    ANIMATED_ICON = "ANIMATED_ICON"
+    BANNER = "BANNER"
+    COMMERCE = "COMMERCE"
+    COMMUNITY = "COMMUNITY"
+    DISCOVERABLE = "DISCOVERABLE"
+    FEATURABLE = "FEATURABLE"
+    INVITE_SPLASH = "INVITE_SPLASH"
+    MEMBER_VERIFICATION_GATE_ENABLED = "MEMBER_VERIFICATION_GATE_ENABLED"
+    MONETIZATION_ENABLED = "MONETIZATION_ENABLED"
+    MORE_STICKERS = "MORE_STICKERS"
+    NEWS = "NEWS"
+    PARTNERED = "PARTNERED"
+    PREVIEW_ENABLED = "PREVIEW_ENABLED"
+    PRIVATE_THREADS = "PRIVATE_THREADS"
+    ROLE_ICONS = "ROLE_ICONS"
+    TICKETED_EVENTS_ENABLED = "TICKETED_EVENTS_ENABLED"
+    VANITY_URL = "VANITY_URL"
+    VERIFIED = "VERIFIED"
+    VIP_REGIONS = "VIP_REGIONS"
+    WELCOME_SCREEN_ENABLED = "WELCOME_SCREEN_ENABLED"
+
+
+@define()
 class WelcomeChannels(DictSerializerMixin):
     """
     A class object representing a welcome channel on the welcome screen.
@@ -75,14 +130,13 @@ class WelcomeChannels(DictSerializerMixin):
     :ivar Optional[str] emoji_name?: The name of the emoji of the welcome channel.
     """
 
-    __slots__ = ("_json", "channel_id", "description", "emoji_id", "emoji_name")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.channel_id = Snowflake(self.channel_id) if self.channel_id else None
-        self.emoji_id = Snowflake(self.emoji_id) if self.emoji_id else None
+    channel_id: int = field()
+    description: str = field()
+    emoji_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    emoji_name: Optional[str] = field(default=None)
 
 
+@define()
 class WelcomeScreen(DictSerializerMixin):
     """
     A class object representing the welcome screen shown for community guilds.
@@ -96,17 +150,13 @@ class WelcomeScreen(DictSerializerMixin):
     :ivar List[WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
 
-    __slots__ = ("_json", "description", "welcome_channels")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.welcome_channels = (
-            [WelcomeChannels(**welcome_channel) for welcome_channel in self.welcome_channels]
-            if self.welcome_channels
-            else None
-        )
+    description: Optional[str] = field(default=None)
+    welcome_channels: Optional[List[WelcomeChannels]] = field(
+        converter=convert_list(WelcomeChannels), default=None
+    )
 
 
+@define()
 class StageInstance(DictSerializerMixin):
     """
     A class object representing an instance of a stage channel in a guild.
@@ -119,23 +169,15 @@ class StageInstance(DictSerializerMixin):
     :ivar bool discoverable_disabled: Whether the stage can be seen from the stage discovery.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "guild_id",
-        "channel_id",
-        "topic",
-        "privacy_level",
-        "discoverable_disabled",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    channel_id: Snowflake = field(converter=Snowflake)
+    topic: str = field()
+    privacy_level: int = field()  # can be Enum'd
+    discoverable_disabled: bool = field()
 
 
+@define()
 class UnavailableGuild(DictSerializerMixin):
     """
     A class object representing how a guild that is unavailable.
@@ -150,13 +192,12 @@ class UnavailableGuild(DictSerializerMixin):
     :ivar bool unavailable: Whether the guild is unavailable or not.
     """
 
-    __slots__ = ("_json", "id", "unavailable")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    id: Snowflake = field(converter=Snowflake)
+    unavailable: bool = field()
 
 
-class Guild(DictSerializerMixin):
+@define()
+class Guild(ClientSerializerMixin):
     """
     A class object representing how a guild is registered.
 
@@ -216,132 +257,74 @@ class Guild(DictSerializerMixin):
     :ivar Optional[bool] premium_progress_bar_enabled?: Whether the guild has the boost progress bar enabled.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "_client",
-        "name",
-        "icon",
-        "icon_hash",
-        "splash",
-        "discovery_splash",
-        "owner",
-        "owner_id",
-        "permissions",
-        "region",
-        "afk_channel_id",
-        "afk_timeout",
-        "widget_enabled",
-        "widget_channel_id",
-        "verification_level",
-        "default_message_notifications",
-        "explicit_content_filter",
-        "roles",
-        "emojis",
-        "features",
-        "mfa_level",
-        "application_id",
-        "system_channel_id",
-        "system_channel_flags",
-        "rules_channel_id",
-        "joined_at",
-        "large",
-        "unavailable",
-        "member_count",
-        "voice_states",
-        "members",
-        "channels",
-        "threads",
-        "presences",
-        "max_presences",
-        "max_members",
-        "vanity_url_code",
-        "description",
-        "banner",
-        "premium_tier",
-        "premium_subscription_count",
-        "preferred_locale",
-        "public_updates_channel_id",
-        "max_video_channel_users",
-        "approximate_member_count",
-        "approximate_presence_count",
-        "welcome_screen",
-        "nsfw_level",
-        "stage_instances",
-        "stickers",
-        "premium_progress_bar_enabled",
-        # TODO: post-v4: Investigate all of these once Discord has them all documented.
-        "guild_hashes",
-        "embedded_activities",
-        "guild_scheduled_events",
-        "nsfw",
-        "application_command_count",
-        "hub_type",
-        "lazy",  # lol what?
-        "application_command_counts",
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    icon: Optional[str] = field(default=None)
+    icon_hash: Optional[str] = field(default=None)
+    splash: Optional[str] = field(default=None)
+    discovery_splash: Optional[str] = field(default=None)
+    owner: Optional[bool] = field(default=None)
+    owner_id: Snowflake = field(converter=Snowflake, default=None)
+    permissions: Optional[str] = field(default=None)
+    region: Optional[str] = field(default=None)  # None, we don't do Voices.
+    afk_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    afk_timeout: Optional[int] = field(default=None)
+    widget_enabled: Optional[bool] = field(default=None)
+    widget_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    verification_level: int = 0
+    default_message_notifications: int = 0
+    explicit_content_filter: int = 0
+    roles: List[Role] = field(converter=convert_list(Role), factory=list, add_client=True)
+    emojis: List[Emoji] = field(converter=convert_list(Emoji), factory=list, add_client=True)
+    mfa_level: int = 0
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    system_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    system_channel_flags: int = field(default=None)
+    rules_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    joined_at: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    large: Optional[bool] = field(default=None)
+    unavailable: Optional[bool] = field(default=None)
+    member_count: Optional[int] = field(default=None)
+    members: Optional[List[Member]] = field(
+        converter=convert_list(Member), default=None, add_client=True
     )
+    channels: Optional[List[Channel]] = field(
+        converter=convert_list(Channel), default=None, add_client=True
+    )
+    threads: Optional[List[Thread]] = field(
+        converter=convert_list(Thread), default=None, add_client=True
+    )  # threads, because of their metadata
+    presences: Optional[List[PresenceActivity]] = field(
+        converter=convert_list(PresenceActivity), default=None
+    )
+    max_presences: Optional[int] = field(default=None)
+    max_members: Optional[int] = field(default=None)
+    vanity_url_code: Optional[str] = field(default=None)
+    description: Optional[str] = field(default=None)
+    banner: Optional[str] = field(default=None)
+    premium_tier: int = 0
+    premium_subscription_count: Optional[int] = field(default=None)
+    preferred_locale: str = field(default=None)
+    public_updates_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    max_video_channel_users: Optional[int] = field(default=None)
+    approximate_member_count: Optional[int] = field(default=None)
+    approximate_presence_count: Optional[int] = field(default=None)
+    welcome_screen: Optional[WelcomeScreen] = field(converter=WelcomeScreen, default=None)
+    nsfw_level: int = 0
+    stage_instances: Optional[List[StageInstance]] = field(
+        converter=convert_list(StageInstance), default=None
+    )
+    stickers: Optional[List[Sticker]] = field(converter=convert_list(Sticker), default=None)
+    features: List[str] = field()
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.owner_id = Snowflake(self.owner_id) if self._json.get("owner_id") else None
-        self.afk_channel_id = (
-            Snowflake(self.afk_channel_id) if self._json.get("afk_channel_id") else None
-        )
-        self.emojis = (
-            [Emoji(**emoji) for emoji in self.emojis] if self._json.get("emojis") else None
-        )
-        self.joined_at = (
-            datetime.fromisoformat(self._json.get("joined_at"))
-            if self._json.get("joined_at")
-            else None
-        )
-        self.presences = (
-            [PresenceActivity(**presence) for presence in self.presences]
-            if self._json.get("presences")
-            else None
-        )
-        self.welcome_screen = (
-            WelcomeScreen(**self.welcome_screen) if self._json.get("welcome_screen") else None
-        )
-        self.stage_instances = (
-            [StageInstance(**stage_instance) for stage_instance in self.stage_instances]
-            if self._json.get("stage_instances")
-            else None
-        )
-        self.stickers = (
-            [Sticker(**sticker) for sticker in self.stickers]
-            if self._json.get("stickers")
-            else None
-        )
-        self.members = (
-            [Member(**member, _client=self._client) for member in self.members]
-            if self._json.get("members")
-            else None
-        )
-        if (
-            not self.members
-            and self._client
-            and self._client.cache.self_guilds.values.get(str(self.id))
-            and self._client.cache.self_guilds.values[str(self.id)].members
-        ):
-            members = self._client.cache.self_guilds.values[str(self.id)].members
-            if all(isinstance(member, Member) for member in members):
-                self.members = members
-            else:
-                self.members = [Member(**member, _client=self._client) for member in members]
-        self.roles = (
-            [Role(**role, _client=self._client) for role in self.roles]
-            if self._json.get("roles")
-            else None
-        )
+    # todo assign the correct type
 
     def __repr__(self) -> str:
         return self.name
 
     async def ban(
         self,
-        member_id: int,
+        member_id: Union[int, Member, Snowflake],
         reason: Optional[str] = None,
         delete_message_days: Optional[int] = 0,
     ) -> None:
@@ -349,36 +332,39 @@ class Guild(DictSerializerMixin):
         Bans a member from the guild.
 
         :param member_id: The id of the member to ban
-        :type member_id: int
+        :type member_id: Union[int, Member, Snowflake]
         :param reason?: The reason of the ban
         :type reason: Optional[str]
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
         :type delete_message_days: Optional[int]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
+
         await self._client.create_guild_ban(
             guild_id=int(self.id),
-            user_id=member_id,
+            user_id=_member_id,
             reason=reason,
             delete_message_days=delete_message_days,
         )
 
     async def remove_ban(
         self,
-        user_id: int,
+        user_id: Union[int, Snowflake],  # only support ID since there's no member on the guild
         reason: Optional[str] = None,
     ) -> None:
         """
         Removes the ban of a user.
 
         :param user_id: The id of the user to remove the ban from
-        :type user_id: int
+        :type user_id: Union[int, Snowflake]
         :param reason?: The reason for the removal of the ban
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.remove_guild_ban(
             guild_id=int(self.id),
             user_id=user_id,
@@ -387,99 +373,94 @@ class Guild(DictSerializerMixin):
 
     async def kick(
         self,
-        member_id: int,
+        member_id: Union[int, Member, Snowflake],
         reason: Optional[str] = None,
     ) -> None:
         """
         Kicks a member from the guild.
 
         :param member_id: The id of the member to kick
-        :type member_id: int
+        :type member_id: Union[int, Member, Snowflake]
         :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
+
         await self._client.create_guild_kick(
             guild_id=int(self.id),
-            user_id=member_id,
+            user_id=_member_id,
             reason=reason,
         )
 
     async def add_member_role(
         self,
-        role: Union[Role, int],
-        member_id: int,
+        role: Union[Role, int, Snowflake],
+        member_id: Union[Member, int, Snowflake],
         reason: Optional[str] = None,
     ) -> None:
         """
         This method adds a role to a member.
 
         :param role: The role to add. Either ``Role`` object or role_id
-        :type role Union[Role, int]
+        :type role  Union[Role, int, Snowflake]
         :param member_id: The id of the member to add the roles to
-        :type member_id: int
+        :type member_id: Union[Member, int, Snowflake]
         :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        if isinstance(role, Role):
-            await self._client.add_member_role(
-                guild_id=int(self.id),
-                user_id=member_id,
-                role_id=int(role.id),
-                reason=reason,
-            )
-        else:
-            await self._client.add_member_role(
-                guild_id=int(self.id),
-                user_id=member_id,
-                role_id=role,
-                reason=reason,
-            )
+            raise LibraryException(code=13)
+
+        _role_id = int(role.id) if isinstance(role, Role) else int(role)
+        _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
+
+        await self._client.add_member_role(
+            guild_id=int(self.id),
+            user_id=_member_id,
+            role_id=_role_id,
+            reason=reason,
+        )
 
     async def remove_member_role(
         self,
-        role: Union[Role, int],
-        member_id: int,
+        role: Union[Role, int, Snowflake],
+        member_id: Union[Member, int, Snowflake],
         reason: Optional[str] = None,
     ) -> None:
         """
         This method removes a or multiple role(s) from a member.
 
         :param role: The role to remove. Either ``Role`` object or role_id
-        :type role: Union[Role, int]
+        :type role: Union[Role, int, Snowflake]
         :param member_id: The id of the member to remove the roles from
-        :type member_id: int
+        :type member_id: Union[Member, int, Snowflake]
         :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        if isinstance(role, Role):
-            await self._client.remove_member_role(
-                guild_id=int(self.id),
-                user_id=member_id,
-                role_id=int(role.id),
-                reason=reason,
-            )
-        else:
-            await self._client.remove_member_role(
-                guild_id=int(self.id),
-                user_id=member_id,
-                role_id=role,
-                reason=reason,
-            )
+            raise LibraryException(code=13)
+
+        _role_id = int(role.id) if isinstance(role, Role) else int(role)
+        _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
+
+        await self._client.remove_member_role(
+            guild_id=int(self.id),
+            user_id=_member_id,
+            role_id=_role_id,
+            reason=reason,
+        )
 
     async def create_role(
         self,
         name: str,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = 0,
         hoist: Optional[bool] = False,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> Role:
@@ -490,8 +471,14 @@ class Guild(DictSerializerMixin):
         :type name: str
         :param color?: RGB color value as integer, default ``0``
         :type color: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions
+        :type permissions: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, default ``False``
         :type hoist: Optional[bool]
+        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature)
+        :type icon: Optional[Image]
+        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
+        :type unicode_emoji: Optional[str]
         :param mentionable?: Whether the role should be mentionable, default ``False``
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is created, default ``None``
@@ -500,9 +487,15 @@ class Guild(DictSerializerMixin):
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        payload = Role(
+            raise LibraryException(code=13)
+        _permissions = permissions if permissions is not MISSING else None
+        _icon = icon if icon is not MISSING else None
+        _unicode_emoji = unicode_emoji if unicode_emoji is not MISSING else None
+        payload = dict(
             name=name,
+            permissions=_permissions,
+            icon=_icon,
+            unicode_emoji=_unicode_emoji,
             color=color,
             hoist=hoist,
             mentionable=mentionable,
@@ -510,74 +503,80 @@ class Guild(DictSerializerMixin):
         res = await self._client.create_guild_role(
             guild_id=int(self.id),
             reason=reason,
-            payload=payload._json,
+            payload=payload,
         )
         return Role(**res, _client=self._client)
 
     async def get_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake],
     ) -> Member:
         """
         Searches for the member with specified id in the guild and returns the member as member object.
 
         :param member_id: The id of the member to search for
-        :type member_id: int
+        :type member_id: Union[int, Snowflake]
         :return: The member searched for
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_member(
             guild_id=int(self.id),
-            member_id=member_id,
+            member_id=int(member_id),
         )
         return Member(**res, _client=self._client)
 
     async def delete_channel(
         self,
-        channel_id: int,
+        channel_id: Union[int, Snowflake],
     ) -> None:
         """
         Deletes a channel from the guild.
 
         :param channel_id: The id of the channel to delete
-        :type channel_id: int
+        :type channel_id: Union[int, Snowflake, Channel]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        await self._client.delete_channel(channel_id=channel_id)
+            raise LibraryException(code=13)
+
+        _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+
+        await self._client.delete_channel(_channel_id)
 
     async def delete_role(
         self,
-        role_id: int,
+        role_id: Union[int, Snowflake, Role],
         reason: Optional[str] = None,
     ) -> None:
         """
         Deletes a role from the guild.
 
         :param role_id: The id of the role to delete
-        :type role_id: int
+        :type role_id: Union[int, Snowflake, Role]
         :param reason?: The reason of the deletion
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _role_id = int(role_id.id) if isinstance(role_id, Role) else int(role_id)
+
         await self._client.delete_guild_role(
             guild_id=int(self.id),
-            role_id=role_id,
+            role_id=_role_id,
             reason=reason,
         )
 
     async def modify_role(
         self,
-        role_id: int,
+        role_id: Union[int, Snowflake, Role],
         name: Optional[str] = MISSING,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role:
@@ -585,13 +584,19 @@ class Guild(DictSerializerMixin):
         Edits a role in the guild.
 
         :param role_id: The id of the role to edit
-        :type role_id: int
+        :type role_id: Union[int, Snowflake, Role]
         :param name?: The name of the role, defaults to the current value of the role
         :type name: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
         :type color: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :type permissions: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
         :type hoist: Optional[bool]
+        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type icon: Optional[Image]
+        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type unicode_emoji: Optional[str]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is edited, default ``None``
@@ -600,23 +605,35 @@ class Guild(DictSerializerMixin):
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        roles = await self._client.get_all_roles(guild_id=int(self.id))
-        for i in roles:
-            if int(i["id"]) == role_id:
-                role = Role(**i)
-                break
+            raise LibraryException(code=13)
+
+        if isinstance(role_id, Role):
+            role = role_id
+        else:
+            role = await self.get_role(int(role_id))
+
         _name = role.name if name is MISSING else name
         _color = role.color if color is MISSING else color
         _hoist = role.hoist if hoist is MISSING else hoist
         _mentionable = role.mentionable if mentionable is MISSING else mentionable
+        _permissions = role.permissions if permissions is MISSING else permissions
+        _icon = role.icon if icon is MISSING else icon
+        _unicode_emoji = role.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
 
-        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+        payload = dict(
+            name=_name,
+            color=_color,
+            hoist=_hoist,
+            mentionable=_mentionable,
+            permissions=_permissions,
+            unicode_emoji=_unicode_emoji,
+            icon=_icon,
+        )
 
         res = await self._client.modify_guild_role(
             guild_id=int(self.id),
             role_id=role_id,
-            payload=payload._json,
+            payload=payload,
             reason=reason,
         )
         return Role(**res, _client=self._client)
@@ -624,11 +641,11 @@ class Guild(DictSerializerMixin):
     async def create_thread(
         self,
         name: str,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> Channel:
         """
@@ -637,7 +654,7 @@ class Guild(DictSerializerMixin):
         :param name: The name of the thread
         :type name: str
         :param channel_id: The id of the channel to create the thread in
-        :type channel_id: int
+        :type channel_id: Union[int, Snowflake, Channel]
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
         :type auto_archive_duration: Optional[int]
@@ -646,26 +663,33 @@ class Guild(DictSerializerMixin):
         :param invitable?: Boolean to display if the Thread is open to join or private.
         :type invitable: Optional[bool]
         :param message_id?: An optional message to create a thread from.
-        :type message_id: Optional[int]
+        :type message_id: Optional[Union[int, Snowflake, "Message"]]
         :param reason?: An optional reason for the audit log
         :type reason: Optional[str]
         :return: The created thread
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if type not in [
             ChannelType.GUILD_NEWS_THREAD,
             ChannelType.GUILD_PUBLIC_THREAD,
             ChannelType.GUILD_PRIVATE_THREAD,
         ]:
-            raise AttributeError("type must be a thread type!")
+            raise LibraryException(message="type must be a thread type!", code=12)
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
-        _message_id = None if message_id is MISSING else message_id
+        _message_id = (
+            None
+            if message_id is MISSING
+            else (
+                int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+            )
+        )  # work around Message import
+        _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
         res = await self._client.create_thread(
-            channel_id=channel_id,
+            channel_id=_channel_id,
             thread_type=type if isinstance(type, int) else type.value,
             name=name,
             auto_archive_duration=_auto_archive_duration,
@@ -686,7 +710,7 @@ class Guild(DictSerializerMixin):
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
-        parent_id: Optional[int] = MISSING,
+        parent_id: Optional[Union[int, Channel, Snowflake]] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:
@@ -708,7 +732,7 @@ class Guild(DictSerializerMixin):
         :param position?: Sorting position of the channel
         :type position: Optional[int]
         :param parent_id?: The id of the parent category for a channel
-        :type parent_id: Optional[int]
+        :type parent_id: Optional[Union[int, Channel, Snowflake]]
         :param permission_overwrites?: The permission overwrites, if any
         :type permission_overwrites: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, default ``False``
@@ -719,15 +743,16 @@ class Guild(DictSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if type in [
             ChannelType.DM,
             ChannelType.DM.value,
             ChannelType.GROUP_DM,
             ChannelType.GROUP_DM.value,
         ]:
-            raise ValueError(
-                "ChannelType must not be a direct-message when creating Guild Channels!"  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="ChannelType must not be a direct-message when creating Guild Channels!",
+                code=12,
             )
 
         if type in [
@@ -735,9 +760,9 @@ class Guild(DictSerializerMixin):
             ChannelType.GUILD_PUBLIC_THREAD,
             ChannelType.GUILD_PRIVATE_THREAD,
         ]:
-            raise ValueError(
-                "Please use `create_thread` for creating threads!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="Please use `create_thread` for creating threads!", code=12
+            )
 
         payload = {"name": name, "type": type}
 
@@ -752,7 +777,9 @@ class Guild(DictSerializerMixin):
         if position is not MISSING:
             payload["position"] = position
         if parent_id is not MISSING:
-            payload["parent_id"] = parent_id
+            payload["parent_id"] = (
+                int(parent_id.id) if isinstance(parent_id, Channel) else (parent_id.id)
+            )
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
         if permission_overwrites is not MISSING:
@@ -768,9 +795,33 @@ class Guild(DictSerializerMixin):
 
         return Channel(**res, _client=self._client)
 
+    async def clone_channel(self, channel_id: Union[int, Snowflake, Channel]) -> Channel:
+        """
+        Clones a channel of the guild.
+
+        :param channel_id: The id of the channel to clone
+        :type channel_id: Union[int, Snowflake, Channel]
+        :return: The cloned channel
+        :rtype: Channel
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = (
+            channel_id._json
+            if isinstance(channel_id, Channel)
+            else await self._client.get_channel(channel_id=int(channel_id))
+        )
+
+        res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
+        for attr in {"flags", "guild_id", "id", "last_message_id", "last_pin_timestamp"}:
+            res.pop(attr, None)
+
+        return await self.create_channel(**res)
+
     async def modify_channel(
         self,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
         name: Optional[str] = MISSING,
         topic: Optional[str] = MISSING,
         bitrate: Optional[int] = MISSING,
@@ -792,7 +843,7 @@ class Guild(DictSerializerMixin):
             The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
 
         :param channel_id: The id of the channel to modify
-        :type channel_id: int
+        :type channel_id: Union[int, Snowflake, Channel]
         :param name?: The name of the channel, defaults to the current value of the channel
         :type name: str
         :param topic?: The topic of that channel, defaults to the current value of the channel
@@ -823,8 +874,12 @@ class Guild(DictSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        ch = Channel(**await self._client.get_channel(channel_id=channel_id))
+            raise LibraryException(code=13)
+
+        if isinstance(channel_id, Channel):
+            ch = channel_id
+        else:
+            ch = Channel(**await self._client.get_channel(channel_id=int(channel_id)))
 
         _name = ch.name if name is MISSING else name
         _topic = ch.topic if topic is MISSING else topic
@@ -840,6 +895,8 @@ class Guild(DictSerializerMixin):
         _nsfw = ch.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
             [overwrite._json for overwrite in ch.permission_overwrites]
+            if ch.permission_overwrites
+            else None
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )
@@ -863,7 +920,7 @@ class Guild(DictSerializerMixin):
         if (
             archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
         ) and not ch.thread_metadata:
-            raise ValueError("The specified channel is not a Thread!")
+            raise LibraryException(message="The specified channel is not a Thread!", code=12)
 
         if archived is not MISSING:
             payload["archived"] = archived
@@ -881,7 +938,7 @@ class Guild(DictSerializerMixin):
 
     async def modify_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake, Member],
         nick: Optional[str] = MISSING,
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
@@ -894,7 +951,7 @@ class Guild(DictSerializerMixin):
         Modifies a member of the guild.
 
         :param member_id: The id of the member to modify
-        :type member_id: int
+        :type member_id: Union[int, Snowflake, Member]
         :param nick?: The nickname of the member
         :type nick: Optional[str]
         :param roles?: A list of all role ids the member has
@@ -913,7 +970,7 @@ class Guild(DictSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         payload = {}
         if nick is not MISSING:
             payload["nick"] = nick
@@ -933,8 +990,10 @@ class Guild(DictSerializerMixin):
         if communication_disabled_until is not MISSING:
             payload["communication_disabled_until"] = communication_disabled_until
 
+        _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
+
         res = await self._client.modify_member(
-            user_id=member_id,
+            user_id=_member_id,
             guild_id=int(self.id),
             payload=payload,
             reason=reason,
@@ -951,14 +1010,14 @@ class Guild(DictSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
         """Removes the bot from the guild."""
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.leave_guild(guild_id=int(self.id))
 
     async def modify(
@@ -1037,7 +1096,7 @@ class Guild(DictSerializerMixin):
         :rtype: Guild
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if (
             suppress_join_notifications is MISSING
             and suppress_premium_subscriptions is MISSING
@@ -1111,12 +1170,9 @@ class Guild(DictSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        guild = Guild(**res, _client=self._client)
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(guild, attr))
-
-        return guild
+        self.update(res)
+        return self
 
     async def set_name(
         self,
@@ -1413,19 +1469,17 @@ class Guild(DictSerializerMixin):
         :rtype: ScheduledEvents
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if entity_type != EntityType.EXTERNAL and channel_id is MISSING:
-            raise ValueError(
-                "channel_id is required when entity_type is not external!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException(
+                message="channel_id is required when entity_type is not external!", code=12
+            )
         if entity_type == EntityType.EXTERNAL and entity_metadata is MISSING:
-            raise ValueError(
-                "entity_metadata is required for external events!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException(
+                message="entity_metadata is required for external events!", code=12
+            )
         if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
-            raise ValueError(
-                "External events require an end time!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException(message="External events require an end time!", code=12)
 
         payload = {
             "name": name,
@@ -1453,7 +1507,7 @@ class Guild(DictSerializerMixin):
 
     async def modify_scheduled_event(
         self,
-        event_id: int,
+        event_id: Union[int, "ScheduledEvents", Snowflake],
         name: Optional[str] = MISSING,
         entity_type: Optional[EntityType] = MISSING,
         scheduled_start_time: Optional[datetime.isoformat] = MISSING,
@@ -1469,7 +1523,7 @@ class Guild(DictSerializerMixin):
         Edits a scheduled event of the guild.
 
         :param event_id: The id of the event to edit
-        :type event_id: int
+        :type event_id: Union[int, "ScheduledEvents", Snowflake]
         :param name: The name of the event
         :type name: Optional[str]
         :param entity_type: The entity type of the scheduled event
@@ -1492,15 +1546,11 @@ class Guild(DictSerializerMixin):
         :rtype: ScheduledEvents
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if entity_type == EntityType.EXTERNAL and entity_metadata is MISSING:
-            raise ValueError(
-                "entity_metadata is required for external events!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException("entity_metadata is required for external events!", code=12)
         if entity_type == EntityType.EXTERNAL and scheduled_end_time is MISSING:
-            raise ValueError(
-                "External events require an end time!"
-            )  # TODO: replace with custom error formatter
+            raise LibraryException("External events require an end time!")
 
         payload = {}
         if name is not MISSING:
@@ -1523,25 +1573,32 @@ class Guild(DictSerializerMixin):
         if image is not MISSING:
             payload["image"] = image.data if isinstance(image, Image) else image
 
+        _event_id = event_id.id if isinstance(event_id, ScheduledEvents) else event_id
+
         res = await self._client.modify_scheduled_event(
             guild_id=self.id,
-            guild_scheduled_event_id=Snowflake(event_id),
+            guild_scheduled_event_id=_event_id,
             payload=payload,
         )
         return ScheduledEvents(**res)
 
-    async def delete_scheduled_event(self, event_id: int) -> None:
+    async def delete_scheduled_event(
+        self, event_id: Union[int, "ScheduledEvents", Snowflake]
+    ) -> None:
         """
         Deletes a scheduled event of the guild.
 
         :param event_id: The id of the event to delete
-        :type event_id: int
+        :type event_id: Union[int, "ScheduledEvents", Snowflake]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _event_id = event_id.id if isinstance(event_id, ScheduledEvents) else event_id
+
         await self._client.delete_scheduled_event(
             guild_id=self.id,
-            guild_scheduled_event_id=Snowflake(event_id),
+            guild_scheduled_event_id=Snowflake(_event_id),
         )
 
     async def get_all_channels(self) -> List[Channel]:
@@ -1552,7 +1609,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Channel]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_all_channels(int(self.id))
         return [Channel(**channel, _client=self._client) for channel in res]
 
@@ -1564,7 +1621,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_all_roles(int(self.id))
         return [Role(**role, _client=self._client) for role in res]
 
@@ -1580,6 +1637,7 @@ class Guild(DictSerializerMixin):
         :return: The role as object
         :rtype: Role
         """
+
 
         for role in self.roles:
             if int(role.id) == role_id:
@@ -1617,7 +1675,10 @@ class Guild(DictSerializerMixin):
         :rtype: List[Role]
         """
         return await self.modify_role_positions(
-            changes=[{"id": role_id, "position": position}], reason=reason
+            changes=[
+                {"id": role_id.id if isinstance(role_id, Role) else role_id, "position": position}
+            ],
+            reason=reason,
         )
 
     async def modify_role_positions(
@@ -1636,7 +1697,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.modify_guild_role_positions(
             guild_id=int(self.id),
             payload=[
@@ -1668,7 +1729,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Dict[str, User]]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _before = before if before is not MISSING else None
         _after = after if after is not MISSING else None
         res = await self._client.get_guild_bans(int(self.id), limit, _before, _after)
@@ -1685,18 +1746,18 @@ class Guild(DictSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _after = None
         _all: list = []
 
-        res = await self._client.get_guild_bans(int(self.id), limit=1000)
+        res: list = await self._client.get_guild_bans(int(self.id), limit=1000)
 
-        while res >= 1000:
+        while len(res) >= 1000:
 
             for ban in res:
                 ban["user"] = User(**ban["user"])
-            _all.append(res)
+            _all.extend(res)
             _after = int(res[-1]["user"].id)
 
             res = await self._client.get_guild_bans(
@@ -1723,7 +1784,7 @@ class Guild(DictSerializerMixin):
         :rtype: Emoji
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
         return Emoji(**res, _client=self._client)
@@ -1736,7 +1797,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_all_emoji(guild_id=int(self.id))
         return [Emoji(**emoji, _client=self._client) for emoji in res]
 
@@ -1760,7 +1821,7 @@ class Guild(DictSerializerMixin):
         :type reason?: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _name = name if name is not MISSING else image.filename
 
@@ -1792,7 +1853,7 @@ class Guild(DictSerializerMixin):
         :type reason?: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         emoji_id = emoji.id if isinstance(emoji, Emoji) else emoji
         return await self._client.delete_guild_emoji(
             guild_id=int(self.id),
@@ -1816,7 +1877,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Member]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if after is not MISSING:
             _after = after if isinstance(after, int) else int(after.id)
         else:
@@ -1838,7 +1899,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Member]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.search_guild_members(
             guild_id=int(self.id), query=query, limit=limit
         )
@@ -1854,7 +1915,7 @@ class Guild(DictSerializerMixin):
         :rtype: List[Member]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _all_members: List[dict] = []
         _last_member: Member
@@ -1871,6 +1932,14 @@ class Guild(DictSerializerMixin):
         _all_members.extend(_members)
 
         return [Member(**_, _client=self._client) for _ in _all_members]
+
+    async def get_webhooks(self) -> List[Webhook]:
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = await self._client.get_guild_webhooks(int(self.id))
+
+        return [Webhook(**_, _client=self._client) for _ in res]
 
     @property
     def icon_url(self) -> Optional[str]:
@@ -1927,6 +1996,7 @@ class Guild(DictSerializerMixin):
         )
 
 
+@define()
 class GuildPreview(DictSerializerMixin):
     """
     A class object representing the preview of a guild.
@@ -1937,34 +2007,25 @@ class GuildPreview(DictSerializerMixin):
     :ivar Optional[str] splash?: The invite splash banner of the guild.
     :ivar Optional[str] discovery_splash?: The discovery splash banner of the guild.
     :ivar List[Emoji] emojis: The list of emojis from the guild.
-    :ivar List[GuildFeature] features: The list of features of the guild.
+    :ivar List[GuildFeatures] features: The list of features of the guild.
     :ivar int approximate_member_count: The approximate amount of members in the guild.
     :ivar int approximate_presence_count: The approximate amount of presences in the guild.
     :ivar Optional[str] description?: The description of the guild.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "icon",
-        "splash",
-        "discovery_splash",
-        "emojis",
-        "features",
-        "approximate_member_count",
-        "approximate_presence_count",
-        "description",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.emojis = (
-            [Emoji(**emoji) for emoji in self.emojis] if self._json.get("emojis") else None
-        )
+    id: Snowflake = field(converter=Snowflake)
+    emojis: Optional[List[Emoji]] = field(converter=convert_list(Emoji), default=None)
+    name: str = field()
+    icon: Optional[str] = field(default=None)
+    splash: Optional[str] = field(default=None)
+    discovery_splash: Optional[str] = field(default=None)
+    features: Optional[List[str]] = field(default=None)
+    approximate_member_count: int = field()
+    approximate_presence_count: int = field()
+    description: Optional[str] = field(default=None)
 
 
+@define()
 class Integration(DictSerializerMixin):
     """
     A class object representing an integration in a guild.
@@ -1986,117 +2047,24 @@ class Integration(DictSerializerMixin):
     :ivar Application application: The application used for the integration.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "type",
-        "enabled",
-        "syncing",
-        "role_id",
-        "enable_emoticons",
-        "expire_behavior",
-        "expire_grace_period",
-        "user",
-        "account",
-        "synced_at",
-        "subscriber_count",
-        "revoked",
-        "application",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.role_id = Snowflake(self.role_id) if self._json.get("role_id") else None
-        self.user = User(**self.user) if self._json.get("user") else None
-        # TODO: Create an "Integration account" data model. It's missing apparently?
-        self.application = (
-            Application(**self.application) if self._json.get("application") else None
-        )
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    type: str = field()
+    enabled: bool = field()
+    syncing: bool = field()
+    role_id: Snowflake = field(converter=Snowflake)
+    enable_emoticons: bool = field()
+    expire_behavior: int = field()
+    expire_grace_period: int = field()
+    user: User = field()
+    account: Any = field()
+    synced_at: datetime = field(converter=datetime.fromisoformat)
+    subscriber_count: int = field()
+    revoked: bool = field()
+    application: Application = field()
 
 
-class Invite(DictSerializerMixin):
-    """
-    The invite object.
-
-    :ivar int uses: The amount of uses on this invite.
-    :ivar int max_uses: The amount of maximum uses on this invite.
-    :ivar int max_age: The maximum age of this invite, in seconds.
-    :ivar bool temporary: A detection of whether this invite only grants temporary membership.
-    :ivar datetime created_at: The time when this invite was created.
-    :ivar datetime expires_at: The time when this invite will expire.
-    :ivar int type: The type of this invite.
-    :ivar User inviter: The user who created this invite.
-    :ivar str code: The code of this invite.
-    :ivar Optional[int] guild_id: The guild ID of this invite.
-    :ivar Optional[int] channel_id: The channel ID of this invite.
-    :ivar Optional[int] target_user_type: The type of the target user of this invite.
-    :ivar Optional[User] target_user: The target user of this invite.
-    :ivar Optional[int] target_type: The target type of this invite.
-    :ivar Optional[Guild] guild: The guild of this invite.
-    :ivar Optional[Channel] channel: The channel of this invite.
-    """
-
-    __slots__ = (
-        "_json",
-        "_client",
-        "uses",
-        "max_uses",
-        "max_age",
-        "temporary",
-        "created_at",
-        "type",
-        "inviter",
-        "guild_id",
-        "expires_at",
-        "code",
-        "channel_id",
-        "target_user_type",
-        "target_user",
-        "target_type",
-        "guild",
-        "channel",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.created_at = (
-            datetime.fromisoformat(self._json.get("created_at"))
-            if self._json.get("created_at")
-            else None
-        )
-        self.expires_at = (
-            datetime.fromisoformat(self._json.get("expires_at"))
-            if self._json.get("expires_at")
-            else None
-        )
-        self.inviter = User(**self._json.get("inviter")) if self._json.get("inviter") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.target_user = (
-            User(**self._json.get("target_user")) if self._json.get("target_user") else None
-        )
-        self.guild = (
-            Guild(**self._json.get("guild"), _client=self._client)
-            if self._json.get("guild")
-            else None
-        )
-        self.channel = (
-            Channel(**self._json.get("channel"), _client=self._client)
-            if self._json.get("channel")
-            else None
-        )
-
-    async def delete(self) -> None:
-        """Deletes the invite"""
-
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-
-        await self._client.delete_invite(self.code)
-
-
+@define()
 class GuildTemplate(DictSerializerMixin):
     """
     An object representing the snapshot of an existing guild.
@@ -2108,41 +2076,26 @@ class GuildTemplate(DictSerializerMixin):
     :ivar Snowflake creator_id: User ID of the creator of this template.
     :ivar User creator: The User object of the creator of this template.
     :ivar datetime created_at: The time when this template was created.
-    :ivar datetime created_at: The time when this template was updated.
+    :ivar datetime update_at: The time when this template was updated.
     :ivar Snowflake source_guild_id: The Guild ID that the template sourced from.
     :ivar Guild serialized_source_guild: A partial Guild object from the sourced template.
     :ivar Optional[bool] is_dirty?: A status that denotes if the changes are unsynced.
     """
 
-    __slots__ = (
-        "_json",
-        "code",
-        "name",
-        "description",
-        "usage_count",
-        "creator_id",
-        "creator",
-        "created_at",
-        "updated_at",
-        "source_guild_id",
-        "serialized_source_guild",
-        "is_dirty",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.creator_id = Snowflake(self.creator_id) if self._json.get("creator_id") else None
-        self.source_guild_id = (
-            Snowflake(self.source_guild_id) if self._json.get("source_guild_id") else None
-        )
-        self.user = User(**self.user) if self._json.get("user") else None
-        self.serialized_source_guild = (
-            Guild(**self.serialized_source_guild)
-            if self._json.get("serialized_source_guild")
-            else None
-        )
+    code: str = field()
+    name: str = field()
+    description: Optional[str] = field(default=None)
+    usage_count: int = field()
+    creator_id: Snowflake = field(converter=Snowflake)
+    creator: User = field(converter=User)
+    created_at: datetime = field(converter=datetime.fromisoformat)
+    updated_at: datetime = field(converter=datetime.fromisoformat)
+    source_guild_id: Snowflake = field(converter=Snowflake)
+    serialized_source_guild: Guild = field(converter=Guild)
+    is_dirty: Optional[bool] = field(default=None)
 
 
+@define()
 class EventMetadata(DictSerializerMixin):
     """
     A class object representing the metadata of an event entity.
@@ -2150,12 +2103,10 @@ class EventMetadata(DictSerializerMixin):
     :ivar Optional[str] location?: The location of the event, if any.
     """
 
-    __slots__ = ("_json", "location")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    location: Optional[str] = field(default=None)
 
 
+@define()
 class ScheduledEvents(DictSerializerMixin):
     """
     A class object representing the scheduled events of a guild.
@@ -2182,44 +2133,81 @@ class ScheduledEvents(DictSerializerMixin):
     :ivar Optional[str] image: The hash containing the image of an event, if applicable.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "guild_id",
-        "channel_id",
-        "creator_id",
-        "name",
-        "description",
-        "scheduled_start_time",
-        "scheduled_end_time",
-        "privacy_level",
-        "entity_type",
-        "entity_id",
-        "entity_metadata",
-        "creator",
-        "user_count",
-        "status",
-        "image",
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    creator_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    name: str = field()
+    description: str = field()
+    scheduled_start_time: Optional[datetime] = field(converter=datetime.isoformat, default=None)
+    scheduled_end_time: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    privacy_level: int = field()
+    entity_type: int = field()
+    entity_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    entity_metadata: Optional[EventMetadata] = field(converter=EventMetadata, default=None)
+    creator: Optional[User] = field(converter=User, default=None)
+    user_count: Optional[int] = field(default=None)
+    status: int = field()
+    image: Optional[str] = field(default=None)
+
+
+@define()
+class Invite(ClientSerializerMixin):
+    """
+    The invite object.
+
+    :ivar int uses: The amount of uses on this invite.
+    :ivar int max_uses: The amount of maximum uses on this invite.
+    :ivar int max_age: The maximum age of this invite, in seconds.
+    :ivar bool temporary: A detection of whether this invite only grants temporary membership.
+    :ivar datetime created_at: The time when this invite was created.
+    :ivar datetime expires_at: The time when this invite will expire.
+    :ivar int type: The type of this invite.
+    :ivar User inviter: The user who created this invite.
+    :ivar str code: The code of this invite.
+    :ivar Optional[int] guild_id: The guild ID of this invite.
+    :ivar Optional[int] channel_id: The channel ID of this invite.
+    :ivar Optional[int] target_user_type: The type of the target user of this invite.
+    :ivar Optional[User] target_user: The target user of this invite.
+    :ivar Optional[int] target_type: The target type of this invite.
+    :ivar Optional[Guild] guild: The guild of this invite.
+    :ivar Optional[Channel] channel: The channel of this invite.
+    :ivar Optional[int] approximate_member_count: The approximate amount of total members in a guild.
+    :ivar Optional[int] approximate_presence_count: The aprpoximate amount of online members in a guild.
+    :ivar Optional[ScheduledEvents] guild_scheduled_event: A scheduled guild event object included in the invite.
+
+    """
+
+    uses: int = field()
+    max_uses: int = field()
+    max_age: int = field()
+    temporary: bool = field()
+    created_at: datetime = field(converter=datetime.fromisoformat)
+    expires_at: datetime = field(converter=datetime.fromisoformat)
+    type: int = field()
+    inviter: User = field(converter=User)
+    code: str = field()
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    target_user_type: Optional[int] = field(default=None)
+    target_user: Optional[User] = field(converter=User, default=None)
+    target_type: Optional[int] = field(default=None)
+    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
+    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
+    approximate_member_count: Optional[int] = field(default=None)
+    approximate_presence_count: Optional[int] = field(default=None)
+    guild_scheduled_event: Optional[ScheduledEvents] = field(
+        converter=ScheduledEvents, default=None
     )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.creator_id = Snowflake(self.creator_id) if self._json.get("creator_id") else None
-        self.entity_id = Snowflake(self.entity_id) if self._json.get("entity_id") else None
-        self.scheduled_start_time = (
-            datetime.fromisoformat(self._json.get("scheduled_start_time"))
-            if self._json.get("scheduled_start_time")
-            else None
-        )
-        self.scheduled_end_time = (
-            datetime.fromisoformat(self._json.get("scheduled_end_time"))
-            if self._json.get("scheduled_end_time")
-            else None
-        )
-        self.entity_metadata = (
-            EventMetadata(**self.entity_metadata) if self._json.get("entity_metadata") else None
-        )
-        self.creator = User(**self.creator) if self._json.get("creator") else None
+    async def delete(self) -> None:
+        """Deletes the invite"""
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        await self._client.delete_invite(self.code)
+
+    @property
+    def url(self):
+        return f"https://discord.gg/{self.code}" if self.code else None

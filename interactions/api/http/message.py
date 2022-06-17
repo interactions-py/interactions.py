@@ -3,10 +3,13 @@ from typing import List, Optional, Union
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache, Item
+from ..models.attrs_utils import MISSING
 from ..models.message import Embed, Message
-from ..models.misc import MISSING, File, Snowflake
+from ..models.misc import File, Snowflake
 from .request import _Request
 from .route import Route
+
+__all__ = ("MessageRequest",)
 
 
 class MessageRequest:
@@ -83,7 +86,7 @@ class MessageRequest:
                     file._fp,
                 )
                 part.set_content_disposition(
-                    "form-data", name="files[" + str(id) + "]", filename=file._filename
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
                 )
 
         request = await self._req.request(
@@ -92,7 +95,7 @@ class MessageRequest:
             data=data,
         )
         if request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request)))
+            self.cache.messages.add(Item(id=request["id"], value=Message(**request, _client=self)))
 
         return request
 

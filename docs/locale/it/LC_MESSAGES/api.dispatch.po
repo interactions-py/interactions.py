@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,16 +59,6 @@ msgstr ""
 msgid "Keyword-only arguments of the coroutine."
 msgstr ""
 
-#: interactions.api.dispatch.Listener.dispatch
-#: interactions.api.dispatch.Listener.register of
-msgid "Returns"
-msgstr ""
-
-#: interactions.api.dispatch.Listener.dispatch:9
-#: interactions.api.dispatch.Listener.register:9 of
-msgid "None"
-msgstr ""
-
 #: interactions.api.dispatch.Listener.register:1 of
 msgid ""
 "Registers a given coroutine as an event to be listened to. If the name of"
@@ -82,4 +72,8 @@ msgstr ""
 
 #: interactions.api.dispatch.Listener.register:7 of
 msgid "The coroutine to register as an event."
+msgstr ""
+
+#: interactions.api.dispatch.Listener.register:9 of
+msgid "The name to associate the coroutine with. Defaults to None."
 msgstr ""

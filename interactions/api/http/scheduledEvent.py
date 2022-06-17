@@ -5,6 +5,8 @@ from ..models import Snowflake
 from .request import _Request
 from .route import Route
 
+__all__ = ("ScheduledEventRequest",)
+
 
 class ScheduledEventRequest:
 
@@ -20,7 +22,7 @@ class ScheduledEventRequest:
 
         :param guild_id: Guild ID snowflake.
         :param payload: The dictionary containing the parameters and values to edit the associated event.
-        :return A dictionary containing the new guild scheduled event object on success.
+        :return: A dictionary containing the new guild scheduled event object on success.
         """
         guild_id = int(guild_id)
         valid_keys = (
@@ -49,7 +51,7 @@ class ScheduledEventRequest:
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
         :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
-        :return A dictionary containing the guild scheduled event object on success.
+        :return: A dictionary containing the guild scheduled event object on success.
         """
         guild_id, event_id = int(guild_id), int(guild_scheduled_event_id)
         params = {}
@@ -72,7 +74,7 @@ class ScheduledEventRequest:
 
         :param guild_id: Guild ID snowflake.
         :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
-        :return A List of a dictionary containing the guild scheduled event objects on success.
+        :return: A List of a dictionary containing the guild scheduled event objects on success.
         """
         guild_id = int(guild_id)
         params = {}
@@ -92,7 +94,7 @@ class ScheduledEventRequest:
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
         :param payload: The dictionary containing the parameters and values to edit the associated event.
-        :return A dictionary containing the updated guild scheduled event object on success.
+        :return: A dictionary containing the updated guild scheduled event object on success.
         """
         guild_id, event_id = int(guild_id), int(guild_scheduled_event_id)
         valid_keys = (
@@ -124,7 +126,7 @@ class ScheduledEventRequest:
 
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
-        :return Nothing on success.
+        :return: Nothing on success.
         """
         guild_id, event_id = int(guild_id), int(guild_scheduled_event_id)
 

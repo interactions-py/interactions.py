@@ -1,49 +1,14 @@
-from enum import IntEnum
-from string import Formatter
-from typing import Any, Dict, Optional, Union
+from typing import Optional, List
 
-class ErrorFormatter(Formatter):
-    def get_value(self, key, args, kwargs) -> Any: ...
+class LibraryException(Exception):
+    message: Optional[str]
+    code: Optional[int]
+    severity: Optional[int]
+    data: Optional[dict]
 
-class InteractionException(Exception):
-    _type: Union[int, IntEnum]
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
-    kwargs: Dict[str, Any]
-    _lookup: dict
-    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs) -> None: ...
+    def __init__(self, message: str = None, code: int = 0, severity: int = 0, **kwargs): ...
     @staticmethod
-    def lookup() -> dict: ...
-    @property
-    def type(self) -> Optional[Union[int, IntEnum]]: ...
-    def error(self) -> None: ...
-
-class GatewayException(InteractionException):
-    _type: Union[int, IntEnum]
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
-    kwargs: Dict[str, Any]
-    _lookup: dict
-    def __init__(self, __type, **kwargs): ...
+    def _parse(_data: dict) -> List[tuple]: ...
+    def log(self, message: str, *args) -> None: ...
     @staticmethod
-    def lookup() -> dict: ...
-
-class HTTPException(InteractionException):
-    _type: Union[int, IntEnum]
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
-    kwargs: Dict[str, Any]
-    _lookup: dict
-    def __init__(self, __type, **kwargs): ...
-    @staticmethod
-    def lookup() -> dict: ...
-
-class JSONException(InteractionException):
-    _type: Union[int, IntEnum]
-    __type: Optional[Union[int, IntEnum]]
-    _formatter: ErrorFormatter
-    kwargs: Dict[str, Any]
-    _lookup: dict
-    def __init__(self, __type, **kwargs): ...
-    @staticmethod
-    def lookup() -> dict: ...
+    def lookup(code: int) -> str: ...

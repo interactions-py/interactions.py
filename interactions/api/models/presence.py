@@ -1,10 +1,25 @@
 import time
 from enum import IntEnum
+from typing import Any, List, Optional
 
 from ..models import StatusType
-from .misc import DictSerializerMixin, Snowflake
+from ..models.message import Emoji
+from .attrs_utils import DictSerializerMixin, convert_list, define, field
+from .misc import Snowflake
+
+__all__ = (
+    "PresenceParty",
+    "PresenceAssets",
+    "PresenceSecrets",
+    "PresenceTimestamp",
+    "PresenceActivity",
+    "PresenceActivityType",
+    "PresenceButtons",
+    "ClientPresence",
+)
 
 
+@define()
 class PresenceParty(DictSerializerMixin):
     """
     A class object representing the party data of a presence.
@@ -13,13 +28,11 @@ class PresenceParty(DictSerializerMixin):
     :ivar Optional[List[int]] size?: An array denoting the party's current and max size
     """
 
-    __slots__ = ("_json", "id", "size")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
+    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    size: Optional[List[int]] = field(default=None)
 
 
+@define()
 class PresenceAssets(DictSerializerMixin):
     """
     A class object representing the assets of a presence.
@@ -30,12 +43,13 @@ class PresenceAssets(DictSerializerMixin):
     :ivar Optional[str] small_text?: Text associated with the small asset
     """
 
-    __slots__ = ("_json", "large_image", "large_text", "small_image", "small_text")
+    large_image: Optional[str] = field(default=None)
+    large_text: Optional[str] = field(default=None)
+    small_image: Optional[str] = field(default=None)
+    small_text: Optional[str] = field(default=None)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
-
+@define()
 class PresenceSecrets(DictSerializerMixin):
     """
     A class object representing "secret" join information of a presence.
@@ -45,12 +59,12 @@ class PresenceSecrets(DictSerializerMixin):
     :ivar Optional[str] match?: Instanced match secret
     """
 
-    __slots__ = ("_json", "join", "spectate", "match")
+    join: Optional[str] = field(default=None)
+    spectate: Optional[str] = field(default=None)
+    match: Optional[str] = field(default=None)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
-
+@define()
 class PresenceButtons(DictSerializerMixin):
     """
     A class object representing the buttons of a presence.
@@ -59,12 +73,11 @@ class PresenceButtons(DictSerializerMixin):
     :ivar str url: URL of the button
     """
 
-    __slots__ = ("_json", "label", "url")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    label: str = field()
+    url: str = field()
 
 
+@define()
 class PresenceTimestamp(DictSerializerMixin):
     """
     A class object representing the timestamp data of a presence.
@@ -73,10 +86,8 @@ class PresenceTimestamp(DictSerializerMixin):
     :ivar Optional[int] end?: Unix time in ms when the activity ended
     """
 
-    __slots__ = ("_json", "start", "end")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    start: Optional[int] = field(default=None)
+    end: Optional[int] = field(default=None)
 
 
 class PresenceActivityType(IntEnum):
@@ -92,6 +103,7 @@ class PresenceActivityType(IntEnum):
     COMPETING = 5
 
 
+@define()
 class PresenceActivity(DictSerializerMixin):
     """
     A class object representing the current activity data of a presence.
@@ -103,7 +115,7 @@ class PresenceActivity(DictSerializerMixin):
     :ivar str name: The activity name
     :ivar Union[int, PresenceActivityType] type: The activity type
     :ivar Optional[str] url?: stream url (if type is 1)
-    :ivar Snowflake created_at: Unix timestamp of when the activity was created to the User's session
+    :ivar int created_at: Unix timestamp (in milliseconds) of when the activity was added to the user's session
     :ivar Optional[PresenceTimestamp] timestamps?: Unix timestamps for start and/or end of the game
     :ivar Optional[Snowflake] application_id?: Application ID for the game
     :ivar Optional[str] details?: What the player is currently doing
@@ -117,53 +129,32 @@ class PresenceActivity(DictSerializerMixin):
     :ivar Optional[List[PresenceButtons]] buttons?: Custom buttons shown in the RPC.
     """
 
-    __slots__ = (
-        "_json",
-        "name",
-        "type",
-        "url",
-        "created_at",
-        "timestamps",
-        "application_id",
-        "details",
-        "state",
-        "emoji",
-        "party",
-        "assets",
-        "secrets",
-        "instance",
-        "flags",
-        "buttons",
-        # TODO: document/investigate what these do.
-        "user",
-        "users",
-        "status",
-        "client_status",
-        "activities",
-        "sync_id",
-        "session_id",
-        "id",
+    name: str = field()
+    type: PresenceActivityType = field(converter=PresenceActivityType)
+    url: Optional[str] = field(default=None)
+    created_at: int = field(default=0)  # for manually initializing
+    timestamps: Optional[PresenceTimestamp] = field(converter=PresenceTimestamp, default=None)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    details: Optional[str] = field(default=None)
+    state: Optional[str] = field(default=None)
+    emoji: Optional[Emoji] = field(converter=Emoji, default=None)
+    party: Optional[PresenceParty] = field(converter=PresenceParty, default=None)
+    assets: Optional[PresenceAssets] = field(converter=PresenceAssets, default=None)
+    secrets: Optional[PresenceSecrets] = field(converter=PresenceSecrets, default=None)
+    instance: Optional[bool] = field(default=None)
+    flags: Optional[int] = field(default=None)
+    buttons: Optional[List[PresenceButtons]] = field(
+        converter=convert_list(PresenceButtons), default=None
     )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._json["type"] = (
-            self.type.value if isinstance(self.type, PresenceActivityType) else self.type
-        )
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.created_at = (
-            Snowflake((self._json.get("created_at") - 1420070400000) << 22)
-            if self._json.get("created_at")
-            else None
-        )
-        self.timestamps = (
-            PresenceTimestamp(**self.timestamps) if self._json.get("timestamps") else None
-        )
-        self.party = PresenceParty(**self.party) if self._json.get("party") else None
-        self.assets = PresenceAssets(**self.assets) if self._json.get("assets") else None
-        self.secrets = PresenceSecrets(**self.secrets) if self._json.get("secrets") else None
+    # TODO: document/investigate what these do.
+    user: Optional[Any] = field(default=None)
+    users: Optional[Any] = field(default=None)
+    status: Optional[Any] = field(default=None)
+    client_status: Optional[Any] = field(default=None)
+    activities: Optional[Any] = field(default=None)
+    sync_id: Optional[Any] = field(default=None)
+    session_id: Optional[Any] = field(default=None)
+    id: Optional[Any] = field(default=None)
 
     @property
     def gateway_json(self) -> dict:
@@ -180,6 +171,7 @@ class PresenceActivity(DictSerializerMixin):
         return res
 
 
+@define()
 class ClientPresence(DictSerializerMixin):
     """
     An object that symbolizes the presence of the current client's session upon creation.
@@ -190,28 +182,15 @@ class ClientPresence(DictSerializerMixin):
     :ivar bool afk: Whether the client is afk or not.
     """
 
-    __slots__ = ("_json", "since", "activities", "status", "afk")
+    since: Optional[int] = field(default=None)
+    activities: Optional[List[PresenceActivity]] = field(
+        converter=convert_list(PresenceActivity), default=None
+    )
+    status: StatusType = field(converter=StatusType)
+    afk: bool = field(default=False)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._json["status"] = (
-            self.status.value if isinstance(self.status, StatusType) else self.status
-        )
-        self.activities = (
-            [
-                PresenceActivity(
-                    **(activity if isinstance(activity, dict) else activity.gateway_json)
-                )
-                for activity in self._json.get("activities")
-            ]
-            if self._json.get("activities")
-            else None
-        )
-        if self.activities:
-            self._json["activities"] = [activity._json for activity in self.activities]
+    def __attrs_post_init__(self):
         if not self._json.get("since"):
             # If since is not provided by the developer...
             self.since = int(time.time() * 1000) if self.status == "idle" else 0
             self._json["since"] = self.since
-        if not self._json.get("afk"):
-            self._json["afk"] = False

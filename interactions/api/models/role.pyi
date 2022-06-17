@@ -1,18 +1,16 @@
-from typing import Any, Optional, List
+from typing import Any, List, Optional, Union
 
-from .misc import DictSerializerMixin, MISSING, Snowflake
-from ..http.client import HTTPClient
+from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
+from .misc import Snowflake
 
+@define()
 class RoleTags(DictSerializerMixin):
-    _json: dict
     bot_id: Optional[Snowflake]
     integration_id: Optional[Snowflake]
     premium_subscriber: Optional[Any]
-    def __init__(self, **kwargs): ...
 
-class Role(DictSerializerMixin):
-    _json: dict
-    _client: HTTPClient
+@define()
+class Role(ClientSerializerMixin):
     id: Snowflake
     name: str
     color: int
@@ -24,29 +22,18 @@ class Role(DictSerializerMixin):
     managed: bool
     mentionable: bool
     tags: Optional[RoleTags]
-    def __init__(self, **kwargs): ...
     @property
     def mention(self) -> str: ...
-    async def delete(
-        self,
-        guild_id: int,
-        reason: Optional[str] = None,
-    ) -> None: ...
+    async def delete(self, guild_id: Union[int, Snowflake, "Guild"], reason: Optional[str] = ...) -> None: ...  # noqa
     async def modify(
         self,
-        guild_id: int,
-        name: Optional[str] = MISSING,
-        # permissions,
-        color: Optional[int] = MISSING,
-        hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
-        mentionable: Optional[bool] = MISSING,
-        reason: Optional[str] = None,
-    ) -> "Role": ...
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        name: Optional[str] = ...,
+        color: Optional[int] = ...,
+        hoist: Optional[bool] = ...,
+        mentionable: Optional[bool] = ...,
+        reason: Optional[str] = ...,
+    ) -> Role: ...
     async def modify_position(
-        self,
-        guild_id: int,
-        position: int,
-        reason: Optional[str] = None,
-    ) -> List["Role"]: ...
+        self, guild_id: Union[int, Snowflake, "Guild"], position: int, reason: Optional[str] = ...  # noqa
+    ) -> List[Role]: ...

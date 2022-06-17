@@ -1,32 +1,44 @@
-import logging
-from datetime import datetime
-from typing import Optional, Union
-from io import IOBase, FileIO
+import datetime
+from io import FileIO, IOBase
+from logging import Logger
+from typing import Optional, Union, List
 
-log: logging.Logger
+from interactions.api.models.attrs_utils import DictSerializerMixin, define
 
-class DictSerializerMixin(object):
-    _json: dict
-    def __init__(self, **kwargs): ...
+log: Logger
 
+@define()
+class AutoModMetaData(DictSerializerMixin):
+    channel_id: Optional[Snowflake]
+    duration_seconds: Optional[int]
+
+@define()
+class AutoModAction(DictSerializerMixin):
+    type: int
+    metadata: Optional[AutoModMetaData]
+
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    keyword_filter: Optional[List[str]]
+    presets: Optional[List[str]]
+
+@define()
 class Overwrite(DictSerializerMixin):
-    _json: dict
     id: int
     type: int
     allow: str
     deny: str
-    def __init__(self, **kwargs): ...
 
+@define()
 class ClientStatus(DictSerializerMixin):
-    _json: dict
     desktop: Optional[str]
     mobile: Optional[str]
     web: Optional[str]
-    def __init__(self, **kwargs): ...
 
-class Snowflake(object):
+class Snowflake:
     _snowflake: str
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None: ...
+    def __int__(self): ...
     @property
     def increment(self) -> int: ...
     @property
@@ -36,13 +48,9 @@ class Snowflake(object):
     @property
     def epoch(self) -> float: ...
     @property
-    def timestamp(self) -> datetime: ...
-    # By inheritance logic, __str__ and __hash__ are already defined in headers.
-    # Just because we can :)
-    def __hash__(self) -> int: ...
-    def __str__(self) -> str: ...
-    def __int__(self) -> int: ...
-    def __eq__(self, other) -> Union[bool, NotImplemented]: ...
+    def timestamp(self) -> datetime.datetime: ...
+    def __hash__(self): ...
+    def __eq__(self, other): ...
 
 class Color:
     @property
@@ -60,43 +68,16 @@ class Color:
     @property
     def black(self) -> hex: ...
 
-class Format:
-    USER: str
-    USER_NICK: str
-    CHANNEL: str
-    ROLE: str
-    EMOJI: str
-    EMOJI_ANIMATED: str
-    TIMESTAMP: str
-    TIMESTAMP_SHORT_T: str
-    TIMESTAMP_LONG_T: str
-    TIMESTAMP_SHORT_D: str
-    TIMESTAMP_LONG_D: str
-    TIMESTAMP_SHORT_DT: str
-    TIMESTAMP_LONG_DT: str
-    TIMESTAMP_RELATIVE: str
-    def stylize(self, format: str, **kwargs) -> str: ...
-
-class MISSING: ...
-
-class File(object):
-    _filename: str
-    _fp: IOBase
-    _description: str
+class File:
     def __init__(
-        self,
-        filename: str,
-        fp: Optional[IOBase] = MISSING,
-        description: Optional[str] = MISSING
+        self, filename: str, fp: Optional[IOBase] = ..., description: Optional[str] = ...
     ) -> None: ...
-    def _json_payload(self, id) -> dict: ...
 
-class Image(object):
-
+class Image:
     _URI: str
     _name: str
 
-    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING): ...
+    def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = ...) -> None: ...
     @property
     def data(self) -> str: ...
     @property

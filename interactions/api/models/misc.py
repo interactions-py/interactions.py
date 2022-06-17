@@ -11,70 +11,45 @@ from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
-from typing import Optional, Union
+from typing import List, Optional, Union
 
-from interactions.base import get_logger
+from ...base import get_logger
+from ..error import LibraryException
+from .attrs_utils import MISSING, DictSerializerMixin, define, field
+
+__all__ = (
+    "AutoModMetaData",
+    "AutoModAction",
+    "AutoModTriggerMetadata",
+    "Snowflake",
+    "Color",
+    "ClientStatus",
+    "Image",
+    "File",
+    "Overwrite",
+)
 
 log: Logger = get_logger("mixin")
 
 
-class DictSerializerMixin(object):
-    """
-    The purpose of this mixin is to be subclassed.
-
-    .. note::
-        On subclass, it:
-            -- From kwargs (received from the Discord API response), add it to the `_json` attribute
-            such that it can be reused by other libraries/extensions
-            -- Aids in attributing the kwargs to actual model attributes, i.e. `User.id`
-            -- Dynamically sets attributes not given to kwargs but slotted to None, signifying that it doesn't exist.
-
-    .. warning::
-        This does NOT convert them to its own data types, i.e. timestamps, or User within Member. This is left by
-        the object that's using the mixin.
-    """
-
-    __slots__ = "_json"
-
-    def __init__(self, **kwargs):
-        self._json = kwargs
-        # for key in kwargs:
-        #    setattr(self, key, kwargs[key])
-
-        for key in list(kwargs):
-            if key in self.__slots__ if hasattr(self, "__slots__") else True:
-                # else case if the mixin is used outside of this library and/or SDK.
-                setattr(self, key, kwargs[key])
-            else:
-                log.debug(
-                    f"Attribute {key} is missing from the {self.__class__.__name__} data model, skipping."
-                )
-                # work on message printout? Effective, but I think it should be a little bit more friendly
-                # towards end users
-
-        # if self.__slots__ is not None:  # safeguard, runtime check
-        if hasattr(self, "__slots__"):
-            for _attr in self.__slots__:
-                if not hasattr(self, _attr):
-                    setattr(self, _attr, None)
-
-
+@define()
 class Overwrite(DictSerializerMixin):
     """
     This is used for the PermissionOverride object.
 
-    :ivar int id: Role or User ID
+    :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
     :ivar str allow: Permission bit set.
     :ivar str deny: Permission bit set.
     """
 
-    __slots__ = ("_json", "id", "type", "allow", "deny")
+    id: int = field()
+    type: int = field()
+    allow: str = field()
+    deny: str = field()
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
-
+@define()
 class ClientStatus(DictSerializerMixin):
     """
     An object that symbolizes the status per client device per session.
@@ -84,10 +59,9 @@ class ClientStatus(DictSerializerMixin):
     :ivar Optional[str] web?: User's status set for an active web application session
     """
 
-    __slots__ = ("_json", "desktop", "mobile", "web")
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    desktop: Optional[str] = field(default=None)
+    mobile: Optional[str] = field(default=None)
+    web: Optional[str] = field(default=None)
 
 
 class Snowflake(object):
@@ -181,6 +155,59 @@ class Snowflake(object):
 
         return NotImplemented
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self._snowflake})"
+
+
+@define()
+class AutoModMetaData(DictSerializerMixin):
+    """
+    A class object used to represent the AutoMod Action Metadata.
+    .. note::
+        This is not meant to be instantiated outside the Gateway.
+
+    .. note::
+        The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
+
+    :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
+    :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
+    """
+
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    duration_seconds: Optional[int] = field(default=None)
+
+
+@define()
+class AutoModAction(DictSerializerMixin):
+    """
+    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+    .. note::
+        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
+        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
+        ``AutoModerationAction``
+    .. note::
+        The metadata can be omitted depending on the action type.
+
+    :ivar int type: Action type.
+    :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
+    """
+
+    type: int = field()
+    metadata: Optional[AutoModMetaData] = field(converter=AutoModMetaData, default=None)
+
+
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    """
+    A class object used to represent the trigger metadata from the AutoMod rule object.
+
+    :ivar Optional[List[str]] keyword_filter: Words to match against content.
+    :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
+    """
+
+    keyword_filter: Optional[List[str]] = field(default=None)
+    presets: Optional[List[str]] = field(default=None)
+
 
 class Color(object):
     """
@@ -233,12 +260,6 @@ class Color(object):
         return 0x000000
 
 
-class MISSING:
-    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
-
-    ...
-
-
 class File(object):
     """
     A File object to be sent as an attachment along with a message.
@@ -255,8 +276,9 @@ class File(object):
     ):
 
         if not isinstance(filename, str):
-            raise TypeError(
-                "File's first parameter 'filename' must be a string, not " + str(type(filename))
+            raise LibraryException(
+                message=f"File's first parameter 'filename' must be a string, not {str(type(filename))}",
+                code=12,
             )
 
         self._fp = open(filename, "rb") if not fp or fp is MISSING else fp
@@ -298,7 +320,7 @@ class Image(object):
             and not self._name.endswith(".png")
             and not self._name.endswith(".gif")
         ):
-            raise ValueError("File type must be jpeg, png or gif!")
+            raise LibraryException(message="File type must be jpeg, png or gif!", code=12)
 
         self._URI += f"{'jpeg' if self._name.endswith('jpeg') else self._name[-3:]};"
         self._URI += f"base64,{b64encode(_file).decode('utf-8')}"

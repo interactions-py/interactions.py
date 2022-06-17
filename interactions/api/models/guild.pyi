@@ -1,15 +1,17 @@
 from datetime import datetime
-from typing import Any, List, Optional, Union, Dict
-from enum import IntEnum
+from enum import Enum, IntEnum
+from typing import Any, Dict, List, Optional, Union
 
+from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, MISSING
 from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import DictSerializerMixin, MISSING, Snowflake, Overwrite, Image
+from .misc import Image, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
+from .team import Application
 from .user import User
-from ..http.client import HTTPClient
+from .webhook import Webhook
 
 class VerificationLevel(IntEnum):
     NONE: int
@@ -42,39 +44,57 @@ class InviteTargetType(IntEnum):
     STREAM: int
     EMBEDDED_APPLICATION: int
 
+class GuildFeatures(Enum):
+    ANIMATED_BANNER: str
+    ANIMATED_ICON: str
+    BANNER: str
+    COMMERCE: str
+    COMMUNITY: str
+    DISCOVERABLE: str
+    FEATURABLE: str
+    INVITE_SPLASH: str
+    MEMBER_VERIFICATION_GATE_ENABLED: str
+    MONETIZATION_ENABLED: str
+    MORE_STICKERS: str
+    NEWS: str
+    PARTNERED: str
+    PREVIEW_ENABLED: str
+    PRIVATE_THREADS: str
+    ROLE_ICONS: str
+    TICKETED_EVENTS_ENABLED: str
+    VANITY_URL: str
+    VERIFIED: str
+    VIP_REGIONS: str
+    WELCOME_SCREEN_ENABLED: str
+
+@define()
 class WelcomeChannels(DictSerializerMixin):
-    _json: dict
     channel_id: int
     description: str
     emoji_id: Optional[Snowflake]
     emoji_name: Optional[str]
-    def __init__(self, **kwargs): ...
 
+@define()
 class WelcomeScreen(DictSerializerMixin):
-    _json: dict
     description: Optional[str]
-    welcome_channels: List[WelcomeChannels]
-    def __init__(self, **kwargs): ...
+    welcome_channels: Optional[List[WelcomeChannels]]
 
+@define()
 class StageInstance(DictSerializerMixin):
-    _json: dict
-    id: int
-    guild_id: int
-    channel_id: int
+    id: Snowflake
+    guild_id: Snowflake
+    channel_id: Snowflake
     topic: str
-    privacy_level: int  # can be Enum'd
+    privacy_level: int
     discoverable_disabled: bool
-    def __init__(self, **kwargs): ...
 
+@define()
 class UnavailableGuild(DictSerializerMixin):
-    _json: dict
     id: Snowflake
     unavailable: bool
-    def __init__(self, **kwargs): ...
 
-class Guild(DictSerializerMixin):
-    _json: dict
-    _client: HTTPClient
+@define()
+class Guild(ClientSerializerMixin):
     id: Snowflake
     name: str
     icon: Optional[str]
@@ -82,11 +102,11 @@ class Guild(DictSerializerMixin):
     splash: Optional[str]
     discovery_splash: Optional[str]
     owner: Optional[bool]
-    owner_id: int
+    owner_id: Snowflake
     permissions: Optional[str]
-    region: Optional[str]  # None, we don't do Voices.
+    region: Optional[str]
     afk_channel_id: Optional[Snowflake]
-    afk_timeout: int
+    afk_timeout: Optional[int]
     widget_enabled: Optional[bool]
     widget_channel_id: Optional[Snowflake]
     verification_level: int
@@ -105,7 +125,7 @@ class Guild(DictSerializerMixin):
     member_count: Optional[int]
     members: Optional[List[Member]]
     channels: Optional[List[Channel]]
-    threads: Optional[List[Thread]]  # threads, because of their metadata
+    threads: Optional[List[Thread]]
     presences: Optional[List[PresenceActivity]]
     max_presences: Optional[int]
     max_members: Optional[int]
@@ -123,6 +143,7 @@ class Guild(DictSerializerMixin):
     nsfw_level: int
     stage_instances: Optional[List[StageInstance]]
     stickers: Optional[List[Sticker]]
+    features: List[str]
 
     # TODO: post-v4: Investigate all of these once Discord has them all documented.
     guild_hashes: Any
@@ -138,76 +159,76 @@ class Guild(DictSerializerMixin):
     def __repr__(self) -> str: ...
     async def ban(
         self,
-        member_id: int,
+        member_id: Union[int, Member, Snowflake],
         reason: Optional[str] = None,
         delete_message_days: Optional[int] = 0,
     ) -> None: ...
     async def remove_ban(
         self,
-        user_id: int,
+        user_id: Union[int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def kick(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def add_member_role(
         self,
-        role: Union[Role, int],
-        member_id: int,
+        role: Union[Role, int, Snowflake],
+        member_id: Union[Member, int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def remove_member_role(
         self,
-        role: Union[Role, int],
-        member_id: int,
+        role: Union[Role, int, Snowflake],
+        member_id: Union[Member, int, Snowflake],
         reason: Optional[str] = None,
     ) -> None: ...
     async def create_role(
         self,
         name: str,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = 0,
         hoist: Optional[bool] = False,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = False,
         reason: Optional[str] = None,
     ) -> Role: ...
     async def get_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake],
     ) -> Member: ...
     async def delete_channel(
         self,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
     ) -> None: ...
     async def delete_role(
         self,
-        role_id: int,
+        role_id: Union[int, Snowflake, Role],
         reason: Optional[str] = None,
     ) -> None: ...
     async def modify_role(
         self,
-        role_id: int,
+        role_id: Union[int, Snowflake, Role],
         name: Optional[str] = MISSING,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Role: ...
     async def create_thread(
         self,
         name: str,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> Channel: ...
     async def create_channel(
@@ -220,13 +241,14 @@ class Guild(DictSerializerMixin):
         rate_limit_per_user: Optional[int] = MISSING,
         position: Optional[int] = MISSING,
         permission_overwrites: Optional[List[Overwrite]] = MISSING,
-        parent_id: Optional[int] = MISSING,
+        parent_id: Optional[Union[int, Channel, Snowflake]] = MISSING,
         nsfw: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel: ...
+    async def clone_channel(self, channel_id: Union[int, Snowflake, Channel]) -> Channel: ...
     async def modify_channel(
         self,
-        channel_id: int,
+        channel_id: Union[int, Snowflake, Channel],
         name: Optional[str] = MISSING,
         topic: Optional[str] = MISSING,
         bitrate: Optional[int] = MISSING,
@@ -243,7 +265,7 @@ class Guild(DictSerializerMixin):
     ) -> Channel: ...
     async def modify_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake, Member],
         nick: Optional[str] = MISSING,
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
@@ -256,206 +278,122 @@ class Guild(DictSerializerMixin):
     async def leave(self) -> None: ...
     async def modify(
         self,
-        name: Optional[str] = MISSING,
-        verification_level: Optional[VerificationLevel] = MISSING,
-        default_message_notifications: Optional[DefaultMessageNotificationLevel] = MISSING,
-        explicit_content_filter: Optional[ExplicitContentFilterLevel] = MISSING,
-        afk_channel_id: Optional[int] = MISSING,
-        afk_timeout: Optional[int] = MISSING,
-        icon: Optional[Image] = MISSING,
-        owner_id: Optional[int] = MISSING,
-        splash: Optional[Image] = MISSING,
-        discovery_splash: Optional[Image] = MISSING,
-        banner: Optional[Image] = MISSING,
-        system_channel_id: Optional[int] = MISSING,
-        suppress_join_notifications: Optional[bool] = MISSING,
-        suppress_premium_subscriptions: Optional[bool] = MISSING,
-        suppress_guild_reminder_notifications: Optional[bool] = MISSING,
-        suppress_join_notification_replies: Optional[bool] = MISSING,
-        rules_channel_id: Optional[int] = MISSING,
-        public_updates_channel_id: Optional[int] = MISSING,
-        preferred_locale: Optional[str] = MISSING,
-        description: Optional[str] = MISSING,
-        premium_progress_bar_enabled: Optional[bool] = MISSING,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
-    async def set_name(
-        self,
-        name: str,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        name: Optional[str] = ...,
+        verification_level: Optional[VerificationLevel] = ...,
+        default_message_notifications: Optional[DefaultMessageNotificationLevel] = ...,
+        explicit_content_filter: Optional[ExplicitContentFilterLevel] = ...,
+        afk_channel_id: Optional[int] = ...,
+        afk_timeout: Optional[int] = ...,
+        icon: Optional[Image] = ...,
+        owner_id: Optional[int] = ...,
+        splash: Optional[Image] = ...,
+        discovery_splash: Optional[Image] = ...,
+        banner: Optional[Image] = ...,
+        system_channel_id: Optional[int] = ...,
+        suppress_join_notifications: Optional[bool] = ...,
+        suppress_premium_subscriptions: Optional[bool] = ...,
+        suppress_guild_reminder_notifications: Optional[bool] = ...,
+        suppress_join_notification_replies: Optional[bool] = ...,
+        rules_channel_id: Optional[int] = ...,
+        public_updates_channel_id: Optional[int] = ...,
+        preferred_locale: Optional[str] = ...,
+        description: Optional[str] = ...,
+        premium_progress_bar_enabled: Optional[bool] = ...,
+        reason: Optional[str] = ...,
+    ) -> Guild: ...
+    async def set_name(self, name: str, *, reason: Optional[str] = ...) -> Guild: ...
     async def set_verification_level(
-        self,
-        verification_level: VerificationLevel,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, verification_level: VerificationLevel, *, reason: Optional[str] = ...
+    ) -> Guild: ...
     async def set_default_message_notifications(
         self,
         default_message_notifications: DefaultMessageNotificationLevel,
         *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        reason: Optional[str] = ...
+    ) -> Guild: ...
     async def set_explicit_content_filter(
-        self,
-        explicit_content_filter: ExplicitContentFilterLevel,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, explicit_content_filter: ExplicitContentFilterLevel, *, reason: Optional[str] = ...
+    ) -> Guild: ...
     async def set_afk_channel(
-        self,
-        afk_channel_id: int,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
-    async def set_afk_timeout(
-        self,
-        afk_timeout: int,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, afk_channel_id: int, *, reason: Optional[str] = ...
+    ) -> Guild: ...
+    async def set_afk_timeout(self, afk_timeout: int, *, reason: Optional[str] = ...) -> Guild: ...
     async def set_system_channel(
-        self,
-        system_channel_id: int,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, system_channel_id: int, *, reason: Optional[str] = ...
+    ) -> Guild: ...
     async def set_rules_channel(
-        self,
-        rules_channel_id: int,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, rules_channel_id: int, *, reason: Optional[str] = ...
+    ) -> Guild: ...
     async def set_public_updates_channel(
-        self,
-        public_updates_channel_id: int,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, public_updates_channel_id: int, *, reason: Optional[str] = ...
+    ) -> Guild: ...
     async def set_preferred_locale(
-        self,
-        preferred_locale: str,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
-    async def set_description(
-        self,
-        description: str,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, preferred_locale: str, *, reason: Optional[str] = ...
+    ) -> Guild: ...
+    async def set_description(self, description: str, *, reason: Optional[str] = ...) -> Guild: ...
     async def set_premium_progress_bar_enabled(
-        self,
-        premium_progress_bar_enabled: bool,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
-    async def set_icon(
-        self,
-        icon: Image,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
-    async def set_splash(
-        self,
-        splash: Image,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, premium_progress_bar_enabled: bool, *, reason: Optional[str] = ...
+    ) -> Guild: ...
+    async def set_icon(self, icon: Image, *, reason: Optional[str] = ...) -> Guild: ...
+    async def set_splash(self, splash: Image, *, reason: Optional[str] = ...) -> Guild: ...
     async def set_discovery_splash(
-        self,
-        discovery_splash: Image,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
-    async def set_banner(
-        self,
-        banner: Image,
-        *,
-        reason: Optional[str] = None,
-    ) -> "Guild": ...
+        self, discovery_splash: Image, *, reason: Optional[str] = ...
+    ) -> Guild: ...
+    async def set_banner(self, banner: Image, *, reason: Optional[str] = ...) -> Guild: ...
     async def create_scheduled_event(
         self,
         name: str,
         entity_type: EntityType,
         scheduled_start_time: datetime.isoformat,
-        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
-        entity_metadata: Optional["EventMetadata"] = MISSING,
-        channel_id: Optional[int] = MISSING,
-        description: Optional[str] = MISSING,
-        image: Optional[Image] = MISSING,
-        # privacy_level, TODO: implement when more levels available
-        ) -> "ScheduledEvents": ...
+        scheduled_end_time: Optional[datetime.isoformat] = ...,
+        entity_metadata: Optional["EventMetadata"] = ...,
+        channel_id: Optional[int] = ...,
+        description: Optional[str] = ...,
+        image: Optional[Image] = ...,
+    ) -> ScheduledEvents: ...
     async def modify_scheduled_event(
         self,
-        event_id: int,
-        name: Optional[str] = MISSING,
-        entity_type: Optional[EntityType] = MISSING,
-        scheduled_start_time: Optional[datetime.isoformat] = MISSING,
-        scheduled_end_time: Optional[datetime.isoformat] = MISSING,
-        entity_metadata: Optional["EventMetadata"] = MISSING,
-        channel_id: Optional[int] = MISSING,
-        description: Optional[str] = MISSING,
-        image: Optional[Image] = MISSING,
-        # privacy_level, TODO: implement when more levels available
-    ) -> "ScheduledEvents": ...
-    async def delete_scheduled_event(
-        self,
-        event_id: int
-    ) -> None: ...
+        event_id: Union[int, "ScheduledEvents", Snowflake],
+        name: Optional[str] = ...,
+        entity_type: Optional[EntityType] = ...,
+        scheduled_start_time: Optional[datetime.isoformat] = ...,
+        scheduled_end_time: Optional[datetime.isoformat] = ...,
+        entity_metadata: Optional["EventMetadata"] = ...,
+        channel_id: Optional[int] = ...,
+        description: Optional[str] = ...,
+        status: Optional[EventStatus] = ...,
+        image: Optional[Image] = ...,
+    ) -> ScheduledEvents: ...
+    async def delete_scheduled_event(self, event_id: Union[int, "ScheduledEvents", Snowflake]) -> None: ...
     async def get_all_channels(self) -> List[Channel]: ...
     async def get_all_roles(self) -> List[Role]: ...
-    async def get_role(
-        self,
-        role_id: int,
-    ) -> Role: ...
+    async def get_role(self, role_id: int) -> Role: ...
     async def modify_role_position(
-        self,
-        role_id: Union[Role, int],
-        position: int,
-        reason: Optional[str] = None,
+        self, role_id: Union[Role, int], position: int, reason: Optional[str] = ...
     ) -> List[Role]: ...
     async def modify_role_positions(
-        self,
-        changes: List[dict],
-        reason: Optional[str] = None,
+        self, changes: List[dict], reason: Optional[str] = ...
     ) -> List[Role]: ...
     async def get_bans(
-        self,
-        limit: Optional[int] = 1000,
-        before: Optional[int] = None,
-        after: Optional[int] = None,
-    ) -> List[dict]: ...
+        self, limit: Optional[int] = ..., before: Optional[int] = ..., after: Optional[int] = ...
+    ) -> List[Dict[str, User]]: ...
     async def get_all_bans(self) -> List[Dict[str, User]]: ...
-    async def get_emoji(
-        self,
-        emoji_id: int
-    ) -> Emoji: ...
+    async def get_emoji(self, emoji_id: int) -> Emoji: ...
     async def get_all_emoji(self) -> List[Emoji]: ...
     async def create_emoji(
         self,
         image: Image,
-        name: Optional[str] = MISSING,
-        roles: Optional[Union[List[Role], List[int]]] = MISSING,
-        reason: Optional[str] = None,
+        name: Optional[str] = ...,
+        roles: Optional[Union[List[Role], List[int]]] = ...,
+        reason: Optional[str] = ...,
     ) -> Emoji: ...
-    async def delete_emoji(
-        self,
-        emoji: Union[Emoji, int],
-        reason: Optional[str] = None,
-    ) -> None: ...
+    async def delete_emoji(self, emoji: Union[Emoji, int], reason: Optional[str] = ...) -> None: ...
     async def get_list_of_members(
-        self,
-        limit: Optional[int] = 1,
-        after: Optional[Union[Member, int]] = MISSING,
+        self, limit: Optional[int] = ..., after: Optional[Union[Member, int]] = ...
     ) -> List[Member]: ...
-    async def search_members(
-        self,
-        query: str,
-        limit: Optional[int] = 1
-    ) -> List[Member]: ...
+    async def search_members(self, query: str, limit: Optional[int] = ...) -> List[Member]: ...
     async def get_all_members(self) -> List[Member]: ...
+    async def get_webhooks(self) -> List[Webhook]: ...
     @property
     def icon_url(self) -> Optional[str]: ...
     @property
@@ -465,64 +403,84 @@ class Guild(DictSerializerMixin):
     @property
     def discovery_splash_url(self) -> Optional[str]: ...
 
+@define()
 class GuildPreview(DictSerializerMixin):
-    _json: dict
-    id: int
+    id: Snowflake
+    emojis: Optional[List[Emoji]]
     name: str
     icon: Optional[str]
     splash: Optional[str]
     discovery_splash: Optional[str]
-    emoji: List[Emoji]
+    features: Optional[List[str]]
     approximate_member_count: int
     approximate_presence_count: int
     description: Optional[str]
-    def __init__(self, **kwargs): ...
 
-class Invite(DictSerializerMixin):
-    _json: dict
-    _client: HTTPClient
+@define()
+class Integration(DictSerializerMixin):
+    id: Snowflake
+    name: str
     type: str
-    guild_id: Snowflake
-    expires_at: Optional[datetime]
-    code: str
-    channel_id: Snowflake
+    enabled: bool
+    syncing: bool
+    role_id: Snowflake
+    enable_emoticons: bool
+    expire_behavior: int
+    expire_grace_period: int
+    user: User
+    account: Any
+    synced_at: datetime
+    subscriber_count: int
+    revoked: bool
+    application: Application
+
+@define()
+class Invite(ClientSerializerMixin):
     uses: int
     max_uses: int
     max_age: int
     temporary: bool
     created_at: datetime
-    def __init__(self, **kwargs): ...
+    expires_at: datetime
+    type: int
+    inviter: User
+    code: str
+    guild_id: Optional[Snowflake]
+    channel_id: Optional[Snowflake]
+    target_user_type: Optional[int]
+    target_user: Optional[User]
+    target_type: Optional[int]
+    guild: Optional[Guild]
+    channel: Optional[Channel]
     async def delete(self) -> None: ...
 
+@define()
 class GuildTemplate(DictSerializerMixin):
-    _json: dict
     code: str
     name: str
     description: Optional[str]
     usage_count: int
-    creator_id: int
+    creator_id: Snowflake
     creator: User
     created_at: datetime
     updated_at: datetime
-    source_guild_id: int
-    serialized_source_guild: Guild  # partial
+    source_guild_id: Snowflake
+    serialized_source_guild: Guild
     is_dirty: Optional[bool]
-    def __init__(self, **kwargs): ...
 
+@define()
 class EventMetadata(DictSerializerMixin):
-    _json: dict
     location: Optional[str]
-    def __init__(self, **kwargs): ...
 
+@define()
 class ScheduledEvents(DictSerializerMixin):
-    _json: dict
     id: Snowflake
     guild_id: Snowflake
     channel_id: Optional[Snowflake]
     creator_id: Optional[Snowflake]
     name: str
     description: str
-    scheduled_start_time: datetime
+    scheduled_start_time: Optional[datetime]
     scheduled_end_time: Optional[datetime]
     privacy_level: int
     entity_type: int
@@ -532,4 +490,3 @@ class ScheduledEvents(DictSerializerMixin):
     user_count: Optional[int]
     status: int
     image: Optional[str]
-    def __init__(self, **kwargs): ...

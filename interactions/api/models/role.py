@@ -1,8 +1,16 @@
-from typing import List, Optional
+from typing import Any, List, Optional, Union
 
-from .misc import MISSING, DictSerializerMixin, Snowflake
+from ..error import LibraryException
+from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
+from .misc import Image, Snowflake
+
+__all__ = (
+    "Role",
+    "RoleTags",
+)
 
 
+@define()
 class RoleTags(DictSerializerMixin):
     """
     A class object representing the tags of a role.
@@ -12,20 +20,15 @@ class RoleTags(DictSerializerMixin):
     :ivar Optional[Any] premium_subscriber?: Whether if this is the guild's premium subscriber role
     """
 
-    __slots__ = ("_json", "id", "bot_id", "integration_id", "premium_subscriber")
+    bot_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    integration_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    premium_subscriber: Optional[Any] = field(default=None)
 
     # TODO: Figure out what actual type it returns, all it says is null.
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.bot_id = Snowflake(self.bot_id) if self._json.get("bot_id") else None
-        self.integration_id = (
-            Snowflake(self.integration_id) if self._json.get("integration_id") else None
-        )
 
-
-class Role(DictSerializerMixin):
+@define()
+class Role(ClientSerializerMixin):
     """
     A class object representing a role.
 
@@ -42,27 +45,17 @@ class Role(DictSerializerMixin):
     :ivar Optional[RoleTags] tags?: The tags this role has
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "name",
-        "color",
-        "hoist",
-        "icon",
-        "unicode_emoji",
-        "position",
-        "managed",
-        "mentionable",
-        "tags",
-        "flags",
-        "permissions",
-        "_client",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.tags = RoleTags(**self.tags) if self._json.get("tags") else None
+    id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    color: int = field()
+    hoist: bool = field()
+    icon: Optional[str] = field(default=None)
+    unicode_emoji: Optional[str] = field(default=None)
+    position: int = field()
+    permissions: str = field()
+    managed: bool = field()
+    mentionable: bool = field()
+    tags: Optional[RoleTags] = field(converter=RoleTags, default=None)
 
     @property
     def mention(self) -> str:
@@ -76,7 +69,7 @@ class Role(DictSerializerMixin):
 
     async def delete(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -88,20 +81,23 @@ class Role(DictSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         await self._client.delete_guild_role(
-            guild_id=guild_id, role_id=int(self.id), reason=reason
+            guild_id=_guild_id, role_id=int(self.id), reason=reason
         ),
 
     async def modify(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         name: Optional[str] = MISSING,
-        # permissions,
+        permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
-        # icon,
-        # unicode_emoji,
+        icon: Optional[Image] = MISSING,
+        unicode_emoji: Optional[str] = MISSING,
         mentionable: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Role":
@@ -114,8 +110,14 @@ class Role(DictSerializerMixin):
         :type name: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
         :type color: Optional[int]
+         :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :type permissions: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
         :type hoist: Optional[bool]
+        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type icon: Optional[Image]
+        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :type unicode_emoji: Optional[str]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
         :type mentionable: Optional[bool]
         :param reason?: The reason why the role is edited, default ``None``
@@ -124,30 +126,40 @@ class Role(DictSerializerMixin):
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _name = self.name if name is MISSING else name
         _color = self.color if color is MISSING else color
         _hoist = self.hoist if hoist is MISSING else hoist
         _mentionable = self.mentionable if mentionable is MISSING else mentionable
+        _permissions = self.permissions if permissions is MISSING else permissions
+        _icon = self.icon if icon is MISSING else icon
+        _unicode_emoji = self.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
-        payload = Role(name=_name, color=_color, hoist=_hoist, mentionable=_mentionable)
+        payload = dict(
+            name=_name,
+            color=_color,
+            hoist=_hoist,
+            mentionable=_mentionable,
+            permissions=_permissions,
+            icon=_icon,
+            unicode_emoji=_unicode_emoji,
+        )
 
         res = await self._client.modify_guild_role(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             role_id=int(self.id),
-            payload=payload._json,
+            payload=payload,
             reason=reason,
         )
-        role = Role(**res, _client=self._client)
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(role, attr))
+        self.update(res)
 
-        return role
+        return self
 
     async def modify_position(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         position: int,
         reason: Optional[str] = None,
     ) -> List["Role"]:
@@ -164,9 +176,12 @@ class Role(DictSerializerMixin):
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         res = await self._client.modify_guild_role_positions(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             payload=[{"position": position, "id": int(self.id)}],
             reason=reason,
         )

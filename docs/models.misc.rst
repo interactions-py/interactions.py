@@ -3,6 +3,6 @@
 Miscellaneous Models
 ====================
 
-.. automodule:: interactions.models.misc
+.. automodule:: interactions.client.models.misc
     :members:
     :noindex:

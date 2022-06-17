@@ -1,10 +1,13 @@
 from typing import Dict, List, Optional, Union
 
 from ...api.cache import Cache, Item
+from ..error import LibraryException
 from ..models.channel import Channel
 from ..models.message import Message
 from .request import _Request
 from .route import Route
+
+__all__ = ("ChannelRequest",)
 
 
 class ChannelRequest:
@@ -23,7 +26,7 @@ class ChannelRequest:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request)))
+        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request, _client=self)))
 
         return request
 
@@ -73,8 +76,9 @@ class ChannelRequest:
             params["around"] = around
 
         if params_used > 1:
-            raise ValueError(
-                "`before`, `after` and `around` are mutually exclusive. Please pass only one of them."
+            raise LibraryException(
+                message="`before`, `after` and `around` are mutually exclusive. Please pass only one of them.",
+                code=12,
             )
 
         request = await self._req.request(
@@ -179,16 +183,6 @@ class ChannelRequest:
         return await self._req.request(
             Route("POST", f"/channels/{channel_id}/invites"), json=payload, reason=reason
         )
-
-    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
-        """
-        Delete an invite.
-
-        :param invite_code: The code of the invite to delete
-        :param reason: Reason to show in the audit log, if any.
-        :return: The deleted invite object
-        """
-        return await self._req.request(Route("DELETE", f"/invites/{invite_code}"), reason=reason)
 
     async def edit_channel_permission(
         self,
