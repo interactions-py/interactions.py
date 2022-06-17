@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from .channel import Channel
 from .flags import Permissions
@@ -34,8 +35,8 @@ class Member(ClientSerializerMixin):
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    user: Optional[User] = field(converter=User, default=None, add_client=True)
-    nick: Optional[str] = field(default=None)
+    user: Optional[User] = field(converter=User, default=None, add_client=True, repr=True)
+    nick: Optional[str] = field(default=None, repr=True)
     _avatar: Optional[str] = field(default=None, discord_name="avatar")
     roles: List[int] = field()
     joined_at: datetime = field(converter=datetime.fromisoformat)
@@ -53,8 +54,8 @@ class Member(ClientSerializerMixin):
     )  # TODO: Investigate what this is for when documented by Discord.
     flags: int = field()  # TODO: Investigate what this is for when documented by Discord.
 
-    def __repr__(self) -> str:
-        return self.name
+    def __str__(self) -> str:
+        return self.name or ""
 
     @property
     def avatar(self) -> Optional[str]:
@@ -130,7 +131,7 @@ class Member(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
 
@@ -157,7 +158,7 @@ class Member(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _role = int(role.id) if isinstance(role, Role) else int(role)
         _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
@@ -186,7 +187,7 @@ class Member(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
         _role = int(role.id) if isinstance(role, Role) else int(role)
@@ -236,7 +237,7 @@ class Member(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from ...client.models.component import _build_components
         from .message import Message
 
@@ -314,7 +315,7 @@ class Member(ClientSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
@@ -360,7 +361,7 @@ class Member(ClientSerializerMixin):
         :type thread_id: Union[int, Snowflake, Channel]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _thread_id = int(thread_id.id) if isinstance(thread_id, Channel) else int(thread_id)
 

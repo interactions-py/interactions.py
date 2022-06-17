@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
+from ..error import LibraryException
 from .attrs_utils import (
     MISSING,
     ClientSerializerMixin,
@@ -14,13 +15,15 @@ from .channel import Channel, ThreadMember
 from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import ClientStatus, File, Snowflake
+from .misc import AutoModAction, AutoModTriggerMetadata, ClientStatus, File, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
 
 __all__ = (
+    "AutoModerationAction",
+    "AutoModerationRule",
     "ApplicationCommandPermissions",
     "EmbeddedActivity",
     "Integration",
@@ -45,6 +48,72 @@ __all__ = (
 
 
 @define()
+class AutoModerationAction(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``AUTO_MODERATION_ACTION_EXECUTION``.
+
+    :ivar Snowflake guild_id: The ID of the guild in which the action was executed.
+    :ivar AutoModAction action: The action which was executed.
+    :ivar Snowflake rule_id: The rule ID that the action belongs to.
+    :ivar int rule_trigger_type: The trigger rule type.
+    :ivar Optional[Snowflake] channel_id: The id of the channel in which user content was posted.
+    :ivar Optional[Snowflake] message_id: The id of any user message which content belongs to.
+    :ivar Optional[Snowflake] alert_system_message_id: The id of any system automoderation messages posted as a result of this action.
+    :ivar str content: The user-generated text content in question.
+    :ivar Optional[str] matched_keyword: The word/phrase configured in rule that triggered rule.
+    :ivar Optional[str] matched_content: The substring in content that triggered rule.
+    """
+
+    guild_id: Snowflake = field(converter=Snowflake)
+    action: AutoModAction = field(converter=AutoModAction)
+    rule_id: Snowflake = field(converter=Snowflake)
+    rule_trigger_type: int = field()
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    alert_system_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    content: str = field()
+    matched_keyword: Optional[str] = field(default=None)
+    matched_content: Optional[str] = field(default=None)
+
+
+@define()
+class AutoModerationRule(DictSerializerMixin):
+    """
+    A class object representing the gateway events ``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and ``AUTO_MODERATION_RULE_DELETE``
+
+    .. note::
+        This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
+
+    .. note::
+        ``event_type`` at the moment is only ``1``, which represents message sending.
+
+    :ivar Snowflake id: The ID of the rule.
+    :ivar Snowflake guild_id: The guild ID associated with the rule.
+    :ivar str name: The rule name.
+    :ivar Snowflake creator_id: The user ID that first created this rule.
+    :ivar int event_type: The rule type in which automod checks.
+    :ivar int trigger_type: The automod type. It characterises what type of information that is checked.
+    :ivar Dict[str, List[str]] trigger_metadata: Additional data needed to figure out whether this rule should be triggered.
+    :ivar List[AutoModerationAction] actions: The actions that will be executed when the rule is triggered.
+    :ivar bool enabled: Whether the rule is enabled.
+    :ivar List[Snowflake] exempt_roles: The role IDs that should not be affected by this rule. (Max 20)
+    :ivar List[Snowflake] exempt_channels: The channel IDs that should not be affected by this rule. (Max 20)
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    creator_id: Snowflake = field(converter=Snowflake)
+    event_type: int = field()
+    trigger_type: str = field()
+    trigger_metadata: AutoModTriggerMetadata = field(converter=AutoModTriggerMetadata)
+    actions: List[AutoModAction] = field(converter=convert_list(AutoModAction))
+    enabled: bool = field()
+    exempt_roles: List[Snowflake] = field(converter=convert_list(Snowflake))
+    exempt_channels: List[Snowflake] = field(converter=convert_list(Snowflake))
+
+
+@define()
 class ApplicationCommandPermissions(ClientSerializerMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
@@ -60,7 +129,9 @@ class ApplicationCommandPermissions(ClientSerializerMixin):
     application_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
     id: Snowflake = field(converter=Snowflake)
-    # permissions: List[Permission] = field(converter=convert_list(Permission))  # TODO fix circular import
+    # from ...client.models.command import Permission
+
+    # permissions: List[Permission] = field(converter=convert_list(Permission))
     permissions = field()
 
 
@@ -231,7 +302,7 @@ class GuildMember(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.create_guild_kick(
             guild_id=int(self.guild_id),
             user_id=int(self.user.id),
@@ -252,7 +323,7 @@ class GuildMember(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if isinstance(role, Role):
             await self._client.add_member_role(
                 guild_id=int(self.guild_id),
@@ -282,7 +353,7 @@ class GuildMember(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if isinstance(role, Role):
             await self._client.remove_member_role(
                 guild_id=int(self.guild_id),
@@ -336,7 +407,7 @@ class GuildMember(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
@@ -411,7 +482,7 @@ class GuildMember(ClientSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         payload = {}
         if nick is not MISSING:
             payload["nick"] = nick
@@ -450,7 +521,7 @@ class GuildMember(ClientSerializerMixin):
         :type thread_id: int
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.add_member_to_thread(
             user_id=int(self.user.id),
             thread_id=thread_id,

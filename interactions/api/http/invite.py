@@ -22,9 +22,9 @@ class InviteRequest:
         guild_scheduled_event_id: int = None,
     ) -> dict:
         """
-        Gets an invite using its code.
+        Gets a Discord invite using its code.
 
-                .. note:: with_expiration is currently broken, the API will always return expiration_date.
+        .. note:: with_expiration is currently broken, the API will always return expiration_date.
 
         :param invite_code: A string representing the invite code.
         :param with_counts: Whether approximate_member_count and approximate_presence_count are returned.
@@ -48,8 +48,8 @@ class InviteRequest:
         """
         Delete an invite.
 
-        :param invite_code: The code of the invite to delete
+        :param invite_code: The code of the invite to delete.
         :param reason: Reason to show in the audit log, if any.
-        :return: The deleted invite object
+        :return: The deleted invite object.
         """
         return await self._req.request(Route("DELETE", f"/invites/{invite_code}"), reason=reason)

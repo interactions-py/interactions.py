@@ -178,6 +178,6 @@ class ApplicationCommand(DictSerializerMixin):
     default_permission: Optional[bool] = field(default=None)
     version: int = field(default=None)
     default_member_permissions: str = field()
-    dm_permission: bool = field()
+    dm_permission: bool = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)

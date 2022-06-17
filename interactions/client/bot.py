@@ -139,6 +139,8 @@ class Client:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
             raise e from e
+        except KeyboardInterrupt:
+            log.error("KeyboardInterrupt detected, shutting down the bot.")
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
@@ -1204,9 +1206,10 @@ class Client:
         elif isinstance(command, int) or isinstance(command, Snowflake):
             _command: Union[Snowflake, int] = int(command)
         else:
-            raise ValueError(
-                "You can only insert strings, integers and ApplicationCommands here!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="You can only insert strings, integers and ApplicationCommands here!",
+                code=12,
+            )
 
         def decorator(coro: Coroutine) -> Any:
             if isinstance(_command, str):

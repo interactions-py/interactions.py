@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu
 from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
@@ -7,11 +7,39 @@ from .channel import Channel, ThreadMember
 from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import ClientStatus, File, Snowflake
+from .misc import AutoModAction, ClientStatus, File, Snowflake, AutoModTriggerMetadata
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
+
+
+class AutoModerationAction(DictSerializerMixin):
+    guild_id: Snowflake
+    action: AutoModAction
+    rule_id: Snowflake
+    rule_trigger_type: int
+    channel_id: Optional[Snowflake]
+    message_id: Optional[Snowflake]
+    alert_system_message_id: Optional[Snowflake]
+    content: str
+    matched_keyword: Optional[str]
+    matched_content: Optional[str]
+
+class AutoModerationRule(DictSerializerMixin):
+    _json: dict
+    id: Snowflake
+    guild_id: Snowflake
+    name: str
+    creator_id: str
+    event_type: int
+    trigger_type: int
+    trigger_metadata: AutoModTriggerMetadata
+    actions: List[AutoModAction]
+    enabled: bool
+    exempt_roles: List[Snowflake]
+    exempt_channels: List[Snowflake]
+
 
 @define()
 class ApplicationCommandPermissions(ClientSerializerMixin):
