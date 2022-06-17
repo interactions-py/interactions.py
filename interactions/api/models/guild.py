@@ -12,7 +12,6 @@ from .attrs_utils import (
     field,
 )
 from .channel import Channel, ChannelType, Thread
-from .gw import AutoModerationRule
 from .member import Member
 from .message import Emoji, Sticker
 from .misc import (
@@ -1940,18 +1939,22 @@ class Guild(ClientSerializerMixin):
 
         return [Webhook(**_, _client=self._client) for _ in res]
 
-    async def list_auto_moderation_rules(self) -> List[AutoModerationRule]:
+    async def list_auto_moderation_rules(self) -> List["AutoModerationRule"]:  # noqa
         """
         Lists all AutoMod rules
         """
         if not self._client:
             raise LibraryException(code=13)
 
+        from .gw import AutoModerationRule
+
         res = await self._client.list_auto_moderation_rules(int(self.id))
 
         return [AutoModerationRule(**_) for _ in res]
 
-    async def get_auto_moderation_rule(self, rule_id: Union[int, Snowflake]) -> AutoModerationRule:
+    async def get_auto_moderation_rule(
+        self, rule_id: Union[int, Snowflake]
+    ) -> "AutoModerationRule":  # noqa
         """
         Gets a AutoMod rule from its ID
 
@@ -1962,6 +1965,8 @@ class Guild(ClientSerializerMixin):
         """
         if not self._client:
             raise LibraryException(code=13)
+
+        from .gw import AutoModerationRule
 
         res = await self._client.get_auto_moderation_rule(int(self.id), int(rule_id))
 
@@ -1978,7 +1983,7 @@ class Guild(ClientSerializerMixin):
         exempt_roles: Optional[List[int]] = MISSING,
         exempt_channels: Optional[List[int]] = MISSING,
         reason: Optional[str] = None,
-    ) -> AutoModerationRule:
+    ) -> "AutoModerationRule":  # noqa
         """
         Creates an AutoMod rule
 
@@ -2005,11 +2010,11 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
 
+        from .gw import AutoModerationRule
+
         event_type = 1
         _actions = None if actions is MISSING else [_._json for _ in actions]
-        _trigger_metadata = (
-            None if trigger_metadata is MISSING else [_._json for _ in trigger_metadata]
-        )
+        _trigger_metadata = None if trigger_metadata is MISSING else trigger_metadata._json
         _trigger_type = (
             None
             if trigger_type is MISSING
@@ -2019,6 +2024,7 @@ class Guild(ClientSerializerMixin):
         )
 
         res = await self._client.create_auto_moderation_rule(
+            guild_id=int(self.id),
             event_type=event_type,
             actions=_actions,
             trigger_type=_trigger_type,
@@ -2034,7 +2040,7 @@ class Guild(ClientSerializerMixin):
 
     async def modify_auto_moderation_rule(
         self,
-        rule: Union[int, Snowflake, AutoModerationRule],
+        rule: Union[int, Snowflake, "AutoModerationRule"],  # noqa
         name: str = MISSING,
         # event_type: int, # only 1 exists
         trigger_type: AutoModTriggerType = MISSING,
@@ -2044,9 +2050,9 @@ class Guild(ClientSerializerMixin):
         exempt_roles: Optional[List[int]] = MISSING,
         exempt_channels: Optional[List[int]] = MISSING,
         reason: Optional[str] = None,
-    ) -> AutoModerationRule:
+    ) -> "AutoModerationRule":  # noqa
         """
-        Creates an AutoMod rule
+        Edits an AutoMod rule
 
         :param rule: The rule to modify
         :type rule: Union[int, Snowflake, AutoModerationRule]
@@ -2073,15 +2079,17 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
 
+        from .gw import AutoModerationRule
+
         if isinstance(rule, (int, Snowflake)):
             rule = await self.get_auto_moderation_rule(rule)
 
         event_type = 1
 
-        _actions = actions if actions is not MISSING else rule.actions
+        _actions = actions if actions is not MISSING else [_._json for _ in rule.actions]
         _trigger_type = trigger_type if trigger_type is not MISSING else rule.trigger_type
         _trigger_metadata = (
-            trigger_metadata if trigger_metadata is not MISSING else rule.trigger_metadata
+            trigger_metadata if trigger_metadata is not MISSING else rule.trigger_metadata._json
         )
         _name = name if name is not MISSING else rule.name
         _enabled = enabled if enabled is not MISSING else rule.enabled
@@ -2091,6 +2099,7 @@ class Guild(ClientSerializerMixin):
         )
 
         res = await self._client.create_auto_moderation_rule(
+            guild_id=int(self.id),
             event_type=event_type,
             actions=_actions,
             trigger_type=_trigger_type,
