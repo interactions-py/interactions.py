@@ -410,7 +410,7 @@ class Guild(ClientSerializerMixin):
     ) -> AutoModerationRule: ...
     async def modify_auto_moderation_rule(
         self,
-        rule: Union[int, Snowflake, AutoModerationRule] = MISSING,
+        rule: Union[int, Snowflake, AutoModerationRule],
         name: str = MISSING,
         trigger_type: AutoModTriggerType = MISSING,
         actions: List[AutoModAction] = MISSING,

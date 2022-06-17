@@ -2034,7 +2034,7 @@ class Guild(ClientSerializerMixin):
 
     async def modify_auto_moderation_rule(
         self,
-        rule: Union[int, Snowflake, AutoModerationRule] = MISSING,
+        rule: Union[int, Snowflake, AutoModerationRule],
         name: str = MISSING,
         # event_type: int, # only 1 exists
         trigger_type: AutoModTriggerType = MISSING,
@@ -2048,6 +2048,8 @@ class Guild(ClientSerializerMixin):
         """
         Creates an AutoMod rule
 
+        :param rule: The rule to modify
+        :type rule: Union[int, Snowflake, AutoModerationRule]
         :param name: The name of the new rule.
         :type name: str
         :param trigger_type: The trigger type of the new rule.
