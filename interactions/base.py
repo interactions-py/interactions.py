@@ -1,7 +1,5 @@
 import logging
 
-
-
 __all__ = (
     "get_logger",
     "__version__",

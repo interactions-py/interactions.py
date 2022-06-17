@@ -1638,7 +1638,6 @@ class Guild(ClientSerializerMixin):
         :rtype: Role
         """
 
-
         for role in self.roles:
             if int(role.id) == role_id:
                 return role
