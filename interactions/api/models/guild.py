@@ -1638,21 +1638,22 @@ class Guild(ClientSerializerMixin):
         :rtype: Role
         """
 
-        try:
-            role = next(role for role in self.roles if int(role.id) == role_id)
-            return role
-        except StopIteration:  # sourcery skip: raise-from-previous-error
+        for role in self.roles:
+            if int(role.id) == role_id:
+                return role
+        else:
             if not self._client:
                 raise LibraryException(code=13)
             roles = await self._client.get_all_roles(guild_id=int(self.id))
-            try:
-                role = next(role for role in roles if int(role["id"]) == role_id)
-                self.roles = [Role(**_) for _ in roles]
-                return Role(**role)
-            except StopIteration as exc:
+            self.roles = [Role(**_) for _ in roles]
+            for role in self.roles:
+                if int(role.id) == role_id:
+                    break
+            else:
                 raise LibraryException(
                     message="The role you looked for was not found!", code=0, severity=30
-                ) from exc
+                )
+            return role
 
     async def modify_role_position(
         self,
