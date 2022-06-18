@@ -31,7 +31,6 @@ class Choice(DictSerializerMixin):
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     """
 
-    _json: dict = field()
     name: str = field()
     value: Union[str, int, float] = field()
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field()
