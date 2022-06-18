@@ -2063,9 +2063,9 @@ class Guild(ClientSerializerMixin):
         :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
         :type trigger_metadata: Optional[AutoModTriggerMetadata]
         :param actions: The actions that will execute when the rule is triggered.
-        :type: List[AutoModAction]
+        :type actions: List[AutoModAction]
         :param enabled: Whether the rule will be enabled upon creation. False by default.
-        :type: Optional[bool]
+        :type enabled: Optional[bool]
         :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
         :type exempt_roles: Optional[List[int]]
         :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
