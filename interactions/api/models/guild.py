@@ -1641,18 +1641,16 @@ class Guild(ClientSerializerMixin):
         for role in self.roles:
             if int(role.id) == role_id:
                 return role
-        else:
-            if not self._client:
-                raise LibraryException(code=13)
-            roles = await self._client.get_all_roles(guild_id=int(self.id))
-            self.roles = [Role(**_) for _ in roles]
-            for role in self.roles:
-                if int(role.id) == role_id:
-                    return role
-            else:
-                raise LibraryException(
-                    message="The role you looked for was not found!", code=0, severity=30
-                )
+        if not self._client:
+            raise LibraryException(code=13)
+        roles = await self._client.get_all_roles(guild_id=int(self.id))
+        self.roles = [Role(**_) for _ in roles]
+        for role in self.roles:
+            if int(role.id) == role_id:
+                return role
+        raise LibraryException(
+            message="The role you looked for was not found!", code=0, severity=30
+        )
 
     async def modify_role_position(
         self,
