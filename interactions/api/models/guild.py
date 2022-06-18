@@ -778,7 +778,7 @@ class Guild(ClientSerializerMixin):
             payload["position"] = position
         if parent_id is not MISSING:
             payload["parent_id"] = (
-                int(parent_id.id) if isinstance(parent_id, Channel) else (parent_id.id)
+                int(parent_id.id) if isinstance(parent_id, Channel) else int(parent_id)
             )
         if nsfw is not MISSING:
             payload["nsfw"] = nsfw
