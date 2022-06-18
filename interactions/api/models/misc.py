@@ -7,6 +7,7 @@
 
 import datetime
 from base64 import b64encode
+from enum import IntEnum
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
@@ -18,6 +19,8 @@ from ..error import LibraryException
 from .attrs_utils import MISSING, DictSerializerMixin, define, field
 
 __all__ = (
+    "AutoModKeywordPresetTypes",
+    "AutoModTriggerType",
     "AutoModMetaData",
     "AutoModAction",
     "AutoModTriggerMetadata",
@@ -175,6 +178,19 @@ class AutoModMetaData(DictSerializerMixin):
 
     channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     duration_seconds: Optional[int] = field(default=None)
+
+
+class AutoModTriggerType(IntEnum):
+    KEYWORD = 1
+    HARMFUL_LINK = 2
+    SPAM = 3
+    KEYWORD_PRESET = 4
+
+
+class AutoModKeywordPresetTypes(IntEnum):
+    PROFANITY = 1
+    SEXUAL_CONTENT = 2
+    SLURS = 3
 
 
 @define()

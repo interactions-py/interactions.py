@@ -14,7 +14,14 @@ from .attrs_utils import (
 from .channel import Channel, ChannelType, Thread
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import Image, Overwrite, Snowflake
+from .misc import (
+    AutoModAction,
+    AutoModTriggerMetadata,
+    AutoModTriggerType,
+    Image,
+    Overwrite,
+    Snowflake,
+)
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -1931,6 +1938,179 @@ class Guild(ClientSerializerMixin):
         res = await self._client.get_guild_webhooks(int(self.id))
 
         return [Webhook(**_, _client=self._client) for _ in res]
+
+    async def list_auto_moderation_rules(self) -> List["AutoModerationRule"]:  # noqa
+        """
+        Lists all AutoMod rules
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import AutoModerationRule
+
+        res = await self._client.list_auto_moderation_rules(int(self.id))
+
+        return [AutoModerationRule(**_) for _ in res]
+
+    async def get_auto_moderation_rule(
+        self, rule_id: Union[int, Snowflake]
+    ) -> "AutoModerationRule":  # noqa
+        """
+        Gets a AutoMod rule from its ID
+
+        :param rule_id: The ID of the rule to get
+        :type rule_id: Union[int, Snowflake]
+        :return: A AutoMod rule
+        :rtype: AutoModerationRule
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import AutoModerationRule
+
+        res = await self._client.get_auto_moderation_rule(int(self.id), int(rule_id))
+
+        return AutoModerationRule(**res)
+
+    async def create_auto_moderation_rule(
+        self,
+        name: str,
+        # event_type: int, # only 1 exists
+        trigger_type: AutoModTriggerType,
+        actions: List[AutoModAction],
+        trigger_metadata: Optional[AutoModTriggerMetadata] = MISSING,
+        enabled: Optional[bool] = False,
+        exempt_roles: Optional[List[int]] = MISSING,
+        exempt_channels: Optional[List[int]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "AutoModerationRule":  # noqa
+        """
+        Creates an AutoMod rule
+
+        :param name: The name of the new rule.
+        :type name: str
+        :param trigger_type: The trigger type of the new rule.
+        :type trigger_type: AutoModTriggerType
+        :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
+        :type trigger_metadata: Optional[AutoModTriggerMetadata]
+        :param actions: The actions that will execute when the rule is triggered.
+        :type actions: List[AutoModAction]
+        :param enabled: Whether the rule will be enabled upon creation. False by default.
+        :type enabled: Optional[bool]
+        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :type exempt_roles: Optional[List[int]]
+        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :type exempt_channels: Optional[List[int]]
+        :param reason: The reason of the creation
+        :type reason: Optional[str]
+        :return: The new AutoMod rule
+        :rtype: AutoModerationRule
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import AutoModerationRule
+
+        event_type = 1
+        _actions = None if actions is MISSING else [_._json for _ in actions]
+        _trigger_metadata = None if trigger_metadata is MISSING else trigger_metadata._json
+        _trigger_type = (
+            None
+            if trigger_type is MISSING
+            else trigger_type
+            if isinstance(trigger_type, int)
+            else trigger_type.value
+        )
+
+        res = await self._client.create_auto_moderation_rule(
+            guild_id=int(self.id),
+            event_type=event_type,
+            actions=_actions,
+            trigger_type=_trigger_type,
+            trigger_metadata=_trigger_metadata,
+            name=name,
+            enabled=enabled,
+            exempt_roles=exempt_roles,
+            exempt_channels=exempt_channels,
+            reason=reason,
+        )
+
+        return AutoModerationRule(**res)
+
+    async def modify_auto_moderation_rule(
+        self,
+        rule: Union[int, Snowflake, "AutoModerationRule"],  # noqa
+        name: str = MISSING,
+        # event_type: int, # only 1 exists
+        trigger_type: AutoModTriggerType = MISSING,
+        actions: List[AutoModAction] = MISSING,
+        trigger_metadata: Optional[AutoModTriggerMetadata] = MISSING,
+        enabled: Optional[bool] = MISSING,
+        exempt_roles: Optional[List[int]] = MISSING,
+        exempt_channels: Optional[List[int]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "AutoModerationRule":  # noqa
+        """
+        Edits an AutoMod rule
+
+        :param rule: The rule to modify
+        :type rule: Union[int, Snowflake, AutoModerationRule]
+        :param name: The name of the new rule.
+        :type name: str
+        :param trigger_type: The trigger type of the new rule.
+        :type trigger_type: AutoModTriggerType
+        :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
+        :type trigger_metadata: Optional[AutoModTriggerMetadata]
+        :param actions: The actions that will execute when the rule is triggered.
+        :type actions: List[AutoModAction]
+        :param enabled: Whether the rule will be enabled upon creation. False by default.
+        :type enabled: Optional[bool]
+        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :type exempt_roles: Optional[List[int]]
+        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :type exempt_channels: Optional[List[int]]
+        :param reason: The reason of the creation
+        :type reason: Optional[str]
+        :return: The new AutoMod rule
+        :rtype: AutoModerationRule
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import AutoModerationRule
+
+        if isinstance(rule, (int, Snowflake)):
+            rule = await self.get_auto_moderation_rule(rule)
+
+        event_type = 1
+
+        _actions = actions if actions is not MISSING else [_._json for _ in rule.actions]
+        _trigger_type = trigger_type if trigger_type is not MISSING else rule.trigger_type
+        _trigger_metadata = (
+            trigger_metadata if trigger_metadata is not MISSING else rule.trigger_metadata._json
+        )
+        _name = name if name is not MISSING else rule.name
+        _enabled = enabled if enabled is not MISSING else rule.enabled
+        _exempt_roles = exempt_roles if exempt_roles is not MISSING else rule.exempt_roles
+        _exempt_channels = (
+            exempt_channels if exempt_channels is not MISSING else rule.exempt_channels
+        )
+
+        res = await self._client.create_auto_moderation_rule(
+            guild_id=int(self.id),
+            event_type=event_type,
+            actions=_actions,
+            trigger_type=_trigger_type,
+            trigger_metadata=_trigger_metadata,
+            name=_name,
+            enabled=_enabled,
+            exempt_roles=_exempt_roles,
+            exempt_channels=_exempt_channels,
+            reason=reason,
+        )
+        return AutoModerationRule(**res)
 
     @property
     def icon_url(self) -> Optional[str]:
