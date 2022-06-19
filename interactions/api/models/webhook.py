@@ -3,7 +3,6 @@ from typing import Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
-from .message import Attachment
 from .misc import File, Image, Snowflake
 from .user import User
 
@@ -177,7 +176,7 @@ class Webhook(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Any = MISSING,
-        attachments: Optional[List[Attachment]] = None,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 "ActionRow",  # noqa
