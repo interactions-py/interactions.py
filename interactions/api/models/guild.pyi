@@ -4,9 +4,10 @@ from typing import Any, Dict, List, Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, MISSING
 from .channel import Channel, ChannelType, Thread
+from .gw import AutoModerationRule
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import Image, Overwrite, Snowflake
+from .misc import Image, Overwrite, Snowflake, AutoModTriggerType, AutoModAction, AutoModTriggerMetadata
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
@@ -394,6 +395,31 @@ class Guild(ClientSerializerMixin):
     async def search_members(self, query: str, limit: Optional[int] = ...) -> List[Member]: ...
     async def get_all_members(self) -> List[Member]: ...
     async def get_webhooks(self) -> List[Webhook]: ...
+    async def list_auto_moderation_rules(self) -> List[AutoModerationRule]: ...
+    async def get_auto_moderation_rule(self, rule_id: Union[int, Snowflake]) -> AutoModerationRule: ...
+    async def create_auto_moderation_rule(
+        self,
+        name: str,
+        trigger_type: AutoModTriggerType,
+        actions: List[AutoModAction],
+        trigger_metadata: Optional[AutoModTriggerMetadata] = MISSING,
+        enabled: Optional[bool] = False,
+        exempt_roles: Optional[List[int]] = MISSING,
+        exempt_channels: Optional[List[int]] = MISSING,
+        reason: Optional[str] = None
+    ) -> AutoModerationRule: ...
+    async def modify_auto_moderation_rule(
+        self,
+        rule: Union[int, Snowflake, AutoModerationRule],
+        name: str = MISSING,
+        trigger_type: AutoModTriggerType = MISSING,
+        actions: List[AutoModAction] = MISSING,
+        trigger_metadata: Optional[AutoModTriggerMetadata] = MISSING,
+        enabled: Optional[bool] = MISSING,
+        exempt_roles: Optional[List[int]] = MISSING,
+        exempt_channels: Optional[List[int]] = MISSING,
+        reason: Optional[str] = None
+    ) -> AutoModerationRule: ...
     @property
     def icon_url(self) -> Optional[str]: ...
     @property

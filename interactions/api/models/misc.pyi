@@ -2,6 +2,7 @@ import datetime
 from io import FileIO, IOBase
 from logging import Logger
 from typing import Optional, Union, List
+from enum import IntEnum
 
 from interactions.api.models.attrs_utils import DictSerializerMixin, define
 
@@ -11,6 +12,17 @@ log: Logger
 class AutoModMetaData(DictSerializerMixin):
     channel_id: Optional[Snowflake]
     duration_seconds: Optional[int]
+
+class AutoModTriggerType(IntEnum):
+    KEYWORD: int
+    HARMFUL_LINK: int
+    SPAM: int
+    KEYWORD_PRESET: int
+
+class AutoModKeywordPresetTypes(IntEnum):
+    PROFANITY: int
+    SEXUAL_CONTENT: int
+    SLURS: int
 
 @define()
 class AutoModAction(DictSerializerMixin):
