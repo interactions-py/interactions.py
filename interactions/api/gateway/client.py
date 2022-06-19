@@ -16,7 +16,7 @@ from sys import platform, version_info
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from aiohttp import WSMessage, WSMsgType, BasicAuth
+from aiohttp import BasicAuth, WSMessage, WSMsgType
 from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ...base import get_logger
@@ -34,7 +34,10 @@ from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
 
-__all__ = ("WebSocketClient", "ProxyConfig",)
+__all__ = (
+    "WebSocketClient",
+    "ProxyConfig",
+)
 
 
 class ProxyConfig:
@@ -46,13 +49,14 @@ class ProxyConfig:
     :ivar Optional[str] user: The proxy user.
     :ivar Optional[str] password: The proxy password.
     """
+
     def __init__(
-            self,
-            host: str,
-            port: Union[str, int],
-            user: str = None,
-            password: str = None,
-            full_path: str = None
+        self,
+        host: str,
+        port: Union[str, int],
+        user: str = None,
+        password: str = None,
+        full_path: str = None,
     ) -> None:
         """
         Initialize a ProxyConfig instance.

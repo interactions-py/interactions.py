@@ -122,12 +122,15 @@ class Client:
 
         if __proxy := kwargs.get("proxy"):
             if isinstance(__proxy, str):
-                _re_proxy = re.search("^((?P<scheme>[^:/?#]+):(?=//))?(//)?(((?P<login>[^:]+)(?::(?P<password>[^@]+)?)?@)?(?P<host>[^@/?#:]*)(?::(?P<port>\d+)?)?)?", __proxy)  # noqa: E501
+                _re_proxy = re.search(
+                    "^((?P<scheme>[^:/?#]+):(?=//))?(//)?(((?P<login>[^:]+)(?::(?P<password>[^@]+)?)?@)?(?P<host>[^@/?#:]*)(?::(?P<port>\d+)?)?)?",
+                    __proxy,
+                )  # noqa: E501
                 self._proxy = ProxyConfig(
                     host=_re_proxy["host"],
                     port=_re_proxy["port"],
                     user=_re_proxy["login"],
-                    password=_re_proxy["password"]
+                    password=_re_proxy["password"],
                 )
             elif isinstance(__proxy, ProxyConfig):
                 self._proxy = __proxy
@@ -135,7 +138,7 @@ class Client:
                 log.error(
                     "Invalid proxy configuration. Must be of instance ProxyConfig or "
                     + "of string format: [http/https]://[login]:[password]@host:port"
-                    )
+                )
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data, _client=self._http)
