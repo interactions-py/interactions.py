@@ -1850,7 +1850,11 @@ class Guild(ClientSerializerMixin):
 
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
         _emoji = Emoji(**res, _client=self._client)
-        if _emoji not in self.emojis:
+        for index, emoji in enumerate(self.emojis):
+            if int(emoji.id) == emoji_id:
+                self.emojis[index] = _emoji
+                break
+        else:
             self.emojis.append(_emoji)
         return _emoji
 
