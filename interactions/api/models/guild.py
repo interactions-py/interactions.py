@@ -568,13 +568,9 @@ class Guild(ClientSerializerMixin):
 
         if not self.channels:
             return
-        elif isinstance(channel_id, Channel):
-            if channel_id in self.channels:
-                self.channels.remove(channel_id)
-            return
-        for item in self.channels:
-            if int(item.id) == _channel_id:
-                self.channels.remove(item)
+        for channel in self.channels:
+            if int(channel.id) == _channel_id:
+                return self.channels.remove(channel)
 
     async def delete_role(
         self,
