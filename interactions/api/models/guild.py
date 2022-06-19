@@ -598,13 +598,9 @@ class Guild(ClientSerializerMixin):
 
         if not self.roles:
             return
-        elif isinstance(role_id, Role):
-            if role_id in self.roles:
-                self.roles.remove(role_id)
-            return
-        for item in self.roles:
-            if int(item.id) == _role_id:
-                self.roles.remove(item)
+        for role in self.roles:
+            if int(role.id) == _role_id:
+                return self.roles.remove(role)
 
     async def modify_role(
         self,
