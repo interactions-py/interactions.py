@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from aiohttp import WSMessage, WSMsgType
 from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
+from ...api.gateway.misc import ProxyConfig
 from ...base import get_logger
 from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
@@ -87,6 +88,7 @@ class WebSocketClient:
         intents: Intents,
         session_id: Optional[str] = MISSING,
         sequence: Optional[int] = MISSING,
+        proxy: Optional[ProxyConfig] = None,
     ) -> None:
         """
         :param token: The token of the application for connecting to the Gateway.
@@ -111,8 +113,8 @@ class WebSocketClient:
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
-            "proxy": str(_proxy) if isinstance(_proxy, ProxyConfig) else None,
-            "proxy_auth": _proxy.auth if isinstance(_proxy, ProxyConfig) else None,
+            "proxy": str(proxy) if isinstance(proxy, ProxyConfig) else None,
+            "proxy_auth": proxy.auth if isinstance(proxy, ProxyConfig) else None,
         }
         print(self._options)
         self._intents = intents

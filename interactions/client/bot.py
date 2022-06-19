@@ -94,10 +94,23 @@ class Client:
         # proxy? : Optional[Union[ProxyConfig, str]]
         #     Sets the proxy configuration of the client.
 
+        if __proxy := kwargs.get("proxy"):
+            if isinstance(__proxy, str):
+                self._proxy = ProxyConfig(__proxy)
+            elif isinstance(__proxy, ProxyConfig):
+                self._proxy = __proxy
+            else:
+                log.error(
+                    "Invalid proxy configuration. Must be of instance ProxyConfig or "
+                    + "of string format: [http/https]://[login]:[password]@host:port"
+                )
+        else:
+            self._proxy = None
+
         self._loop = get_event_loop()
-        self._http = HTTPClient(token=token)
+        self._http = HTTPClient(token=token, proxy=self._proxy)
         self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WSClient(token=token, intents=self._intents)
+        self._websocket = WSClient(token=token, intents=self._intents, proxy=self._proxy)
         self._shard = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token
@@ -118,17 +131,6 @@ class Client:
             )
         else:
             self._automate_sync = True
-
-        if __proxy := kwargs.get("proxy"):
-            if isinstance(__proxy, str):
-                self._proxy = ProxyConfig(__proxy)
-            elif isinstance(__proxy, ProxyConfig):
-                self._proxy = __proxy
-            else:
-                log.error(
-                    "Invalid proxy configuration. Must be of instance ProxyConfig or "
-                    + "of string format: [http/https]://[login]:[password]@host:port"
-                )
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data, _client=self._http)

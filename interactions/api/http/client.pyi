@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 
 from ...api.cache import Cache
+from ...api.gateway.misc import ProxyConfig
 from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
@@ -35,7 +36,7 @@ class HTTPClient(
     token: str
     _req: _Request
     cache: Cache
-    def __init__(self, token: str): ...
+    def __init__(self, token: str, proxy: Optional[ProxyConfig] = None): ...
     async def get_gateway(self) -> str: ...
     async def get_bot_gateway(self) -> Tuple[int, str]: ...
     async def login(self) -> Optional[dict]: ...

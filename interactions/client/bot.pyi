@@ -4,6 +4,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from ..api.cache import Cache
 from ..api.gateway import WebSocketClient
+from ..api.gateway.misc import ProxyConfig
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
@@ -29,6 +30,7 @@ class Client:
     _token: str
     _scopes: set[List[Union[int, Snowflake]]]
     _automate_sync: bool
+    _proxy: Optional[ProxyConfig] = None
     _extensions: Optional[Dict[str, Union[ModuleType, Extension]]]
     __command_coroutines: List[Coroutine]
     __global_commands: Dict[str, Union[List[dict], bool]]

@@ -7,7 +7,7 @@ class ProxyConfig:
     port: Optional[Union[str, int]]
     user: Optional[str]
     password: Optional[str]
-    auth: BasicAuth
+    auth: Optional[BasicAuth]
     def __init__(
             self,
             *args,
