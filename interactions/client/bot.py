@@ -13,6 +13,7 @@ from ..api import Cache
 from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
+from ..api.gateway.client import ProxyConfig
 from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Intents, Permissions
@@ -31,6 +32,7 @@ from .models.component import Button, Modal, SelectMenu
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
+_proxy: Optional[ProxyConfig] = None
 
 
 __all__ = (
@@ -59,6 +61,7 @@ class Client:
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
     :ivar Application me: The application representation of the client.
+    :ivar ProxyConfig proxy: The proxy configuration of the client.
     """
 
     def __init__(
@@ -89,6 +92,8 @@ class Client:
         #     Sets an RPC-like presence on the application when connected to the Gateway.
         # disable_sync? : Optional[bool]
         #     Controls whether synchronization in the user-facing API should be automatic or not.
+        # proxy? : Optional[Union[ProxyConfig, str]]
+        #     Sets the proxy configuration of the client.
 
         self._loop = get_event_loop()
         self._http = HTTPClient(token=token)
@@ -114,6 +119,23 @@ class Client:
             )
         else:
             self._automate_sync = True
+
+        if __proxy := kwargs.get("proxy"):
+            if isinstance(__proxy, str):
+                _re_proxy = re.search("^((?P<scheme>[^:/?#]+):(?=//))?(//)?(((?P<login>[^:]+)(?::(?P<password>[^@]+)?)?@)?(?P<host>[^@/?#:]*)(?::(?P<port>\d+)?)?)?", __proxy)  # noqa: E501
+                self._proxy = ProxyConfig(
+                    host=_re_proxy["host"],
+                    port=_re_proxy["port"],
+                    user=_re_proxy["login"],
+                    password=_re_proxy["password"]
+                )
+            elif isinstance(__proxy, ProxyConfig):
+                self._proxy = __proxy
+            else:
+                log.error(
+                    "Invalid proxy configuration. Must be of instance ProxyConfig or "
+                    + "of string format: [http/https]://[login]:[password]@host:port"
+                    )
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data, _client=self._http)
