@@ -671,8 +671,10 @@ class Guild(ClientSerializerMixin):
             reason=reason,
         )
         _role = Role(**res, _client=self._client)
-        if role in self.roles:
-            self.roles[self.roles.index(role)] = _role
+        for index, item in enumerate(self.roles):
+            if int(item.id) == int(role.id):
+                self.roles[index] = _role
+                break
         else:
             self.roles.append(_role)
         return _role
