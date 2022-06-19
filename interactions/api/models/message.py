@@ -1051,7 +1051,7 @@ class Message(ClientSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments: Optional[List[Attachment]]
         :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
