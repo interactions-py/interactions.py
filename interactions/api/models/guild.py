@@ -980,8 +980,10 @@ class Guild(ClientSerializerMixin):
 
         _channel = Channel(**res, _client=self._client)
 
-        if ch in self.channels:
-            self.channels[self.channels.index(ch)] = _channel
+        for index, item in enumerate(self.channels):
+            if int(item.id) == int(ch.id):
+                self.channels[index] = _channel
+                break
         else:
             self.channels.append(_channel)
 
