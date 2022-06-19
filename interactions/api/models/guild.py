@@ -1054,18 +1054,12 @@ class Guild(ClientSerializerMixin):
 
         _member = Member(**res, _client=self._client)
 
-        if isinstance(member_id, Member):
-            if member_id in self.members:
-                self.members[self.members.index(member_id)] = _member
-            else:
-                self.members.append(_member)
+        for index, member in enumerate(self.members):
+            if int(member.id) == _member_id:
+                self.members[index] = _member
+                break
         else:
-            for member in self.members:
-                if int(member.id) == _member_id:
-                    self.members.remove(member)
-                    break
-            else:
-                self.members.append(_member)
+            self.members.append(_member)
 
         return _member
 
