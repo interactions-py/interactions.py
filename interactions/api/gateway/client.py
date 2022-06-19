@@ -116,7 +116,6 @@ class WebSocketClient:
             "proxy": str(proxy) if isinstance(proxy, ProxyConfig) else None,
             "proxy_auth": proxy.auth if isinstance(proxy, ProxyConfig) else None,
         }
-        print(self._options)
         self._intents = intents
         self.__heartbeater: _Heartbeat = _Heartbeat(
             loop=self._loop if version_info < (3, 10) else None
