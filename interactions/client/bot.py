@@ -13,7 +13,7 @@ from ..api import Cache
 from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
-from ..api.gateway.client import ProxyConfig
+from ..api.gateway.misc import ProxyConfig
 from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Intents, Permissions
@@ -32,7 +32,6 @@ from .models.component import Button, Modal, SelectMenu
 log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
-_proxy: Optional[ProxyConfig] = None
 
 
 __all__ = (
@@ -122,16 +121,7 @@ class Client:
 
         if __proxy := kwargs.get("proxy"):
             if isinstance(__proxy, str):
-                _re_proxy = re.search(
-                    "^((?P<scheme>[^:/?#]+):(?=//))?(//)?(((?P<login>[^:]+)(?::(?P<password>[^@]+)?)?@)?(?P<host>[^@/?#:]*)(?::(?P<port>\d+)?)?)?",
-                    __proxy,
-                )  # noqa: E501
-                self._proxy = ProxyConfig(
-                    host=_re_proxy["host"],
-                    port=_re_proxy["port"],
-                    user=_re_proxy["login"],
-                    password=_re_proxy["password"],
-                )
+                self._proxy = ProxyConfig(__proxy)
             elif isinstance(__proxy, ProxyConfig):
                 self._proxy = __proxy
             else:

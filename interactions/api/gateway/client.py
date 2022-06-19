@@ -16,11 +16,10 @@ from sys import platform, version_info
 from time import perf_counter
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from aiohttp import BasicAuth, WSMessage, WSMsgType
+from aiohttp import WSMessage, WSMsgType
 from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ...base import get_logger
-from ...client.bot import _proxy
 from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ..dispatch import Listener
@@ -34,45 +33,7 @@ from .heartbeat import _Heartbeat
 
 log = get_logger("gateway")
 
-__all__ = (
-    "WebSocketClient",
-    "ProxyConfig",
-)
-
-
-class ProxyConfig:
-    """
-    A class that represents a proxy configuration.
-
-    :ivar Union[str, Path] host: The proxy host.
-    :ivar int port: The proxy port.
-    :ivar Optional[str] user: The proxy user.
-    :ivar Optional[str] password: The proxy password.
-    """
-
-    def __init__(
-        self,
-        host: str,
-        port: Union[str, int],
-        user: str = None,
-        password: str = None,
-        full_path: str = None,
-    ) -> None:
-        """
-        Initialize a ProxyConfig instance.
-
-        :param host: The proxy host.
-        :type host: str
-        :param port: The proxy port.
-        :type port: int
-        :param user: The proxy user.
-        :type user: Optional[str]
-        :param password: The proxy password.
-        :type password: Optional[str]
-        """
-        self.host = host
-        self.port = str(port)
-        self.auth = BasicAuth(user, password)
+__all__ = ("WebSocketClient",)
 
 
 class WebSocketClient:
@@ -150,8 +111,10 @@ class WebSocketClient:
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
-            "proxy": _proxy if isinstance(_proxy, ProxyConfig) else None,
+            "proxy": str(_proxy) if isinstance(_proxy, ProxyConfig) else None,
+            "proxy_auth": _proxy.auth if isinstance(_proxy, ProxyConfig) else None,
         }
+        print(self._options)
         self._intents = intents
         self.__heartbeater: _Heartbeat = _Heartbeat(
             loop=self._loop if version_info < (3, 10) else None

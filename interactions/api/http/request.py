@@ -14,7 +14,6 @@ from aiohttp import __version__ as http_version
 from interactions.base import __version__, get_logger
 
 from ...api.error import LibraryException
-from ...client.bot import _proxy
 from .limiter import Limiter
 from .route import Route
 
