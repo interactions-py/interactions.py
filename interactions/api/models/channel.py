@@ -202,7 +202,7 @@ class Channel(ClientSerializerMixin):
         :type tts: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
-        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]

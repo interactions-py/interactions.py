@@ -204,7 +204,7 @@ class Webhook(ClientSerializerMixin):
         :type avatar_url: str
         :param tts: true if this is a TTS message
         :type tts: bool
-        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments: Optional[List[Attachment]]
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]
