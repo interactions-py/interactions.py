@@ -1,6 +1,7 @@
-from typing import Optional, Union
-from aiohttp import BasicAuth
 import re
+from typing import Optional, Union
+
+from aiohttp import BasicAuth
 
 __all__ = ("ProxyConfig",)
 
@@ -9,6 +10,7 @@ class ProxyConfig:
     """
     The ProxyConfig class. This represents a simple configuration structure for a proxy to connect through.
     """
+
     def __init__(
         self,
         *args,
@@ -16,7 +18,7 @@ class ProxyConfig:
         host: Optional[str] = None,
         port: Optional[Union[str, int]] = None,
         user: Optional[str] = None,
-        password: Optional[str] = None
+        password: Optional[str] = None,
     ) -> None:
         """
         Initialize a new ProxyConfig instance.
@@ -34,8 +36,8 @@ class ProxyConfig:
         """
         if len(args) > 1:
             raise TypeError(
-                "ProxyConfig can only be initialized with one positional argument " +
-                "of string format: [http/https]://[login]:[password]@host:port"
+                "ProxyConfig can only be initialized with one positional argument "
+                + "of string format: [http/https]://[login]:[password]@host:port"
             )
         elif len(args) == 1 and isinstance(args[0], str):
             _re_proxy = re.search(
@@ -45,8 +47,11 @@ class ProxyConfig:
             self.scheme = _re_proxy["scheme"] or scheme
             self.host = _re_proxy["host"] or host
             self.port = _re_proxy["port"] or str(port)
-            self.auth = BasicAuth(_re_proxy["login"] or user, _re_proxy["password"] or password) \
-                if user and password else None
+            self.auth = (
+                BasicAuth(_re_proxy["login"] or user, _re_proxy["password"] or password)
+                if user and password
+                else None
+            )
         else:
             self.scheme = scheme
             self.host = host
