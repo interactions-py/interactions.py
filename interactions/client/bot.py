@@ -100,7 +100,7 @@ class Client:
             elif isinstance(__proxy, ProxyConfig):
                 self._proxy = __proxy
             else:
-                log.error(
+                raise Exception(
                     "Invalid proxy configuration. Must be of instance ProxyConfig or "
                     + "of string format: [http/https]://[login]:[password]@host:port"
                 )
