@@ -1110,7 +1110,7 @@ class Message(ClientSerializerMixin):
         )
 
         author = {"id": None, "username": None, "discriminator": None}
-        author |= res["author"]
+        author.update(res["author"])
         res["author"] = author
 
         return Message(**res, _client=self._client)
