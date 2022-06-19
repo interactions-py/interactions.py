@@ -53,6 +53,7 @@ class Webhook(ClientSerializerMixin):
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         thread_id: Optional[int] = MISSING,
     ) -> Optional[Message]: ...
     async def delete(self) -> None: ...

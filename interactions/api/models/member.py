@@ -214,6 +214,7 @@ class Member(ClientSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
@@ -227,6 +228,8 @@ class Member(ClientSerializerMixin):
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
@@ -243,7 +246,7 @@ class Member(ClientSerializerMixin):
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _attachments = [] if attachments else None
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _embeds: list = (
             []
             if not embeds or embeds is MISSING
@@ -264,7 +267,8 @@ class Member(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        # TODO: post-v4: Add attachments into Message obj.
+        _files.extend(_attachments)
+
         payload = dict(
             content=_content,
             tts=_tts,

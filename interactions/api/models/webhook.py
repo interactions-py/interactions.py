@@ -3,6 +3,7 @@ from typing import Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
+from .message import Attachment
 from .misc import File, Image, Snowflake
 from .user import User
 
@@ -176,6 +177,7 @@ class Webhook(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Any = MISSING,
+        attachments: Optional[List[Attachment]] = None,
         components: Optional[
             Union[
                 "ActionRow",  # noqa
@@ -203,6 +205,8 @@ class Webhook(ClientSerializerMixin):
         :type avatar_url: str
         :param tts: true if this is a TTS message
         :type tts: bool
+        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]
         :param allowed_mentions: allowed mentions for the message
@@ -225,7 +229,8 @@ class Webhook(ClientSerializerMixin):
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _attachments = [] if attachments else None
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
+
         _embeds: list = (
             []
             if not embeds or embeds is MISSING
@@ -246,7 +251,9 @@ class Webhook(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        msg = Message(
+        _files.extend(_attachments)
+
+        payload: dict = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -254,8 +261,6 @@ class Webhook(ClientSerializerMixin):
             components=_components,
             allowed_mentions=_allowed_mentions,
         )
-
-        payload = msg._json
 
         if username is not MISSING:
             payload["username"] = username

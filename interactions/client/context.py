@@ -7,7 +7,7 @@ from ..api.models.attrs_utils import MISSING, ClientSerializerMixin, define, fie
 from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Embed, Message, MessageInteraction, MessageReference
+from ..api.models.message import Attachment, Embed, Message, MessageInteraction, MessageReference
 from ..api.models.misc import Snowflake
 from ..api.models.user import User
 from ..base import get_logger
@@ -105,7 +105,7 @@ class _Context(ClientSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
@@ -121,6 +121,8 @@ class _Context(ClientSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -141,8 +143,6 @@ class _Context(ClientSerializerMixin):
         else:
             _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
-        # _attachments = [] if attachments else None
 
         if (
             embeds is MISSING
@@ -177,23 +177,24 @@ class _Context(ClientSerializerMixin):
 
         _ephemeral: int = (1 << 6) if ephemeral else 0
 
-        # TODO: post-v4: Add attachments into Message obj.
-        payload: dict = dict(
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
+
+        return dict(
             content=_content,
             tts=_tts,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            attachments=_attachments,
             flags=_ephemeral,
         )
-        return payload
 
     async def edit(
         self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # file: Optional[FileIO] = None,
+        attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
@@ -217,21 +218,32 @@ class _Context(ClientSerializerMixin):
             payload["content"] = _content
         _tts: bool = False if tts is MISSING else tts
         payload["tts"] = _tts
-        # _file = None if file is None else file
 
         if self.message.embeds is not None or embeds is not MISSING:
             if embeds is MISSING:
                 embeds = self.message.embeds
             _embeds: list = (
-                []
-                if not embeds
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
+                ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+                if embeds
+                else []
             )
+
             payload["embeds"] = _embeds
+
+        if self.message.attachments is not None or attachments is not MISSING:
+            if attachments is MISSING:
+                attachments = self.message.attachments
+            _attachments: list = (
+                (
+                    [attachment._json for attachment in attachments]
+                    if isinstance(attachments, list)
+                    else [attachments._json]
+                )
+                if attachments
+                else []
+            )
+
+            payload["attachments"] = _attachments
 
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
