@@ -469,14 +469,13 @@ class Client:
         # responsible for checking if a command is in the cache but not a coro -> allowing removal
 
         for _id in _guild_ids.copy():
-            _cmds = await self._http.get_application_commands(
-                application_id=self.me.id, guild_id=_id, with_localizations=True
-            )
-
-            if isinstance(_cmds, dict) and _cmds.get("code"):
-                # Error exists.
-                if int(_cmds.get("code")) != 50001:
-                    raise LibraryException(_cmds["code"], message=f'{_cmds["message"]} |')
+            try:
+                _cmds = await self._http.get_application_commands(
+                    application_id=self.me.id, guild_id=_id, with_localizations=True
+                )
+            except LibraryException as e:
+                if int(e.code) != 50001:
+                    raise LibraryException(code=e.code, message=e.message)
 
                 log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
@@ -486,11 +485,6 @@ class Client:
                 __blocked_guilds.add(_id)
                 _guild_ids.remove(_id)
                 continue
-
-            for command in _cmds:
-                if command.get("code"):
-                    # Error exists.
-                    raise LibraryException(command["code"], message=f'{command["message"]} |')
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
             __check_guild_commands[_id] = [cmd["name"] for cmd in _cmds] if _cmds else []
