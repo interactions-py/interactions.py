@@ -542,7 +542,11 @@ class Guild(ClientSerializerMixin):
             member_id=int(member_id),
         )
         member = Member(**res, _client=self._client)
-        if member not in self.members:
+        for index, _member in enumerate(self.members):
+            if int(_member.id) == int(member_id):
+                self.members[index] = member
+                break
+        else:
             self.members.append(member)
         return member
 
