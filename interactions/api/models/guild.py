@@ -1931,14 +1931,9 @@ class Guild(ClientSerializerMixin):
 
         if not self.emojis:
             return
-        if isinstance(emoji, Emoji):
-            if emoji in self.emojis:
-                self.emojis.remove(emoji)
-            return
         for item in self.emojis:
             if int(item.id) == int(emoji_id):
-                self.emojis.remove(item)
-                return
+                return self.emojis.remove(item)
 
     async def get_list_of_members(
         self,
