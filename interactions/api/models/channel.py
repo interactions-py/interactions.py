@@ -178,6 +178,7 @@ class Channel(ClientSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
@@ -201,6 +202,8 @@ class Channel(ClientSerializerMixin):
         :type tts: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -217,8 +220,7 @@ class Channel(ClientSerializerMixin):
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
-        # _attachments = [] if attachments else None
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         if not embeds or embeds is MISSING:
             _embeds: list = []
@@ -240,6 +242,8 @@ class Channel(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
+        _files.extend(_attachments)
+
         payload = dict(
             content=_content,
             tts=_tts,
@@ -255,7 +259,7 @@ class Channel(ClientSerializerMixin):
 
         # dumb hack, discord doesn't send the full author data
         author = {"id": None, "username": None, "discriminator": None}
-        author.update(res["author"])
+        author |= res["author"]
         res["author"] = author
 
         return Message(**res, _client=self._client)

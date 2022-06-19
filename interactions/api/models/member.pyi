@@ -59,6 +59,7 @@ class Member(ClientSerializerMixin):
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = ...,
+        attachments: Optional[List["Attachment"]] = ...,  # noqa
         tts: Optional[bool] = ...,
         files: Optional[Union[File, List[File]]] = ...,
         embeds: Optional[Union[Embed, List[Embed]]] = ...,

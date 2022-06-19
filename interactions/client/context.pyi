@@ -56,6 +56,7 @@ class _Context(ClientSerializerMixin):
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = ...,
+        attachments: Optional[List["Attachment"]] = ...,  # noqa
         ephemeral: Optional[bool] = ...
     ) -> dict: ...
     async def edit(
@@ -66,6 +67,7 @@ class _Context(ClientSerializerMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
         allowed_mentions: Optional[MessageInteraction] = ...,
         message_reference: Optional[MessageReference] = ...,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = ...

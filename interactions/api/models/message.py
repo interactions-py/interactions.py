@@ -1031,6 +1031,7 @@ class Message(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         components: Optional[
             Union[
@@ -1050,6 +1051,8 @@ class Message(ClientSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
@@ -1076,7 +1079,7 @@ class Message(ClientSerializerMixin):
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference = MessageReference(message_id=int(self.id))._json
-
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         if not components or components is MISSING:
             _components = []
         else:
@@ -1090,7 +1093,8 @@ class Message(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        # TODO: post-v4: Add attachments into Message obj.
+        _files.extend(_attachments)
+
         payload = dict(
             content=_content,
             tts=_tts,
@@ -1106,7 +1110,7 @@ class Message(ClientSerializerMixin):
         )
 
         author = {"id": None, "username": None, "discriminator": None}
-        author.update(res["author"])
+        author |= res["author"]
         res["author"] = author
 
         return Message(**res, _client=self._client)

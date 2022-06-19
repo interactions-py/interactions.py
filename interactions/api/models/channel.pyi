@@ -79,6 +79,7 @@ class Channel(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = ...,
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
         allowed_mentions: Optional[MessageInteraction] = ...,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 "ActionRow",

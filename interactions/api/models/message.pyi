@@ -284,6 +284,7 @@ class Message(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 ActionRow,
