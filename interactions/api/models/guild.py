@@ -358,14 +358,9 @@ class Guild(ClientSerializerMixin):
 
         if not self.members:
             return
-        elif isinstance(member_id, Member):
-            if member_id in self.members:
-                self.members.remove(member_id)
-            return
         for member in self.members:
             if int(member.id) == _member_id:
-                self.members.remove(member)
-                break
+                return self.members.remove(member)
 
     async def remove_ban(
         self,
