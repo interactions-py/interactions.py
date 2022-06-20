@@ -349,13 +349,18 @@ class Guild(ClientSerializerMixin):
             raise LibraryException(code=13)
 
         _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
-
         await self._client.create_guild_ban(
             guild_id=int(self.id),
             user_id=_member_id,
             reason=reason,
             delete_message_days=delete_message_days,
         )
+
+        if not self.members:
+            return
+        for member in self.members:
+            if int(member.id) == _member_id:
+                return self.members.remove(member)
 
     async def remove_ban(
         self,
@@ -395,12 +400,14 @@ class Guild(ClientSerializerMixin):
             raise LibraryException(code=13)
 
         _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
-
         await self._client.create_guild_kick(
             guild_id=int(self.id),
             user_id=_member_id,
             reason=reason,
         )
+        for member in self.members:
+            if int(member.id) == _member_id:
+                return self.members.remove(member)
 
     async def add_member_role(
         self,
@@ -512,7 +519,9 @@ class Guild(ClientSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        return Role(**res, _client=self._client)
+        role = Role(**res, _client=self._client)
+        self.roles.append(role)
+        return role
 
     async def get_member(
         self,
@@ -532,11 +541,18 @@ class Guild(ClientSerializerMixin):
             guild_id=int(self.id),
             member_id=int(member_id),
         )
-        return Member(**res, _client=self._client)
+        member = Member(**res, _client=self._client)
+        for index, _member in enumerate(self.members):
+            if int(_member.id) == int(member_id):
+                self.members[index] = member
+                break
+        else:
+            self.members.append(member)
+        return member
 
     async def delete_channel(
         self,
-        channel_id: Union[int, Snowflake],
+        channel_id: Union[int, Snowflake, Channel],
     ) -> None:
         """
         Deletes a channel from the guild.
@@ -548,8 +564,13 @@ class Guild(ClientSerializerMixin):
             raise LibraryException(code=13)
 
         _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
-
         await self._client.delete_channel(_channel_id)
+
+        if not self.channels:
+            return
+        for channel in self.channels:
+            if int(channel.id) == _channel_id:
+                return self.channels.remove(channel)
 
     async def delete_role(
         self,
@@ -574,6 +595,12 @@ class Guild(ClientSerializerMixin):
             role_id=_role_id,
             reason=reason,
         )
+
+        if not self.roles:
+            return
+        for role in self.roles:
+            if int(role.id) == _role_id:
+                return self.roles.remove(role)
 
     async def modify_role(
         self,
@@ -643,7 +670,14 @@ class Guild(ClientSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Role(**res, _client=self._client)
+        _role = Role(**res, _client=self._client)
+        for index, item in enumerate(self.roles):
+            if int(item.id) == int(role.id):
+                self.roles[index] = _role
+                break
+        else:
+            self.roles.append(_role)
+        return _role
 
     async def create_thread(
         self,
@@ -800,7 +834,9 @@ class Guild(ClientSerializerMixin):
             payload=payload,
         )
 
-        return Channel(**res, _client=self._client)
+        channel = Channel(**res, _client=self._client)
+        self.channels.append(channel)
+        return channel
 
     async def clone_channel(self, channel_id: Union[int, Snowflake, Channel]) -> Channel:
         """
@@ -941,7 +977,17 @@ class Guild(ClientSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        return Channel(**res, _client=self._client)
+
+        _channel = Channel(**res, _client=self._client)
+
+        for index, item in enumerate(self.channels):
+            if int(item.id) == int(ch.id):
+                self.channels[index] = _channel
+                break
+        else:
+            self.channels.append(_channel)
+
+        return _channel
 
     async def modify_member(
         self,
@@ -1005,7 +1051,17 @@ class Guild(ClientSerializerMixin):
             payload=payload,
             reason=reason,
         )
-        return Member(**res, _client=self._client)
+
+        _member = Member(**res, _client=self._client)
+
+        for index, member in enumerate(self.members):
+            if int(member.id) == _member_id:
+                self.members[index] = _member
+                break
+        else:
+            self.members.append(_member)
+
+        return _member
 
     async def get_preview(self) -> "GuildPreview":
 
@@ -1618,7 +1674,8 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         res = await self._client.get_all_channels(int(self.id))
-        return [Channel(**channel, _client=self._client) for channel in res]
+        self.channels = [Channel(**channel, _client=self._client) for channel in res]
+        return self.channels
 
     async def get_all_roles(self) -> List[Role]:
         """
@@ -1630,7 +1687,8 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         res = await self._client.get_all_roles(int(self.id))
-        return [Role(**role, _client=self._client) for role in res]
+        self.roles = [Role(**role, _client=self._client) for role in res]
+        return self.roles
 
     async def get_role(
         self,
@@ -1711,7 +1769,8 @@ class Guild(ClientSerializerMixin):
             ],
             reason=reason,
         )
-        return [Role(**role, _client=self._client) for role in res]
+        self.roles = [Role(**role, _client=self._client) for role in res]
+        return self.roles
 
     async def get_bans(
         self,
@@ -1790,7 +1849,14 @@ class Guild(ClientSerializerMixin):
             raise LibraryException(code=13)
 
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
-        return Emoji(**res, _client=self._client)
+        _emoji = Emoji(**res, _client=self._client)
+        for index, emoji in enumerate(self.emojis):
+            if int(emoji.id) == emoji_id:
+                self.emojis[index] = _emoji
+                break
+        else:
+            self.emojis.append(_emoji)
+        return _emoji
 
     async def get_all_emoji(self) -> List[Emoji]:
         """
@@ -1802,7 +1868,8 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         res = await self._client.get_all_emoji(guild_id=int(self.id))
-        return [Emoji(**emoji, _client=self._client) for emoji in res]
+        self.emojis = [Emoji(**emoji, _client=self._client) for emoji in res]
+        return self.emojis
 
     async def create_emoji(
         self,
@@ -1840,7 +1907,9 @@ class Guild(ClientSerializerMixin):
         res = await self._client.create_guild_emoji(
             guild_id=int(self.id), payload=payload, reason=reason
         )
-        return Emoji(**res)
+        _emoji = Emoji(**res)
+        self.emojis.append(_emoji)
+        return _emoji
 
     async def delete_emoji(
         self,
@@ -1858,11 +1927,17 @@ class Guild(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         emoji_id = emoji.id if isinstance(emoji, Emoji) else emoji
-        return await self._client.delete_guild_emoji(
+        await self._client.delete_guild_emoji(
             guild_id=int(self.id),
             emoji_id=emoji_id,
             reason=reason,
         )
+
+        if not self.emojis:
+            return
+        for item in self.emojis:
+            if int(item.id) == int(emoji_id):
+                return self.emojis.remove(item)
 
     async def get_list_of_members(
         self,
@@ -1888,7 +1963,11 @@ class Guild(ClientSerializerMixin):
         res = await self._client.get_list_of_members(
             guild_id=int(self.id), limit=limit, after=_after
         )
-        return [Member(**member, _client=self._client) for member in res]
+        _members = [Member(**member, _client=self._client) for member in res]
+        for member in _members:
+            if member not in self.members:
+                self.members.append(member)
+        return _members
 
     async def search_members(self, query: str, limit: Optional[int] = 1) -> List[Member]:
         """
@@ -1933,8 +2012,8 @@ class Guild(ClientSerializerMixin):
                     guild_id=int(self.id), limit=100, after=int(_last_member.id)
                 )
         _all_members.extend(_members)
-
-        return [Member(**_, _client=self._client) for _ in _all_members]
+        self.members = [Member(**_, _client=self._client) for _ in _all_members]
+        return self.members
 
     async def get_webhooks(self) -> List[Webhook]:
         if not self._client:
