@@ -538,6 +538,7 @@ class ComponentContext(_Context):
             for attr in payload.__slots__:
                 if getattr(self.message, attr, None) and not getattr(payload, attr, None):
                     setattr(payload, attr, getattr(self.message, attr))
+                    payload._json[attr] = self.message._json[attr]
             self.message = payload
             self.responded = True
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
