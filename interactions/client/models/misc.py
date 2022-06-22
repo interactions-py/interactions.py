@@ -63,10 +63,10 @@ class InteractionData(DictSerializerMixin):
     resolved: Optional[InteractionResolvedData] = field(
         converter=InteractionResolvedData, default=None
     )
-    options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
+    options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
     custom_id: Optional[str] = field(default=None)
     component_type: Optional[ComponentType] = field(converter=ComponentType, default=None)
-    values: Optional[List[str]] = field(default=None)
+    values: Optional[List[str]] = field(factory=list)
     target_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     components: Any = field(default=None)  # todo check this type
 

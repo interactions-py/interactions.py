@@ -94,10 +94,10 @@ class Option(DictSerializerMixin):
     focused: bool = field(default=False)
     required: Optional[bool] = field(default=None)
     value: Optional[str] = field(default=None)
-    choices: Optional[List[Choice]] = field(converter=convert_list(Choice), default=None)
-    options: Optional[List["Option"]] = field(default=None)
+    choices: Optional[List[Choice]] = field(converter=convert_list(Choice), factory=list)
+    options: Optional[List["Option"]] = field(factory=list)
     channel_types: Optional[List[ChannelType]] = field(
-        converter=convert_list(ChannelType), default=None
+        converter=convert_list(ChannelType), factory=list
     )
     min_value: Optional[int] = field(default=None)
     max_value: Optional[int] = field(default=None)
@@ -174,7 +174,7 @@ class ApplicationCommand(DictSerializerMixin):
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     name: str = field()
     description: str = field()
-    options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
+    options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
     default_permission: Optional[bool] = field(default=None)
     version: int = field(default=None)
     default_member_permissions: str = field()

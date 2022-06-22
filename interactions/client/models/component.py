@@ -170,12 +170,12 @@ class Component(ComponentMixin):
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
     url: Optional[str] = field(default=None)
     options: Optional[List[SelectOption]] = field(
-        converter=convert_list(SelectOption), default=None
+        converter=convert_list(SelectOption), factory=list
     )
     placeholder: Optional[str] = field(default=None)
     min_values: Optional[int] = field(default=None)
     max_values: Optional[int] = field(default=None)
-    components: Optional[List["Component"]] = field(default=None)
+    components: Optional[List["Component"]] = field(factory=list)
     min_length: Optional[int] = field(default=None)
     max_length: Optional[int] = field(default=None)
     required: Optional[bool] = field(default=None)
@@ -279,7 +279,7 @@ class ActionRow(ComponentMixin):
     """
 
     type: ComponentType = field(ComponentType, default=ComponentType.ACTION_ROW)
-    components: Optional[List[Component]] = field(converter=convert_list(Component), default=None)
+    components: Optional[List[Component]] = field(converter=convert_list(Component), factory=list)
 
     def __attrs_post_init__(self) -> None:
         for component in self.components:
