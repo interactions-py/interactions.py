@@ -87,10 +87,15 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = None
     available: Optional[bool] = None
     @classmethod
-    async def get(cls, guild_id: int, emoji_id: int, client: HTTPClient) -> Emoji: ...
+    async def get(
+        cls,
+        guild_id: Union[int, Snowflake, Guild],
+        emoji_id: Union[int, Snowflake],
+        client: HTTPClient
+    ) -> Emoji: ...
     @classmethod
-    async def get_all_of_guild(cls, guild_id: int, client: HTTPClient) -> List[Emoji]: ...
-    async def delete(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
+    async def get_all_of_guild(cls, guild_id: Union[int, Snowflake, Guild], client: HTTPClient) -> List[Emoji]: ...
+    async def delete(self, guild_id: Union[int, Snowflake, Guild], reason: Optional[str] = ...) -> None: ...
     @property
     def url(self) -> str: ...
 
@@ -236,7 +241,7 @@ class Message(ClientSerializerMixin):
     nonce: Optional[Union[int, str]]
     pinned: bool
     webhook_id: Optional[Snowflake]
-    type: int
+    type: MessageType
     activity: Optional[MessageActivity]
     application: Optional[Application]
     application_id: Optional[Snowflake]
@@ -279,6 +284,7 @@ class Message(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 ActionRow,

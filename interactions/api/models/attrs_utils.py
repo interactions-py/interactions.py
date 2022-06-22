@@ -1,5 +1,6 @@
+from copy import deepcopy
 from functools import wraps
-from typing import Dict, Mapping, Tuple
+from typing import Dict, Mapping, Optional, Tuple
 
 import attrs
 
@@ -18,9 +19,16 @@ class DictSerializerMixin:
     _extras: dict = attrs.field(init=False, repr=False)
     """A dict containing values that were not serialized from Discord."""
 
+    __deepcopy__ = False
+    """Should the kwargs be deepcopied or not?"""
+
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
         kwargs = kwargs_dict or other_kwargs
         client = kwargs.pop("_client", None)
+
+        if self.__deepcopy__:
+            kwargs = deepcopy(kwargs)
+
         self._json = kwargs.copy()
         passed_kwargs = {}
 
@@ -157,13 +165,33 @@ def convert_dict(key_converter=None, value_converter=None):
     return inner_convert_dict
 
 
-def convert_type(type_: type):
+def convert_type(type_: type, *, classmethod: Optional[str] = None):
     """A helper function to convert an input to a specified type."""
 
     def inner_convert_object(value):
-        return value if isinstance(value, type_) else type_(value)
+        if not classmethod:
+            return value if isinstance(value, type_) else type_(value)
+        else:
+            return value if isinstance(value, type_) else getattr(type_, classmethod)(value)
 
     return inner_convert_object
+
+
+def deepcopy_kwargs(cls: Optional[type] = None):
+    """
+    A decorator to make the DictSerializerMixin deepcopy the kwargs before processing them.
+    This can help avoid weird bugs with some objects, though will error out in others.
+    """
+
+    def decorator(cls: type):
+        cls.__deepcopy__ = True  # type: ignore
+        return cls
+
+    if cls is not None:
+        cls.__deepcopy__ = True  # type: ignore
+        return cls
+
+    return decorator
 
 
 define_defaults = dict(kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP)

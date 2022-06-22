@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from ...api.error import InteractionException
+from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.message import Emoji
 from ..enums import ButtonStyle, ComponentType, TextStyleType
@@ -26,7 +26,9 @@ class ComponentMixin(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 try:
                     value = [val._json for val in value] if isinstance(value, list) else value._json
@@ -84,7 +86,7 @@ class SelectMenu(ComponentMixin):
     :ivar Optional[bool] disabled?: Whether the select menu is unable to be used.
     """
 
-    type: ComponentType = field(converter=ComponentType)
+    type: ComponentType = field(converter=ComponentType, default=ComponentType.SELECT)
     custom_id: str = field()
     options: List[SelectOption] = field(converter=convert_list(SelectOption))
     placeholder: Optional[str] = field(default=None)
@@ -395,7 +397,7 @@ def _build_components(components) -> List[dict]:
             )
             return _components
         else:
-            raise InteractionException(
+            raise LibraryException(
                 11, message="The specified components are invalid and could not be created!"
             )
 

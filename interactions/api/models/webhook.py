@@ -1,6 +1,7 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
 from .misc import File, Image, Snowflake
 from .user import User
@@ -140,10 +141,12 @@ class Webhook(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         if channel_id in (None, MISSING) and not self.token:
-            raise ValueError("no token was found, please specify a channel id!")
+            raise LibraryException(
+                message="no token was found, please specify a channel id!", code=12
+            )
 
         payload = {}
 
@@ -173,6 +176,7 @@ class Webhook(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Any = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 "ActionRow",  # noqa
@@ -200,6 +204,8 @@ class Webhook(ClientSerializerMixin):
         :type avatar_url: str
         :param tts: true if this is a TTS message
         :type tts: bool
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]
         :param allowed_mentions: allowed mentions for the message
@@ -215,14 +221,15 @@ class Webhook(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         from ...client.models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _attachments = [] if attachments else None
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
+
         _embeds: list = (
             []
             if not embeds or embeds is MISSING
@@ -243,7 +250,9 @@ class Webhook(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        msg = Message(
+        _files.extend(_attachments)
+
+        payload: dict = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -251,8 +260,6 @@ class Webhook(ClientSerializerMixin):
             components=_components,
             allowed_mentions=_allowed_mentions,
         )
-
-        payload = msg._json
 
         if username is not MISSING:
             payload["username"] = username
@@ -278,7 +285,7 @@ class Webhook(ClientSerializerMixin):
         Deletes the webhook.
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         await self._client.delete_webhook(webhook_id=int(self.id), webhook_token=self.token)
 

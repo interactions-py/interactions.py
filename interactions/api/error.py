@@ -1,77 +1,82 @@
-from enum import IntEnum
-from string import Formatter
-from typing import Any, Optional, Union
+from logging import getLogger
+from typing import List, Optional
 
-__all__ = (
-    "ErrorFormatter",
-    "InteractionException",
-    "GatewayException",
-    "HTTPException",
-    "JSONException",
-)
+__all__ = ("LibraryException",)
+
+log = getLogger(__name__)
 
 
-class ErrorFormatter(Formatter):
-    """A customized error formatting script to return specific errors."""
-
-    def get_value(self, key, args, kwargs) -> Any:
-        if not isinstance(key, str):
-            return Formatter.get_value(self, key=key, args=args, kwargs=kwargs)
-        try:
-            return kwargs[key]
-        except KeyError:
-            return key
-
-
-class InteractionException(Exception):
+class LibraryException(Exception):
     """
-    An exception class for interactions.
-
-    .. note::
-        This is a WIP. This isn't meant to be used yet, this is a baseline,
-        and for extensive testing/review before integration.
-        Likewise, this will show the concepts before use, and will be refined when time goes on.
-
-    :ivar interactions.api.error.ErrorFormatter _formatter: The built-in formatter.
-    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
-
+    A class object representing all errors.
+    If you want more information on what a specific code means, use `e.lookup(code)`
     """
 
-    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
+    code: Optional[int]
+    severity: int
 
-    def __init__(self, __type: Optional[Union[int, IntEnum]] = 0, **kwargs) -> None:
-        """
-        :param __type: Type of error. This is decided from an IntEnum, which gives readable error messages instead of
-        typical error codes. Subclasses of this class works fine, and so does regular integers.
-        :type __type: Optional[Union[int, IntEnum]]
-        :param kwargs: Any additional keyword arguments.
-        :type **kwargs: dict
-
-        :: note::
-            (given if 3 is "DUPLICATE_COMMAND" and with the right enum import, it will display 3 as the error code.)
-            Example:
-
-            >>> raise InteractionException(2, message="msg")
-            Exception raised: "msg" (error 2)
-
-            >>> raise InteractionException(Default_Error_Enum.DUPLICATE_COMMAND)  # noqa
-            Exception raised: Duplicate command name. (error 3)
-        """
-
-        self._type = __type
-        self.kwargs = kwargs
-        self._formatter = ErrorFormatter()
-        self._lookup = self.lookup()
-
-        self.error()
+    __slots__ = {"code", "severity", "message", "data"}
 
     @staticmethod
-    def lookup() -> dict:
+    def _parse(_data: dict) -> List[tuple]:
         """
-        From the default error enum integer declaration,
-        generate a dictionary containing the phrases used for the errors.
+        Internal function that should not be executed externally.
+        Parse the error data and set the code and message.
+
+        :param _data: The error data to parse.
+        :type _data: dict
+        :return: A list of tuples containing parsed errors.
+        :rtype: List[tuple]
         """
+        _errors: list = []
+
+        def _inner(v, parent):
+            if isinstance(v, dict):
+                if (errs := v.get("_errors")) and isinstance(errs, list):
+                    for err in errs:
+                        _errors.append((err["code"], err["message"], parent))
+                else:
+                    for k, v in v.items():
+                        if isinstance(v, dict):
+                            _inner(v, f"{parent}.{k}")
+                        elif isinstance(v, list):
+                            for e in v:
+                                if isinstance(e, dict):
+                                    _errors.append((e["code"], e["message"], f"{parent}.{k}"))
+            elif isinstance(v, list) and parent == "_errors":
+                for e in v:
+                    _errors.append((e["code"], e["message"], parent))
+
+        for _k, _v in _data.items():
+            _inner(_v, _k)
+        return _errors
+
+    def log(self, message: str, *args):
+        """
+        Log the error message.
+
+        :param message:
+        :type message:
+        :param args:
+        :type args:
+        """
+        if self.severity == 0:  # NOTSET
+            pass
+        elif self.severity == 10:  # DEBUG
+            log.debug(message, *args)
+        elif self.severity == 20:  # INFO
+            log.info(message, *args)
+        elif self.severity == 30:  # WARNING
+            log.warning(message, *args)
+        elif self.severity == 40:  # ERROR
+            log.error(message, *args)
+        elif self.severity == 50:  # CRITICAL
+            log.critical(message, *args)
+
+    @staticmethod
+    def lookup(code: int) -> str:
         return {
+            # Default error integer enum
             0: "Unknown error",
             1: "Request to Discord API has failed.",
             2: "Some formats are incorrect. See Discord API DOCS for proper format.",
@@ -84,87 +89,17 @@ class InteractionException(Exception):
             9: "Incorrect data was passed to a slash command data object.",
             10: "The interaction was already responded to.",
             11: "Error creating your command.",
-        }
-
-    @property
-    def type(self) -> Optional[Union[int, IntEnum]]:
-        """
-        Grabs the type attribute.
-        Primarily useful to use it in conditions for integral v4 (potential) logic.
-        """
-        return self._type
-
-    def error(self) -> None:
-        """This calls the exception."""
-        _err_val = ""
-        _err_unidentifiable = False
-        _empty_space = " "
-        _overrided = "message" in self.kwargs
-
-        if issubclass(type(self._type), IntEnum):
-            _err_val = self.type.name
-            _err_rep = self.type.value
-        elif type(self.type) == int:
-            _err_rep = self.type
-        else:  # unidentifiable.
-            _err_rep = 0
-            _err_unidentifiable = True
-
-        _err_msg = _default_err_msg = "Error code: {_err_rep}"
-
-        if self.kwargs != {} and _overrided:
-            _err_msg = self.kwargs["message"]
-
-        self.kwargs["_err_rep"] = _err_rep
-
-        if not _err_unidentifiable:
-            lookup_str = self._lookup[_err_rep] if _err_rep in self._lookup.keys() else _err_val
-            _lookup_str = (
-                lookup_str
-                if max(self._lookup.keys()) >= _err_rep >= min(self._lookup.keys())
-                else ""
-            )
-        else:
-            _lookup_str = lookup_str = ""
-
-        custom_err_str = (
-            self._formatter.format(_err_msg, **self.kwargs)
-            if "_err_rep" in _err_msg
-            else self._formatter.format(_err_msg + _empty_space + _default_err_msg, **self.kwargs)
-        )
-
-        # This is just for writing notes meant to be for the developer(testers):
-        #
-        # Error code 4 represents dupe callback. In v3, that's "Duplicate component callback detected: "
-        #             f"message ID {message_id or '<any>'}, "
-        #             f"custom_id `{custom_id or '<any>'}`, "
-        #             f"component_type `{component_type or '<any>'}`"
-        #
-        # Error code 3 represents dupe command, i.e. "Duplicate command name detected: {name}"
-        # Error code 1 represents Req. failure, i.e. "Request failed with resp: {self.status} | {self.msg}"
-        #
-
-        super().__init__(
-            f"{f'{lookup_str} ' if _err_val != '' else f'{_lookup_str + _empty_space if max(self._lookup.keys()) >= _err_rep >= min(self._lookup.keys()) else lookup_str}'}{custom_err_str}"
-        )
-
-
-class GatewayException(InteractionException):
-    """
-    This is a derivation of InteractionException in that this is used to represent Gateway closing OP codes.
-
-    :ivar ErrorFormatter _formatter: The built-in formatter.
-    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
-    """
-
-    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
-
-    def __init__(self, __type, **kwargs):
-        super().__init__(__type, **kwargs)
-
-    @staticmethod
-    def lookup() -> dict:
-        return {
+            12: "Invalid set of arguments specified.",
+            13: "No HTTPClient set!",
+            # HTTP errors
+            400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
+            401: "Not authorized. Double check your token to see if it's valid.",
+            403: "You do not have enough permissions to execute this.",
+            404: "Resource does not exist.",
+            405: "HTTP method not valid.",  # ?
+            429: "You are being rate limited. Please slow down on your requests.",  # Definitely can be overclassed.
+            502: "Gateway unavailable. Try again later.",
+            # Gateway errors
             4000: "Unknown error. Try reconnecting?",
             4001: "Unknown opcode. Check your gateway opcode and/or payload.",
             4002: "Invalid payload.",
@@ -179,52 +114,7 @@ class GatewayException(InteractionException):
             4012: "Invalid API version for the Gateway.",
             4013: "Invalid intent(s).",
             4014: "Some intent(s) requested are not allowed. Please double check.",
-        }
-
-
-class HTTPException(InteractionException):
-    """
-    This is a derivation of InteractionException in that this is used to represent HTTP Exceptions.
-
-    :ivar ErrorFormatter _formatter: The built-in formatter.
-    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
-    """
-
-    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
-
-    def __init__(self, __type, **kwargs):
-        super().__init__(__type, **kwargs)
-
-    @staticmethod
-    def lookup() -> dict:
-        return {
-            400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
-            401: "Not authorized. Double check your token to see if it's valid.",
-            403: "You do not have enough permissions to execute this.",
-            404: "Resource does not exist.",
-            405: "HTTP method not valid.",  # ?
-            429: "You are being rate limited. Please slow down on your requests.",  # Definitely can be overclassed.
-            502: "Gateway unavailable. Try again later.",
-        }
-
-
-class JSONException(InteractionException):
-    """
-    This is a derivation of InteractionException in that this is used to represent JSON API Exceptions.
-
-    :ivar ErrorFormatter _formatter: The built-in formatter.
-    :ivar dict _lookup: A dictionary containing the values from the built-in Enum.
-    """
-
-    __slots__ = ("_type", "_lookup", "__type", "_formatter", "kwargs")
-
-    def __init__(self, __type, **kwargs):
-        super().__init__(__type, **kwargs)
-
-    @staticmethod
-    def lookup() -> dict:
-        return {
-            0: "Unknown Error.",
+            # JSON errors
             10001: "Unknown Account.",
             10002: "Unknown Application.",
             10003: "Unknown Channel.",
@@ -377,4 +267,31 @@ class JSONException(InteractionException):
             170007: "Sticker animation duration exceeds maximum of 5 seconds",
             180000: "Cannot update a finished event",
             180002: "Failed to create stage needed for stage event",
-        }
+        }.get(code, f"Unknown error: {code}")
+
+    def __init__(self, message: str = None, code: int = 0, severity: int = 0, **kwargs):
+        self.code: int = code
+        self.severity: int = severity
+        self.data: dict = kwargs.pop("data", None)
+        self.message: str = message or self.lookup(self.code)
+        _fmt_error: List[tuple] = []
+
+        if (
+            self.data
+            and isinstance(self.data, dict)
+            and isinstance(self.data.get("errors", None), dict)
+        ):
+            _fmt_error: List[tuple] = self._parse(self.data["errors"])
+
+        self.log(self.message)
+
+        if _fmt_error:
+            super().__init__(
+                f"{self.message} (code: {self.code}, severity {self.severity})\n"
+                + "\n".join([f"Error at {e[2]}: {e[0]} - {e[1]}" for e in _fmt_error])
+            )
+        else:
+            super().__init__(
+                f"An error occurred:\n"
+                f"{self.message}, with code '{self.code}' and severity '{self.severity}'"
+            )

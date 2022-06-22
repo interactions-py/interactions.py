@@ -1,7 +1,8 @@
+from logging import Logger
 from typing import Any, List, Optional, Union
 
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import DictSerializerMixin, define
+from ..api.models.attrs_utils import ClientSerializerMixin, define
 from ..api.models.channel import Channel as Channel
 from ..api.models.guild import Guild as Guild
 from ..api.models.member import Member as Member
@@ -23,7 +24,7 @@ from .models.misc import InteractionData as InteractionData
 log: Logger
 
 @define()
-class _Context(DictSerializerMixin):
+class _Context(ClientSerializerMixin):
     client: HTTPClient
     message: Optional[Message]
     author: Member
@@ -55,6 +56,7 @@ class _Context(DictSerializerMixin):
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = ...,
+        attachments: Optional[List["Attachment"]] = ...,  # noqa
         ephemeral: Optional[bool] = ...
     ) -> dict: ...
     async def edit(
@@ -65,6 +67,7 @@ class _Context(DictSerializerMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
         allowed_mentions: Optional[MessageInteraction] = ...,
         message_reference: Optional[MessageReference] = ...,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = ...
