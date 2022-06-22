@@ -248,7 +248,7 @@ class GuildMember(ClientSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    roles: Optional[List[str]] = field(default=None)
+    roles: Optional[List[str]] = field(factory=list)
     user: Optional[User] = field(converter=User, default=None, add_client=True)
     nick: Optional[str] = field(default=None)
     avatar: Optional[str] = field(default=None)
@@ -553,9 +553,9 @@ class GuildMembers(DictSerializerMixin):
     members: List[GuildMember] = field(converter=convert_list(GuildMember))
     chunk_index: int = field()
     chunk_count: int = field()
-    not_found: Optional[list] = field(default=None)
+    not_found: Optional[list] = field(factory=list)
     presences: Optional[List[PresenceActivity]] = field(
-        converter=convert_list(PresenceActivity), default=None
+        converter=convert_list(PresenceActivity), factory=list
     )
     nonce: Optional[str] = field(default=None)
 
@@ -788,7 +788,7 @@ class ThreadList(DictSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    channel_ids: Optional[List[Snowflake]] = field(converter=convert_list(Snowflake), default=None)
+    channel_ids: Optional[List[Snowflake]] = field(converter=convert_list(Snowflake), factory=list)
     threads: List[Channel] = field(converter=convert_list(Channel))
     members: List[ThreadMember] = field(converter=convert_list(ThreadMember))
 
@@ -809,10 +809,10 @@ class ThreadMembers(DictSerializerMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     member_count: int = field()
     added_members: Optional[List[ThreadMember]] = field(
-        converter=convert_list(ThreadMember), default=None
+        converter=convert_list(ThreadMember), factory=list
     )
     removed_member_ids: Optional[List[Snowflake]] = field(
-        converter=convert_list(Snowflake), default=None
+        converter=convert_list(Snowflake), factory=list
     )
 
 

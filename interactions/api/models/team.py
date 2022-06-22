@@ -84,7 +84,7 @@ class Application(ClientSerializerMixin):
     name: str = field()
     icon: Optional[str] = field(default=None)
     description: str = field()
-    rpc_origins: Optional[List[str]] = field(default=None)
+    rpc_origins: Optional[List[str]] = field(factory=list)
     bot_public: bool = field()
     bot_require_code_grant: bool = field()
     terms_of_service_url: Optional[str] = field(default=None)

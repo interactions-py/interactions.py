@@ -29,7 +29,7 @@ class PresenceParty(DictSerializerMixin):
     """
 
     id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    size: Optional[List[int]] = field(default=None)
+    size: Optional[List[int]] = field(factory=list)
 
 
 @define()
@@ -144,7 +144,7 @@ class PresenceActivity(DictSerializerMixin):
     instance: Optional[bool] = field(default=None)
     flags: Optional[int] = field(default=None)
     buttons: Optional[List[PresenceButtons]] = field(
-        converter=convert_list(PresenceButtons), default=None
+        converter=convert_list(PresenceButtons), factory=list
     )
     # TODO: document/investigate what these do.
     user: Optional[Any] = field(default=None)
@@ -184,7 +184,7 @@ class ClientPresence(DictSerializerMixin):
 
     since: Optional[int] = field(default=None)
     activities: Optional[List[PresenceActivity]] = field(
-        converter=convert_list(PresenceActivity), default=None
+        converter=convert_list(PresenceActivity), factory=list
     )
     status: StatusType = field(converter=StatusType)
     afk: bool = field(default=False)

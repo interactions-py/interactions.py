@@ -144,7 +144,7 @@ class Channel(ClientSerializerMixin):
     bitrate: Optional[int] = field(default=None)
     user_limit: Optional[int] = field(default=None)
     rate_limit_per_user: Optional[int] = field(default=None)
-    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None)
+    recipients: Optional[List[User]] = field(converter=convert_list(User), factory=list)
     icon: Optional[str] = field(default=None)
     owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)

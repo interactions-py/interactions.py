@@ -202,7 +202,7 @@ class Emoji(ClientSerializerMixin):
 
     id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     name: Optional[str] = field(default=None)
-    roles: Optional[List[Role]] = field(converter=convert_list(Role), default=None)
+    roles: Optional[List[Role]] = field(converter=convert_list(Role), factory=list)
     user: Optional[User] = field(converter=User, default=None)
     require_colons: Optional[bool] = field(default=None)
     managed: Optional[bool] = field(default=None)
@@ -508,7 +508,7 @@ class Embed(DictSerializerMixin):
     video: Optional[EmbedImageStruct] = field(converter=EmbedImageStruct, default=None)
     provider: Optional[EmbedProvider] = field(converter=EmbedProvider, default=None)
     author: Optional[EmbedAuthor] = field(converter=EmbedAuthor, default=None)
-    fields: Optional[List[EmbedField]] = field(converter=convert_list(EmbedField), default=None)
+    fields: Optional[List[EmbedField]] = field(converter=convert_list(EmbedField), factory=list)
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
@@ -847,16 +847,16 @@ class Message(ClientSerializerMixin):
     mention_everyone: bool = field(default=None)
     # mentions: array of Users, and maybe partial members
     mentions: Optional[List[Union[Member, User]]] = field(
-        default=None
+        factory=list
     )  # todo convert to the right types
-    mention_roles: Optional[List[str]] = field(default=None)
+    mention_roles: Optional[List[str]] = field(factory=list)
     mention_channels: Optional[List[ChannelMention]] = field(
-        converter=convert_list(ChannelMention), default=None
+        converter=convert_list(ChannelMention), factory=list
     )
-    attachments: List[Attachment] = field(converter=convert_list(Attachment), default=None)
-    embeds: List[Embed] = field(converter=convert_list(Embed), default=None)
+    attachments: List[Attachment] = field(converter=convert_list(Attachment), factory=list)
+    embeds: List[Embed] = field(converter=convert_list(Embed), factory=list)
     reactions: Optional[List[ReactionObject]] = field(
-        converter=convert_list(ReactionObject), default=None
+        converter=convert_list(ReactionObject), factory=list
     )
     nonce: Optional[Union[int, str]] = field(default=None)
     pinned: bool = field(default=None)
@@ -873,12 +873,12 @@ class Message(ClientSerializerMixin):
     )
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
-    components: Optional[Union["Component", List["Component"]]] = field(default=None)  # noqa: F821
+    components: Optional[Union["Component", List["Component"]]] = field(factory=list)  # noqa: F821
     sticker_items: Optional[List[PartialSticker]] = field(
-        converter=convert_list(PartialSticker), default=None
+        converter=convert_list(PartialSticker), factory=list
     )
     stickers: Optional[List[Sticker]] = field(
-        converter=convert_list(Sticker), default=None
+        converter=convert_list(Sticker), factory=list
     )  # deprecated
 
     async def get_channel(self) -> Channel:

@@ -159,7 +159,7 @@ class WelcomeScreen(DictSerializerMixin):
 
     description: Optional[str] = field(default=None)
     welcome_channels: Optional[List[WelcomeChannels]] = field(
-        converter=convert_list(WelcomeChannels), default=None
+        converter=convert_list(WelcomeChannels), factory=list
     )
 
 
@@ -293,16 +293,16 @@ class Guild(ClientSerializerMixin):
     unavailable: Optional[bool] = field(default=None)
     member_count: Optional[int] = field(default=None)
     members: Optional[List[Member]] = field(
-        converter=convert_list(Member), default=None, add_client=True
+        converter=convert_list(Member), factory=list, add_client=True
     )
     channels: Optional[List[Channel]] = field(
-        converter=convert_list(Channel), default=None, add_client=True
+        converter=convert_list(Channel), factory=list, add_client=True
     )
     threads: Optional[List[Thread]] = field(
-        converter=convert_list(Thread), default=None, add_client=True
+        converter=convert_list(Thread), factory=list, add_client=True
     )  # threads, because of their metadata
     presences: Optional[List[PresenceActivity]] = field(
-        converter=convert_list(PresenceActivity), default=None
+        converter=convert_list(PresenceActivity), factory=list
     )
     max_presences: Optional[int] = field(default=None)
     max_members: Optional[int] = field(default=None)
@@ -319,9 +319,9 @@ class Guild(ClientSerializerMixin):
     welcome_screen: Optional[WelcomeScreen] = field(converter=WelcomeScreen, default=None)
     nsfw_level: int = 0
     stage_instances: Optional[List[StageInstance]] = field(
-        converter=convert_list(StageInstance), default=None
+        converter=convert_list(StageInstance), factory=list
     )
-    stickers: Optional[List[Sticker]] = field(converter=convert_list(Sticker), default=None)
+    stickers: Optional[List[Sticker]] = field(converter=convert_list(Sticker), factory=list)
     features: List[str] = field()
 
     # todo assign the correct type
@@ -2269,12 +2269,12 @@ class GuildPreview(DictSerializerMixin):
     """
 
     id: Snowflake = field(converter=Snowflake)
-    emojis: Optional[List[Emoji]] = field(converter=convert_list(Emoji), default=None)
+    emojis: Optional[List[Emoji]] = field(converter=convert_list(Emoji), factory=list)
     name: str = field()
     icon: Optional[str] = field(default=None)
     splash: Optional[str] = field(default=None)
     discovery_splash: Optional[str] = field(default=None)
-    features: Optional[List[str]] = field(default=None)
+    features: Optional[List[str]] = field(default=[])
     approximate_member_count: int = field()
     approximate_presence_count: int = field()
     description: Optional[str] = field(default=None)

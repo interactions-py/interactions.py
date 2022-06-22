@@ -221,8 +221,8 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
     """
 
-    keyword_filter: Optional[List[str]] = field(default=None)
-    presets: Optional[List[str]] = field(default=None)
+    keyword_filter: Optional[List[str]] = field(factory=list)
+    presets: Optional[List[str]] = field(factory=list)
 
 
 class Color(object):
