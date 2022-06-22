@@ -2274,7 +2274,7 @@ class GuildPreview(DictSerializerMixin):
     icon: Optional[str] = field(default=None)
     splash: Optional[str] = field(default=None)
     discovery_splash: Optional[str] = field(default=None)
-    features: Optional[List[str]] = field(default=[])
+    features: Optional[List[str]] = field(factory=list)
     approximate_member_count: int = field()
     approximate_presence_count: int = field()
     description: Optional[str] = field(default=None)
