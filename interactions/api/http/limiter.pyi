@@ -3,7 +3,6 @@ from typing import Optional
 
 from interactions.api.models.attrs_utils import MISSING
 
-
 class Limiter:
 
     lock: Lock

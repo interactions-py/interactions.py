@@ -38,7 +38,7 @@ class WebhookRequest:
         Return a list of channel webhook objects.
 
         :param channel_id: Channel ID snowflake.
-        :return:List of webhook objects
+        :return: List of webhook objects
         """
         return await self._req.request(Route("GET", f"/channels/{channel_id}/webhooks"))
 
@@ -47,7 +47,6 @@ class WebhookRequest:
         Return a list of guild webhook objects.
 
         :param guild_id: Guild ID snowflake
-
         :return: List of webhook objects
         """
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/webhooks"))

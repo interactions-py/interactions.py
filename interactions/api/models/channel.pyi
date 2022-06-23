@@ -81,6 +81,7 @@ class Channel(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = ...,
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
         allowed_mentions: Optional[MessageInteraction] = ...,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 "ActionRow",
@@ -124,16 +125,16 @@ class Channel(ClientSerializerMixin):
         self, auto_archive_duration: int, *, reason: Optional[str] = ...
     ) -> Channel: ...
     async def lock(self, locked: bool = ..., *, reason: Optional[str] = ...) -> Channel: ...
-    async def add_member(self, member_id: int) -> None: ...
-    async def pin_message(self, message_id: int) -> None: ...
-    async def unpin_message(self, message_id: int) -> None: ...
-    async def publish_message(self, message_id: int) -> Message: ...
+    async def add_member(self, member_id: Union[int, Snowflake, "Member"]) -> None: ...  # noqa
+    async def pin_message(self, message_id: Union[int, Snowflake, "Message"]) -> None: ...  # noqa
+    async def unpin_message(self, message_id: Union[int, Snowflake, "Message"]) -> None: ...  # noqa
+    async def publish_message(self, message_id: Union[int, Snowflake, "Message"]) -> Message: ...  # noqa
     async def get_pinned_messages(self) -> List[Message]: ...
-    async def get_message(self, message_id: int) -> Message: ...
+    async def get_message(self, message_id: Union[int, Snowflake]) -> Message: ...
     async def purge(
         self,
         amount: int,
-        check: Callable = ...,
+        check: Callable[[...], bool] = ...,
         before: Optional[int] = ...,
         reason: Optional[str] = ...,
         bulk: Optional[bool] = ...,
@@ -144,7 +145,7 @@ class Channel(ClientSerializerMixin):
         type: Optional[ChannelType] = ...,
         auto_archive_duration: Optional[int] = ...,
         invitable: Optional[bool] = ...,
-        message_id: Optional[int] = ...,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = ...,  # noqa
         reason: Optional[str] = ...,
     ) -> Channel: ...
     @property

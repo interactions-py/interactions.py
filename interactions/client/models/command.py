@@ -22,9 +22,7 @@ class Choice(DictSerializerMixin):
         ``value`` allows ``float`` as a passable value type,
         whereas it's supposed to be ``double``.
 
-    The structure for a choice:
-
-    .. code-block:: python
+    The structure for a choice: ::
 
         interactions.Choice(name="Choose me! :(", value="choice_one")
 
@@ -33,16 +31,14 @@ class Choice(DictSerializerMixin):
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     """
 
-    _json: dict = field()
     name: str = field()
     value: Union[str, int, float] = field()
-    name_localizations: Optional[Dict[Union[str, Locale], str]] = field()
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
+    def __attrs_post_init__(self):
         if self._json.get("name_localizations"):
             if any(
-                type(x) != str for x in self._json.get("name_localizations")
+                type(x) != str for x in self._json["name_localizations"]
             ):  # check if Locale object is used to create localisation at any certain point.
                 self._json["name_localizations"] = {
                     k.value if isinstance(k, Locale) else k: v
@@ -66,9 +62,7 @@ class Option(DictSerializerMixin):
         ``min_values`` and ``max_values`` are useful primarily for
         integer based options.
 
-    The structure for an option:
-
-    .. code-block:: python
+    The structure for an option: ::
 
         interactions.Option(
             type=interactions.OptionType.STRING,
@@ -118,7 +112,9 @@ class Option(DictSerializerMixin):
     def __attrs_post_init__(self):
         # needed for nested classes
         self.options = (
-            [Option(**option) for option in self.options] if self.options is not None else None
+            [Option(**option) if isinstance(option, dict) else option for option in self.options]
+            if self.options is not None
+            else None
         )
 
 
@@ -126,8 +122,9 @@ class Option(DictSerializerMixin):
 class Permission(DictSerializerMixin):
     """
     A class object representing the permission of an application command.
-    The structure for a permission:
-    .. code-block:: python
+
+    The structure for a permission: ::
+
         interactions.Permission(
             id=1234567890,
             type=interactions.PermissionType.USER,
@@ -181,6 +178,6 @@ class ApplicationCommand(DictSerializerMixin):
     default_permission: Optional[bool] = field(default=None)
     version: int = field(default=None)
     default_member_permissions: str = field()
-    dm_permission: bool = field()
+    dm_permission: bool = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)

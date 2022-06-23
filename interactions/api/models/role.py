@@ -1,5 +1,6 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
 from .misc import Image, Snowflake
 
@@ -68,7 +69,7 @@ class Role(ClientSerializerMixin):
 
     async def delete(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -80,14 +81,17 @@ class Role(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         await self._client.delete_guild_role(
-            guild_id=guild_id, role_id=int(self.id), reason=reason
+            guild_id=_guild_id, role_id=int(self.id), reason=reason
         ),
 
     async def modify(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         name: Optional[str] = MISSING,
         permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
@@ -122,7 +126,7 @@ class Role(ClientSerializerMixin):
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _name = self.name if name is MISSING else name
         _color = self.color if color is MISSING else color
         _hoist = self.hoist if hoist is MISSING else hoist
@@ -130,6 +134,7 @@ class Role(ClientSerializerMixin):
         _permissions = self.permissions if permissions is MISSING else permissions
         _icon = self.icon if icon is MISSING else icon
         _unicode_emoji = self.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
         payload = dict(
             name=_name,
@@ -142,7 +147,7 @@ class Role(ClientSerializerMixin):
         )
 
         res = await self._client.modify_guild_role(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             role_id=int(self.id),
             payload=payload,
             reason=reason,
@@ -154,7 +159,7 @@ class Role(ClientSerializerMixin):
 
     async def modify_position(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         position: int,
         reason: Optional[str] = None,
     ) -> List["Role"]:
@@ -171,9 +176,12 @@ class Role(ClientSerializerMixin):
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         res = await self._client.modify_guild_role_positions(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             payload=[{"position": position, "id": int(self.id)}],
             reason=reason,
         )

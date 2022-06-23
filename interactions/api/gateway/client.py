@@ -1,5 +1,3 @@
-from ..models.attrs_utils import MISSING
-
 try:
     from orjson import dumps, loads
 except ImportError:
@@ -26,8 +24,9 @@ from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ..dispatch import Listener
 from ..enums import OpCodeType
-from ..error import GatewayException
+from ..error import LibraryException
 from ..http.client import HTTPClient
+from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
@@ -187,7 +186,7 @@ class WebSocketClient:
                     break
 
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
-                    raise GatewayException(self._client.close_code)
+                    raise LibraryException(self._client.close_code)
 
                 await self._handle_connection(stream, shard, presence)
 
@@ -293,10 +292,10 @@ class WebSocketClient:
                             )
                             if _type:
                                 if isinstance(option, dict):
-                                    _type[option["value"]].client = self._http
+                                    _type[option["value"]]._client = self._http
                                     option.update({"value": _type[option["value"]]})
                                 else:
-                                    _type[option.value].client = self._http
+                                    _type[option.value]._client = self._http
                                     option._json.update({"value": _type[option.value]})
                             _option = self.__sub_command_context(option, _context)
                             __kwargs.update(_option)
@@ -418,7 +417,7 @@ class WebSocketClient:
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
 
-            data["client"] = self._http
+            data["_client"] = self._http
             context: object = getattr(__import__("interactions.client.context"), _context)
 
             return context(**data)
@@ -464,10 +463,10 @@ class WebSocketClient:
 
                     if _type:
                         if isinstance(sub_option, dict):
-                            _type[sub_option["value"]].client = self._http
+                            _type[sub_option["value"]]._client = self._http
                             sub_option.update({"value": _type[sub_option["value"]]})
                         else:
-                            _type[sub_option.value].client = self._http
+                            _type[sub_option.value]._client = self._http
                             sub_option._json.update({"value": _type[sub_option.value]})
                     if _check:
                         return _check
@@ -492,10 +491,10 @@ class WebSocketClient:
 
                         if _type:
                             if isinstance(sub_option, dict):
-                                _type[sub_option["value"]].client = self._http
+                                _type[sub_option["value"]]._client = self._http
                                 sub_option.update({"value": _type[sub_option["value"]]})
                             else:
-                                _type[sub_option.value].client = self._http
+                                _type[sub_option.value]._client = self._http
                                 sub_option._json.update({"value": _type[sub_option.value]})
                         if _check:
                             return _check

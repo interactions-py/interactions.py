@@ -78,69 +78,78 @@ class ChannelMention(DictSerializerMixin):
 
 @define()
 class Emoji(ClientSerializerMixin):
-    id: Optional[Snowflake]
-    name: Optional[str]
-    roles: Optional[List[Role]]
-    user: Optional[User]
-    require_colons: Optional[bool]
-    managed: Optional[bool]
-    animated: Optional[bool]
-    available: Optional[bool]
+    id: Optional[Snowflake] = None
+    name: Optional[str] = None
+    roles: Optional[List[Role]] = None
+    user: Optional[User] = None
+    require_colons: Optional[bool] = None
+    managed: Optional[bool] = None
+    animated: Optional[bool] = None
+    available: Optional[bool] = None
     @classmethod
-    async def get(cls, guild_id: int, emoji_id: int, client: HTTPClient) -> Emoji: ...
+    async def get(
+        cls,
+        guild_id: Union[int, Snowflake, Guild],
+        emoji_id: Union[int, Snowflake],
+        client: HTTPClient
+    ) -> Emoji: ...
     @classmethod
-    async def get_all_of_guild(cls, guild_id: int, client: HTTPClient) -> List[Emoji]: ...
-    async def delete(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
+    async def get_all_of_guild(cls, guild_id: Union[int, Snowflake, Guild], client: HTTPClient) -> List[Emoji]: ...
+    async def delete(self, guild_id: Union[int, Snowflake, Guild], reason: Optional[str] = ...) -> None: ...
     @property
     def url(self) -> str: ...
 
 @define()
 class EmbedImageStruct(DictSerializerMixin):
+    url: str
+    proxy_url: Optional[str] = None
+    height: Optional[int] = None
+    width: Optional[int] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedProvider(DictSerializerMixin):
-    name: Optional[str]
-    url: Optional[str]
+    name: Optional[str] = None
+    url: Optional[str] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedAuthor(DictSerializerMixin):
     name: str
-    url: Optional[str]
-    icon_url: Optional[str]
-    proxy_icon_url: Optional[str]
+    url: Optional[str] = None
+    icon_url: Optional[str] = None
+    proxy_icon_url: Optional[str] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedFooter(DictSerializerMixin):
     text: str
-    icon_url: Optional[str]
-    proxy_icon_url: Optional[str]
+    icon_url: Optional[str] = None
+    proxy_icon_url: Optional[str] = None
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class EmbedField(DictSerializerMixin):
     name: str
-    inline: Optional[bool]
+    inline: Optional[bool] = None
     value: str
     def __setattr__(self, key, value) -> None: ...
 
 @define()
 class Embed(DictSerializerMixin):
-    title: Optional[str]
-    type: Optional[str]
-    description: Optional[str]
-    url: Optional[str]
-    timestamp: Optional[datetime]
-    color: Optional[int]
-    footer: Optional[EmbedFooter]
-    image: Optional[EmbedImageStruct]
-    thumbnail: Optional[EmbedImageStruct]
-    video: Optional[EmbedImageStruct]
-    provider: Optional[EmbedProvider]
-    author: Optional[EmbedAuthor]
-    fields: Optional[List[EmbedField]]
+    title: Optional[str] = None
+    type: Optional[str] = None
+    description: Optional[str] = None
+    url: Optional[str] = None
+    timestamp: Optional[datetime] = None
+    color: Optional[int] = None
+    footer: Optional[EmbedFooter] = None
+    image: Optional[EmbedImageStruct] = None
+    thumbnail: Optional[EmbedImageStruct] = None
+    video: Optional[EmbedImageStruct] = None
+    provider: Optional[EmbedProvider] = None
+    author: Optional[EmbedAuthor] = None
+    fields: Optional[List[EmbedField]] = None
     def __setattr__(self, key, value) -> None: ...
     def add_field(self, name: str, value: str, inline: Optional[bool] = ...) -> None: ...
     def clear_fields(self) -> None: ...
@@ -232,7 +241,7 @@ class Message(ClientSerializerMixin):
     nonce: Optional[Union[int, str]]
     pinned: bool
     webhook_id: Optional[Snowflake]
-    type: int
+    type: MessageType
     activity: Optional[MessageActivity]
     application: Optional[Application]
     application_id: Optional[Snowflake]
@@ -275,6 +284,7 @@ class Message(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 ActionRow,

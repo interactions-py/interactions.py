@@ -5,9 +5,9 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api.cache import Cache
 from ..api.gateway import WebSocketClient
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
+from ..api.models.attrs_utils import MISSING
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application

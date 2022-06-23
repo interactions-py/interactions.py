@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
+from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from .channel import Channel
 from .flags import Permissions
@@ -34,8 +35,8 @@ class Member(ClientSerializerMixin):
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    user: Optional[User] = field(converter=User, default=None, add_client=True)
-    nick: Optional[str] = field(default=None)
+    user: Optional[User] = field(converter=User, default=None, add_client=True, repr=True)
+    nick: Optional[str] = field(default=None, repr=True)
     _avatar: Optional[str] = field(default=None, discord_name="avatar")
     roles: List[int] = field()
     joined_at: datetime = field(converter=datetime.fromisoformat)
@@ -53,8 +54,8 @@ class Member(ClientSerializerMixin):
     )  # TODO: Investigate what this is for when documented by Discord.
     flags: int = field()  # TODO: Investigate what this is for when documented by Discord.
 
-    def __repr__(self) -> str:
-        return self.name
+    def __str__(self) -> str:
+        return self.name or ""
 
     @property
     def avatar(self) -> Optional[str]:
@@ -92,7 +93,7 @@ class Member(ClientSerializerMixin):
 
     async def ban(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         reason: Optional[str] = None,
         delete_message_days: Optional[int] = 0,
     ) -> None:
@@ -100,14 +101,17 @@ class Member(ClientSerializerMixin):
         Bans the member from a guild.
 
         :param guild_id: The id of the guild to ban the member from
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason of the ban
         :type reason: Optional[str]
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
         :type delete_message_days: Optional[int]
         """
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
+
         await self._client.create_guild_ban(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             user_id=int(self.user.id),
             reason=reason,
             delete_message_days=delete_message_days,
@@ -115,62 +119,61 @@ class Member(ClientSerializerMixin):
 
     async def kick(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         reason: Optional[str] = None,
     ) -> None:
         """
         Kicks the member from a guild.
 
         :param guild_id: The id of the guild to kick the member from
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
+
         await self._client.create_guild_kick(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             user_id=int(self.user.id),
             reason=reason,
         )
 
     async def add_role(
         self,
-        role: Union[Role, int],
-        guild_id: int,
+        role: Union[Role, int, Snowflake],
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         reason: Optional[str] = None,
     ) -> None:
         """
         This method adds a role to a member.
 
         :param role: The role to add. Either ``Role`` object or role_id
-        :type role: Union[Role, int]
+        :type role: Union[Role, int, Snowflake]
         :param guild_id: The id of the guild to add the roles to the member
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        if isinstance(role, Role):
-            await self._client.add_member_role(
-                guild_id=guild_id,
-                user_id=int(self.user.id),
-                role_id=int(role.id),
-                reason=reason,
-            )
-        else:
-            await self._client.add_member_role(
-                guild_id=guild_id,
-                user_id=int(self.user.id),
-                role_id=role,
-                reason=reason,
-            )
+            raise LibraryException(code=13)
+
+        _role = int(role.id) if isinstance(role, Role) else int(role)
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
+
+        await self._client.add_member_role(
+            guild_id=_guild_id,
+            user_id=int(self.user.id),
+            role_id=_role,
+            reason=reason,
+        )
 
     async def remove_role(
         self,
         role: Union[Role, int],
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -179,26 +182,22 @@ class Member(ClientSerializerMixin):
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to remove the roles of the member
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        if isinstance(role, Role):
-            await self._client.remove_member_role(
-                guild_id=guild_id,
-                user_id=int(self.user.id),
-                role_id=int(role.id),
-                reason=reason,
-            )
-        else:
-            await self._client.remove_member_role(
-                guild_id=guild_id,
-                user_id=int(self.user.id),
-                role_id=role,
-                reason=reason,
-            )
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
+        _role = int(role.id) if isinstance(role, Role) else int(role)
+
+        await self._client.remove_member_role(
+            guild_id=_guild_id,
+            user_id=int(self.user.id),
+            role_id=_role,
+            reason=reason,
+        )
 
     async def send(
         self,
@@ -215,6 +214,7 @@ class Member(ClientSerializerMixin):
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
@@ -228,6 +228,8 @@ class Member(ClientSerializerMixin):
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
@@ -238,13 +240,13 @@ class Member(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from ...client.models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _attachments = [] if attachments else None
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _embeds: list = (
             []
             if not embeds or embeds is MISSING
@@ -265,7 +267,8 @@ class Member(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        # TODO: post-v4: Add attachments into Message obj.
+        _files.extend(_attachments)
+
         payload = dict(
             content=_content,
             tts=_tts,
@@ -284,12 +287,12 @@ class Member(ClientSerializerMixin):
 
     async def modify(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         nick: Optional[str] = MISSING,
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
         deaf: Optional[bool] = MISSING,
-        channel_id: Optional[int] = MISSING,
+        channel_id: Optional[Union[Channel, int, Snowflake]] = MISSING,
         communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
     ) -> "Member":
@@ -297,7 +300,7 @@ class Member(ClientSerializerMixin):
         Modifies the member of a guild.
 
         :param guild_id: The id of the guild to modify the member on
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param nick?: The nickname of the member
         :type nick: Optional[str]
         :param roles?: A list of all role ids the member has
@@ -307,7 +310,7 @@ class Member(ClientSerializerMixin):
         :param deaf?: whether the user is deafened in voice channels
         :type deaf: Optional[bool]
         :param channel_id?: id of channel to move user to (if they are connected to voice)
-        :type channel_id: Optional[int]
+        :type channel_id: Optional[Union[Channel, int, Snowflake]]
         :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
         :type communication_disabled_until: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
@@ -316,7 +319,10 @@ class Member(ClientSerializerMixin):
         :rtype: Member
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         payload = {}
         if nick is not MISSING:
             payload["nick"] = nick
@@ -325,7 +331,9 @@ class Member(ClientSerializerMixin):
             payload["roles"] = roles
 
         if channel_id is not MISSING:
-            payload["channel_id"] = channel_id
+            payload["channel_id"] = (
+                int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+            )
 
         if mute is not MISSING:
             payload["mute"] = mute
@@ -338,7 +346,7 @@ class Member(ClientSerializerMixin):
 
         res = await self._client.modify_member(
             user_id=int(self.user.id),
-            guild_id=guild_id,
+            guild_id=_guild_id,
             payload=payload,
             reason=reason,
         )
@@ -348,32 +356,37 @@ class Member(ClientSerializerMixin):
 
     async def add_to_thread(
         self,
-        thread_id: int,
+        thread_id: Union[int, Snowflake, Channel],
     ) -> None:
         """
         Adds the member to a thread.
 
         :param thread_id: The id of the thread to add the member to
-        :type thread_id: int
+        :type thread_id: Union[int, Snowflake, Channel]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _thread_id = int(thread_id.id) if isinstance(thread_id, Channel) else int(thread_id)
+
         await self._client.add_member_to_thread(
             user_id=int(self.user.id),
-            thread_id=thread_id,
+            thread_id=_thread_id,
         )
 
-    def get_avatar_url(self, guild_id: int) -> Optional[str]:
+    def get_avatar_url(self, guild_id: Union[int, Snowflake, "Guild"]) -> Optional[str]:  # noqa
         """
         Returns the URL of the member's avatar for the specified guild.
         :param guild_id: The id of the guild to get the member's avatar from
-        :type guild_id: int
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :return: URL of the members's avatar (None will be returned if no avatar is set)
         :rtype: str
         """
         if not self.avatar:
             return None
 
-        url = f"https://cdn.discordapp.com/guilds/{guild_id}/users/{int(self.user.id)}/avatars/{self.avatar}"
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
+        url = f"https://cdn.discordapp.com/guilds/{_guild_id}/users/{int(self.user.id)}/avatars/{self.avatar}"
         url += ".gif" if self.avatar.startswith("a_") else ".png"
         return url

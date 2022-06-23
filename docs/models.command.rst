@@ -3,6 +3,6 @@
 Application Command Models
 ==========================
 
-.. automodule:: interactions.models.command
+.. automodule:: interactions.client.models.command
     :members:
     :noindex:

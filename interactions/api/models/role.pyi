@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
 from .misc import Snowflake
@@ -24,10 +24,10 @@ class Role(ClientSerializerMixin):
     tags: Optional[RoleTags]
     @property
     def mention(self) -> str: ...
-    async def delete(self, guild_id: int, reason: Optional[str] = ...) -> None: ...
+    async def delete(self, guild_id: Union[int, Snowflake, "Guild"], reason: Optional[str] = ...) -> None: ...  # noqa
     async def modify(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],  # noqa
         name: Optional[str] = ...,
         color: Optional[int] = ...,
         hoist: Optional[bool] = ...,
@@ -35,5 +35,5 @@ class Role(ClientSerializerMixin):
         reason: Optional[str] = ...,
     ) -> Role: ...
     async def modify_position(
-        self, guild_id: int, position: int, reason: Optional[str] = ...
+        self, guild_id: Union[int, Snowflake, "Guild"], position: int, reason: Optional[str] = ...  # noqa
     ) -> List[Role]: ...

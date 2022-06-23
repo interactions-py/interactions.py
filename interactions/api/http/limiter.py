@@ -1,9 +1,9 @@
 from asyncio import Lock
 from typing import Optional
 
-__all__ = ("Limiter",)
-
 from interactions.api.models.attrs_utils import MISSING
+
+__all__ = ("Limiter",)
 
 
 class Limiter:

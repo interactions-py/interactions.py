@@ -46,7 +46,7 @@ Additionally, modifying the way information is dispatched from the Gateway must 
             if event != "TYPING_START" and event == "INTERACTION_CREATE":
                 ... # run your special interaction dispatch rules here.
 
-We recommend that working in correspondance with this, you should be making use of our ``interactions.ext`` SDK framework.
+We recommend that working in correspondence with this, you should be making use of our ``interactions.ext`` SDK framework.
 
 A slight, yet another breaking change we made was dundering numerous attributes in our internal models.
 You will now need to refer to the client's HTTP object as ``_http`` instead of ``http``. In order to view
@@ -61,4 +61,4 @@ portal and add the intent to your current intents when connecting:
 
     from interactions import Client, Intents
 
-    bot = Client("TOKEN", intents=Intents.DEFAULT | Intents.MEESAGE_CONTENT)
+    bot = Client("TOKEN", intents=Intents.DEFAULT | Intents.GUILD_MESSAGE_CONTENT)

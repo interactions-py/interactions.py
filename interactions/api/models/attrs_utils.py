@@ -1,7 +1,10 @@
+from copy import deepcopy
 from functools import wraps
-from typing import Dict, Mapping, Tuple
+from typing import Dict, Mapping, Optional, Tuple
 
 import attrs
+
+__all__ = ("MISSING", "DictSerializerMixin", "ClientSerializerMixin")
 
 
 class MISSING:
@@ -16,9 +19,16 @@ class DictSerializerMixin:
     _extras: dict = attrs.field(init=False, repr=False)
     """A dict containing values that were not serialized from Discord."""
 
+    __deepcopy__ = False
+    """Should the kwargs be deepcopied or not?"""
+
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
         kwargs = kwargs_dict or other_kwargs
         client = kwargs.pop("_client", None)
+
+        if self.__deepcopy__:
+            kwargs = deepcopy(kwargs)
+
         self._json = kwargs.copy()
         passed_kwargs = {}
 
@@ -43,7 +53,27 @@ class DictSerializerMixin:
                         else:
                             value["_client"] = client
 
+                    # make sure json is recursively handled
+                    if isinstance(value, list):
+                        self._json[attrib_name] = [
+                            i._json if hasattr(i, "_json") else i for i in value
+                        ]
+                    elif hasattr(value, "_json"):
+                        self._json[attrib_name] = value._json  # type: ignore
+
                     passed_kwargs[attrib_name] = value
+
+                elif attrib.default:
+                    # handle defaults like attrs does
+                    default = attrib.default
+                    if isinstance(default, attrs.Factory):  # type: ignore
+                        passed_kwargs[attrib_name] = (
+                            default.factory(self) if default.takes_self else default.factory()
+                        )
+                    else:
+                        passed_kwargs[attrib_name] = default
+                else:
+                    passed_kwargs[attrib_name] = None
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
@@ -135,6 +165,35 @@ def convert_dict(key_converter=None, value_converter=None):
     return inner_convert_dict
 
 
+def convert_type(type_: type, *, classmethod: Optional[str] = None):
+    """A helper function to convert an input to a specified type."""
+
+    def inner_convert_object(value):
+        if not classmethod:
+            return value if isinstance(value, type_) else type_(value)
+        else:
+            return value if isinstance(value, type_) else getattr(type_, classmethod)(value)
+
+    return inner_convert_object
+
+
+def deepcopy_kwargs(cls: Optional[type] = None):
+    """
+    A decorator to make the DictSerializerMixin deepcopy the kwargs before processing them.
+    This can help avoid weird bugs with some objects, though will error out in others.
+    """
+
+    def decorator(cls: type):
+        cls.__deepcopy__ = True  # type: ignore
+        return cls
+
+    if cls is not None:
+        cls.__deepcopy__ = True  # type: ignore
+        return cls
+
+    return decorator
+
+
 define_defaults = dict(kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 
 
@@ -152,7 +211,9 @@ def field(
     discord_name: str = None,
     **kwargs,
 ):
-    if converter is not None and default is None:
+    if converter is not None:
+        if isinstance(converter, type):
+            converter = convert_type(converter)
         converter = attrs.converters.optional(converter)
 
     metadata = kwargs.get("metadata", {})

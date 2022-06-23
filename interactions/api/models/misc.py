@@ -7,24 +7,29 @@
 
 import datetime
 from base64 import b64encode
+from enum import IntEnum
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
-from typing import Optional, Union
+from typing import List, Optional, Union
 
-from interactions.api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
-from interactions.base import get_logger
+from ...base import get_logger
+from ..error import LibraryException
+from .attrs_utils import MISSING, DictSerializerMixin, define, field
 
 __all__ = (
-    "DictSerializerMixin",
+    "AutoModKeywordPresetTypes",
+    "AutoModTriggerType",
+    "AutoModMetaData",
+    "AutoModAction",
+    "AutoModTriggerMetadata",
     "Snowflake",
     "Color",
     "ClientStatus",
     "Image",
     "File",
     "Overwrite",
-    "MISSING",
 )
 
 log: Logger = get_logger("mixin")
@@ -57,7 +62,7 @@ class ClientStatus(DictSerializerMixin):
     :ivar Optional[str] web?: User's status set for an active web application session
     """
 
-    dektop: Optional[str] = field(default=None)
+    desktop: Optional[str] = field(default=None)
     mobile: Optional[str] = field(default=None)
     web: Optional[str] = field(default=None)
 
@@ -157,6 +162,69 @@ class Snowflake(object):
         return f"{self.__class__.__name__}({self._snowflake})"
 
 
+@define()
+class AutoModMetaData(DictSerializerMixin):
+    """
+    A class object used to represent the AutoMod Action Metadata.
+    .. note::
+        This is not meant to be instantiated outside the Gateway.
+
+    .. note::
+        The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
+
+    :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
+    :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
+    """
+
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    duration_seconds: Optional[int] = field(default=None)
+
+
+class AutoModTriggerType(IntEnum):
+    KEYWORD = 1
+    HARMFUL_LINK = 2
+    SPAM = 3
+    KEYWORD_PRESET = 4
+
+
+class AutoModKeywordPresetTypes(IntEnum):
+    PROFANITY = 1
+    SEXUAL_CONTENT = 2
+    SLURS = 3
+
+
+@define()
+class AutoModAction(DictSerializerMixin):
+    """
+    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+    .. note::
+        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
+        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
+        ``AutoModerationAction``
+    .. note::
+        The metadata can be omitted depending on the action type.
+
+    :ivar int type: Action type.
+    :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
+    """
+
+    type: int = field()
+    metadata: Optional[AutoModMetaData] = field(converter=AutoModMetaData, default=None)
+
+
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    """
+    A class object used to represent the trigger metadata from the AutoMod rule object.
+
+    :ivar Optional[List[str]] keyword_filter: Words to match against content.
+    :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
+    """
+
+    keyword_filter: Optional[List[str]] = field(default=None)
+    presets: Optional[List[str]] = field(default=None)
+
+
 class Color(object):
     """
     An object representing Discord branding colors.
@@ -224,8 +292,9 @@ class File(object):
     ):
 
         if not isinstance(filename, str):
-            raise TypeError(
-                "File's first parameter 'filename' must be a string, not " + str(type(filename))
+            raise LibraryException(
+                message=f"File's first parameter 'filename' must be a string, not {str(type(filename))}",
+                code=12,
             )
 
         self._fp = open(filename, "rb") if not fp or fp is MISSING else fp
@@ -267,7 +336,7 @@ class Image(object):
             and not self._name.endswith(".png")
             and not self._name.endswith(".gif")
         ):
-            raise ValueError("File type must be jpeg, png or gif!")
+            raise LibraryException(message="File type must be jpeg, png or gif!", code=12)
 
         self._URI += f"{'jpeg' if self._name.endswith('jpeg') else self._name[-3:]};"
         self._URI += f"base64,{b64encode(_file).decode('utf-8')}"
