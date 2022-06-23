@@ -1162,7 +1162,7 @@ class Channel(ClientSerializerMixin):
         res = await self._client.list_thread_members(int(self.id))
         return [ThreadMember(**member, _client=self._client) for member in res]
 
-    async def leave_thread(self) -> None:
+    async def leave(self) -> None:
         """
         Removes the bot from the thread
         """
@@ -1173,7 +1173,7 @@ class Channel(ClientSerializerMixin):
 
         await self._client.leave_thread(int(self.id))
 
-    async def join_thread(self) -> None:
+    async def join(self) -> None:
         """
         Add the bot to the thread
         """
