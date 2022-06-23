@@ -620,6 +620,27 @@ class Channel(ClientSerializerMixin):
         )
 
         await self._client.add_member_to_thread(thread_id=int(self.id), user_id=_member_id)
+   
+    async def remove_member(
+        self,
+        member_id: Union[int, Snowflake, "Member"],  # noqa
+    ) -> None:
+        """
+        This removes a member of the channel, if the channel is a thread.
+
+        :param member_id: The id of the member to remove of the channel
+        :type member_id: int
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        _member_id = (
+            int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
+        )
+
+        await self._client.remove_member_from_thread(thread_id=int(self.id), user_id=_member_id)
 
     async def pin_message(
         self,
@@ -1125,6 +1146,43 @@ class Channel(ClientSerializerMixin):
 
         res = await self._client.get_channel_webhooks(int(self.id))
         return [Webhook(**_, _client=self._client) for _ in res]
+
+    async def get_members(self) -> List[ThreadMember]:
+        """
+        Gets the list of thread members
+
+        :return: The members of the thread.
+        :rtype: List[ThreadMember]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        res = await self._client.list_thread_members(int(self.id))
+        return [ThreadMember(**member, _client=self._client) for member in res]
+
+    async def leave_thread(self) -> None:
+        """
+        Removes the bot from the thread
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        await self._client.leave_thread(int(self.id))
+
+    async def join_thread(self) -> None:
+        """
+        Add the bot to the thread
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        await self._client.join_thread(int(self.id))
 
 
 @define()
