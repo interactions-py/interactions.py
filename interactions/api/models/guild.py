@@ -11,7 +11,7 @@ from .attrs_utils import (
     define,
     field,
 )
-from .channel import Channel, ChannelType, Thread
+from .channel import Channel, ChannelType, Thread, ThreadMember
 from .member import Member
 from .message import Emoji, Sticker
 from .misc import (
@@ -1676,6 +1676,26 @@ class Guild(ClientSerializerMixin):
         res = await self._client.get_all_channels(int(self.id))
         self.channels = [Channel(**channel, _client=self._client) for channel in res]
         return self.channels
+
+    async def get_all_active_threads(self) -> List[Channel]:
+        """
+        Gets all active threads of the guild.
+
+        :return: The threads of the guild.
+        :rtype: List[Thread]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        res = await self._client.list_active_threads(int(self.id))
+        threads = [Channel(**thread, _client=self._client) for thread in res["threads"]]
+        members = [ThreadMember(**member, _client=self._client) for member in res["members"]]
+        for member in members:
+            for thread in threads:
+                if int(thread.id) == int(member.id):
+                    thread.member = member
+                    break
+        self.threads = threads
+        return self.threads
 
     async def get_all_roles(self) -> List[Role]:
         """
