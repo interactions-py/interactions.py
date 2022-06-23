@@ -75,7 +75,7 @@ class SelectMenu(ComponentMixin):
             placeholder="Check out my options. :)",
             custom_id="menu_component",
         )
-    :ivar ComponentType type: The type of select menu.
+    :ivar ComponentType type: The type of select menu. If not given, it defaults to ``ComponentType.SELECT`` (``STRING_SELECT``)
     :ivar str custom_id: The customized "ID" of the select menu.
     :ivar Optional[List[SelectOption]] options: The list of select options in the select menu. This only applies to String-based selects.
     :ivar Optional[str] placeholder?: The placeholder of the select menu.
@@ -85,7 +85,7 @@ class SelectMenu(ComponentMixin):
     :ivar Optional[List[int]] channel_types:  Optional channel types to filter/whitelist. Only works with the CHANNEL_SELECT type.
     """
 
-    type: ComponentType = field(converter=ComponentType)
+    type: ComponentType = field(converter=ComponentType, default=ComponentType.SELECT)
     custom_id: str = field()
     options: Optional[List[SelectOption]] = field(
         converter=convert_list(SelectOption), default=None
@@ -286,10 +286,14 @@ class ActionRow(ComponentMixin):
     def __attrs_post_init__(self) -> None:
         for component in self.components:
             if isinstance(component, SelectMenu):
-                component._json["options"] = [
-                    option._json if isinstance(option, SelectOption) else option
-                    for option in component._json["options"]
-                ]
+                component._json["options"] = (
+                    [
+                        option._json if isinstance(option, SelectOption) else option
+                        for option in component._json["options"]
+                    ]
+                    if component._json.get("options")
+                    else []
+                )
         self.components = (
             [Component(**component._json) for component in self.components]
             if self._json.get("components")
@@ -313,10 +317,14 @@ def _build_components(components) -> List[dict]:
                     action_row if isinstance(action_row, list) else action_row.components
                 ):
                     if isinstance(component, SelectMenu):
-                        component._json["options"] = [
-                            option if isinstance(option, dict) else option._json
-                            for option in component.options
-                        ]
+                        component._json["options"] = (
+                            [
+                                option if isinstance(option, dict) else option._json
+                                for option in component.options
+                            ]
+                            if component._json.get("options")
+                            else []
+                        )
 
                 _components.append(
                     {
@@ -357,10 +365,14 @@ def _build_components(components) -> List[dict]:
         ):
             for component in components:
                 if isinstance(component, SelectMenu):
-                    component._json["options"] = [
-                        options if isinstance(options, dict) else options._json
-                        for options in component._json["options"]
-                    ]
+                    component._json["options"] = (
+                        [
+                            options if isinstance(options, dict) else options._json
+                            for options in component._json["options"]
+                        ]
+                        if component._json.get("options")
+                        else []
+                    )
 
             _components = [
                 {
@@ -387,10 +399,14 @@ def _build_components(components) -> List[dict]:
             return _components
         elif isinstance(components, SelectMenu):
             _components: List[dict] = [{"type": 1, "components": []}]
-            components._json["options"] = [
-                options if isinstance(options, dict) else options._json
-                for options in components._json["options"]
-            ]
+            components._json["options"] = (
+                [
+                    options if isinstance(options, dict) else options._json
+                    for options in components._json["options"]
+                ]
+                if components._json.get("options")
+                else []
+            )
 
             _components[0]["components"] = (
                 [components._json]
