@@ -620,7 +620,7 @@ class Channel(ClientSerializerMixin):
         )
 
         await self._client.add_member_to_thread(thread_id=int(self.id), user_id=_member_id)
-   
+
     async def remove_member(
         self,
         member_id: Union[int, Snowflake, "Member"],  # noqa
