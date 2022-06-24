@@ -13,6 +13,7 @@ from ..api import Cache
 from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
+from ..api.gateway.misc import ProxyConfig
 from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Intents, Permissions
@@ -59,6 +60,7 @@ class Client:
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
     :ivar Application me: The application representation of the client.
+    :ivar ProxyConfig proxy: The proxy configuration of the client.
     """
 
     def __init__(
@@ -89,11 +91,26 @@ class Client:
         #     Sets an RPC-like presence on the application when connected to the Gateway.
         # disable_sync? : Optional[bool]
         #     Controls whether synchronization in the user-facing API should be automatic or not.
+        # proxy? : Optional[Union[ProxyConfig, str]]
+        #     Sets the proxy configuration of the client.
+
+        if __proxy := kwargs.get("proxy"):
+            if isinstance(__proxy, str):
+                self._proxy = ProxyConfig(__proxy)
+            elif isinstance(__proxy, ProxyConfig):
+                self._proxy = __proxy
+            else:
+                raise Exception(
+                    "Invalid proxy configuration. Must be of instance ProxyConfig or "
+                    + "of string format: [http/https]://[login]:[password]@host:port"
+                )
+        else:
+            self._proxy = None
 
         self._loop = get_event_loop()
-        self._http = HTTPClient(token=token)
+        self._http = HTTPClient(token=token, proxy=self._proxy)
         self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WSClient(token=token, intents=self._intents)
+        self._websocket = WSClient(token=token, intents=self._intents, proxy=self._proxy)
         self._shard = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token

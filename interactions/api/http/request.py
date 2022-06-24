@@ -14,6 +14,7 @@ from aiohttp import __version__ as http_version
 from interactions.base import __version__, get_logger
 
 from ...api.error import LibraryException
+from ...api.gateway.misc import ProxyConfig
 from .limiter import Limiter
 from .route import Route
 
@@ -43,6 +44,7 @@ class _Request:
         "_headers",
         "_session",
         "_global_lock",
+        "proxy",
     )
     token: str
     _loop: AbstractEventLoop
@@ -52,7 +54,7 @@ class _Request:
     _session: ClientSession
     _global_lock: Limiter
 
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, proxy: Optional[ProxyConfig] = None) -> None:
         """
         :param token: The application token used for authorizing.
         :type token: str
@@ -74,6 +76,7 @@ class _Request:
         self._global_lock = (
             Limiter(lock=Lock(loop=self._loop)) if version_info < (3, 10) else Limiter(lock=Lock())
         )
+        self.proxy = proxy
 
     def _check_session(self) -> None:
         """Ensures that we have a valid connection session."""
@@ -100,6 +103,9 @@ class _Request:
         """
 
         kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
+
+        kwargs["proxy"] = str(self.proxy) if isinstance(self.proxy, ProxyConfig) else None
+        kwargs["proxy_auth"] = self.proxy.auth if isinstance(self.proxy, ProxyConfig) else None
 
         if kwargs.get("json"):
             kwargs["headers"]["Content-Type"] = "application/json"

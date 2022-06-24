@@ -6,6 +6,7 @@ from aiohttp import ClientWebSocketResponse
 
 from ...api.models.attrs_utils import MISSING
 from ...api.models.presence import ClientPresence
+from ...api.gateway.misc import ProxyConfig
 from ...client.models import Option
 from ..dispatch import Listener
 from ..http.client import HTTPClient
@@ -40,6 +41,7 @@ class WebSocketClient:
         intents: Intents,
         session_id: Optional[int] = MISSING,
         sequence: Optional[int] = MISSING,
+        proxy: Optional[ProxyConfig] = None
     ) -> None: ...
     async def _manage_heartbeat(self) -> None: ...
     async def __restart(self): ...

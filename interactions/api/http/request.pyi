@@ -6,6 +6,7 @@ from aiohttp import __version__ as http_version
 
 from .limiter import Limiter
 from .route import Route
+from ...api.gateway.misc import ProxyConfig
 
 class _Request:
 
@@ -16,7 +17,8 @@ class _Request:
     _headers: dict
     _session: ClientSession
     _global_lock: Limiter
-    def __init__(self, token: str) -> None: ...
+    proxy: Optional[ProxyConfig]
+    def __init__(self, token: str, proxy: Optional[ProxyConfig] = None) -> None: ...
     def _check_session(self) -> None: ...
     async def _check_lock(self) -> None: ...
     async def request(self, route: Route, **kwargs) -> Optional[Any]: ...

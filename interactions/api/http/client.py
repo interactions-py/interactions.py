@@ -3,6 +3,7 @@ from typing import Any, Optional, Tuple
 import interactions.api.cache
 
 from ...api.cache import Cache
+from ...api.gateway.misc import ProxyConfig
 from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
@@ -55,9 +56,9 @@ class HTTPClient(
     _req: _Request
     cache: Cache
 
-    def __init__(self, token: str):
+    def __init__(self, token: str, proxy: Optional[ProxyConfig] = None):
         self.token = token
-        self._req = _Request(self.token)
+        self._req = _Request(self.token, proxy=proxy)
         self.cache = interactions.api.cache.ref_cache
         UserRequest.__init__(self)
         MessageRequest.__init__(self)
