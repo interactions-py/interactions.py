@@ -50,6 +50,7 @@ Please look at our pages below to find out where to go.
 
    quickstart.rst
    api.rst
+   events.rst
    faq.rst
    migration.rst
 
