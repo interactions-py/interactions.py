@@ -18,8 +18,8 @@ class DictSerializerMixin:
     _json: dict = attrs.field(init=False)
     _extras: dict = attrs.field(init=False)
     """A dict containing values that were not serialized from Discord."""
-    __ipy_deepcopy__: bool = attrs.field(init=False)
-    """Should the kwargs be deepcopied for interactions.py or not?"""
+    __deepcopy_kwargs__: bool = attrs.field(init=False)
+    """Should the kwargs be deepcopied or not?"""
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs): ...
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
