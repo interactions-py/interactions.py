@@ -165,7 +165,7 @@ Those are (at the moment):
 - `rest`_ for connecting to a ``RESTful API``
 - And a `boilerplate`_
 
-Below are a few not yet officially supported exts what allowing some functional that are similar to what d.py had:
+Below are a few unofficial exts (for the time being) which implement some functionality similar to what d.py had:
 
 - `checks and cooldowns`_
 - `tasks`_
