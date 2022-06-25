@@ -520,11 +520,10 @@ class Client:
                                 # _pos = self.__guild_commands[_guild_id]["commands"].index(_command)
                                 # self.__guild_commands[_guild_id]["commands"][_pos] = _guild_command
 
-                                for i, _dict in enumerate(
+                                for _pos, _dict in enumerate(
                                     self.__guild_commands[_guild_id]["commands"]
                                 ):
                                     if _dict["name"] == _command["name"]:
-                                        _pos = i
                                         self.__guild_commands[_guild_id]["commands"][
                                             _pos
                                         ] = _guild_command
@@ -545,9 +544,8 @@ class Client:
                         # _pos = self.__global_commands["commands"].index(_command)
                         # self.__global_commands["commands"][_pos] = coro._command_data
 
-                        for i, _dict in enumerate(self.__global_commands["commands"]):
+                        for _pos, _dict in enumerate(self.__global_commands["commands"]):
                             if _dict["name"] == _command["name"]:
-                                _pos = i
                                 self.__global_commands["commands"][_pos] = coro._command_data
                                 break
 
