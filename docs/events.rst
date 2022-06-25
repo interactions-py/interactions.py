@@ -50,6 +50,7 @@ There are several different internal events:
     - ``on_modal``
     - ``on_interaction``
 
+Lets now have a look on those events in detail
 
 Event: ``raw_socket_create``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
