@@ -19,14 +19,14 @@ class DictSerializerMixin:
     _extras: dict = attrs.field(init=False, repr=False)
     """A dict containing values that were not serialized from Discord."""
 
-    __deepcopy__ = False
-    """Should the kwargs be deepcopied or not?"""
+    __ipy_deepcopy__ = False
+    """Should the kwargs be deepcopied for interactions.py or not?"""
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
         kwargs = kwargs_dict or other_kwargs
         client = kwargs.pop("_client", None)
 
-        if self.__deepcopy__:
+        if self.__ipy_deepcopy__:
             kwargs = deepcopy(kwargs)
 
         self._json = kwargs.copy()
@@ -184,11 +184,11 @@ def deepcopy_kwargs(cls: Optional[type] = None):
     """
 
     def decorator(cls: type):
-        cls.__deepcopy__ = True  # type: ignore
+        cls.__ipy_deepcopy__ = True  # type: ignore
         return cls
 
     if cls is not None:
-        cls.__deepcopy__ = True  # type: ignore
+        cls.__ipy_deepcopy__ = True  # type: ignore
         return cls
 
     return decorator
