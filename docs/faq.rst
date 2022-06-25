@@ -14,7 +14,7 @@ Got a question about our library? Well, your answer is probably laying somewhere
 The current state of discord.py and its further development is unclear. What about your library?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 We have no plans on stopping development and will be available for you. If you have any questions about the
-internal development feel free to ask in the discord support server.
+internal development, feel free to ask in the Discord support server.
 
 
 Are you going to/will/consider fork(ing) discord.py?
