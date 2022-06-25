@@ -17,13 +17,11 @@ Generally, you can listen to an event like this:
     bot = interactions.Client(...)
 
     # possibility 1
-
     @bot.event
     async def on_<event name>(...):
         ...  # do smth
 
     # possibility 2
-
     @bot.event(name="on_<event name>")
     async def you_are_free_to_name_this_as_you_want(...):
         ... # do smth
@@ -31,9 +29,9 @@ Generally, you can listen to an event like this:
     bot.start()
 
 
-`<event name>` represents the Discord event name - but lowercase and any spaces replaced with `_`.
+``<event name>`` represents the Discord event name - but lowercase and any spaces replaced with ``_``.
 
-`(...)` represents the different arguments a function takes. Those arguments differ per event.
+``(...)`` represents the different arguments a function takes. Those arguments differ per event.
 
 
 Now, lets have a look on different events and how they work, starting with internal events.
@@ -43,12 +41,12 @@ Internal Events
 
 There are several different internal events:
 
-    - `on_command`
-    - `on_component`
-    - `on_autocomplete`
-    - `on_modal`
-    - `on_interaction`
-    - `raw_socket_create`
+    - ``on_command``
+    - ``on_component``
+    - ``on_autocomplete``
+    - ``on_modal``
+    - ``on_interaction``
+    - ``raw_socket_create``
 
 
 
@@ -59,8 +57,8 @@ Discord Events
 ***************
 
 There is a lot of events dispatched by the Discord API. All of those can be found
-:ref:`here <https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events`.
+:ref:``here <https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events``.
 
-The events `Hello`, `Resumed`, `Reconnect`, `Typing Start` and `Invalid Session` are not dispatched by the library.
+The events ``Hello``, ``Resumed``, ``Reconnect``, ``Typing Start`` and ``Invalid Session`` are not dispatched by the library.
 
-The event `Voice State Update` can be only received with the voice :ref:`Extension <faq:Extension Libraries>`.
+The event ``Voice State Update`` can be only received with the voice :ref:``Extension <faq:Extension Libraries>``.
