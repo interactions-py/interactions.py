@@ -9,8 +9,9 @@ discord can be found :ref:`here <https://discord.com/developers/docs/topics/gate
 Internal Events
 ~~~~~~~~~~~~~~~
 
-There are several different internal event:
+There are several different internal events:
 
+    - `on_ready`
     - `on_modal`
 
 
