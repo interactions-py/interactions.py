@@ -159,7 +159,7 @@ Those are (at the moment):
 - `wait_for`_ allows listening and waiting for a specific event or a component inside a function
 - `files`_ for file sending with ctx
 - `Molter`_ for message commands
-- `enhanced`_ what enhances the DX in general
+- `enhanced`_ which enhances the DX in general
 - A `paginator`_ for paginating embeds on messages using components
 - `persistence`_ - for storing data inside your custom IDs (as an alternative to ``wait_for``)
 - `rest`_ for connecting to a ``RESTful API``
