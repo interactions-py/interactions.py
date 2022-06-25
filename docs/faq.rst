@@ -7,7 +7,7 @@ Got a question about our library? Well, your answer is probably laying somewhere
 
     This page is maintained by the Helpers of the Discord server,
     and developers at their discretion. For any
-    comments, feedback or concerns please consider joining our `Discord Server`_
+    comments, feedback or concerns, please consider joining our `Discord Server`_
     and bringing it up in our support channels.
 
 
