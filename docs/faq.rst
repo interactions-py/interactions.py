@@ -176,7 +176,7 @@ Usage examples can usually be found at the linked page
 
 Can I make an Extension Library myself?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Yeah you can! We have a special channel reserved for the development of external libraries!
+Yeah, you can! We have a special channel reserved for the development of external libraries!
 You can also read `this <https://github.com/interactions-py/library/discussions/700>`_ for more information.
 
 
