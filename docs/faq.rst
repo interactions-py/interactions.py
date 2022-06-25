@@ -259,6 +259,7 @@ This is how you create an extension for yourself:
 
 
 .. code-block:: python
+
     # This is main.py
     client = interactions.Client(...)
     client.load("your.cog")
@@ -280,14 +281,12 @@ This is how you create an extension for yourself:
     def setup(client):
       TestCommand(client)
 
-
 It's nothing more than that.
 
 Since ``@bot.X`` decorators don't work in extensions, you have to use these:
 
 * For event listeners, use ``@interactions.extension_listener``
 * For component listeners, use ``@interactions.extension_component``
-* For modal listeners, use ``@interactions.extension_modal``
 * For modal listeners, use ``@interactions.extension_modal``
 * For autocomplete listeners, use ``@interactions.extension_autocomplete``
 
