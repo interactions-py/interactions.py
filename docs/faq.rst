@@ -299,7 +299,7 @@ channel by the API. The only possible thing is to install the `voice client`_ ex
 
 My question is not answered on here!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Please join our `Discord server`_ for any further support regarding our library and/or any integration code depending on it.
+Please join our `Discord Server`_ for any further support regarding our library and/or any integration code depending on it.
 
 .. _Discord Server: https://discord.gg/KkgMBVuEkx
 .. _already admitted: https://gist.github.com/Rapptz/4a2f62751b9600a31a0d3c78100287f1#whats-going-to-happen-to-my-bot
