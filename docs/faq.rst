@@ -257,6 +257,7 @@ Yes! Although, we call them ``Extensions``. Yeah, like :ref:`Extension Libraries
 This is because an extension Library is basically the same thing as a downloadable "cog".
 This is how you create an extension for yourself:
 
+
 .. code-block:: python
     # This is main.py
     client = interactions.Client(...)
@@ -278,6 +279,7 @@ This is how you create an extension for yourself:
 
     def setup(client):
       TestCommand(client)
+
 
 It's nothing more than that.
 
