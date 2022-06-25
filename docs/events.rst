@@ -5,6 +5,7 @@ You all probably already know that there are several events, internal and from d
 bot. This page will lead you through all dispatched internal events and a few from discord.
 
 
+
 How to listen for events
 ************************
 
@@ -34,6 +35,7 @@ Generally, you can listen to an event like this:
 ``(...)`` represents the different arguments a function takes. Those arguments differ per event.
 
 
+
 Now, lets have a look on different events and how they work, starting with internal events.
 
 Internal Events
@@ -41,13 +43,37 @@ Internal Events
 
 There are several different internal events:
 
+    - ``raw_socket_create``
     - ``on_command``
     - ``on_component``
     - ``on_autocomplete``
     - ``on_modal``
     - ``on_interaction``
-    - ``raw_socket_create``
 
+
+Event: ``raw_socket_create``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This event fires on any event sent by Discord, including ``Typing Start``  and ``Voice State Update``.
+``Hello``, ``Resumed``, ``Reconnect`` and ``Invalid Session`` still will not be dispatched.
+
+The function handling the event should take in one argument, the type of this argument is a ``dict``.
+
+The value of the argument will be the *raw* data sent from discord, so it is not recommended to use that event
+as long as you dont absolutely need it.
+
+
+Event: ``on_command``
+^^^^^^^^^^^^^^^^^^^^^
+This event fires on any Application Command (slash command + context menu command) used.
+
+The function takes in one argument of the type ``CommandContext``
+
+Using this event, you will have to manually check everything, from name to whether the used commands has sub commands,
+options or anything else - everything will be in the raw context and you will have to search for it
+
+
+Event: ``on_component``
+^^^^^^^^^^^^^^^^^^^^^^
 
 
 
@@ -59,6 +85,6 @@ Discord Events
 There is a lot of events dispatched by the Discord API. All of those can be found
 :ref:``here <https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events``.
 
-The events ``Hello``, ``Resumed``, ``Reconnect``, ``Typing Start`` and ``Invalid Session`` are not dispatched by the library.
+The events ``Hello``, ``Resumed``, ``Reconnect``, ``Invalid Session`` and ``Typing Start`` are not dispatched by the library.
 
 The event ``Voice State Update`` can be only received with the voice :ref:``Extension <faq:Extension Libraries>``.
