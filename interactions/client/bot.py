@@ -32,7 +32,6 @@ log: Logger = get_logger("client")
 _token: str = ""  # noqa
 _cache: Optional[Cache] = None
 
-
 __all__ = (
     "Client",
     "Extension",
@@ -247,6 +246,11 @@ class Client:
                                                     return False, command
                                                 else:
                                                     continue
+
+                                for i, __name in enumerate(_option_choice_names):
+                                    if _data_choice_names[i] != __name:
+                                        return False, command
+
                             elif option_attr == "required":
                                 if (
                                     option.get(option_attr) == None  # noqa: E711
@@ -266,6 +270,11 @@ class Client:
                                 return False, command
                             else:
                                 continue
+
+            for i, __name in enumerate(_command_option_names):
+                if _data_option_names[i] != __name:
+                    return False, command
+
             return True, command
 
         for command in pool:
@@ -508,8 +517,18 @@ class Client:
                             )
                             if not clean:
                                 self.__guild_commands[_guild_id]["clean"] = False
-                                _pos = self.__guild_commands[_guild_id]["commands"].index(_command)
-                                self.__guild_commands[_guild_id]["commands"][_pos] = _guild_command
+                                # _pos = self.__guild_commands[_guild_id]["commands"].index(_command)
+                                # self.__guild_commands[_guild_id]["commands"][_pos] = _guild_command
+
+                                for _pos, _dict in enumerate(
+                                    self.__guild_commands[_guild_id]["commands"]
+                                ):
+                                    if _dict["name"] == _command["name"]:
+                                        self.__guild_commands[_guild_id]["commands"][
+                                            _pos
+                                        ] = _guild_command
+                                        break
+
                             if __check_guild_commands[_guild_id]:
                                 del __check_guild_commands[_guild_id][
                                     __check_guild_commands[_guild_id].index(_guild_command["name"])
@@ -522,8 +541,14 @@ class Client:
 
                     if not clean:
                         self.__global_commands["clean"] = False
-                        _pos = self.__global_commands["commands"].index(_command)
-                        self.__global_commands["commands"][_pos] = coro._command_data
+                        # _pos = self.__global_commands["commands"].index(_command)
+                        # self.__global_commands["commands"][_pos] = coro._command_data
+
+                        for _pos, _dict in enumerate(self.__global_commands["commands"]):
+                            if _dict["name"] == _command["name"]:
+                                self.__global_commands["commands"][_pos] = coro._command_data
+                                break
+
                     if __check_global_commands:
                         del __check_global_commands[
                             __check_global_commands.index(coro._command_data["name"])
@@ -1459,7 +1484,6 @@ class Client:
 
 
 class AutocompleteManager:
-
     __slots__ = (
         "client",
         "command_name",
