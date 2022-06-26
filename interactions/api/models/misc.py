@@ -68,7 +68,7 @@ class ClientStatus(DictSerializerMixin):
     web: Optional[str] = field(default=None)
 
 
-class Snowflake(object):
+class Snowflake:
     """
     The Snowflake object.
 
@@ -244,7 +244,7 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     presets: Optional[List[str]] = field(default=None)
 
 
-class Color(object):
+class Color:
     """
     An object representing Discord branding colors.
 
@@ -255,28 +255,28 @@ class Color(object):
         custom-defined colors.
     """
 
-    @property
-    def blurple(self) -> hex:
+    @staticmethod
+    def blurple() -> hex:
         """Returns a hexadecimal value of the blurple color."""
         return 0x5865F2
 
-    @property
-    def green(self) -> hex:
+    @staticmethod
+    def green() -> hex:
         """Returns a hexadecimal value of the green color."""
         return 0x57F287
 
-    @property
-    def yellow(self) -> hex:
+    @staticmethod
+    def yellow() -> hex:
         """Returns a hexadecimal value of the yellow color."""
         return 0xFEE75C
 
-    @property
-    def fuchsia(self) -> hex:
+    @staticmethod
+    def fuchsia() -> hex:
         """Returns a hexadecimal value of the fuchsia color."""
         return 0xEB459E
 
-    @property
-    def red(self) -> hex:
+    @staticmethod
+    def red() -> hex:
         """Returns a hexadecimal value of the red color."""
         return 0xED4245
 
@@ -284,18 +284,18 @@ class Color(object):
     # If they don't know white is ff and black is 00, something's seriously
     # wrong.
 
-    @property
-    def white(self) -> hex:
+    @staticmethod
+    def white() -> hex:
         """Returns a hexadecimal value of the white color."""
         return 0xFFFFFF
 
-    @property
-    def black(self) -> hex:
+    @staticmethod
+    def black() -> hex:
         """Returns a hexadecimal value of the black color."""
         return 0x000000
 
 
-class File(object):
+class File:
     """
     A File object to be sent as an attachment along with a message.
 
@@ -328,7 +328,7 @@ class File(object):
         return {"id": id, "description": self._description, "filename": self._filename}
 
 
-class Image(object):
+class Image:
     """
     This class object allows you to upload Images to the Discord API.
 
