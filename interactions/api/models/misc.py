@@ -236,28 +236,28 @@ class Color(object):
         custom-defined colors.
     """
 
-    @classmethod
-    def blurple(cls) -> hex:
+    @staticmethod
+    def blurple() -> hex:
         """Returns a hexadecimal value of the blurple color."""
         return 0x5865F2
 
-    @classmethod
-    def green(cls) -> hex:
+    @staticmethod
+    def green() -> hex:
         """Returns a hexadecimal value of the green color."""
         return 0x57F287
 
-    @classmethod
-    def yellow(cls) -> hex:
+    @staticmethod
+    def yellow() -> hex:
         """Returns a hexadecimal value of the yellow color."""
         return 0xFEE75C
 
-    @classmethod
-    def fuchsia(cls) -> hex:
+    @staticmethod
+    def fuchsia() -> hex:
         """Returns a hexadecimal value of the fuchsia color."""
         return 0xEB459E
 
-    @classmethod
-    def red(cls) -> hex:
+    @staticmethod
+    def red() -> hex:
         """Returns a hexadecimal value of the red color."""
         return 0xED4245
 
@@ -265,13 +265,13 @@ class Color(object):
     # If they don't know white is ff and black is 00, something's seriously
     # wrong.
 
-    @classmethod
-    def white(cls) -> hex:
+    @staticmethod
+    def white() -> hex:
         """Returns a hexadecimal value of the white color."""
         return 0xFFFFFF
 
-    @classmethod
-    def black(cls) -> hex:
+    @staticmethod
+    def black() -> hex:
         """Returns a hexadecimal value of the black color."""
         return 0x000000
 
