@@ -928,6 +928,7 @@ class Message(ClientSerializerMixin):
         suppress_embeds: Optional[bool] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
                 "ActionRow",  # noqa
@@ -954,6 +955,8 @@ class Message(ClientSerializerMixin):
         :type suppress_embeds: Optional[bool]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The edited message as an object.
@@ -974,6 +977,13 @@ class Message(ClientSerializerMixin):
         _content: str = self.content if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
 
+        if attachments is MISSING:
+            _attachments = [a._json for a in self.attachments]
+        elif not attachments:
+            _attachments = []
+        else:
+            _attachments = [a._json for a in attachments]
+
         if not files or files is MISSING:
             _files = self.attachments
         elif isinstance(files, list):
@@ -981,6 +991,8 @@ class Message(ClientSerializerMixin):
         else:
             _files = [files._json_payload(0)]
             files = [files]
+
+        _files.extend(_attachments)
 
         if embeds is MISSING:
             embeds = self.embeds
@@ -1017,8 +1029,9 @@ class Message(ClientSerializerMixin):
             files=files,
         )
 
-        if code := _dct.get("code"):
-            raise LibraryException(code, message=_dct.get("message"))
+        # if code := _dct.get("code"):
+        #     raise LibraryException(code, message=_dct.get("message"))
+        # this should not be needed since the request now checks for a code
 
         self.update(_dct)
 
