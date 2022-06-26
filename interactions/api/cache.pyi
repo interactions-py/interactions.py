@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Any, List, Optional, Type
 
-class Item(object):
+class Item:
     id: str
     value: Any
     type: Type
