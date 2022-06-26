@@ -2,13 +2,14 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Any, Callable, List, Optional, Union
 
-from ... import ActionRow, Button, SelectMenu
 from .attrs_utils import ClientSerializerMixin, define
 from .guild import Invite, InviteTargetType
 from .message import Embed, Message, MessageInteraction
-from .misc import File, Overwrite, Snowflake
+from .misc import File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
+from ... import ActionRow, Button, SelectMenu
+
 
 class ChannelType(IntEnum):
     GUILD_TEXT: int
@@ -40,8 +41,9 @@ class ThreadMember(ClientSerializerMixin):
     muted: bool
     mute_config: Optional[Any]
 
+
 @define()
-class Channel(ClientSerializerMixin):
+class Channel(ClientSerializerMixin, IDMixin):
     type: ChannelType
     id: Snowflake
     guild_id: Optional[Snowflake]

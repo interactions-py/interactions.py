@@ -1,12 +1,12 @@
 from typing import Optional, Union
 
 from attrs_utils import ClientSerializerMixin, define
-
 from .flags import UserFlags as UserFlags
-from .misc import Snowflake
+from .misc import IDMixin, Snowflake
+
 
 @define()
-class User(ClientSerializerMixin):
+class User(ClientSerializerMixin, IDMixin):
     id: Snowflake
     username: str
     discriminator: str

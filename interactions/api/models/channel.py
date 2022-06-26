@@ -11,7 +11,7 @@ from .attrs_utils import (
     define,
     field,
 )
-from .misc import File, Overwrite, Snowflake
+from .misc import File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
 
@@ -88,7 +88,7 @@ class ThreadMember(ClientSerializerMixin):
 
 
 @define()
-class Channel(ClientSerializerMixin):
+class Channel(ClientSerializerMixin, IDMixin):
     """
     A class object representing all types of channels.
 

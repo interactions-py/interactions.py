@@ -18,6 +18,7 @@ from .misc import (
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,
+    IDMixin,
     Image,
     Overwrite,
     Snowflake,
@@ -164,7 +165,7 @@ class WelcomeScreen(DictSerializerMixin):
 
 
 @define()
-class StageInstance(DictSerializerMixin):
+class StageInstance(DictSerializerMixin, IDMixin):
     """
     A class object representing an instance of a stage channel in a guild.
 
@@ -185,7 +186,7 @@ class StageInstance(DictSerializerMixin):
 
 
 @define()
-class UnavailableGuild(DictSerializerMixin):
+class UnavailableGuild(DictSerializerMixin, IDMixin):
     """
     A class object representing how a guild that is unavailable.
 
@@ -204,7 +205,7 @@ class UnavailableGuild(DictSerializerMixin):
 
 
 @define()
-class Guild(ClientSerializerMixin):
+class Guild(ClientSerializerMixin, IDMixin):
     """
     A class object representing how a guild is registered.
 
@@ -2272,7 +2273,7 @@ class Guild(ClientSerializerMixin):
 
 
 @define()
-class GuildPreview(DictSerializerMixin):
+class GuildPreview(DictSerializerMixin, IDMixin):
     """
     A class object representing the preview of a guild.
 
@@ -2301,7 +2302,7 @@ class GuildPreview(DictSerializerMixin):
 
 
 @define()
-class Integration(DictSerializerMixin):
+class Integration(DictSerializerMixin, IDMixin):
     """
     A class object representing an integration in a guild.
 
@@ -2382,7 +2383,7 @@ class EventMetadata(DictSerializerMixin):
 
 
 @define()
-class ScheduledEvents(DictSerializerMixin):
+class ScheduledEvents(DictSerializerMixin, IDMixin):
     """
     A class object representing the scheduled events of a guild.
 

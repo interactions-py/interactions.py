@@ -1,7 +1,8 @@
 from typing import Any, List, Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
-from .misc import Snowflake
+from .misc import IDMixin, Snowflake
+
 
 @define()
 class RoleTags(DictSerializerMixin):
@@ -9,8 +10,9 @@ class RoleTags(DictSerializerMixin):
     integration_id: Optional[Snowflake]
     premium_subscriber: Optional[Any]
 
+
 @define()
-class Role(ClientSerializerMixin):
+class Role(ClientSerializerMixin, IDMixin):
     id: Snowflake
     name: str
     color: int

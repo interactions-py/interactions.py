@@ -21,6 +21,7 @@ from .misc import (
     AutoModTriggerType,
     ClientStatus,
     File,
+    IDMixin,
     Snowflake,
 )
 from .presence import PresenceActivity
@@ -84,7 +85,7 @@ class AutoModerationAction(DictSerializerMixin):
 
 
 @define()
-class AutoModerationRule(DictSerializerMixin):
+class AutoModerationRule(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway events ``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and ``AUTO_MODERATION_RULE_DELETE``
 
@@ -121,7 +122,7 @@ class AutoModerationRule(DictSerializerMixin):
 
 
 @define()
-class ApplicationCommandPermissions(ClientSerializerMixin):
+class ApplicationCommandPermissions(ClientSerializerMixin, IDMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
 
@@ -590,7 +591,7 @@ class GuildStickers(DictSerializerMixin):
 
 
 @define()
-class GuildScheduledEvent(ClientSerializerMixin):
+class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
     """
     A class object representing gateway events ``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, ``GUILD_SCHEDULED_EVENT_DELETE``.
 
@@ -650,7 +651,7 @@ class GuildScheduledEventUser(DictSerializerMixin):
 
 
 @define()
-class Integration(DictSerializerMixin):
+class Integration(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway events ``INTEGRATION_CREATE``, ``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``.
 
@@ -794,7 +795,7 @@ class ThreadList(DictSerializerMixin):
 
 
 @define()
-class ThreadMembers(DictSerializerMixin):
+class ThreadMembers(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway event ``THREAD_MEMBERS_UPDATE``.
 
