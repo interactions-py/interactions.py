@@ -133,14 +133,14 @@ Events in this section do not match the name needed to put into the function. Pl
 
 
 There is a lot of events dispatched by the Discord API. All of those can be found
-:ref:``here <https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events``.
+:ref:`here <https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events`.
 
 The events ``HELLO``, ``RESUMED``, ``RECONNECT``, ``INVALID SESSION`` and ``TYPING START`` are not dispatched by the library.
 
-``TYPING START`` will be included into the :ref:`raw socket create<events:Event: ``raw_socket_create``>` event. You can
+``TYPING START`` will be included into the :ref:`raw socket create<events:event-raw-socket-create>` event. You can
 also listen for it if you choose to subclass the :ref:`WebSocketClient<Gateway:WebSocketClient>`
 
-The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:``Extension <faq:Extension Libraries>``.
+The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:`Extension <faq:Extension Libraries>`.
 
 
 Lets now have a look at a few events:
