@@ -127,3 +127,6 @@ There is a lot of events dispatched by the Discord API. All of those can be foun
 The events ``Hello``, ``Resumed``, ``Reconnect``, ``Invalid Session`` and ``Typing Start`` are not dispatched by the library.
 
 The event ``Voice State Update`` can be only received with the voice :ref:``Extension <faq:Extension Libraries>``.
+
+
+Lets now have a look at a few events:
