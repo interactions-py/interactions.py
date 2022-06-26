@@ -67,7 +67,7 @@ class ClientStatus(DictSerializerMixin):
     web: Optional[str] = field(default=None)
 
 
-class Snowflake(object):
+class Snowflake:
     """
     The Snowflake object.
 
@@ -225,7 +225,7 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     presets: Optional[List[str]] = field(default=None)
 
 
-class Color(object):
+class Color:
     """
     An object representing Discord branding colors.
 
@@ -276,7 +276,7 @@ class Color(object):
         return 0x000000
 
 
-class File(object):
+class File:
     """
     A File object to be sent as an attachment along with a message.
 
@@ -309,7 +309,7 @@ class File(object):
         return {"id": id, "description": self._description, "filename": self._filename}
 
 
-class Image(object):
+class Image:
     """
     This class object allows you to upload Images to the Discord API.
 

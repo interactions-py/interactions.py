@@ -8,7 +8,7 @@ __all__ = (
 )
 
 
-class Item(object):
+class Item:
     """
     A class representing the defined item in a stored dataset.
 
