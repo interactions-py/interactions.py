@@ -132,13 +132,12 @@ Events in this section do not match the name needed to put into the function. Pl
 :ref:`above <events:How to listen for events>` for how to get the correct name.
 
 
-There is a lot of events dispatched by the Discord API. All of those can be found
-:ref:`here <https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events`.
+There is a lot of events dispatched by the Discord API. All of those can be found `here`_.
 
 The events ``HELLO``, ``RESUMED``, ``RECONNECT``, ``INVALID SESSION`` and ``TYPING START`` are not dispatched by the library.
 
-``TYPING START`` will be included into the :ref:`raw socket create<events:event-raw-socket-create>` event. You can
-also listen for it if you choose to subclass the :ref:`WebSocketClient<Gateway:WebSocketClient>`
+``TYPING START`` will be included into the :raw socket create event. You can
+also listen for it if you choose to subclass the WebSocketClient
 
 The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:`Extension <faq:Extension Libraries>`.
 
@@ -146,13 +145,13 @@ The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:`Exten
 Lets now have a look at a few events:
 
 Event: ``READY``
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 This event fires whenever ``READY`` is dispatched by discord. This happens when connecting to the web socket server.
 
 This function takes no arguments.
 
 .. attention::
-    Due to the bot reconnecting during runtime ``on_read`` will be dispatched multiple times. If you rely on
+    Due to the bot reconnecting during runtime, ``on_ready`` will be dispatched multiple times. If you rely on
     ``on_ready`` to do certain things once, check against a global variable as shown below:
 
     .. code-block:: python
@@ -166,3 +165,16 @@ This function takes no arguments.
             if not _ready:
                 ... # do stuff
                 _ready = True
+
+
+Events: ``GUILD MEMBER UPDATE`` and ``GUILD MEMBER ADD``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+These events fire whenever a member joins a guild or a member of a guild gets modified.
+
+The function takes in one argument of the type ``GuildMember``.
+
+The argument has the exact same methods as a normal ``Member`` object, except the methods *do not take in a guild id*.
+Please keep that in mind when using this event.
+
+
+.. _here: https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events
