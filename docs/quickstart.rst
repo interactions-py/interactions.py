@@ -448,6 +448,6 @@ Here's an example of a guild-only command:
 Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. Just to note that this argument's mainly used for
 global commands. Guild commands with this argument will have no effect.
 
-.. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
-.. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
+.. _Client: https://interactionspy.rtfd.io/en/stable/client.html
+.. _find these component types: https://interactionspy.readthedocs.io/en/stable/models.component.html
 .. _discord applications page: https://discord.com/developers/applications
