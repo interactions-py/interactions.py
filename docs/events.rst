@@ -32,6 +32,11 @@ Generally, you can listen to an event like this:
 
 ``<event name>`` represents the Discord event name - but lowercase and any spaces replaced with ``_``.
 
+For example:
+
+* ``READY`` -> ``on_ready``
+* ``GUILD MEMBER ADD`` -> ``on_guild_member_add``
+
 ``(...)`` represents the different arguments a function takes. Those arguments differ per event.
 
 
@@ -40,6 +45,8 @@ Now, lets have a look on different events and how they work, starting with inter
 
 Internal Events
 ****************
+
+All events mentioned in this section have the exact naming as they have to be put into the function.
 
 There are several different internal events:
 
@@ -121,12 +128,31 @@ After this, lets look at events from the Discord API.
 Discord API Events
 ******************
 
+Events in this section do not match the name needed to put into the function. Please check
+:ref:`above <events:How to listen for events>` for how to get the correct name.
+
+
 There is a lot of events dispatched by the Discord API. All of those can be found
 :ref:``here <https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events``.
 
-The events ``Hello``, ``Resumed``, ``Reconnect``, ``Invalid Session`` and ``Typing Start`` are not dispatched by the library.
+The events ``HELLO``, ``RESUMED``, ``RECONNECT``, ``INVALID SESSION`` and ``TYPING START`` are not dispatched by the library.
 
-The event ``Voice State Update`` can be only received with the voice :ref:``Extension <faq:Extension Libraries>``.
+``TYPING START`` will be included into the :ref:`raw socket create<events:Event: ``raw_socket_create``>` event. You can
+also listen for it if you choose to subclass the :ref:`WebSocketClient<Gateway:WebSocketClient>`
+
+The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:``Extension <faq:Extension Libraries>``.
 
 
 Lets now have a look at a few events:
+
+Event: ``READY``
+^^^^^^^^^^^^^^^^^^^
+This event fires whenever ``READY`` is dispatched by discord. This happens when connecting to the web socket server.
+
+This function takes no arguments.
+
+.. attention::
+    Due to the bot reconnecting during runtime ``on_read`` will be dispatched multiple times. If you rely on
+    ``on_ready`` to do certain things once, check against a global variable as shown below:
+
+    .. code-block:: python
