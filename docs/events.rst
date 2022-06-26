@@ -156,3 +156,13 @@ This function takes no arguments.
     ``on_ready`` to do certain things once, check against a global variable as shown below:
 
     .. code-block:: python
+
+        _ready: bool = False
+        bot = interactions.Client(...)
+
+        @bot.event
+        async def on_ready():
+            global _ready
+            if not _ready:
+                ... # do stuff
+                _ready = True
