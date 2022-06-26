@@ -519,6 +519,8 @@ class Guild(ClientSerializerMixin):
             reason=reason,
             payload=payload,
         )
+        if self.roles is None:
+            self.roles = []
         role = Role(**res, _client=self._client)
         self.roles.append(role)
         return role
@@ -542,6 +544,8 @@ class Guild(ClientSerializerMixin):
             member_id=int(member_id),
         )
         member = Member(**res, _client=self._client)
+        if self.members is None:
+            self.members = []
         for index, _member in enumerate(self.members):
             if int(_member.id) == int(member_id):
                 self.members[index] = member
@@ -671,6 +675,8 @@ class Guild(ClientSerializerMixin):
             reason=reason,
         )
         _role = Role(**res, _client=self._client)
+        if self.roles is None:
+            self.roles = []
         for index, item in enumerate(self.roles):
             if int(item.id) == int(role.id):
                 self.roles[index] = _role
@@ -834,6 +840,8 @@ class Guild(ClientSerializerMixin):
             payload=payload,
         )
 
+        if self.channels is None:
+            self.channels = []
         channel = Channel(**res, _client=self._client)
         self.channels.append(channel)
         return channel
@@ -980,6 +988,9 @@ class Guild(ClientSerializerMixin):
 
         _channel = Channel(**res, _client=self._client)
 
+        if self.channels is None:
+            self.channels = []
+
         for index, item in enumerate(self.channels):
             if int(item.id) == int(ch.id):
                 self.channels[index] = _channel
@@ -1053,7 +1064,8 @@ class Guild(ClientSerializerMixin):
         )
 
         _member = Member(**res, _client=self._client)
-
+        if self.members is None:
+            self.members = []
         for index, member in enumerate(self.members):
             if int(member.id) == _member_id:
                 self.members[index] = _member
@@ -1870,6 +1882,10 @@ class Guild(ClientSerializerMixin):
 
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
         _emoji = Emoji(**res, _client=self._client)
+
+        if self.emojis is None:
+            self.emojis = []
+
         for index, emoji in enumerate(self.emojis):
             if int(emoji.id) == emoji_id:
                 self.emojis[index] = _emoji
@@ -1927,6 +1943,10 @@ class Guild(ClientSerializerMixin):
         res = await self._client.create_guild_emoji(
             guild_id=int(self.id), payload=payload, reason=reason
         )
+
+        if self.emojis is None:
+            self.emojis = []
+
         _emoji = Emoji(**res)
         self.emojis.append(_emoji)
         return _emoji
@@ -1984,6 +2004,8 @@ class Guild(ClientSerializerMixin):
             guild_id=int(self.id), limit=limit, after=_after
         )
         _members = [Member(**member, _client=self._client) for member in res]
+        if self.members is None:
+            self.members = []
         for member in _members:
             if member not in self.members:
                 self.members.append(member)
