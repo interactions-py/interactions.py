@@ -4,7 +4,7 @@ from typing import Any, List, Optional, Union
 from ... import ActionRow, Button, SelectMenu
 from .attrs_utils import ClientSerializerMixin, define
 from .flags import Permissions as Permissions
-from .message import Embed, Message, MessageInteraction
+from .message import Embed, Message, MessageInteraction, Sticker
 from .misc import File, Snowflake
 from .role import Role as Role
 from .user import User as User
@@ -63,7 +63,8 @@ class Member(ClientSerializerMixin):
         tts: Optional[bool] = ...,
         files: Optional[Union[File, List[File]]] = ...,
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
-        allowed_mentions: Optional[MessageInteraction] = ...
+        allowed_mentions: Optional[MessageInteraction] = ...,
+        stickers: Optional[List[Sticker]] = ...,
     ) -> Message: ...
     async def modify(
         self,

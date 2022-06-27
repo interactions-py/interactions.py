@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 from ...api.cache import Cache
-from ..models.message import Embed, Message
+from ..models.message import Embed, Message, Sticker
 from ..models.attrs_utils import MISSING
 from ..models.misc import File, Snowflake
 from .request import _Request
@@ -21,6 +21,7 @@ class MessageRequest:
         nonce: Union[int, str] = None,
         allowed_mentions=None,  # don't know type
         message_reference: Optional[Message] = None,
+        stickers: Optional[List[Sticker]] = None,
     ) -> dict: ...
     async def create_message(
         self, payload: dict, channel_id: int, files: Optional[List[File]]

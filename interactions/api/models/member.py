@@ -218,6 +218,7 @@ class Member(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
+        stickers: Optional[List[Sticker]] = MISSING,  # noqa
     ) -> "Message":  # noqa
         """
         Sends a DM to the member.
@@ -236,6 +237,8 @@ class Member(ClientSerializerMixin):
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
+        :param stickers: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers: Optional[List[Sticker]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -253,7 +256,9 @@ class Member(ClientSerializerMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
         if not components or components is MISSING:
             _components = []
         else:
@@ -276,6 +281,7 @@ class Member(ClientSerializerMixin):
             embeds=_embeds,
             components=_components,
             allowed_mentions=_allowed_mentions,
+            sticker_ids=_sticker_ids,
         )
 
         channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
