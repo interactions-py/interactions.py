@@ -27,9 +27,9 @@ class MessageRequest:
         tts: bool = False,
         embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
-        allowed_mentions = None,  # don't know type
+        allowed_mentions=None,  # don't know type
         message_reference: Optional[Message] = None,
-        stickers: Optional[List[Sticker]] = None
+        stickers: Optional[List[Sticker]] = None,
     ) -> dict:
         """
         A higher level implementation of :meth:`create_message()` that handles the payload dict internally.
