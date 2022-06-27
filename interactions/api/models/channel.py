@@ -182,7 +182,7 @@ class Channel(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
-        stickers: Optional[List["Sticker"]] = MISSING,
+        stickers: Optional[List["Sticker"]] = MISSING,  # noqa
         components: Optional[
             Union[
                 "ActionRow",  # noqa
@@ -219,7 +219,7 @@ class Channel(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         from ...client.models.component import _build_components
-        from .message import Message, Sticker
+        from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
