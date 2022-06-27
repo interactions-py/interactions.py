@@ -218,7 +218,7 @@ class Member(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
-        stickers: Optional[List[Sticker]] = MISSING,  # noqa
+        stickers: Optional[List["Sticker"]] = MISSING,  # noqa
     ) -> "Message":  # noqa
         """
         Sends a DM to the member.
