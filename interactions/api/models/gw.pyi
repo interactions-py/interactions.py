@@ -113,7 +113,6 @@ class GuildMember(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = ...,
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
         allowed_mentions: Optional[MessageInteraction] = ...,
-        stickers: Optional[List[Sticker]] = ...,
     ) -> Message: ...
     async def modify(
         self,
