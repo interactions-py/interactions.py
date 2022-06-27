@@ -182,6 +182,7 @@ class Channel(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
         allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
                 "ActionRow",  # noqa
@@ -208,6 +209,8 @@ class Channel(ClientSerializerMixin):
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
@@ -216,12 +219,13 @@ class Channel(ClientSerializerMixin):
         if not self._client:
             raise LibraryException(code=13)
         from ...client.models.component import _build_components
-        from .message import Message
+        from .message import Message, Sticker
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _sticker_ids: list = [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
         if not embeds or embeds is MISSING:
             _embeds: list = []
         elif isinstance(embeds, list):
@@ -251,6 +255,7 @@ class Channel(ClientSerializerMixin):
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            sticker_ids=_sticker_ids
         )
 
         res = await self._client.create_message(
