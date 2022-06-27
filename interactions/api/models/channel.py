@@ -225,7 +225,9 @@ class Channel(ClientSerializerMixin):
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-        _sticker_ids: list = [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
         if not embeds or embeds is MISSING:
             _embeds: list = []
         elif isinstance(embeds, list):
@@ -255,7 +257,7 @@ class Channel(ClientSerializerMixin):
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
-            sticker_ids=_sticker_ids
+            sticker_ids=_sticker_ids,
         )
 
         res = await self._client.create_message(
