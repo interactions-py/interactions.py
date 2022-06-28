@@ -929,7 +929,7 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-
+            # TODO: implement Command object
             commands: Union[List[dict], dict] = command(
                 type=type,
                 name=name,
@@ -1012,7 +1012,7 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-
+            # TODO: implement Command object
             commands: Union[List[dict], dict] = command(
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
@@ -1081,7 +1081,7 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-
+            # TODO: implement Command object
             commands: Union[List[dict], dict] = command(
                 type=ApplicationCommandType.USER,
                 name=name,
@@ -1558,6 +1558,7 @@ class Extension:
                 self._listeners[func.__listener_name__] = listeners
 
             if hasattr(func, "__command_data__"):  # Set by extension_command
+                # TODO: implement Command object
                 args, kwargs = func.__command_data__
                 func = client.command(*args, **kwargs)(func)
 
@@ -1638,6 +1639,7 @@ class Extension:
 
 @wraps(command)
 def extension_command(*args, **kwargs):
+    # TODO: implement Command object
     def decorator(coro):
         coro.__command_data__ = (args, kwargs)
         return coro

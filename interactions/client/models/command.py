@@ -1,8 +1,13 @@
-from typing import Dict, List, Optional, Union
+from inspect import getdoc
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 
-from ...api.models.attrs_utils import DictSerializerMixin, convert_list, define, field
+from library.interactions.client.context import CommandContext
+
+from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import ChannelType
 from ...api.models.misc import Snowflake
+from ..bot import Client
+from ..decor import command
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 __all__ = (
@@ -181,3 +186,245 @@ class ApplicationCommand(DictSerializerMixin):
     dm_permission: bool = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
+
+
+class StopCommand:
+    """
+    A class that when returned from a command, the command chain is stopped.
+
+    Usage:
+    ```py
+    @bot.command()
+    async def foo(ctx):
+        ... # do something
+        return StopCommand  # does not execute `bar`
+        # or `return StopCommand()`
+
+    @foo.subcommand()
+    async def bar(ctx): ...
+    ```
+    """  # TODO: change docstring
+
+
+@define()
+class BaseResult(DictSerializerMixin):
+    """docstring"""  # TODO: change docstring
+
+    result: Any = field()
+
+    def __call__(self) -> Any:
+        return self.result
+
+
+@define()
+class GroupResult(DictSerializerMixin):
+    """docstring"""  # TODO: change docstring
+
+    result: Any = field()
+    parent: BaseResult = field()
+
+    def __call__(self) -> Any:
+        return self.result
+
+
+@define()
+class Command(DictSerializerMixin):
+    """docstring"""  # TODO: change docstring
+
+    client: Client = field()
+    coro: Callable[..., Awaitable] = field()
+    type: ApplicationCommandType = field(converter=ApplicationCommandType)
+    base: str = field()
+    description: str = field()
+    options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
+    scope: List[int] = field(converter=convert_list(int))
+    version: int = field(default=None)
+    default_member_permissions: str = field()
+    dm_permission: bool = field(default=None)
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
+
+    def __attrs_post_init__(self) -> None:
+        self.coroutines: Dict[str, Callable[..., Awaitable]] = {}
+        if self.base in (MISSING, None):
+            self.base = self.coro.__name__
+        if self.description in (MISSING, None) and self.type == ApplicationCommandType.CHAT_INPUT:
+            self.description = getdoc(self.coro) or "No description set"
+            self.description = self.description.split("\n", 1)[0]
+
+    def __call__(self, *args, **kwargs) -> Awaitable:
+        return self.coro(*args, **kwargs)
+
+    @property
+    def full_data(self) -> Union[dict, List[dict]]:
+        """Returns the command in JSON format."""  # TODO: change docstring
+        data = command(
+            type=self.type,
+            name=self.base,
+            description=self.description if self.type == 1 else None,
+            options=self.options,
+            scope=self.scope,
+            name_localizations=self.name_localizations,
+            description_localizations=self.description_localizations,
+            default_member_permissions=self.default_member_permissions,
+            dm_permission=self.dm_permission,
+        )
+        return data if isinstance(data, list) else [data]
+
+    def check_options(self) -> None:
+        if self.type != ApplicationCommandType.CHAT_INPUT:
+            raise ValueError("Only chat input commands can have subcommands.")
+        if any(
+            option.type not in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
+            for option in self.options
+        ):
+            raise ValueError("Subcommands are incompatible with base command options.")
+
+    def subcommand(
+        self,
+        *,
+        group: Optional[str] = MISSING,
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        options: Optional[List[Option]] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+    ) -> Callable[[Callable], "Command"]:
+        """
+        Creates a subcommand of the command.
+        """  # TODO: change docstring
+
+        self.check_options()
+
+        def decorator(coro: Callable[..., Awaitable]) -> "Command":
+            _name = coro.__name__ if name is MISSING else name
+            _description = description
+            if description in (MISSING, None):
+                _description = getdoc(coro) or "No description set"
+                _description = _description.split("\n", 1)[0]
+            if name_localizations is MISSING:
+                _name_localizations = self.name_localizations
+            else:
+                _name_localizations = name_localizations
+            if description_localizations is MISSING:
+                _description_localizations = self.description_localizations
+            else:
+                _description_localizations = description_localizations
+            self.coroutines[_name] = coro
+
+            subcommand = Option(
+                type=OptionType.SUB_COMMAND,
+                name=_name,
+                description=_description,
+                options=options,
+                name_localizations=_name_localizations,
+                description_localizations=_description_localizations,
+            )
+
+            if group is MISSING:
+                self.options.append(subcommand)
+            else:
+                for i, option in enumerate(self.options):
+                    if option.name == group:
+                        break
+                else:
+                    self.group(name=group)(coro)
+                    for i, option in enumerate(self.options):
+                        if option.name == group:
+                            break
+                self.options[i].options.append(subcommand)
+                self.options[i]._json["options"].append(subcommand._json)
+
+            return self
+
+        return decorator
+
+    def group(
+        self,
+        *,
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        options: Optional[List[Option]] = MISSING,
+        name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+        description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
+    ) -> Callable[[Callable], "Command"]:
+        """Creates a group option"""  # TODO: change docstring
+
+        self.check_options()
+
+        def decorator(coro: Callable[..., Awaitable]) -> "Command":
+            _name = coro.__name__ if name is MISSING else name
+            _description = description
+            if description in (MISSING, None):
+                _description = getdoc(coro) or "No description set"
+                _description = _description.split("\n", 1)[0]
+            if name_localizations is MISSING:
+                _name_localizations = self.name_localizations
+            else:
+                _name_localizations = name_localizations
+            if description_localizations is MISSING:
+                _description_localizations = self.description_localizations
+            else:
+                _description_localizations = description_localizations
+            self.coroutines[_name] = coro
+
+            group = Option(
+                type=OptionType.SUB_COMMAND_GROUP,
+                name=_name,
+                description=_description,
+                options=options,
+                name_localizations=_name_localizations,
+                description_localizations=_description_localizations,
+            )
+            self.options.append(group)
+
+            return self
+
+        return decorator
+
+    async def dispatcher(
+        self,
+        ctx: CommandContext,
+        *args,
+        sub_command_group: Optional[str] = None,
+        sub_command: Optional[str] = None,
+        **kwargs,
+    ) -> Optional[Any]:
+        """Calls all of the coroutines of the subcommand."""  # TODO: change docstring
+        base_coro = self.base_coroutine
+        if self._self:
+            base_res = BaseResult(result=await base_coro(self._self, ctx, *args, **kwargs))
+            if base_res() is StopCommand or isinstance(base_res(), StopCommand):
+                return
+            if self.data:
+                if sub_command_group:
+                    group_coro = self.coroutines[sub_command_group]
+                    subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
+                    group_res = GroupResult(
+                        result=await group_coro(self._self, ctx, base_res, *args, **kwargs),
+                        parent=base_res,
+                    )
+                    if group_res() is StopCommand or isinstance(group_res(), StopCommand):
+                        return
+                    return await subcommand_coro(self._self, ctx, group_res, *args, **kwargs)
+                elif sub_command:
+                    subcommand_coro = self.coroutines[sub_command]
+                    return await subcommand_coro(self._self, ctx, base_res, *args, **kwargs)
+            return base_res
+        base_res = BaseResult(result=await base_coro(ctx, *args, **kwargs))
+        if base_res() is StopCommand or isinstance(base_res(), StopCommand):
+            return
+        if self.data:
+            if sub_command_group:
+                group_coro = self.coroutines[sub_command_group]
+                subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
+                group_res = GroupResult(
+                    result=await group_coro(ctx, base_res, *args, **kwargs), parent=base_res
+                )
+                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
+                    return
+                return await subcommand_coro(ctx, group_res, *args, **kwargs)
+            elif sub_command:
+                subcommand_coro = self.coroutines[sub_command]
+                return await subcommand_coro(ctx, base_res, *args, **kwargs)
+        return base_res
