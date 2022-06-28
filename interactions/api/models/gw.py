@@ -252,12 +252,19 @@ class GuildMember(ClientSerializerMixin):
     roles: Optional[List[str]] = field(default=None)
     user: Optional[User] = field(converter=User, default=None, add_client=True)
     nick: Optional[str] = field(default=None)
-    avatar: Optional[str] = field(default=None)
+    _avatar: Optional[str] = field(default=None, discord_name="avatar")
     joined_at: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     deaf: Optional[bool] = field(default=None)
     mute: Optional[bool] = field(default=None)
     pending: Optional[bool] = field(default=None)
+
+    def __str__(self) -> str:
+        return self.name or ""
+
+    @property
+    def avatar(self) -> Optional[str]:
+        return self._avatar or getattr(self.user, "avatar", None)
 
     @property
     def id(self) -> Snowflake:
@@ -268,6 +275,16 @@ class GuildMember(ClientSerializerMixin):
         :rtype: Snowflake
         """
         return self.user.id if self.user else None
+
+    @property
+    def name(self) -> str:
+        """
+        Returns the string of either the user's nickname or username.
+
+        :return: The name of the member
+        :rtype: str
+        """
+        return self.nick or (self.user.username if self.user else None)
 
     @property
     def mention(self) -> str:
