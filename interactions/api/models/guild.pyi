@@ -2,17 +2,18 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import Any, Dict, List, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, MISSING
+from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, MISSING, define
 from .channel import Channel, ChannelType, Thread
 from .gw import AutoModerationRule
 from .member import Member
 from .message import Emoji, Sticker
-from .misc import Image, Overwrite, Snowflake, AutoModTriggerType, AutoModAction, AutoModTriggerMetadata
+from .misc import AutoModAction, AutoModTriggerMetadata, AutoModTriggerType, IDMixin, Image, Overwrite, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
 from .webhook import Webhook
+
 
 class VerificationLevel(IntEnum):
     NONE: int
@@ -80,8 +81,9 @@ class WelcomeScreen(DictSerializerMixin):
     description: Optional[str]
     welcome_channels: Optional[List[WelcomeChannels]]
 
+
 @define()
-class StageInstance(DictSerializerMixin):
+class StageInstance(DictSerializerMixin, IDMixin):
     id: Snowflake
     guild_id: Snowflake
     channel_id: Snowflake
@@ -89,13 +91,15 @@ class StageInstance(DictSerializerMixin):
     privacy_level: int
     discoverable_disabled: bool
 
+
 @define()
-class UnavailableGuild(DictSerializerMixin):
+class UnavailableGuild(DictSerializerMixin, IDMixin):
     id: Snowflake
     unavailable: bool
 
+
 @define()
-class Guild(ClientSerializerMixin):
+class Guild(ClientSerializerMixin, IDMixin):
     id: Snowflake
     name: str
     icon: Optional[str]
@@ -430,8 +434,9 @@ class Guild(ClientSerializerMixin):
     @property
     def discovery_splash_url(self) -> Optional[str]: ...
 
+
 @define()
-class GuildPreview(DictSerializerMixin):
+class GuildPreview(DictSerializerMixin, IDMixin):
     id: Snowflake
     emojis: Optional[List[Emoji]]
     name: str
@@ -443,8 +448,9 @@ class GuildPreview(DictSerializerMixin):
     approximate_presence_count: int
     description: Optional[str]
 
+
 @define()
-class Integration(DictSerializerMixin):
+class Integration(DictSerializerMixin, IDMixin):
     id: Snowflake
     name: str
     type: str
@@ -499,8 +505,9 @@ class GuildTemplate(DictSerializerMixin):
 class EventMetadata(DictSerializerMixin):
     location: Optional[str]
 
+
 @define()
-class ScheduledEvents(DictSerializerMixin):
+class ScheduledEvents(DictSerializerMixin, IDMixin):
     id: Snowflake
     guild_id: Snowflake
     channel_id: Optional[Snowflake]

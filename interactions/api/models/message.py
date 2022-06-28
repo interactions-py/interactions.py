@@ -15,7 +15,7 @@ from .attrs_utils import (
 )
 from .channel import Channel
 from .member import Member
-from .misc import File, Snowflake
+from .misc import File, IDMixin, Snowflake
 from .role import Role
 from .team import Application
 from .user import User
@@ -113,7 +113,7 @@ class MessageReference(DictSerializerMixin):
 
 
 @define()
-class Attachment(ClientSerializerMixin):
+class Attachment(ClientSerializerMixin, IDMixin):
     """
     A class object representing an attachment in a message.
 
@@ -149,7 +149,7 @@ class Attachment(ClientSerializerMixin):
 
 
 @define()
-class MessageInteraction(ClientSerializerMixin):
+class MessageInteraction(ClientSerializerMixin, IDMixin):
     """
     A class object that resembles the interaction used to generate
     the associated message.
@@ -168,7 +168,7 @@ class MessageInteraction(ClientSerializerMixin):
 
 
 @define()
-class ChannelMention(DictSerializerMixin):
+class ChannelMention(DictSerializerMixin, IDMixin):
     """
     A class object that resembles the mention of a channel
     in a guild.
@@ -737,7 +737,7 @@ class Embed(DictSerializerMixin):
 
 
 @define()
-class PartialSticker(DictSerializerMixin):
+class PartialSticker(DictSerializerMixin, IDMixin):
     """
     Partial object for a Sticker.
 
@@ -752,7 +752,7 @@ class PartialSticker(DictSerializerMixin):
 
 
 @define()
-class Sticker(PartialSticker):
+class Sticker(PartialSticker, IDMixin):
     """
     A class object representing a full sticker apart from a partial.
 
@@ -799,7 +799,7 @@ class ReactionObject(DictSerializerMixin):
 
 
 @define()
-class Message(ClientSerializerMixin):
+class Message(ClientSerializerMixin, IDMixin):
     """
     A class object representing a message.
 

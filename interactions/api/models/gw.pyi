@@ -1,17 +1,17 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional, Union
 
-from ...client.models.component import ActionRow, Button, SelectMenu
 from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, define
 from .channel import Channel, ThreadMember
 from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import AutoModAction, ClientStatus, File, Snowflake, AutoModTriggerMetadata
+from .misc import AutoModAction, AutoModTriggerMetadata, ClientStatus, File, IDMixin, Snowflake
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
+from ...client.models.component import ActionRow, Button, SelectMenu
 
 
 class AutoModerationAction(DictSerializerMixin):
@@ -26,7 +26,8 @@ class AutoModerationAction(DictSerializerMixin):
     matched_keyword: Optional[str]
     matched_content: Optional[str]
 
-class AutoModerationRule(DictSerializerMixin):
+
+class AutoModerationRule(DictSerializerMixin, IDMixin):
     _json: dict
     id: Snowflake
     guild_id: Snowflake
@@ -42,7 +43,7 @@ class AutoModerationRule(DictSerializerMixin):
 
 
 @define()
-class ApplicationCommandPermissions(ClientSerializerMixin):
+class ApplicationCommandPermissions(ClientSerializerMixin, IDMixin):
     application_id: Snowflake
     guild_id: Snowflake
     id: Snowflake
@@ -149,8 +150,9 @@ class GuildStickers(DictSerializerMixin):
     guild_id: Snowflake
     stickers: List[Sticker]
 
+
 @define()
-class GuildScheduledEvent(ClientSerializerMixin):
+class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
     id: Snowflake
     guild_id: Snowflake
     channel_id: Optional[Snowflake]
@@ -174,8 +176,9 @@ class GuildScheduledEventUser(DictSerializerMixin):
     user_id: Snowflake
     guild_id: Snowflake
 
+
 @define()
-class Integration(DictSerializerMixin):
+class Integration(DictSerializerMixin, IDMixin):
     id: Snowflake
     name: str
     type: str
@@ -220,8 +223,9 @@ class ThreadList(DictSerializerMixin):
     threads: List[Channel]
     members: List[ThreadMember]
 
+
 @define()
-class ThreadMembers(DictSerializerMixin):
+class ThreadMembers(DictSerializerMixin, IDMixin):
     id: Snowflake
     guild_id: Snowflake
     member_count: int

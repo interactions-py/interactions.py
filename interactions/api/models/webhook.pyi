@@ -1,22 +1,24 @@
 from enum import IntEnum
 from typing import Any, List, Optional, Union
 
-from ...client.models.component import ActionRow, Button, SelectMenu
-from ..http.client import HTTPClient
-from .attrs_utils import MISSING, ClientSerializerMixin, define
+from .attrs_utils import ClientSerializerMixin, MISSING, define
 from .channel import Channel
 from .guild import Guild
 from .message import Embed, Message
-from .misc import File, Image, Snowflake
+from .misc import File, IDMixin, Image, Snowflake
 from .user import User
+from ..http.client import HTTPClient
+from ...client.models.component import ActionRow, Button, SelectMenu
+
 
 class WebhookType(IntEnum):
     Incoming: int
     Channel_Follower: int
     Application: int
 
+
 @define()
-class Webhook(ClientSerializerMixin):
+class Webhook(ClientSerializerMixin, IDMixin):
     id: Snowflake
     type: Union[WebhookType, int]
     guild_id: Optional[Snowflake]
