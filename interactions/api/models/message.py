@@ -1029,7 +1029,6 @@ class Message(ClientSerializerMixin):
             files=files,
         )
 
-
         self.update(_dct)
 
         return self
