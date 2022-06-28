@@ -1,12 +1,11 @@
 from inspect import getdoc
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 
-from library.interactions.client.context import CommandContext
-
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import ChannelType
 from ...api.models.misc import Snowflake
 from ..bot import Client
+from ..context import CommandContext
 from ..decor import command
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
