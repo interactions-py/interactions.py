@@ -34,14 +34,17 @@ class GuildRequest:
 
         return request
 
-    async def get_guild(self, guild_id: int) -> dict:
+    async def get_guild(self, guild_id: int, with_counts: bool = False) -> dict:
         """
         Requests an individual guild from the API.
 
         :param guild_id: The guild snowflake ID associated.
+        :param with_counts: Whether the approximate member count should be included
         :return: The guild object associated, if any.
         """
-        request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
+        request = await self._req.request(
+            Route("GET", f"/guilds/{guild_id}{f'?{with_counts=}' if with_counts else ''}")
+        )
         self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request, _client=self)))
 
         return request
