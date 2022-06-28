@@ -2,16 +2,17 @@ from datetime import datetime
 from enum import IntEnum
 from typing import List, Optional, Union
 
-from ... import ActionRow, Button, Component, SelectMenu
-from ..http.client import HTTPClient
-from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define
+from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, MISSING, define
 from .channel import Channel as Channel
 from .guild import Guild
 from .member import Member as Member
-from .misc import File, Snowflake
+from .misc import File, IDMixin, Snowflake
 from .role import Role as Role
 from .team import Application as Application
 from .user import User as User
+from ..http.client import HTTPClient
+from ... import ActionRow, Button, Component, SelectMenu
+
 
 class MessageType(IntEnum):
     DEFAULT: int
@@ -50,8 +51,9 @@ class MessageReference(DictSerializerMixin):
     guild_id: Optional[Snowflake]
     fail_if_not_exists: Optional[bool]
 
+
 @define()
-class Attachment(DictSerializerMixin):
+class Attachment(DictSerializerMixin, IDMixin):
     id: Snowflake
     filename: str
     content_type: Optional[str]
@@ -62,22 +64,25 @@ class Attachment(DictSerializerMixin):
     width: Optional[int]
     ephemeral: Optional[bool]
 
+
 @define()
-class MessageInteraction(ClientSerializerMixin):
+class MessageInteraction(ClientSerializerMixin, IDMixin):
     id: Snowflake
     type: int
     name: str
     user: User
 
+
 @define()
-class ChannelMention(DictSerializerMixin):
+class ChannelMention(DictSerializerMixin, IDMixin):
     id: Snowflake
     guild_id: Snowflake
     type: int
     name: str
 
+
 @define()
-class Emoji(ClientSerializerMixin):
+class Emoji(ClientSerializerMixin, IDMixin):
     id: Optional[Snowflake] = None
     name: Optional[str] = None
     roles: Optional[List[Role]] = None
@@ -86,6 +91,7 @@ class Emoji(ClientSerializerMixin):
     managed: Optional[bool] = None
     animated: Optional[bool] = None
     available: Optional[bool] = None
+
     @classmethod
     async def get(
         cls,
@@ -193,14 +199,16 @@ class Embed(DictSerializerMixin):
         width: Optional[int] = ...,
     ) -> None: ...
 
+
 @define()
-class PartialSticker(DictSerializerMixin):
+class PartialSticker(DictSerializerMixin, IDMixin):
     id: Snowflake
     name: str
     format_type: int
 
+
 @define()
-class Sticker(PartialSticker):
+class Sticker(PartialSticker, IDMixin):
     id: Snowflake
     pack_id: Optional[Snowflake]
     name: str
@@ -220,8 +228,9 @@ class ReactionObject(DictSerializerMixin):
     me: bool
     emoji: Emoji
 
+
 @define()
-class Message(ClientSerializerMixin):
+class Message(ClientSerializerMixin, IDMixin):
     id: Snowflake
     channel_id: Snowflake
     guild_id: Optional[Snowflake]

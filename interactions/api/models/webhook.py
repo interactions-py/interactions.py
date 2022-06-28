@@ -3,7 +3,7 @@ from typing import Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
-from .misc import File, Image, Snowflake
+from .misc import File, IDMixin, Image, Snowflake
 from .user import User
 
 __all__ = (
@@ -19,7 +19,7 @@ class WebhookType(IntEnum):
 
 
 @define()
-class Webhook(ClientSerializerMixin):
+class Webhook(ClientSerializerMixin, IDMixin):
     """
     A class object representing a Webhook.
 

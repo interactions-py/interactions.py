@@ -5,7 +5,7 @@ from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from .channel import Channel
 from .flags import Permissions
-from .misc import File, Snowflake
+from .misc import File, IDMixin, Snowflake
 from .role import Role
 from .user import User
 
@@ -13,7 +13,7 @@ __all__ = ("Member",)
 
 
 @define()
-class Member(ClientSerializerMixin):
+class Member(ClientSerializerMixin, IDMixin):
     """
     A class object representing the user of a guild, known as a "member."
 

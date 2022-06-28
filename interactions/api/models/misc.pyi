@@ -1,8 +1,8 @@
 import datetime
+from enum import IntEnum
 from io import FileIO, IOBase
 from logging import Logger
-from typing import Optional, Union, List
-from enum import IntEnum
+from typing import List, Optional, Union
 
 from interactions.api.models.attrs_utils import DictSerializerMixin, define
 
@@ -55,14 +55,29 @@ class Snowflake:
     def increment(self) -> int: ...
     @property
     def worker_id(self) -> int: ...
+
     @property
     def process_id(self) -> int: ...
+
     @property
     def epoch(self) -> float: ...
+
     @property
     def timestamp(self) -> datetime.datetime: ...
+
     def __hash__(self): ...
+
     def __eq__(self, other): ...
+
+
+class IDMixin:
+    """A mixin to implement equality and hashing for models that have an id."""
+    id: Snowflake
+
+    def __eq__(self, other): ...
+
+    def __hash__(self): ...
+
 
 class Color:
     @staticmethod
@@ -79,6 +94,7 @@ class Color:
     def white() -> hex: ...
     @staticmethod
     def black() -> hex: ...
+
 
 class File:
     def __init__(

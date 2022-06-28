@@ -2,13 +2,13 @@ from typing import Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, define, field
 from .flags import UserFlags
-from .misc import Snowflake
+from .misc import IDMixin, Snowflake
 
 __all__ = ("User",)
 
 
 @define()
-class User(ClientSerializerMixin):
+class User(ClientSerializerMixin, IDMixin):
     """
     A class object representing a user.
 

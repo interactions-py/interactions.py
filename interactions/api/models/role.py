@@ -2,7 +2,7 @@ from typing import Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
-from .misc import Image, Snowflake
+from .misc import IDMixin, Image, Snowflake
 
 __all__ = (
     "Role",
@@ -28,7 +28,7 @@ class RoleTags(DictSerializerMixin):
 
 
 @define()
-class Role(ClientSerializerMixin):
+class Role(ClientSerializerMixin, IDMixin):
     """
     A class object representing a role.
 

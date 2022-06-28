@@ -27,6 +27,7 @@ __all__ = (
     "Snowflake",
     "Color",
     "ClientStatus",
+    "IDMixin",
     "Image",
     "File",
     "Overwrite",
@@ -160,6 +161,24 @@ class Snowflake:
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self._snowflake})"
+
+
+class IDMixin:
+    """A mixin to implement equality and hashing for models that have an id."""
+
+    id: Snowflake
+
+    def __eq__(self, other):
+        return (
+            self.id is not None
+            and isinstance(
+                other, IDMixin
+            )  # different classes can't share ids, covers cases like Member/User
+            and self.id == other.id
+        )
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 @define()

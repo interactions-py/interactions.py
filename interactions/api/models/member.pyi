@@ -1,17 +1,18 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
-from ... import ActionRow, Button, SelectMenu
 from .attrs_utils import ClientSerializerMixin, define
+from .channel import Channel
 from .flags import Permissions as Permissions
 from .message import Embed, Message, MessageInteraction
-from .misc import File, Snowflake
+from .misc import File, IDMixin, Snowflake
 from .role import Role as Role
 from .user import User as User
-from .channel import Channel
+from ... import ActionRow, Button, SelectMenu
+
 
 @define()
-class Member(ClientSerializerMixin):
+class Member(ClientSerializerMixin, IDMixin):
     user: Optional[User]
     nick: Optional[str]
     roles: List[int]

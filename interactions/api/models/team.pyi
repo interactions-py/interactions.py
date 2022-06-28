@@ -2,8 +2,9 @@ from typing import Any, List, Optional
 
 from .attrs_utils import ClientSerializerMixin, define
 from .flags import AppFlags as AppFlags
-from .misc import Snowflake
+from .misc import IDMixin, Snowflake
 from .user import User as User
+
 
 @define()
 class TeamMember(ClientSerializerMixin):
@@ -12,16 +13,18 @@ class TeamMember(ClientSerializerMixin):
     team_id: Snowflake
     user: User
 
+
 @define()
-class Team(ClientSerializerMixin):
+class Team(ClientSerializerMixin, IDMixin):
     icon: Optional[str]
     id: Snowflake
     members: List[TeamMember]
     name: str
     owner_user_id: int
 
+
 @define()
-class Application(ClientSerializerMixin):
+class Application(ClientSerializerMixin, IDMixin):
     id: Snowflake
     name: str
     icon: Optional[str]
