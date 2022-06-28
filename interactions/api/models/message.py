@@ -1033,6 +1033,7 @@ class Message(ClientSerializerMixin, IDMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
                 "ActionRow",  # noqa
@@ -1061,6 +1062,8 @@ class Message(ClientSerializerMixin, IDMixin):
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers: Optional[List[Sticker]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -1094,6 +1097,9 @@ class Message(ClientSerializerMixin, IDMixin):
             files = [files]
 
         _files.extend(_attachments)
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
 
         payload = dict(
             content=_content,
@@ -1103,6 +1109,7 @@ class Message(ClientSerializerMixin, IDMixin):
             message_reference=_message_reference,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            sticker_ids=_sticker_ids,
         )
 
         res = await self._client.create_message(
