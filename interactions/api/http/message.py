@@ -56,7 +56,7 @@ class MessageRequest:
             payload["message_reference"] = message_reference
 
         if stickers:
-            payload["sticker_ids"] = [sticker.id for sticker in stickers]
+            payload["sticker_ids"] = [str(sticker.id) for sticker in stickers]
 
         # TODO: post-v4. add attachments to payload.
 
