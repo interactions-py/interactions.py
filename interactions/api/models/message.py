@@ -1029,9 +1029,6 @@ class Message(ClientSerializerMixin):
             files=files,
         )
 
-        # if code := _dct.get("code"):
-        #     raise LibraryException(code, message=_dct.get("message"))
-        # this should not be needed since the request now checks for a code
 
         self.update(_dct)
 
