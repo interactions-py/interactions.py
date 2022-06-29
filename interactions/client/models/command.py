@@ -8,7 +8,6 @@ from ...api.models.message import Attachment
 from ...api.models.misc import File, Image, Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
-from ..decor import command
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
@@ -339,6 +338,8 @@ class Command(DictSerializerMixin):
     @property
     def full_data(self) -> List[dict]:
         """Returns the command in JSON format."""  # TODO: change docstring
+        from ..decor import command
+
         data = command(
             type=self.type,
             name=self.base,
