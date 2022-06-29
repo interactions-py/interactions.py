@@ -1,6 +1,7 @@
 from inspect import getdoc
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Optional, Union
 
+from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import Channel, ChannelType
 from ...api.models.member import Member
@@ -235,7 +236,7 @@ def option(
         elif _type in (Attachment, File, Image):
             type_ = OptionType.ATTACHMENT
         else:
-            raise TypeError(f"Invalid type: {_type}")  # TODO: change error
+            raise LibraryException(code=7, message=f"Invalid type: {_type}")
 
         option: Option = Option(
             type=type_,
@@ -355,14 +356,16 @@ class Command(DictSerializerMixin):
 
     def check_options(self) -> None:
         if self.type != ApplicationCommandType.CHAT_INPUT:
-            raise ValueError("Only chat input commands can have subcommands.")  # TODO: change error
+            raise LibraryException(
+                code=11, message="Only chat input commands can have subcommands."
+            )
         if any(
             option.type not in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
             for option in self.options
         ):
-            raise ValueError(
-                "Subcommands are incompatible with base command options."
-            )  # TODO: change error
+            raise LibraryException(
+                code=11, message="Subcommands are incompatible with base command options."
+            )
 
     def subcommand(
         self,
