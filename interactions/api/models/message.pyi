@@ -274,6 +274,7 @@ class Message(ClientSerializerMixin, IDMixin):
         suppress_embeds: Optional[bool] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
                 ActionRow,
