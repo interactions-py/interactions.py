@@ -12,6 +12,7 @@ from ...api.models.user import User
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
+    from ..bot import Client
     from ..context import CommandContext
 
 __all__ = (
@@ -307,7 +308,7 @@ class GroupResult(DictSerializerMixin):
 class Command(DictSerializerMixin):
     """docstring"""  # TODO: change docstring
 
-    client: "Client" = field()  # noqa
+    client: "Client" = field()
     coro: Callable[..., Awaitable] = field()
     type: ApplicationCommandType = field(converter=ApplicationCommandType)
     base: str = field()
