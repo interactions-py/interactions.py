@@ -1,5 +1,5 @@
 from inspect import getdoc
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Optional, Union
 
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import Channel, ChannelType
@@ -8,9 +8,11 @@ from ...api.models.message import Attachment
 from ...api.models.misc import File, Image, Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
-from ..context import CommandContext
 from ..decor import command
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
+
+if TYPE_CHECKING:
+    from ..context import CommandContext
 
 __all__ = (
     "Choice",
@@ -477,7 +479,7 @@ class Command(DictSerializerMixin):
 
     async def dispatcher(
         self,
-        ctx: CommandContext,
+        ctx: "CommandContext",
         *args,
         sub_command_group: Optional[str] = None,
         sub_command: Optional[str] = None,
