@@ -2,9 +2,12 @@ from inspect import getdoc
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
-from ...api.models.channel import ChannelType
-from ...api.models.misc import Snowflake
-from ..bot import Client
+from ...api.models.channel import Channel, ChannelType
+from ...api.models.member import Member
+from ...api.models.message import Attachment
+from ...api.models.misc import File, Image, Snowflake
+from ...api.models.role import Role
+from ...api.models.user import User
 from ..context import CommandContext
 from ..decor import command
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
@@ -187,6 +190,78 @@ class ApplicationCommand(DictSerializerMixin):
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
 
 
+def option(
+    _type: OptionType,
+    /,
+    name: str,
+    description: Optional[str] = "No description",
+    choices: Optional[List[Choice]] = None,
+    required: Optional[bool] = True,
+    channel_types: Optional[List[ChannelType]] = None,
+    min_value: Optional[int] = None,
+    max_value: Optional[int] = None,
+    options: Optional[List[Option]] = None,
+    autocomplete: Optional[bool] = None,
+    focused: Optional[bool] = None,
+    value: Optional[str] = None,
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
+):
+    """
+    docstring
+    """  # TODO: change docstring
+
+    def decorator(coro: Callable[..., Awaitable]):
+        if isinstance(_type, int):
+            type_ = _type
+        elif _type in (str, int, float, bool):
+            if _type is str:
+                type_ = OptionType.STRING
+            elif _type is int:
+                type_ = OptionType.INTEGER
+            elif _type is float:
+                type_ = OptionType.NUMBER
+            elif _type is bool:
+                type_ = OptionType.BOOLEAN
+        elif isinstance(_type, OptionType):
+            type_ = _type
+        elif _type in (Member, User):
+            type_ = OptionType.USER
+        elif _type is Channel:
+            type_ = OptionType.CHANNEL
+        elif _type is Role:
+            type_ = OptionType.ROLE
+        elif _type in (Attachment, File, Image):
+            type_ = OptionType.ATTACHMENT
+        else:
+            raise TypeError(f"Invalid type: {_type}")  # TODO: change error
+
+        option: Option = Option(
+            type=type_,
+            name=name,
+            description=description,
+            choices=choices,
+            required=required,
+            channel_types=channel_types,
+            min_value=min_value,
+            max_value=max_value,
+            options=options,
+            autocomplete=autocomplete,
+            focused=focused,
+            value=value,
+            name_localizations=name_localizations,
+            description_localizations=description_localizations,
+        )
+        if hasattr(coro, "_options"):
+            coro._options.insert(0, option)
+        else:
+            coro._options = [option]
+
+        return coro
+
+    return decorator
+
+
 class StopCommand:
     """
     A class that when returned from a command, the command chain is stopped.
@@ -230,7 +305,7 @@ class GroupResult(DictSerializerMixin):
 class Command(DictSerializerMixin):
     """docstring"""  # TODO: change docstring
 
-    client: Client = field()
+    client: "Client" = field()  # noqa
     coro: Callable[..., Awaitable] = field()
     type: ApplicationCommandType = field(converter=ApplicationCommandType)
     base: str = field()
@@ -250,12 +325,17 @@ class Command(DictSerializerMixin):
         if self.description in (MISSING, None) and self.type == ApplicationCommandType.CHAT_INPUT:
             self.description = getdoc(self.coro) or "No description set"
             self.description = self.description.split("\n", 1)[0]
+        if hasattr(self.coro, "_options"):
+            if not self.options:
+                self.options = self.coro._options
+            else:
+                self.options.extend(self.coro._options)
 
     def __call__(self, *args, **kwargs) -> Awaitable:
         return self.coro(*args, **kwargs)
 
     @property
-    def full_data(self) -> Union[dict, List[dict]]:
+    def full_data(self) -> List[dict]:
         """Returns the command in JSON format."""  # TODO: change docstring
         data = command(
             type=self.type,
@@ -272,12 +352,14 @@ class Command(DictSerializerMixin):
 
     def check_options(self) -> None:
         if self.type != ApplicationCommandType.CHAT_INPUT:
-            raise ValueError("Only chat input commands can have subcommands.")
+            raise ValueError("Only chat input commands can have subcommands.")  # TODO: change error
         if any(
             option.type not in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
             for option in self.options
         ):
-            raise ValueError("Subcommands are incompatible with base command options.")
+            raise ValueError(
+                "Subcommands are incompatible with base command options."
+            )  # TODO: change error
 
     def subcommand(
         self,
@@ -301,6 +383,12 @@ class Command(DictSerializerMixin):
             if description in (MISSING, None):
                 _description = getdoc(coro) or "No description set"
                 _description = _description.split("\n", 1)[0]
+            _options = options
+            if hasattr(coro, "_options"):
+                if options in (MISSING, None):
+                    _options = coro._options
+                else:
+                    _options.extend(coro._options)
             if name_localizations is MISSING:
                 _name_localizations = self.name_localizations
             else:
@@ -315,7 +403,7 @@ class Command(DictSerializerMixin):
                 type=OptionType.SUB_COMMAND,
                 name=_name,
                 description=_description,
-                options=options,
+                options=_options,
                 name_localizations=_name_localizations,
                 description_localizations=_description_localizations,
             )
@@ -357,6 +445,12 @@ class Command(DictSerializerMixin):
             if description in (MISSING, None):
                 _description = getdoc(coro) or "No description set"
                 _description = _description.split("\n", 1)[0]
+            _options = options
+            if hasattr(coro, "_options"):
+                if options in (MISSING, None):
+                    _options = coro._options
+                else:
+                    _options.extend(coro._options)
             if name_localizations is MISSING:
                 _name_localizations = self.name_localizations
             else:
@@ -371,7 +465,7 @@ class Command(DictSerializerMixin):
                 type=OptionType.SUB_COMMAND_GROUP,
                 name=_name,
                 description=_description,
-                options=options,
+                options=_options,
                 name_localizations=_name_localizations,
                 description_localizations=_description_localizations,
             )
