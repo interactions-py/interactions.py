@@ -337,22 +337,21 @@ class Command(DictSerializerMixin):
         return self.coro(*args, **kwargs)
 
     @property
-    def full_data(self) -> List[dict]:
+    def full_data(self) -> Union[dict, List[dict]]:
         """Returns the command in JSON format."""  # TODO: change docstring
         from ..decor import command
 
-        data = command(
+        return command(
             type=self.type,
             name=self.base,
             description=self.description if self.type == 1 else None,
-            options=self.options,
+            options=self.options if self.type == 1 else None,
             scope=self.scope,
             name_localizations=self.name_localizations,
             description_localizations=self.description_localizations,
             default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
         )
-        return data if isinstance(data, list) else [data]
 
     def check_options(self) -> None:
         if self.type != ApplicationCommandType.CHAT_INPUT:
