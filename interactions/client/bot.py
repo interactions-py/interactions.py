@@ -22,7 +22,6 @@ from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
-from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
@@ -379,36 +378,6 @@ class Client:
 
             self.__register_events()
 
-            for command in self._commands:
-                data: Union[dict, List[dict]] = command.full_data
-                coro = command.dispatcher if command.has_subcommands else command.coro
-
-                self.__check_command(
-                    command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
-                    coro=coro,
-                )
-
-                if hasattr(coro, "__func__"):
-                    coro.__func__._command_data = data
-                    if command.type == ApplicationCommandType.CHAT_INPUT:
-                        coro.__func__.autocomplete = AutocompleteManager(self, command.base)
-                else:
-                    coro._command_data = data
-                    if command.type == ApplicationCommandType.CHAT_INPUT:
-                        coro.autocomplete = AutocompleteManager(self, command.base)
-
-                self.__command_coroutines.append(coro)
-
-                if command.scope not in (MISSING, None):
-                    if isinstance(command.scope, List):
-                        [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in command.scope]
-                    else:
-                        self._scopes.add(
-                            command.scope if isinstance(command.scope, int) else command.scope.id
-                        )
-
-                self.event(coro, name=f"command_{command.base}")
-
             if self._automate_sync:
                 await self.__sync()
             else:
@@ -528,6 +497,38 @@ class Client:
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
             __check_guild_commands[_id] = [cmd["name"] for cmd in _cmds] if _cmds else []
+
+        for cmd in self._commands:
+            if cmd.resolved:
+                continue
+
+            data: Union[dict, List[dict]] = cmd.full_data
+            coro = cmd.dispatcher if cmd.has_subcommands else cmd.coro
+
+            self.__check_command(
+                command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
+                coro=coro,
+            )
+
+            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+
+            coro._command_data = data
+            if cmd.type == ApplicationCommandType.CHAT_INPUT:
+                coro.autocomplete = AutocompleteManager(self, cmd.base)
+
+            if not coro._command_data["name"] in (
+                c._command_data["name"] for c in self.__command_coroutines
+            ):
+                self.__command_coroutines.append(coro)
+
+            if cmd.scope not in (MISSING, None):
+                if isinstance(cmd.scope, List):
+                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in cmd.scope]
+                else:
+                    self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
+
+            self.event(coro, name=f"command_{cmd.base}")
+            cmd.resolved = True
 
         for coro in self.__command_coroutines:
             if hasattr(coro, "_command_data"):  # just so IDE knows it exists
@@ -1542,15 +1543,15 @@ class Extension:
                 self._listeners[func.__listener_name__] = listeners
 
             if hasattr(func, "__command_data__"):  # Set by extension_command
-                # TODO: implement Command object
-                args, kwargs = func.__command_data__
-                func = client.command(*args, **kwargs)(func)
+                cmd: Command = func.__command_data__
+                cmd.self = self
+                self.client._commands.append(cmd)
 
-                cmd_name = f"command_{kwargs.get('name') or func.__name__}"
-
-                commands = self._commands.get(cmd_name, [])
-                commands.append(func)
-                self._commands[cmd_name] = commands
+                commands = self._commands.get(cmd.base, [])
+                coro = cmd.dispatcher if cmd.has_subcommands else cmd.coro
+                coro = coro.__func__ if hasattr(coro, "__func__") else coro
+                commands.append(coro)
+                self._commands[cmd.base] = commands
 
             if hasattr(func, "__component_data__"):
                 args, kwargs = func.__component_data__
@@ -1621,11 +1622,14 @@ class Extension:
             await self.client._Client__sync()
 
 
-@wraps(command)
-def extension_command(*args, **kwargs):
+@wraps(Client.command)
+def extension_command(**kwargs):
     # TODO: implement Command object
     def decorator(coro):
-        coro.__command_data__ = (args, kwargs)
+        cmd = Command(client=None, coro=coro, **kwargs)
+        coro.subcommand = cmd.subcommand
+        coro.group = cmd.group
+        coro.__command_data__ = cmd
         return coro
 
     return decorator

@@ -12,7 +12,7 @@ from ...api.models.user import User
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
-    from ..bot import Client
+    from ..bot import Client, Extension
     from ..context import CommandContext
 
 __all__ = (
@@ -313,8 +313,8 @@ class Command(DictSerializerMixin):
 
     client: "Client" = field()
     coro: Callable[..., Awaitable] = field()
-    type: ApplicationCommandType = field(converter=ApplicationCommandType)
-    base: str = field(default=MISSING)
+    type: ApplicationCommandType = field(default=1, converter=ApplicationCommandType)
+    base: str = field(default=MISSING, repr=True)
     description: str = field(default=MISSING)
     options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
     scope: List[int] = field(converter=convert_list(int))
@@ -323,6 +323,8 @@ class Command(DictSerializerMixin):
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     coroutines: Dict[str, Callable[..., Awaitable]] = field(default=MISSING, init=False)
+    resolved: bool = field(default=False, init=False)
+    self: "Extension" = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         self.coroutines: Dict[str, Callable[..., Awaitable]] = {}
@@ -367,7 +369,7 @@ class Command(DictSerializerMixin):
         return len(self.coroutines) > 0
 
     def _check_options(self) -> None:
-        if self.type != ApplicationCommandType.CHAT_INPUT:
+        if self.type not in (ApplicationCommandType.CHAT_INPUT, 1):
             raise LibraryException(
                 code=11, message="Only chat input commands can have subcommands."
             )
@@ -515,7 +517,7 @@ class Command(DictSerializerMixin):
         _res: Optional[Union[BaseResult, GroupResult]] = None,
         **kwargs,
     ):
-        if hasattr(self, "_self"):
+        if self.self:
             if len(coro.__code__.co_varnames) < 2:
                 raise LibraryException(
                     code=11,
@@ -523,15 +525,15 @@ class Command(DictSerializerMixin):
                 )
 
             if len(coro.__code__.co_varnames) == 2:
-                return await coro(self._self, ctx)
+                return await coro(self.self, ctx)
 
             if _res:
                 return (
-                    await coro(self._self, ctx, _res)
+                    await coro(self.self, ctx, _res)
                     if len(coro.__code__.co_varnames) == 3
-                    else await coro(self._self, ctx, _res, *args, **kwargs)
+                    else await coro(self.self, ctx, _res, *args, **kwargs)
                 )
-            return await coro(self._self, ctx, *args, **kwargs)
+            return await coro(self.self, ctx, *args, **kwargs)
         else:
             if len(coro.__code__.co_varnames) < 1:
                 raise LibraryException(
@@ -549,30 +551,34 @@ class Command(DictSerializerMixin):
                 )
             return await coro(ctx, *args, **kwargs)
 
-    async def dispatcher(
-        self,
-        ctx: "CommandContext",
-        *args,
-        sub_command_group: Optional[str] = None,
-        sub_command: Optional[str] = None,
-        **kwargs,
-    ) -> Optional[Any]:
+    @property
+    def dispatcher(self) -> Callable[..., Awaitable]:
         """Calls all of the coroutines of the subcommand."""  # TODO: change docstring
-        base_coro = self.coro
-        base_res = BaseResult(result=await self._call(base_coro, ctx, *args, **kwargs))
-        if base_res() is StopCommand or isinstance(base_res(), StopCommand):
-            return
-        if sub_command_group:
-            group_coro = self.coroutines[sub_command_group]
-            subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
-            group_res = GroupResult(
-                result=await self._call(group_coro, ctx, *args, _res=base_res, **kwargs),
-                parent=base_res,
-            )
-            if group_res() is StopCommand or isinstance(group_res(), StopCommand):
+
+        async def dispatch(
+            ctx: "CommandContext",
+            *args,
+            sub_command_group: Optional[str] = None,
+            sub_command: Optional[str] = None,
+            **kwargs,
+        ) -> Optional[Any]:
+            base_coro = self.coro
+            base_res = BaseResult(result=await self._call(base_coro, ctx, *args, **kwargs))
+            if base_res() is StopCommand or isinstance(base_res(), StopCommand):
                 return
-            return await self._call(subcommand_coro, ctx, *args, _res=group_res, **kwargs)
-        elif sub_command:
-            subcommand_coro = self.coroutines[sub_command]
-            return await self._call(subcommand_coro, ctx, *args, _res=base_res, **kwargs)
-        return base_res
+            if sub_command_group:
+                group_coro = self.coroutines[sub_command_group]
+                subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
+                group_res = GroupResult(
+                    result=await self._call(group_coro, ctx, *args, _res=base_res, **kwargs),
+                    parent=base_res,
+                )
+                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
+                    return
+                return await self._call(subcommand_coro, ctx, *args, _res=group_res, **kwargs)
+            elif sub_command:
+                subcommand_coro = self.coroutines[sub_command]
+                return await self._call(subcommand_coro, ctx, *args, _res=base_res, **kwargs)
+            return base_res
+
+        return dispatch
