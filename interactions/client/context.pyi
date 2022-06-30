@@ -5,6 +5,7 @@ from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import ClientSerializerMixin, define
 from ..api.models.channel import Channel as Channel
 from ..api.models.guild import Guild as Guild
+from ..api.models.flags import Permissions
 from ..api.models.member import Member as Member
 from ..api.models.message import Embed as Embed
 from ..api.models.message import Message as Message
@@ -43,6 +44,7 @@ class _Context(ClientSerializerMixin):
     channel_id: Snowflake
     responded: bool
     deferred: bool
+    app_permissions: Permissions
     def __attrs_post_init__(self) -> None: ...
     async def get_channel(self) -> Channel: ...
     async def get_guild(self) -> Guild: ...
