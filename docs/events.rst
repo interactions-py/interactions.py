@@ -1,8 +1,8 @@
 Event Documentation
 ====================
 
-You all probably already know that there are several events, internal and from discord, that you can receive with your
-bot. This page will lead you through all dispatched internal events and a few from discord.
+You all probably already know that there are several events, internal and from Discord, that you can receive with your
+bot. This page will lead you through all dispatched internal events and a few from Discord.
 
 
 
@@ -19,18 +19,18 @@ Generally, you can listen to an event like this:
 
     # possibility 1
     @bot.event
-    async def on_<event name>(...):
+    async def on_(...):
         ...  # do smth
 
     # possibility 2
-    @bot.event(name="on_<event name>")
+    @bot.event(name="on_")
     async def you_are_free_to_name_this_as_you_want(...):
         ... # do smth
 
     bot.start()
 
 
-``<event name>`` represents the Discord event name - but lowercase and any spaces replaced with ``_``.
+```` represents the Discord event name - but lowercase and any spaces replaced with ``_``.
 
 For example:
 
@@ -41,12 +41,12 @@ For example:
 
 
 
-Now, lets have a look on different events and how they work, starting with internal events.
+Now, let us have a look at different events and how they work, starting with internal events.
 
 Internal Events
 ****************
 
-All events mentioned in this section have the exact naming as they have to be put into the function.
+All events mentioned in this section have the exact naming as they must be put into the function.
 
 There are several different internal events:
 
@@ -57,7 +57,7 @@ There are several different internal events:
     - ``on_autocomplete``
     - ``on_modal``
 
-Lets now have a look on those events in detail:
+Lets now have a look at those events in detail:
 
 Event: ``raw_socket_create``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,8 +66,8 @@ This event fires on any event sent by Discord, including ``Typing Start``  and `
 
 The function handling the event should take in one argument, the type of this argument is a ``dict``.
 
-The value of the argument will be the *raw* data sent from discord, so it is not recommended to use that event
-as long as you dont absolutely need it.
+The value of the argument will be the *raw* data sent from Discord, so it is not recommended to use that event
+as long as you don't absolutely need it.
 
 
 Event: ``on_interaction``
@@ -86,7 +86,7 @@ This event fires on any Application Command (slash command + context menu comman
 
 The function takes in one argument of the type ``CommandContext``.
 
-Using this event, you will have to manually check everything, from name to whether the used commands has sub commands,
+Using this event, you will have to manually check everything, from name to whether the used commands have sub commands,
 options or anything else - everything will be in the raw context and you will have to search for it
 
 
@@ -97,7 +97,7 @@ This event fires on any Component used (for now, those are Buttons and Select Me
 The function takes in one argument of the type ``ComponentContext``.
 
 Like ``on_command``, you will have to manually check for everything, i.e for custom id and component type.
-Also you will have to look through the argument to find the selected choices, if you have a select menu.
+Also, you will have to look through the argument to find the selected choices, if you have a select menu.
 
 
 Event: ``on_autocomplete``
@@ -120,33 +120,33 @@ You will have to get all values yourself and check what modal was used when usin
 
 
 Additionally, if you struggle with getting the values, you can check
-:ref:`how it is handled internally <https://github.com/interactions-py/library/blob/stable/interactions/api/gateway/client.py#L263-L378>`.
+:ref:`how it is handled internally `.
 
 
-After this, lets look at events from the Discord API.
+After this, let us look at events from the Discord API.
 
 Discord API Events
 ******************
 
 Events in this section do not match the name needed to put into the function. Please check
-:ref:`above <events:How to listen for events>` for how to get the correct name.
+:ref:`above ` for how to get the correct name.
 
 
-There is a lot of events dispatched by the Discord API. All of those can be found `here`_.
+There are a lot of events dispatched by the Discord API. All of those can be found `here`_.
 
 The events ``HELLO``, ``RESUMED``, ``RECONNECT``, ``INVALID SESSION`` and ``TYPING START`` are not dispatched by the library.
 
-``TYPING START`` will be included into the :raw socket create event. You can
+``TYPING START`` will be included in the raw socket create event. You can
 also listen for it if you choose to subclass the WebSocketClient
 
-The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:`Extension <faq:Extension Libraries>`.
+The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:`Extension `.
 
 
 Lets now have a look at a few events:
 
 Event: ``READY``
 ^^^^^^^^^^^^^^^^
-This event fires whenever ``READY`` is dispatched by discord. This happens when connecting to the web socket server.
+This event fires whenever ``READY`` is dispatched by Discord. This happens when connecting to the web socket server.
 
 This function takes no arguments.
 
@@ -173,8 +173,8 @@ These events fire whenever a member joins a guild or a member of a guild gets mo
 
 The function takes in one argument of the type ``GuildMember``.
 
-The argument has the exact same methods as a normal ``Member`` object, except the methods *do not take in a guild id*.
+The argument has the same methods as a normal ``Member`` object, except the methods *do not take in a guild id*.
 Please keep that in mind when using this event.
 
 
-.. _here: https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events
+.. _here: https://Discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events
