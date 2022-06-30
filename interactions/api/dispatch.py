@@ -2,7 +2,7 @@ from asyncio import get_event_loop
 from logging import Logger
 from typing import Coroutine, Optional
 
-from interactions.base import get_logger
+from ..base import get_logger
 
 __all__ = ("Listener",)
 

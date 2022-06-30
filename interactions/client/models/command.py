@@ -311,14 +311,15 @@ class Command(DictSerializerMixin):
     client: "Client" = field()
     coro: Callable[..., Awaitable] = field()
     type: ApplicationCommandType = field(converter=ApplicationCommandType)
-    base: str = field()
-    description: str = field()
+    base: str = field(default=MISSING)
+    description: str = field(default=MISSING)
     options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
     scope: List[int] = field(converter=convert_list(int))
-    default_member_permissions: str = field()
-    dm_permission: bool = field(default=None)
-    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
-    description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
+    default_member_permissions: str = field(default=MISSING)
+    dm_permission: bool = field(default=MISSING)
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
+    coroutines: Dict[str, Callable[..., Awaitable]] = field(default=MISSING, init=False)
 
     def __attrs_post_init__(self) -> None:
         self.coroutines: Dict[str, Callable[..., Awaitable]] = {}
@@ -327,6 +328,10 @@ class Command(DictSerializerMixin):
         if self.description in (MISSING, None) and self.type == ApplicationCommandType.CHAT_INPUT:
             self.description = getdoc(self.coro) or "No description set"
             self.description = self.description.split("\n", 1)[0]
+        if self.options is None:
+            self.options = []
+        if self.scope is None:
+            self.scope = MISSING
         if hasattr(self.coro, "_options"):
             if not self.options:
                 self.options = self.coro._options
@@ -363,7 +368,7 @@ class Command(DictSerializerMixin):
             raise LibraryException(
                 code=11, message="Only chat input commands can have subcommands."
             )
-        if any(
+        if self.options and any(
             option.type not in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
             for option in self.options
         ):
@@ -373,8 +378,8 @@ class Command(DictSerializerMixin):
 
     def subcommand(
         self,
-        *,
         group: Optional[str] = MISSING,
+        *,
         name: Optional[str] = MISSING,
         description: Optional[str] = MISSING,
         options: Optional[List[Option]] = MISSING,
@@ -399,18 +404,22 @@ class Command(DictSerializerMixin):
                     _options = coro._options
                 else:
                     _options.extend(coro._options)
+            _options = [] if _options is MISSING else _options
             if name_localizations is MISSING:
                 _name_localizations = self.name_localizations
             else:
                 _name_localizations = name_localizations
+            _name_localizations = None if _name_localizations is MISSING else _name_localizations
             if description_localizations is MISSING:
                 _description_localizations = self.description_localizations
             else:
                 _description_localizations = description_localizations
-            self.coroutines[_name] = coro
+            _description_localizations = (
+                None if _description_localizations is MISSING else _description_localizations
+            )
 
             subcommand = Option(
-                type=OptionType.SUB_COMMAND,
+                type=1,
                 name=_name,
                 description=_description,
                 options=_options,
@@ -420,6 +429,7 @@ class Command(DictSerializerMixin):
 
             if group is MISSING:
                 self.options.append(subcommand)
+                self.coroutines[_name] = coro
             else:
                 for i, option in enumerate(self.options):
                     if option.name == group:
@@ -431,6 +441,9 @@ class Command(DictSerializerMixin):
                             break
                 self.options[i].options.append(subcommand)
                 self.options[i]._json["options"].append(subcommand._json)
+
+                if self.coroutines[group] != coro:
+                    self.coroutines[f"{group} {_name}"] = coro
 
             return self
 
@@ -461,18 +474,23 @@ class Command(DictSerializerMixin):
                     _options = coro._options
                 else:
                     _options.extend(coro._options)
+            _options = [] if _options is MISSING else _options
             if name_localizations is MISSING:
                 _name_localizations = self.name_localizations
             else:
                 _name_localizations = name_localizations
+            _name_localizations = None if _name_localizations is MISSING else _name_localizations
             if description_localizations is MISSING:
                 _description_localizations = self.description_localizations
             else:
                 _description_localizations = description_localizations
+            _description_localizations = (
+                None if _description_localizations is MISSING else _description_localizations
+            )
             self.coroutines[_name] = coro
 
             group = Option(
-                type=OptionType.SUB_COMMAND_GROUP,
+                type=2,
                 name=_name,
                 description=_description,
                 options=_options,
@@ -494,40 +512,41 @@ class Command(DictSerializerMixin):
         **kwargs,
     ) -> Optional[Any]:
         """Calls all of the coroutines of the subcommand."""  # TODO: change docstring
-        base_coro = self.base_coroutine
-        if self._self:
+        base_coro = self.coro
+        # if self._self:
+        if hasattr(self, "_self"):
             base_res = BaseResult(result=await base_coro(self._self, ctx, *args, **kwargs))
             if base_res() is StopCommand or isinstance(base_res(), StopCommand):
                 return
-            if self.data:
-                if sub_command_group:
-                    group_coro = self.coroutines[sub_command_group]
-                    subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
-                    group_res = GroupResult(
-                        result=await group_coro(self._self, ctx, base_res, *args, **kwargs),
-                        parent=base_res,
-                    )
-                    if group_res() is StopCommand or isinstance(group_res(), StopCommand):
-                        return
+            if sub_command_group:
+                group_coro = self.coroutines[sub_command_group]
+                subcommand_coro = self.coroutines.get(f"{sub_command_group} {sub_command}")
+                group_res = GroupResult(
+                    result=await group_coro(self._self, ctx, base_res, *args, **kwargs),
+                    parent=base_res,
+                )
+                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
+                    return
+                if subcommand_coro:
                     return await subcommand_coro(self._self, ctx, group_res, *args, **kwargs)
-                elif sub_command:
-                    subcommand_coro = self.coroutines[sub_command]
-                    return await subcommand_coro(self._self, ctx, base_res, *args, **kwargs)
+            elif sub_command:
+                subcommand_coro = self.coroutines.get(sub_command)
+                return await subcommand_coro(self._self, ctx, base_res, *args, **kwargs)
             return base_res
         base_res = BaseResult(result=await base_coro(ctx, *args, **kwargs))
         if base_res() is StopCommand or isinstance(base_res(), StopCommand):
             return
-        if self.data:
-            if sub_command_group:
-                group_coro = self.coroutines[sub_command_group]
-                subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
-                group_res = GroupResult(
-                    result=await group_coro(ctx, base_res, *args, **kwargs), parent=base_res
-                )
-                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
-                    return
+        if sub_command_group:
+            group_coro = self.coroutines[sub_command_group]
+            subcommand_coro = self.coroutines.get(f"{sub_command_group} {sub_command}")
+            group_res = GroupResult(
+                result=await group_coro(ctx, base_res, *args, **kwargs), parent=base_res
+            )
+            if group_res() is StopCommand or isinstance(group_res(), StopCommand):
+                return
+            if subcommand_coro:
                 return await subcommand_coro(ctx, group_res, *args, **kwargs)
-            elif sub_command:
-                subcommand_coro = self.coroutines[sub_command]
-                return await subcommand_coro(ctx, base_res, *args, **kwargs)
+        elif sub_command:
+            subcommand_coro = self.coroutines[sub_command]
+            return await subcommand_coro(ctx, base_res, *args, **kwargs)
         return base_res
