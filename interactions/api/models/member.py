@@ -253,7 +253,6 @@ class Member(ClientSerializerMixin, IDMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-
         if not components or components is MISSING:
             _components = []
         else:
@@ -277,7 +276,6 @@ class Member(ClientSerializerMixin, IDMixin):
             components=_components,
             allowed_mentions=_allowed_mentions,
         )
-
         channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
         res = await self._client.create_message(
             channel_id=int(channel.id), payload=payload, files=files

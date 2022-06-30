@@ -444,7 +444,6 @@ class GuildMember(ClientSerializerMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-
         if not components or components is MISSING:
             _components = []
         else:

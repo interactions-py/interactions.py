@@ -117,7 +117,7 @@ class GuildMember(ClientSerializerMixin):
         tts: Optional[bool] = ...,
         files: Optional[Union[File, List[File]]] = ...,
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
-        allowed_mentions: Optional[MessageInteraction] = ...
+        allowed_mentions: Optional[MessageInteraction] = ...,
     ) -> Message: ...
     async def modify(
         self,

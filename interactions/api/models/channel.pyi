@@ -4,8 +4,9 @@ from typing import Any, Callable, List, Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, define
 from .guild import Invite, InviteTargetType
-from .message import Embed, Message, MessageInteraction
-from .misc import File, IDMixin, Overwrite, Snowflake
+from .message import Embed, Message, MessageInteraction, Sticker
+from .misc import File, Overwrite, Snowflake
+from .attrs_utils import MISSING
 from .user import User
 from .webhook import Webhook
 from ... import ActionRow, Button, SelectMenu
@@ -82,6 +83,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = ...,
         allowed_mentions: Optional[MessageInteraction] = ...,
         attachments: Optional[List["Attachment"]] = MISSING,  # noqa
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
                 "ActionRow",

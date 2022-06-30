@@ -4,7 +4,7 @@ from aiohttp import MultipartWriter
 
 from ...api.cache import Cache, Item
 from ..models.attrs_utils import MISSING
-from ..models.message import Embed, Message
+from ..models.message import Embed, Message, Sticker
 from ..models.misc import File, Snowflake
 from .request import _Request
 from .route import Route
@@ -29,6 +29,7 @@ class MessageRequest:
         nonce: Union[int, str] = None,
         allowed_mentions=None,  # don't know type
         message_reference: Optional[Message] = None,
+        stickers: Optional[List[Sticker]] = None,
     ) -> dict:
         """
         A higher level implementation of :meth:`create_message()` that handles the payload dict internally.
@@ -53,6 +54,9 @@ class MessageRequest:
 
         if message_reference:
             payload["message_reference"] = message_reference
+
+        if stickers:
+            payload["sticker_ids"] = [str(sticker.id) for sticker in stickers]
 
         # TODO: post-v4. add attachments to payload.
 

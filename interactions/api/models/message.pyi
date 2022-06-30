@@ -295,6 +295,7 @@ class Message(ClientSerializerMixin, IDMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,  # noqa
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
                 ActionRow,
