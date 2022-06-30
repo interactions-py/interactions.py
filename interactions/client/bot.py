@@ -25,7 +25,7 @@ from ..base import get_logger
 from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
-from .models.command import ApplicationCommand, Choice, Option
+from .models.command import ApplicationCommand, Choice, Command, Option
 from .models.component import Button, Modal, SelectMenu
 
 log: Logger = get_logger("client")
@@ -98,6 +98,7 @@ class Client:
         self._token = token
         self._extensions = {}
         self._scopes = set([])
+        self._commands: List[Command] = []
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
@@ -377,6 +378,36 @@ class Client:
                 raise RuntimeError("Client not authorised for any privileged intents.")
 
             self.__register_events()
+
+            for command in self._commands:
+                data: Union[dict, List[dict]] = command.full_data
+                coro = command.dispatcher if command.has_subcommands else command.coro
+
+                self.__check_command(
+                    command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
+                    coro=coro,
+                )
+
+                if hasattr(coro, "__func__"):
+                    coro.__func__._command_data = data
+                    if command.type == ApplicationCommandType.CHAT_INPUT:
+                        coro.__func__.autocomplete = AutocompleteManager(self, command.base)
+                else:
+                    coro._command_data = data
+                    if command.type == ApplicationCommandType.CHAT_INPUT:
+                        coro.autocomplete = AutocompleteManager(self, command.base)
+
+                self.__command_coroutines.append(coro)
+
+                if command.scope not in (MISSING, None):
+                    if isinstance(command.scope, List):
+                        [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in command.scope]
+                    else:
+                        self._scopes.add(
+                            command.scope if isinstance(command.scope, int) else command.scope.id
+                        )
+
+                self.event(coro, name=f"command_{command.base}")
 
             if self._automate_sync:
                 await self.__sync()
@@ -929,44 +960,22 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            # TODO: implement Command object
-            commands: Union[List[dict], dict] = command(
+            # TODO: test this out
+            cmd = Command(
+                client=self,
+                coro=coro,
                 type=type,
-                name=name,
+                base=name,
                 description=description,
-                scope=scope,
                 options=options,
-                name_localizations=name_localizations,
-                description_localizations=description_localizations,
+                scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                name_localizations=name_localizations,
+                description_localizations=description_localizations,
             )
-
-            self.__check_command(
-                command=ApplicationCommand(
-                    **(commands[0] if isinstance(commands, list) else commands)
-                ),
-                coro=coro,
-            )
-
-            if hasattr(coro, "__func__"):
-                coro.__func__._command_data = commands
-                if type == ApplicationCommandType.CHAT_INPUT:
-                    coro.__func__.autocomplete = AutocompleteManager(self, name)
-            else:
-                coro._command_data = commands
-                if type == ApplicationCommandType.CHAT_INPUT:
-                    coro.autocomplete = AutocompleteManager(self, name)
-
-            self.__command_coroutines.append(coro)
-
-            if scope is not MISSING:
-                if isinstance(scope, List):
-                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
-                else:
-                    self._scopes.add(scope if isinstance(scope, int) else scope.id)
-
-            return self.event(coro, name=f"command_{name}")
+            self._commands.append(cmd)
+            return cmd
 
         return decorator
 
@@ -1012,30 +1021,19 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            # TODO: implement Command object
-            commands: Union[List[dict], dict] = command(
+            # TODO: test this out
+            cmd = Command(
+                client=self,
+                coro=coro,
                 type=ApplicationCommandType.MESSAGE,
-                name=name,
+                base=name,
                 scope=scope,
-                name_localizations=name_localizations,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                name_localizations=name_localizations,
             )
-
-            self.__check_command(
-                command=ApplicationCommand(
-                    **(commands[0] if isinstance(commands, list) else commands)
-                ),
-                coro=coro,
-            )
-            if hasattr(coro, "__func__"):
-                coro.__func__._command_data = commands
-            else:
-                coro._command_data = commands
-
-            self.__command_coroutines.append(coro)
-
-            return self.event(coro, name=f"command_{name}")
+            self._commands.append(cmd)
+            return cmd
 
         return decorator
 
@@ -1081,30 +1079,19 @@ class Client:
         """
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            # TODO: implement Command object
-            commands: Union[List[dict], dict] = command(
+            # TODO: test this out
+            cmd = Command(
+                client=self,
+                coro=coro,
                 type=ApplicationCommandType.USER,
-                name=name,
+                base=name,
                 scope=scope,
-                name_localizations=name_localizations,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                name_localizations=name_localizations,
             )
-
-            self.__check_command(
-                command=ApplicationCommand(
-                    **(commands[0] if isinstance(commands, list) else commands)
-                ),
-                coro=coro,
-            )
-            if hasattr(coro, "__func__"):
-                coro.__func__._command_data = commands
-            else:
-                coro._command_data = commands
-
-            self.__command_coroutines.append(coro)
-
-            return self.event(coro, name=f"command_{name}")
+            self._commands.append(cmd)
+            return cmd
 
         return decorator
 

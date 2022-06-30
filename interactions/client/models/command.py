@@ -315,7 +315,6 @@ class Command(DictSerializerMixin):
     description: str = field()
     options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
     scope: List[int] = field(converter=convert_list(int))
-    version: int = field(default=None)
     default_member_permissions: str = field()
     dm_permission: bool = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
@@ -353,6 +352,11 @@ class Command(DictSerializerMixin):
             default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
         )
+
+    @property
+    def has_subcommands(self):
+        """Checks if the command has subcommand options."""  # TODO: change docstring
+        return len(self.coroutines) > 0
 
     def check_options(self) -> None:
         if self.type != ApplicationCommandType.CHAT_INPUT:
