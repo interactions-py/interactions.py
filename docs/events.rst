@@ -142,7 +142,7 @@ also listen for it if you choose to subclass the WebSocketClient
 The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:`Extension `.
 
 
-Lets now have a look at a few events:
+Let's now have a look at a few events:
 
 Event: ``READY``
 ^^^^^^^^^^^^^^^^
