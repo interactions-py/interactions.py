@@ -212,7 +212,7 @@ def option(
     value: Optional[str] = None,
     name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
-):
+):  # TODO: test this out
     """
     docstring
     """  # TODO: change docstring
