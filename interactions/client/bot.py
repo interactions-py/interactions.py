@@ -957,10 +957,9 @@ class Client:
         :type dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
-        """
+        """  # TODO: update docstring
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            # TODO: test this out
             cmd = Command(
                 client=self,
                 coro=coro,
@@ -982,7 +981,7 @@ class Client:
     def message_command(
         self,
         *,
-        name: str,
+        name: Optional[str] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
@@ -1018,10 +1017,9 @@ class Client:
         :type dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
-        """
+        """  # TODO: update docstring
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            # TODO: test this out
             cmd = Command(
                 client=self,
                 coro=coro,
@@ -1040,7 +1038,7 @@ class Client:
     def user_command(
         self,
         *,
-        name: str,
+        name: Optional[str] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
@@ -1076,10 +1074,9 @@ class Client:
         :type dm_permission: Optional[bool]
         :return: A callable response.
         :rtype: Callable[..., Any]
-        """
+        """  # TODO: update docstring
 
         def decorator(coro: Coroutine) -> Callable[..., Any]:
-            # TODO: test this out
             cmd = Command(
                 client=self,
                 coro=coro,

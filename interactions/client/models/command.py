@@ -20,6 +20,9 @@ __all__ = (
     "Option",
     "Permission",
     "ApplicationCommand",
+    "option",
+    "StopCommand",
+    "Command",
 )
 
 
@@ -287,7 +290,7 @@ class StopCommand:
 class BaseResult(DictSerializerMixin):
     """docstring"""  # TODO: change docstring
 
-    result: Any = field()
+    result: Any = field(repr=True)
 
     def __call__(self) -> Any:
         return self.result
@@ -297,8 +300,8 @@ class BaseResult(DictSerializerMixin):
 class GroupResult(DictSerializerMixin):
     """docstring"""  # TODO: change docstring
 
-    result: Any = field()
-    parent: BaseResult = field()
+    result: Any = field(repr=True)
+    parent: BaseResult = field(repr=True)
 
     def __call__(self) -> Any:
         return self.result
@@ -349,8 +352,8 @@ class Command(DictSerializerMixin):
         return command(
             type=self.type,
             name=self.base,
-            description=self.description if self.type == 1 else None,
-            options=self.options if self.type == 1 else None,
+            description=self.description if self.type == 1 else MISSING,
+            options=self.options if self.type == 1 else MISSING,
             scope=self.scope,
             name_localizations=self.name_localizations,
             description_localizations=self.description_localizations,
@@ -363,7 +366,7 @@ class Command(DictSerializerMixin):
         """Checks if the command has subcommand options."""  # TODO: change docstring
         return len(self.coroutines) > 0
 
-    def check_options(self) -> None:
+    def _check_options(self) -> None:
         if self.type != ApplicationCommandType.CHAT_INPUT:
             raise LibraryException(
                 code=11, message="Only chat input commands can have subcommands."
@@ -375,6 +378,9 @@ class Command(DictSerializerMixin):
             raise LibraryException(
                 code=11, message="Subcommands are incompatible with base command options."
             )
+
+    async def _no_group(self, ctx: "CommandContext", *args, **kwargs):
+        pass
 
     def subcommand(
         self,
@@ -390,7 +396,7 @@ class Command(DictSerializerMixin):
         Creates a subcommand of the command.
         """  # TODO: change docstring
 
-        self.check_options()
+        self._check_options()
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _name = coro.__name__ if name is MISSING else name
@@ -435,15 +441,13 @@ class Command(DictSerializerMixin):
                     if option.name == group:
                         break
                 else:
-                    self.group(name=group)(coro)
+                    self.group(name=group)(self._no_group)
                     for i, option in enumerate(self.options):
                         if option.name == group:
                             break
                 self.options[i].options.append(subcommand)
                 self.options[i]._json["options"].append(subcommand._json)
-
-                if self.coroutines[group] != coro:
-                    self.coroutines[f"{group} {_name}"] = coro
+                self.coroutines[f"{group} {_name}"] = coro
 
             return self
 
@@ -460,7 +464,7 @@ class Command(DictSerializerMixin):
     ) -> Callable[[Callable], "Command"]:
         """Creates a group option"""  # TODO: change docstring
 
-        self.check_options()
+        self._check_options()
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _name = coro.__name__ if name is MISSING else name
@@ -503,6 +507,48 @@ class Command(DictSerializerMixin):
 
         return decorator
 
+    async def _call(
+        self,
+        coro: Callable[..., Awaitable],
+        ctx: "CommandContext",
+        *args,
+        _res: Optional[Union[BaseResult, GroupResult]] = None,
+        **kwargs,
+    ):
+        if hasattr(self, "_self"):
+            if len(coro.__code__.co_varnames) < 2:
+                raise LibraryException(
+                    code=11,
+                    message="Your command needs at least two arguments to return self and context.",
+                )
+
+            if len(coro.__code__.co_varnames) == 2:
+                return await coro(self._self, ctx)
+
+            if _res:
+                return (
+                    await coro(self._self, ctx, _res)
+                    if len(coro.__code__.co_varnames) == 3
+                    else await coro(self._self, ctx, _res, *args, **kwargs)
+                )
+            return await coro(self._self, ctx, *args, **kwargs)
+        else:
+            if len(coro.__code__.co_varnames) < 1:
+                raise LibraryException(
+                    code=11, message="Your command needs at least one argument to return context."
+                )
+
+            if len(coro.__code__.co_varnames) == 1:
+                return await coro(ctx)
+
+            if _res:
+                return (
+                    await coro(ctx, _res)
+                    if len(coro.__code__.co_varnames) == 2
+                    else await coro(ctx, _res, *args, **kwargs)
+                )
+            return await coro(ctx, *args, **kwargs)
+
     async def dispatcher(
         self,
         ctx: "CommandContext",
@@ -513,40 +559,20 @@ class Command(DictSerializerMixin):
     ) -> Optional[Any]:
         """Calls all of the coroutines of the subcommand."""  # TODO: change docstring
         base_coro = self.coro
-        # if self._self:
-        if hasattr(self, "_self"):
-            base_res = BaseResult(result=await base_coro(self._self, ctx, *args, **kwargs))
-            if base_res() is StopCommand or isinstance(base_res(), StopCommand):
-                return
-            if sub_command_group:
-                group_coro = self.coroutines[sub_command_group]
-                subcommand_coro = self.coroutines.get(f"{sub_command_group} {sub_command}")
-                group_res = GroupResult(
-                    result=await group_coro(self._self, ctx, base_res, *args, **kwargs),
-                    parent=base_res,
-                )
-                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
-                    return
-                if subcommand_coro:
-                    return await subcommand_coro(self._self, ctx, group_res, *args, **kwargs)
-            elif sub_command:
-                subcommand_coro = self.coroutines.get(sub_command)
-                return await subcommand_coro(self._self, ctx, base_res, *args, **kwargs)
-            return base_res
-        base_res = BaseResult(result=await base_coro(ctx, *args, **kwargs))
+        base_res = BaseResult(result=await self._call(base_coro, ctx, *args, **kwargs))
         if base_res() is StopCommand or isinstance(base_res(), StopCommand):
             return
         if sub_command_group:
             group_coro = self.coroutines[sub_command_group]
-            subcommand_coro = self.coroutines.get(f"{sub_command_group} {sub_command}")
+            subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
             group_res = GroupResult(
-                result=await group_coro(ctx, base_res, *args, **kwargs), parent=base_res
+                result=await self._call(group_coro, ctx, *args, _res=base_res, **kwargs),
+                parent=base_res,
             )
             if group_res() is StopCommand or isinstance(group_res(), StopCommand):
                 return
-            if subcommand_coro:
-                return await subcommand_coro(ctx, group_res, *args, **kwargs)
+            return await self._call(subcommand_coro, ctx, *args, _res=group_res, **kwargs)
         elif sub_command:
             subcommand_coro = self.coroutines[sub_command]
-            return await subcommand_coro(ctx, base_res, *args, **kwargs)
+            return await self._call(subcommand_coro, ctx, *args, _res=base_res, **kwargs)
         return base_res
