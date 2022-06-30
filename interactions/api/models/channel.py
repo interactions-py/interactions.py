@@ -192,7 +192,7 @@ class Channel(ClientSerializerMixin, IDMixin):
                 List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
-    ) -> "Message":  # noqa
+    ) -> "Message":  # noqa  # sourcery skip: dict-assign-update-to-union
         """
         Sends a message in the channel.
 
@@ -744,7 +744,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
-    ) -> List["Message"]:  # noqa
+    ) -> List["Message"]:  # noqa  # sourcery skip: low-code-quality
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 

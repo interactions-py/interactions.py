@@ -887,7 +887,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         auto_archive_duration: Optional[int] = MISSING,
         locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
-    ) -> Channel:
+    ) -> Channel:  # sourcery skip: low-code-quality
         """
         Edits a channel of the guild.
 
@@ -1120,7 +1120,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         description: Optional[str] = MISSING,
         premium_progress_bar_enabled: Optional[bool] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Guild":
+    ) -> "Guild":  # sourcery skip: low-code-quality
         """
         Modifies the current guild.
 
@@ -2177,7 +2177,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         exempt_roles: Optional[List[int]] = MISSING,
         exempt_channels: Optional[List[int]] = MISSING,
         reason: Optional[str] = None,
-    ) -> "AutoModerationRule":  # noqa
+    ) -> "AutoModerationRule":  # noqa  # sourcery skip: compare-via-equals
         """
         Edits an AutoMod rule
 

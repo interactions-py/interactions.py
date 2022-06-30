@@ -1,3 +1,4 @@
+import contextlib
 from datetime import datetime
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, Union
@@ -624,10 +625,8 @@ class Embed(DictSerializerMixin):
         Removes the embed's author
         """
 
-        try:
+        with contextlib.suppress(AttributeError):
             del self.author
-        except AttributeError:
-            pass
 
     def set_author(
         self,
@@ -1052,7 +1051,7 @@ class Message(ClientSerializerMixin, IDMixin):
                 List["SelectMenu"],  # noqa
             ]
         ] = MISSING,
-    ) -> "Message":
+    ) -> "Message":  # sourcery skip: dict-assign-update-to-union
         """
         Sends a new message replying to the old.
 

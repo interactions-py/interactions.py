@@ -23,6 +23,7 @@ class DictSerializerMixin:
     """Should the kwargs be deepcopied or not?"""
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
+        # sourcery skip: low-code-quality
         kwargs = kwargs_dict or other_kwargs
         client = kwargs.pop("_client", None)
 
