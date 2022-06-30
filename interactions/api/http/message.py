@@ -4,7 +4,7 @@ from aiohttp import MultipartWriter
 
 from ...api.cache import Cache, Item
 from ..models.attrs_utils import MISSING
-from ..models.message import Embed, Message, Sticker
+from ..models.message import Embed, Message, MessageInteraction, Sticker
 from ..models.misc import File, Snowflake
 from .request import _Request
 from .route import Route
@@ -13,7 +13,6 @@ __all__ = ("MessageRequest",)
 
 
 class MessageRequest:
-
     _req: _Request
     cache: Cache
 
@@ -27,7 +26,7 @@ class MessageRequest:
         tts: bool = False,
         embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
-        allowed_mentions=None,  # don't know type
+        allowed_mentions: Optional[MessageInteraction] = None,  # don't know type
         message_reference: Optional[Message] = None,
         stickers: Optional[List[Sticker]] = None,
     ) -> dict:

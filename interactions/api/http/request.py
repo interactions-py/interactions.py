@@ -232,4 +232,4 @@ class _Request:
 
     async def close(self) -> None:
         """Closes the current session."""
-        await self.session.close()
+        await self._session.close()
