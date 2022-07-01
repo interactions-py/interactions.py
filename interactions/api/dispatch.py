@@ -1,6 +1,6 @@
-from asyncio import get_event_loop
+from asyncio import AbstractEventLoop, get_event_loop
 from logging import Logger
-from typing import Coroutine, Optional
+from typing import Callable, Coroutine, Dict, List, Optional
 
 from interactions.base import get_logger
 
@@ -20,8 +20,8 @@ class Listener:
     __slots__ = ("loop", "events")
 
     def __init__(self) -> None:
-        self.loop = get_event_loop()
-        self.events = {}
+        self.loop: AbstractEventLoop = get_event_loop()
+        self.events: Dict[str, List[Callable[..., Coroutine]]] = {}
 
     def dispatch(self, __name: str, *args, **kwargs) -> None:
         r"""
@@ -29,17 +29,17 @@ class Listener:
 
         :param __name: The name of the event to dispatch.
         :type __name: str
-        :param \*args: Multiple arguments of the coroutine.
-        :type \*args: list[Any]
-        :param \**kwargs: Keyword-only arguments of the coroutine.
-        :type \**kwargs: dict
+        :param *args: Multiple arguments of the coroutine.
+        :type *args: list[Any]
+        :param **kwargs: Keyword-only arguments of the coroutine.
+        :type **kwargs: dict
         """
         for event in self.events.get(__name, []):
 
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
 
-    def register(self, coro: Coroutine, name: Optional[str] = None) -> None:
+    def register(self, coro: Callable[..., Coroutine], name: Optional[str] = None) -> None:
         """
         Registers a given coroutine as an event to be listened to.
         If the name of the event is not given, it will then be
@@ -48,7 +48,7 @@ class Listener:
         i.e. : async def on_guild_create -> "ON_GUILD_CREATE" dispatch.
 
         :param coro: The coroutine to register as an event.
-        :type coro: Coroutine
+        :type coro: Callable[..., Coroutine]
         :param name?: The name to associate the coroutine with. Defaults to None.
         :type name: Optional[str]
         """

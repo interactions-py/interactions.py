@@ -36,7 +36,7 @@ class Limiter:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         return self.lock.release()
 
-    def release_lock(self):
+    def release_lock(self) -> None:
         # Releases the lock if its locked, overriding the traditional release() method.
         # Useful for per-route, not needed? for globals.
 
