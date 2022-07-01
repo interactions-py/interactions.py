@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Any, Callable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import (
@@ -14,6 +14,12 @@ from .attrs_utils import (
 from .misc import File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
+
+if TYPE_CHECKING:
+    from ...client.models.component import ActionRow, Button, SelectMenu
+    from .guild import Invite, InviteTargetType
+    from .member import Member
+    from .message import Attachment, Embed, Message, MessageInteraction, Sticker
 
 __all__ = (
     "ChannelType",
@@ -178,21 +184,22 @@ class Channel(ClientSerializerMixin, IDMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
+        attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
-    ) -> "Message":  # noqa
+    ) -> "Message":
         """
         Sends a message in the channel.
 
@@ -208,6 +215,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
@@ -222,6 +231,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
         if not embeds or embeds is MISSING:
             _embeds: list = []
         elif isinstance(embeds, list):
@@ -251,6 +263,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            sticker_ids=_sticker_ids,
         )
 
         res = await self._client.create_message(
@@ -602,7 +615,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def add_member(
         self,
-        member_id: Union[int, Snowflake, "Member"],  # noqa
+        member_id: Union[int, Snowflake, "Member"],
     ) -> None:
         """
         This adds a member to the channel, if the channel is a thread.
@@ -623,7 +636,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def remove_member(
         self,
-        member_id: Union[int, Snowflake, "Member"],  # noqa
+        member_id: Union[int, Snowflake, "Member"],
     ) -> None:
         """
         This removes a member of the channel, if the channel is a thread.
@@ -644,7 +657,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def pin_message(
         self,
-        message_id: Union[int, Snowflake, "Message"],  # noqa
+        message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
         Pins a message to the channel.
@@ -663,7 +676,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def unpin_message(
         self,
-        message_id: Union[int, Snowflake, "Message"],  # noqa
+        message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
         Unpins a message from the channel.
@@ -682,8 +695,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def publish_message(
         self,
-        message_id: Union[int, Snowflake, "Message"],  # noqa
-    ) -> "Message":  # noqa
+        message_id: Union[int, Snowflake, "Message"],
+    ) -> "Message":
         """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
         :param message_id: The id of the message to publish
@@ -703,7 +716,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         return Message(**res, _client=self._client)
 
-    async def get_pinned_messages(self) -> List["Message"]:  # noqa
+    async def get_pinned_messages(self) -> List["Message"]:
         """
         Get all pinned messages from the channel.
 
@@ -720,7 +733,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     async def get_message(
         self,
         message_id: Union[int, Snowflake],
-    ) -> "Message":  # noqa
+    ) -> "Message":
         """
         Gets a message sent in that channel.
 
@@ -744,7 +757,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
-    ) -> List["Message"]:  # noqa
+    ) -> List["Message"]:
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 
@@ -1008,11 +1021,11 @@ class Channel(ClientSerializerMixin, IDMixin):
         max_uses: Optional[int] = 0,
         temporary: Optional[bool] = False,
         unique: Optional[bool] = False,
-        target_type: Optional["InviteTargetType"] = MISSING,  # noqa
+        target_type: Optional["InviteTargetType"] = MISSING,
         target_user_id: Optional[int] = MISSING,
         target_application_id: Optional[int] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Invite":  # noqa
+    ) -> "Invite":
         """
         Creates an invite for the channel
 
@@ -1082,7 +1095,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         return Invite(**res, _client=self._client)
 
-    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:  # noqa
+    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:
         """
         Gets messages from the channel's history.
 
@@ -1098,7 +1111,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         from .message import Message
 
         _messages: List[Message] = []
-        _before: int = None
+        _before: Optional[int] = None
         while limit > 100:
             _msgs = [
                 Message(**res, _client=self._client)

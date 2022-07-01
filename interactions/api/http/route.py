@@ -14,8 +14,8 @@ class Route:
     :ivar Optional[str] guild_id: The guild ID from the bucket if given.
     """
 
-    __slots__ = ("__api__", "method", "path", "channel_id", "guild_id")
-    __api__: ClassVar[str]
+    __slots__ = ("method", "path", "channel_id", "guild_id")
+    __api__: ClassVar[str] = "https://discord.com/api/v10"
     method: str
     path: str
     channel_id: Optional[str]
@@ -30,7 +30,6 @@ class Route:
         :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
         """
-        self.__api__ = "https://discord.com/api/v10"
         self.method = method
         self.path = path.format(**kwargs)
         self.channel_id = kwargs.get("channel_id")

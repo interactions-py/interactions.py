@@ -1,8 +1,11 @@
-from typing import Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
 from .misc import IDMixin, Image, Snowflake
+
+if TYPE_CHECKING:
+    from .guild import Guild
 
 __all__ = (
     "Role",
@@ -69,7 +72,7 @@ class Role(ClientSerializerMixin, IDMixin):
 
     async def delete(
         self,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -91,7 +94,7 @@ class Role(ClientSerializerMixin, IDMixin):
 
     async def modify(
         self,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         name: Optional[str] = MISSING,
         permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
@@ -159,7 +162,7 @@ class Role(ClientSerializerMixin, IDMixin):
 
     async def modify_position(
         self,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         position: int,
         reason: Optional[str] = None,
     ) -> List["Role"]:
