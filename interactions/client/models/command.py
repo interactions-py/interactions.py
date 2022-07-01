@@ -325,6 +325,7 @@ class Command(DictSerializerMixin):
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
     num_options: Dict[str, int] = field(default=MISSING, init=False)
+    recent_group: Optional[str] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
     self: "Extension" = field(default=None, init=False)
 
@@ -397,6 +398,10 @@ class Command(DictSerializerMixin):
         """  # TODO: change docstring
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
+            if self.recent_group:
+                _group = self.recent_group
+            else:
+                _group = MISSING
             _name = coro.__name__ if name is MISSING else name
             _description = description
             if description in (MISSING, None):
@@ -427,23 +432,23 @@ class Command(DictSerializerMixin):
                 description_localizations=_description_localizations,
             )
 
-            if group is MISSING:
+            if _group is MISSING:
                 self.options.append(subcommand)
                 self.coroutines[_name] = coro
                 self.num_options[_name] = len({opt for opt in _options if int(opt.type) > 2})
             else:
                 for i, option in enumerate(self.options):
-                    if option.name == group:
+                    if int(option.type) == 2 and option.name == _group:
                         break
                 else:
-                    self.group(name=group)(self._no_group)
+                    self.group(name=_group)(self._no_group)
                     for i, option in enumerate(self.options):
-                        if option.name == group:
+                        if int(option.type) == 2 and option.name == _group:
                             break
                 self.options[i].options.append(subcommand)
                 self.options[i]._json["options"].append(subcommand._json)
-                self.coroutines[f"{group} {_name}"] = coro
-                self.num_options[f"{group} {_name}"] = len(
+                self.coroutines[f"{_group} {_name}"] = coro
+                self.num_options[f"{_group} {_name}"] = len(
                     {opt for opt in _options if int(opt.type) > 2}
                 )
 
@@ -465,6 +470,7 @@ class Command(DictSerializerMixin):
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _name = coro.__name__ if name is MISSING else name
+            self.recent_group = _name
             _description = description
             if description in (MISSING, None):
                 _description = getdoc(coro) or "No description set"

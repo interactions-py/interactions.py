@@ -514,7 +514,7 @@ class Client:
 
             coro._command_data = data
             if cmd.type == ApplicationCommandType.CHAT_INPUT:
-                coro.autocomplete = AutocompleteManager(self, cmd.base)
+                coro.autocomplete = AutocompleteManager(self, cmd.name)
 
             if not coro._command_data["name"] in (
                 c._command_data["name"] for c in self.__command_coroutines
@@ -527,7 +527,7 @@ class Client:
                 else:
                     self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
 
-            self.event(coro, name=f"command_{cmd.base}")
+            self.event(coro, name=f"command_{cmd.name}")
             cmd.resolved = True
 
         for coro in self.__command_coroutines:
@@ -1547,11 +1547,11 @@ class Extension:
                 cmd.self = self
                 self.client._commands.append(cmd)
 
-                commands = self._commands.get(cmd.base, [])
+                commands = self._commands.get(cmd.name, [])
                 coro = cmd.dispatcher if cmd.has_subcommands else cmd.coro
                 coro = coro.__func__ if hasattr(coro, "__func__") else coro
                 commands.append(coro)
-                self._commands[cmd.base] = commands
+                self._commands[cmd.name] = commands
 
             if hasattr(func, "__component_data__"):
                 args, kwargs = func.__component_data__
