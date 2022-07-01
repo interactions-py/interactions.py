@@ -398,10 +398,7 @@ class Command(DictSerializerMixin):
         """  # TODO: change docstring
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
-            if self.recent_group:
-                _group = self.recent_group
-            else:
-                _group = MISSING
+            _group = self.recent_group or group
             _name = coro.__name__ if name is MISSING else name
             _description = description
             if description in (MISSING, None):
