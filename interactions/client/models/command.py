@@ -315,7 +315,7 @@ class Command(DictSerializerMixin):
     client: "Client" = field()
     coro: Callable[..., Awaitable] = field()
     type: ApplicationCommandType = field(default=1, converter=ApplicationCommandType)
-    base: str = field(default=MISSING, repr=True)
+    name: str = field(default=MISSING, repr=True)
     description: str = field(default=MISSING)
     options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
     scope: List[int] = field(converter=convert_list(int), default=MISSING)
@@ -330,15 +330,15 @@ class Command(DictSerializerMixin):
 
     def __attrs_post_init__(self) -> None:
         self.coroutines: Dict[str, Callable[..., Awaitable]] = {}
-        if self.base is MISSING:
-            self.base = self.coro.__name__
+        if self.name is MISSING:
+            self.name = self.coro.__name__
         if self.description is MISSING and self.type == ApplicationCommandType.CHAT_INPUT:
             self.description = getdoc(self.coro) or "No description set"
             self.description = self.description.split("\n", 1)[0]
         if hasattr(self.coro, "_options"):
             self.options.extend(self.coro._options)
         self.coro._options = self.options
-        self.num_options = {self.base: len({opt for opt in self.options if int(opt.type) > 2})}
+        self.num_options = {self.name: len({opt for opt in self.options if int(opt.type) > 2})}
 
     def __call__(self, *args, **kwargs) -> Awaitable:
         coro = self.dispatcher if self.has_subcommands else self.coro
@@ -351,7 +351,7 @@ class Command(DictSerializerMixin):
 
         return command(
             type=self.type,
-            name=self.base,
+            name=self.name,
             description=self.description if self.type == 1 else MISSING,
             options=self.options if self.type == 1 else MISSING,
             scope=self.scope,
@@ -560,7 +560,7 @@ class Command(DictSerializerMixin):
         ) -> Optional[Any]:
             base_coro = self.coro
             base_res = BaseResult(
-                result=await self._call(base_coro, ctx, *args, _name=self.base, **kwargs)
+                result=await self._call(base_coro, ctx, *args, _name=self.name, **kwargs)
             )
             if base_res() is StopCommand or isinstance(base_res(), StopCommand):
                 return
