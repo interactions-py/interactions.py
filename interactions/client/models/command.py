@@ -212,12 +212,12 @@ def option(
     value: Optional[str] = None,
     name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
-):  # TODO: test this out
+) -> Callable[..., Callable[..., Awaitable]]:  # TODO: test this out
     """
     docstring
     """  # TODO: change docstring
 
-    def decorator(coro: Callable[..., Awaitable]):
+    def decorator(coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
         if isinstance(_type, int):
             type_ = _type
         elif _type in (str, int, float, bool):
@@ -258,6 +258,7 @@ def option(
             name_localizations=name_localizations,
             description_localizations=description_localizations,
         )
+
         if hasattr(coro, "_options"):
             coro._options.insert(0, option)
         else:
@@ -316,35 +317,32 @@ class Command(DictSerializerMixin):
     type: ApplicationCommandType = field(default=1, converter=ApplicationCommandType)
     base: str = field(default=MISSING, repr=True)
     description: str = field(default=MISSING)
-    options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
-    scope: List[int] = field(converter=convert_list(int))
+    options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
+    scope: List[int] = field(converter=convert_list(int), default=MISSING)
     default_member_permissions: str = field(default=MISSING)
     dm_permission: bool = field(default=MISSING)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
-    coroutines: Dict[str, Callable[..., Awaitable]] = field(default=MISSING, init=False)
+    coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
+    num_options: Dict[str, int] = field(default=MISSING, init=False)
     resolved: bool = field(default=False, init=False)
     self: "Extension" = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         self.coroutines: Dict[str, Callable[..., Awaitable]] = {}
-        if self.base in (MISSING, None):
+        if self.base is MISSING:
             self.base = self.coro.__name__
-        if self.description in (MISSING, None) and self.type == ApplicationCommandType.CHAT_INPUT:
+        if self.description is MISSING and self.type == ApplicationCommandType.CHAT_INPUT:
             self.description = getdoc(self.coro) or "No description set"
             self.description = self.description.split("\n", 1)[0]
-        if self.options is None:
-            self.options = []
-        if self.scope is None:
-            self.scope = MISSING
         if hasattr(self.coro, "_options"):
-            if not self.options:
-                self.options = self.coro._options
-            else:
-                self.options.extend(self.coro._options)
+            self.options.extend(self.coro._options)
+        self.coro._options = self.options
+        self.num_options = {self.base: len({opt for opt in self.options if int(opt.type) > 2})}
 
     def __call__(self, *args, **kwargs) -> Awaitable:
-        return self.coro(*args, **kwargs)
+        coro = self.dispatcher if self.has_subcommands else self.coro
+        return coro(*args, **kwargs)
 
     @property
     def full_data(self) -> Union[dict, List[dict]]:
@@ -364,7 +362,7 @@ class Command(DictSerializerMixin):
         )
 
     @property
-    def has_subcommands(self):
+    def has_subcommands(self) -> bool:
         """Checks if the command has subcommand options."""  # TODO: change docstring
         return len(self.coroutines) > 0
 
@@ -381,7 +379,7 @@ class Command(DictSerializerMixin):
                 code=11, message="Subcommands are incompatible with base command options."
             )
 
-    async def _no_group(self, ctx: "CommandContext", *args, **kwargs):
+    async def _no_group(self, *args, **kwargs) -> None:
         pass
 
     def subcommand(
@@ -393,12 +391,10 @@ class Command(DictSerializerMixin):
         options: Optional[List[Option]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-    ) -> Callable[[Callable], "Command"]:
+    ) -> Callable[..., Callable[..., "Command"]]:
         """
         Creates a subcommand of the command.
         """  # TODO: change docstring
-
-        self._check_options()
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _name = coro.__name__ if name is MISSING else name
@@ -406,13 +402,9 @@ class Command(DictSerializerMixin):
             if description in (MISSING, None):
                 _description = getdoc(coro) or "No description set"
                 _description = _description.split("\n", 1)[0]
-            _options = options
+            _options = [] if options is MISSING else options
             if hasattr(coro, "_options"):
-                if options in (MISSING, None):
-                    _options = coro._options
-                else:
-                    _options.extend(coro._options)
-            _options = [] if _options is MISSING else _options
+                _options.extend(coro._options)
             if name_localizations is MISSING:
                 _name_localizations = self.name_localizations
             else:
@@ -438,6 +430,7 @@ class Command(DictSerializerMixin):
             if group is MISSING:
                 self.options.append(subcommand)
                 self.coroutines[_name] = coro
+                self.num_options[_name] = len({opt for opt in _options if int(opt.type) > 2})
             else:
                 for i, option in enumerate(self.options):
                     if option.name == group:
@@ -450,7 +443,11 @@ class Command(DictSerializerMixin):
                 self.options[i].options.append(subcommand)
                 self.options[i]._json["options"].append(subcommand._json)
                 self.coroutines[f"{group} {_name}"] = coro
+                self.num_options[f"{group} {_name}"] = len(
+                    {opt for opt in _options if int(opt.type) > 2}
+                )
 
+            self._check_options()
             return self
 
         return decorator
@@ -463,10 +460,8 @@ class Command(DictSerializerMixin):
         options: Optional[List[Option]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-    ) -> Callable[[Callable], "Command"]:
+    ) -> Callable[..., Callable[..., "Command"]]:
         """Creates a group option"""  # TODO: change docstring
-
-        self._check_options()
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _name = coro.__name__ if name is MISSING else name
@@ -474,13 +469,9 @@ class Command(DictSerializerMixin):
             if description in (MISSING, None):
                 _description = getdoc(coro) or "No description set"
                 _description = _description.split("\n", 1)[0]
-            _options = options
+            _options = [] if options is MISSING else options
             if hasattr(coro, "_options"):
-                if options in (MISSING, None):
-                    _options = coro._options
-                else:
-                    _options.extend(coro._options)
-            _options = [] if _options is MISSING else _options
+                _options.extend(coro._options)
             if name_localizations is MISSING:
                 _name_localizations = self.name_localizations
             else:
@@ -504,6 +495,7 @@ class Command(DictSerializerMixin):
                 description_localizations=_description_localizations,
             )
             self.options.append(group)
+            self._check_options()
 
             return self
 
@@ -514,41 +506,45 @@ class Command(DictSerializerMixin):
         coro: Callable[..., Awaitable],
         ctx: "CommandContext",
         *args,
+        _name: Optional[str] = None,
         _res: Optional[Union[BaseResult, GroupResult]] = None,
         **kwargs,
-    ):
+    ) -> Optional[Any]:
+        var_len = len(coro.__code__.co_varnames)
+        arg_len = self.num_options.get(_name, len(args) + len(kwargs))
+
         if self.self:
-            if len(coro.__code__.co_varnames) < 2:
+            if var_len < 2:
                 raise LibraryException(
                     code=11,
                     message="Your command needs at least two arguments to return self and context.",
                 )
 
-            if len(coro.__code__.co_varnames) == 2:
+            if var_len == 2:
                 return await coro(self.self, ctx)
 
             if _res:
-                return (
-                    await coro(self.self, ctx, _res)
-                    if len(coro.__code__.co_varnames) == 3
-                    else await coro(self.self, ctx, _res, *args, **kwargs)
-                )
+                if var_len - arg_len == 2:
+                    return await coro(self.self, ctx, *args, **kwargs)
+                elif var_len - arg_len == 3:
+                    return await coro(self.self, ctx, _res, *args, **kwargs)
+
             return await coro(self.self, ctx, *args, **kwargs)
         else:
-            if len(coro.__code__.co_varnames) < 1:
+            if var_len < 1:
                 raise LibraryException(
                     code=11, message="Your command needs at least one argument to return context."
                 )
 
-            if len(coro.__code__.co_varnames) == 1:
+            if var_len == 1:
                 return await coro(ctx)
 
             if _res:
-                return (
-                    await coro(ctx, _res)
-                    if len(coro.__code__.co_varnames) == 2
-                    else await coro(ctx, _res, *args, **kwargs)
-                )
+                if var_len - arg_len == 1:
+                    return await coro(ctx, *args, **kwargs)
+                elif var_len - arg_len == 2:
+                    return await coro(ctx, _res, *args, **kwargs)
+
             return await coro(ctx, *args, **kwargs)
 
     @property
@@ -563,22 +559,31 @@ class Command(DictSerializerMixin):
             **kwargs,
         ) -> Optional[Any]:
             base_coro = self.coro
-            base_res = BaseResult(result=await self._call(base_coro, ctx, *args, **kwargs))
+            base_res = BaseResult(
+                result=await self._call(base_coro, ctx, *args, _name=self.base, **kwargs)
+            )
             if base_res() is StopCommand or isinstance(base_res(), StopCommand):
                 return
             if sub_command_group:
                 group_coro = self.coroutines[sub_command_group]
-                subcommand_coro = self.coroutines[f"{sub_command_group} {sub_command}"]
+                name = f"{sub_command_group} {sub_command}"
+                subcommand_coro = self.coroutines[name]
                 group_res = GroupResult(
-                    result=await self._call(group_coro, ctx, *args, _res=base_res, **kwargs),
+                    result=await self._call(
+                        group_coro, ctx, *args, _res=base_res, _name=sub_command_group, **kwargs
+                    ),
                     parent=base_res,
                 )
                 if group_res() is StopCommand or isinstance(group_res(), StopCommand):
                     return
-                return await self._call(subcommand_coro, ctx, *args, _res=group_res, **kwargs)
+                return await self._call(
+                    subcommand_coro, ctx, *args, _res=group_res, _name=name, **kwargs
+                )
             elif sub_command:
                 subcommand_coro = self.coroutines[sub_command]
-                return await self._call(subcommand_coro, ctx, *args, _res=base_res, **kwargs)
+                return await self._call(
+                    subcommand_coro, ctx, *args, _res=base_res, _name=sub_command, **kwargs
+                )
             return base_res
 
         return dispatch

@@ -116,8 +116,8 @@ def convert_list(converter):
     """A helper function to convert items in a list with the specified converter"""
 
     def inner_convert_list(list):
-        if list is None:
-            return None
+        if list in (MISSING, None):
+            return list
 
         # empty lists need no conversion
         if len(list) == 0:
