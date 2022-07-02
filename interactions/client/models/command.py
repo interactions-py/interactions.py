@@ -461,7 +461,6 @@ class Command(DictSerializerMixin):
         *,
         name: Optional[str] = MISSING,
         description: Optional[str] = MISSING,
-        options: Optional[List[Option]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     ) -> Callable[..., Callable[..., "Command"]]:
@@ -474,9 +473,6 @@ class Command(DictSerializerMixin):
             if description is MISSING:
                 _description = getdoc(coro) or "No description set"
                 _description = _description.split("\n", 1)[0]
-            _options = [] if options is MISSING else options
-            if hasattr(coro, "_options"):
-                _options.extend(coro._options)
             if name_localizations is MISSING:
                 _name_localizations = self.name_localizations
             else:
@@ -495,7 +491,6 @@ class Command(DictSerializerMixin):
                 type=2,
                 name=_name,
                 description=_description,
-                options=_options,
                 name_localizations=_name_localizations,
                 description_localizations=_description_localizations,
             )
