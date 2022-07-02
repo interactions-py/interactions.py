@@ -90,11 +90,11 @@ class Client:
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
+        self._commands: List[Command] = []
         self._presence = kwargs.get("presence")
         self._token = token
         self._extensions = {}
         self._scopes = set([])
-        self._commands: List[Command] = []
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
@@ -498,7 +498,7 @@ class Client:
                 continue
 
             data: Union[dict, List[dict]] = cmd.full_data
-            coro = cmd.dispatcher if cmd.has_subcommands else cmd.coro
+            coro = cmd.dispatcher
 
             self.__check_command(
                 command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
@@ -508,6 +508,7 @@ class Client:
             coro = coro.__func__ if hasattr(coro, "__func__") else coro
 
             coro._command_data = data
+            coro._name = cmd.name
             if cmd.type == ApplicationCommandType.CHAT_INPUT:
                 coro.autocomplete = AutocompleteManager(self, cmd.name)
 
@@ -957,7 +958,6 @@ class Client:
 
         def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
             cmd = Command(
-                client=self,
                 coro=coro,
                 type=type,
                 name=name,
@@ -1017,7 +1017,6 @@ class Client:
 
         def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Any]:
             cmd = Command(
-                client=self,
                 coro=coro,
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
@@ -1074,7 +1073,6 @@ class Client:
 
         def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
             cmd = Command(
-                client=self,
                 coro=coro,
                 type=ApplicationCommandType.USER,
                 name=name,
@@ -1550,10 +1548,10 @@ class Extension:
                 self.client._commands.append(cmd)
 
                 commands = self._commands.get(cmd.name, [])
-                coro = cmd.dispatcher if cmd.has_subcommands else cmd.coro
+                coro = cmd.dispatcher
                 coro = coro.__func__ if hasattr(coro, "__func__") else coro
                 commands.append(coro)
-                self._commands[cmd.name] = commands
+                self._commands[f"command_{cmd.name}"] = commands
 
             if hasattr(func, "__component_data__"):
                 args, kwargs = func.__component_data__
@@ -1615,10 +1613,20 @@ class Extension:
                 self.client._websocket._dispatch.events[event].remove(func)
 
         for cmd, funcs in self._commands.items():
-            for func in funcs:
-                _index = self.client._Client__command_coroutines.index(func)  # noqa
-                self.client._Client__command_coroutines.pop(_index)  # noqa
-                self.client._websocket._dispatch.events[cmd].remove(func)  # noqa
+            _cmd: str = cmd.split("_", 1)[1]
+
+            for _coro in self.client._Client__command_coroutines:
+                if _coro._name == _cmd:
+                    self.client._Client__command_coroutines.remove(_coro)  # noqa
+                    break
+
+            for _command in self.client._commands:
+                if _command.name == _cmd:
+                    self.client._commands.remove(_command)
+                    break
+
+            for i, _ in enumerate(funcs):
+                self.client._websocket._dispatch.events[cmd].pop(i)  # noqa
 
         if self.client._automate_sync and remove_commands:
             await self.client._Client__sync()  # noqa
@@ -1628,7 +1636,7 @@ class Extension:
 def extension_command(**kwargs):
     # TODO: implement Command object
     def decorator(coro):
-        cmd = Command(client=None, coro=coro, **kwargs)
+        cmd = Command(coro=coro, **kwargs)
         coro.subcommand = cmd.subcommand
         coro.group = cmd.group
         coro.__command_data__ = cmd

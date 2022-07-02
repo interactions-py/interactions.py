@@ -12,7 +12,7 @@ from ...api.models.user import User
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
-    from ..bot import Client, Extension
+    from ..bot import Extension
     from ..context import CommandContext
 
 __all__ = (
@@ -312,7 +312,6 @@ class GroupResult(DictSerializerMixin):
 class Command(DictSerializerMixin):
     """docstring"""  # TODO: change docstring
 
-    client: "Client" = field()
     coro: Callable[..., Awaitable] = field()
     type: ApplicationCommandType = field(default=1, converter=ApplicationCommandType)
     name: str = field(default=MISSING, repr=True)
@@ -342,8 +341,7 @@ class Command(DictSerializerMixin):
         self.num_options = {self.name: len({opt for opt in self.options if int(opt.type) > 2})}
 
     def __call__(self, *args, **kwargs) -> Awaitable:
-        coro = self.dispatcher if self.has_subcommands else self.coro
-        return coro(*args, **kwargs)
+        return self.dispatcher(*args, **kwargs)
 
     @property
     def full_data(self) -> Union[dict, List[dict]]:
@@ -401,7 +399,7 @@ class Command(DictSerializerMixin):
             _group = self.recent_group or group
             _name = coro.__name__ if name is MISSING else name
             _description = description
-            if description in (MISSING, None):
+            if description is MISSING:
                 _description = getdoc(coro) or "No description set"
                 _description = _description.split("\n", 1)[0]
             _options = [] if options is MISSING else options
@@ -469,7 +467,7 @@ class Command(DictSerializerMixin):
             _name = coro.__name__ if name is MISSING else name
             self.recent_group = _name
             _description = description
-            if description in (MISSING, None):
+            if description is MISSING:
                 _description = getdoc(coro) or "No description set"
                 _description = _description.split("\n", 1)[0]
             _options = [] if options is MISSING else options
@@ -553,6 +551,9 @@ class Command(DictSerializerMixin):
     @property
     def dispatcher(self) -> Callable[..., Awaitable]:
         """Calls all of the coroutines of the subcommand."""  # TODO: change docstring
+
+        if not self.has_subcommands:
+            return self.coro
 
         async def dispatch(
             ctx: "CommandContext",
