@@ -319,4 +319,3 @@ Please join our `Discord Server`_ for any further support regarding our library 
 .. _Molter: https://github.com/interactions-py/molter
 .. _boilerplate: https://github.com/interactions-py/boilerplate
 .. _get: https://github.com/EdVraz/interactions-get
-.. _rest: https://github.com/V3ntus/interactions-rest
