@@ -13,7 +13,7 @@ from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING
+from ..api.models.attrs_utils import MISSING, convert_list
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
 from ..api.models.misc import Image, Snowflake
@@ -91,6 +91,7 @@ class Client:
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
         self._commands: List[Command] = []
+        self._default_scope = kwargs.get("default_scope")
         self._presence = kwargs.get("presence")
         self._token = token
         self._extensions = {}
@@ -101,6 +102,10 @@ class Client:
         self.__name_autocomplete = {}
         self.me = None
 
+        if self._default_scope:
+            if isinstance(self._default_scope, int):
+                self._default_scope = [self._default_scope]
+            self._default_scope = convert_list(int)(self._default_scope)
         if kwargs.get("disable_sync"):
             self._automate_sync = False
             log.warning(
@@ -497,6 +502,11 @@ class Client:
             if cmd.resolved:
                 continue
 
+            if cmd.default_scope and self._default_scope:
+                cmd.scope = (
+                    cmd.scope.extend(cmd.default_scope) if cmd.scope else self._default_scope
+                )
+
             data: Union[dict, List[dict]] = cmd.full_data
             coro = cmd.dispatcher
 
@@ -512,8 +522,13 @@ class Client:
             if cmd.type == ApplicationCommandType.CHAT_INPUT:
                 coro.autocomplete = AutocompleteManager(self, cmd.name)
 
-            if not coro._command_data["name"] in (
-                c._command_data["name"] for c in self.__command_coroutines
+            if not (data["name"] if isinstance(data, dict) else data[0]["name"]) in (
+                (
+                    c._command_data["name"]
+                    if isinstance(c._command_data, dict)
+                    else c._command_data[0]["name"]
+                )
+                for c in self.__command_coroutines
             ):
                 self.__command_coroutines.append(coro)
 
@@ -888,6 +903,7 @@ class Client:
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         A decorator for registering an application command to the Discord API,
@@ -968,6 +984,7 @@ class Client:
                 dm_permission=dm_permission,
                 name_localizations=name_localizations,
                 description_localizations=description_localizations,
+                default_scope=default_scope,
             )
             self._commands.append(cmd)
             return cmd

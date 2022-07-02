@@ -317,11 +317,12 @@ class Command(DictSerializerMixin):
     name: str = field(default=MISSING, repr=True)
     description: str = field(default=MISSING)
     options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
-    scope: List[int] = field(converter=convert_list(int), default=MISSING)
+    scope: List[int] = field(default=None)
     default_member_permissions: str = field(default=MISSING)
     dm_permission: bool = field(default=MISSING)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
+    default_scope: bool = field(default=True)
     coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
     num_options: Dict[str, int] = field(default=MISSING, init=False)
     recent_group: Optional[str] = field(default=None, init=False)
@@ -338,6 +339,9 @@ class Command(DictSerializerMixin):
         if hasattr(self.coro, "_options"):
             self.options.extend(self.coro._options)
         self.coro._options = self.options
+        if self.scope and isinstance(self.scope, int):
+            self.scope = [self.scope]
+        self.scope = convert_list(int)(self.scope)
         self.num_options = {self.name: len({opt for opt in self.options if int(opt.type) > 2})}
 
     def __call__(self, *args, **kwargs) -> Awaitable:
