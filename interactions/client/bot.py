@@ -1625,7 +1625,7 @@ class Extension:
                     self.client._commands.remove(_command)
                     break
 
-            for i, _ in enumerate(funcs):
+            for i in range(len(funcs)):
                 self.client._websocket._dispatch.events[cmd].pop(i)  # noqa
 
         if self.client._automate_sync and remove_commands:
