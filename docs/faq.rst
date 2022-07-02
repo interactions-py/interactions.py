@@ -162,7 +162,6 @@ Those are (at the moment):
 - `enhanced`_ which enhances the DX in general
 - A `paginator`_ for paginating embeds on messages using components
 - `persistence`_ - for storing data inside your custom IDs (as an alternative to ``wait_for``)
-- `rest`_ for connecting to a ``RESTful API``
 - And a `boilerplate`_
 
 Below are a few unofficial exts (for the time being) which implement some functionality similar to what d.py had:
