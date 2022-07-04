@@ -1,13 +1,17 @@
 from asyncio import sleep
 from inspect import isfunction
 from logging import getLogger
-from typing import Iterable, List, Type, TypeVar, Union, _GenericAlias, get_args
+from typing import Coroutine, Iterable, List, Type, TypeVar, Union, _GenericAlias, get_args
 
-from interactions.api.models.channel import Channel
-from interactions.api.models.guild import Guild
-from interactions.api.models.message import Emoji
-from interactions.api.models.role import Role
-from interactions.client.bot import Client
+from ..api.error import LibraryException
+from ..api.http.client import HTTPClient
+from ..api.models.channel import Channel
+from ..api.models.guild import Guild
+from ..api.models.member import Member
+from ..api.models.message import Emoji
+from ..api.models.misc import Snowflake
+from ..api.models.role import Role
+from .bot import Client
 
 log = getLogger("get")
 
@@ -20,7 +24,12 @@ def get(*args, **kwargs):
     # sourcery no-metrics
 
     if len(args) == 2 and any(isinstance(_, Iterable) for _ in args):
-        raise TypeError("You can only use Iterables as single-argument!")
+        raise LibraryException(message="You can only use Iterables as single-argument!", code=12)
+
+    if kwargs.get("force_http", None) and kwargs.get("force_cache", None):
+        raise LibraryException(
+            message="`force_cache` and `force_http` are mutually exclusive", code=12
+        )
 
     if len(args) == 2:
         client: Client
@@ -28,12 +37,14 @@ def get(*args, **kwargs):
 
         client, obj = args
         if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
-            raise TypeError("The object must not be an instance of a class!")
+            raise LibraryException(
+                message="The object must not be an instance of a class!", code=12
+            )
 
+        _name = f"get_{obj.__name__.lower()}"
         if isinstance(obj, _GenericAlias):
             _obj = get_args(obj)[0]
             _objects: List[_obj] = []
-            _name = f"get_{_obj.__name__.lower()}"
 
             # TODO: add cache, include getting for IDs that are `None`
 
@@ -64,16 +75,38 @@ def get(*args, **kwargs):
 
             return _objects
 
-        if obj in (Role, Emoji):
-            _guild = Guild(
-                **await client._http.get_guild(kwargs.pop("guild_id")), _client=client._http
-            )
-            _func = getattr(_guild, _name)
-            return await _func(**kwargs)
+        _obj: _T = None
 
-        _func = getattr(client._http, _name)
-        _obj = await _func(**kwargs)
-        return obj(**_obj, _client=client._http)
+        if not (force_http := kwargs.get("force_http", False)):
+            if isinstance(obj, Member):
+                _values = (
+                    kwargs.get("guild_id"),
+                    kwargs.get("member_id"),
+                )  # Fuck it, I can't be dynamic on this
+            else:
+                if len(kwargs) == 2:
+                    kwargs.pop("channel_id", None)
+                    kwargs.pop("guild__id", None)
+                _values = Snowflake(kwargs.get(list(kwargs)[0]))
+
+            _obj = client.cache[obj].get(_values)
+
+        if kwargs.get("force_cache", False):
+            return _obj
+
+        elif not force_http and obj:
+            return __cache(obj)
+
+        else:
+            if obj in (Role, Emoji):
+                _guild = Guild(
+                    **await client._http.get_guild(kwargs.pop("guild_id")), _client=client._http
+                )
+                _func = getattr(_guild, _name)
+                return await _func(**kwargs)
+
+            _func = getattr(client._http, _name)
+            return __http_request(obj, _func(**kwargs), client._http)
 
     elif len(args) == 1:
 
@@ -82,15 +115,18 @@ def get(*args, **kwargs):
 
         item: Iterable = args[0]
         if not isinstance(item, Iterable):
-            raise TypeError("The specified item must be an iterable!")
+            raise LibraryException(message="The specified item must be an iterable!", code=12)
 
         if not kwargs:
-            raise ValueError(
-                "You have to specify either the name, id or a custom check to check against!"
+            raise LibraryException(
+                message="You have to specify either the name, id or a custom check to check against!",
+                code=12,
             )
 
         if len(list(kwargs)) > 1:
-            raise ValueError("Only one keyword argument to check against is allowed!")
+            raise LibraryException(
+                message="Only one keyword argument to check against is allowed!", code=12
+            )
 
         _arg = str(list(kwargs)[0])
 
@@ -109,10 +145,14 @@ def get(*args, **kwargs):
         return __obj
 
 
-async def __http_request(obj: _T) -> _T:
-    ...
+async def __http_request(
+    obj: Union[Type[_T], List[Type[_T]]], request: Coroutine, http: HTTPClient
+) -> Union[_T, List[_T]]:
+    if not isinstance(obj, list):
+        _obj = await request
+        return obj(**_obj, _client=http)
 
 
-async def _cache(obj: _T) -> _T:
+async def __cache(obj: _T) -> _T:
     await sleep(0.00001)  # iirc Bluenix meant that any coroutine should await at least once
     return obj
