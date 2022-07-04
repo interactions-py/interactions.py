@@ -336,11 +336,13 @@ class CommandContext(_Context):
             target = self.data.target_id
 
             if self.data.type == 2:
-                if self.guild_id and str(self.data.target_id) in self.data.resolved.members:
-                    # member id would have potential to exist, and therefore have target def priority.
-                    self.target = self.data.resolved.members[target]
-                else:
-                    self.target = self.data.resolved.users[target]
+                self.target = (
+                    self.data.resolved.members[target]
+                    if self.guild_id and str(self.data.target_id) in self.data.resolved.members
+                    else self.data.resolved.users[target]
+                )
+                # member id would have potential to exist, and therefore have target def priority.
+
             elif self.data.type == 3:
                 self.target = self.data.resolved.messages[target]
 

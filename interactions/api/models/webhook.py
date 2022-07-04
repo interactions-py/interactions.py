@@ -131,7 +131,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         name: Optional[str] = MISSING,
         channel_id: int = MISSING,
         avatar: Optional[Image] = MISSING,
-    ) -> "Webhook":
+    ) -> "Webhook":  # sourcery skip: compare-via-equals
         """
         Modifies the current webhook.
 

@@ -1,3 +1,4 @@
+import contextlib
 import re
 import sys
 from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction
@@ -187,7 +188,7 @@ class Client:
         _command: dict = {}
 
         def __check_options(command, data):
-            # sourcery skip: none-compare
+            # sourcery skip: low-code-quality, none-compare
             # sourcery no-metrics
             _command_option_names = [option["name"] for option in command.get("options")]
             _data_option_names = [option["name"] for option in data.get("options")]
@@ -266,11 +267,14 @@ class Client:
                             else:
                                 continue
 
-            for i, __name in enumerate(_command_option_names):
-                if _data_option_names[i] != __name:
-                    return False, command
-
-            return True, command
+            return next(
+                (
+                    (False, command)
+                    for i, __name in enumerate(_command_option_names)
+                    if _data_option_names[i] != __name
+                ),
+                (True, command),
+            )
 
         for command in pool:
             if command["name"] == data["name"]:
@@ -449,6 +453,7 @@ class Client:
         .. warning::
             This is an internal method. Do not call it unless you know what you are doing!
         """
+        # sourcery skip: low-code-quality
 
         log.debug("starting command sync")
         _guilds = await self._http.get_self_guilds()
@@ -479,7 +484,7 @@ class Client:
                 )
             except LibraryException as e:
                 if int(e.code) != 50001:
-                    raise LibraryException(code=e.code, message=e.message)
+                    raise LibraryException(code=e.code, message=e.message) from e
 
                 log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
@@ -1345,23 +1350,17 @@ class Client:
 
                 if ext_name != "Extension":
                     _extension = self._extensions.get(ext_name)
-                    try:
+                    with contextlib.suppress(AttributeError):
                         self._loop.create_task(
                             _extension.teardown(remove_commands=remove_commands)
                         )  # made for Extension, usable by others
-                    except AttributeError:
-                        pass
-
             del sys.modules[_name]
 
         else:
-            try:
+            with contextlib.suppress(AttributeError):
                 self._loop.create_task(
                     extension.teardown(remove_commands=remove_commands)
                 )  # made for Extension, usable by others
-            except AttributeError:
-                pass
-
         del self._extensions[_name]
 
         log.debug(f"Removed extension {name}.")
@@ -1539,6 +1538,7 @@ class Extension:
     client: Client
 
     def __new__(cls, client: Client, *args, **kwargs) -> "Extension":
+        # sourcery skip: low-code-quality
 
         self = super().__new__(cls)
 

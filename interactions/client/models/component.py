@@ -1,3 +1,4 @@
+import contextlib
 from typing import List, Optional
 
 from ...api.error import LibraryException
@@ -30,10 +31,8 @@ class ComponentMixin(DictSerializerMixin):
             key not in self._json or value != self._json.get(key)
         ):
             if value is not None and value is not MISSING:
-                try:
+                with contextlib.suppress(AttributeError):
                     value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    pass
                 self._json.update({key: value})
             elif value is None and key in self._json.keys():
                 del self._json[key]
