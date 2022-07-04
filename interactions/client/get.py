@@ -45,11 +45,11 @@ def get(*args, **kwargs):
         if isinstance(obj, _GenericAlias):
             _obj = get_args(obj)[0]
             _objects: List[_obj] = []
+            __name += "s" 
 
             force_cache = kwargs.pop("force_cache", False)
 
-            if not (force_http := kwargs.pop("force_http", False)):
-                __name += "s"
+            if not (force_http := kwargs.pop("force_http", False):
                 if isinstance(_obj, Member):  # Can't be more dynamic on this
                     _values = ()
                     _guild_id = Snowflake(kwargs.get("guild_id"))
@@ -82,9 +82,8 @@ def get(*args, **kwargs):
                     _kwargs = kwargs
                     _kwargs.pop(__name)
                     _kwargs[__name[:-1]] = _id
-                    _objects.append(_func(**_kwargs)
-
-                return __http_request(_obj, request=_objects, http=client._http)
+                    _objects.append(_func(**_kwargs))
+                return __http_request(_obj, request=_objects, http=client._http) 
 
             else:
                 _func = getattr(_name, client._http)
@@ -96,7 +95,6 @@ def get(*args, **kwargs):
                         _kwargs[__name[:-1]] = _id
                         _request = _func(**_kwargs)
                         _objects[_index] = _request
-
                 return __http_request(_obj, request=_objects, http=client._http)
 
         _obj: _T = None
