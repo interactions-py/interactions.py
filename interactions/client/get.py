@@ -45,7 +45,7 @@ def get(*args, **kwargs):
         if isinstance(obj, _GenericAlias):
             _obj = get_args(obj)[0]
             _objects: List[_obj] = []
-            __name += "s" 
+            __name += "s"
 
             force_cache = kwargs.pop("force_cache", False)
 
@@ -83,7 +83,7 @@ def get(*args, **kwargs):
                     _kwargs.pop(__name)
                     _kwargs[__name[:-1]] = _id
                     _objects.append(_func(**_kwargs))
-                return __http_request(_obj, request=_objects, http=client._http) 
+                return __http_request(_obj, request=_objects, http=client._http)
 
             else:
                 _func = getattr(_name, client._http)
