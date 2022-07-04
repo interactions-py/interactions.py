@@ -1,5 +1,5 @@
 from asyncio import sleep
-from inspect import isfunction
+from inspect import isfunction, isawaitable
 from logging import getLogger
 from typing import Coroutine, Iterable, List, Type, TypeVar, Union, _GenericAlias, get_args
 
@@ -27,7 +27,7 @@ def get(*args, **kwargs):
 
     if kwargs.get("force_http", None) and kwargs.get("force_cache", None):
         raise LibraryException(
-            message="`force_cache` and `force_http` are mutually exclusive", code=12
+            message="`force_cache` and `force_http` are mutually exclusive!", code=12
         )
 
     if len(args) == 2:
@@ -45,8 +45,6 @@ def get(*args, **kwargs):
         if isinstance(obj, _GenericAlias):
             _obj = get_args(obj)[0]
             _objects: List[_obj] = []
-
-            # TODO: add cache, include getting for IDs that are `None`
 
             force_cache = kwargs.pop("force_cache", False)
 
@@ -69,49 +67,38 @@ def get(*args, **kwargs):
                     kwargs.get("channel_id", None)
                     kwargs.get("guild_id", None)
                     for _id in kwargs.get(__name):
-                        _objects.append(client.cache[obj].get(_id))
+                        _objects.append(client.cache[obj].get(Snowflake(_id), None))
 
             if force_cache:
                 return _objects
 
             elif not force_http and None not in _objects:
                 return __cache(_objects)
+            
+            elif force_http:
+                _objects.clear()
+                _func = getattr(_name, client._http)
+                for _id in kwargs.get(__name):
+                    _kwargs = kwargs
+                    _kwargs.pop(__name)
+                    _kwargs[__name[:-1]] = _id
+                    _objects.append(_func(**_kwargs)
+
+                return __http_request(_obj, request=_objects, http=client.http)
 
             else:
                 _func = getattr(_name, client._http)
                 for _index, __obj in enumerate(_objects):
                     if __obj is None:
                         _id = kwargs.get(__name)[_index]
-                        _request = _func()  # noqa
+                        _kwargs = kwargs
+                        _kwargs.pop(__name)
+                        _kwargs[__name[:-1]] = _id
+                        _request = _func(**_kwargs)
+                        _objects[_index] = _request
 
-            """
-            if len(list(kwargs)) == 2:
-                if guild_id := kwargs.pop("guild_id", None):
-                    _guild = Guild(**await client._http.get_guild(guild_id), _client=client._http)
-                    _func = getattr(_guild, _name)
+                return __http_request(_obj, request=_objects, http=client._http)
 
-                elif channel_id := kwargs.pop("channel_id", None):
-                    _channel = Channel(
-                        **await client._http.get_channel(channel_id), _client=client._http
-                    )
-                    _func = getattr(_channel, _name)
-
-            else:
-                _func = getattr(client._http, _name)
-
-            _kwarg_name = list(kwargs)[0][:-1]
-
-            for kwarg in kwargs.get(list(kwargs)[0]):
-                _kwargs = {_kwarg_name: kwarg}
-                __obj = await _func(**_kwargs)
-
-                if isinstance(__obj, dict):
-                    _objects.append(_obj(**__obj, _client=client._http))
-                else:
-                    _objects.append(__obj)
-
-            return _objects
-            """
         _obj: _T = None
 
         force_cache = kwargs.pop("force_cache", False)
@@ -137,7 +124,7 @@ def get(*args, **kwargs):
             return __cache(_obj)
 
         else:
-            return __http_request(obj=obj, requests=None, http=client._http, _name=_name, **kwargs)
+            return __http_request(obj=obj, request=None, http=client._http, _name=_name, **kwargs)
 
     elif len(args) == 1:
 
@@ -177,9 +164,9 @@ def get(*args, **kwargs):
 
 
 async def __http_request(
-    obj: Union[Type[_T], List[Type[_T]]],
+    obj: Type[_T]],
     http: HTTPClient,
-    request: Coroutine = None,
+    request: Union[Coroutine, List[_T, Coroutine]] = None,
     _name=None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
@@ -194,8 +181,10 @@ async def __http_request(
         _obj = await _func
         return obj(**_obj, _client=http)
 
-    return obj(**await request, _client=http)
+    if not isinstance(request, list):
+        return obj(**await request, _client=http)
 
+    return [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
 
 async def __cache(obj: _T) -> _T:
     await sleep(0.00001)  # iirc Bluenix meant that any coroutine should await at least once
