@@ -162,10 +162,10 @@ def get(*args, **kwargs):
 
 
 async def __http_request(
-    obj: Type[_T]],
+    obj: Type[_T],
     http: HTTPClient,
     request: Union[Coroutine, List[_T, Coroutine]] = None,
-    _name=None,
+    _name: str =None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
 
