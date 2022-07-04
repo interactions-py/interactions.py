@@ -165,7 +165,7 @@ async def __http_request(
     obj: Type[_T],
     http: HTTPClient,
     request: Union[Coroutine, List[_T, Coroutine]] = None,
-    _name: str =None,
+    _name: str = None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
 
@@ -183,6 +183,7 @@ async def __http_request(
         return obj(**await request, _client=http)
 
     return [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
+
 
 async def __cache(obj: _T) -> _T:
     await sleep(0.00001)  # iirc Bluenix meant that any coroutine should await at least once
