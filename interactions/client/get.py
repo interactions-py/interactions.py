@@ -1,5 +1,5 @@
 from asyncio import sleep
-from inspect import isfunction, isawaitable
+from inspect import isawaitable, isfunction
 from logging import getLogger
 from typing import Coroutine, Iterable, List, Type, TypeVar, Union, _GenericAlias, get_args
 
@@ -74,7 +74,7 @@ def get(*args, **kwargs):
 
             elif not force_http and None not in _objects:
                 return __cache(_objects)
-            
+
             elif force_http:
                 _objects.clear()
                 _func = getattr(_name, client._http)
