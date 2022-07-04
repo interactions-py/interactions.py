@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import (
@@ -28,6 +28,10 @@ from .role import Role
 from .team import Application
 from .user import User
 from .webhook import Webhook
+
+if TYPE_CHECKING:
+    from .gw import AutoModerationRule
+    from .message import Message
 
 __all__ = (
     "VerificationLevel",
@@ -693,7 +697,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:
         """
@@ -1472,7 +1476,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         Sets the splash of the guild.
 
         :param splash: The new splash of the guild
-        :type self: Image
+        :type splash: Image
         :param reason?: The reason of the edit
         :type reason: Optional[str]
         """
@@ -1700,7 +1704,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
         res = await self._client.list_active_threads(int(self.id))
-        threads = [Channel(**thread, _client=self._client) for thread in res["threads"]]
+        threads = [Thread(**thread, _client=self._client) for thread in res["threads"]]
         members = [ThreadMember(**member, _client=self._client) for member in res["members"]]
         for member in members:
             for thread in threads:
@@ -1785,7 +1789,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         :param changes: A list of dicts containing roles (id) and their new positions (position)
         :type changes: List[dict]
-        :param reason?: The reason for the modifying
+        :param reason: The reason for the modifying
         :type reason: Optional[str]
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
@@ -2066,7 +2070,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         return [Webhook(**_, _client=self._client) for _ in res]
 
-    async def list_auto_moderation_rules(self) -> List["AutoModerationRule"]:  # noqa
+    async def list_auto_moderation_rules(self) -> List["AutoModerationRule"]:
         """
         Lists all AutoMod rules
         """
@@ -2081,7 +2085,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_auto_moderation_rule(
         self, rule_id: Union[int, Snowflake]
-    ) -> "AutoModerationRule":  # noqa
+    ) -> "AutoModerationRule":
         """
         Gets a AutoMod rule from its ID
 
@@ -2110,7 +2114,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         exempt_roles: Optional[List[int]] = MISSING,
         exempt_channels: Optional[List[int]] = MISSING,
         reason: Optional[str] = None,
-    ) -> "AutoModerationRule":  # noqa
+    ) -> "AutoModerationRule":
         """
         Creates an AutoMod rule
 
@@ -2167,7 +2171,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def modify_auto_moderation_rule(
         self,
-        rule: Union[int, Snowflake, "AutoModerationRule"],  # noqa
+        rule: Union[int, Snowflake, "AutoModerationRule"],
         name: str = MISSING,
         # event_type: int, # only 1 exists
         trigger_type: AutoModTriggerType = MISSING,
@@ -2507,5 +2511,5 @@ class Invite(ClientSerializerMixin):
         await self._client.delete_invite(self.code)
 
     @property
-    def url(self):
+    def url(self) -> str:
         return f"https://discord.gg/{self.code}" if self.code else None

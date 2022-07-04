@@ -14,9 +14,9 @@ from asyncio import (
 )
 from sys import platform, version_info
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 
-from aiohttp import WSMessage, WSMsgType
+from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ...base import get_logger
@@ -30,6 +30,9 @@ from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
+
+if TYPE_CHECKING:
+    from ...client.context import _Context
 
 log = get_logger("gateway")
 
@@ -102,30 +105,30 @@ class WebSocketClient:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
         except RuntimeError:
             self._loop = new_event_loop()
-        self._dispatch = Listener()
-        self._http = HTTPClient(token)
-        self._client = None
-        self._closed = False
-        self._options = {
+        self._dispatch: Listener = Listener()
+        self._http: HTTPClient = HTTPClient(token)
+        self._client: Optional["ClientWebSocketResponse"] = None
+        self._closed: bool = False
+        self._options: dict = {
             "max_msg_size": 1024**2,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
         }
-        self._intents = intents
+        self._intents: Intents = intents
         self.__heartbeater: _Heartbeat = _Heartbeat(
             loop=self._loop if version_info < (3, 10) else None
         )
-        self.__shard = None
-        self.__presence = None
-        self.__task = None
-        self.session_id = None if session_id is MISSING else session_id
-        self.sequence = None if sequence is MISSING else sequence
-        self.ready = Event(loop=self._loop) if version_info < (3, 10) else Event()
+        self.__shard: Optional[List[Tuple[int]]] = None
+        self.__presence: Optional[ClientPresence] = None
+        self.__task: Optional[Task] = None
+        self.session_id: Optional[str] = None if session_id is MISSING else session_id
+        self.sequence: Optional[str] = None if sequence is MISSING else sequence
+        self.ready: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
 
-        self._last_send = perf_counter()
-        self._last_ack = perf_counter()
-        self.latency: float("nan")  # noqa: F821
+        self._last_send: float = perf_counter()
+        self._last_ack: float = perf_counter()
+        self.latency: float = float("nan")  # noqa: F821
         # self.latency has to be noqa, this is valid in python but not in Flake8.
 
     async def _manage_heartbeat(self) -> None:
@@ -142,10 +145,9 @@ class WebSocketClient:
                 await self.__restart()
                 break
 
-    async def __restart(self):
+    async def __restart(self) -> None:
         """Restart the client's connection and heartbeat with the Gateway."""
         if self.__task:
-            self.__task: Task
             self.__task.cancel()
         self._client = None  # clear pending waits
         self.__heartbeater.event.clear()
@@ -258,7 +260,7 @@ class WebSocketClient:
             log.debug(f"{event}: {data}")
             self._dispatch_event(event, data)
 
-    async def wait_until_ready(self):
+    async def wait_until_ready(self) -> None:
         """Waits for the client to become ready according to the Gateway."""
         await self.ready.wait()
 
@@ -396,7 +398,7 @@ class WebSocketClient:
                 log.fatal(f"An error occured dispatching {name}: {error}")
         self._dispatch.dispatch("raw_socket_create", data)
 
-    def __contextualize(self, data: dict) -> object:
+    def __contextualize(self, data: dict) -> "_Context":
         """
         Takes raw data given back from the Gateway
         and gives "context" based off of what it is.
@@ -404,7 +406,7 @@ class WebSocketClient:
         :param data: The data from the Gateway.
         :type data: dict
         :return: The context object.
-        :rtype: object
+        :rtype: Any
         """
         if data["type"] != InteractionType.PING:
             _context: str = ""
@@ -419,12 +421,12 @@ class WebSocketClient:
                 _context = "ComponentContext"
 
             data["_client"] = self._http
-            context: object = getattr(__import__("interactions.client.context"), _context)
+            context: Type["_Context"] = getattr(__import__("interactions.client.context"), _context)
 
             return context(**data)
 
     def __sub_command_context(
-        self, data: Union[dict, Option], context: object
+        self, data: Union[dict, Option], context: "_Context"
     ) -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
@@ -511,7 +513,7 @@ class WebSocketClient:
 
         return __kwargs
 
-    def __option_type_context(self, context: object, type: int) -> dict:
+    def __option_type_context(self, context: "_Context", type: int) -> dict:
         """
         Looks up the type of option respective to the existing
         option types.
@@ -545,11 +547,11 @@ class WebSocketClient:
             }
         return _resolved
 
-    async def restart(self):
+    async def restart(self) -> None:
         await self.__restart()
 
     @property
-    async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]:
+    async def __receive_packet_stream(self) -> Optional[Union[Dict[str, Any], WSMessage]]:
         """
         Receives a stream of packets sent from the Gateway.
 

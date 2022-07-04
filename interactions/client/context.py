@@ -3,8 +3,9 @@ from typing import List, Optional, Union
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING, ClientSerializerMixin, define, field
+from ..api.models.attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from ..api.models.channel import Channel
+from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
 from ..api.models.message import Attachment, Embed, Message, MessageInteraction, MessageReference
@@ -61,6 +62,7 @@ class _Context(ClientSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     responded: bool = field(default=False)
     deferred: bool = field(default=False)
+    app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
 
     def __attrs_post_init__(self) -> None:
         # backwards compatibility
@@ -322,6 +324,7 @@ class CommandContext(_Context):
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar str locale?: The selected language of the user invoking the interaction.
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
+    :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 
     target: Optional[Union[Message, Member, User]] = field(default=None)

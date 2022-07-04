@@ -1,10 +1,15 @@
 from enum import IntEnum
-from typing import Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
 from .misc import File, IDMixin, Image, Snowflake
 from .user import User
+
+if TYPE_CHECKING:
+    from ...client.models.component import ActionRow, Button, SelectMenu
+    from ..http import HTTPClient
+    from .message import Attachment, Embed, Message
 
 __all__ = (
     "Webhook",
@@ -69,7 +74,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
     @classmethod
     async def create(
         cls,
-        client: "HTTPClient",  # noqa
+        client: "HTTPClient",
         channel_id: int,
         name: str,
         avatar: Optional[Image] = MISSING,
@@ -98,9 +103,9 @@ class Webhook(ClientSerializerMixin, IDMixin):
     @classmethod
     async def get(
         cls,
-        client: "HTTPClient",  # noqa
+        client: "HTTPClient",
         webhook_id: int,
-        webhook_token: Optional[str] = MISSING,  # noqa
+        webhook_token: Optional[str] = MISSING,
     ) -> "Webhook":
         """
         Gets an existing webhook.
@@ -174,22 +179,22 @@ class Webhook(ClientSerializerMixin, IDMixin):
         username: Optional[str] = MISSING,
         avatar_url: Optional[str] = MISSING,
         tts: Optional[bool] = MISSING,
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         allowed_mentions: Any = MISSING,
-        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
+        attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
-    ) -> Optional["Message"]:  # noqa
+    ) -> Optional["Message"]:
         """
         Executes the webhook. All parameters to this function are optional.
 

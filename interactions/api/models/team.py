@@ -102,7 +102,7 @@ class Application(ClientSerializerMixin, IDMixin):
     hook: Optional[Any] = field(default=None)
 
     @property
-    def icon_url(self) -> str:
+    def icon_url(self) -> Optional[str]:
         """
         Returns the URL of the application's icon
 

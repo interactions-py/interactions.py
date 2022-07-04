@@ -269,7 +269,7 @@ class LibraryException(Exception):
             180002: "Failed to create stage needed for stage event",
         }.get(code, f"Unknown error: {code}")
 
-    def __init__(self, message: str = None, code: int = 0, severity: int = 0, **kwargs):
+    def __init__(self, code: int = 0, message: str = None, severity: int = 0, **kwargs):
         self.code: int = code
         self.severity: int = severity
         self.data: dict = kwargs.pop("data", None)

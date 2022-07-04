@@ -22,7 +22,9 @@ from .team import Application
 from .user import User
 
 if TYPE_CHECKING:
-    from ...client.models.component import Component
+    from ...client.models.component import ActionRow, Button, Component, SelectMenu
+    from ..http import HTTPClient
+    from .guild import Guild
 
 __all__ = (
     "MessageType",
@@ -213,9 +215,9 @@ class Emoji(ClientSerializerMixin):
     @classmethod
     async def get(
         cls,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         emoji_id: Union[int, Snowflake],
-        client: "HTTPClient",  # noqa
+        client: "HTTPClient",
     ) -> "Emoji":
         """
         Gets an emoji.
@@ -238,8 +240,8 @@ class Emoji(ClientSerializerMixin):
     @classmethod
     async def get_all_of_guild(
         cls,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
-        client: "HTTPClient",  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
+        client: "HTTPClient",
     ) -> List["Emoji"]:
         """
         Gets all emoji of a guild.
@@ -259,7 +261,7 @@ class Emoji(ClientSerializerMixin):
 
     async def delete(
         self,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -872,7 +874,7 @@ class Message(ClientSerializerMixin, IDMixin):
     )
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
-    components: Optional[Union["Component", List["Component"]]] = field(default=None)  # noqa: F821
+    components: Optional[Union["Component", List["Component"]]] = field(default=None)
     sticker_items: Optional[List[PartialSticker]] = field(
         converter=convert_list(PartialSticker), default=None
     )
@@ -930,12 +932,12 @@ class Message(ClientSerializerMixin, IDMixin):
         attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
     ) -> "Message":
@@ -1041,14 +1043,15 @@ class Message(ClientSerializerMixin, IDMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
         allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
     ) -> "Message":  # sourcery skip: dict-assign-update-to-union
@@ -1069,6 +1072,8 @@ class Message(ClientSerializerMixin, IDMixin):
         :type allowed_mentions: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers: Optional[List[Sticker]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -1102,6 +1107,9 @@ class Message(ClientSerializerMixin, IDMixin):
             files = [files]
 
         _files.extend(_attachments)
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
 
         payload = dict(
             content=_content,
@@ -1111,6 +1119,7 @@ class Message(ClientSerializerMixin, IDMixin):
             message_reference=_message_reference,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            sticker_ids=_sticker_ids,
         )
 
         res = await self._client.create_message(
@@ -1331,7 +1340,7 @@ class Message(ClientSerializerMixin, IDMixin):
         return _all_users
 
     @classmethod
-    async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,
+    async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":
         """
         Gets a Message based from its url.
 
