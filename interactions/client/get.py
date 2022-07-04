@@ -49,7 +49,7 @@ def get(*args, **kwargs):
 
             force_cache = kwargs.pop("force_cache", False)
 
-            if not (force_http := kwargs.pop("force_http", False):
+            if not (force_http := kwargs.pop("force_http", False)):
                 if isinstance(_obj, Member):  # Can't be more dynamic on this
                     _values = ()
                     _guild_id = Snowflake(kwargs.get("guild_id"))
