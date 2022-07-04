@@ -5,7 +5,6 @@ from typing import Coroutine, Iterable, List, Type, TypeVar, Union, _GenericAlia
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
 from ..api.models.message import Emoji
@@ -42,12 +41,50 @@ def get(*args, **kwargs):
             )
 
         _name = f"get_{obj.__name__.lower()}"
+        __name = f"{obj.__name__.lower()}_id"
         if isinstance(obj, _GenericAlias):
             _obj = get_args(obj)[0]
             _objects: List[_obj] = []
 
             # TODO: add cache, include getting for IDs that are `None`
 
+            force_cache = kwargs.pop("force_cache", False)
+
+            if not (force_http := kwargs.pop("force_http", False)):
+                __name += "s"
+                if isinstance(_obj, Member):  # Can't be more dynamic on this
+                    _values = ()
+                    _guild_id = Snowflake(kwargs.get("guild_id"))
+                    for _id in kwargs.get("member_ids"):
+                        _values += (
+                            (
+                                _guild_id,
+                                Snowflake(_id),
+                            ),
+                        )
+                    for item in _values:
+                        _objects.append(client.cache[obj].get(item))
+
+                else:
+                    kwargs.get("channel_id", None)
+                    kwargs.get("guild_id", None)
+                    for _id in kwargs.get(__name):
+                        _objects.append(client.cache[obj].get(_id))
+
+            if force_cache:
+                return _objects
+
+            elif not force_http and None not in _objects:
+                return __cache(_objects)
+
+            else:
+                _func = getattr(_name, client._http)
+                for _index, __obj in enumerate(_objects):
+                    if __obj is None:
+                        _id = kwargs.get(__name)[_index]
+                        _request = _func()  # noqa
+
+            """
             if len(list(kwargs)) == 2:
                 if guild_id := kwargs.pop("guild_id", None):
                     _guild = Guild(**await client._http.get_guild(guild_id), _client=client._http)
@@ -74,39 +111,33 @@ def get(*args, **kwargs):
                     _objects.append(__obj)
 
             return _objects
-
+            """
         _obj: _T = None
 
-        if not (force_http := kwargs.get("force_http", False)):
+        force_cache = kwargs.pop("force_cache", False)
+
+        if not (force_http := kwargs.pop("force_http", False)):
             if isinstance(obj, Member):
                 _values = (
-                    kwargs.get("guild_id"),
-                    kwargs.get("member_id"),
+                    Snowflake(kwargs.get("guild_id")),
+                    Snowflake(kwargs.get("member_id")),
                 )  # Fuck it, I can't be dynamic on this
             else:
                 if len(kwargs) == 2:
-                    kwargs.pop("channel_id", None)
-                    kwargs.pop("guild__id", None)
-                _values = Snowflake(kwargs.get(list(kwargs)[0]))
+                    kwargs.get("channel_id", None)
+                    kwargs.get("guild_id", None)
+                _values = Snowflake(kwargs.get(__name))
 
             _obj = client.cache[obj].get(_values)
 
-        if kwargs.get("force_cache", False):
+        if force_cache:
             return _obj
 
-        elif not force_http and obj:
-            return __cache(obj)
+        elif not force_http and _obj:
+            return __cache(_obj)
 
         else:
-            if obj in (Role, Emoji):
-                _guild = Guild(
-                    **await client._http.get_guild(kwargs.pop("guild_id")), _client=client._http
-                )
-                _func = getattr(_guild, _name)
-                return await _func(**kwargs)
-
-            _func = getattr(client._http, _name)
-            return __http_request(obj, _func(**kwargs), client._http)
+            return __http_request(obj=obj, requests=None, http=client._http, _name=_name, **kwargs)
 
     elif len(args) == 1:
 
@@ -146,11 +177,24 @@ def get(*args, **kwargs):
 
 
 async def __http_request(
-    obj: Union[Type[_T], List[Type[_T]]], request: Coroutine, http: HTTPClient
+    obj: Union[Type[_T], List[Type[_T]]],
+    http: HTTPClient,
+    request: Coroutine = None,
+    _name=None,
+    **kwargs,
 ) -> Union[_T, List[_T]]:
-    if not isinstance(obj, list):
-        _obj = await request
+
+    if not request:
+        if obj in (Role, Emoji):
+            _guild = Guild(**await http.get_guild(kwargs.pop("guild_id")), _client=http)
+            _func = getattr(_guild, _name)
+            return await _func(**kwargs)
+
+        _func = getattr(http, _name)
+        _obj = await _func
         return obj(**_obj, _client=http)
+
+    return obj(**await request, _client=http)
 
 
 async def __cache(obj: _T) -> _T:
