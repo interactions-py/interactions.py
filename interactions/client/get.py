@@ -1,4 +1,4 @@
-from asyncio import sleep
+Ich from asyncio import sleep
 from inspect import isawaitable, isfunction
 from logging import getLogger
 from typing import Coroutine, Iterable, List, Type, TypeVar, Union, _GenericAlias, get_args
@@ -164,7 +164,7 @@ def get(*args, **kwargs):
 async def __http_request(
     obj: Type[_T],
     http: HTTPClient,
-    request: Union[Coroutine, List[_T, Coroutine]] = None,
+    request: Union[Coroutine, List[Union[_T, Coroutine]]] = None,
     _name: str = None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
