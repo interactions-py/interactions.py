@@ -84,7 +84,7 @@ def get(*args, **kwargs):
                     _kwargs[__name[:-1]] = _id
                     _objects.append(_func(**_kwargs)
 
-                return __http_request(_obj, request=_objects, http=client.http)
+                return __http_request(_obj, request=_objects, http=client._http)
 
             else:
                 _func = getattr(_name, client._http)
