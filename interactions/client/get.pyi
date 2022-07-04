@@ -20,7 +20,7 @@ def get(
 
 # API-object related
 
-#with http force 
+#with http force
 # single objects
 @overload
 def get(client: Client, obj: Type[Channel], *, channel_id: int, force_http: Optional[bool]) -> Awaitable[Channel]: ...
@@ -41,7 +41,7 @@ def get(
     *,
     channel_id: int,
     message_id: int,
-    force_http: Optional[bool], 
+    force_http: Optional[bool],
 ) -> Awaitable[Message]: ...
 @overload
 def get(client: Client, obj: Type[Role], *, guild_id: int, role_id: int, force_http: Optional[bool]) -> Awaitable[Role]: ...
@@ -65,7 +65,7 @@ def get(
     obj: Type[List[Member]],
     *,
     guild_id: int,
-    member_ids: List[int], 
+    member_ids: List[int],
     force_http: Optional[bool]
 ) -> Awaitable[List[Member]]: ...
 @overload
@@ -106,7 +106,7 @@ def get(
     *,
     channel_id: int,
     message_id: int,
-    force_cache: Optional[bool] = True, 
+    force_cache: Optional[bool] = True,
 ) -> Message: ...
 @overload
 def get(client: Client, obj: Type[Role], *, guild_id: int, role_id: int, force_cache: Optional[bool] = True) -> Role: ...
@@ -130,7 +130,7 @@ def get(
     obj: Type[List[Member]],
     *,
     guild_id: int,
-    member_ids: List[int], 
+    member_ids: List[int],
     force_cache: Optional[bool] = True
 ) -> List[Member]: ...
 @overload
