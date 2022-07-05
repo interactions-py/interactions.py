@@ -2,7 +2,13 @@ from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable, isfunction
 from logging import getLogger
-from typing import Coroutine, Iterable, List, Type, TypeVar, Union, _GenericAlias, get_args
+from typing import Coroutine, Iterable, List, Type, TypeVar, Union, get_args
+
+try:
+    from typing import _GenericAlias
+
+except ImportError:
+    from typing import _BaseGenericAlias as _GenericAlias
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
@@ -26,6 +32,9 @@ __all__ = (
 class Force(str, Enum):
     """
     An enum representing the force methods for the get method
+
+    :ivar str CACHE: Enforce the usage of cache and block the usage of http
+    :ivar str HTTP: Enforce the usage of http and block the usage of cache
     """
 
     CACHE = "cache"

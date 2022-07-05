@@ -27,13 +27,13 @@ def get(
 
 # API-object related
 
-#with http force
+# with http force
 # single objects
 @overload
 def get(client: Client, obj: Type[Channel], *, channel_id: int, force: Optional[Literal["http", Force.HTTP]] = None) -> Awaitable[Channel]: ...
 @overload
 def get(
-    client: Client, obj: Type[Emoji], *, guild_id: int, emoji_id: int, force: Optional[Literal["http", Force.HTTP]] = None
+    client: Client, obj: Type[Emoji], *, guild_id: int, emoji_id    : int, force: Optional[Literal["http", Force.HTTP]] = None
 ) -> Awaitable[Emoji]: ...
 @overload
 def get(client: Client, obj: Type[Guild], *, guild_id: int, force: Optional[Literal["http", Force.HTTP]] = None) -> Awaitable[Guild]: ...
