@@ -83,6 +83,7 @@ def get(*args, **kwargs):
             * ``force="http"`` or ``force=interactions.Force.HTTP``:
                 This forces the method to make an HTTP request to the discord API and return the result of it. If you
                 use this, you have to await the method.
+
                 .. attention ::
                     If you are a PyCharm user, please be aware of a bug that causes incorrect suggestions to appear if
                     using an enum. Even if PyCharm shows a normal object as result, you have to await the method if you
