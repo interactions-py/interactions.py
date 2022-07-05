@@ -1,4 +1,5 @@
 from asyncio import sleep
+from enum import Enum
 from inspect import isawaitable, isfunction
 from logging import getLogger
 from typing import Coroutine, Iterable, List, Type, TypeVar, Union, _GenericAlias, get_args
@@ -16,19 +17,31 @@ log = getLogger("get")
 
 _T = TypeVar("_T")
 
-__all__ = ("get",)
+__all__ = (
+    "get",
+    "Force",
+)
+
+
+class Force(str, Enum):
+    """
+    An enum representing the force methods for the get method
+    """
+
+    CACHE = "cache"
+    HTTP = "http"
 
 
 def get(*args, **kwargs):
-    # sourcery no-metrics
+    """
+    Helper method to get an object.
 
+
+
+
+    """
     if len(args) == 2 and any(isinstance(_, Iterable) for _ in args):
         raise LibraryException(message="You can only use Iterables as single-argument!", code=12)
-
-    if kwargs.get("force_http", None) and kwargs.get("force_cache", None):
-        raise LibraryException(
-            message="`force_cache` and `force_http` are mutually exclusive!", code=12
-        )
 
     if len(args) == 2:
         client: Client
@@ -40,16 +53,17 @@ def get(*args, **kwargs):
                 message="The object must not be an instance of a class!", code=12
             )
 
-        _name = f"get_{obj.__name__.lower()}"
-        __name = f"{obj.__name__.lower()}_id"
+        http_name = f"get_{obj.__name__.lower()}"
+        kwarg_name = f"{obj.__name__.lower()}_id"
         if isinstance(obj, _GenericAlias):
             _obj = get_args(obj)[0]
             _objects: List[_obj] = []
-            __name += "s"
+            kwarg_name += "s"
 
-            force_cache = kwargs.pop("force_cache", False)
+            force_cache = kwargs.pop("force", None) == "cache"
+            force_http = kwargs.pop("force", None) == "http"
 
-            if not (force_http := kwargs.pop("force_http", False)):
+            if not force_http:
                 if isinstance(_obj, Member):  # Can't be more dynamic on this
                     _values = ()
                     _guild_id = Snowflake(kwargs.get("guild_id"))
@@ -64,54 +78,49 @@ def get(*args, **kwargs):
                         _objects.append(client.cache[obj].get(item))
 
                 else:
-                    kwargs.get("channel_id", None)
-                    kwargs.get("guild_id", None)
-                    for _id in kwargs.get(__name):
+                    for _id in kwargs.get(kwarg_name):
                         _objects.append(client.cache[obj].get(Snowflake(_id), None))
 
             if force_cache:
                 return _objects
 
             elif not force_http and None not in _objects:
-                return __cache(_objects)
+                return _cache(_objects)
 
             elif force_http:
                 _objects.clear()
-                _func = getattr(_name, client._http)
-                for _id in kwargs.get(__name):
+                _func = getattr(http_name, client._http)
+                for _id in kwargs.get(kwarg_name):
                     _kwargs = kwargs
-                    _kwargs.pop(__name)
-                    _kwargs[__name[:-1]] = _id
+                    _kwargs.pop(kwarg_name)
+                    _kwargs[kwarg_name[:-1]] = _id
                     _objects.append(_func(**_kwargs))
-                return __http_request(_obj, request=_objects, http=client._http)
+                return _http_request(_obj, http=client._http, request=_objects)
 
             else:
-                _func = getattr(_name, client._http)
+                _func = getattr(http_name, client._http)
                 for _index, __obj in enumerate(_objects):
                     if __obj is None:
-                        _id = kwargs.get(__name)[_index]
+                        _id = kwargs.get(kwarg_name)[_index]
                         _kwargs = kwargs
-                        _kwargs.pop(__name)
-                        _kwargs[__name[:-1]] = _id
+                        _kwargs.pop(kwarg_name)
+                        _kwargs[kwarg_name[:-1]] = _id
                         _request = _func(**_kwargs)
                         _objects[_index] = _request
-                return __http_request(_obj, request=_objects, http=client._http)
+                return _http_request(_obj, http=client._http, request=_objects)
 
         _obj: _T = None
 
-        force_cache = kwargs.pop("force_cache", False)
-
-        if not (force_http := kwargs.pop("force_http", False)):
+        force_cache = kwargs.pop("force", None) == "cache"
+        force_http = kwargs.pop("force", None) == "http"
+        if not force_http:
             if isinstance(obj, Member):
                 _values = (
                     Snowflake(kwargs.get("guild_id")),
                     Snowflake(kwargs.get("member_id")),
                 )  # Fuck it, I can't be dynamic on this
             else:
-                if len(kwargs) == 2:
-                    kwargs.get("channel_id", None)
-                    kwargs.get("guild_id", None)
-                _values = Snowflake(kwargs.get(__name))
+                _values = Snowflake(kwargs.get(kwarg_name))
 
             _obj = client.cache[obj].get(_values)
 
@@ -119,10 +128,12 @@ def get(*args, **kwargs):
             return _obj
 
         elif not force_http and _obj:
-            return __cache(_obj)
+            return _cache(_obj)
 
         else:
-            return __http_request(obj=obj, request=None, http=client._http, _name=_name, **kwargs)
+            return _http_request(
+                obj=obj, http=client._http, request=None, _name=http_name, **kwargs
+            )
 
     elif len(args) == 1:
 
@@ -161,10 +172,10 @@ def get(*args, **kwargs):
         return __obj
 
 
-async def __http_request(
+async def _http_request(
     obj: Type[_T],
     http: HTTPClient,
-    request: Union[Coroutine, List[Union[_T, Coroutine]]] = None,
+    request: Union[Coroutine, List[Union[_T, Coroutine]], List[Coroutine]] = None,
     _name: str = None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
@@ -185,6 +196,6 @@ async def __http_request(
     return [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
 
 
-async def __cache(obj: _T) -> _T:
-    await sleep(0.00001)  # iirc Bluenix meant that any coroutine should await at least once
+async def _cache(obj: _T) -> _T:
+    await sleep(0)  # iirc Bluenix meant that any coroutine should await at least once
     return obj
