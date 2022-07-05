@@ -78,11 +78,11 @@ def get(*args, **kwargs):
         Forcing can be done via the ``force`` keyword argument.
             * ``force="cache"`` or ``force=interactions.Force.CACHE``:
                 This forces the method to only return from cache (if the object is not found it will return `None`). If
-                you use this, you don't need to await the method. 
+                you use this, you don't need to await the method.
 
             * ``force="http"`` or ``force=interactions.Force.HTTP``:
                 This forces the method to make an HTTP request to the discord API and return the result of it. If you
-                use this, you have to await the method. 
+                use this, you have to await the method.
                 .. attention ::
                     If you are a PyCharm user, please be aware of a bug that causes incorrect suggestions to appear if
                     using an enum. Even if PyCharm shows a normal object as result, you have to await the method if you
