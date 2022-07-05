@@ -121,8 +121,6 @@ def get(*args, **kwargs):
         return _obj
 
     def search_iterable(*args, **kwargs):
-        def run_check(_obj, _check):
-            return _check(_obj)
 
         item: Iterable = args[0]
         if not isinstance(item, Iterable):
@@ -148,7 +146,7 @@ def get(*args, **kwargs):
                 if (
                     str(getattr(_, _arg, None)) == str(kwargs.get(_arg))
                     if not isfunction(kwargs.get(_arg))
-                    else run_check(item, kwargs.get(_arg))
+                    else kwargs.get(_arg)(item)
                 )
             ),
             None,
