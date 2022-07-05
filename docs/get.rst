@@ -1,7 +1,7 @@
 .. currentmodule:: interactions
 
-Bot Client
-==========
+The `get`-Method
+================
 
 .. automodule:: interactions.client.get
     :members:
