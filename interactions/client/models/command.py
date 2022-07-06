@@ -1,3 +1,4 @@
+from functools import wraps
 from inspect import getdoc
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
 
@@ -213,7 +214,7 @@ def option(
     value: Optional[str] = None,
     name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
-) -> Callable[..., Callable[..., Awaitable]]:  # TODO: test this out
+) -> Callable[..., Callable[..., Awaitable]]:
     """
     docstring
     """  # TODO: change docstring
@@ -563,6 +564,7 @@ class Command(DictSerializerMixin):
         if not self.has_subcommands:
             return self.coro
 
+        @wraps(self.coro)
         async def dispatch(
             ctx: "CommandContext",
             *args,

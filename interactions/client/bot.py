@@ -1624,7 +1624,6 @@ class Extension:
 
 @wraps(Client.command)
 def extension_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]:
-    # TODO: implement Command object
     def decorator(coro) -> Command:
         cmd = Command(coro=coro, **kwargs)
         coro.__command_data__ = cmd
