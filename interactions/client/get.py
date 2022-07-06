@@ -71,7 +71,7 @@ def get(*args, **kwargs):
         that, as long as you don't enforce the cache, the function will get the object from HTTP, if it is not in the
         cache, you still have to await it. This has been done to reduce confusion on whether the object origins from
         an HTTP call or a cache result and to remove the extra step for you to check if the returned object is an
-        awaitable or not. 
+        awaitable or not.
 
 
     Forcing:
