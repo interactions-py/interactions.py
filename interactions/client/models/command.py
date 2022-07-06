@@ -1,9 +1,10 @@
 from inspect import getdoc
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
 
 from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import Channel, ChannelType
+from ...api.models.guild import Guild
 from ...api.models.member import Member
 from ...api.models.message import Attachment
 from ...api.models.misc import File, Image, Snowflake
@@ -317,7 +318,7 @@ class Command(DictSerializerMixin):
     name: str = field(default=MISSING, repr=True)
     description: str = field(default=MISSING)
     options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
-    scope: List[int] = field(default=None)
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = field(default=None)
     default_member_permissions: str = field(default=MISSING)
     dm_permission: bool = field(default=MISSING)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
@@ -325,6 +326,9 @@ class Command(DictSerializerMixin):
     default_scope: bool = field(default=True)
     coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
     num_options: Dict[str, int] = field(default=MISSING, init=False)
+    autocompletions: Dict[str, Union[Callable[..., Coroutine], str]] = field(
+        init=False, factory=dict
+    )
     recent_group: Optional[str] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
     self: "Extension" = field(default=None, init=False)
@@ -369,7 +373,7 @@ class Command(DictSerializerMixin):
         """Checks if the command has subcommand options."""  # TODO: change docstring
         return len(self.coroutines) > 0
 
-    def _check_options(self) -> None:
+    def __check_options(self) -> None:
         if self.type not in (ApplicationCommandType.CHAT_INPUT, 1):
             raise LibraryException(
                 code=11, message="Only chat input commands can have subcommands."
@@ -382,7 +386,7 @@ class Command(DictSerializerMixin):
                 code=11, message="Subcommands are incompatible with base command options."
             )
 
-    async def _no_group(self, *args, **kwargs) -> None:
+    async def __no_group(self, *args, **kwargs) -> None:
         pass
 
     def subcommand(
@@ -394,10 +398,12 @@ class Command(DictSerializerMixin):
         options: Optional[List[Option]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-    ) -> Callable[..., Callable[..., "Command"]]:
+    ) -> Callable[[Callable[..., Awaitable]], "Command"]:
         """
         Creates a subcommand of the command.
         """  # TODO: change docstring
+
+        self.__check_command()
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _group = self.recent_group or group
@@ -440,7 +446,7 @@ class Command(DictSerializerMixin):
                     if int(option.type) == 2 and option.name == _group:
                         break
                 else:
-                    self.group(name=_group)(self._no_group)
+                    self.group(name=_group)(self.__no_group)
                     for i, option in enumerate(self.options):
                         if int(option.type) == 2 and option.name == _group:
                             break
@@ -451,7 +457,7 @@ class Command(DictSerializerMixin):
                     {opt for opt in _options if int(opt.type) > 2}
                 )
 
-            self._check_options()
+            self.__check_options()
             return self
 
         return decorator
@@ -463,8 +469,10 @@ class Command(DictSerializerMixin):
         description: Optional[str] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
-    ) -> Callable[..., Callable[..., "Command"]]:
+    ) -> Callable[[Callable[..., Awaitable]], "Command"]:
         """Creates a group option"""  # TODO: change docstring
+
+        self.__check_command()
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _name = coro.__name__ if name is MISSING else name
@@ -491,11 +499,12 @@ class Command(DictSerializerMixin):
                 type=2,
                 name=_name,
                 description=_description,
+                options=[],
                 name_localizations=_name_localizations,
                 description_localizations=_description_localizations,
             )
             self.options.append(group)
-            self._check_options()
+            self.__check_options()
 
             return self
 
@@ -590,3 +599,32 @@ class Command(DictSerializerMixin):
             return base_res
 
         return dispatch
+
+    def autocomplete(
+        self, name: Optional[str] = MISSING
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+        """add docstring"""  # TODO: change docstring
+
+        self.__check_command()
+
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
+            _name = name
+            if name is MISSING:
+                _name = coro.__name__
+
+            data = {"coro": coro, "name": _name}
+
+            if autocompletion := self.autocompletions.get(self.name):
+                autocompletion.append(data)
+            else:
+                self.autocompletions[self.name] = [data]
+
+            return coro
+
+        return decorator
+
+    def __check_command(self):
+        if self.type != ApplicationCommandType.CHAT_INPUT:
+            raise LibraryException(
+                code=11, message="Autocomplete can only be used on chat input commands."
+            )

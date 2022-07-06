@@ -82,6 +82,8 @@ class Client:
         #     Dictates and controls the shards that the application connects under.
         # presence? : Optional[ClientPresence]
         #     Sets an RPC-like presence on the application when connected to the Gateway.
+        # default_scope? : Optional[bool]
+        #     Sets the default scope all commands.
         # disable_sync? : Optional[bool]
         #     Controls whether synchronization in the user-facing API should be automatic or not.
 
@@ -515,12 +517,13 @@ class Client:
                 coro=coro,
             )
 
+            if cmd.autocompletions:
+                self.__name_autocomplete.update(cmd.autocompletions)
+
             coro = coro.__func__ if hasattr(coro, "__func__") else coro
 
             coro._command_data = data
             coro._name = cmd.name
-            if cmd.type == ApplicationCommandType.CHAT_INPUT:
-                coro.autocomplete = AutocompleteManager(self, cmd.name)
 
             if not (data["name"] if isinstance(data, dict) else data[0]["name"]) in (
                 (
@@ -904,7 +907,7 @@ class Client:
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
         default_scope: bool = True,
-    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+    ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering an application command to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -972,7 +975,7 @@ class Client:
         :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """  # TODO: update docstring
 
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
+        def decorator(coro: Callable[..., Coroutine]) -> Command:
             cmd = Command(
                 coro=coro,
                 type=type,
@@ -999,7 +1002,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+    ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering a message context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -1032,18 +1035,15 @@ class Client:
         :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """  # TODO: update docstring
 
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Any]:
-            cmd = Command(
-                coro=coro,
+        def decorator(coro: Callable[..., Coroutine]) -> Command:
+            return self.command(
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
                 name_localizations=name_localizations,
-            )
-            self._commands.append(cmd)
-            return cmd
+            )(coro)
 
         return decorator
 
@@ -1055,7 +1055,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+    ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering a user context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -1088,18 +1088,15 @@ class Client:
         :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """  # TODO: update docstring
 
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            cmd = Command(
-                coro=coro,
+        def decorator(coro: Callable[..., Coroutine]) -> Command:
+            return self.command(
                 type=ApplicationCommandType.USER,
                 name=name,
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
                 name_localizations=name_localizations,
-            )
-            self._commands.append(cmd)
-            return cmd
+            )(coro)
 
         return decorator
 
@@ -1482,34 +1479,6 @@ class Client:
         return guild._json
 
 
-class AutocompleteManager:
-    __slots__ = (
-        "client",
-        "command_name",
-    )
-
-    def __init__(self, client: Client, command_name: str) -> None:
-        self.client = client
-        self.command_name = command_name
-
-    def __call__(self, name: str) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
-        """
-        Registers an autocomplete callback for the given command. See also :meth:`Client.autocomplete`
-
-        :param name: The name of the option to autocomplete
-        :type name: str
-        """
-
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            self.client._Client__name_autocomplete[self.command_name] = {
-                "coro": coro,
-                "name": name,
-            }  # noqa
-            return coro
-
-        return decorator
-
-
 # TODO: Implement the rest of cog behaviour when possible.
 class Extension:
     """
@@ -1559,17 +1528,6 @@ class Extension:
                 listeners.append(func)
                 self._listeners[func.__listener_name__] = listeners
 
-            if hasattr(func, "__command_data__"):  # Set by extension_command
-                cmd: Command = func.__command_data__
-                cmd.self = self
-                self.client._commands.append(cmd)
-
-                commands = self._commands.get(cmd.name, [])
-                coro = cmd.dispatcher
-                coro = coro.__func__ if hasattr(coro, "__func__") else coro
-                commands.append(coro)
-                self._commands[f"command_{cmd.name}"] = commands
-
             if hasattr(func, "__component_data__"):
                 args, kwargs = func.__component_data__
                 func = client.component(*args, **kwargs)(func)
@@ -1617,6 +1575,21 @@ class Extension:
                 listeners.append(func)
                 self._listeners[modal_name] = listeners
 
+        for _, cmd in getmembers(self, predicate=lambda command: isinstance(command, Command)):
+            cmd: Command
+
+            if cmd.name in {_cmd.name for _cmd in self.client._commands}:
+                continue
+
+            cmd.self = self
+            self.client._commands.append(cmd)
+
+            commands = self._commands.get(cmd.name, [])
+            coro = cmd.dispatcher
+            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+            commands.append(coro)
+            self._commands[f"command_{cmd.name}"] = commands
+
         client._extensions[cls.__name__] = self
 
         if client._websocket.ready.is_set() and client._automate_sync:
@@ -1650,14 +1623,12 @@ class Extension:
 
 
 @wraps(Client.command)
-def extension_command(**kwargs):
+def extension_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]:
     # TODO: implement Command object
-    def decorator(coro):
+    def decorator(coro) -> Command:
         cmd = Command(coro=coro, **kwargs)
-        coro.subcommand = cmd.subcommand
-        coro.group = cmd.group
         coro.__command_data__ = cmd
-        return coro
+        return cmd
 
     return decorator
 
