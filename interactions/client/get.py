@@ -68,16 +68,16 @@ def get(*args, **kwargs):
 
     .. note ::
         Technically, there is no need for an ``await`` if there is an object found in the cache. Because of the fact,
-        that as long as you don't enforce the cache the function will get the object from HTTP, if it is not in the
+        that, as long as you don't enforce the cache, the function will get the object from HTTP, if it is not in the
         cache, you still have to await it. This has been done to reduce confusion on whether the object origins from
-        an HTTP call or a cache result and to remove the extra step for you, to check if the returned object is an
-        awaitable or not
+        an HTTP call or a cache result and to remove the extra step for you to check if the returned object is an
+        awaitable or not. 
 
 
     Forcing:
         Forcing can be done via the ``force`` keyword argument.
             * ``force="cache"`` or ``force=interactions.Force.CACHE``:
-                This forces the method to only return from cache (if the object is not found it will return `None`). If
+                This forces the method to only return from cache (if the object is not found it will return ``None``). If
                 you use this, you don't need to await the method.
 
             * ``force="http"`` or ``force=interactions.Force.HTTP``:
@@ -87,7 +87,7 @@ def get(*args, **kwargs):
                 .. attention ::
                     If you are a PyCharm user, please be aware of a bug that causes incorrect suggestions to appear if
                     using an enum. Even if PyCharm shows a normal object as result, you have to await the method if you
-                    enforce HTTP. To prevent this bug from happening it is suggested using ``force="http"` instead of
+                    enforce HTTP. To prevent this bug from happening it is suggested using ``force="http"`` instead of
                     the enum.
 
     """
