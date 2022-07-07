@@ -82,8 +82,8 @@ class Client:
         #     Dictates and controls the shards that the application connects under.
         # presence? : Optional[ClientPresence]
         #     Sets an RPC-like presence on the application when connected to the Gateway.
-        # default_scope? : Optional[bool]
-        #     Sets the default scope all commands.
+        # default_scope? : Optional[Union[int, Guild, List[int], List[Guild]]]
+        #     Sets the default scope for all commands.
         # disable_sync? : Optional[bool]
         #     Controls whether synchronization in the user-facing API should be automatic or not.
 
@@ -105,8 +105,13 @@ class Client:
         self.me = None
 
         if self._default_scope:
-            if isinstance(self._default_scope, int):
+            if not isinstance(self._default_scope, list):
                 self._default_scope = [self._default_scope]
+            if any(isinstance(scope, Guild) for scope in self._default_scope):
+                self._default_scope = [
+                    (scope.id if isinstance(scope, Guild) else scope)
+                    for scope in self._default_scope
+                ]
             self._default_scope = convert_list(int)(self._default_scope)
         if kwargs.get("disable_sync"):
             self._automate_sync = False
