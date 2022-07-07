@@ -153,7 +153,7 @@ def get(*args, **kwargs):
                 if (
                     str(getattr(_, _arg, None)) == str(kwargs.get(_arg))
                     if not isfunction(kwargs.get(_arg))
-                    else kwargs.get(_arg)(item)
+                    else kwargs.get(_arg)(_)
                 )
             ),
             None,
