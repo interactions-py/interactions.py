@@ -202,9 +202,9 @@ def option(
     _type: OptionType,
     /,
     name: str,
-    description: Optional[str] = "No description",
+    description: Optional[str] = "No description set",
     choices: Optional[List[Choice]] = None,
-    required: Optional[bool] = True,
+    required: Optional[bool] = None,
     channel_types: Optional[List[ChannelType]] = None,
     min_value: Optional[int] = None,
     max_value: Optional[int] = None,
@@ -216,8 +216,44 @@ def option(
     description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
 ) -> Callable[..., Callable[..., Awaitable]]:
     """
-    docstring
-    """  # TODO: change docstring
+    A decorator for adding options to a command.
+
+    The structure of an option: ::
+
+        @client.command()
+        @interactions.option(str, name="opt", ...)
+        async def my_command(ctx, opt: str):
+            ...
+
+    :param _type: The type of the option.
+    :type _type: OptionType
+    :param name: The name of the option.
+    :type name: str
+    :param description?: The description of the option. Defaults to ``"No description set"``.
+    :type description: str
+    :param choices?: The choices of the option.
+    :type choices: Optional[List[Choice]]
+    :param required?: Whether the option has to be filled out.
+    :type required: Optional[bool]
+    :param channel_types?: Restrictive shown channel types, if given.
+    :type channel_types: Optional[List[ChannelType]]
+    :param min_value?: The minimum value supported by the option.
+    :type min_value: Optional[int]
+    :param max_value?: The maximum value supported by the option.
+    :type max_value: Optional[int]
+    :param options?: The list of subcommand options included.
+    :type options: Optional[List[Option]]
+    :param autocomplete?: A status denoting whether this option is an autocomplete option.
+    :type autocomplete: Optional[bool]
+    :param focused?: Whether the option is currently being autocompleted or not.
+    :type focused: Optional[bool]
+    :param value?: The value that's currently typed out, if autocompleting.
+    :type value: Optional[str]
+    :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+    :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+    :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+    :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+    """
 
     def decorator(coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
         if isinstance(_type, int):
@@ -261,7 +297,7 @@ def option(
             description_localizations=description_localizations,
         )
 
-        if hasattr(coro, "_options"):
+        if hasattr(coro, "_options") and isinstance(coro._options, list):
             coro._options.insert(0, option)
         else:
             coro._options = [option]
@@ -275,23 +311,41 @@ class StopCommand:
     """
     A class that when returned from a command, the command chain is stopped.
 
-    Usage:
-    ```py
-    @bot.command()
-    async def foo(ctx):
-        ... # do something
-        return StopCommand  # does not execute `bar`
-        # or `return StopCommand()`
+    Usage: ::
 
-    @foo.subcommand()
-    async def bar(ctx): ...
-    ```
-    """  # TODO: change docstring
+        @bot.command()
+        async def foo(ctx):
+            ... # do something
+            return StopCommand  # does not execute `bar`
+            # or `return StopCommand()`
+
+        @foo.subcommand()
+        async def bar(ctx):
+            ...  # `bar` is not executed
+    """
 
 
 @define()
 class BaseResult(DictSerializerMixin):
-    """docstring"""  # TODO: change docstring
+    """
+    A class object representing the result of the base command.
+
+    Usage: ::
+
+        @bot.command()
+        async def foo(ctx):
+            ... # do something
+            return "done"  # return something
+
+        @foo.subcommand()
+        async def bar(ctx, base_res: BaseResult):
+            print(base_res.result)  # "done"
+
+    .. note::
+        If the subcommand does not have enough arguments, the ``BaseResult`` will not be passed.
+
+    :ivar Any result: The result of the base command.
+    """
 
     result: Any = field(repr=True)
 
@@ -301,7 +355,32 @@ class BaseResult(DictSerializerMixin):
 
 @define()
 class GroupResult(DictSerializerMixin):
-    """docstring"""  # TODO: change docstring
+    """
+    A class object representing the result of the base command.
+
+    Usage: ::
+
+        @bot.command()
+        async def foo(ctx):
+            ... # do something
+            return "done base"  # return something
+
+        @foo.group()
+        async def bar(ctx, base_res: BaseResult):
+            print(base_res.result)  # "done base"
+            return "done group"  # return something
+
+        @bar.subcommand()
+        async def pseudo(ctx, group_res: GroupResult):
+            print(group_res.result)  # "done group"
+            print(group_res.parent)  # BaseResult(result='done base')
+
+    .. note::
+        If the subcommand does not have enough arguments, the ``GroupResult`` will not be passed.
+
+    :ivar Any result: The result of the base command.
+    :ivar BaseResult parent: The parent ``BaseResult``.
+    """
 
     result: Any = field(repr=True)
     parent: BaseResult = field(repr=True)
@@ -312,22 +391,49 @@ class GroupResult(DictSerializerMixin):
 
 @define()
 class Command(DictSerializerMixin):
-    """docstring"""  # TODO: change docstring
+    """
+    A class object representing a command.
+
+    .. warning::
+        This object is meant to be used internally when
+        creating new commands using the command decorators.
+        Do not use this object for declaring commands.
+
+    :ivar Callable[..., Awaitable] coro: The base command coroutine.
+    :ivar ApplicationCommandType type: The type of the command.
+    :ivar Optional[str] name: The name of the command. Defaults to the coroutine name.
+    :ivar Optional[str] description: The description of the command. Defaults to the docstring of the coroutine or ``"No description set"``.
+    :ivar Optional[List[Option]] options: The list of options for the base command.
+    :ivar Optional[Union[int, Guild, List[int], List[Guild]]] scope: The scope of the command.
+    :ivar Optional[str] default_member_permissions: The default member permissions of the command.
+    :ivar Optional[bool] dm_permission: The DM permission of the command.
+    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+    :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+    :ivar bool default_scope: Whether the command should use the default scope. Defaults to ``True``.
+
+    :ivar Dict[str, Callable[..., Awaitable]] coroutines: The dictionary of coroutines for the command.
+    :ivar Dict[str, int] num_options: The dictionary of teh number of options per subcommand.
+    :ivar Dict[str, Union[Callable[..., Awaitable], str]] autocompletions: The dictionary of autocompletions for the command.
+    :ivar Optional[str] recent_group: The name of the group most recently utilized.
+    :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
+    :ivar Extension self: The extension that the command belongs to, if any.
+    """
 
     coro: Callable[..., Awaitable] = field()
     type: ApplicationCommandType = field(default=1, converter=ApplicationCommandType)
-    name: str = field(default=MISSING, repr=True)
-    description: str = field(default=MISSING)
+    name: Optional[str] = field(default=MISSING, repr=True)
+    description: Optional[str] = field(default=MISSING)
     options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = field(default=None)
-    default_member_permissions: str = field(default=MISSING)
-    dm_permission: bool = field(default=MISSING)
+    default_member_permissions: Optional[str] = field(default=MISSING)
+    dm_permission: Optional[bool] = field(default=MISSING)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     default_scope: bool = field(default=True)
+
     coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
-    num_options: Dict[str, int] = field(default=MISSING, init=False)
-    autocompletions: Dict[str, Union[Callable[..., Coroutine], str]] = field(
+    num_options: Dict[str, int] = field(init=False, factory=dict)
+    autocompletions: Dict[str, Union[Callable[..., Awaitable], str]] = field(
         init=False, factory=dict
     )
     recent_group: Optional[str] = field(default=None, init=False)
@@ -335,7 +441,6 @@ class Command(DictSerializerMixin):
     self: "Extension" = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
-        self.coroutines: Dict[str, Callable[..., Awaitable]] = {}
         if self.name is MISSING:
             self.name = self.coro.__name__
         if self.description is MISSING and self.type == ApplicationCommandType.CHAT_INPUT:
@@ -344,17 +449,37 @@ class Command(DictSerializerMixin):
         if hasattr(self.coro, "_options"):
             self.options.extend(self.coro._options)
         self.coro._options = self.options
-        if self.scope and isinstance(self.scope, int):
-            self.scope = [self.scope]
+        if self.scope:
+            if not isinstance(self.scope, list):
+                self.scope = [self.scope]
+            if any(isinstance(scope, Guild) for scope in self.scope):
+                self.scope = [
+                    (scope.id if isinstance(scope, Guild) else scope) for scope in self.scope
+                ]
         self.scope = convert_list(int)(self.scope)
         self.num_options = {self.name: len({opt for opt in self.options if int(opt.type) > 2})}
 
     def __call__(self, *args, **kwargs) -> Awaitable:
+        r"""
+        Returns the coroutine of the command as an awaitable.
+
+        :param \*args: Multiple positional arguments able to be passed through.
+        :type \*args: tuple
+        :param \**kwargs: Multiple key-word arguments able to be passed through.
+        :type \**kwargs: dict
+        :return: The awaitable of the command.
+        :rtype: Awaitable
+        """
         return self.dispatcher(*args, **kwargs)
 
     @property
     def full_data(self) -> Union[dict, List[dict]]:
-        """Returns the command in JSON format."""  # TODO: change docstring
+        """
+        Returns the command data in JSON format.
+
+        :return: The command data in JSON format.
+        :rtype: Union[dict, List[dict]]
+        """
         from ..decor import command
 
         return command(
@@ -371,10 +496,16 @@ class Command(DictSerializerMixin):
 
     @property
     def has_subcommands(self) -> bool:
-        """Checks if the command has subcommand options."""  # TODO: change docstring
+        """
+        Checks if the command has subcommand options.
+
+        :return: Whether the command has subcommand options.
+        :rtype: bool
+        """
         return len(self.coroutines) > 0
 
     def __check_options(self) -> None:
+        """Checks the options to make sure they are compatible with subcommands."""
         if self.type not in (ApplicationCommandType.CHAT_INPUT, 1):
             raise LibraryException(
                 code=11, message="Only chat input commands can have subcommands."
@@ -388,6 +519,7 @@ class Command(DictSerializerMixin):
             )
 
     async def __no_group(self, *args, **kwargs) -> None:
+        """Used when no group coroutine is provided."""
         pass
 
     def subcommand(
@@ -559,8 +691,12 @@ class Command(DictSerializerMixin):
 
     @property
     def dispatcher(self) -> Callable[..., Awaitable]:
-        """Calls all of the coroutines of the subcommand."""  # TODO: change docstring
+        """
+        Returns a coroutine that calls the command along with the subcommands, if any.
 
+        :return: A coroutine that calls the command along with the subcommands, if any.
+        :rtype: Callable[..., Awaitable]
+        """
         if not self.has_subcommands:
             return self.__wrap_coro(self.coro)
 
@@ -572,6 +708,7 @@ class Command(DictSerializerMixin):
             sub_command: Optional[str] = None,
             **kwargs,
         ) -> Optional[Any]:
+            """Dispatches all of the subcommands of the command."""
             base_coro = self.coro
             base_res = BaseResult(
                 result=await self._call(base_coro, ctx, *args, _name=self.name, **kwargs)

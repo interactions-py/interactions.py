@@ -112,7 +112,7 @@ class Client:
                     (scope.id if isinstance(scope, Guild) else scope)
                     for scope in self._default_scope
                 ]
-            self._default_scope = convert_list(int)(self._default_scope)
+        self._default_scope = convert_list(int)(self._default_scope)
         if kwargs.get("disable_sync"):
             self._automate_sync = False
             log.warning(
