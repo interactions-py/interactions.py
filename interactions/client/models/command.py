@@ -625,13 +625,13 @@ class Command(DictSerializerMixin):
 
         return decorator
 
-    def __check_command(self):
+    def __check_command(self) -> None:
         if self.type != ApplicationCommandType.CHAT_INPUT:
             raise LibraryException(
                 code=11, message="Autocomplete can only be used on chat input commands."
             )
 
-    def __wrap_coro(self, coro):
+    def __wrap_coro(self, coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
         @wraps(coro)
         def wrapper(*args, **kwargs):
             return coro(self.self, *args, **kwargs) if self.self else coro(*args, **kwargs)
