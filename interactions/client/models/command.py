@@ -562,7 +562,7 @@ class Command(DictSerializerMixin):
         """Calls all of the coroutines of the subcommand."""  # TODO: change docstring
 
         if not self.has_subcommands:
-            return self.coro
+            return self.__wrap_coro(self.coro)
 
         @wraps(self.coro)
         async def dispatch(
@@ -614,7 +614,7 @@ class Command(DictSerializerMixin):
             if name is MISSING:
                 _name = coro.__name__
 
-            data = {"coro": coro, "name": _name}
+            data = {"coro": self.__wrap_coro(coro), "name": _name}
 
             if autocompletion := self.autocompletions.get(self.name):
                 autocompletion.append(data)
@@ -630,3 +630,10 @@ class Command(DictSerializerMixin):
             raise LibraryException(
                 code=11, message="Autocomplete can only be used on chat input commands."
             )
+
+    def __wrap_coro(self, coro):
+        @wraps(coro)
+        def wrapper(*args, **kwargs):
+            return coro(self.self, *args, **kwargs) if self.self else coro(*args, **kwargs)
+
+        return wrapper
