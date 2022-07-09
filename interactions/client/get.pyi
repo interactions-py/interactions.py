@@ -13,7 +13,6 @@ from ..api.models.role import Role
 _T = TypeVar("_T", Channel, Guild, Webhook, User, Sticker)
 _P = TypeVar("_P", Member, Emoji, Role, Message)
 _A = TypeVar("_A", Channel, Guild, Webhook, User, Sticker, Message, Emoji, Role, Message)
-#  can be none because cache
 
 __all__: tuple
 
@@ -27,7 +26,7 @@ class Force(str, Enum):
 # not API-object related
 @overload
 def get(
-    item: Iterable[_A], /, *, id: Optional[int] = None, name: Optional[str] = None, check: Callable[..., bool]
+    item: Iterable[_A], /, *, id: Optional[int] = None, name: Optional[str] = None, check: Callable[..., bool], **kwargs
 ) -> Optional[_A]: ...
 
 # API-object related
@@ -48,7 +47,7 @@ def get(
     client: Client,
     obj: Type[_P],
     *,
-    guild_or_channel_id: int,
+    parent_id: int,
     object_id: int,
     force: Optional[Literal["http", Force.HTTP]] = None
 ) -> Awaitable[_P]: ...
@@ -68,7 +67,7 @@ def get(
     client: Client,
     obj: Type[List[_P]],
     *,
-    guild_or_channel_id: int,
+    parent_id: int,
     object_ids: List[int],
     force: Optional[Literal["http", Force.HTTP]] = None
 ) -> Awaitable[List[_P]]: ...
@@ -79,7 +78,7 @@ def get(client: Client, obj: Type[_T], *, object_id: int, force: Literal["cache"
 
 @overload
 def get(
-    client: Client, obj: Type[_P], *, guild_or_channel_id: int, object_id: int, force: Literal["cache", Force.CACHE]
+    client: Client, obj: Type[_P], *, parent_id: int, object_id: int, force: Literal["cache", Force.CACHE]
 ) -> Optional[_P]: ...
 
 # list of objects
@@ -93,7 +92,7 @@ def get(
     client: Client,
     obj: Type[List[_P]],
     *,
-    guild_or_channel_id: int,
+    parent_id: int,
     object_ids: List[int],
     force: Literal["cache", Force.CACHE]
 ) -> List[Optional[_P]]: ...

@@ -25,7 +25,6 @@ from .bot import Client
 log = getLogger("get")
 
 _A = TypeVar("_A", Channel, Guild, Webhook, User, Sticker, Message, Emoji, Role, Message)
-# can be none because cache
 
 __all__ = (
     "get",
@@ -62,6 +61,7 @@ def get(*args, **kwargs):
             * based of its name
             * based of its ID
             * based of a custom check
+            * based of any other attribute the object inside the iterable has
 
     The method has to be awaited when:
         * You don't force anything
@@ -94,45 +94,117 @@ def get(*args, **kwargs):
                     enforce HTTP. To prevent this bug from happening it is suggested using ``force="http"`` instead of
                     the enum.
 
+    Getting from an iterable:
+
+        .. code-block:: python
+
+            # Getting an object from an iterable
+            check = lambda role: return role.name == "ADMIN" and role.color == 0xff0000
+            roles = [
+                interactions.Role(name="NOT ADMIN", color=0xff0000),
+                interactions.Role(name="ADMIN", color=0xff0000),
+            ]
+            role = get(roles, check=check)
+            # role will be `interactions.Role(name="ADMIN", color=0xff0000)`
+
+        You can specify *any* attribute to check that the object could have (although only ``check``, ``id`` and
+        ``name`` are type-hinted) and the method will check for a match.
+
+    Getting an object:
+
+        Here you will see two examples on how to get a single objects and the variations of how the object can be
+        gotten.
+
+        * Example 1/2: Getting a Channel:
+
+            .. code-block:: python
+
+                # normally
+                channel = await get(client, interactions.Channel, object_id=your_channel_id)
+                # always has a value
+
+                # with http force
+                channel = await get(client, interactions.Channel, object_id=your_channel_id, force="http")
+                # always has a value
+
+                # with cache force
+                channel = get(client, interactions.Channel, object_id=your_channel_id, force="cache")
+                # because of cache only, this can be None
+
+
+        * Example 2/2: Getting a Member:
+
+            .. code-block:: python
+
+                # normally
+                member = await get(
+                    client, interactions.Member, parent_id=your_guild_id, object_id=your_member_id
+                )
+                # always has a value
+
+                # with http force
+                member = await get(
+                    client, interactions.Member, parent_id=your_guild_id, object_id=your_member_id
+                )
+                # always has a value
+
+                # with cache force
+                member = await get(
+                    client, interactions.Member, parent_id=your_guild_id, object_id=your_member_id
+                )
+                # because of cache only, this can be None
+
+
+        Both examples should have given you a basic overview on how to get a single object. Now we will move on with
+        lists of objects.
+
+        .. important::
+            The ``parent_id`` represents the channel or guild id that belongs to the objects you want to get. It is
+            called ``parent_id`` bcause ``guild_or_channel_id`` would be horrible to type out every time.
+
+    Getting a list of an object:
+        Here you will see 1 example of how to get a list of objects. The possibilities on how to force (and their
+        results) are the same as in the examples above.
+
+        * Example 1/1: Getting a list of members:
+
+            .. code-block:: python
+
+                from typing import List  # this is required
+                members = await get(
+                    client,
+                    List[interactions.Member],
+                    parent_id=your_guild_id,
+                    object_ids=[your_member_id1, your_member_id2, ...],
+                )
+
+
+        If you enforce cache when getting a list of objects, found objets will be placed into the list and not found
+        objects will be placed as ``None`` into the list.
+
+
+
     """
-
-    def resolve_kwargs():
-        # This function is needed to get correct kwarg names
-        nonlocal kwargs
-        if __id := kwargs.pop("guild_or_channel_id", None):
-            kwargs[f"{'channel_id' if obj in [Message, List[Message]] else 'guild_id'}"] = __id
-
-        if __id := kwargs.pop("object_id", None):
-            _kwarg_name = f"{obj.__name__.lower()}_id"
-            kwargs[_kwarg_name] = __id
-
-        elif __id := kwargs.pop("object_ids", None):
-            _kwarg_name = f"{get_args(obj)[0].__name__.lower()}_ids"
-            kwargs[_kwarg_name] = __id
-
-        else:
-            raise LibraryException(code=12, message="The specified kwargs are invalid!")
 
     if len(args) == 2 and any(isinstance(_, Iterable) for _ in args):
         raise LibraryException(message="You can only use Iterables as single-argument!", code=12)
 
-    resolve_kwargs()
-
     if len(args) == 2:
-        client: Client
-        obj: Union[Type[_A], Type[List[_A]]]
 
         client, obj = args
         if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
+            client: Client
+            obj: Union[Type[_A], Type[List[_A]]]
             raise LibraryException(
                 message="The object must not be an instance of a class!", code=12
             )
 
+        kwargs = _resolve_kwargs(obj, **kwargs)
         http_name = f"get_{obj.__name__.lower()}"
         kwarg_name = f"{obj.__name__.lower()}_id"
         if isinstance(obj, _GenericAlias):
             _obj: Type[_A] = get_args(obj)[0]
-            _objects: List[_obj] = []
+            _objects: List[Union[_obj, Coroutine]] = []
             kwarg_name += "s"
 
             force_cache = kwargs.pop("force", None) == "cache"
@@ -263,7 +335,7 @@ def _search_iterable(*args, **kwargs) -> Optional[_A]:
 
     if not kwargs:
         raise LibraryException(
-            message="You have to specify either the name, id or a custom check to check against!",
+            message="You have to specify either a custom check or a keyword argument to check against!",
             code=12,
         )
 
@@ -287,3 +359,22 @@ def _search_iterable(*args, **kwargs) -> Optional[_A]:
         None,
     )
     return __obj
+
+
+def _resolve_kwargs(obj, **kwargs):
+    # This function is needed to get correct kwarg names
+    if __id := kwargs.pop("parent_id", None):
+        kwargs[f"{'channel_id' if obj in [Message, List[Message]] else 'guild_id'}"] = __id
+
+    if __id := kwargs.pop("object_id", None):
+        _kwarg_name = f"{obj.__name__.lower()}_id"
+        kwargs[_kwarg_name] = __id
+
+    elif __id := kwargs.pop("object_ids", None):
+        _kwarg_name = f"{get_args(obj)[0].__name__.lower()}_ids"
+        kwargs[_kwarg_name] = __id
+
+    else:
+        raise LibraryException(code=12, message="The specified kwargs are invalid!")
+
+    return kwargs
