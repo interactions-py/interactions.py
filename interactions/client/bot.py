@@ -384,6 +384,7 @@ class Client:
                 raise RuntimeError("Client not authorised for any privileged intents.")
 
             self.__register_events()
+            self.__resolve_commands()
 
             if self._automate_sync:
                 await self.__sync()
@@ -454,6 +455,51 @@ class Client:
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
 
+    def __resolve_commands(self) -> None:
+        for cmd in self._commands:
+            if cmd.resolved:
+                continue
+
+            if cmd.default_scope and self._default_scope:
+                cmd.scope = (
+                    cmd.scope.extend(cmd.default_scope) if cmd.scope else self._default_scope
+                )
+
+            data: Union[dict, List[dict]] = cmd.full_data
+            coro = cmd.dispatcher
+
+            self.__check_command(
+                command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
+                coro=coro,
+            )
+
+            if cmd.autocompletions:
+                self.__name_autocomplete.update(cmd.autocompletions)
+
+            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+
+            coro._command_data = data
+            coro._name = cmd.name
+
+            if (data["name"] if isinstance(data, dict) else data[0]["name"]) not in (
+                (
+                    c._command_data["name"]
+                    if isinstance(c._command_data, dict)
+                    else c._command_data[0]["name"]
+                )
+                for c in self.__command_coroutines
+            ):
+                self.__command_coroutines.append(coro)
+
+            if cmd.scope not in (MISSING, None):
+                if isinstance(cmd.scope, List):
+                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in cmd.scope]
+                else:
+                    self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
+
+            self.event(coro, name=f"command_{cmd.name}")
+            cmd.resolved = True
+
     async def __sync(self) -> None:  # sourcery no-metrics
         """
         Synchronizes all commands to the API.
@@ -504,50 +550,6 @@ class Client:
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
             __check_guild_commands[_id] = [cmd["name"] for cmd in _cmds] if _cmds else []
-
-        for cmd in self._commands:
-            if cmd.resolved:
-                continue
-
-            if cmd.default_scope and self._default_scope:
-                cmd.scope = (
-                    cmd.scope.extend(cmd.default_scope) if cmd.scope else self._default_scope
-                )
-
-            data: Union[dict, List[dict]] = cmd.full_data
-            coro = cmd.dispatcher
-
-            self.__check_command(
-                command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
-                coro=coro,
-            )
-
-            if cmd.autocompletions:
-                self.__name_autocomplete.update(cmd.autocompletions)
-
-            coro = coro.__func__ if hasattr(coro, "__func__") else coro
-
-            coro._command_data = data
-            coro._name = cmd.name
-
-            if not (data["name"] if isinstance(data, dict) else data[0]["name"]) in (
-                (
-                    c._command_data["name"]
-                    if isinstance(c._command_data, dict)
-                    else c._command_data[0]["name"]
-                )
-                for c in self.__command_coroutines
-            ):
-                self.__command_coroutines.append(coro)
-
-            if cmd.scope not in (MISSING, None):
-                if isinstance(cmd.scope, List):
-                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in cmd.scope]
-                else:
-                    self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
-
-            self.event(coro, name=f"command_{cmd.name}")
-            cmd.resolved = True
 
         for coro in self.__command_coroutines:
             if hasattr(coro, "_command_data"):  # just so IDE knows it exists
@@ -1596,6 +1598,8 @@ class Extension:
             self._commands[f"command_{cmd.name}"] = commands
 
         client._extensions[cls.__name__] = self
+
+        self.client._Client__resolve_commands()  # noqa
 
         if client._websocket.ready.is_set() and client._automate_sync:
             client._loop.create_task(client._Client__sync())  # noqa
