@@ -327,7 +327,7 @@ def _get_cache(
     return _obj
 
 
-def _search_iterable(item: Iterable[_A] , **kwargs) -> Optional[_A]:
+def _search_iterable(item: Iterable[_A], **kwargs) -> Optional[_A]:
 
     if not isinstance(item, Iterable):
         raise LibraryException(message="The specified item must be an iterable!", code=12)
