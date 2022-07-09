@@ -264,7 +264,7 @@ class WebSocketClient:
         """Waits for the client to become ready according to the Gateway."""
         await self.ready.wait()
 
-    def _dispatch_event(self, event: str, data: dict) -> None:  # sourcery no-metrics
+    def _dispatch_event(self, event: str, data: dict) -> None:
         """
         Dispatches an event from the Gateway.
 
@@ -273,11 +273,12 @@ class WebSocketClient:
         :param data: The data for the event.
         :type data: dict
         """
+        # sourcery no-metrics
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
             if data.get("type"):
-                # sourcery skip: extract-method
+                # sourcery skip: dict-assign-update-to-union, extract-method, low-code-quality
                 _context = self.__contextualize(data)
                 _name: str = ""
                 __args: list = [_context]

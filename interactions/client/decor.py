@@ -21,7 +21,7 @@ def command(
     description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
     dm_permission: Optional[bool] = MISSING
-) -> Union[List[dict], dict]:
+) -> Union[List[dict], dict]:  # sourcery skip: low-code-quality
     """
     A wrapper designed to interpret the client-facing API for
     how a command is to be created and used.

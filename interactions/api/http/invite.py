@@ -33,15 +33,16 @@ class InviteRequest:
         """
         params_set = {
             "with_counts=true" if with_counts else None,
-            "with_expiration=false" if not with_expiration else None,
+            None if with_expiration else "with_expiration=false",
             f"guild_scheduled_event_id={guild_scheduled_event_id}"
             if guild_scheduled_event_id
             else None,
         }
+
         final = "&".join([item for item in params_set if item is not None])
 
         return await self._req.request(
-            Route("GET", f"/invites/{invite_code}{'?' + final if final is not None else ''}")
+            Route("GET", f"/invites/{invite_code}{f'?{final}' if final is not None else ''}")
         )
 
     async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:

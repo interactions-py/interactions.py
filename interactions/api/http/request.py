@@ -97,14 +97,14 @@ class _Request:
         :return: The contents of the request if any.
         :rtype: Optional[Any]
         """
+        # sourcery skip: low-code-quality
 
         kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
 
         if kwargs.get("json"):
             kwargs["headers"]["Content-Type"] = "application/json"
 
-        reason = kwargs.pop("reason", None)
-        if reason:
+        if reason := kwargs.pop("reason", None):
             kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
 
         # Huge credit and thanks to LordOfPolls for the lock/retry logic.
@@ -184,14 +184,7 @@ class _Request:
                             severity=50,
                         )
                     if response.status == 429:
-                        if not is_global:
-                            log.warning(
-                                f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
-                            )
-                            _limiter.reset_after = reset_after
-                            await asyncio.sleep(_limiter.reset_after)
-                            continue
-                        else:
+                        if is_global:
                             log.warning(
                                 f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
                             )
@@ -199,6 +192,13 @@ class _Request:
                             self._loop.call_later(
                                 self._global_lock.reset_after, self._global_lock.lock.release
                             )
+                        else:
+                            log.warning(
+                                f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
+                            )
+                            _limiter.reset_after = reset_after
+                            await asyncio.sleep(_limiter.reset_after)
+                            continue
                     if remaining is not None and int(remaining) == 0:
                         log.warning(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
