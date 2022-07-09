@@ -357,36 +357,37 @@ class CommandContext(_Context):
                 and self.message.id is not None
                 and self.message.flags != 64
             ):
-                res = await self._client.edit_message(
-                    int(self.channel_id), int(self.message.id), payload=payload
-                )
+                try:
+                    res = await self._client.edit_message(
+                        int(self.channel_id), int(self.message.id), payload=payload
+                    )
+                except LibraryException as e:
+                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                else:
+                    self.message = msg = Message(**res, _client=self._client)
             else:
-                res = await self._client.edit_interaction_response(
-                    token=self.token,
-                    application_id=str(self.id),
-                    data=payload,
-                    message_id=self.message.id
-                    if self.message and self.message.flags != 64
-                    else "@original",
-                )
-            if not res.get("code"):
-                self.message = msg = Message(**res, _client=self._client)
-            elif res["code"] in {10008, 10015}:
-                log.warning(
-                    f"You can't edit hidden messages "
-                    f"(Unknown {'interactions' if res['code'] == 10015 else 'message'} reference)."
-                )
+                try:
+                    res = await self._client.edit_interaction_response(
+                        token=self.token,
+                        application_id=str(self.id),
+                        data=payload,
+                        message_id=self.message.id
+                        if self.message and self.message.flags != 64
+                        else "@original",
+                    )
+                except LibraryException as e:
+                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                else:
+                    self.message = msg = Message(**res, _client=self._client)
         else:
-            res = await self._client.edit_interaction_response(
-                token=self.token, application_id=str(self.application_id), data=payload
-            )
-            if not res.get("code"):
-                self.message = msg = Message(**res, _client=self._client)
-            elif res["code"] in {10008, 10015}:
-                log.warning(
-                    f"You can't edit hidden messages "
-                    f"(Unknown {'interactions' if res['code'] == 10015 else 'message'} reference)."
+            try:
+                res = await self._client.edit_interaction_response(
+                    token=self.token, application_id=str(self.application_id), data=payload
                 )
+            except LibraryException as e:
+                log.warning(f"You can't edit hidden messages." f"({e.message}).")
+            else:
+                self.message = msg = Message(**res, _client=self._client)
 
         if msg is not None:
             return msg
@@ -436,14 +437,15 @@ class CommandContext(_Context):
                 data=_payload,
             )
 
-            _msg = await self._client.get_original_interaction_response(
-                self.token, str(self.application_id)
-            )
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
 
-            if not _msg.get("code"):
-                # if sending message fails somehow
-                msg = Message(**_msg, _client=self._client)
-                self.message = msg
             self.responded = True
 
         if msg is not None:
@@ -541,14 +543,15 @@ class ComponentContext(_Context):
                 application_id=int(self.id),
             )
 
-            _msg = await self._client.get_original_interaction_response(
-                self.token, str(self.application_id)
-            )
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
 
-            if not _msg.get("code"):
-                # if sending message fails somehow
-                msg = Message(**_msg, _client=self._client)
-                self.message = msg
             self.responded = True
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
             await self._client._post_followup(
@@ -593,14 +596,15 @@ class ComponentContext(_Context):
                 data=_payload,
             )
 
-            _msg = await self._client.get_original_interaction_response(
-                self.token, str(self.application_id)
-            )
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
 
-            if not _msg.get("code"):
-                # if sending message fails somehow
-                msg = Message(**_msg, _client=self._client)
-                self.message = msg
             self.responded = True
 
         if msg is not None:
