@@ -26,7 +26,7 @@ class Force(str, Enum):
 # not API-object related
 @overload
 def get(
-    item: Iterable[_A], /, *, id: Optional[int] = None, name: Optional[str] = None, check: Callable[..., bool], **kwargs
+    items: Iterable[_A], /, *, id: Optional[int] = None, name: Optional[str] = None, check: Callable[..., bool], **kwargs
 ) -> Optional[_A]: ...
 
 # API-object related
