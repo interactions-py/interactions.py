@@ -66,7 +66,7 @@ def get(*args, **kwargs):
     The method has to be awaited when:
         * You don't force anything
         * You force HTTP
-    The method hasn't to be awaited when:
+    The method doesn't have to be awaited when:
         * You get from an iterable
         * You force cache
 
