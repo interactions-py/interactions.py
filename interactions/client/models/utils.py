@@ -1,6 +1,6 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
-from typing import TYPE_CHECKING, Awaitable, Callable, List, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, List, Tuple, Union
 
 from ...api.error import LibraryException
 from .component import ActionRow, Button, SelectMenu
@@ -70,7 +70,7 @@ def autodefer(
 
 
 def spread_to_rows(
-    *components: Union[ActionRow, Button, SelectMenu], max_in_row: int = 5
+    *components: Tuple[Union[ActionRow, Button, SelectMenu]], max_in_row: int = 5
 ) -> List[ActionRow]:
     r"""
     A helper function that spreads components into ``ActionRow``s.
