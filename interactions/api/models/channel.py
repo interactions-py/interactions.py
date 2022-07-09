@@ -487,7 +487,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
-        Sets the position of the channel.
+        Sets the amount of seconds a user has to wait before sending another message.
 
         :param rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
         :type rate_limit_per_user: int
