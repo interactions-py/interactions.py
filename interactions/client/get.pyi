@@ -99,3 +99,19 @@ def get(
 
 # Having a not-overloaded definition stops showing a warning/complaint from the IDE if wrong arguments are put in,
 # so we'll leave that out
+
+def _search_iterable(item: Iterable[_A], **kwargs) -> Optional[_A]:... 
+def _get_cache(
+    _object: Type[_A], client: Client, kwarg_name: str, _list: bool = False, **kwargs
+) -> Union[Optional[_A], List[Optional[_A]]]:... 
+async def _return_cache(
+    obj: Union[Optional[_A], List[Optional[_A]]]
+) -> Union[Optional[_A], List[Optional[_A]]]:... 
+async def _http_request(
+    obj: Type[_A],
+    http: HTTPClient,
+    request: Union[Coroutine, List[Union[_A, Coroutine]], List[Coroutine]] = None,
+    _name: str = None,
+    **kwargs,
+) -> Union[_A, List[_A]]:... 
+
