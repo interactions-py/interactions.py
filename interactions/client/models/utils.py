@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from ..context import CommandContext
 
 
-__all__ = ["autodefer", "spread_to_rows"]
+__all__ = ("autodefer", "spread_to_rows")
 
 
 def autodefer(
