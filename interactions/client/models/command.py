@@ -1,5 +1,5 @@
 from functools import wraps
-from inspect import getdoc
+from inspect import getdoc, signature
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
 
 from ...api.error import LibraryException
@@ -805,7 +805,7 @@ class Command(DictSerializerMixin):
         **kwargs,
     ) -> Optional[Any]:
         """Handles calling the coroutine based on parameter count."""
-        var_len = len(coro.__code__.co_varnames)
+        var_len = len(signature(coro).parameters)
         arg_len = self.num_options.get(_name, len(args) + len(kwargs))
 
         if self.self:
