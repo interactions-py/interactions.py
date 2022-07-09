@@ -2,7 +2,7 @@ from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable, isfunction
 from logging import getLogger
-from typing import Coroutine, Iterable, List, Type, TypeVar, Union, get_args
+from typing import Coroutine, Iterable, List, Optional, Type, TypeVar, Union, get_args
 
 try:
     from typing import _GenericAlias
@@ -12,16 +12,20 @@ except ImportError:
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
+from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Emoji
+from ..api.models.message import Emoji, Message, Sticker
 from ..api.models.misc import Snowflake
 from ..api.models.role import Role
+from ..api.models.user import User
+from ..api.models.webhook import Webhook
 from .bot import Client
 
 log = getLogger("get")
 
-_T = TypeVar("_T")
+_A = TypeVar("_A", Channel, Guild, Webhook, User, Sticker, Message, Emoji, Role, Message)
+# can be none because cache
 
 __all__ = (
     "get",
@@ -31,7 +35,7 @@ __all__ = (
 
 class Force(str, Enum):
     """
-    An enum representing the force methods for the get method
+    An enum representing the force types for the get method.
 
     :ivar str CACHE: Enforce the usage of cache and block the usage of http
     :ivar str HTTP: Enforce the usage of http and block the usage of cache
@@ -92,80 +96,31 @@ def get(*args, **kwargs):
 
     """
 
-    def get_cache(_object: Type[_T], _list: bool = False) -> Union[_T, List[_T]]:
-        nonlocal kwarg_name
+    def resolve_kwargs():
+        # This function is needed to get correct kwarg names
+        nonlocal kwargs
+        if __id := kwargs.pop("guild_or_channel_id", None):
+            kwargs[f"{'channel_id' if obj in [Message, List[Message]] else 'guild_id'}"] = __id
 
-        if _list:
-            _obj = []
-            if isinstance(_object, Member):  # Can't be more dynamic on this
-                _values = ()
-                _guild_id = Snowflake(kwargs.get("guild_id"))
-                for _id in kwargs.get("member_ids"):
-                    _values += (
-                        (
-                            _guild_id,
-                            Snowflake(_id),
-                        ),
-                    )
-                for item in _values:
-                    _objects.append(client.cache[_object].get(item))
+        if __id := kwargs.pop("object_id", None):
+            _kwarg_name = f"{obj.__name__.lower()}_id"
+            kwargs[_kwarg_name] = __id
 
-            else:
-                _obj.extend(
-                    client.cache[_object].get(Snowflake(_id), None)
-                    for _id in kwargs.get(kwarg_name)
-                )
+        elif __id := kwargs.pop("object_ids", None):
+            _kwarg_name = f"{get_args(obj)[0].__name__.lower()}_ids"
+            kwargs[_kwarg_name] = __id
+
         else:
-            if isinstance(_object, Member):
-                _values = (
-                    Snowflake(kwargs.get("guild_id")),
-                    Snowflake(kwargs.get("member_id")),
-                )  # Fuck it, I can't be dynamic on this
-            else:
-                _values = Snowflake(kwargs.get(kwarg_name))
-
-            _obj = client.cache[_object].get(_values)
-        return _obj
-
-    def search_iterable(*args, **kwargs):
-
-        item: Iterable = args[0]
-        if not isinstance(item, Iterable):
-            raise LibraryException(message="The specified item must be an iterable!", code=12)
-
-        if not kwargs:
-            raise LibraryException(
-                message="You have to specify either the name, id or a custom check to check against!",
-                code=12,
-            )
-
-        if len(list(kwargs)) > 1:
-            raise LibraryException(
-                message="Only one keyword argument to check against is allowed!", code=12
-            )
-
-        _arg = str(list(kwargs)[0])
-
-        __obj = next(
-            (
-                _
-                for _ in item
-                if (
-                    str(getattr(_, _arg, None)) == str(kwargs.get(_arg))
-                    if not isfunction(kwargs.get(_arg))
-                    else kwargs.get(_arg)(_)
-                )
-            ),
-            None,
-        )
-        return __obj
+            raise LibraryException(code=12, message="The specified kwargs are invalid!")
 
     if len(args) == 2 and any(isinstance(_, Iterable) for _ in args):
         raise LibraryException(message="You can only use Iterables as single-argument!", code=12)
 
+    resolve_kwargs()
+
     if len(args) == 2:
         client: Client
-        obj: Union[Type[_T], Type[List[_T]]]
+        obj: Union[Type[_A], Type[List[_A]]]
 
         client, obj = args
         if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
@@ -176,7 +131,7 @@ def get(*args, **kwargs):
         http_name = f"get_{obj.__name__.lower()}"
         kwarg_name = f"{obj.__name__.lower()}_id"
         if isinstance(obj, _GenericAlias):
-            _obj: Type[_T] = get_args(obj)[0]
+            _obj: Type[_A] = get_args(obj)[0]
             _objects: List[_obj] = []
             kwarg_name += "s"
 
@@ -184,7 +139,7 @@ def get(*args, **kwargs):
             force_http = kwargs.pop("force", None) == "http"
 
             if not force_http:
-                _objects = get_cache(_obj, _list=True)
+                _objects = _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
 
             if force_cache:
                 return _objects
@@ -214,12 +169,12 @@ def get(*args, **kwargs):
                         _objects[_index] = _request
                 return _http_request(_obj, http=client._http, request=_objects)
 
-        _obj: _T = None
+        _obj: Optional[_A] = None
 
         force_cache = kwargs.pop("force", None) == "cache"
         force_http = kwargs.pop("force", None) == "http"
         if not force_http:
-            _obj = get_cache(obj)
+            _obj = _get_cache(obj, client, kwarg_name, **kwargs)
 
         if force_cache:
             return _obj
@@ -228,21 +183,19 @@ def get(*args, **kwargs):
             return _return_cache(_obj)
 
         else:
-            return _http_request(
-                obj=obj, http=client._http, request=None, _name=http_name, **kwargs
-            )
+            return _http_request(obj=obj, http=client._http, _name=http_name, **kwargs)
 
     elif len(args) == 1:
-        return search_iterable(*args, **kwargs)
+        return _search_iterable(*args, **kwargs)
 
 
 async def _http_request(
-    obj: Type[_T],
+    obj: Type[_A],
     http: HTTPClient,
-    request: Union[Coroutine, List[Union[_T, Coroutine]], List[Coroutine]] = None,
+    request: Union[Coroutine, List[Union[_A, Coroutine]], List[Coroutine]] = None,
     _name: str = None,
     **kwargs,
-) -> Union[_T, List[_T]]:
+) -> Union[_A, List[_A]]:
 
     if not request:
         if obj in (Role, Emoji):
@@ -260,6 +213,77 @@ async def _http_request(
     return [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
 
 
-async def _return_cache(obj: _T) -> _T:
+async def _return_cache(
+    obj: Union[Optional[_A], List[Optional[_A]]]
+) -> Union[Optional[_A], List[Optional[_A]]]:
     await sleep(0)  # iirc Bluenix meant that any coroutine should await at least once
     return obj
+
+
+def _get_cache(
+    _object: Type[_A], client: Client, kwarg_name: str, _list: bool = False, **kwargs
+) -> Union[Optional[_A], List[Optional[_A]]]:
+
+    if _list:
+        _obj = []
+        if isinstance(_object, Member):  # Can't be more dynamic on this
+            _values = ()
+            _guild_id = Snowflake(kwargs.get("guild_id"))
+            for _id in kwargs.get("member_ids"):
+                _values += (
+                    (
+                        _guild_id,
+                        Snowflake(_id),
+                    ),
+                )
+            _obj.extend(client.cache[_object].get(item) for item in _values)
+
+        else:
+            _obj.extend(
+                client.cache[_object].get(Snowflake(_id), None) for _id in kwargs.get(kwarg_name)
+            )
+    else:
+        if isinstance(_object, Member):
+            _values = (
+                Snowflake(kwargs.get("guild_id")),
+                Snowflake(kwargs.get("member_id")),
+            )  # Fuck it, I can't be dynamic on this
+        else:
+            _values = Snowflake(kwargs.get(kwarg_name))
+
+        _obj = client.cache[_object].get(_values)
+    return _obj
+
+
+def _search_iterable(*args, **kwargs) -> Optional[_A]:
+
+    item: Iterable = args[0]
+    if not isinstance(item, Iterable):
+        raise LibraryException(message="The specified item must be an iterable!", code=12)
+
+    if not kwargs:
+        raise LibraryException(
+            message="You have to specify either the name, id or a custom check to check against!",
+            code=12,
+        )
+
+    if len(list(kwargs)) > 1:
+        raise LibraryException(
+            message="Only one keyword argument to check against is allowed!", code=12
+        )
+
+    _arg = str(list(kwargs)[0])
+
+    __obj = next(
+        (
+            _
+            for _ in item
+            if (
+                str(getattr(_, _arg, None)) == str(kwargs.get(_arg))
+                if not isfunction(kwargs.get(_arg))
+                else kwargs.get(_arg)(item)
+            )
+        ),
+        None,
+    )
+    return __obj
