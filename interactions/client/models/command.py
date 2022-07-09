@@ -37,7 +37,9 @@ class Choice(DictSerializerMixin):
         ``value`` allows ``float`` as a passable value type,
         whereas it's supposed to be ``double``.
 
-    The structure for a choice: ::
+    The structure for a choice:
+
+    .. code-block:: python
 
         interactions.Choice(name="Choose me! :(", value="choice_one")
 
@@ -77,7 +79,9 @@ class Option(DictSerializerMixin):
         ``min_values`` and ``max_values`` are useful primarily for
         integer based options.
 
-    The structure for an option: ::
+    The structure for an option:
+
+    .. code-block:: python
 
         interactions.Option(
             type=interactions.OptionType.STRING,
@@ -138,7 +142,9 @@ class Permission(DictSerializerMixin):
     """
     A class object representing the permission of an application command.
 
-    The structure for a permission: ::
+    The structure for a permission:
+
+    .. code-block:: python
 
         interactions.Permission(
             id=1234567890,
@@ -214,11 +220,13 @@ def option(
     value: Optional[str] = None,
     name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
-) -> Callable[..., Callable[..., Awaitable]]:
+) -> Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]:
     """
     A decorator for adding options to a command.
 
-    The structure of an option: ::
+    The structure of an option:
+
+    .. code-block:: python
 
         @client.command()
         @interactions.option(str, name="opt", ...)
@@ -311,7 +319,9 @@ class StopCommand:
     """
     A class that when returned from a command, the command chain is stopped.
 
-    Usage: ::
+    Usage:
+
+    .. code-block:: python
 
         @bot.command()
         async def foo(ctx):
@@ -322,6 +332,8 @@ class StopCommand:
         @foo.subcommand()
         async def bar(ctx):
             ...  # `bar` is not executed
+
+    This allows for custom checks that allow stopping the command chain.
     """
 
 
@@ -330,7 +342,9 @@ class BaseResult(DictSerializerMixin):
     """
     A class object representing the result of the base command.
 
-    Usage: ::
+    Usage:
+
+    .. code-block:: python
 
         @bot.command()
         async def foo(ctx):
@@ -342,7 +356,7 @@ class BaseResult(DictSerializerMixin):
             print(base_res.result)  # "done"
 
     .. note::
-        If the subcommand does not have enough arguments, the ``BaseResult`` will not be passed.
+        If the subcommand coroutine does not have enough parameters, the ``BaseResult`` will not be passed.
 
     :ivar Any result: The result of the base command.
     """
@@ -358,7 +372,9 @@ class GroupResult(DictSerializerMixin):
     """
     A class object representing the result of the base command.
 
-    Usage: ::
+    Usage:
+
+    .. code-block:: python
 
         @bot.command()
         async def foo(ctx):
@@ -504,24 +520,6 @@ class Command(DictSerializerMixin):
         """
         return len(self.coroutines) > 0
 
-    def __check_options(self) -> None:
-        """Checks the options to make sure they are compatible with subcommands."""
-        if self.type not in (ApplicationCommandType.CHAT_INPUT, 1):
-            raise LibraryException(
-                code=11, message="Only chat input commands can have subcommands."
-            )
-        if self.options and any(
-            option.type not in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
-            for option in self.options
-        ):
-            raise LibraryException(
-                code=11, message="Subcommands are incompatible with base command options."
-            )
-
-    async def __no_group(self, *args, **kwargs) -> None:
-        """Used when no group coroutine is provided."""
-        pass
-
     def subcommand(
         self,
         group: Optional[str] = MISSING,
@@ -533,10 +531,47 @@ class Command(DictSerializerMixin):
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     ) -> Callable[[Callable[..., Awaitable]], "Command"]:
         """
-        Creates a subcommand of the command.
-        """  # TODO: change docstring
+        Decorator for creating a subcommand of the command.
 
-        self.__check_command()
+        The structure for a subcommand:
+
+        .. code-block:: python
+
+            @bot.command()
+            async def base_command(ctx):
+                pass  # do whatever you want here
+
+            @base_command.subcommand()
+            async def subcommand(ctx):
+                pass  # do whatever you want here
+                # you can also have a parameter for the base result
+
+            @base_command.subcommand("group_name")
+            async def subcommand_group(ctx):
+                pass  # you can decide to create a subcommand group
+                      # without creating a group, like this
+
+        .. note::
+            If you want to create both subcommands and subcommands with groups,
+            first create the subcommands without groups, then create the subcommands with groups.
+
+        :param group?: The name of the group the subcommand belongs to. Defaults to the most recently used group.
+        :type group: Optional[str]
+        :param name?: The name of the subcommand. Defaults to the name of the coroutine.
+        :type name: Optional[str]
+        :param description?: The description of the subcommand. Defaults to the docstring of the coroutine.
+        :type description: Optional[str]
+        :param options?: The options of the subcommand.
+        :type options: Optional[List[Option]]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :return: The :class:`interactions.client.models.command.Command` object.
+        :rtype: Command
+        """
+
+        self.__check_command("subcommand")
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _group = self.recent_group or group
@@ -603,9 +638,43 @@ class Command(DictSerializerMixin):
         name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     ) -> Callable[[Callable[..., Awaitable]], "Command"]:
-        """Creates a group option"""  # TODO: change docstring
+        """
+        Decorator for creating a group of the command.
 
-        self.__check_command()
+        The structure for a group:
+
+        .. code-block:: python
+
+            @bot.command()
+            async def base_command(ctx):
+                pass
+
+            @base_command.group()
+            async def group(ctx):
+                \"""description\"""
+                pass  # you can also have a parameter for the base result
+
+            @group.subcommand()
+            async def subcommand_group(ctx):
+                pass
+
+        .. note::
+            If you want to create both subcommands and subcommands with groups,
+            first create the subcommands without groups, then create the subcommands with groups.
+
+        :param name?: The name of the group. Defaults to the name of the coroutine.
+        :type name: Optional[str]
+        :param description?: The description of the group. Defaults to the docstring of the coroutine.
+        :type description: Optional[str]
+        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :return: The :class:`interactions.client.models.command.Command` object.
+        :rtype: Command
+        """
+
+        self.__check_command("group")
 
         def decorator(coro: Callable[..., Awaitable]) -> "Command":
             _name = coro.__name__ if name is MISSING else name
@@ -643,7 +712,90 @@ class Command(DictSerializerMixin):
 
         return decorator
 
-    async def _call(
+    @property
+    def dispatcher(self) -> Callable[..., Awaitable]:
+        """
+        Returns a coroutine that calls the command along with the subcommands, if any.
+
+        .. note::
+            The coroutine returned is never the same object.
+
+        :return: A coroutine that calls the command along with the subcommands, if any.
+        :rtype: Callable[..., Awaitable]
+        """
+        if not self.has_subcommands:
+            return self.__wrap_coro(self.coro)
+
+        @wraps(self.coro)
+        async def dispatch(
+            ctx: "CommandContext",
+            *args,
+            sub_command_group: Optional[str] = None,
+            sub_command: Optional[str] = None,
+            **kwargs,
+        ) -> Optional[Any]:
+            """Dispatches all of the subcommands of the command."""
+            base_coro = self.coro
+            base_res = BaseResult(
+                result=await self.__call(base_coro, ctx, *args, _name=self.name, **kwargs)
+            )
+            if base_res() is StopCommand or isinstance(base_res(), StopCommand):
+                return
+            if sub_command_group:
+                group_coro = self.coroutines[sub_command_group]
+                name = f"{sub_command_group} {sub_command}"
+                subcommand_coro = self.coroutines[name]
+                group_res = GroupResult(
+                    result=await self.__call(
+                        group_coro, ctx, *args, _res=base_res, _name=sub_command_group, **kwargs
+                    ),
+                    parent=base_res,
+                )
+                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
+                    return
+                return await self.__call(
+                    subcommand_coro, ctx, *args, _res=group_res, _name=name, **kwargs
+                )
+            elif sub_command:
+                subcommand_coro = self.coroutines[sub_command]
+                return await self.__call(
+                    subcommand_coro, ctx, *args, _res=base_res, _name=sub_command, **kwargs
+                )
+            return base_res
+
+        return dispatch
+
+    def autocomplete(
+        self, name: Optional[str] = MISSING
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+        """
+        Decorator for creating an autocomplete for the command.
+
+        :param name?: The name of the option to autocomplete. Defaults to the name of the coroutine.
+        :type name: Optional[str]
+        :return: The coroutine
+        :rtype: Callable[..., Coroutine]
+        """
+
+        self.__check_command("autocomplete")
+
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
+            _name = name
+            if name is MISSING:
+                _name = coro.__name__
+
+            data = {"coro": self.__wrap_coro(coro), "name": _name}
+
+            if autocompletion := self.autocompletions.get(self.name):
+                autocompletion.append(data)
+            else:
+                self.autocompletions[self.name] = [data]
+
+            return coro
+
+        return decorator
+
+    async def __call(
         self,
         coro: Callable[..., Awaitable],
         ctx: "CommandContext",
@@ -652,6 +804,7 @@ class Command(DictSerializerMixin):
         _res: Optional[Union[BaseResult, GroupResult]] = None,
         **kwargs,
     ) -> Optional[Any]:
+        """Handles calling the coroutine based on parameter count."""
         var_len = len(coro.__code__.co_varnames)
         arg_len = self.num_options.get(_name, len(args) + len(kwargs))
 
@@ -689,86 +842,34 @@ class Command(DictSerializerMixin):
 
             return await coro(ctx, *args, **kwargs)
 
-    @property
-    def dispatcher(self) -> Callable[..., Awaitable]:
-        """
-        Returns a coroutine that calls the command along with the subcommands, if any.
-
-        :return: A coroutine that calls the command along with the subcommands, if any.
-        :rtype: Callable[..., Awaitable]
-        """
-        if not self.has_subcommands:
-            return self.__wrap_coro(self.coro)
-
-        @wraps(self.coro)
-        async def dispatch(
-            ctx: "CommandContext",
-            *args,
-            sub_command_group: Optional[str] = None,
-            sub_command: Optional[str] = None,
-            **kwargs,
-        ) -> Optional[Any]:
-            """Dispatches all of the subcommands of the command."""
-            base_coro = self.coro
-            base_res = BaseResult(
-                result=await self._call(base_coro, ctx, *args, _name=self.name, **kwargs)
-            )
-            if base_res() is StopCommand or isinstance(base_res(), StopCommand):
-                return
-            if sub_command_group:
-                group_coro = self.coroutines[sub_command_group]
-                name = f"{sub_command_group} {sub_command}"
-                subcommand_coro = self.coroutines[name]
-                group_res = GroupResult(
-                    result=await self._call(
-                        group_coro, ctx, *args, _res=base_res, _name=sub_command_group, **kwargs
-                    ),
-                    parent=base_res,
-                )
-                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
-                    return
-                return await self._call(
-                    subcommand_coro, ctx, *args, _res=group_res, _name=name, **kwargs
-                )
-            elif sub_command:
-                subcommand_coro = self.coroutines[sub_command]
-                return await self._call(
-                    subcommand_coro, ctx, *args, _res=base_res, _name=sub_command, **kwargs
-                )
-            return base_res
-
-        return dispatch
-
-    def autocomplete(
-        self, name: Optional[str] = MISSING
-    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
-        """add docstring"""  # TODO: change docstring
-
-        self.__check_command()
-
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            _name = name
-            if name is MISSING:
-                _name = coro.__name__
-
-            data = {"coro": self.__wrap_coro(coro), "name": _name}
-
-            if autocompletion := self.autocompletions.get(self.name):
-                autocompletion.append(data)
-            else:
-                self.autocompletions[self.name] = [data]
-
-            return coro
-
-        return decorator
-
-    def __check_command(self) -> None:
+    def __check_command(self, command_type: str) -> None:
+        """Checks if subcommands, groups, or autocompletions are created on context menus."""
         if self.type != ApplicationCommandType.CHAT_INPUT:
             raise LibraryException(
-                code=11, message="Autocomplete can only be used on chat input commands."
+                code=11, message=f"{command_type} can only be used on chat input commands."
             )
 
+    def __check_options(self) -> None:
+        """Checks the options to make sure they are compatible with subcommands."""
+        if self.type not in (ApplicationCommandType.CHAT_INPUT, 1):
+            raise LibraryException(
+                code=11, message="Only chat input commands can have subcommands."
+            )
+        if self.options and any(
+            option.type not in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
+            for option in self.options
+        ):
+            raise LibraryException(
+                code=11, message="Subcommands are incompatible with base command options."
+            )
+
+    async def __no_group(self, *args, **kwargs) -> None:
+        """This is the coroutine used when no group coroutine is provided."""
+        pass
+
     def __wrap_coro(self, coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
+        """Wraps a coroutine to make sure the :class:`interactions.client.bot.Extension` is passed to the coroutine, if any."""
+
         @wraps(coro)
         def wrapper(*args, **kwargs):
             return coro(self.self, *args, **kwargs) if self.self else coro(*args, **kwargs)
