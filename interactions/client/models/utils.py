@@ -59,7 +59,7 @@ def spread_to_rows(
     if not components or len(components) > 25:
         raise LibraryException(code=12, message="Number of components should be between 1 and 25.")
     if not 1 <= max_in_row <= 5:
-        raise ValueError(code=12, message="max_in_row should be between 1 and 5.")
+        raise LibraryException(code=12, message="max_in_row should be between 1 and 5.")
 
     rows: List[ActionRow] = []
     action_row: List[Union[Button, SelectMenu]] = []
