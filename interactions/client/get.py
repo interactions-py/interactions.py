@@ -66,7 +66,7 @@ def get(*args, **kwargs):
     The method has to be awaited when:
         * You don't force anything
         * You force HTTP
-    The method has not to be awaited when:
+    The method hasn't to be awaited when:
         * You get from an iterable
         * You force cache
 
@@ -329,7 +329,7 @@ def _get_cache(
 
 def _search_iterable(*args, **kwargs) -> Optional[_A]:
 
-    item: Iterable = args[0]
+    items: Iterable = args[0]
     if not isinstance(item, Iterable):
         raise LibraryException(message="The specified item must be an iterable!", code=12)
 
@@ -348,10 +348,10 @@ def _search_iterable(*args, **kwargs) -> Optional[_A]:
 
     __obj = next(
         (
-            _
-            for _ in item
+            item
+            for item in items
             if (
-                str(getattr(_, _arg, None)) == str(kwargs.get(_arg))
+                str(getattr(item, _arg, None)) == str(kwargs.get(_arg))
                 if not isfunction(kwargs.get(_arg))
                 else kwargs.get(_arg)(item)
             )
