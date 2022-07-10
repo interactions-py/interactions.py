@@ -45,6 +45,20 @@ __all__ = (
 class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
+    
+    :param token: The token of the application for authentication and connection.
+    :type token: str
+    :param intents?: Allows specific control of permissions the application has when connected. 
+    In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
+    :type intents: Optional[Intents]
+    :param shards?: Dictates and controls the shards that the application connects under.
+    :type shards: Optional[List[Tuple[int]]]
+    :param presence?: Sets an RPC-like presence on the application when connected to the Gateway.
+    :type presence: Optional[ClientPresence]
+    :param default_scope?: Sets the default scope of all commands.
+    :type default_scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+    :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
+    :type disable_sync: Optional[bool]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
@@ -67,8 +81,17 @@ class Client:
 
         :param token: The token of the application for authentication and connection.
         :type token: str
-        :param \**kwargs: Multiple key-word arguments able to be passed through.
-        :type \**kwargs: dict
+        :param intents?: Allows specific control of permissions the application has when connected. 
+        In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
+        :type intents: Optional[Intents]
+        :param shards?: Dictates and controls the shards that the application connects under.
+        :type shards: Optional[List[Tuple[int]]]
+        :param presence?: Sets an RPC-like presence on the application when connected to the Gateway.
+        :type presence: Optional[ClientPresence]
+        :param default_scope?: Sets the default scope of all commands.
+        :type default_scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
+        :type disable_sync: Optional[bool]
         """
 
         # Arguments
@@ -460,6 +483,12 @@ class Client:
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
 
     def __resolve_commands(self) -> None:
+        """
+        Resolves all commands to the command coroutines.
+
+        .. warning::
+            This is an internal method. Do not call it unless you know what you are doing!
+        """
         for cmd in self._commands:
             if cmd.resolved:
                 continue
@@ -983,9 +1012,11 @@ class Client:
         :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
+        :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :type default_scope: bool
         :return: A callable response.
-        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
-        """  # TODO: update docstring
+        :rtype: Callable[[Callable[..., Coroutine]], Command]
+        """
 
         def decorator(coro: Callable[..., Coroutine]) -> Command:
             cmd = Command(
@@ -1014,6 +1045,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering a message context menu to the Discord API,
@@ -1043,9 +1075,11 @@ class Client:
         :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
+        :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :type default_scope: bool
         :return: A callable response.
-        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
-        """  # TODO: update docstring
+        :rtype: Callable[[Callable[..., Coroutine]], Command]
+        """
 
         def decorator(coro: Callable[..., Coroutine]) -> Command:
             return self.command(
@@ -1055,6 +1089,7 @@ class Client:
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
                 name_localizations=name_localizations,
+                default_scope=default_scope,
             )(coro)
 
         return decorator
@@ -1067,6 +1102,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering a user context menu to the Discord API,
@@ -1096,9 +1132,11 @@ class Client:
         :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
+        :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :type default_scope: bool
         :return: A callable response.
-        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
-        """  # TODO: update docstring
+        :rtype: Callable[[Callable[..., Coroutine]], Command]
+        """
 
         def decorator(coro: Callable[..., Coroutine]) -> Command:
             return self.command(
@@ -1108,6 +1146,7 @@ class Client:
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
                 name_localizations=name_localizations,
+                default_scope=default_scope,
             )(coro)
 
         return decorator
