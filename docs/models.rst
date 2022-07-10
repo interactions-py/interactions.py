@@ -8,5 +8,5 @@ Interaction Models
 
     models.command.rst
     models.component.rst
-    models.utils.rst
     models.misc.rst
+    models.utils.rst
