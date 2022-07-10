@@ -75,7 +75,6 @@ class Client:
         token: str,
         **kwargs,
     ) -> None:
-
         self._loop: AbstractEventLoop = get_event_loop()
         self._http: HTTPClient = HTTPClient(token=token)
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
