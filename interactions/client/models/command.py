@@ -223,8 +223,8 @@ def option(
         async def my_command(ctx, opt: str):
             ...
 
-    :param _type: The type of the option.
-    :type _type: OptionType
+    :param option_type: The type of the option.
+    :type option_type: OptionType
     :param name: The name of the option.
     :type name: str
     :param description?: The description of the option. Defaults to ``"No description set"``.
