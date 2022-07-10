@@ -73,7 +73,7 @@ def spread_to_rows(
     *components: Union[ActionRow, Button, SelectMenu], max_in_row: int = 5
 ) -> List[ActionRow]:
     r"""
-    A helper function that spreads components into ``ActionRow``s.
+    A helper function that spreads components into :class:`ActionRow`s.
 
     Example:
 
@@ -96,7 +96,7 @@ def spread_to_rows(
             await ctx.send("Components:", components=spread_to_rows(b1, b2, s1, b3, b4))
 
     .. note::
-        You can only pass in ``ActionRow``s, ``Button``s, and ``SelectMenu``s, but in any order.
+        You can only pass in :class:`ActionRow`s, :class:`Button`s, and :class:`SelectMenu`s, but in any order.
 
     :param \*components: The components to spread.
     :type \*components: Union[ActionRow, Button, SelectMenu]
