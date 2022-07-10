@@ -362,10 +362,11 @@ class CommandContext(_Context):
                         int(self.channel_id), int(self.message.id), payload=payload
                     )
                 except LibraryException as e:
-                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
-                    if e.code not in {10015, 10018}:
+                    if e.code in {10015, 10018}:
+                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    else:
                         # if its not ephemeral or some other thing.
-                        raise e
+                        raise e from e
                 else:
                     self.message = msg = Message(**res, _client=self._client)
             else:
@@ -379,10 +380,11 @@ class CommandContext(_Context):
                         else "@original",
                     )
                 except LibraryException as e:
-                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
-                    if e.code not in {10015, 10018}:
+                    if e.code in {10015, 10018}:
+                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    else:
                         # if its not ephemeral or some other thing.
-                        raise e
+                        raise e from e
                 else:
                     self.message = msg = Message(**res, _client=self._client)
         else:
@@ -391,10 +393,11 @@ class CommandContext(_Context):
                     token=self.token, application_id=str(self.application_id), data=payload
                 )
             except LibraryException as e:
-                log.warning(f"You can't edit hidden messages." f"({e.message}).")
-                if e.code not in {10015, 10018}:
+                if e.code in {10015, 10018}:
+                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                else:
                     # if its not ephemeral or some other thing.
-                    raise e
+                    raise e from e
             else:
                 self.message = msg = Message(**res, _client=self._client)
 
