@@ -10,6 +10,8 @@ try:
 except ImportError:
     from typing import _BaseGenericAlias as _GenericAlias
 
+from sys import version_info
+
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
@@ -170,7 +172,10 @@ def get(*args, **kwargs):
 
             .. code-block:: python
 
-                from typing import List  # this is required
+                from typing import List
+
+                # you can also use `list[interactions.Member]` if you have python >= 3.9
+
                 members = await get(
                     client,
                     List[interactions.Member],
@@ -185,6 +190,16 @@ def get(*args, **kwargs):
 
 
     """
+
+    if version_info >= (3, 9):
+
+        def _check():
+            return obj == list[get_args(obj)[0]]
+
+    else:
+
+        def _check():
+            return False
 
     if len(args) == 2 and any(isinstance(_, Iterable) for _ in args):
         raise LibraryException(message="You can only use Iterables as single-argument!", code=12)
@@ -202,7 +217,7 @@ def get(*args, **kwargs):
         kwargs = _resolve_kwargs(obj, **kwargs)
         http_name = f"get_{obj.__name__.lower()}"
         kwarg_name = f"{obj.__name__.lower()}_id"
-        if isinstance(obj, _GenericAlias):
+        if isinstance(obj, _GenericAlias) or _check():
             _obj: Type[_A] = get_args(obj)[0]
             _objects: List[Union[_obj, Coroutine]] = []
             kwarg_name += "s"
@@ -327,10 +342,10 @@ def _get_cache(
     return _obj
 
 
-def _search_iterable(item: Iterable[_A], **kwargs) -> Optional[_A]:
+def _search_iterable(items: Iterable[_A], **kwargs) -> Optional[_A]:
 
-    if not isinstance(item, Iterable):
-        raise LibraryException(message="The specified item must be an iterable!", code=12)
+    if not isinstance(items, Iterable):
+        raise LibraryException(message="The specified items must be an iterable!", code=12)
 
     if not kwargs:
         raise LibraryException(
