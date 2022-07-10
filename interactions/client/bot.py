@@ -45,11 +45,10 @@ __all__ = (
 class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
-    
+
     :param token: The token of the application for authentication and connection.
     :type token: str
-    :param intents?: Allows specific control of permissions the application has when connected. 
-    In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
+    :param intents?: Allows specific control of permissions the application has when connected. In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
     :type intents: Optional[Intents]
     :param shards?: Dictates and controls the shards that the application connects under.
     :type shards: Optional[List[Tuple[int]]]
@@ -76,40 +75,6 @@ class Client:
         token: str,
         **kwargs,
     ) -> None:
-        r"""
-        Establishes a client connection to the Web API and Gateway.
-
-        :param token: The token of the application for authentication and connection.
-        :type token: str
-        :param intents?: Allows specific control of permissions the application has when connected. 
-        In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
-        :type intents: Optional[Intents]
-        :param shards?: Dictates and controls the shards that the application connects under.
-        :type shards: Optional[List[Tuple[int]]]
-        :param presence?: Sets an RPC-like presence on the application when connected to the Gateway.
-        :type presence: Optional[ClientPresence]
-        :param default_scope?: Sets the default scope of all commands.
-        :type default_scope: Optional[Union[int, Guild, List[int], List[Guild]]]
-        :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
-        :type disable_sync: Optional[bool]
-        """
-
-        # Arguments
-        # ~~~~~~~~~
-        # token : str
-        #     The token of the application for authentication and connection.
-        # intents? : Optional[Intents]
-        #     Allows specific control of permissions the application has when connected.
-        #     In order to use multiple intents, the | operator is recommended.
-        #     Defaults to ``Intents.DEFAULT``.
-        # shards? : Optional[List[Tuple[int]]]
-        #     Dictates and controls the shards that the application connects under.
-        # presence? : Optional[ClientPresence]
-        #     Sets an RPC-like presence on the application when connected to the Gateway.
-        # default_scope? : Optional[Union[int, Guild, List[int], List[Guild]]]
-        #     Sets the default scope for all commands.
-        # disable_sync? : Optional[bool]
-        #     Controls whether synchronization in the user-facing API should be automatic or not.
 
         self._loop: AbstractEventLoop = get_event_loop()
         self._http: HTTPClient = HTTPClient(token=token)
