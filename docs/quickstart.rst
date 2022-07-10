@@ -125,7 +125,7 @@ Now, let's look what the new parts of the code are doing:
 * ``async def my_first_command(ctx: interactions.CommandContext):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``await ctx.send("Hi there!")`` -- This sends the response to your command.
 
-.. note:: ``name`` and ``description`` are required.
+.. note:: ``name`` and ``description`` are not required.
 
 
 .. important:: Difference between global and guild slash commands:
@@ -141,6 +141,8 @@ Next, let's create an Option
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :ref:`Options <models.command:Application Command Models>` are extra arguments of a command, filled in by the user executing the command.
+
+Here is the structure of an option:
 
 .. code-block:: python
 
@@ -166,12 +168,29 @@ Next, let's create an Option
 
     bot.start()
 
+As of v4.3.0, you can also utilize the new command system and the :ref:`@option() <models.command:Application Command Models>` decorator to create options:
+
+.. code-block:: python
+    
+    import interactions
+
+    bot = interactions.Client(token="your_secret_bot_token")
+
+    @bot.command(scope=the_id_of_your_guild)
+    @interactions.option(str, name="text", description="What you want to say", required=True)
+    async def say_something(ctx: interactions.CommandContext, text: str):
+        """say something!"""
+        await ctx.send(f"You said '{text}'!")
 
 .. note::
     The limit for options per command is 25.
 
 Nested commands: subcommands
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Subcommands are options that are nested to create subcategories of commands.
+
+Here is the structure of a subcommand:
 
 .. code-block:: python
 
@@ -214,6 +233,31 @@ Nested commands: subcommands
         elif sub_command == "second_command":
           await ctx.send(f"You selected the second_command sub command and put in {second_option}")
 
+As of v4.3.0, you can also utilize the new command system to create subcommands:
+
+.. code-block:: python
+    
+    import interactions
+
+    bot = interactions.Client(token="your_secret_bot_token")
+
+    @bot.command(scope=guild_id)
+    async def base_command(ctx: interactions.CommandContext):
+        """This description isn't seen in UI (yet?)"""
+        pass
+    
+    @base_command.subcommand()
+    @interactions.option(str, name="option", description="A descriptive description", required=False)
+    async def command_name(ctx: interactions.CommandContext, option: int = None):
+        """A descriptive description"""
+        await ctx.send(f"You selected the command_name sub command and put in {option}")
+    
+    @base_command.subcommand()
+    @interactions.option(str, name="second_option", description="A descriptive description", required=True)
+    async def second_command(ctx: interactions.CommandContext, second_option: str):
+        """A descriptive description"""
+        await ctx.send(f"You selected the second_command sub command and put in {second_option}")
+
 .. note::
     You can add a SUB_COMMAND_GROUP in between the base and command.
 
@@ -240,6 +284,13 @@ your ``@command`` decorator:
     async def test(ctx):
         await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
+Here is an alternate way of creating a context menu:
+
+.. code-block:: python
+
+    @bot.user_command(name="User Command", scope=1234567890)
+    async def test(ctx):
+        await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
 .. important::
     The structure of a menu command differs significantly from that of a regular one:
@@ -322,6 +373,11 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
     row = interactions.ActionRow(
         components=[button1, button2]
     )
+    # or:
+    row = interactions.ActionRow.new(button1, button2)
+    # or:
+    row = interactions.spread_to_rows(button1, button2)
+    # spread_to_rows returns a list of rows
 
     @bot.command(...)
     async def test(ctx):
