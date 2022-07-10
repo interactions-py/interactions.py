@@ -760,39 +760,39 @@ class Command(DictSerializerMixin):
         **kwargs,
     ) -> Optional[Any]:
         """Handles calling the coroutine based on parameter count."""
-        var_len = len(signature(coro).parameters)
-        arg_len = self.num_options.get(_name, len(args) + len(kwargs))
+        param_len = len(signature(coro).parameters)
+        opt_len = self.num_options.get(_name, len(args) + len(kwargs))
 
         if self.extension:
-            if var_len < 2:
+            if param_len < 2:
                 raise LibraryException(
                     code=11,
                     message="Your command needs at least two arguments to return self and context.",
                 )
 
-            if var_len == 2:
+            if param_len == 2:
                 return await coro(self.extension, ctx)
 
             if _res:
-                if var_len - arg_len == 2:
+                if param_len - opt_len == 2:
                     return await coro(self.extension, ctx, *args, **kwargs)
-                elif var_len - arg_len == 3:
+                elif param_len - opt_len == 3:
                     return await coro(self.extension, ctx, _res, *args, **kwargs)
 
             return await coro(self.extension, ctx, *args, **kwargs)
         else:
-            if var_len < 1:
+            if param_len < 1:
                 raise LibraryException(
                     code=11, message="Your command needs at least one argument to return context."
                 )
 
-            if var_len == 1:
+            if param_len == 1:
                 return await coro(ctx)
 
             if _res:
-                if var_len - arg_len == 1:
+                if param_len - opt_len == 1:
                     return await coro(ctx, *args, **kwargs)
-                elif var_len - arg_len == 2:
+                elif param_len - opt_len == 2:
                     return await coro(ctx, _res, *args, **kwargs)
 
             return await coro(ctx, *args, **kwargs)
