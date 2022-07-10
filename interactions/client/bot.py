@@ -1588,7 +1588,7 @@ class Extension:
             if cmd.name in {_cmd.name for _cmd in self.client._commands}:
                 continue
 
-            cmd.self = self
+            cmd.extension = self
             self.client._commands.append(cmd)
 
             commands = self._commands.get(cmd.name, [])

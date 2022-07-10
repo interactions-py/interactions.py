@@ -383,11 +383,11 @@ class Command(DictSerializerMixin):
     :ivar bool default_scope: Whether the command should use the default scope. Defaults to ``True``.
 
     :ivar Dict[str, Callable[..., Awaitable]] coroutines: The dictionary of coroutines for the command.
-    :ivar Dict[str, int] num_options: The dictionary of teh number of options per subcommand.
+    :ivar Dict[str, int] num_options: The dictionary of the number of options per subcommand.
     :ivar Dict[str, Union[Callable[..., Awaitable], str]] autocompletions: The dictionary of autocompletions for the command.
     :ivar Optional[str] recent_group: The name of the group most recently utilized.
     :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
-    :ivar Extension self: The extension that the command belongs to, if any.
+    :ivar Extension extension: The extension that the command belongs to, if any.
     """
 
     coro: Callable[..., Awaitable] = field()
@@ -409,7 +409,7 @@ class Command(DictSerializerMixin):
     )
     recent_group: Optional[str] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
-    self: "Extension" = field(default=None, init=False)
+    extension: "Extension" = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         if self.name is MISSING:
@@ -763,7 +763,7 @@ class Command(DictSerializerMixin):
         var_len = len(signature(coro).parameters)
         arg_len = self.num_options.get(_name, len(args) + len(kwargs))
 
-        if self.self:
+        if self.extension:
             if var_len < 2:
                 raise LibraryException(
                     code=11,
@@ -771,15 +771,15 @@ class Command(DictSerializerMixin):
                 )
 
             if var_len == 2:
-                return await coro(self.self, ctx)
+                return await coro(self.extension, ctx)
 
             if _res:
                 if var_len - arg_len == 2:
-                    return await coro(self.self, ctx, *args, **kwargs)
+                    return await coro(self.extension, ctx, *args, **kwargs)
                 elif var_len - arg_len == 3:
-                    return await coro(self.self, ctx, _res, *args, **kwargs)
+                    return await coro(self.extension, ctx, _res, *args, **kwargs)
 
-            return await coro(self.self, ctx, *args, **kwargs)
+            return await coro(self.extension, ctx, *args, **kwargs)
         else:
             if var_len < 1:
                 raise LibraryException(
@@ -827,6 +827,8 @@ class Command(DictSerializerMixin):
 
         @wraps(coro)
         def wrapper(*args, **kwargs):
-            return coro(self.self, *args, **kwargs) if self.self else coro(*args, **kwargs)
+            return (
+                coro(self.extension, *args, **kwargs) if self.extension else coro(*args, **kwargs)
+            )
 
         return wrapper
