@@ -363,6 +363,9 @@ class CommandContext(_Context):
                     )
                 except LibraryException as e:
                     log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    if e.code not in {10015, 10018}:
+                        # if its not ephemeral or some other thing.
+                        raise e
                 else:
                     self.message = msg = Message(**res, _client=self._client)
             else:
@@ -377,6 +380,9 @@ class CommandContext(_Context):
                     )
                 except LibraryException as e:
                     log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    if e.code not in {10015, 10018}:
+                        # if its not ephemeral or some other thing.
+                        raise e
                 else:
                     self.message = msg = Message(**res, _client=self._client)
         else:
@@ -386,6 +392,9 @@ class CommandContext(_Context):
                 )
             except LibraryException as e:
                 log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                if e.code not in {10015, 10018}:
+                    # if its not ephemeral or some other thing.
+                    raise e
             else:
                 self.message = msg = Message(**res, _client=self._client)
 
