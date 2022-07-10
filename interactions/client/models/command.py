@@ -1,3 +1,4 @@
+from asyncio import CancelledError
 from functools import wraps
 from inspect import getdoc, signature
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
@@ -408,6 +409,7 @@ class Command(DictSerializerMixin):
         init=False, factory=dict
     )
     recent_group: Optional[str] = field(default=None, init=False)
+    error_callback: Optional[Callable[..., Awaitable]] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
     extension: "Extension" = field(default=None, init=False)
 
@@ -562,7 +564,7 @@ class Command(DictSerializerMixin):
 
             if _group is MISSING:
                 self.options.append(subcommand)
-                self.coroutines[_name] = coro
+                self.coroutines[_name] = self.__wrap_coro(coro)
                 self.num_options[_name] = len({opt for opt in _options if int(opt.type) > 2})
             else:
                 for i, option in enumerate(self.options):
@@ -575,7 +577,7 @@ class Command(DictSerializerMixin):
                             break
                 self.options[i].options.append(subcommand)
                 self.options[i]._json["options"].append(subcommand._json)
-                self.coroutines[f"{_group} {_name}"] = coro
+                self.coroutines[f"{_group} {_name}"] = self.__wrap_coro(coro)
                 self.num_options[f"{_group} {_name}"] = len(
                     {opt for opt in _options if int(opt.type) > 2}
                 )
@@ -650,7 +652,7 @@ class Command(DictSerializerMixin):
             _description_localizations = (
                 None if _description_localizations is MISSING else _description_localizations
             )
-            self.coroutines[_name] = coro
+            self.coroutines[_name] = self.__wrap_coro(coro)
 
             group = Option(
                 type=2,
@@ -750,6 +752,41 @@ class Command(DictSerializerMixin):
 
         return decorator
 
+    def error(self, coro: Callable[..., Coroutine], /) -> Callable[..., Coroutine]:
+        """
+        Decorator for assigning a callback coroutine to be called when an error occurs.
+
+        The structure of the decorator:
+
+        .. code-block:: python
+
+            @bot.command()
+            async def command(ctx):
+                raise Exception("Error")  # example error
+
+            @command.error
+            async def command_error(ctx, error):
+                ...  # do something with the error
+
+        .. note::
+            The context and error are required as parameters,
+            but you can also have additional parameters so that the
+            base or group result (if any) and/or options are passed.
+
+        :param coro: The coroutine to be called when an error occurs.
+        :type coro: Callable[..., Coroutine]
+        """
+        num_params = len(signature(coro).parameters)
+
+        if num_params < (3 if self.extension else 2):
+            raise LibraryException(
+                code=11,
+                message=f"Your command needs at least {'three parameters to return self, context, and the' if self.extension else 'two parameter to return context and'} error.",
+            )
+
+        self.error_callback = self.__wrap_coro(coro)
+        return coro
+
     async def __call(
         self,
         coro: Callable[..., Awaitable],
@@ -763,39 +800,41 @@ class Command(DictSerializerMixin):
         param_len = len(signature(coro).parameters)
         opt_len = self.num_options.get(_name, len(args) + len(kwargs))
 
-        if self.extension:
-            if param_len < 2:
+        try:
+            _coro = coro if hasattr(coro, "_wrapped") else self.__wrap_coro(coro)
+
+            if param_len < (2 if self.extension else 1):
                 raise LibraryException(
                     code=11,
-                    message="Your command needs at least two arguments to return self and context.",
+                    message=f"Your command needs at least {'two parameters to return self and' if self.extension else 'one parameter to return'} context.",
                 )
 
-            if param_len == 2:
-                return await coro(self.extension, ctx)
+            if param_len == (2 if self.extension else 1):
+                return await _coro(ctx)
 
             if _res:
-                if param_len - opt_len == 2:
-                    return await coro(self.extension, ctx, *args, **kwargs)
-                elif param_len - opt_len == 3:
-                    return await coro(self.extension, ctx, _res, *args, **kwargs)
+                if param_len - opt_len == (2 if self.extension else 1):
+                    return await _coro(ctx, *args, **kwargs)
+                elif param_len - opt_len == (3 if self.extension else 2):
+                    return await _coro(ctx, _res, *args, **kwargs)
 
-            return await coro(self.extension, ctx, *args, **kwargs)
-        else:
-            if param_len < 1:
-                raise LibraryException(
-                    code=11, message="Your command needs at least one argument to return context."
-                )
+            return await _coro(ctx, *args, **kwargs)
+        except CancelledError:
+            pass
+        except Exception as e:
+            if not self.error_callback:
+                raise e
 
-            if param_len == 1:
-                return await coro(ctx)
+            num_params = len(signature(self.error_callback).parameters)
 
-            if _res:
-                if param_len - opt_len == 1:
-                    return await coro(ctx, *args, **kwargs)
-                elif param_len - opt_len == 2:
-                    return await coro(ctx, _res, *args, **kwargs)
+            if num_params == (3 if self.extension else 2):
+                await self.error_callback(ctx, e)
+            elif num_params == (4 if self.extension else 3):
+                await self.error_callback(ctx, e, _res)
+            else:
+                await self.error_callback(ctx, e, _res, *args, **kwargs)
 
-            return await coro(ctx, *args, **kwargs)
+            return StopCommand
 
     def __check_command(self, command_type: str) -> None:
         """Checks if subcommands, groups, or autocompletions are created on context menus."""
@@ -826,9 +865,25 @@ class Command(DictSerializerMixin):
         """Wraps a coroutine to make sure the :class:`interactions.client.bot.Extension` is passed to the coroutine, if any."""
 
         @wraps(coro)
-        def wrapper(*args, **kwargs):
-            return (
-                coro(self.extension, *args, **kwargs) if self.extension else coro(*args, **kwargs)
-            )
+        async def wrapper(ctx: "CommandContext", *args, **kwargs):
+            try:
+                if self.extension:
+                    return await coro(self.extension, ctx, *args, **kwargs)
+                return await coro(ctx, *args, **kwargs)
+            except CancelledError:
+                pass
+            except Exception as e:
+                if self.has_subcommands or not self.error_callback:
+                    raise e
 
+                num_params = len(signature(self.error_callback).parameters)
+
+                if num_params == (3 if self.extension else 2):
+                    await self.error_callback(ctx, e)
+                else:
+                    await self.error_callback(ctx, e, *args, **kwargs)
+
+                return StopCommand
+
+        wrapper._wrapped = True
         return wrapper
