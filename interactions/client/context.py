@@ -352,35 +352,53 @@ class CommandContext(_Context):
         msg = None
 
         if self.deferred:
-            if hasattr(self.message, "id") and self.message.id is not None:
-                res = await self._client.edit_message(
-                    int(self.channel_id), int(self.message.id), payload=payload
-                )
-                self.message = msg = Message(**res, _client=self._client)
-            else:
-                res = await self._client.edit_interaction_response(
-                    token=self.token,
-                    application_id=str(self.id),
-                    data={"type": self.callback.value, "data": payload},
-                    message_id=self.message.id if self.message else "@original",
-                )
-                if res["flags"] == 64:
-                    log.warning("You can't edit hidden messages.")
-                else:
-                    await self._client.edit_message(
-                        int(self.channel_id), res["id"], payload=payload
+            if (
+                hasattr(self.message, "id")
+                and self.message.id is not None
+                and self.message.flags != 64
+            ):
+                try:
+                    res = await self._client.edit_message(
+                        int(self.channel_id), int(self.message.id), payload=payload
                     )
+                except LibraryException as e:
+                    if e.code in {10015, 10018}:
+                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    else:
+                        # if its not ephemeral or some other thing.
+                        raise e from e
+                else:
+                    self.message = msg = Message(**res, _client=self._client)
+            else:
+                try:
+                    res = await self._client.edit_interaction_response(
+                        token=self.token,
+                        application_id=str(self.id),
+                        data=payload,
+                        message_id=self.message.id
+                        if self.message and self.message.flags != 64
+                        else "@original",
+                    )
+                except LibraryException as e:
+                    if e.code in {10015, 10018}:
+                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    else:
+                        # if its not ephemeral or some other thing.
+                        raise e from e
+                else:
                     self.message = msg = Message(**res, _client=self._client)
         else:
-            res = await self._client.edit_interaction_response(
-                token=self.token,
-                application_id=str(self.application_id),
-                data={"type": self.callback.value, "data": payload},
-            )
-            if res["flags"] == 64:
-                log.warning("You can't edit hidden messages.")
+            try:
+                res = await self._client.edit_interaction_response(
+                    token=self.token, application_id=str(self.application_id), data=payload
+                )
+            except LibraryException as e:
+                if e.code in {10015, 10018}:
+                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                else:
+                    # if its not ephemeral or some other thing.
+                    raise e from e
             else:
-                await self._client.edit_message(int(self.channel_id), res["id"], payload=payload)
                 self.message = msg = Message(**res, _client=self._client)
 
         if msg is not None:
@@ -395,15 +413,18 @@ class CommandContext(_Context):
         :param ephemeral?: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
         """
-        self.deferred = True
-        _ephemeral: int = (1 << 6) if ephemeral else 0
-        self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        if not self.responded:
+            self.deferred = True
+            _ephemeral: int = (1 << 6) if ephemeral else 0
+            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
-        await self._client.create_interaction_response(
-            token=self.token,
-            application_id=int(self.id),
-            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
-        )
+            await self._client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+            )
+
+            self.responded = True
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
@@ -414,20 +435,12 @@ class CommandContext(_Context):
         _payload: dict = {"type": self.callback.value, "data": payload}
 
         msg = None
-        if self.responded or self.deferred:
-            if self.deferred:
-                res = await self._client.edit_interaction_response(
-                    data=payload,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
-                self.responded = True
-            else:
-                res = await self._client._post_followup(
-                    data=payload,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
+        if self.responded:
+            res = await self._client._post_followup(
+                data=payload,
+                token=self.token,
+                application_id=str(self.application_id),
+            )
             self.message = msg = Message(**res, _client=self._client)
         else:
             await self._client.create_interaction_response(
@@ -435,19 +448,20 @@ class CommandContext(_Context):
                 application_id=int(self.id),
                 data=_payload,
             )
-            __newdata = await self._client.edit_interaction_response(
-                data={},
-                token=self.token,
-                application_id=str(self.application_id),
-            )
-            if not __newdata.get("code"):
-                # if sending message fails somehow
-                msg = Message(**__newdata, _client=self._client)
-                self.message = msg
+
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
+
             self.responded = True
+
         if msg is not None:
             return msg
-
         return Message(
             **payload,
             _client=self._client,
@@ -531,6 +545,7 @@ class ComponentContext(_Context):
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
         payload = await super().edit(content, **kwargs)
+        msg = None
 
         if not self.deferred:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
@@ -539,20 +554,23 @@ class ComponentContext(_Context):
                 token=self.token,
                 application_id=int(self.id),
             )
-            payload = Message(**payload, _client=self._client)
-            for attr in payload.__slots__:
-                if getattr(self.message, attr, None) and not getattr(payload, attr, None):
-                    setattr(payload, attr, getattr(self.message, attr))
-                    payload._json[attr] = self.message._json[attr]
-            self.message = payload
+
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
+
             self.responded = True
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-            res = await self._client._post_followup(
+            await self._client._post_followup(
                 data=payload,
                 token=self.token,
                 application_id=str(self.application_id),
             )
-            self.message = Message(**res, _client=self._client)
         else:
             res = await self._client.edit_interaction_response(
                 data=payload,
@@ -560,12 +578,12 @@ class ComponentContext(_Context):
                 application_id=str(self.application_id),
             )
             self.responded = True
-            self.message = Message(**res, _client=self._client)
+            self.message = msg = Message(**res, _client=self._client)
 
-        if self.message is None:
-            self.message = Message(**payload, _client=self._client)
+        if msg is not None:
+            return msg
 
-        return self.message
+        return Message(**payload, _client=self._client)
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
@@ -576,46 +594,34 @@ class ComponentContext(_Context):
         _payload: dict = {"type": self.callback.value, "data": payload}
 
         msg = None
-        if (
-            self.responded
-            or self.deferred
-            or self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        ):
-            if self.deferred:
-                res = await self._client.edit_interaction_response(
-                    data=payload,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
-                self.responded = True
-            else:
-                res = await self._client._post_followup(
-                    data=payload,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
+        if self.responded:
+            res = await self._client._post_followup(
+                data=payload,
+                token=self.token,
+                application_id=str(self.application_id),
+            )
             self.message = msg = Message(**res, _client=self._client)
-
         else:
             await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data=_payload,
             )
-            __newdata = await self._client.edit_interaction_response(
-                data={},
-                token=self.token,
-                application_id=str(self.application_id),
-            )
-            if not __newdata.get("code"):
-                # if sending message fails somehow
-                msg = Message(**__newdata, _client=self._client)
-                self.message = msg
+
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
+
             self.responded = True
 
         if msg is not None:
             return msg
-        return Message(**payload)
+        return Message(**payload, _client=self._client)
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
@@ -629,20 +635,24 @@ class ComponentContext(_Context):
         :param edit_origin?: Whether you want to edit the original message or send a followup message
         :type edit_origin: Optional[bool]
         """
-        self.deferred = True
-        _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
+        if not self.responded:
 
-        # ephemeral doesn't change callback typings. just data json
-        if edit_origin:
-            self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        else:
-            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            self.deferred = True
+            _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
 
-        await self._client.create_interaction_response(
-            token=self.token,
-            application_id=int(self.id),
-            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
-        )
+            # ephemeral doesn't change callback typings. just data json
+            if edit_origin:
+                self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+            else:
+                self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+
+            await self._client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+            )
+
+            self.responded = True
 
     @property
     def custom_id(self) -> Optional[str]:
