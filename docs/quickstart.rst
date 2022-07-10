@@ -171,7 +171,7 @@ Here is the structure of an option:
 As of v4.3.0, you can also utilize the new command system and the :ref:`@option() <models.command:Application Command Models>` decorator to create options:
 
 .. code-block:: python
-    
+
     import interactions
 
     bot = interactions.Client(token="your_secret_bot_token")
@@ -236,7 +236,7 @@ Here is the structure of a subcommand:
 As of v4.3.0, you can also utilize the new command system to create subcommands:
 
 .. code-block:: python
-    
+
     import interactions
 
     bot = interactions.Client(token="your_secret_bot_token")
@@ -245,13 +245,13 @@ As of v4.3.0, you can also utilize the new command system to create subcommands:
     async def base_command(ctx: interactions.CommandContext):
         """This description isn't seen in UI (yet?)"""
         pass
-    
+
     @base_command.subcommand()
     @interactions.option(str, name="option", description="A descriptive description", required=False)
     async def command_name(ctx: interactions.CommandContext, option: int = None):
         """A descriptive description"""
         await ctx.send(f"You selected the command_name sub command and put in {option}")
-    
+
     @base_command.subcommand()
     @interactions.option(str, name="second_option", description="A descriptive description", required=True)
     async def second_command(ctx: interactions.CommandContext, second_option: str):
