@@ -405,7 +405,7 @@ class Command(DictSerializerMixin):
 
     coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
     num_options: Dict[str, int] = field(init=False, factory=dict)
-    autocompletions: Dict[str, Union[Callable[..., Awaitable], str]] = field(
+    autocompletions: Dict[str, List[Union[Callable[..., Awaitable], str]]] = field(
         init=False, factory=dict
     )
     recent_group: Optional[str] = field(default=None, init=False)
