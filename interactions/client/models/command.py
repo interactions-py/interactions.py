@@ -205,23 +205,13 @@ class ApplicationCommand(DictSerializerMixin):
 
 
 def option(
-    _type: OptionType,
+    option_type: OptionType,
     /,
     name: str,
     description: Optional[str] = "No description set",
-    choices: Optional[List[Choice]] = None,
-    required: Optional[bool] = None,
-    channel_types: Optional[List[ChannelType]] = None,
-    min_value: Optional[int] = None,
-    max_value: Optional[int] = None,
-    options: Optional[List[Option]] = None,
-    autocomplete: Optional[bool] = None,
-    focused: Optional[bool] = None,
-    value: Optional[str] = None,
-    name_localizations: Optional[Dict[Union[str, Locale], str]] = None,
-    description_localizations: Optional[Dict[Union[str, Locale], str]] = None,
+    **kwargs,
 ) -> Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]:
-    """
+    r"""
     A decorator for adding options to a command.
 
     The structure of an option:
@@ -239,71 +229,36 @@ def option(
     :type name: str
     :param description?: The description of the option. Defaults to ``"No description set"``.
     :type description: str
-    :param choices?: The choices of the option.
-    :type choices: Optional[List[Choice]]
-    :param required?: Whether the option has to be filled out.
-    :type required: Optional[bool]
-    :param channel_types?: Restrictive shown channel types, if given.
-    :type channel_types: Optional[List[ChannelType]]
-    :param min_value?: The minimum value supported by the option.
-    :type min_value: Optional[int]
-    :param max_value?: The maximum value supported by the option.
-    :type max_value: Optional[int]
-    :param options?: The list of subcommand options included.
-    :type options: Optional[List[Option]]
-    :param autocomplete?: A status denoting whether this option is an autocomplete option.
-    :type autocomplete: Optional[bool]
-    :param focused?: Whether the option is currently being autocompleted or not.
-    :type focused: Optional[bool]
-    :param value?: The value that's currently typed out, if autocompleting.
-    :type value: Optional[str]
-    :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-    :type name_localizations: Optional[Dict[Union[str, Locale], str]]
-    :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-    :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+    :param \**kwargs: The keyword arguments of the option, same as :class:`Option`.
+    :type \**kwargs: dict
     """
+    if option_type in (str, int, float, bool):
+        if option_type is str:
+            option_type = OptionType.STRING
+        elif option_type is int:
+            option_type = OptionType.INTEGER
+        elif option_type is float:
+            option_type = OptionType.NUMBER
+        elif option_type is bool:
+            option_type = OptionType.BOOLEAN
+    elif option_type in (Member, User):
+        option_type = OptionType.USER
+    elif option_type is Channel:
+        option_type = OptionType.CHANNEL
+    elif option_type is Role:
+        option_type = OptionType.ROLE
+    elif option_type in (Attachment, File, Image):
+        option_type = OptionType.ATTACHMENT
+
+    option: Option = Option(
+        type=option_type,
+        name=name,
+        description=description,
+        **kwargs,
+    )
 
     def decorator(coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
-        if isinstance(_type, int):
-            type_ = _type
-        elif _type in (str, int, float, bool):
-            if _type is str:
-                type_ = OptionType.STRING
-            elif _type is int:
-                type_ = OptionType.INTEGER
-            elif _type is float:
-                type_ = OptionType.NUMBER
-            elif _type is bool:
-                type_ = OptionType.BOOLEAN
-        elif isinstance(_type, OptionType):
-            type_ = _type
-        elif _type in (Member, User):
-            type_ = OptionType.USER
-        elif _type is Channel:
-            type_ = OptionType.CHANNEL
-        elif _type is Role:
-            type_ = OptionType.ROLE
-        elif _type in (Attachment, File, Image):
-            type_ = OptionType.ATTACHMENT
-        else:
-            raise LibraryException(code=7, message=f"Invalid type: {_type}")
-
-        option: Option = Option(
-            type=type_,
-            name=name,
-            description=description,
-            choices=choices,
-            required=required,
-            channel_types=channel_types,
-            min_value=min_value,
-            max_value=max_value,
-            options=options,
-            autocomplete=autocomplete,
-            focused=focused,
-            value=value,
-            name_localizations=name_localizations,
-            description_localizations=description_localizations,
-        )
+        nonlocal option
 
         if hasattr(coro, "_options") and isinstance(coro._options, list):
             coro._options.insert(0, option)
