@@ -45,10 +45,10 @@ __all__ = (
 class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
-    
+
     :param token: The token of the application for authentication and connection.
     :type token: str
-    :param intents?: Allows specific control of permissions the application has when connected. 
+    :param intents?: Allows specific control of permissions the application has when connected.
     In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
     :type intents: Optional[Intents]
     :param shards?: Dictates and controls the shards that the application connects under.
@@ -81,7 +81,7 @@ class Client:
 
         :param token: The token of the application for authentication and connection.
         :type token: str
-        :param intents?: Allows specific control of permissions the application has when connected. 
+        :param intents?: Allows specific control of permissions the application has when connected.
         In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
         :type intents: Optional[Intents]
         :param shards?: Dictates and controls the shards that the application connects under.
