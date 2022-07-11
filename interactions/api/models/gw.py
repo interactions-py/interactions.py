@@ -267,7 +267,7 @@ class GuildMember(ClientSerializerMixin):
         return self._avatar or getattr(self.user, "avatar", None)
 
     @property
-    def id(self) -> Snowflake:
+    def id(self) -> Optional[Snowflake]:
         """
         Returns the ID of the user.
 
@@ -277,7 +277,7 @@ class GuildMember(ClientSerializerMixin):
         return self.user.id if self.user else None
 
     @property
-    def name(self) -> str:
+    def name(self) -> Optional[str]:
         """
         Returns the string of either the user's nickname or username.
 
@@ -444,7 +444,6 @@ class GuildMember(ClientSerializerMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-
         if not components or components is MISSING:
             _components = []
         else:
@@ -533,6 +532,7 @@ class GuildMember(ClientSerializerMixin):
             payload=payload,
             reason=reason,
         )
+        self.update(res)
         return GuildMember(**res, _client=self._client, guild_id=self.guild_id)
 
     async def add_to_thread(

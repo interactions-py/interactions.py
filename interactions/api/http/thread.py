@@ -1,6 +1,7 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
-from ...api.cache import Cache, Item
+from ...api.cache import Cache
+from ..models.channel import Channel
 from .request import _Request
 from .route import Route
 
@@ -8,7 +9,6 @@ __all__ = ("ThreadRequest",)
 
 
 class ThreadRequest:
-
     _req: _Request
     cache: Cache
 
@@ -135,7 +135,7 @@ class ThreadRequest:
             Route("GET", f"/channels/{channel_id}/users/@me/threads/archived/private"), json=payload
         )
 
-    async def list_active_threads(self, guild_id: int) -> List[dict]:
+    async def list_active_threads(self, guild_id: int) -> Dict[str, List[dict]]:
         """
         List active threads within a guild.
 
@@ -177,8 +177,8 @@ class ThreadRequest:
                 reason=reason,
             )
             if request.get("id"):
-                self.cache.channels.add(Item(id=request["id"], value=request))
-            return request
+                self.cache[Channel].add(Channel(**request))
+                return request
 
         payload["type"] = thread_type
         payload["invitable"] = invitable
@@ -186,6 +186,6 @@ class ThreadRequest:
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=request))
+            self.cache[Channel].add(Channel(**request))
 
         return request

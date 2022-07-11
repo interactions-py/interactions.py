@@ -92,11 +92,11 @@ class Snowflake:
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None:
         self._snowflake = str(snowflake)
 
-    def __str__(self):
+    def __str__(self) -> str:
         # This is overridden for model comparison between IDs.
         return self._snowflake
 
-    def __int__(self):
+    def __int__(self) -> int:
         # Easier to use for HTTP calling instead of int(str(obj)).
         return int(self._snowflake)
 
@@ -146,10 +146,10 @@ class Snowflake:
 
     # ---- Extra stuff that might be helpful.
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self._snowflake)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Snowflake):
             return str(self) == str(other)
         elif isinstance(other, int):
@@ -159,7 +159,7 @@ class Snowflake:
 
         return NotImplemented
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._snowflake})"
 
 
@@ -168,7 +168,7 @@ class IDMixin:
 
     id: Snowflake
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return (
             self.id is not None
             and isinstance(
@@ -177,7 +177,7 @@ class IDMixin:
             and self.id == other.id
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.id)
 
 
@@ -256,27 +256,27 @@ class Color:
     """
 
     @staticmethod
-    def blurple() -> hex:
+    def blurple() -> int:
         """Returns a hexadecimal value of the blurple color."""
         return 0x5865F2
 
     @staticmethod
-    def green() -> hex:
+    def green() -> int:
         """Returns a hexadecimal value of the green color."""
         return 0x57F287
 
     @staticmethod
-    def yellow() -> hex:
+    def yellow() -> int:
         """Returns a hexadecimal value of the yellow color."""
         return 0xFEE75C
 
     @staticmethod
-    def fuchsia() -> hex:
+    def fuchsia() -> int:
         """Returns a hexadecimal value of the fuchsia color."""
         return 0xEB459E
 
     @staticmethod
-    def red() -> hex:
+    def red() -> int:
         """Returns a hexadecimal value of the red color."""
         return 0xED4245
 
@@ -285,12 +285,12 @@ class Color:
     # wrong.
 
     @staticmethod
-    def white() -> hex:
+    def white() -> int:
         """Returns a hexadecimal value of the white color."""
         return 0xFFFFFF
 
     @staticmethod
-    def black() -> hex:
+    def black() -> int:
         """Returns a hexadecimal value of the black color."""
         return 0x000000
 
@@ -324,7 +324,7 @@ class File:
         else:
             self._description = description
 
-    def _json_payload(self, id):
+    def _json_payload(self, id: int) -> dict:
         return {"id": id, "description": self._description, "filename": self._filename}
 
 
@@ -341,7 +341,7 @@ class Image:
         self._URI = "data:image/"
 
         if fp is MISSING or isinstance(file, FileIO):
-            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)
+            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)  # noqa
 
             self._name = file.name
             _file = file.read()

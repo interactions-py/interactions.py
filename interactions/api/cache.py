@@ -1,88 +1,100 @@
-from collections import OrderedDict
-from typing import Any, List, Optional
+from collections import defaultdict
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
+
+if TYPE_CHECKING:
+    from .models import Snowflake
+
+    Key = TypeVar("Key", Snowflake, Tuple[Snowflake, Snowflake])
 
 __all__ = (
-    "Item",
     "Storage",
     "Cache",
 )
 
-
-class Item:
-    """
-    A class representing the defined item in a stored dataset.
-
-    :ivar str id: The ID of the item.
-    :ivar Any value: The item itself.
-    :ivar Type type: The ID type representation.
-    """
-
-    __slots__ = ("id", "value", "type")
-
-    def __init__(self, id: str, value: Any) -> None:
-        """
-        :param id: The item's ID.
-        :type id: str
-        :param value: The item itself.
-        :type value: Any
-        """
-        self.id = id
-        self.value = value
-        self.type = type(value)
+_T = TypeVar("_T")
+_P = TypeVar("_P")
 
 
-class Storage:
+class Storage(Generic[_T]):
     """
     A class representing a set of items stored as a cache state.
 
-    :ivar List[Item] values: The list of items stored.
+    :ivar Dict[Union[Snowflake, Tuple[Snowflake, Snowflake]], Any] values: The list of items stored.
     """
 
-    __slots__ = "values"
+    __slots__ = ("values",)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
 
     def __init__(self) -> None:
-        self.values = OrderedDict()
+        self.values: Dict["Key", _T] = {}
 
-    def add(self, item: Item) -> OrderedDict:
+    def add(self, item: _T, id: Optional["Key"] = None) -> None:
         """
         Adds a new item to the storage.
 
         :param item: The item to add.
-        :type item: Item
-        :return: The new storage.
-        :rtype: OrderedDict
+        :type item: Any
+        :param id: The unique id of the item.
+        :type id: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
-        self.values.update({item.id: item.value})
-        return self.values
+        self.values[id or item.id] = item
 
-    def get(self, id: str) -> Optional[Item]:
+    @overload
+    def get(self, id: "Key") -> Optional[_T]:
+        ...
+
+    @overload
+    def get(self, id: "Key", default: _P) -> Union[_T, _P]:
+        ...
+
+    def get(self, id: "Key", default: Optional[_P] = None) -> Union[_T, _P, None]:
         """
         Gets an item from the storage.
 
         :param id: The ID of the item.
-        :type id: str
+        :type id: Union[Snowflake, Tuple[Snowflake, Snowflake]]
+        :param default: The default value to return if the item is not found.
+        :type default: Optional[Any]
         :return: The item from the storage if any.
-        :rtype: Optional[Item]
+        :rtype: Optional[Any]
         """
-        if id in self.values.keys():
-            return self.values[id]
+        return self.values.get(id, default)
 
-    def update(self, item: Item) -> Optional[Item]:
+    def update(self, data: Dict["Key", _T]):
         """
-        Updates an item from the storage.
+        Updates multiple items from the storage.
 
-        :param item: The item to update.
-        :return: The updated item, if stored.
-        :rtype: Optional[Item]
+        :param data: The data to update with.
+        :type data: dict
         """
-        if item.id in self.values.keys():
-            self.values[item.id] = item.value
-            return self.values[
-                id
-            ]  # fetches from cache to see if its saved properly, instead of returning input.
+        self.values.update(data)
+
+    @overload
+    def pop(self, key: "Key") -> Optional[_T]:
+        ...
+
+    @overload
+    def pop(self, key: "Key", default: _P) -> Union[_T, _P]:
+        ...
+
+    def pop(self, key: "Key", default: Optional[_P] = None) -> Union[_T, _P, None]:
+        try:
+            return self.values.pop(key)
+        except KeyError:
+            return default
 
     @property
     def view(self) -> List[dict]:
@@ -93,6 +105,15 @@ class Storage:
         """
         return [v._json for v in self.values.values()]
 
+    def __getitem__(self, item: "Key") -> _T:
+        return self.values.__getitem__(item)
+
+    def __setitem__(self, key: "Key", value: _T) -> None:
+        return self.values.__setitem__(key, value)
+
+    def __delitem__(self, key: "Key") -> None:
+        return self.values.__delitem__(key)
+
 
 class Cache:
     """
@@ -100,38 +121,16 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
-    :ivar Cache dms: The cached Direct Messages.
-    :ivar Cache self_guilds: The cached guilds upon gateway connection.
-    :ivar Cache guilds: The cached guilds after ready.
-    :ivar Cache channels: The cached channels of guilds.
-    :ivar Cache roles: The cached roles of guilds.
-    :ivar Cache members: The cached members of guilds and threads.
-    :ivar Cache messages: The cached messages of DMs and channels.
-    :ivar Cache interactions: The cached interactions upon interaction.
+    :ivar defaultdict[Type, Storage] storages:
     """
 
-    __slots__ = (
-        "dms",
-        "self_guilds",
-        "guilds",
-        "channels",
-        "roles",
-        "members",
-        "messages",
-        "users",
-        "interactions",
-    )
+    __slots__ = "storages"
 
     def __init__(self) -> None:
-        self.dms = Storage()
-        self.self_guilds = Storage()
-        self.guilds = Storage()
-        self.channels = Storage()
-        self.roles = Storage()
-        self.members = Storage()
-        self.messages = Storage()
-        self.users = Storage()
-        self.interactions = Storage()
+        self.storages: defaultdict[Type[_T], Storage[_T]] = defaultdict(Storage)
+
+    def __getitem__(self, item: Type[_T]) -> Storage[_T]:
+        return self.storages[item]
 
 
 ref_cache = Cache()  # noqa

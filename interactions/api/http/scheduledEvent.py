@@ -38,8 +38,7 @@ class ScheduledEventRequest:
         data = {k: v for k, v in payload.items() if k in valid_keys}
 
         return await self._req.request(
-            Route("POST", "/guilds/{guild_id}/scheduled-events", guild_id=int(guild_id)),
-            json=data,
+            Route("POST", "/guilds/{guild_id}/scheduled-events", guild_id=guild_id), json=data
         )
 
     async def get_scheduled_event(

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
@@ -8,6 +8,11 @@ from .flags import Permissions
 from .misc import File, IDMixin, Snowflake
 from .role import Role
 from .user import User
+
+if TYPE_CHECKING:
+    from ...client.models.component import ActionRow, Button, SelectMenu
+    from .guild import Guild
+    from .message import Attachment, Embed, Message, MessageInteraction
 
 __all__ = ("Member",)
 
@@ -93,7 +98,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
     async def ban(
         self,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
         delete_message_days: Optional[int] = 0,
     ) -> None:
@@ -119,7 +124,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
     async def kick(
         self,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -144,7 +149,7 @@ class Member(ClientSerializerMixin, IDMixin):
     async def add_role(
         self,
         role: Union[Role, int, Snowflake],
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -173,7 +178,7 @@ class Member(ClientSerializerMixin, IDMixin):
     async def remove_role(
         self,
         role: Union[Role, int],
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -205,20 +210,20 @@ class Member(ClientSerializerMixin, IDMixin):
         *,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
         tts: Optional[bool] = MISSING,
-        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
+        attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
-    ) -> "Message":  # noqa
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+    ) -> "Message":
         """
         Sends a DM to the member.
 
@@ -253,7 +258,6 @@ class Member(ClientSerializerMixin, IDMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-
         if not components or components is MISSING:
             _components = []
         else:
@@ -277,7 +281,6 @@ class Member(ClientSerializerMixin, IDMixin):
             components=_components,
             allowed_mentions=_allowed_mentions,
         )
-
         channel = Channel(**await self._client.create_dm(recipient_id=int(self.user.id)))
         res = await self._client.create_message(
             channel_id=int(channel.id), payload=payload, files=files
@@ -287,7 +290,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
     async def modify(
         self,
-        guild_id: Union[int, Snowflake, "Guild"],  # noqa
+        guild_id: Union[int, Snowflake, "Guild"],
         nick: Optional[str] = MISSING,
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
@@ -374,7 +377,7 @@ class Member(ClientSerializerMixin, IDMixin):
             thread_id=_thread_id,
         )
 
-    def get_avatar_url(self, guild_id: Union[int, Snowflake, "Guild"]) -> Optional[str]:  # noqa
+    def get_avatar_url(self, guild_id: Union[int, Snowflake, "Guild"]) -> Optional[str]:
         """
         Returns the URL of the member's avatar for the specified guild.
         :param guild_id: The id of the guild to get the member's avatar from
