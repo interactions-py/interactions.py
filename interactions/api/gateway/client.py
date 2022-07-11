@@ -405,9 +405,9 @@ class WebSocketClient:
 
                 elif "_update" in name and hasattr(obj, "id"):
                     old_obj = self._http.cache[model].get(id)
-                    _cache.add(obj, id)
                     copy = model(**old_obj._json)
                     old_obj.update(**obj._json)
+                    _cache.add(old_obj, id)
                     self._dispatch.dispatch(
                         f"on_{name}", copy, old_obj
                     )  # give previously stored and new one
