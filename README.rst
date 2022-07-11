@@ -11,7 +11,7 @@ interactions.py
 
 .. image:: https://img.shields.io/pypi/v/discord-py-interactions.svg
 
-.. image:: https://readthedocs.org/projects/discord-interactions/badge/?version=latest
+.. image:: https://readthedocs.org/projects/interactionspy/badge/?version=latest
 
 .. image:: https://discord.com/api/guilds/789032594456576001/embed.png
 
@@ -87,7 +87,7 @@ I think I'm all ready!
 ^^^^^^^^^^^^^^^^^^^^^^
 Feel free to begin making `Pull Requests`_ and `Issues`_ on our GitHub!
 
-.. _quickstart guide: https://discord-interactions.rtfd.io/en/latest/quickstart.html
+.. _quickstart guide: https://interactionspy.rtfd.io/en/latest/quickstart.html
 .. _contribution requirements: https://github.com/interactions-py/library/blob/stable/CONTRIBUTING.rst
 .. _MIT License: https://github.com/goverfl0w/interactions-py/library/blob/stable/LICENSE
 .. _Pull Requests: https://github.com/interactions-py/library/pulls

@@ -19,14 +19,15 @@ class DictSerializerMixin:
     _extras: dict = attrs.field(init=False, repr=False)
     """A dict containing values that were not serialized from Discord."""
 
-    __deepcopy__ = False
+    __deepcopy_kwargs__ = False
     """Should the kwargs be deepcopied or not?"""
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs):
+        # sourcery skip: low-code-quality
         kwargs = kwargs_dict or other_kwargs
         client = kwargs.pop("_client", None)
 
-        if self.__deepcopy__:
+        if self.__deepcopy_kwargs__:
             kwargs = deepcopy(kwargs)
 
         self._json = kwargs.copy()
@@ -85,6 +86,10 @@ class DictSerializerMixin:
 
         :param dict kwargs_dict: The dictionary to update from
         """
+        # idiot check to make sure it's a dictionary (yes, that includes myself)
+        if isinstance(kwargs_dict, DictSerializerMixin):
+            kwargs_dict = kwargs_dict._json
+
         kwargs = kwargs_dict or other_kwargs
         attribs: Dict[str, attrs.Attribute] = {
             attrib.name: attrib for attrib in self.__attrs_attrs__
@@ -93,6 +98,9 @@ class DictSerializerMixin:
         for name, value in kwargs.items():
             if name not in attribs:
                 self._extras[name] = value
+                continue
+
+            if value is None:
                 continue
 
             if converter := attribs[name].converter:
@@ -184,11 +192,11 @@ def deepcopy_kwargs(cls: Optional[type] = None):
     """
 
     def decorator(cls: type):
-        cls.__deepcopy__ = True  # type: ignore
+        cls.__deepcopy_kwargs__ = True  # type: ignore
         return cls
 
     if cls is not None:
-        cls.__deepcopy__ = True  # type: ignore
+        cls.__deepcopy_kwargs__ = True  # type: ignore
         return cls
 
     return decorator

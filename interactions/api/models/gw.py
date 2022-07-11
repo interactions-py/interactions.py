@@ -21,6 +21,7 @@ from .misc import (
     AutoModTriggerType,
     ClientStatus,
     File,
+    IDMixin,
     Snowflake,
 )
 from .presence import PresenceActivity
@@ -84,7 +85,7 @@ class AutoModerationAction(DictSerializerMixin):
 
 
 @define()
-class AutoModerationRule(DictSerializerMixin):
+class AutoModerationRule(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway events ``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and ``AUTO_MODERATION_RULE_DELETE``
 
@@ -121,7 +122,7 @@ class AutoModerationRule(DictSerializerMixin):
 
 
 @define()
-class ApplicationCommandPermissions(ClientSerializerMixin):
+class ApplicationCommandPermissions(ClientSerializerMixin, IDMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
 
@@ -251,15 +252,22 @@ class GuildMember(ClientSerializerMixin):
     roles: Optional[List[str]] = field(default=None)
     user: Optional[User] = field(converter=User, default=None, add_client=True)
     nick: Optional[str] = field(default=None)
-    avatar: Optional[str] = field(default=None)
+    _avatar: Optional[str] = field(default=None, discord_name="avatar")
     joined_at: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     deaf: Optional[bool] = field(default=None)
     mute: Optional[bool] = field(default=None)
     pending: Optional[bool] = field(default=None)
 
+    def __str__(self) -> str:
+        return self.name or ""
+
     @property
-    def id(self) -> Snowflake:
+    def avatar(self) -> Optional[str]:
+        return self._avatar or getattr(self.user, "avatar", None)
+
+    @property
+    def id(self) -> Optional[Snowflake]:
         """
         Returns the ID of the user.
 
@@ -267,6 +275,16 @@ class GuildMember(ClientSerializerMixin):
         :rtype: Snowflake
         """
         return self.user.id if self.user else None
+
+    @property
+    def name(self) -> Optional[str]:
+        """
+        Returns the string of either the user's nickname or username.
+
+        :return: The name of the member
+        :rtype: str
+        """
+        return self.nick or (self.user.username if self.user else None)
 
     @property
     def mention(self) -> str:
@@ -426,7 +444,6 @@ class GuildMember(ClientSerializerMixin):
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-
         if not components or components is MISSING:
             _components = []
         else:
@@ -515,6 +532,7 @@ class GuildMember(ClientSerializerMixin):
             payload=payload,
             reason=reason,
         )
+        self.update(res)
         return GuildMember(**res, _client=self._client, guild_id=self.guild_id)
 
     async def add_to_thread(
@@ -590,7 +608,7 @@ class GuildStickers(DictSerializerMixin):
 
 
 @define()
-class GuildScheduledEvent(ClientSerializerMixin):
+class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
     """
     A class object representing gateway events ``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, ``GUILD_SCHEDULED_EVENT_DELETE``.
 
@@ -650,7 +668,7 @@ class GuildScheduledEventUser(DictSerializerMixin):
 
 
 @define()
-class Integration(DictSerializerMixin):
+class Integration(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway events ``INTEGRATION_CREATE``, ``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``.
 
@@ -798,7 +816,7 @@ class ThreadList(DictSerializerMixin):
 
 
 @define()
-class ThreadMembers(DictSerializerMixin):
+class ThreadMembers(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway event ``THREAD_MEMBERS_UPDATE``.
 

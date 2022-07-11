@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ...api.cache import Cache, Item
+from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.user import User
 from .request import _Request
@@ -37,7 +37,7 @@ class UserRequest:
             user_id = "@me"
 
         request = await self._req.request(Route("GET", f"/users/{user_id}"))
-        self.cache.users.add(Item(id=user_id, value=User(**request)))
+        self.cache[User].add(User(**request))
 
         return request
 
@@ -74,6 +74,6 @@ class UserRequest:
         request = await self._req.request(
             Route("POST", "/users/@me/channels"), json={"recipient_id": recipient_id}
         )
-        self.cache.dms.add(Item(id=str(recipient_id), value=Channel(**request)))
+        self.cache[Channel].add(Channel(**request))
 
         return request

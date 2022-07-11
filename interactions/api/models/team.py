@@ -2,7 +2,7 @@ from typing import Any, List, Optional
 
 from .attrs_utils import ClientSerializerMixin, convert_list, define, field
 from .flags import AppFlags
-from .misc import Snowflake
+from .misc import IDMixin, Snowflake
 from .user import User
 
 __all__ = (
@@ -34,7 +34,7 @@ class TeamMember(ClientSerializerMixin):
 
 
 @define()
-class Team(ClientSerializerMixin):
+class Team(ClientSerializerMixin, IDMixin):
     """
     A class object representing a team.
 
@@ -53,7 +53,7 @@ class Team(ClientSerializerMixin):
 
 
 @define()
-class Application(ClientSerializerMixin):
+class Application(ClientSerializerMixin, IDMixin):
     """
     A class object representing an application.
 
@@ -102,7 +102,7 @@ class Application(ClientSerializerMixin):
     hook: Optional[Any] = field(default=None)
 
     @property
-    def icon_url(self) -> str:
+    def icon_url(self) -> Optional[str]:
         """
         Returns the URL of the application's icon
 

@@ -1,6 +1,7 @@
+import contextlib
 import re
 import sys
-from asyncio import CancelledError, get_event_loop, iscoroutinefunction
+from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -9,14 +10,14 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
-from ..api import Cache
-from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import MISSING
+from ..api.models.channel import Channel
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
+from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
@@ -29,9 +30,6 @@ from .models.command import ApplicationCommand, Choice, Option
 from .models.component import Button, Modal, SelectMenu
 
 log: Logger = get_logger("client")
-_token: str = ""  # noqa
-_cache: Optional[Cache] = None
-
 
 __all__ = (
     "Client",
@@ -90,11 +88,11 @@ class Client:
         # disable_sync? : Optional[bool]
         #     Controls whether synchronization in the user-facing API should be automatic or not.
 
-        self._loop = get_event_loop()
-        self._http = HTTPClient(token=token)
-        self._intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket = WSClient(token=token, intents=self._intents)
-        self._shard = kwargs.get("shards", [])
+        self._loop: AbstractEventLoop = get_event_loop()
+        self._http: HTTPClient = HTTPClient(token=token)
+        self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
+        self._websocket: WSClient = WSClient(token=token, intents=self._intents)
+        self._shards: List[Tuple[int]] = kwargs.get("shards", [])
         self._presence = kwargs.get("presence")
         self._token = token
         self._extensions = {}
@@ -104,8 +102,6 @@ class Client:
         self.__guild_commands = {}
         self.__name_autocomplete = {}
         self.me = None
-        _token = self._token  # noqa: F841
-        _cache = self._http.cache  # noqa: F841
 
         if kwargs.get("disable_sync"):
             self._automate_sync = False
@@ -122,10 +118,7 @@ class Client:
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
 
-        return [
-            Guild(**_) if _.get("_client") else Guild(**_, _client=self._http)
-            for _ in self._http.cache.self_guilds.view
-        ]
+        return list(self._http.cache[Guild].values.values())
 
     @property
     def latency(self) -> float:
@@ -193,7 +186,7 @@ class Client:
         _command: dict = {}
 
         def __check_options(command, data):
-            # sourcery skip: none-compare
+            # sourcery skip: low-code-quality, none-compare
             # sourcery no-metrics
             _command_option_names = [option["name"] for option in command.get("options")]
             _data_option_names = [option["name"] for option in data.get("options")]
@@ -247,6 +240,11 @@ class Client:
                                                     return False, command
                                                 else:
                                                     continue
+
+                                for i, __name in enumerate(_option_choice_names):
+                                    if _data_choice_names[i] != __name:
+                                        return False, command
+
                             elif option_attr == "required":
                                 if (
                                     option.get(option_attr) == None  # noqa: E711
@@ -266,7 +264,15 @@ class Client:
                                 return False, command
                             else:
                                 continue
-            return True, command
+
+            return next(
+                (
+                    (False, command)
+                    for i, __name in enumerate(_command_option_names)
+                    if _data_option_names[i] != __name
+                ),
+                (True, command),
+            )
 
         for command in pool:
             if command["name"] == data["name"]:
@@ -386,7 +392,7 @@ class Client:
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
         while not self._websocket._closed:
-            await self._websocket._establish_connection(self._shard, self._presence)
+            await self._websocket._establish_connection(self._shards, self._presence)
 
     async def wait_until_ready(self) -> None:
         """Helper method that waits until the websocket is ready."""
@@ -445,6 +451,7 @@ class Client:
         .. warning::
             This is an internal method. Do not call it unless you know what you are doing!
         """
+        # sourcery skip: low-code-quality
 
         log.debug("starting command sync")
         _guilds = await self._http.get_self_guilds()
@@ -475,7 +482,7 @@ class Client:
                 )
             except LibraryException as e:
                 if int(e.code) != 50001:
-                    raise LibraryException(code=e.code, message=e.message)
+                    raise LibraryException(code=e.code, message=e.message) from e
 
                 log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
@@ -508,25 +515,41 @@ class Client:
                             )
                             if not clean:
                                 self.__guild_commands[_guild_id]["clean"] = False
-                                _pos = self.__guild_commands[_guild_id]["commands"].index(_command)
-                                self.__guild_commands[_guild_id]["commands"][_pos] = _guild_command
+                                # _pos = self.__guild_commands[_guild_id]["commands"].index(_command)
+                                # self.__guild_commands[_guild_id]["commands"][_pos] = _guild_command
+
+                                for _pos, _dict in enumerate(
+                                    self.__guild_commands[_guild_id]["commands"]
+                                ):
+                                    if _dict["name"] == _command["name"]:
+                                        self.__guild_commands[_guild_id]["commands"][
+                                            _pos
+                                        ] = _guild_command
+                                        break
+
                             if __check_guild_commands[_guild_id]:
                                 del __check_guild_commands[_guild_id][
                                     __check_guild_commands[_guild_id].index(_guild_command["name"])
                                 ]
 
-                elif coro._command_data["name"] in __check_global_commands:
+                elif coro._command_data["name"] in __check_global_commands:  # noqa
                     clean, _command = await self.__compare_sync(
                         coro._command_data, self.__global_commands["commands"]
                     )
 
                     if not clean:
                         self.__global_commands["clean"] = False
-                        _pos = self.__global_commands["commands"].index(_command)
-                        self.__global_commands["commands"][_pos] = coro._command_data
+                        # _pos = self.__global_commands["commands"].index(_command)
+                        # self.__global_commands["commands"][_pos] = coro._command_data
+
+                        for _pos, _dict in enumerate(self.__global_commands["commands"]):
+                            if _dict["name"] == _command["name"]:
+                                self.__global_commands["commands"][_pos] = coro._command_data
+                                break
+
                     if __check_global_commands:
                         del __check_global_commands[
-                            __check_global_commands.index(coro._command_data["name"])
+                            __check_global_commands.index(coro._command_data["name"])  # noqa
                         ]
 
                 else:
@@ -583,21 +606,21 @@ class Client:
                     self.__guild_commands[_id]["commands"] = res
 
     def event(
-        self, coro: Optional[Coroutine] = MISSING, *, name: Optional[str] = MISSING
+        self, coro: Optional[Callable[..., Coroutine]] = MISSING, *, name: Optional[str] = MISSING
     ) -> Callable[..., Any]:
         """
         A decorator for listening to events dispatched from the
         Gateway.
 
         :param coro: The coroutine of the event.
-        :type coro: Coroutine
+        :type coro: Optional[Callable[..., Coroutine]]
         :param name(?): The name of the event. If not given, this defaults to the coroutine's name.
         :type name: Optional[str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
 
-        def decorator(coro: Coroutine):
+        def decorator(coro: Optional[Callable[..., Coroutine]]):
             self._websocket._dispatch.register(
                 coro, name=name if name is not MISSING else coro.__name__
             )
@@ -628,7 +651,7 @@ class Client:
     def __check_command(
         self,
         command: ApplicationCommand,
-        coro: Coroutine,
+        coro: Callable[..., Coroutine],
         regex: str = r"^[a-z0-9_-]{1,32}$",
     ) -> None:  # sourcery no-metrics
         """
@@ -835,7 +858,7 @@ class Client:
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[..., Any]:
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         A decorator for registering an application command to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -900,10 +923,10 @@ class Client:
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """
 
-        def decorator(coro: Coroutine) -> Callable[..., Any]:
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
 
             commands: Union[List[dict], dict] = command(
                 type=type,
@@ -953,7 +976,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[..., Any]:
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         A decorator for registering a message context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -983,10 +1006,10 @@ class Client:
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """
 
-        def decorator(coro: Coroutine) -> Callable[..., Any]:
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Any]:
 
             commands: Union[List[dict], dict] = command(
                 type=ApplicationCommandType.MESSAGE,
@@ -1022,7 +1045,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[..., Any]:
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         A decorator for registering a user context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -1052,10 +1075,10 @@ class Client:
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """
 
-        def decorator(coro: Coroutine) -> Callable[..., Any]:
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
 
             commands: Union[List[dict], dict] = command(
                 type=ApplicationCommandType.USER,
@@ -1083,7 +1106,9 @@ class Client:
 
         return decorator
 
-    def component(self, component: Union[str, Button, SelectMenu]) -> Callable[..., Any]:
+    def component(
+        self, component: Union[str, Button, SelectMenu]
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving components.
@@ -1112,10 +1137,10 @@ class Client:
         :param component: The component you wish to callback for.
         :type component: Union[str, Button, SelectMenu]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """
 
-        def decorator(coro: Coroutine) -> Any:
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
             payload: str = (
                 _component(component).custom_id
                 if isinstance(component, (Button, SelectMenu))
@@ -1168,7 +1193,7 @@ class Client:
 
     def autocomplete(
         self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
-    ) -> Callable[..., Any]:
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving autocompletion fields.
@@ -1190,7 +1215,7 @@ class Client:
         :param name: The name of the option to autocomplete.
         :type name: str
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """
 
         if isinstance(command, ApplicationCommand):
@@ -1205,17 +1230,19 @@ class Client:
                 code=12,
             )
 
-        def decorator(coro: Coroutine) -> Any:
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
             if isinstance(_command, str):
                 curr_autocomplete = self.__name_autocomplete.get(_command, [])
                 curr_autocomplete.append({"coro": coro, "name": name})
                 self.__name_autocomplete[_command] = curr_autocomplete
-                return
+                return coro
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
         return decorator
 
-    def modal(self, modal: Union[Modal, str]) -> Callable[..., Any]:
+    def modal(
+        self, modal: Union[Modal, str]
+    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving modals.
@@ -1241,10 +1268,10 @@ class Client:
         :param modal: The modal or custom_id of modal you wish to callback for.
         :type modal: Union[Modal, str]
         :return: A callable response.
-        :rtype: Callable[..., Any]
+        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
         """
 
-        def decorator(coro: Coroutine) -> Any:
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
             payload: str = modal.custom_id if isinstance(modal, Modal) else modal
             return self.event(coro, name=f"modal_{payload}")
 
@@ -1321,23 +1348,17 @@ class Client:
 
                 if ext_name != "Extension":
                     _extension = self._extensions.get(ext_name)
-                    try:
+                    with contextlib.suppress(AttributeError):
                         self._loop.create_task(
                             _extension.teardown(remove_commands=remove_commands)
                         )  # made for Extension, usable by others
-                    except AttributeError:
-                        pass
-
             del sys.modules[_name]
 
         else:
-            try:
+            with contextlib.suppress(AttributeError):
                 self._loop.create_task(
                     extension.teardown(remove_commands=remove_commands)
                 )  # made for Extension, usable by others
-            except AttributeError:
-                pass
-
         del self._extensions[_name]
 
         log.debug(f"Removed extension {name}.")
@@ -1378,7 +1399,7 @@ class Client:
             log.warning(f"Extension {name} could not be reloaded because it was never loaded.")
             return self.load(name, package)
 
-        self.remove(name, package, remove_commands)
+        self.remove(name, package=package, remove_commands=remove_commands)
         return self.load(name, package, *args, **kwargs)
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
@@ -1427,7 +1448,7 @@ class Client:
         :return: The channel as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.channels.add(Build(id=channel.id, value=channel))
+        self._http.cache[Channel].add(channel)
 
         return channel._json
 
@@ -1440,7 +1461,7 @@ class Client:
         :return: The message as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.messages.add(Build(id=message.id, value=message))
+        self._http.cache[Message].add(message)
 
         return message._json
 
@@ -1453,13 +1474,12 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
+        self._http.cache[Guild].add(guild)
 
         return guild._json
 
 
 class AutocompleteManager:
-
     __slots__ = (
         "client",
         "command_name",
@@ -1469,7 +1489,7 @@ class AutocompleteManager:
         self.client = client
         self.command_name = command_name
 
-    def __call__(self, name: str) -> Callable[..., Coroutine]:
+    def __call__(self, name: str) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
         Registers an autocomplete callback for the given command. See also :meth:`Client.autocomplete`
 
@@ -1477,8 +1497,11 @@ class AutocompleteManager:
         :type name: str
         """
 
-        def decorator(coro: Coroutine):
-            self.client._Client__name_autocomplete[self.command_name] = {"coro": coro, "name": name}
+        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
+            self.client._Client__name_autocomplete[self.command_name] = {
+                "coro": coro,
+                "name": name,
+            }  # noqa
             return coro
 
         return decorator
@@ -1513,6 +1536,7 @@ class Extension:
     client: Client
 
     def __new__(cls, client: Client, *args, **kwargs) -> "Extension":
+        # sourcery skip: low-code-quality
 
         self = super().__new__(cls)
 
@@ -1593,7 +1617,7 @@ class Extension:
         client._extensions[cls.__name__] = self
 
         if client._websocket.ready.is_set() and client._automate_sync:
-            client._loop.create_task(client._Client__sync())
+            client._loop.create_task(client._Client__sync())  # noqa
 
         return self
 
@@ -1604,12 +1628,12 @@ class Extension:
 
         for cmd, funcs in self._commands.items():
             for func in funcs:
-                _index = self.client._Client__command_coroutines.index(func)
-                self.client._Client__command_coroutines.pop(_index)
-                self.client._websocket._dispatch.events[cmd].remove(func)
+                _index = self.client._Client__command_coroutines.index(func)  # noqa
+                self.client._Client__command_coroutines.pop(_index)  # noqa
+                self.client._websocket._dispatch.events[cmd].remove(func)  # noqa
 
         if self.client._automate_sync and remove_commands:
-            await self.client._Client__sync()
+            await self.client._Client__sync()  # noqa
 
 
 @wraps(command)

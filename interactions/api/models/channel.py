@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Any, Callable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import (
@@ -11,9 +11,15 @@ from .attrs_utils import (
     define,
     field,
 )
-from .misc import File, Overwrite, Snowflake
+from .misc import File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
+
+if TYPE_CHECKING:
+    from ...client.models.component import ActionRow, Button, SelectMenu
+    from .guild import Invite, InviteTargetType
+    from .member import Member
+    from .message import Attachment, Embed, Message, MessageInteraction, Sticker
 
 __all__ = (
     "ChannelType",
@@ -112,7 +118,7 @@ class ThreadMember(ClientSerializerMixin):
 
 
 @define()
-class Channel(ClientSerializerMixin):
+class Channel(ClientSerializerMixin, IDMixin):
     """
     A class object representing all types of channels.
 
@@ -205,21 +211,22 @@ class Channel(ClientSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        attachments: Optional[List["Attachment"]] = MISSING,  # noqa
+        attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
-    ) -> "Message":  # noqa
+    ) -> "Message":  # noqa  # sourcery skip: dict-assign-update-to-union
         """
         Sends a message in the channel.
 
@@ -235,6 +242,8 @@ class Channel(ClientSerializerMixin):
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
@@ -249,6 +258,9 @@ class Channel(ClientSerializerMixin):
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
         if not embeds or embeds is MISSING:
             _embeds: list = []
         elif isinstance(embeds, list):
@@ -278,6 +290,7 @@ class Channel(ClientSerializerMixin):
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            sticker_ids=_sticker_ids,
         )
 
         res = await self._client.create_message(
@@ -501,7 +514,7 @@ class Channel(ClientSerializerMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
-        Sets the position of the channel.
+        Sets the amount of seconds a user has to wait before sending another message.
 
         :param rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
         :type rate_limit_per_user: int
@@ -629,7 +642,7 @@ class Channel(ClientSerializerMixin):
 
     async def add_member(
         self,
-        member_id: Union[int, Snowflake, "Member"],  # noqa
+        member_id: Union[int, Snowflake, "Member"],
     ) -> None:
         """
         This adds a member to the channel, if the channel is a thread.
@@ -648,9 +661,30 @@ class Channel(ClientSerializerMixin):
 
         await self._client.add_member_to_thread(thread_id=int(self.id), user_id=_member_id)
 
+    async def remove_member(
+        self,
+        member_id: Union[int, Snowflake, "Member"],
+    ) -> None:
+        """
+        This removes a member of the channel, if the channel is a thread.
+
+        :param member_id: The id of the member to remove of the channel
+        :type member_id: int
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        _member_id = (
+            int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
+        )
+
+        await self._client.remove_member_from_thread(thread_id=int(self.id), user_id=_member_id)
+
     async def pin_message(
         self,
-        message_id: Union[int, Snowflake, "Message"],  # noqa
+        message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
         Pins a message to the channel.
@@ -669,7 +703,7 @@ class Channel(ClientSerializerMixin):
 
     async def unpin_message(
         self,
-        message_id: Union[int, Snowflake, "Message"],  # noqa
+        message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
         Unpins a message from the channel.
@@ -688,8 +722,8 @@ class Channel(ClientSerializerMixin):
 
     async def publish_message(
         self,
-        message_id: Union[int, Snowflake, "Message"],  # noqa
-    ) -> "Message":  # noqa
+        message_id: Union[int, Snowflake, "Message"],
+    ) -> "Message":
         """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
         :param message_id: The id of the message to publish
@@ -709,7 +743,7 @@ class Channel(ClientSerializerMixin):
 
         return Message(**res, _client=self._client)
 
-    async def get_pinned_messages(self) -> List["Message"]:  # noqa
+    async def get_pinned_messages(self) -> List["Message"]:
         """
         Get all pinned messages from the channel.
 
@@ -726,7 +760,7 @@ class Channel(ClientSerializerMixin):
     async def get_message(
         self,
         message_id: Union[int, Snowflake],
-    ) -> "Message":  # noqa
+    ) -> "Message":
         """
         Gets a message sent in that channel.
 
@@ -750,7 +784,7 @@ class Channel(ClientSerializerMixin):
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
-    ) -> List["Message"]:  # noqa
+    ) -> List["Message"]:  # noqa  # sourcery skip: low-code-quality
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 
@@ -1014,11 +1048,11 @@ class Channel(ClientSerializerMixin):
         max_uses: Optional[int] = 0,
         temporary: Optional[bool] = False,
         unique: Optional[bool] = False,
-        target_type: Optional["InviteTargetType"] = MISSING,  # noqa
+        target_type: Optional["InviteTargetType"] = MISSING,
         target_user_id: Optional[int] = MISSING,
         target_application_id: Optional[int] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Invite":  # noqa
+    ) -> "Invite":
         """
         Creates an invite for the channel
 
@@ -1088,7 +1122,7 @@ class Channel(ClientSerializerMixin):
 
         return Invite(**res, _client=self._client)
 
-    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:  # noqa
+    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:
         """
         Gets messages from the channel's history.
 
@@ -1104,7 +1138,7 @@ class Channel(ClientSerializerMixin):
         from .message import Message
 
         _messages: List[Message] = []
-        _before: int = None
+        _before: Optional[int] = None
         while limit > 100:
             _msgs = [
                 Message(**res, _client=self._client)
@@ -1152,6 +1186,43 @@ class Channel(ClientSerializerMixin):
 
         res = await self._client.get_channel_webhooks(int(self.id))
         return [Webhook(**_, _client=self._client) for _ in res]
+
+    async def get_members(self) -> List[ThreadMember]:
+        """
+        Gets the list of thread members
+
+        :return: The members of the thread.
+        :rtype: List[ThreadMember]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        res = await self._client.list_thread_members(int(self.id))
+        return [ThreadMember(**member, _client=self._client) for member in res]
+
+    async def leave(self) -> None:
+        """
+        Removes the bot from the thread
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        await self._client.leave_thread(int(self.id))
+
+    async def join(self) -> None:
+        """
+        Add the bot to the thread
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        await self._client.join_thread(int(self.id))
 
 
 @define()

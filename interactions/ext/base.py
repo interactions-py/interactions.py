@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from setuptools import setup
 
@@ -64,15 +64,15 @@ class Base:
         :param kwargs?: Any other keyword arguments. Defaults to ``None``.
         :type kwargs: Optional[dict]
         """
-        self.version = version
-        self.name = name
-        self.link = link
-        self.description = description
-        self.long_description = long_description
-        self._packages = packages
-        self._requirements = requirements
-        self._kwargs = kwargs
-        self.__objects = {}
+        self.version: Version = version
+        self.name: str = name
+        self.link: str = link
+        self.description: str = description
+        self.long_description: str = long_description
+        self._packages: Optional[List[str]] = packages
+        self._requirements: Optional[List[str]] = requirements
+        self._kwargs: dict = kwargs
+        self.__objects: Dict[str, Any] = {}
 
     def _check_service(self, name: str) -> bool:
         """
@@ -85,7 +85,7 @@ class Base:
         """
         return name in self.__objects
 
-    def add_service(self, obj: object, name: str) -> Dict[str, object]:
+    def add_service(self, obj: Any, name: str) -> Dict[str, object]:
         """
         Adds a service to the 3rd party for ease of accessibility in calling.
         The code theory behind this is to simplify the way you handle and manage
@@ -98,7 +98,7 @@ class Base:
         :return: The mapped relation between the object and name.
         :rtype: Dict[str, object]
         """
-        model: Dict[str, object] = {name: obj}
+        model: Dict[str, Any] = {name: obj}
 
         self.__objects.update(model)
         return model
@@ -123,7 +123,7 @@ class Base:
         return _check
 
     @property
-    def services(self) -> Dict[str, object]:
+    def services(self) -> Dict[str, Any]:
         """
         Returns a view on all of the services currently stored under the 3rd party.
 

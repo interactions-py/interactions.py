@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import (
@@ -11,13 +11,14 @@ from .attrs_utils import (
     define,
     field,
 )
-from .channel import Channel, ChannelType, Thread
+from .channel import Channel, ChannelType, Thread, ThreadMember
 from .member import Member
 from .message import Emoji, Sticker
 from .misc import (
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,
+    IDMixin,
     Image,
     Overwrite,
     Snowflake,
@@ -27,6 +28,10 @@ from .role import Role
 from .team import Application
 from .user import User
 from .webhook import Webhook
+
+if TYPE_CHECKING:
+    from .gw import AutoModerationRule
+    from .message import Message
 
 __all__ = (
     "VerificationLevel",
@@ -164,7 +169,7 @@ class WelcomeScreen(DictSerializerMixin):
 
 
 @define()
-class StageInstance(DictSerializerMixin):
+class StageInstance(DictSerializerMixin, IDMixin):
     """
     A class object representing an instance of a stage channel in a guild.
 
@@ -185,7 +190,7 @@ class StageInstance(DictSerializerMixin):
 
 
 @define()
-class UnavailableGuild(DictSerializerMixin):
+class UnavailableGuild(DictSerializerMixin, IDMixin):
     """
     A class object representing how a guild that is unavailable.
 
@@ -204,7 +209,7 @@ class UnavailableGuild(DictSerializerMixin):
 
 
 @define()
-class Guild(ClientSerializerMixin):
+class Guild(ClientSerializerMixin, IDMixin):
     """
     A class object representing how a guild is registered.
 
@@ -325,6 +330,19 @@ class Guild(ClientSerializerMixin):
     features: List[str] = field()
 
     # todo assign the correct type
+
+    def __attrs_post_init__(self):  # sourcery skip: last-if-guard
+        if self._client:
+            # update the cache to include info found from guilds
+            # these values wouldn't be "found out" until an update for them happened otherwise
+            if self.channels:
+                self._client.cache[Channel].update({c.id: c for c in self.channels})
+            if self.threads:
+                self._client.cache[Thread].update({t.id: t for t in self.threads})
+            if self.roles:
+                self._client.cache[Role].update({r.id: r for r in self.roles})
+            if self.members:
+                self._client.cache[Member].update({(self.id, m.id): m for m in self.members})
 
     def __repr__(self) -> str:
         return self.name
@@ -519,6 +537,8 @@ class Guild(ClientSerializerMixin):
             reason=reason,
             payload=payload,
         )
+        if self.roles is None:
+            self.roles = []
         role = Role(**res, _client=self._client)
         self.roles.append(role)
         return role
@@ -542,6 +562,8 @@ class Guild(ClientSerializerMixin):
             member_id=int(member_id),
         )
         member = Member(**res, _client=self._client)
+        if self.members is None:
+            self.members = []
         for index, _member in enumerate(self.members):
             if int(_member.id) == int(member_id):
                 self.members[index] = member
@@ -671,6 +693,8 @@ class Guild(ClientSerializerMixin):
             reason=reason,
         )
         _role = Role(**res, _client=self._client)
+        if self.roles is None:
+            self.roles = []
         for index, item in enumerate(self.roles):
             if int(item.id) == int(role.id):
                 self.roles[index] = _role
@@ -686,7 +710,7 @@ class Guild(ClientSerializerMixin):
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:
         """
@@ -834,6 +858,8 @@ class Guild(ClientSerializerMixin):
             payload=payload,
         )
 
+        if self.channels is None:
+            self.channels = []
         channel = Channel(**res, _client=self._client)
         self.channels.append(channel)
         return channel
@@ -878,7 +904,7 @@ class Guild(ClientSerializerMixin):
         auto_archive_duration: Optional[int] = MISSING,
         locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
-    ) -> Channel:
+    ) -> Channel:  # sourcery skip: low-code-quality
         """
         Edits a channel of the guild.
 
@@ -980,6 +1006,9 @@ class Guild(ClientSerializerMixin):
 
         _channel = Channel(**res, _client=self._client)
 
+        if self.channels is None:
+            self.channels = []
+
         for index, item in enumerate(self.channels):
             if int(item.id) == int(ch.id):
                 self.channels[index] = _channel
@@ -1053,7 +1082,8 @@ class Guild(ClientSerializerMixin):
         )
 
         _member = Member(**res, _client=self._client)
-
+        if self.members is None:
+            self.members = []
         for index, member in enumerate(self.members):
             if int(member.id) == _member_id:
                 self.members[index] = _member
@@ -1107,7 +1137,7 @@ class Guild(ClientSerializerMixin):
         description: Optional[str] = MISSING,
         premium_progress_bar_enabled: Optional[bool] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Guild":
+    ) -> "Guild":  # sourcery skip: low-code-quality
         """
         Modifies the current guild.
 
@@ -1459,7 +1489,7 @@ class Guild(ClientSerializerMixin):
         Sets the splash of the guild.
 
         :param splash: The new splash of the guild
-        :type self: Image
+        :type splash: Image
         :param reason?: The reason of the edit
         :type reason: Optional[str]
         """
@@ -1677,6 +1707,26 @@ class Guild(ClientSerializerMixin):
         self.channels = [Channel(**channel, _client=self._client) for channel in res]
         return self.channels
 
+    async def get_all_active_threads(self) -> List[Channel]:
+        """
+        Gets all active threads of the guild.
+
+        :return: The threads of the guild.
+        :rtype: List[Thread]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        res = await self._client.list_active_threads(int(self.id))
+        threads = [Thread(**thread, _client=self._client) for thread in res["threads"]]
+        members = [ThreadMember(**member, _client=self._client) for member in res["members"]]
+        for member in members:
+            for thread in threads:
+                if int(thread.id) == int(member.id):
+                    thread.member = member
+                    break
+        self.threads = threads
+        return self.threads
+
     async def get_all_roles(self) -> List[Role]:
         """
         Gets all roles of the guild as list.
@@ -1752,7 +1802,7 @@ class Guild(ClientSerializerMixin):
 
         :param changes: A list of dicts containing roles (id) and their new positions (position)
         :type changes: List[dict]
-        :param reason?: The reason for the modifying
+        :param reason: The reason for the modifying
         :type reason: Optional[str]
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
@@ -1850,6 +1900,10 @@ class Guild(ClientSerializerMixin):
 
         res = await self._client.get_guild_emoji(guild_id=int(self.id), emoji_id=emoji_id)
         _emoji = Emoji(**res, _client=self._client)
+
+        if self.emojis is None:
+            self.emojis = []
+
         for index, emoji in enumerate(self.emojis):
             if int(emoji.id) == emoji_id:
                 self.emojis[index] = _emoji
@@ -1907,6 +1961,10 @@ class Guild(ClientSerializerMixin):
         res = await self._client.create_guild_emoji(
             guild_id=int(self.id), payload=payload, reason=reason
         )
+
+        if self.emojis is None:
+            self.emojis = []
+
         _emoji = Emoji(**res)
         self.emojis.append(_emoji)
         return _emoji
@@ -1964,6 +2022,8 @@ class Guild(ClientSerializerMixin):
             guild_id=int(self.id), limit=limit, after=_after
         )
         _members = [Member(**member, _client=self._client) for member in res]
+        if self.members is None:
+            self.members = []
         for member in _members:
             if member not in self.members:
                 self.members.append(member)
@@ -2023,7 +2083,7 @@ class Guild(ClientSerializerMixin):
 
         return [Webhook(**_, _client=self._client) for _ in res]
 
-    async def list_auto_moderation_rules(self) -> List["AutoModerationRule"]:  # noqa
+    async def list_auto_moderation_rules(self) -> List["AutoModerationRule"]:
         """
         Lists all AutoMod rules
         """
@@ -2038,7 +2098,7 @@ class Guild(ClientSerializerMixin):
 
     async def get_auto_moderation_rule(
         self, rule_id: Union[int, Snowflake]
-    ) -> "AutoModerationRule":  # noqa
+    ) -> "AutoModerationRule":
         """
         Gets a AutoMod rule from its ID
 
@@ -2067,7 +2127,7 @@ class Guild(ClientSerializerMixin):
         exempt_roles: Optional[List[int]] = MISSING,
         exempt_channels: Optional[List[int]] = MISSING,
         reason: Optional[str] = None,
-    ) -> "AutoModerationRule":  # noqa
+    ) -> "AutoModerationRule":
         """
         Creates an AutoMod rule
 
@@ -2124,7 +2184,7 @@ class Guild(ClientSerializerMixin):
 
     async def modify_auto_moderation_rule(
         self,
-        rule: Union[int, Snowflake, "AutoModerationRule"],  # noqa
+        rule: Union[int, Snowflake, "AutoModerationRule"],
         name: str = MISSING,
         # event_type: int, # only 1 exists
         trigger_type: AutoModTriggerType = MISSING,
@@ -2134,7 +2194,7 @@ class Guild(ClientSerializerMixin):
         exempt_roles: Optional[List[int]] = MISSING,
         exempt_channels: Optional[List[int]] = MISSING,
         reason: Optional[str] = None,
-    ) -> "AutoModerationRule":  # noqa
+    ) -> "AutoModerationRule":  # noqa  # sourcery skip: compare-via-equals
         """
         Edits an AutoMod rule
 
@@ -2252,7 +2312,7 @@ class Guild(ClientSerializerMixin):
 
 
 @define()
-class GuildPreview(DictSerializerMixin):
+class GuildPreview(DictSerializerMixin, IDMixin):
     """
     A class object representing the preview of a guild.
 
@@ -2281,7 +2341,7 @@ class GuildPreview(DictSerializerMixin):
 
 
 @define()
-class Integration(DictSerializerMixin):
+class Integration(DictSerializerMixin, IDMixin):
     """
     A class object representing an integration in a guild.
 
@@ -2362,7 +2422,7 @@ class EventMetadata(DictSerializerMixin):
 
 
 @define()
-class ScheduledEvents(DictSerializerMixin):
+class ScheduledEvents(DictSerializerMixin, IDMixin):
     """
     A class object representing the scheduled events of a guild.
 
@@ -2464,5 +2524,5 @@ class Invite(ClientSerializerMixin):
         await self._client.delete_invite(self.code)
 
     @property
-    def url(self):
+    def url(self) -> str:
         return f"https://discord.gg/{self.code}" if self.code else None

@@ -27,6 +27,7 @@ __all__ = (
     "Snowflake",
     "Color",
     "ClientStatus",
+    "IDMixin",
     "Image",
     "File",
     "Overwrite",
@@ -67,7 +68,7 @@ class ClientStatus(DictSerializerMixin):
     web: Optional[str] = field(default=None)
 
 
-class Snowflake(object):
+class Snowflake:
     """
     The Snowflake object.
 
@@ -91,11 +92,11 @@ class Snowflake(object):
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None:
         self._snowflake = str(snowflake)
 
-    def __str__(self):
+    def __str__(self) -> str:
         # This is overridden for model comparison between IDs.
         return self._snowflake
 
-    def __int__(self):
+    def __int__(self) -> int:
         # Easier to use for HTTP calling instead of int(str(obj)).
         return int(self._snowflake)
 
@@ -145,10 +146,10 @@ class Snowflake(object):
 
     # ---- Extra stuff that might be helpful.
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self._snowflake)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Snowflake):
             return str(self) == str(other)
         elif isinstance(other, int):
@@ -158,8 +159,26 @@ class Snowflake(object):
 
         return NotImplemented
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._snowflake})"
+
+
+class IDMixin:
+    """A mixin to implement equality and hashing for models that have an id."""
+
+    id: Snowflake
+
+    def __eq__(self, other) -> bool:
+        return (
+            self.id is not None
+            and isinstance(
+                other, IDMixin
+            )  # different classes can't share ids, covers cases like Member/User
+            and self.id == other.id
+        )
+
+    def __hash__(self) -> int:
+        return hash(self.id)
 
 
 @define()
@@ -225,7 +244,7 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     presets: Optional[List[str]] = field(default=None)
 
 
-class Color(object):
+class Color:
     """
     An object representing Discord branding colors.
 
@@ -236,28 +255,28 @@ class Color(object):
         custom-defined colors.
     """
 
-    @property
-    def blurple(self) -> hex:
+    @staticmethod
+    def blurple() -> int:
         """Returns a hexadecimal value of the blurple color."""
         return 0x5865F2
 
-    @property
-    def green(self) -> hex:
+    @staticmethod
+    def green() -> int:
         """Returns a hexadecimal value of the green color."""
         return 0x57F287
 
-    @property
-    def yellow(self) -> hex:
+    @staticmethod
+    def yellow() -> int:
         """Returns a hexadecimal value of the yellow color."""
         return 0xFEE75C
 
-    @property
-    def fuchsia(self) -> hex:
+    @staticmethod
+    def fuchsia() -> int:
         """Returns a hexadecimal value of the fuchsia color."""
         return 0xEB459E
 
-    @property
-    def red(self) -> hex:
+    @staticmethod
+    def red() -> int:
         """Returns a hexadecimal value of the red color."""
         return 0xED4245
 
@@ -265,18 +284,18 @@ class Color(object):
     # If they don't know white is ff and black is 00, something's seriously
     # wrong.
 
-    @property
-    def white(self) -> hex:
+    @staticmethod
+    def white() -> int:
         """Returns a hexadecimal value of the white color."""
         return 0xFFFFFF
 
-    @property
-    def black(self) -> hex:
+    @staticmethod
+    def black() -> int:
         """Returns a hexadecimal value of the black color."""
         return 0x000000
 
 
-class File(object):
+class File:
     """
     A File object to be sent as an attachment along with a message.
 
@@ -305,11 +324,11 @@ class File(object):
         else:
             self._description = description
 
-    def _json_payload(self, id):
+    def _json_payload(self, id: int) -> dict:
         return {"id": id, "description": self._description, "filename": self._filename}
 
 
-class Image(object):
+class Image:
     """
     This class object allows you to upload Images to the Discord API.
 
@@ -322,7 +341,7 @@ class Image(object):
         self._URI = "data:image/"
 
         if fp is MISSING or isinstance(file, FileIO):
-            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)
+            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)  # noqa
 
             self._name = file.name
             _file = file.read()
