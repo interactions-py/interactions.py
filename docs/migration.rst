@@ -71,4 +71,7 @@ portal and add the intent to your current intents when connecting:
 A new big change in this release is the ``get` utility method.
 It allows you to no longer use ``**await bot._http...``.
 
-You can get more information by reading the :ref:`get-documentation <get>`
+You can get more information by reading the `get-documentation`_
+
+
+.. _get-documentation: https://interactionspy.readthedocs.io/en/latest/get.html#the-get-utility-method
