@@ -98,7 +98,7 @@ def get(*args, **kwargs):
         .. code-block:: python
 
             # Getting an object from an iterable
-            check = lambda role: return role.name == "ADMIN" and role.color == 0xff0000
+            check = lambda role: role.name == "ADMIN" and role.color == 0xff0000
             roles = [
                 interactions.Role(name="NOT ADMIN", color=0xff0000),
                 interactions.Role(name="ADMIN", color=0xff0000),
@@ -374,7 +374,13 @@ def _search_iterable(items: Iterable[_T], **kwargs) -> Optional[_T]:
 def _resolve_kwargs(obj, **kwargs):
     # This function is needed to get correct kwarg names
     if __id := kwargs.pop("parent_id", None):
-        kwargs[f"{'channel_id' if obj in [Message, List[Message]] else 'guild_id'}"] = __id
+
+        if version_info >= (3, 9):
+            _list = [Message, List[Message], list[Message]]
+        else:
+            _list = [Message, List[Message]]
+
+        kwargs[f"{'channel_id' if obj in _list else 'guild_id'}"] = __id
 
     if __id := kwargs.pop("object_id", None):
         _kwarg_name = f"{obj.__name__.lower()}_id"
