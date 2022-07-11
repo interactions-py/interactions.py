@@ -159,7 +159,7 @@ def get(*args, **kwargs):
 
         .. important::
             The ``parent_id`` represents the channel or guild id that belongs to the objects you want to get. It is
-            called ``parent_id`` bcause ``guild_or_channel_id`` would be horrible to type out every time.
+            called ``parent_id`` because ``guild_or_channel_id`` would be horrible to type out every time.
 
     Getting a list of an object:
         Here you will see 1 example of how to get a list of objects. The possibilities on how to force (and their
