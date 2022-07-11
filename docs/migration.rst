@@ -71,4 +71,4 @@ portal and add the intent to your current intents when connecting:
 A new big change in this release is the ``get` utility method.
 It allows you to no longer use ``**await bot._http...``.
 
-You can get more information by reading the :ref:`get-documentation <get:the-get-utility-method>`
+You can get more information by reading the :ref:`get-documentation <get>`
