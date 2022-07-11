@@ -198,10 +198,12 @@ def get(*args, **kwargs):
         def _check():
             return False
 
-    if len(args) == 2 and any(isinstance(_, Iterable) for _ in args):
-        raise LibraryException(message="You can only use Iterables as single-argument!", code=12)
-
     if len(args) == 2:
+
+        if any(isinstance(_, Iterable) for _ in args):
+            raise LibraryException(
+                message="You can only use Iterables as single-argument!", code=12
+            )
 
         client, obj = args
         if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
@@ -280,7 +282,6 @@ async def _http_request(
     _name: str = None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
-
     if not request:
         if obj in (Role, Emoji):
             _guild = Guild(**await http.get_guild(kwargs.pop("guild_id")), _client=http)
@@ -307,7 +308,6 @@ async def _return_cache(
 def _get_cache(
     _object: Type[_T], client: Client, kwarg_name: str, _list: bool = False, **kwargs
 ) -> Union[Optional[_T], List[Optional[_T]]]:
-
     if _list:
         _obj = []
         if isinstance(_object, Member):  # Can't be more dynamic on this
@@ -340,7 +340,6 @@ def _get_cache(
 
 
 def _search_iterable(items: Iterable[_T], **kwargs) -> Optional[_T]:
-
     if not isinstance(items, Iterable):
         raise LibraryException(message="The specified items must be an iterable!", code=12)
 
