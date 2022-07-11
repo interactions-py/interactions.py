@@ -299,7 +299,6 @@ From this, you can utilize the following decorators:
 
 * :ref:`@subcommand() <models.command:Application Command Models>`: creates a subcommand.
 * :ref:`@group() <models.command:Application Command Models>`: creates a group.
-    * This is the decorator that creates a group.
 * :ref:`@error <models.command:Application Command Models>`: registers an error callback.
 
 Check the documentation for the parameters of each of these decorators.
