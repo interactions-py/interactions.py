@@ -10,13 +10,14 @@ from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
-from ..api import Item as Build
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import MISSING
+from ..api.models.channel import Channel
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
+from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
@@ -117,10 +118,7 @@ class Client:
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
 
-        return [
-            Guild(**_) if _.get("_client") else Guild(**_, _client=self._http)
-            for _ in self._http.cache.self_guilds.view
-        ]
+        return list(self._http.cache[Guild].values.values())
 
     @property
     def latency(self) -> float:
@@ -1450,7 +1448,7 @@ class Client:
         :return: The channel as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.channels.add(Build(id=channel.id, value=channel))
+        self._http.cache[Channel].add(channel)
 
         return channel._json
 
@@ -1463,7 +1461,7 @@ class Client:
         :return: The message as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.messages.add(Build(id=message.id, value=message))
+        self._http.cache[Message].add(message)
 
         return message._json
 
@@ -1476,7 +1474,7 @@ class Client:
         :return: The guild as a dictionary of raw data.
         :rtype: dict
         """
-        self._http.cache.self_guilds.add(Build(id=str(guild.id), value=guild))
+        self._http.cache[Guild].add(guild)
 
         return guild._json
 

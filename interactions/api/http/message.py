@@ -2,7 +2,7 @@ from typing import List, Optional, Union
 
 from aiohttp import MultipartWriter
 
-from ...api.cache import Cache, Item
+from ...api.cache import Cache
 from ..models.attrs_utils import MISSING
 from ..models.message import Embed, Message, MessageInteraction, Sticker
 from ..models.misc import File, Snowflake
@@ -98,7 +98,7 @@ class MessageRequest:
             data=data,
         )
         if request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request, _client=self)))
+            self.cache[Message].add(Message(**request, _client=self))
 
         return request
 
