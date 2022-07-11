@@ -62,3 +62,116 @@ portal and add the intent to your current intents when connecting:
     from interactions import Client, Intents
 
     bot = Client("TOKEN", intents=Intents.DEFAULT | Intents.GUILD_MESSAGE_CONTENT)
+
+4.1.0 → 4.3.0
+~~~~~~~~~~~~~~~
+
+``4.3.0`` introduces a new method of creating commands, subcommands, and options.
+There are also numerous new features, such as a default scope and utilities.
+
+The following example shows and explains how to create commands effortlessly and use new features mentioned above:
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client("TOKEN", default_scope=1234567890)
+    # the default scope will be applied to all commands except for those
+    # that disable the feature in the command decorator via: `default_scope=False`
+
+    @bot.command()
+    async def command_name(ctx):
+        """Command description"""
+        ...  # do something here.
+        # the name of the command is the coroutine name.
+        # the description is the first line of the docstring or "No description set".
+
+    @bot.command(default_scope=False)
+    @interactions.option(str, name="opt1")  # description is optional.
+    @interactions.option(4, name="opt2", description="This is an option.")
+    @interactions.option(interactions.Channel, name="opt3", required=True)
+    async def command_with_options(
+        ctx, opt1: str, opt2, int, opt3: interactions.Channel = None
+    ):
+        ...  # do something here.
+        # the default scope is disabled for this command, so this is a global command.
+        # the option type is positional only, and can be a python type, an integer,
+        # or supported interactions.py objects.
+        # all other options are keyword only arguments.
+        # the type amd name of the option are required, the rest are optional.
+
+    # Subcommand system:
+    @bot.command()
+    async def base_command(ctx):
+        ...  # do something here.
+        # this is the base command of the subcommand system.
+
+    @base_command.subcommand()
+    async def subcommand1(ctx, base_res: interactions.BaseResult):
+        ...  # do something here.
+        # this is a subcommand of the base command.
+        # the base result is the result of the base command, it is optional to have.
+        # /base_command subcommand1
+
+    # create subcommands *before* creating groups!
+
+    @base_command.group()
+    async def group1(ctx, base_res: interactions.BaseResult):
+        ...  # do something here.
+        # this symbolizes a group for subcommands.
+
+    @group.subcommand()
+    async def subcommand2(ctx, group_res: interactions.GroupResult):
+        raise Exception("pretend an error happened here")
+        # this is a subcommand of the group.
+        # the group result is the result of the group, it is optional to have.
+        # /base_command group1 subcommand2
+
+    @base_command.group()
+    async def group2(ctx):
+        # this symbolizes a group for subcommands.
+        # here, we will intentionally return StopCommand:
+        return interactions.StopCommand
+        # if this is returned, any callbacks afterwards in the same
+        # command will not be executed.
+        # for example, subcommand3 will not be executed.
+
+    @group2.subcommand()
+    async def subcommand3(ctx):
+        ...  # do something here.
+        # this is a subcommand of the group.
+        # this will NOT be executed.
+        # /base_command group2 subcommand3
+
+    @base_command.error
+    async def base_command_error(ctx, error):
+        ...  # do something here.
+        # remember the exception in subcommand2?
+        # here, you can handle any errors that occur in the base command.
+        # this is the error handler for the base command.
+        # the error is the exception raised by the command.
+        # you can have optional res, *args, and **kwargs
+        # if your command is a subcommand or
+        # there are options that you want to access.
+
+    # utilities
+    @bot.command()
+    @interactions.autodefer()  # configurable
+    async def autodefer_command(ctx):
+        # it will automatically defer the command if the command is not
+        # executed within the configured `delay` in the autodefer decorator.
+
+        # ActionRow.new() utility:
+        b1 = Button(style=1, custom_id="b1", label="b1")
+        b2 = Button(style=1, custom_id="b2", label="b2")
+        b3 = Button(style=1, custom_id="b3", label="b3")
+        b4 = Button(style=1, custom_id="b4", label="b4")
+
+        await ctx.send("Components:", components=interactions.ActionRow.new(b1, b2, b3, b4))
+        # instead of the cumbersome ActionRow(components=[b1, b2, b3, b4])
+
+        # spread_to_rows utility:
+        await ctx.send("Components:", components=interactions.spread_to_rows(b1, b2, b3, b4, max_in_row=2))
+        # configurable
+
+    bot.start()
