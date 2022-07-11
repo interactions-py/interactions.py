@@ -294,15 +294,13 @@ As of v4.3.0, you can also utilize the new command system to create subcommands:
 Additional information about subcommands
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Base commands are returned the :ref:`Command <models.command:Application Command Models:Command>` object.
+Base commands are returned the :ref:`Command <models.command:Application Command Models>` object.
 From this, you can utilize the following decorators:
 
-* :ref:`@subcommand() <models.command:Application Command Models:subcommand>`
-    * This is the decorator that creates a subcommand.
-* :ref:`@group() <models.command:Application Command Models:group>`
+* :ref:`@subcommand() <models.command:Application Command Models>`: creates a subcommand.
+* :ref:`@group() <models.command:Application Command Models>`: creates a group.
     * This is the decorator that creates a group.
-* :ref:`@error <models.command:Application Command Models:error>`
-    * This is the decorator that registers an error callback.
+* :ref:`@error <models.command:Application Command Models>`: registers an error callback.
 
 Check the documentation for the parameters of each of these decorators.
 
