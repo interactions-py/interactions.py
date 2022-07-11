@@ -1,5 +1,16 @@
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
 
 if TYPE_CHECKING:
     from .models import Snowflake
@@ -41,7 +52,15 @@ class Storage(Generic[_T]):
         """
         self.values[id or item.id] = item
 
-    def get(self, id: "Key", default: Optional[_P] = None) -> Union[_T, _P]:
+    @overload
+    def get(self, id: "Key") -> Optional[_T]:
+        ...
+
+    @overload
+    def get(self, id: "Key", default: _P) -> Union[_T, _P]:
+        ...
+
+    def get(self, id: "Key", default: Optional[_P] = None) -> Union[_T, _P, None]:
         """
         Gets an item from the storage.
 
