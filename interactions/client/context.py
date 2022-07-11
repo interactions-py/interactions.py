@@ -73,10 +73,10 @@ class _Context(ClientSerializerMixin):
             self.user = self.member.user if self.member else None
 
         if self.guild is None and self.guild_id is not None:
-            self.guild = self._client.cache.guilds.values.get(self.guild_id, MISSING)
+            self.guild = self._client.cache[Guild].get(self.guild_id, MISSING)
 
         if self.channel is None:
-            self.channel = self._client.cache.channels.values.get(self.channel_id, MISSING)
+            self.channel = self._client.cache[Channel].get(self.channel_id, MISSING)
 
     async def get_channel(self) -> Channel:
         """
