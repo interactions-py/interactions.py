@@ -1,4 +1,4 @@
-from typing import overload, Type, TypeVar, List, Iterable, Optional, Callable, Awaitable, Literal
+from typing import overload, Type, TypeVar, List, Iterable, Optional, Callable, Awaitable, Literal, Coroutine, Union
 
 from interactions.client.bot import Client
 from enum import Enum
@@ -9,10 +9,11 @@ from ..api.models.message import Message, Emoji, Sticker
 from ..api.models.user import User
 from ..api.models.webhook import Webhook
 from ..api.models.role import Role
+from ..api.http.client import HTTPClient
 
-_T = TypeVar("_T", Channel, Guild, Webhook, User, Sticker)
-_P = TypeVar("_P", Member, Emoji, Role, Message)
-_A = TypeVar("_A", Channel, Guild, Webhook, User, Sticker, Message, Emoji, Role, Message)
+_SA = TypeVar("_SA", Channel, Guild, Webhook, User, Sticker)
+_MA = TypeVar("_MA", Member, Emoji, Role, Message)
+_T = TypeVar("_T")
 
 __all__: tuple
 
@@ -26,8 +27,8 @@ class Force(str, Enum):
 # not API-object related
 @overload
 def get(
-    items: Iterable[_A], /, *, id: Optional[int] = None, name: Optional[str] = None, check: Callable[..., bool], **kwargs
-) -> Optional[_A]: ...
+    items: Iterable[_T], /, *, id: Optional[int] = None, name: Optional[str] = None, check: Callable[..., bool], **kwargs
+) -> Optional[_T]: ...
 
 # API-object related
 
@@ -36,81 +37,81 @@ def get(
 @overload
 def get(
     client: Client,
-    obj: Type[_T],
+    obj: Type[_SA],
     *,
     object_id: int,
     force: Optional[Literal["http", Force.HTTP]] = None
-) -> Awaitable[_T]: ...
+) -> Awaitable[_SA]: ...
 
 @overload
 def get(
     client: Client,
-    obj: Type[_P],
+    obj: Type[_MA],
     *,
     parent_id: int,
     object_id: int,
     force: Optional[Literal["http", Force.HTTP]] = None
-) -> Awaitable[_P]: ...
+) -> Awaitable[_MA]: ...
 
 # list of objects
 @overload
 def get(
     client: Client,
-    obj: Type[List[_T]],
+    obj: Type[List[_SA]],
     *,
     object_ids: List[int],
     force: Optional[Literal["http", Force.HTTP]] = None
-) -> Awaitable[List[_T]]: ...
+) -> Awaitable[List[_SA]]: ...
 
 @overload
 def get(
     client: Client,
-    obj: Type[List[_P]],
+    obj: Type[List[_MA]],
     *,
     parent_id: int,
     object_ids: List[int],
     force: Optional[Literal["http", Force.HTTP]] = None
-) -> Awaitable[List[_P]]: ...
+) -> Awaitable[List[_MA]]: ...
 
 # with cache force
 @overload
-def get(client: Client, obj: Type[_T], *, object_id: int, force: Literal["cache", Force.CACHE]) -> Optional[_T]: ...
+def get(client: Client, obj: Type[_SA], *, object_id: int, force: Literal["cache", Force.CACHE]) -> Optional[_SA]: ...
 
 @overload
 def get(
-    client: Client, obj: Type[_P], *, parent_id: int, object_id: int, force: Literal["cache", Force.CACHE]
-) -> Optional[_P]: ...
+    client: Client, obj: Type[_MA], *, parent_id: int, object_id: int, force: Literal["cache", Force.CACHE]
+) -> Optional[_MA]: ...
 
 # list of objects
 @overload
 def get(
-    client: Client, obj: Type[List[_T]], *, object_ids: List[int], force: Literal["cache", Force.CACHE]
-) -> List[Optional[_T]]: ...
+    client: Client, obj: Type[List[_SA]], *, object_ids: List[int], force: Literal["cache", Force.CACHE]
+) -> List[Optional[_SA]]: ...
 
 @overload
 def get(
     client: Client,
-    obj: Type[List[_P]],
+    obj: Type[List[_MA]],
     *,
     parent_id: int,
     object_ids: List[int],
     force: Literal["cache", Force.CACHE]
-) -> List[Optional[_P]]: ...
+) -> List[Optional[_MA]]: ...
 
 # Having a not-overloaded definition stops showing a warning/complaint from the IDE if wrong arguments are put in,
 # so we'll leave that out
 
-def _search_iterable(item: Iterable[_A], **kwargs) -> Optional[_A]:...
+def _search_iterable(item: Iterable[_T], **kwargs) -> Optional[_T]:...
 def _get_cache(
-    _object: Type[_A], client: Client, kwarg_name: str, _list: bool = False, **kwargs
-) -> Union[Optional[_A], List[Optional[_A]]]:...
+    _object: Type[_T], client: Client, kwarg_name: str, _list: bool = False, **kwargs
+) -> Union[Optional[_T], List[Optional[_T]]]:...
 async def _return_cache(
-    obj: Union[Optional[_A], List[Optional[_A]]]
-) -> Union[Optional[_A], List[Optional[_A]]]:...
+    obj: Union[Optional[_T], List[Optional[_T]]]
+) -> Union[Optional[_T], List[Optional[_T]]]:...
 async def _http_request(
-    obj: Type[_A],
+    obj: Type[_T],
     http: HTTPClient,
-    request: Union[Coroutine, List[Union[_A, Coroutine]], List[Coroutine]] = None,
+    request: Union[Coroutine, List[Union[_T, Coroutine]], List[Coroutine]] = None,
     _name: str = None,
     **kwargs,
-) -> Union[_A, List[_A]]:...
+) -> Union[_T, List[_T]]:...

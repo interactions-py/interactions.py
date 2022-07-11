@@ -14,19 +14,16 @@ from sys import version_info
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Emoji, Message, Sticker
+from ..api.models.message import Emoji, Message
 from ..api.models.misc import Snowflake
 from ..api.models.role import Role
-from ..api.models.user import User
-from ..api.models.webhook import Webhook
 from .bot import Client
 
 log = getLogger("get")
 
-_A = TypeVar("_A", Channel, Guild, Webhook, User, Sticker, Message, Emoji, Role, Message)
+_T = TypeVar("_T")
 
 __all__ = (
     "get",
@@ -209,7 +206,7 @@ def get(*args, **kwargs):
         client, obj = args
         if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
             client: Client
-            obj: Union[Type[_A], Type[List[_A]]]
+            obj: Union[Type[_T], Type[List[_T]]]
             raise LibraryException(
                 message="The object must not be an instance of a class!", code=12
             )
@@ -218,7 +215,7 @@ def get(*args, **kwargs):
         http_name = f"get_{obj.__name__.lower()}"
         kwarg_name = f"{obj.__name__.lower()}_id"
         if isinstance(obj, _GenericAlias) or _check():
-            _obj: Type[_A] = get_args(obj)[0]
+            _obj: Type[_T] = get_args(obj)[0]
             _objects: List[Union[_obj, Coroutine]] = []
             kwarg_name += "s"
 
@@ -256,7 +253,7 @@ def get(*args, **kwargs):
                         _objects[_index] = _request
                 return _http_request(_obj, http=client._http, request=_objects)
 
-        _obj: Optional[_A] = None
+        _obj: Optional[_T] = None
 
         force_cache = kwargs.pop("force", None) == "cache"
         force_http = kwargs.pop("force", None) == "http"
@@ -277,12 +274,12 @@ def get(*args, **kwargs):
 
 
 async def _http_request(
-    obj: Type[_A],
+    obj: Type[_T],
     http: HTTPClient,
-    request: Union[Coroutine, List[Union[_A, Coroutine]], List[Coroutine]] = None,
+    request: Union[Coroutine, List[Union[_T, Coroutine]], List[Coroutine]] = None,
     _name: str = None,
     **kwargs,
-) -> Union[_A, List[_A]]:
+) -> Union[_T, List[_T]]:
 
     if not request:
         if obj in (Role, Emoji):
@@ -301,15 +298,15 @@ async def _http_request(
 
 
 async def _return_cache(
-    obj: Union[Optional[_A], List[Optional[_A]]]
-) -> Union[Optional[_A], List[Optional[_A]]]:
+    obj: Union[Optional[_T], List[Optional[_T]]]
+) -> Union[Optional[_T], List[Optional[_T]]]:
     await sleep(0)  # iirc Bluenix meant that any coroutine should await at least once
     return obj
 
 
 def _get_cache(
-    _object: Type[_A], client: Client, kwarg_name: str, _list: bool = False, **kwargs
-) -> Union[Optional[_A], List[Optional[_A]]]:
+    _object: Type[_T], client: Client, kwarg_name: str, _list: bool = False, **kwargs
+) -> Union[Optional[_T], List[Optional[_T]]]:
 
     if _list:
         _obj = []
@@ -342,7 +339,7 @@ def _get_cache(
     return _obj
 
 
-def _search_iterable(items: Iterable[_A], **kwargs) -> Optional[_A]:
+def _search_iterable(items: Iterable[_T], **kwargs) -> Optional[_T]:
 
     if not isinstance(items, Iterable):
         raise LibraryException(message="The specified items must be an iterable!", code=12)
