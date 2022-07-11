@@ -1,6 +1,6 @@
 .. currentmodule:: interactions
 
-The ``get``-Method
+The ``get`` utility method
 ================
 
 .. automodule:: interactions.client.get
