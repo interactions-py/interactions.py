@@ -86,6 +86,10 @@ class DictSerializerMixin:
 
         :param dict kwargs_dict: The dictionary to update from
         """
+        # idiot check to make sure it's a dictionary (yes, that includes myself)
+        if isinstance(kwargs_dict, DictSerializerMixin):
+            kwargs_dict = kwargs_dict._json
+
         kwargs = kwargs_dict or other_kwargs
         attribs: Dict[str, attrs.Attribute] = {
             attrib.name: attrib for attrib in self.__attrs_attrs__
@@ -94,6 +98,9 @@ class DictSerializerMixin:
         for name, value in kwargs.items():
             if name not in attribs:
                 self._extras[name] = value
+                continue
+
+            if value is None:
                 continue
 
             if converter := attribs[name].converter:
