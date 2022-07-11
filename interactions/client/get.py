@@ -311,16 +311,15 @@ def _get_cache(
     if _list:
         _obj = []
         if _object == Member:  # Can't be more dynamic on this
-            _values = ()
             _guild_id = Snowflake(kwargs.get("guild_id"))
-            for _id in kwargs.get("member_ids"):
-                _values += (
-                    (
-                        _guild_id,
-                        Snowflake(_id),
-                    ),
+            _values = [
+                (
+                    _guild_id,
+                    Snowflake(_id),
                 )
-            _obj.extend(client._http.cache[_object].get(item) for item in _values)
+                for _id in kwargs.get("member_ids")
+            ]
+            _obj.extend(client._http.cache[_object].get(item, None) for item in _values)
 
         else:
             _obj.extend(
