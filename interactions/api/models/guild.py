@@ -338,8 +338,6 @@ class Guild(ClientSerializerMixin, IDMixin):
             if self.channels:
                 self._client.cache[Channel].update({c.id: c for c in self.channels})
             if self.threads:
-                # threads are channels, yet threads are also cached seperately
-                self._client.cache[Channel].update({t.id: Channel(**t._json) for t in self.threads})
                 self._client.cache[Thread].update({t.id: t for t in self.threads})
             if self.roles:
                 self._client.cache[Role].update({r.id: r for r in self.roles})
