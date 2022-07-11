@@ -291,6 +291,99 @@ As of v4.3.0, you can also utilize the new command system to create subcommands:
 .. note::
     You can add a SUB_COMMAND_GROUP in between the base and command.
 
+Additional information about subcommands
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Base commands are returned the :ref:`Command <models.command:Application Command Models>` object.
+From this, you can utilize the following decorators:
+
+* :ref:`@subcommand() <models.command:Application Command Models>`
+    * This is the decorator that creates a subcommand.
+* :ref:`@group() <models.command:Application Command Models>`
+    * This is the decorator that creates a group.
+* :ref:`@error <models.command:Application Command Models>`
+    * This is the decorator that registers an error callback.
+
+Check the documentation for the parameters of each of these decorators.
+
+The following is an example of a base command:
+
+.. code-block:: python
+
+    @bot.command()
+    async def base_command(ctx: interactions.CommandContext):
+        pass
+
+The examples below will be using the base command above.
+
+The following is an example of a subcommand of the base command:
+
+.. code-block:: python
+
+    @base_command.subcommand()
+    async def subcommand(ctx: interactions.CommandContext, base_res: interactions.BaseResult):
+        pass
+
+This code results in the following subcommand: `/base_command subcommand`.
+
+.. note::
+    You can use the ``base_res`` parameter in groups and subcommands, and ``group_res`` in subcommands inside groups
+    to access the result of the previous callback. They are both optional and are placed right after the ``ctx`` parameter.
+
+The following is an example of a group with subcommands:
+
+.. code-block:: python
+
+    @base_command.group()
+    async def group(ctx: interactions.CommandContext, base_res: interactions.BaseResult):
+        pass
+
+    @group.subcommand()
+    async def subcommand_group(ctx: interactions.CommandContext, group_res: interactions.GroupResult):
+        pass
+
+You can have multiple groups, with multiple subcommands in each group.
+Subcommands and groups are options, so the same restrictions apply.
+
+.. note:: Create any subcommands without groups *before* creating any groups.
+
+Since there are multiple coroutines involved that each get executed, you may
+be wondering how you can stop the chain. Luckily, there is a way:
+
+.. code-block:: python
+
+    @bot.command()
+    async def foo(ctx):
+        ... # do something
+        return StopCommand  # does not execute `bar`
+
+    @foo.subcommand()
+    async def bar(ctx):
+        ...  # `bar` is not executed
+
+This works on both groups and subcommands.
+
+The following is an example of an error callback:
+
+.. code-block:: python
+
+    @bot.command()
+    async def foo(ctx: interactions.CommandContext):
+        ... # do something
+        raise Exception("Something went wrong")
+        # Most likely, you won't be the one
+        # raising the error, it may just be
+        # a bug or mistake with your code.
+
+    @foo.error
+    async def foo_error(ctx: interactions.CommandContext, error: Exception):
+        ... # do something
+
+The parameters ``ctx`` and ``error`` are required, but you can have more
+parameters, such as ``*args`` and ``**kwargs``, if you need to access options.
+
+.. note::
+    You can have one error callback per command.
 
 Special type of commands: Context menus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -533,6 +626,68 @@ Here's an example of a guild-only command:
 
 Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. Just to note that this argument's mainly used for
 global commands. Guild commands with this argument will have no effect.
+
+Utilities
+^^^^^^^^^
+
+You can use the following utilities to help you with your commands:
+
+* ``ActionRow.new()``: Creates a new ``ActionRow`` object.
+* ``spread_to_rows()``: Spreads a list of components into a list of rows.
+* ``@autodefer()``: Automatically defers a command if it did not respond within the specified time.
+
+Look at their documentation :ref:`here <models.command:Utilities>` for more information.
+
+Usage of ``ActionRow.new()``:
+
+.. code-block:: python
+
+    from interactions import ActionRow, Button
+
+    @bot.command()
+    async def command(ctx):
+        b1 = Button(style=1, custom_id="b1", label="b1")
+        b2 = Button(style=1, custom_id="b2", label="b2")
+        b3 = Button(style=1, custom_id="b3", label="b3")
+        b4 = Button(style=1, custom_id="b4", label="b4")
+
+        await ctx.send("Components:", components=ActionRow.new(b1, b2, b3, b4))
+        # instead of the cumbersome ActionRow(components=[b1, b2, b3, b4])
+
+Usage of ``spread_to_rows()``:
+
+.. code-block:: python
+
+    from interactions import Button, SelectMenu, SelectOption, spread_to_rows
+
+    @bot.command()
+    async def command(ctx):
+        b1 = Button(style=1, custom_id="b1", label="b1")
+        b2 = Button(style=1, custom_id="b2", label="b2")
+        s1 = SelectMenu(
+            custom_id="s1",
+            options=[
+                SelectOption(label="1", value="1"),
+                SelectOption(label="2", value="2"),
+            ],
+        )
+        b3 = Button(style=1, custom_id="b3", label="b3")
+        b4 = Button(style=1, custom_id="b4", label="b4")
+
+        await ctx.send("Components:", components=spread_to_rows(b1, b2, s1, b3, b4))
+
+Usage of ``@autodefer()``:
+
+.. code-block:: python
+
+    from interactions import autodefer
+    import asyncio
+
+    @bot.command()
+    @autodefer()  # configurable
+    async def command(ctx):
+        await asyncio.sleep(5)
+        await ctx.send("I'm awake now!")
 
 .. _Client: https://interactionspy.rtfd.io/en/stable/client.html
 .. _find these component types: https://interactionspy.readthedocs.io/en/stable/models.component.html
