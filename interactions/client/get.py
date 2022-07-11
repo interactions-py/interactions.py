@@ -48,7 +48,7 @@ def get(*args, **kwargs):
     Helper method to get an object.
 
     This method can do the following:
-        * Get a list of a specific objects
+        * Get a list of specific objects
             * purely from cache
             * purely from HTTP
             * from cache and additionally from HTTP for every ID that was not found in cache
