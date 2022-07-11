@@ -310,7 +310,7 @@ def _get_cache(
 ) -> Union[Optional[_T], List[Optional[_T]]]:
     if _list:
         _obj = []
-        if isinstance(_object, Member):  # Can't be more dynamic on this
+        if _object == Member:  # Can't be more dynamic on this
             _values = ()
             _guild_id = Snowflake(kwargs.get("guild_id"))
             for _id in kwargs.get("member_ids"):
@@ -320,14 +320,15 @@ def _get_cache(
                         Snowflake(_id),
                     ),
                 )
-            _obj.extend(client.cache[_object].get(item) for item in _values)
+            _obj.extend(client._http.cache[_object].get(item) for item in _values)
 
         else:
             _obj.extend(
-                client.cache[_object].get(Snowflake(_id), None) for _id in kwargs.get(kwarg_name)
+                client._http.cache[_object].get(Snowflake(_id), None)
+                for _id in kwargs.get(kwarg_name)
             )
     else:
-        if isinstance(_object, Member):
+        if _object == Member:
             _values = (
                 Snowflake(kwargs.get("guild_id")),
                 Snowflake(kwargs.get("member_id")),
@@ -335,7 +336,7 @@ def _get_cache(
         else:
             _values = Snowflake(kwargs.get(kwarg_name))
 
-        _obj = client.cache[_object].get(_values)
+        _obj = client._http.cache[_object].get(_values)
     return _obj
 
 
