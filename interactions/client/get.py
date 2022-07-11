@@ -33,7 +33,7 @@ __all__ = (
 
 class Force(str, Enum):
     """
-    An enum representing the force types for the get method.
+    An enumerable object representing the force types for the get method.
 
     :ivar str CACHE: Enforce the usage of cache and block the usage of http
     :ivar str HTTP: Enforce the usage of http and block the usage of cache
