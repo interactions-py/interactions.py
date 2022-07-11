@@ -356,15 +356,17 @@ def _search_iterable(items: Iterable[_T], **kwargs) -> Optional[_T]:
         )
 
     _arg = str(list(kwargs)[0])
+    kwarg = kwargs.get(_arg)
+    kwarg_is_function: bool = isfunction(kwarg)
 
     __obj = next(
         (
             item
             for item in items
             if (
-                str(getattr(item, _arg, None)) == str(kwargs.get(_arg))
-                if not isfunction(kwargs.get(_arg))
-                else kwargs.get(_arg)(item)
+                str(getattr(item, _arg, None)) == str(kwarg)
+                if not kwarg_is_function
+                else kwarg(item)
             )
         ),
         None,
