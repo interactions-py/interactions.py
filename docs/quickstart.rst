@@ -125,7 +125,7 @@ Now, let's look what the new parts of the code are doing:
 * ``async def my_first_command(ctx: interactions.CommandContext):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``await ctx.send("Hi there!")`` -- This sends the response to your command.
 
-Here is another way we can create a command:
+Here is another way we can create the same command:
 
 .. code-block:: python
 
@@ -143,11 +143,10 @@ Here is another way we can create a command:
 
     bot.start()
 
-As of v4.3.0, you can also utilize the new command system to create commands effortlessly.
-
 * The ``name`` field defaults to the coroutine name.
 * The ``description`` field defaults to the first line of the coroutine docstring if it exists. If it does not exist, it defaults to ``"No description provided."``.
 * ``default_scope`` -- This sets the scope for all the commands automatically. If you want to disable this feature in a specific command, you can add ``default_scope=False`` to the command decorator.
+* You could still use the ``scope`` field instead of ``default_scope``.
 
 .. note:: ``name`` and ``description`` are not required.
 
@@ -192,7 +191,7 @@ Here is the structure of an option:
 
     bot.start()
 
-As of v4.3.0, you can also utilize the new command system and the :ref:`@option() <models.command:Application Command Models>` decorator to create options:
+The :ref:`@option() <models.command:Application Command Models>` decorator creates options in another way:
 
 .. code-block:: python
 
@@ -263,7 +262,7 @@ Here is the structure of a subcommand:
         elif sub_command == "second_command":
           await ctx.send(f"You selected the second_command sub command and put in {second_option}")
 
-As of v4.3.0, you can also utilize the new command system to create subcommands:
+You can also create subcommands using the command system:
 
 .. code-block:: python
 
