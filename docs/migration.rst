@@ -62,3 +62,13 @@ portal and add the intent to your current intents when connecting:
     from interactions import Client, Intents
 
     bot = Client("TOKEN", intents=Intents.DEFAULT | Intents.GUILD_MESSAGE_CONTENT)
+
+
+
+4.1.2 -> 4.3.0
+~~~~~~~~~~~~~~~
+
+A new big change in this release is the ``get` utility method.
+It allows you to no longer use ``**await bot._http...``.
+
+You can get more information by reading the :ref:``get-documentation <client.get: get>``
