@@ -82,7 +82,15 @@ class Storage(Generic[_T]):
         """
         self.values.update(data)
 
-    def pop(self, key: "Key", default: Optional[_P] = None) -> Union[_T, _P]:
+    @overload
+    def pop(self, key: "Key") -> Optional[_T]:
+        ...
+
+    @overload
+    def pop(self, key: "Key", default: _P) -> Union[_T, _P]:
+        ...
+
+    def pop(self, key: "Key", default: Optional[_P] = None) -> Union[_T, _P, None]:
         try:
             return self.values.pop(key)
         except KeyError:
