@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, Union
 
-from ...api.cache import Cache, Item
+from ...api.cache import Cache
 from ..error import LibraryException
 from ..models.channel import Channel
 from ..models.message import Message
@@ -11,7 +11,6 @@ __all__ = ("ChannelRequest",)
 
 
 class ChannelRequest:
-
     _req: _Request
     cache: Cache
 
@@ -26,7 +25,7 @@ class ChannelRequest:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request, _client=self)))
+        self.cache[Channel].add(Channel(**request, _client=self))
 
         return request
 
@@ -88,7 +87,7 @@ class ChannelRequest:
         if isinstance(request, list):
             for message in request:
                 if message.get("id"):
-                    self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+                    self.cache[Message].add(Message(**message))
 
         return request
 
@@ -110,7 +109,7 @@ class ChannelRequest:
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
+            self.cache[Channel].add(Channel(**request))
 
         return request
 

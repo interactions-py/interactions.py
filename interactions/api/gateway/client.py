@@ -28,11 +28,14 @@ from ..error import LibraryException
 from ..http.client import HTTPClient
 from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
+from ..models.member import Member
+from ..models.misc import Snowflake
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
 
 if TYPE_CHECKING:
     from ...client.context import _Context
+    from ..cache import Storage
 
 log = get_logger("gateway")
 
@@ -273,12 +276,11 @@ class WebSocketClient:
         :param data: The data for the event.
         :type data: dict
         """
-        # sourcery no-metrics
+        self._dispatch.dispatch("raw_socket_create", data)
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
             if data.get("type"):
-                # sourcery skip: dict-assign-update-to-union, extract-method, low-code-quality
                 _context = self.__contextualize(data)
                 _name: str = ""
                 __args: list = [_context]
@@ -386,17 +388,49 @@ class WebSocketClient:
             try:
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
-                __obj: object = getattr(__import__(path), _name)
+                model = getattr(__import__(path), _name)
 
-                # name in {"_create", "_add"} returns False (tested w message_create)
-                if any(_ in name for _ in {"_create", "_update", "_add", "_remove", "_delete"}):
-                    data["_client"] = self._http
+                data["_client"] = self._http
+                obj = model(**data)
+                _cache: "Storage" = self._http.cache[model]
 
-                self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
+                if isinstance(obj, Member):
+                    id = (Snowflake(data["guild_id"]), obj.id)
+                else:
+                    id = getattr(obj, "id", None)
+
+                if "_create" in name or "_add" in name:
+                    _cache.add(obj, id)
+                    self._dispatch.dispatch(f"on_{name}", obj)
+
+                elif "_update" in name and hasattr(obj, "id"):
+                    old_obj = self._http.cache[model].get(id)
+
+                    if old_obj:
+                        before = model(**old_obj._json)
+                        old_obj.update(**obj._json)
+                    else:
+                        before = None
+                        old_obj = obj
+
+                    _cache.add(old_obj, id)
+
+                    self._dispatch.dispatch(
+                        f"on_{name}", before, old_obj
+                    )  # give previously stored and new one
+                    return
+
+                elif "_remove" in name or "_delete" in name:
+                    self._dispatch.dispatch(f"on_raw_{name}", obj)
+
+                    old_obj = _cache.pop(id)
+                    self._dispatch.dispatch(f"on_{name}", old_obj)
+
+                else:
+                    self._dispatch.dispatch(f"on_{name}", obj)
 
             except AttributeError as error:
                 log.fatal(f"An error occured dispatching {name}: {error}")
-        self._dispatch.dispatch("raw_socket_create", data)
 
     def __contextualize(self, data: dict) -> "_Context":
         """
@@ -537,13 +571,13 @@ class WebSocketClient:
         elif type == OptionType.ATTACHMENT.value:
             _resolved = context.data.resolved.attachments
         elif type == OptionType.MENTIONABLE.value:
+            _roles = context.data.resolved.roles if context.data.resolved.roles is not None else {}
+            _members = (
+                context.data.resolved.members if context.guild_id else context.data.resolved.users
+            )
             _resolved = {
-                **(
-                    context.data.resolved.members
-                    if context.guild_id
-                    else context.data.resolved.users
-                ),
-                **context.data.resolved.roles,
+                **(_members if _members is not None else {}),
+                **_roles,
             }
         return _resolved
 

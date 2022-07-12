@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote
 
-from ...api.cache import Cache, Item
+from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.guild import Guild
 from ..models.member import Member
@@ -30,7 +30,7 @@ class GuildRequest:
 
         for guild in request:
             if guild.get("id"):
-                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild, _client=self)))
+                self.cache[Guild].add(Guild(**guild, _client=self))
 
         return request
 
@@ -45,7 +45,7 @@ class GuildRequest:
         request = await self._req.request(
             Route("GET", f"/guilds/{guild_id}{f'?{with_counts=}' if with_counts else ''}")
         )
-        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request, _client=self)))
+        self.cache[Guild].add(Guild(**request, _client=self))
 
         return request
 
@@ -369,9 +369,7 @@ class GuildRequest:
 
         for channel in request:
             if channel.get("id"):
-                self.cache.channels.add(
-                    Item(id=channel["id"], value=Channel(**channel, _client=self))
-                )
+                self.cache[Channel].add(Channel(**channel, _client=self))
 
         return request
 
@@ -388,7 +386,7 @@ class GuildRequest:
 
         for role in request:
             if role.get("id"):
-                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+                self.cache[Role].add(Role(**role))
 
         return request
 
@@ -407,7 +405,7 @@ class GuildRequest:
             Route("POST", f"/guilds/{guild_id}/roles"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
+            self.cache[Role].add(Role(**request))
 
         return request
 
@@ -590,7 +588,7 @@ class GuildRequest:
             },
         )
 
-        self.cache.members.add(Item(id=str(user_id), value=Member(**request)))
+        self.cache[Member].add(Member(**request))
 
         return request
 

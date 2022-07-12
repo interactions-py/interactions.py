@@ -331,6 +331,19 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     # todo assign the correct type
 
+    def __attrs_post_init__(self):  # sourcery skip: last-if-guard
+        if self._client:
+            # update the cache to include info found from guilds
+            # these values wouldn't be "found out" until an update for them happened otherwise
+            if self.channels:
+                self._client.cache[Channel].update({c.id: c for c in self.channels})
+            if self.threads:
+                self._client.cache[Thread].update({t.id: t for t in self.threads})
+            if self.roles:
+                self._client.cache[Role].update({r.id: r for r in self.roles})
+            if self.members:
+                self._client.cache[Member].update({(self.id, m.id): m for m in self.members})
+
     def __repr__(self) -> str:
         return self.name
 
