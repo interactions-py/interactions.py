@@ -418,8 +418,14 @@ class WebSocketClient:
 
                 elif "_update" in name and hasattr(obj, "id"):
                     old_obj = self._http.cache[model].get(id)
-                    copy = model(**old_obj._json)
-                    old_obj.update(**obj._json)
+
+                    if old_obj:
+                        before = model(**old_obj._json)
+                        old_obj.update(**obj._json)
+                    else:
+                        before = None
+                        old_obj = obj
+
                     _cache.add(old_obj, id)
 
                     if guild_id := data.get("guild_id") and not isinstance(obj, Guild):
@@ -440,7 +446,7 @@ class WebSocketClient:
                         self._http.cache[Guild].add(guild)
 
                     self._dispatch.dispatch(
-                        f"on_{name}", copy, old_obj
+                        f"on_{name}", before, old_obj
                     )  # give previously stored and new one
                     return
 
