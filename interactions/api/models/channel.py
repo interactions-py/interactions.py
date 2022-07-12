@@ -166,6 +166,11 @@ class Channel(ClientSerializerMixin, IDMixin):
     permissions: Optional[str] = field(default=None)
     flags: Optional[int] = field(default=None)
 
+    def __attrs_post_init__(self):  # sourcery skip: last-if-guard
+        if self._client:
+            if not self.recipients:
+                ...
+
     def __repr__(self) -> str:
         return self.name
 

@@ -58,7 +58,9 @@ class Storage(Generic[_T]):
 
         for attrib in item.__slots__:
             if getattr(old_item, attrib) != getattr(item, attrib):
-                if isinstance(old_item.attrib, list) or isinstance(item.attrib, list):
+                if isinstance(item.attrib, list) and not isinstance(old_item.attrib, list):
+                    old_item.attrib = []
+                if isinstance(old_item.attrib, list):
                     for value in item.attrib:
                         if value not in old_item.attrib:
                             old_item.attrib.append(value)
