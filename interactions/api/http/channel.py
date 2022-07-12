@@ -25,7 +25,7 @@ class ChannelRequest:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache[Channel].add(Channel(**request, _client=self))
+        self.cache[Channel].merge(Channel(**request, _client=self))
 
         return request
 
@@ -87,7 +87,7 @@ class ChannelRequest:
         if isinstance(request, list):
             for message in request:
                 if message.get("id"):
-                    self.cache[Message].add(Message(**message))
+                    self.cache[Message].merge(Message(**message))
 
         return request
 
@@ -108,8 +108,6 @@ class ChannelRequest:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
-        if request.get("id"):
-            self.cache[Channel].add(Channel(**request))
 
         return request
 

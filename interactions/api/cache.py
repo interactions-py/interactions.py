@@ -57,8 +57,13 @@ class Storage(Generic[_T]):
         old_item = self.values[_id]
 
         for attrib in item.__slots__:
+            if getattr(old_item, attrib) and not getattr(item, attrib):
+                continue
+                # we can only assume that discord did not provide it, falsely deleting is worse than not deleting
             if getattr(old_item, attrib) != getattr(item, attrib):
-                if isinstance(item.attrib, list) and not isinstance(old_item.attrib, list):
+                if isinstance(item.attrib, list) and not isinstance(
+                    old_item.attrib, list
+                ):  # could be None
                     old_item.attrib = []
                 if isinstance(old_item.attrib, list):
                     for value in item.attrib:

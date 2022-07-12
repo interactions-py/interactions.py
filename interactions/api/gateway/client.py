@@ -401,7 +401,7 @@ class WebSocketClient:
                     id = getattr(obj, "id", None)
 
                 if "_create" in name or "_add" in name:
-                    _cache.add(obj, id)
+                    _cache.merge(obj, id)
                     if guild_id := data.get("guild_id") and not isinstance(obj, Guild):
                         guild = self._http.cache[Guild].get(Snowflake(guild_id))
                         model_name = model.__name__.lower()
