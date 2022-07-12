@@ -571,13 +571,13 @@ class WebSocketClient:
         elif type == OptionType.ATTACHMENT.value:
             _resolved = context.data.resolved.attachments
         elif type == OptionType.MENTIONABLE.value:
+            _roles = context.data.resolved.roles if context.data.resolved.roles is not None else {}
+            _members = (
+                context.data.resolved.members if context.guild_id else context.data.resolved.users
+            )
             _resolved = {
-                **(
-                    context.data.resolved.members
-                    if context.guild_id
-                    else context.data.resolved.users
-                ),
-                **context.data.resolved.roles,
+                **(_members if _members is not None else {}),
+                **_roles,
             }
         return _resolved
 
