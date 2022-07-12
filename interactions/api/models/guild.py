@@ -328,6 +328,7 @@ class Guild(ClientSerializerMixin, IDMixin):
     )
     stickers: Optional[List[Sticker]] = field(converter=convert_list(Sticker), default=None)
     features: List[str] = field()
+    premium_progress_bar_enabled: Optional[bool] = field(default=None)
 
     # todo assign the correct type
 
