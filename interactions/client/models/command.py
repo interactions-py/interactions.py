@@ -396,7 +396,7 @@ class Command(DictSerializerMixin):
     name: Optional[str] = field(default=MISSING, repr=True)
     description: Optional[str] = field(default=MISSING)
     options: Optional[List[Option]] = field(converter=convert_list(Option), factory=list)
-    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = field(default=None)
+    scope: Optional[Union[int, Guild, List[int], List[Guild]]] = field(default=MISSING)
     default_member_permissions: Optional[str] = field(default=MISSING)
     dm_permission: Optional[bool] = field(default=MISSING)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
@@ -422,7 +422,7 @@ class Command(DictSerializerMixin):
         if hasattr(self.coro, "_options"):
             self.options.extend(self.coro._options)
         self.coro._options = self.options
-        if self.scope:
+        if self.scope and self.scope is not MISSING:
             if not isinstance(self.scope, list):
                 self.scope = [self.scope]
             if any(isinstance(scope, Guild) for scope in self.scope):
