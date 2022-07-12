@@ -405,11 +405,18 @@ class WebSocketClient:
 
                 elif "_update" in name and hasattr(obj, "id"):
                     old_obj = self._http.cache[model].get(id)
-                    copy = model(**old_obj._json)
-                    old_obj.update(**obj._json)
+
+                    if old_obj:
+                        before = model(**old_obj._json)
+                        old_obj.update(**obj._json)
+                    else:
+                        before = None
+                        old_obj = obj
+
                     _cache.add(old_obj, id)
+
                     self._dispatch.dispatch(
-                        f"on_{name}", copy, old_obj
+                        f"on_{name}", before, old_obj
                     )  # give previously stored and new one
                     return
 
@@ -564,13 +571,13 @@ class WebSocketClient:
         elif type == OptionType.ATTACHMENT.value:
             _resolved = context.data.resolved.attachments
         elif type == OptionType.MENTIONABLE.value:
+            _roles = context.data.resolved.roles if context.data.resolved.roles is not None else {}
+            _members = (
+                context.data.resolved.members if context.guild_id else context.data.resolved.users
+            )
             _resolved = {
-                **(
-                    context.data.resolved.members
-                    if context.guild_id
-                    else context.data.resolved.users
-                ),
-                **context.data.resolved.roles,
+                **(_members if _members is not None else {}),
+                **_roles,
             }
         return _resolved
 

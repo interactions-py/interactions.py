@@ -11,9 +11,8 @@ from urllib.parse import quote
 from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
 
-from interactions.base import __version__, get_logger
-
 from ...api.error import LibraryException
+from ...base import __version__, get_logger
 from .limiter import Limiter
 from .route import Route
 

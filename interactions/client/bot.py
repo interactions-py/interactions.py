@@ -13,7 +13,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING
+from ..api.models.attrs_utils import MISSING, convert_list
 from ..api.models.channel import Channel
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
@@ -23,10 +23,9 @@ from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
-from .decor import command
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
-from .models.command import ApplicationCommand, Choice, Option
+from .models.command import ApplicationCommand, Choice, Command, Option
 from .models.component import Button, Modal, SelectMenu
 
 log: Logger = get_logger("client")
@@ -48,6 +47,19 @@ class Client:
     """
     A class representing the client connection to Discord's gateway and API via. WebSocket and HTTP.
 
+    :param token: The token of the application for authentication and connection.
+    :type token: str
+    :param intents?: Allows specific control of permissions the application has when connected. In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
+    :type intents: Optional[Intents]
+    :param shards?: Dictates and controls the shards that the application connects under.
+    :type shards: Optional[List[Tuple[int]]]
+    :param presence?: Sets an RPC-like presence on the application when connected to the Gateway.
+    :type presence: Optional[ClientPresence]
+    :param default_scope?: Sets the default scope of all commands.
+    :type default_scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+    :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
+    :type disable_sync: Optional[bool]
+
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
     :ivar WebSocketClient _websocket: An object-orientation of a websocket server connection to the Gateway.
@@ -64,35 +76,13 @@ class Client:
         token: str,
         **kwargs,
     ) -> None:
-        r"""
-        Establishes a client connection to the Web API and Gateway.
-
-        :param token: The token of the application for authentication and connection.
-        :type token: str
-        :param \**kwargs: Multiple key-word arguments able to be passed through.
-        :type \**kwargs: dict
-        """
-
-        # Arguments
-        # ~~~~~~~~~
-        # token : str
-        #     The token of the application for authentication and connection.
-        # intents? : Optional[Intents]
-        #     Allows specific control of permissions the application has when connected.
-        #     In order to use multiple intents, the | operator is recommended.
-        #     Defaults to ``Intents.DEFAULT``.
-        # shards? : Optional[List[Tuple[int]]]
-        #     Dictates and controls the shards that the application connects under.
-        # presence? : Optional[ClientPresence]
-        #     Sets an RPC-like presence on the application when connected to the Gateway.
-        # disable_sync? : Optional[bool]
-        #     Controls whether synchronization in the user-facing API should be automatic or not.
-
         self._loop: AbstractEventLoop = get_event_loop()
         self._http: HTTPClient = HTTPClient(token=token)
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
+        self._commands: List[Command] = []
+        self._default_scope = kwargs.get("default_scope")
         self._presence = kwargs.get("presence")
         self._token = token
         self._extensions = {}
@@ -102,6 +92,16 @@ class Client:
         self.__guild_commands = {}
         self.__name_autocomplete = {}
         self.me = None
+
+        if self._default_scope:
+            if not isinstance(self._default_scope, list):
+                self._default_scope = [self._default_scope]
+            if any(isinstance(scope, Guild) for scope in self._default_scope):
+                self._default_scope = [
+                    (scope.id if isinstance(scope, Guild) else scope)
+                    for scope in self._default_scope
+                ]
+        self._default_scope = convert_list(int)(self._default_scope)
 
         if kwargs.get("disable_sync"):
             self._automate_sync = False
@@ -374,6 +374,7 @@ class Client:
                 raise RuntimeError("Client not authorised for any privileged intents.")
 
             self.__register_events()
+            self.__resolve_commands()
 
             if self._automate_sync:
                 await self.__sync()
@@ -443,6 +444,57 @@ class Client:
                     raise LibraryException(command["code"], message=f'{command["message"]} |')
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
+
+    def __resolve_commands(self) -> None:
+        """
+        Resolves all commands to the command coroutines.
+
+        .. warning::
+            This is an internal method. Do not call it unless you know what you are doing!
+        """
+        for cmd in self._commands:
+            if cmd.resolved:
+                continue
+
+            if cmd.default_scope and self._default_scope:
+                cmd.scope = (
+                    cmd.scope.extend(cmd.default_scope) if cmd.scope else self._default_scope
+                )
+
+            data: Union[dict, List[dict]] = cmd.full_data
+            coro = cmd.dispatcher
+
+            self.__check_command(
+                command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
+                coro=coro,
+            )
+
+            if cmd.autocompletions:
+                self.__name_autocomplete.update(cmd.autocompletions)
+
+            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+
+            coro._command_data = data
+            coro._name = cmd.name
+
+            if (data["name"] if isinstance(data, dict) else data[0]["name"]) not in (
+                (
+                    c._command_data["name"]
+                    if isinstance(c._command_data, dict)
+                    else c._command_data[0]["name"]
+                )
+                for c in self.__command_coroutines
+            ):
+                self.__command_coroutines.append(coro)
+
+            if cmd.scope not in (MISSING, None):
+                if isinstance(cmd.scope, List):
+                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in cmd.scope]
+                else:
+                    self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
+
+            self.event(coro, name=f"command_{cmd.name}")
+            cmd.resolved = True
 
     async def __sync(self) -> None:  # sourcery no-metrics
         """
@@ -858,7 +910,8 @@ class Client:
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+        default_scope: bool = True,
+    ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering an application command to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -922,61 +975,41 @@ class Client:
         :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
+        :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :type default_scope: bool
         :return: A callable response.
-        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
+        :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
 
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-
-            commands: Union[List[dict], dict] = command(
+        def decorator(coro: Callable[..., Coroutine]) -> Command:
+            cmd = Command(
+                coro=coro,
                 type=type,
                 name=name,
                 description=description,
-                scope=scope,
                 options=options,
-                name_localizations=name_localizations,
-                description_localizations=description_localizations,
+                scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                name_localizations=name_localizations,
+                description_localizations=description_localizations,
+                default_scope=default_scope,
             )
-
-            self.__check_command(
-                command=ApplicationCommand(
-                    **(commands[0] if isinstance(commands, list) else commands)
-                ),
-                coro=coro,
-            )
-
-            if hasattr(coro, "__func__"):
-                coro.__func__._command_data = commands
-                if type == ApplicationCommandType.CHAT_INPUT:
-                    coro.__func__.autocomplete = AutocompleteManager(self, name)
-            else:
-                coro._command_data = commands
-                if type == ApplicationCommandType.CHAT_INPUT:
-                    coro.autocomplete = AutocompleteManager(self, name)
-
-            self.__command_coroutines.append(coro)
-
-            if scope is not MISSING:
-                if isinstance(scope, List):
-                    [self._scopes.add(_ if isinstance(_, int) else _.id) for _ in scope]
-                else:
-                    self._scopes.add(scope if isinstance(scope, int) else scope.id)
-
-            return self.event(coro, name=f"command_{name}")
+            self._commands.append(cmd)
+            return cmd
 
         return decorator
 
     def message_command(
         self,
         *,
-        name: str,
+        name: Optional[str] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+        default_scope: bool = True,
+    ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering a message context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -1005,47 +1038,35 @@ class Client:
         :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
+        :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :type default_scope: bool
         :return: A callable response.
-        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
+        :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
 
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Any]:
-
-            commands: Union[List[dict], dict] = command(
+        def decorator(coro: Callable[..., Coroutine]) -> Command:
+            return self.command(
                 type=ApplicationCommandType.MESSAGE,
                 name=name,
                 scope=scope,
-                name_localizations=name_localizations,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
-            )
-
-            self.__check_command(
-                command=ApplicationCommand(
-                    **(commands[0] if isinstance(commands, list) else commands)
-                ),
-                coro=coro,
-            )
-            if hasattr(coro, "__func__"):
-                coro.__func__._command_data = commands
-            else:
-                coro._command_data = commands
-
-            self.__command_coroutines.append(coro)
-
-            return self.event(coro, name=f"command_{name}")
+                name_localizations=name_localizations,
+                default_scope=default_scope,
+            )(coro)
 
         return decorator
 
     def user_command(
         self,
         *,
-        name: str,
+        name: Optional[str] = MISSING,
         scope: Optional[Union[int, Guild, List[int], List[Guild]]] = MISSING,
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
-    ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+        default_scope: bool = True,
+    ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
         A decorator for registering a user context menu to the Discord API,
         as well as being able to listen for ``INTERACTION_CREATE`` dispatched
@@ -1074,35 +1095,22 @@ class Client:
         :type default_member_permissions: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
         :type dm_permission: Optional[bool]
+        :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :type default_scope: bool
         :return: A callable response.
-        :rtype: Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]
+        :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
 
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-
-            commands: Union[List[dict], dict] = command(
+        def decorator(coro: Callable[..., Coroutine]) -> Command:
+            return self.command(
                 type=ApplicationCommandType.USER,
                 name=name,
                 scope=scope,
-                name_localizations=name_localizations,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
-            )
-
-            self.__check_command(
-                command=ApplicationCommand(
-                    **(commands[0] if isinstance(commands, list) else commands)
-                ),
-                coro=coro,
-            )
-            if hasattr(coro, "__func__"):
-                coro.__func__._command_data = commands
-            else:
-                coro._command_data = commands
-
-            self.__command_coroutines.append(coro)
-
-            return self.event(coro, name=f"command_{name}")
+                name_localizations=name_localizations,
+                default_scope=default_scope,
+            )(coro)
 
         return decorator
 
@@ -1479,34 +1487,6 @@ class Client:
         return guild._json
 
 
-class AutocompleteManager:
-    __slots__ = (
-        "client",
-        "command_name",
-    )
-
-    def __init__(self, client: Client, command_name: str) -> None:
-        self.client = client
-        self.command_name = command_name
-
-    def __call__(self, name: str) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
-        """
-        Registers an autocomplete callback for the given command. See also :meth:`Client.autocomplete`
-
-        :param name: The name of the option to autocomplete
-        :type name: str
-        """
-
-        def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            self.client._Client__name_autocomplete[self.command_name] = {
-                "coro": coro,
-                "name": name,
-            }  # noqa
-            return coro
-
-        return decorator
-
-
 # TODO: Implement the rest of cog behaviour when possible.
 class Extension:
     """
@@ -1557,16 +1537,6 @@ class Extension:
                 listeners.append(func)
                 self._listeners[func.__listener_name__] = listeners
 
-            if hasattr(func, "__command_data__"):  # Set by extension_command
-                args, kwargs = func.__command_data__
-                func = client.command(*args, **kwargs)(func)
-
-                cmd_name = f"command_{kwargs.get('name') or func.__name__}"
-
-                commands = self._commands.get(cmd_name, [])
-                commands.append(func)
-                self._commands[cmd_name] = commands
-
             if hasattr(func, "__component_data__"):
                 args, kwargs = func.__component_data__
                 func = client.component(*args, **kwargs)(func)
@@ -1614,7 +1584,24 @@ class Extension:
                 listeners.append(func)
                 self._listeners[modal_name] = listeners
 
+        for _, cmd in getmembers(self, predicate=lambda command: isinstance(command, Command)):
+            cmd: Command
+
+            if cmd.name in {_cmd.name for _cmd in self.client._commands}:
+                continue
+
+            cmd.extension = self
+            self.client._commands.append(cmd)
+
+            commands = self._commands.get(cmd.name, [])
+            coro = cmd.dispatcher
+            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+            commands.append(coro)
+            self._commands[f"command_{cmd.name}"] = commands
+
         client._extensions[cls.__name__] = self
+
+        self.client._Client__resolve_commands()  # noqa
 
         if client._websocket.ready.is_set() and client._automate_sync:
             client._loop.create_task(client._Client__sync())  # noqa
@@ -1627,20 +1614,31 @@ class Extension:
                 self.client._websocket._dispatch.events[event].remove(func)
 
         for cmd, funcs in self._commands.items():
-            for func in funcs:
-                _index = self.client._Client__command_coroutines.index(func)  # noqa
-                self.client._Client__command_coroutines.pop(_index)  # noqa
-                self.client._websocket._dispatch.events[cmd].remove(func)  # noqa
+            _cmd: str = cmd.split("_", 1)[1]
+
+            for _coro in self.client._Client__command_coroutines:
+                if _coro._name == _cmd:
+                    self.client._Client__command_coroutines.remove(_coro)  # noqa
+                    break
+
+            for _command in self.client._commands:
+                if _command.name == _cmd:
+                    self.client._commands.remove(_command)
+                    break
+
+            for i in range(len(funcs)):
+                self.client._websocket._dispatch.events[cmd].pop(i)  # noqa
 
         if self.client._automate_sync and remove_commands:
             await self.client._Client__sync()  # noqa
 
 
-@wraps(command)
-def extension_command(*args, **kwargs):
-    def decorator(coro):
-        coro.__command_data__ = (args, kwargs)
-        return coro
+@wraps(Client.command)
+def extension_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]:
+    def decorator(coro) -> Command:
+        cmd = Command(coro=coro, **kwargs)
+        coro.__command_data__ = cmd
+        return cmd
 
     return decorator
 
