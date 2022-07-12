@@ -296,6 +296,18 @@ class ActionRow(ComponentMixin):
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]
 
+    @classmethod
+    def new(cls, *components: Component) -> "ActionRow":
+        r"""
+        A class method for creating a new ``ActionRow``.
+
+        :param \*components: The components to add to the ``ActionRow``.
+        :type \*components: Component
+        :return: A new ``ActionRow``.
+        :rtype: ActionRow
+        """
+        return cls(components=list(components))
+
 
 def _build_components(components) -> List[dict]:
     # sourcery no-metrics

@@ -2,7 +2,7 @@ from asyncio import AbstractEventLoop, get_event_loop
 from logging import Logger
 from typing import Callable, Coroutine, Dict, List, Optional
 
-from interactions.base import get_logger
+from ..base import get_logger
 
 __all__ = ("Listener",)
 

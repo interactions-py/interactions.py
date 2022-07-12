@@ -1,8 +1,6 @@
 from typing import Any, Optional, Tuple
 
-import interactions.api.cache
-
-from ...api.cache import Cache
+from ...api.cache import Cache, ref_cache
 from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
@@ -58,7 +56,7 @@ class HTTPClient(
     def __init__(self, token: str):
         self.token = token
         self._req = _Request(self.token)
-        self.cache = interactions.api.cache.ref_cache
+        self.cache = ref_cache
         UserRequest.__init__(self)
         MessageRequest.__init__(self)
         GuildRequest.__init__(self)
