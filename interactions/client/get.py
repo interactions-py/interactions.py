@@ -235,7 +235,7 @@ def get(*args, **kwargs):
 
             elif force_http:
                 _objects.clear()
-                _func = getattr(http_name, client._http)
+                _func = getattr(client._http, http_name)
                 for _id in kwargs.get(kwarg_name):
                     _kwargs = kwargs
                     _kwargs.pop(kwarg_name)
@@ -244,7 +244,7 @@ def get(*args, **kwargs):
                 return _http_request(_obj, http=client._http, request=_objects)
 
             else:
-                _func = getattr(http_name, client._http)
+                _func = getattr(client._http, http_name)
                 for _index, __obj in enumerate(_objects):
                     if __obj is None:
                         _id = kwargs.get(kwarg_name)[_index]
