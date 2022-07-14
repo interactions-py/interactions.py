@@ -585,7 +585,6 @@ class GuildRequest:
             },
         )
 
-
         return request
 
     async def remove_guild_member(
