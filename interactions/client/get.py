@@ -2,7 +2,7 @@ from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable
 from logging import getLogger
-from typing import Coroutine, Iterable, List, Optional, Type, TypeVar, Union, get_args
+from typing import Coroutine, List, Optional, Type, TypeVar, Union, get_args
 
 try:
     from typing import _GenericAlias
@@ -43,7 +43,7 @@ class Force(str, Enum):
     HTTP = "http"
 
 
-def get(*args, **kwargs):
+def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
     """
     Helper method to get an object.
 
@@ -56,17 +56,11 @@ def get(*args, **kwargs):
             * purely from cache
             * purely from HTTP
             * from HTTP if not found in cache else from cache
-        * Get an object from an iterable
-            * based of its name
-            * based of its ID
-            * based of a custom check
-            * based of any other attribute the object inside the iterable has
 
     The method has to be awaited when:
         * You don't force anything
         * You force HTTP
     The method doesn't have to be awaited when:
-        * You get from an iterable
         * You force cache
 
     .. note ::
@@ -92,22 +86,6 @@ def get(*args, **kwargs):
                     using an enum. Even if PyCharm shows a normal object as result, you have to await the method if you
                     enforce HTTP. To prevent this bug from happening it is suggested using ``force="http"`` instead of
                     the enum.
-
-    Getting from an iterable:
-
-        .. code-block:: python
-
-            # Getting an object from an iterable
-            check = lambda role: role.name == "ADMIN" and role.color == 0xff0000
-            roles = [
-                interactions.Role(name="NOT ADMIN", color=0xff0000),
-                interactions.Role(name="ADMIN", color=0xff0000),
-            ]
-            role = get(roles, check=check)
-            # role will be `interactions.Role(name="ADMIN", color=0xff0000)`
-
-        You can specify *any* attribute to check that the object could have (although only ``check``, ``id`` and
-        ``name`` are type-hinted) and the method will check for a match.
 
     Getting an object:
 
@@ -198,78 +176,68 @@ def get(*args, **kwargs):
         def _check():
             return False
 
-    if len(args) == 2:
+    if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
+        client: Client
+        obj: Union[Type[_T], Type[List[_T]]]
+        raise LibraryException(message="The object must not be an instance of a class!", code=12)
 
-        if any(isinstance(_, Iterable) for _ in args):
-            raise LibraryException(
-                message="You can only use Iterables as single-argument!", code=12
-            )
-
-        client, obj = args
-        if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
-            client: Client
-            obj: Union[Type[_T], Type[List[_T]]]
-            raise LibraryException(
-                message="The object must not be an instance of a class!", code=12
-            )
-
-        kwargs = _resolve_kwargs(obj, **kwargs)
-        http_name = f"get_{obj.__name__.lower()}"
-        kwarg_name = f"{obj.__name__.lower()}_id"
-        if isinstance(obj, _GenericAlias) or _check():
-            _obj: Type[_T] = get_args(obj)[0]
-            _objects: List[Union[_obj, Coroutine]] = []
-            kwarg_name += "s"
-
-            force_cache = kwargs.pop("force", None) == "cache"
-            force_http = kwargs.pop("force", None) == "http"
-
-            if not force_http:
-                _objects = _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
-
-            if force_cache:
-                return _objects
-
-            elif not force_http and None not in _objects:
-                return _return_cache(_objects)
-
-            elif force_http:
-                _objects.clear()
-                _func = getattr(http_name, client._http)
-                for _id in kwargs.get(kwarg_name):
-                    _kwargs = kwargs
-                    _kwargs.pop(kwarg_name)
-                    _kwargs[kwarg_name[:-1]] = _id
-                    _objects.append(_func(**_kwargs))
-                return _http_request(_obj, http=client._http, request=_objects)
-
-            else:
-                _func = getattr(http_name, client._http)
-                for _index, __obj in enumerate(_objects):
-                    if __obj is None:
-                        _id = kwargs.get(kwarg_name)[_index]
-                        _kwargs = kwargs
-                        _kwargs.pop(kwarg_name)
-                        _kwargs[kwarg_name[:-1]] = _id
-                        _request = _func(**_kwargs)
-                        _objects[_index] = _request
-                return _http_request(_obj, http=client._http, request=_objects)
-
-        _obj: Optional[_T] = None
+    kwargs = _resolve_kwargs(obj, **kwargs)
+    http_name = f"get_{obj.__name__.lower()}"
+    kwarg_name = f"{obj.__name__.lower()}_id"
+    if isinstance(obj, _GenericAlias) or _check():
+        _obj: Type[_T] = get_args(obj)[0]
+        _objects: List[Union[_obj, Coroutine]] = []
+        kwarg_name += "s"
 
         force_cache = kwargs.pop("force", None) == "cache"
         force_http = kwargs.pop("force", None) == "http"
+
         if not force_http:
-            _obj = _get_cache(obj, client, kwarg_name, **kwargs)
+            _objects = _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
 
         if force_cache:
-            return _obj
+            return _objects
 
-        elif not force_http and _obj:
-            return _return_cache(_obj)
+        elif not force_http and None not in _objects:
+            return _return_cache(_objects)
+
+        elif force_http:
+            _objects.clear()
+            _func = getattr(http_name, client._http)
+            for _id in kwargs.get(kwarg_name):
+                _kwargs = kwargs
+                _kwargs.pop(kwarg_name)
+                _kwargs[kwarg_name[:-1]] = _id
+                _objects.append(_func(**_kwargs))
+            return _http_request(_obj, http=client._http, request=_objects)
 
         else:
-            return _http_request(obj=obj, http=client._http, _name=http_name, **kwargs)
+            _func = getattr(http_name, client._http)
+            for _index, __obj in enumerate(_objects):
+                if __obj is None:
+                    _id = kwargs.get(kwarg_name)[_index]
+                    _kwargs = kwargs
+                    _kwargs.pop(kwarg_name)
+                    _kwargs[kwarg_name[:-1]] = _id
+                    _request = _func(**_kwargs)
+                    _objects[_index] = _request
+            return _http_request(_obj, http=client._http, request=_objects)
+
+    _obj: Optional[_T] = None
+
+    force_cache = kwargs.pop("force", None) == "cache"
+    force_http = kwargs.pop("force", None) == "http"
+    if not force_http:
+        _obj = _get_cache(obj, client, kwarg_name, **kwargs)
+
+    if force_cache:
+        return _obj
+
+    elif not force_http and _obj:
+        return _return_cache(_obj)
+
+    else:
+        return _http_request(obj=obj, http=client._http, _name=http_name, **kwargs)
 
 
 async def _http_request(
