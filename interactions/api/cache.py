@@ -41,6 +41,39 @@ class Storage(Generic[_T]):
     def __init__(self) -> None:
         self.values: Dict["Key", _T] = {}
 
+    def merge(self, item: _T, id: Optional["Key"] = None) -> None:
+        """
+        Merges new data of an item into an already present item of the cache
+
+        :param item: The item to merge.
+        :type item: Any
+        :param id: The unique id of the item.
+        :type id: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        """
+        if not self.values.get(id or item.id):
+            return self.add(item, id)
+
+        _id = id or item.id
+        old_item = self.values[_id]
+
+        for attrib in item.__slots__:
+            if getattr(old_item, attrib) and not getattr(item, attrib):
+                continue
+                # we can only assume that discord did not provide it, falsely deleting is worse than not deleting
+            if getattr(old_item, attrib) != getattr(item, attrib):
+                if isinstance(item.attrib, list) and not isinstance(
+                    old_item.attrib, list
+                ):  # could be None
+                    old_item.attrib = []
+                if isinstance(old_item.attrib, list):
+                    for value in item.attrib:
+                        if value not in old_item.attrib:
+                            old_item.attrib.append(value)
+                else:
+                    setattr(old_item, attrib, item.attrib)
+
+        self.values[_id] = old_item
+
     def add(self, item: _T, id: Optional["Key"] = None) -> None:
         """
         Adds a new item to the storage.
@@ -91,10 +124,7 @@ class Storage(Generic[_T]):
         ...
 
     def pop(self, key: "Key", default: Optional[_P] = None) -> Union[_T, _P, None]:
-        try:
-            return self.values.pop(key)
-        except KeyError:
-            return default
+        return self.values.pop(key, default)
 
     @property
     def view(self) -> List[dict]:
