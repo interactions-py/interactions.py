@@ -14,9 +14,9 @@ from asyncio import (
 )
 from sys import platform, version_info
 from time import perf_counter
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 
-from aiohttp import WSMessage, WSMsgType
+from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ...base import get_logger
@@ -24,14 +24,23 @@ from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ..dispatch import Listener
 from ..enums import OpCodeType
-from ..error import GatewayException
+from ..error import LibraryException
 from ..http.client import HTTPClient
+from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
-from ..models.misc import MISSING
+from ..models.guild import Guild
+from ..models.member import Member
+from ..models.misc import Snowflake
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
 
+if TYPE_CHECKING:
+    from ...client.context import _Context
+    from ..cache import Storage
+
 log = get_logger("gateway")
+
+__all__ = ("WebSocketClient",)
 
 
 class WebSocketClient:
@@ -100,30 +109,30 @@ class WebSocketClient:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
         except RuntimeError:
             self._loop = new_event_loop()
-        self._dispatch = Listener()
-        self._http = HTTPClient(token)
-        self._client = None
-        self._closed = False
-        self._options = {
+        self._dispatch: Listener = Listener()
+        self._http: HTTPClient = HTTPClient(token)
+        self._client: Optional["ClientWebSocketResponse"] = None
+        self._closed: bool = False
+        self._options: dict = {
             "max_msg_size": 1024**2,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
         }
-        self._intents = intents
+        self._intents: Intents = intents
         self.__heartbeater: _Heartbeat = _Heartbeat(
             loop=self._loop if version_info < (3, 10) else None
         )
-        self.__shard = None
-        self.__presence = None
-        self.__task = None
-        self.session_id = None if session_id is MISSING else session_id
-        self.sequence = None if sequence is MISSING else sequence
-        self.ready = Event(loop=self._loop) if version_info < (3, 10) else Event()
+        self.__shard: Optional[List[Tuple[int]]] = None
+        self.__presence: Optional[ClientPresence] = None
+        self.__task: Optional[Task] = None
+        self.session_id: Optional[str] = None if session_id is MISSING else session_id
+        self.sequence: Optional[str] = None if sequence is MISSING else sequence
+        self.ready: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
 
-        self._last_send = perf_counter()
-        self._last_ack = perf_counter()
-        self.latency: float("nan")  # noqa: F821
+        self._last_send: float = perf_counter()
+        self._last_ack: float = perf_counter()
+        self.latency: float = float("nan")  # noqa: F821
         # self.latency has to be noqa, this is valid in python but not in Flake8.
 
     async def _manage_heartbeat(self) -> None:
@@ -140,14 +149,13 @@ class WebSocketClient:
                 await self.__restart()
                 break
 
-    async def __restart(self):
+    async def __restart(self) -> None:
         """Restart the client's connection and heartbeat with the Gateway."""
         if self.__task:
-            self.__task: Task
             self.__task.cancel()
         self._client = None  # clear pending waits
         self.__heartbeater.event.clear()
-        await self._establish_connection()
+        await self._establish_connection(self.__shard, self.__presence)
 
     async def _establish_connection(
         self,
@@ -172,7 +180,7 @@ class WebSocketClient:
             self._closed = self._client.closed
 
             if self._closed:
-                await self._establish_connection()
+                await self._establish_connection(self.__shard, self.__presence)
 
             while not self._closed:
                 stream = await self.__receive_packet_stream
@@ -180,11 +188,11 @@ class WebSocketClient:
                 if stream is None:
                     continue
                 if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
-                    await self._establish_connection()
+                    await self._establish_connection(self.__shard, self.__presence)
                     break
 
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
-                    raise GatewayException(self._client.close_code)
+                    raise LibraryException(self._client.close_code)
 
                 await self._handle_connection(stream, shard, presence)
 
@@ -256,11 +264,11 @@ class WebSocketClient:
             log.debug(f"{event}: {data}")
             self._dispatch_event(event, data)
 
-    async def wait_until_ready(self):
+    async def wait_until_ready(self) -> None:
         """Waits for the client to become ready according to the Gateway."""
         await self.ready.wait()
 
-    def _dispatch_event(self, event: str, data: dict) -> None:  # sourcery no-metrics
+    def _dispatch_event(self, event: str, data: dict) -> None:
         """
         Dispatches an event from the Gateway.
 
@@ -269,11 +277,11 @@ class WebSocketClient:
         :param data: The data for the event.
         :type data: dict
         """
+        self._dispatch.dispatch("raw_socket_create", data)
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
             if data.get("type"):
-                # sourcery skip: extract-method
                 _context = self.__contextualize(data)
                 _name: str = ""
                 __args: list = [_context]
@@ -322,6 +330,7 @@ class WebSocketClient:
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND:
                                 for _option in option.options:
@@ -334,7 +343,7 @@ class WebSocketClient:
                                         _name += f"_{__name}" if __name else ""
                                         if _value:
                                             __args.append(_value)
-                                    break
+                                        break
 
                             elif option.type == OptionType.SUB_COMMAND_GROUP:
                                 for _option in option.options:
@@ -350,9 +359,8 @@ class WebSocketClient:
                                             _name += f"_{__name}" if __name else ""
                                             if _value:
                                                 __args.append(_value)
-                                        break
+                                            break
                                     break
-                            break
 
                     self._dispatch.dispatch("on_autocomplete", _context)
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
@@ -381,18 +389,109 @@ class WebSocketClient:
             try:
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
-                __obj: object = getattr(__import__(path), _name)
+                model = getattr(__import__(path), _name)
 
-                # name in {"_create", "_add"} returns False (tested w message_create)
-                if any(_ in name for _ in {"_create", "_update", "_add", "_remove", "_delete"}):
-                    data["_client"] = self._http
+                data["_client"] = self._http
+                obj = model(**data)
+                _cache: "Storage" = self._http.cache[model]
 
-                self._dispatch.dispatch(f"on_{name}", __obj(**data))  # noqa
+                if isinstance(obj, Member):
+                    id = (Snowflake(data["guild_id"]), obj.id)
+                else:
+                    id = getattr(obj, "id", None)
+
+                if "_create" in name or "_add" in name:
+                    _cache.merge(obj, id)
+                    if (
+                        guild_id := data.get("guild_id")
+                        and not isinstance(obj, Guild)
+                        and "message" not in name
+                    ):
+                        guild = self._http.cache[Guild].get(Snowflake(guild_id))
+                        model_name = model.__name__.lower()
+                        _obj = getattr(guild, f"{model_name}s", None)
+                        if _obj is not None:
+                            if isinstance(_obj, list):
+                                _obj.append(obj)
+                                setattr(guild, f"{model_name}s", _obj)
+                        else:
+                            _obj = [obj]
+                            setattr(guild, f"{model_name}s", _obj)
+                        self._http.cache[Guild].add(guild)
+                    self._dispatch.dispatch(f"on_{name}", obj)
+
+                elif "_update" in name and hasattr(obj, "id"):
+                    old_obj = self._http.cache[model].get(id)
+
+                    if old_obj:
+                        for key, value in old_obj._json.items():
+                            if hasattr(value, "_json"):
+                                old_obj._json[key] = value._json
+
+                        before = model(**old_obj._json)
+                        old_obj.update(**obj._json)
+                    else:
+                        before = None
+                        old_obj = obj
+
+                    _cache.add(old_obj, id)
+
+                    if (
+                        guild_id := data.get("guild_id")
+                        and not isinstance(obj, Guild)
+                        and "message" not in name
+                    ):
+                        guild = self._http.cache[Guild].get(Snowflake(guild_id))
+                        model_name = model.__name__.lower()
+                        _obj = getattr(guild, f"{model_name}s", None)
+                        if _obj is not None:
+                            if isinstance(_obj, list):
+                                for __obj in _obj:
+                                    if __obj.id == obj.id:
+                                        _obj.remove(__obj)
+                                        break
+                                _obj.append(obj)
+                                setattr(guild, f"{model_name}s", _obj)
+                        else:
+                            _obj = [obj]
+                            setattr(guild, f"{model_name}s", _obj)
+                        self._http.cache[Guild].add(guild)
+
+                    self._dispatch.dispatch(
+                        f"on_{name}", before, old_obj
+                    )  # give previously stored and new one
+                    return
+
+                elif "_remove" in name or "_delete" in name:
+                    self._dispatch.dispatch(f"on_raw_{name}", obj)
+
+                    if (
+                        guild_id := data.get("guild_id")
+                        and not isinstance(obj, Guild)
+                        and "message" not in name
+                    ):
+                        guild = self._http.cache[Guild].get(Snowflake(guild_id))
+                        model_name = model.__name__.lower()
+                        _obj = getattr(guild, f"{model_name}s", None)
+                        if _obj is not None:
+                            if isinstance(_obj, list):
+                                for __obj in _obj:
+                                    if __obj.id == obj.id:
+                                        _obj.remove(__obj)
+                                        break
+                                setattr(guild, f"{model_name}s", _obj)
+                        self._http.cache[Guild].add(guild)
+
+                    old_obj = _cache.pop(id)
+                    self._dispatch.dispatch(f"on_{name}", old_obj)
+
+                else:
+                    self._dispatch.dispatch(f"on_{name}", obj)
+
             except AttributeError as error:
                 log.fatal(f"An error occured dispatching {name}: {error}")
-        self._dispatch.dispatch("raw_socket_create", data)
 
-    def __contextualize(self, data: dict) -> object:
+    def __contextualize(self, data: dict) -> "_Context":
         """
         Takes raw data given back from the Gateway
         and gives "context" based off of what it is.
@@ -400,7 +499,7 @@ class WebSocketClient:
         :param data: The data from the Gateway.
         :type data: dict
         :return: The context object.
-        :rtype: object
+        :rtype: Any
         """
         if data["type"] != InteractionType.PING:
             _context: str = ""
@@ -414,13 +513,13 @@ class WebSocketClient:
             elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                 _context = "ComponentContext"
 
-            data["client"] = self._http
-            context: object = getattr(__import__("interactions.client.context"), _context)
+            data["_client"] = self._http
+            context: Type["_Context"] = getattr(__import__("interactions.client.context"), _context)
 
             return context(**data)
 
     def __sub_command_context(
-        self, data: Union[dict, Option], context: object
+        self, data: Union[dict, Option], context: "_Context"
     ) -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
@@ -507,7 +606,7 @@ class WebSocketClient:
 
         return __kwargs
 
-    def __option_type_context(self, context: object, type: int) -> dict:
+    def __option_type_context(self, context: "_Context", type: int) -> dict:
         """
         Looks up the type of option respective to the existing
         option types.
@@ -531,21 +630,21 @@ class WebSocketClient:
         elif type == OptionType.ATTACHMENT.value:
             _resolved = context.data.resolved.attachments
         elif type == OptionType.MENTIONABLE.value:
+            _roles = context.data.resolved.roles if context.data.resolved.roles is not None else {}
+            _members = (
+                context.data.resolved.members if context.guild_id else context.data.resolved.users
+            )
             _resolved = {
-                **(
-                    context.data.resolved.members
-                    if context.guild_id
-                    else context.data.resolved.users
-                ),
-                **context.data.resolved.roles,
+                **(_members if _members is not None else {}),
+                **_roles,
             }
         return _resolved
 
-    async def restart(self):
+    async def restart(self) -> None:
         await self.__restart()
 
     @property
-    async def __receive_packet_stream(self) -> Optional[Dict[str, Any]]:
+    async def __receive_packet_stream(self) -> Optional[Union[Dict[str, Any], WSMessage]]:
         """
         Receives a stream of packets sent from the Gateway.
 

@@ -1,4 +1,6 @@
-from typing import List
+from typing import Any, List
+
+__all__ = ("Converter",)
 
 
 class Converter:
@@ -12,7 +14,7 @@ class Converter:
 
     __slots__ = ("_obj1", "_obj2")
 
-    def __init__(self, __obj1: object, __obj2: object) -> None:
+    def __init__(self, __obj1: Any, __obj2: Any) -> None:
         """
         :param __obj1: The first object to be converted.
         :type __obj1: object
@@ -50,7 +52,7 @@ class Converter:
         """
         return self.__dict__.get(attr)
 
-    def get_attrs(self) -> List[str]:
+    def get_attrs(self) -> List[str]:  # Not typehinted correctly, unsure what is supposed to happen
         """
         Gets a list of mapped attributes.
 
@@ -60,7 +62,7 @@ class Converter:
         return self.__dict__
 
     @property
-    def ref(self) -> object:
+    def ref(self) -> Any:
         """
         Gets the "referenced" model, or first.
 

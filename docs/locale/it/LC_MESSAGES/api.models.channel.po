@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,76 +26,14 @@ msgstr ""
 msgid "An enumerable object representing the type of channels."
 msgstr ""
 
-#: interactions.api.models.channel.ChannelType:3 of
-msgid ".. note::"
+#: interactions.api.models.channel.Thread:1 of
+msgid "An object representing a thread."
 msgstr ""
 
-#: interactions.api.models.channel.ChannelType:4 of
+#: interactions.api.models.channel.Thread:4 of
 msgid ""
-"While all of them are listed, not all of them will be used at this "
-"library's scope."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMetadata:1 of
-msgid "A class object representing the metadata of a thread."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMetadata:4 of
-msgid ""
-"``invitable`` will only show if the thread can have an invited created "
-"with the current cached permissions."
-msgstr ""
-
-#: interactions.api.models.channel.Channel
-#: interactions.api.models.channel.ThreadMember
-#: interactions.api.models.channel.ThreadMetadata of
-msgid "Variables"
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMetadata:7 of
-msgid "The current thread accessibility state."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMetadata:8 of
-msgid "The auto-archive time."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMetadata:9 of
-msgid "The timestamp that the thread will be/has been closed at."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMetadata:10 of
-msgid "The current message state of the thread."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMetadata:11 of
-msgid "The ability to invite users to the thread."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMember:1 of
-msgid "A class object representing a member in a thread."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMember:4 of
-msgid ""
-"``id`` only shows if there are active intents involved with the member in"
-" the thread."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMember:7 of
-msgid "The \"ID\" or intents of the member."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMember:8 of
-msgid "The user ID of the member."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMember:9 of
-msgid "The timestamp of when the member joined the thread."
-msgstr ""
-
-#: interactions.api.models.channel.ThreadMember:10 of
-msgid "The bitshift flags for the member in the thread."
+"This is a derivation of the base Channel, since a thread can be its own "
+"event."
 msgstr ""
 
 #: interactions.api.models.channel.Channel:1 of
@@ -106,6 +44,12 @@ msgstr ""
 msgid ""
 "The purpose of this model is to be used as a base class, and is never "
 "needed to be used directly."
+msgstr ""
+
+#: interactions.api.models.channel.Channel
+#: interactions.api.models.channel.ThreadMember
+#: interactions.api.models.channel.ThreadMetadata of
+msgid "Variables"
 msgstr ""
 
 #: interactions.api.models.channel.Channel:7 of
@@ -214,20 +158,564 @@ msgstr ""
 msgid "The permissions of the channel."
 msgstr ""
 
-#: interactions.api.models.channel.TextChannel:1 of
-msgid ""
-"This is a derivation of :class:`interactions.api.models.channel.Channel` "
-"but for text channels."
+#: interactions.api.models.channel.Channel.mention:1 of
+msgid "Returns a string that allows you to mention the given channel."
 msgstr ""
 
-#: interactions.api.models.channel.DMChannel:1 of
-msgid ""
-"This is a derivation of :class:`interactions.api.models.channel.Channel` "
-"but for DM channels."
+#: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_message
+#: interactions.api.models.channel.Channel.get_pinned_messages
+#: interactions.api.models.channel.Channel.lock
+#: interactions.api.models.channel.Channel.mention
+#: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.publish_message
+#: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.send
+#: interactions.api.models.channel.Channel.set_auto_archive_duration
+#: interactions.api.models.channel.Channel.set_bitrate
+#: interactions.api.models.channel.Channel.set_name
+#: interactions.api.models.channel.Channel.set_nsfw
+#: interactions.api.models.channel.Channel.set_parent_id
+#: interactions.api.models.channel.Channel.set_position
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user
+#: interactions.api.models.channel.Channel.set_topic
+#: interactions.api.models.channel.Channel.set_user_limit of
+msgid "Returns"
 msgstr ""
 
-#: interactions.api.models.channel.ThreadChannel:1 of
+#: interactions.api.models.channel.Channel.mention:3 of
+msgid "The string of the mentioned channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_message
+#: interactions.api.models.channel.Channel.get_pinned_messages
+#: interactions.api.models.channel.Channel.lock
+#: interactions.api.models.channel.Channel.mention
+#: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.publish_message
+#: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.send
+#: interactions.api.models.channel.Channel.set_auto_archive_duration
+#: interactions.api.models.channel.Channel.set_bitrate
+#: interactions.api.models.channel.Channel.set_name
+#: interactions.api.models.channel.Channel.set_nsfw
+#: interactions.api.models.channel.Channel.set_parent_id
+#: interactions.api.models.channel.Channel.set_position
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user
+#: interactions.api.models.channel.Channel.set_topic
+#: interactions.api.models.channel.Channel.set_user_limit of
+msgid "Return type"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:1 of
+msgid "Sends a message in the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.add_member
+#: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_invite
+#: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.lock
+#: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.pin_message
+#: interactions.api.models.channel.Channel.publish_message
+#: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.send
+#: interactions.api.models.channel.Channel.set_auto_archive_duration
+#: interactions.api.models.channel.Channel.set_bitrate
+#: interactions.api.models.channel.Channel.set_name
+#: interactions.api.models.channel.Channel.set_nsfw
+#: interactions.api.models.channel.Channel.set_parent_id
+#: interactions.api.models.channel.Channel.set_position
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user
+#: interactions.api.models.channel.Channel.set_topic
+#: interactions.api.models.channel.Channel.set_user_limit
+#: interactions.api.models.channel.Channel.unpin_message of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:3 of
+msgid "The contents of the message as a string or string-converted value."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:5 of
+msgid "Whether the message utilizes the text-to-speech Discord programme or not."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:7 of
+msgid "A file or list of files to be attached to the message."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:9 of
+msgid "An embed, or list of embeds for the message."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:11 of
+msgid "The message interactions/mention limits that the message can refer to."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:13 of
+msgid "A component, or list of components for the message."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:15 of
+msgid "The sent message as an object."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.delete:1 of
+msgid "Deletes the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:1 of
+msgid "Edits the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:4 of
 msgid ""
-"This is a derivation of :class:`interactions.api.models.channel.Channel` "
-"but for thread channels."
+"The fields `archived`, `auto_archive_duration` and `locked` require the "
+"provided channel to be a thread."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:6 of
+msgid "The name of the channel, defaults to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:8 of
+msgid "The topic of that channel, defaults to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:10 of
+msgid ""
+"(voice channel only) The bitrate (in bits) of the voice channel, defaults"
+" to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:12 of
+msgid ""
+"(voice channel only) Maximum amount of users in the channel, defaults to "
+"the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:14 of
+msgid ""
+"Amount of seconds a user has to wait before sending another message "
+"(0-21600), defaults to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:16 of
+msgid ""
+"Sorting position of the channel, defaults to the current value of the "
+"channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:18 of
+msgid ""
+"The id of the parent category for a channel, defaults to the current "
+"value of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:20 of
+msgid ""
+"Whether the channel is nsfw or not, defaults to the current value of the "
+"channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:22 of
+msgid "The permission overwrites, if any"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:24 of
+msgid "Whether the thread is archived"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:26
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:3 of
+msgid ""
+"The time after the thread is automatically archived. One of 60, 1440, "
+"4320, 10080"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:28 of
+msgid "Whether the thread is locked"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:30 of
+msgid "The reason for the edit"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.modify:32 of
+msgid "The modified channel as new object"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_name:1 of
+msgid "Sets the name of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_name:3 of
+msgid "The new name of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.lock:5
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:5
+#: interactions.api.models.channel.Channel.set_bitrate:5
+#: interactions.api.models.channel.Channel.set_name:5
+#: interactions.api.models.channel.Channel.set_nsfw:5
+#: interactions.api.models.channel.Channel.set_parent_id:5
+#: interactions.api.models.channel.Channel.set_position:5
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:5
+#: interactions.api.models.channel.Channel.set_topic:5
+#: interactions.api.models.channel.Channel.set_user_limit:5 of
+msgid "The reason of the edit"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.archive:7
+#: interactions.api.models.channel.Channel.lock:7
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:7
+#: interactions.api.models.channel.Channel.set_bitrate:7
+#: interactions.api.models.channel.Channel.set_name:7
+#: interactions.api.models.channel.Channel.set_nsfw:7
+#: interactions.api.models.channel.Channel.set_parent_id:7
+#: interactions.api.models.channel.Channel.set_position:7
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:7
+#: interactions.api.models.channel.Channel.set_topic:7
+#: interactions.api.models.channel.Channel.set_user_limit:7 of
+msgid "The edited channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_topic:1 of
+msgid "Sets the topic of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_topic:3 of
+msgid "The new topic of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_bitrate:1 of
+msgid "Sets the bitrate of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_bitrate:3 of
+msgid "The new bitrate of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_user_limit:1 of
+msgid "Sets the user_limit of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_user_limit:3 of
+msgid "The new user limit of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_position:1
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:1 of
+msgid "Sets the position of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:3 of
+msgid "The new rate_limit_per_user of the channel (0-21600)"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_position:3 of
+msgid "The new position of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_parent_id:1 of
+msgid "Sets the parent_id of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_parent_id:3 of
+msgid "The new parent_id of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_nsfw:1 of
+msgid "Sets the nsfw-flag of the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_nsfw:3 of
+msgid "The new nsfw-flag of the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.archive:1 of
+msgid "Sets the archived state of the thread."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.archive:3 of
+msgid "Whether the Thread is archived, defaults to True"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.archive:5 of
+msgid "The reason of the archiving"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:1 of
+msgid "Sets the time after the thread is automatically archived."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.lock:1 of
+msgid "Sets the locked state of the thread."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.lock:3 of
+msgid "Whether the Thread is locked, defaults to True"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.add_member:1 of
+msgid "This adds a member to the channel, if the channel is a thread."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.add_member:3 of
+msgid "The id of the member to add to the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.pin_message:1 of
+msgid "Pins a message to the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.pin_message:3 of
+msgid "The id of the message to pin"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.unpin_message:1 of
+msgid "Unpins a message from the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.unpin_message:3 of
+msgid "The id of the message to unpin"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.publish_message:1 of
+msgid ""
+"Publishes (API calls it crossposts) a message in the channel to any that "
+"is followed by."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.publish_message:3 of
+msgid "The id of the message to publish"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.publish_message:5 of
+msgid "The message published"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_pinned_messages:1 of
+msgid "Get all pinned messages from the channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_pinned_messages:3 of
+msgid "A list of pinned message objects."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_message:1 of
+msgid "Gets a message sent in that channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_message:3 of
+msgid "The message as object"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:1 of
+msgid ""
+"Purges a given amount of messages from a channel. You can specify a check"
+" function to exclude specific messages."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:3 of
+msgid ""
+"Calling this method can lead to rate-limits when purging higher amounts "
+"of messages."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:11 of
+msgid "The amount of messages to delete"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:13 of
+msgid ""
+"The function used to check if a message should be deleted. The message is"
+" only deleted if the check returns `True`"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:15 of
+msgid "An id of a message to purge only messages before that message"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:17 of
+msgid ""
+"Whether to bulk delete the messages (you cannot delete messages older "
+"than 14 days, default) or to delete every message seperately"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:18 of
+msgid "Optional[bool]"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:19 of
+msgid "The reason of the deletes"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.purge:21 of
+msgid "A list of the deleted messages"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:1 of
+msgid "Creates a thread in the Channel."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:3 of
+msgid "The name of the thread"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:5 of
+msgid ""
+"duration in minutes to automatically archive the thread after recent "
+"activity, can be set to: 60, 1440, 4320, 10080"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:8 of
+msgid ""
+"The type of thread, defaults to public. ignored if creating thread from a"
+" message"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:10 of
+msgid "Boolean to display if the Thread is open to join or private."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:12 of
+msgid "An optional message to create a thread from."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:14 of
+msgid "An optional reason for the audit log"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_thread:16 of
+msgid "The created thread"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:1 of
+msgid "Creates an invite for the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:3 of
+msgid ""
+"Duration of invite in seconds before expiry, or 0 for never. between 0 "
+"and 604800 (7 days). Default 86400 (24h)"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:5 of
+msgid "Max number of uses or 0 for unlimited. between 0 and 100. Default 0"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:7 of
+msgid "Whether this invite only grants temporary membership. Default False"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:9 of
+msgid ""
+"If true, don't try to reuse a similar invite (useful for creating many "
+"unique one time use invites). Default False"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:11 of
+msgid "The type of target for this voice channel invite"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:13 of
+msgid ""
+"The id of the user whose stream to display for this invite, required if "
+"target_type is STREAM, the user must be streaming in the channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:15 of
+msgid ""
+"The id of the embedded application to open for this invite, required if "
+"target_type is EMBEDDED_APPLICATION, the application must have the "
+"EMBEDDED flag"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.create_invite:17 of
+msgid "The reason for the creation of the invite"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_history:1 of
+msgid "Gets messages from the channel's history."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_history:3 of
+msgid "The amount of messages to get. Default 100"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_history:5 of
+msgid "A list of messages"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_webhooks:1 of
+msgid "Gets a list of webhooks of that channel"
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:1 of
+msgid "A class object representing a member in a thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:4 of
+msgid ""
+"``id`` only shows if there are active intents involved with the member in"
+" the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:7 of
+msgid "The \"ID\" or intents of the member."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:8 of
+msgid "The user ID of the member."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:9 of
+msgid "The timestamp of when the member joined the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:10 of
+msgid "The bitshift flags for the member in the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMember:11 of
+msgid "Whether the member is muted or not."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:1 of
+msgid "A class object representing the metadata of a thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:4 of
+msgid ""
+"``invitable`` will only show if the thread can have an invited created "
+"with the current cached permissions."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:7 of
+msgid "The current thread accessibility state."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:8 of
+msgid "The auto-archive time."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:9 of
+msgid "The timestamp that the thread will be/has been closed at."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:10 of
+msgid "The current message state of the thread."
+msgstr ""
+
+#: interactions.api.models.channel.ThreadMetadata:11 of
+msgid "The ability to invite users to the thread."
 msgstr ""

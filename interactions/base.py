@@ -1,6 +1,13 @@
 import logging
 
-__version__ = "4.2.1"
+__all__ = (
+    "get_logger",
+    "__version__",
+    "__authors__",
+)
+
+__version__ = "4.3.0-beta.2"
+
 __authors__ = {
     "current": [
         {"name": "DeltaX<@DeltaXWizard>", "status": "Project Maintainer"},

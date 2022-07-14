@@ -125,7 +125,30 @@ Now, let's look what the new parts of the code are doing:
 * ``async def my_first_command(ctx: interactions.CommandContext):`` -- This here is called our "command coroutine," or what our library internally calls upon each time it recognizes an interaction event from the Discord API that affiliates with the data we've put into the decorator above it. Please note that ``ctx`` is an abbreviation for :ref:`context <context:Event Context>`.
 * ``await ctx.send("Hi there!")`` -- This sends the response to your command.
 
-.. note:: ``name`` and ``description`` are required.
+Here is another way we can create the same command:
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client(
+        token="your_secret_bot_token",
+        default_scope=the_id_of_your_guild,
+    )
+
+    @bot.command()
+    async def my_first_command(ctx: interactions.CommandContext):
+        """This is the first command I made!"""
+        await ctx.send("Hi there!")
+
+    bot.start()
+
+* The ``name`` field defaults to the coroutine name.
+* The ``description`` field defaults to the first line of the coroutine docstring if it exists. If it does not exist, it defaults to ``"No description provided."``.
+* ``default_scope`` -- This sets the scope for all the commands automatically. If you want to disable this feature in a specific command, you can add ``default_scope=False`` to the command decorator.
+* You could still use the ``scope`` field instead of ``default_scope``.
+
+.. note:: ``name`` and ``description`` are not required.
 
 
 .. important:: Difference between global and guild slash commands:
@@ -141,6 +164,8 @@ Next, let's create an Option
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :ref:`Options <models.command:Application Command Models>` are extra arguments of a command, filled in by the user executing the command.
+
+Here is the structure of an option:
 
 .. code-block:: python
 
@@ -166,12 +191,35 @@ Next, let's create an Option
 
     bot.start()
 
+The :ref:`@option() <models.command:Application Command Models>` decorator creates options in another way:
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client(token="your_secret_bot_token")
+
+    @bot.command(scope=the_id_of_your_guild)
+    @interactions.option(str, name="text", description="What you want to say", required=True)
+    async def say_something(ctx: interactions.CommandContext, text: str):
+        """say something!"""
+        await ctx.send(f"You said '{text}'!")
+
+* The first field in the ``@option()`` decorator is the type of the option. This is positional only and required. You can use integers, the default Python types, the ``OptionType`` enum, or supported objects such as ``interactions.Channel``.
+* All other arguments in the decorator are keyword arguments only.
+* The ``name`` field is required.
+* The ``description`` field is optional and defaults to ``"No description set``.
+* Any parameters from ``Option`` can be passed into the ``@option()`` decorator.
 
 .. note::
     The limit for options per command is 25.
 
 Nested commands: subcommands
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Subcommands are options that are nested to create subcategories of commands.
+
+Here is the structure of a subcommand:
 
 .. code-block:: python
 
@@ -214,9 +262,124 @@ Nested commands: subcommands
         elif sub_command == "second_command":
           await ctx.send(f"You selected the second_command sub command and put in {second_option}")
 
+You can also create subcommands using the command system:
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client(token="your_secret_bot_token")
+
+    @bot.command(scope=guild_id)
+    async def base_command(ctx: interactions.CommandContext):
+        """This description isn't seen in UI (yet?)"""
+        pass
+
+    @base_command.subcommand()
+    @interactions.option(str, name="option", description="A descriptive description", required=False)
+    async def command_name(ctx: interactions.CommandContext, option: int = None):
+        """A descriptive description"""
+        await ctx.send(f"You selected the command_name sub command and put in {option}")
+
+    @base_command.subcommand()
+    @interactions.option(str, name="second_option", description="A descriptive description", required=True)
+    async def second_command(ctx: interactions.CommandContext, second_option: str):
+        """A descriptive description"""
+        await ctx.send(f"You selected the second_command sub command and put in {second_option}")
+
 .. note::
     You can add a SUB_COMMAND_GROUP in between the base and command.
 
+Additional information about subcommands
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Base commands are returned the :ref:`Command <models.command:Application Command Models>` object.
+From this, you can utilize the following decorators:
+
+* :ref:`@subcommand() <models.command:Application Command Models>`: creates a subcommand.
+* :ref:`@group() <models.command:Application Command Models>`: creates a group.
+* :ref:`@error <models.command:Application Command Models>`: registers an error callback.
+
+Check the documentation for the parameters of each of these decorators.
+
+The following is an example of a base command:
+
+.. code-block:: python
+
+    @bot.command()
+    async def base_command(ctx: interactions.CommandContext):
+        pass
+
+The examples below will be using the base command above.
+
+The following is an example of a subcommand of the base command:
+
+.. code-block:: python
+
+    @base_command.subcommand()
+    async def subcommand(ctx: interactions.CommandContext, base_res: interactions.BaseResult):
+        pass
+
+This code results in the following subcommand: `/base_command subcommand`.
+
+.. note::
+    You can use the ``base_res`` parameter in groups and subcommands, and ``group_res`` in subcommands inside groups
+    to access the result of the previous callback. They are both optional and are placed right after the ``ctx`` parameter.
+
+The following is an example of a group with subcommands:
+
+.. code-block:: python
+
+    @base_command.group()
+    async def group(ctx: interactions.CommandContext, base_res: interactions.BaseResult):
+        pass
+
+    @group.subcommand()
+    async def subcommand_group(ctx: interactions.CommandContext, group_res: interactions.GroupResult):
+        pass
+
+You can have multiple groups, with multiple subcommands in each group.
+Subcommands and groups are options, so the same restrictions apply.
+
+.. note:: Create any subcommands without groups *before* creating any groups.
+
+Since there are multiple coroutines involved that each get executed, you may
+be wondering how you can stop the chain. Luckily, there is a way:
+
+.. code-block:: python
+
+    @bot.command()
+    async def foo(ctx):
+        ... # do something
+        return StopCommand  # does not execute `bar`
+
+    @foo.subcommand()
+    async def bar(ctx):
+        ...  # `bar` is not executed
+
+This works on both groups and subcommands.
+
+The following is an example of an error callback:
+
+.. code-block:: python
+
+    @bot.command()
+    async def foo(ctx: interactions.CommandContext):
+        ... # do something
+        raise Exception("Something went wrong")
+        # Most likely, you won't be the one
+        # raising the error, it may just be
+        # a bug or mistake with your code.
+
+    @foo.error
+    async def foo_error(ctx: interactions.CommandContext, error: Exception):
+        ... # do something
+
+The parameters ``ctx`` and ``error`` are required, but you can have more
+parameters, such as ``*args`` and ``**kwargs``, if you need to access options.
+
+.. note::
+    You can have one error callback per command.
 
 Special type of commands: Context menus
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -240,6 +403,13 @@ your ``@command`` decorator:
     async def test(ctx):
         await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
+Here is an alternate way of creating a context menu:
+
+.. code-block:: python
+
+    @bot.user_command(name="User Command", scope=1234567890)
+    async def test(ctx):
+        await ctx.send(f"You have applied a command onto user {ctx.target.user.username}!")
 
 .. important::
     The structure of a menu command differs significantly from that of a regular one:
@@ -322,6 +492,11 @@ as ``ActionRow``'s. It is worth noting that you can have only a maximum of
     row = interactions.ActionRow(
         components=[button1, button2]
     )
+    # or:
+    row = interactions.ActionRow.new(button1, button2)
+    # or:
+    row = interactions.spread_to_rows(button1, button2)
+    # spread_to_rows returns a list of rows
 
     @bot.command(...)
     async def test(ctx):
@@ -448,6 +623,68 @@ Here's an example of a guild-only command:
 Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. Just to note that this argument's mainly used for
 global commands. Guild commands with this argument will have no effect.
 
-.. _Client: https://discord-interactions.rtfd.io/en/stable/client.html
-.. _find these component types: https://discord-interactions.readthedocs.io/en/stable/models.component.html
+Utilities
+^^^^^^^^^
+
+You can use the following utilities to help you with your commands:
+
+* ``ActionRow.new()``: Creates a new ``ActionRow`` object.
+* ``spread_to_rows()``: Spreads a list of components into a list of rows.
+* ``@autodefer()``: Automatically defers a command if it did not respond within the specified time.
+
+Look at their documentation :ref:`here <models.command:Utilities>` for more information.
+
+Usage of ``ActionRow.new()``:
+
+.. code-block:: python
+
+    from interactions import ActionRow, Button
+
+    @bot.command()
+    async def command(ctx):
+        b1 = Button(style=1, custom_id="b1", label="b1")
+        b2 = Button(style=1, custom_id="b2", label="b2")
+        b3 = Button(style=1, custom_id="b3", label="b3")
+        b4 = Button(style=1, custom_id="b4", label="b4")
+
+        await ctx.send("Components:", components=ActionRow.new(b1, b2, b3, b4))
+        # instead of the cumbersome ActionRow(components=[b1, b2, b3, b4])
+
+Usage of ``spread_to_rows()``:
+
+.. code-block:: python
+
+    from interactions import Button, SelectMenu, SelectOption, spread_to_rows
+
+    @bot.command()
+    async def command(ctx):
+        b1 = Button(style=1, custom_id="b1", label="b1")
+        b2 = Button(style=1, custom_id="b2", label="b2")
+        s1 = SelectMenu(
+            custom_id="s1",
+            options=[
+                SelectOption(label="1", value="1"),
+                SelectOption(label="2", value="2"),
+            ],
+        )
+        b3 = Button(style=1, custom_id="b3", label="b3")
+        b4 = Button(style=1, custom_id="b4", label="b4")
+
+        await ctx.send("Components:", components=spread_to_rows(b1, b2, s1, b3, b4))
+
+Usage of ``@autodefer()``:
+
+.. code-block:: python
+
+    from interactions import autodefer
+    import asyncio
+
+    @bot.command()
+    @autodefer()  # configurable
+    async def command(ctx):
+        await asyncio.sleep(5)
+        await ctx.send("I'm awake now!")
+
+.. _Client: https://interactionspy.rtfd.io/en/stable/client.html
+.. _find these component types: https://interactionspy.readthedocs.io/en/stable/models.component.html
 .. _discord applications page: https://discord.com/developers/applications

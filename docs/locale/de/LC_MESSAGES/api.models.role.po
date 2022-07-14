@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-06-07 21:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,4 +20,178 @@ msgstr ""
 
 #: ../../api.models.role.rst:4
 msgid "Role Models"
+msgstr ""
+
+#: interactions.api.models.role.Role:1 of
+msgid "A class object representing a role."
+msgstr ""
+
+#: interactions.api.models.role.Role interactions.api.models.role.RoleTags of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.role.Role:3 of
+msgid "Role ID"
+msgstr ""
+
+#: interactions.api.models.role.Role:4 of
+msgid "Role name"
+msgstr ""
+
+#: interactions.api.models.role.Role:5 of
+msgid "Role color in integer representation"
+msgstr ""
+
+#: interactions.api.models.role.Role:6 of
+msgid "A status denoting if this role is hoisted"
+msgstr ""
+
+#: interactions.api.models.role.Role:7 of
+msgid "Role icon hash, if any."
+msgstr ""
+
+#: interactions.api.models.role.Role:8 of
+msgid "Role unicode emoji"
+msgstr ""
+
+#: interactions.api.models.role.Role:9 of
+msgid "Role position"
+msgstr ""
+
+#: interactions.api.models.role.Role:10 of
+msgid "Role permissions as a bit set"
+msgstr ""
+
+#: interactions.api.models.role.Role:11 of
+msgid "A status denoting if this role is managed by an integration"
+msgstr ""
+
+#: interactions.api.models.role.Role:12 of
+msgid "A status denoting if this role is mentionable"
+msgstr ""
+
+#: interactions.api.models.role.Role:13 of
+msgid "The tags this role has"
+msgstr ""
+
+#: interactions.api.models.role.Role.mention:1 of
+msgid "Returns a string that allows you to mention the given role."
+msgstr ""
+
+#: interactions.api.models.role.Role.mention
+#: interactions.api.models.role.Role.modify
+#: interactions.api.models.role.Role.modify_position of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.models.role.Role.mention:3 of
+msgid "The string of the mentioned role."
+msgstr ""
+
+#: interactions.api.models.role.Role.mention
+#: interactions.api.models.role.Role.modify
+#: interactions.api.models.role.Role.modify_position of
+msgid "Return type"
+msgstr ""
+
+#: interactions.api.models.role.Role.delete:1 of
+msgid "Deletes the role from the guild."
+msgstr ""
+
+#: interactions.api.models.role.Role.delete
+#: interactions.api.models.role.Role.modify
+#: interactions.api.models.role.Role.modify_position of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.role.Role.delete:3 of
+msgid "The id of the guild to delete the role from"
+msgstr ""
+
+#: interactions.api.models.role.Role.delete:5 of
+msgid "The reason for the deletion"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:1 of
+msgid "Edits the role in a guild."
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:3 of
+msgid "The id of the guild to edit the role on"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:5 of
+msgid "The name of the role, defaults to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:7 of
+msgid "RGB color value as integer, defaults to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:11 of
+msgid ""
+"Whether the role should be displayed separately in the sidebar, defaults "
+"to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:13 of
+msgid ""
+"The role's icon image (if the guild has the ROLE_ICONS feature), defaults"
+" to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:15 of
+msgid ""
+"The role's unicode emoji as a standard emoji (if the guild has the "
+"ROLE_ICONS feature), defaults to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:17 of
+msgid ""
+"Whether the role should be mentionable, defaults to the current value of "
+"the role"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:19 of
+msgid "The reason why the role is edited, default ``None``"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify:21 of
+msgid "The modified role object"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify_position:1 of
+msgid "Modifies the position of a role in the guild."
+msgstr ""
+
+#: interactions.api.models.role.Role.modify_position:3 of
+msgid "The id of the guild to modify the role position on"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify_position:5 of
+msgid "The new position of the role"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify_position:7 of
+msgid "The reason for the modifying"
+msgstr ""
+
+#: interactions.api.models.role.Role.modify_position:9 of
+msgid "List of guild roles with updated hierarchy"
+msgstr ""
+
+#: interactions.api.models.role.RoleTags:1 of
+msgid "A class object representing the tags of a role."
+msgstr ""
+
+#: interactions.api.models.role.RoleTags:3 of
+msgid "The id of the bot this role belongs to"
+msgstr ""
+
+#: interactions.api.models.role.RoleTags:4 of
+msgid "The id of the integration this role belongs to"
+msgstr ""
+
+#: interactions.api.models.role.RoleTags:5 of
+msgid "Whether if this is the guild's premium subscriber role"
 msgstr ""

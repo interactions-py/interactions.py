@@ -1,12 +1,11 @@
 from typing import Any, Optional, Tuple
 
-import interactions.api.cache
-
-from ...api.cache import Cache
+from ...api.cache import Cache, ref_cache
 from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
 from .interaction import InteractionRequest
+from .invite import InviteRequest
 from .member import MemberRequest
 from .message import MessageRequest
 from .reaction import ReactionRequest
@@ -18,12 +17,15 @@ from .thread import ThreadRequest
 from .user import UserRequest
 from .webhook import WebhookRequest
 
+__all__ = ("HTTPClient",)
+
 
 class HTTPClient(
     ChannelRequest,
     EmojiRequest,
     GuildRequest,
     InteractionRequest,
+    InviteRequest,
     MemberRequest,
     MessageRequest,
     ReactionRequest,
@@ -54,11 +56,12 @@ class HTTPClient(
     def __init__(self, token: str):
         self.token = token
         self._req = _Request(self.token)
-        self.cache = interactions.api.cache.ref_cache
+        self.cache = ref_cache
         UserRequest.__init__(self)
         MessageRequest.__init__(self)
         GuildRequest.__init__(self)
         ChannelRequest.__init__(self)
+        InviteRequest.__init__(self)
         ThreadRequest.__init__(self)
         ReactionRequest.__init__(self)
         StickerRequest.__init__(self)
@@ -77,7 +80,11 @@ class HTTPClient(
         url: Any = await self._req.request(
             Route("GET", "/gateway")
         )  # typehinting Any because pycharm yells
-        return f'{url["url"]}?v=10&encoding=json'
+        try:
+            _url = f'{url["url"]}?v=10&encoding=json'
+        except TypeError:  # seen a few times
+            _url = "wss://gateway.discord.gg?v=10&encoding=json"
+        return _url
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
         """
@@ -87,7 +94,11 @@ class HTTPClient(
         """
 
         data: Any = await self._req.request(Route("GET", "/gateway/bot"))
-        return data["shards"], f'{data["url"]}?v=9&encoding=json'
+        try:
+            _url = f'{data["url"]}?v=10&encoding=json'
+        except TypeError:  # seen a few times
+            _url = "wss://gateway.discord.gg?v=10&encoding=json"
+        return data["shards"], _url
 
     async def login(self) -> Optional[dict]:
         """

@@ -1,8 +1,13 @@
 from typing import List, Optional
 
 from ...api.cache import Cache
+from ...api.models.guild import Guild
+from ...api.models.member import Member
+from ...api.models.misc import Snowflake
 from .request import _Request
 from .route import Route
+
+__all__ = ("MemberRequest",)
 
 
 class MemberRequest:
@@ -21,7 +26,7 @@ class MemberRequest:
         :param member_id: Member ID snowflake.
         :return: A member object, if any.
         """
-        return await self._req.request(
+        res = await self._req.request(
             Route(
                 "GET",
                 "/guilds/{guild_id}/members/{member_id}",
@@ -29,6 +34,21 @@ class MemberRequest:
                 member_id=member_id,
             )
         )
+
+        member = Member(**res, _client=self)
+        guild = self.cache[Guild].get(Snowflake(guild_id))
+        if guild.members is None:
+            guild.members = [member]
+        else:
+            for index, _member in enumerate(guild.members):
+                if _member.id == member.id:
+                    guild.members[index] = member
+                    break
+            else:
+                guild.members.append(member)
+        self.cache[Guild].add(guild)  # yes it should just be overwritten
+
+        return res
 
     async def get_list_of_members(
         self, guild_id: int, limit: int = 1, after: Optional[int] = None
@@ -45,7 +65,20 @@ class MemberRequest:
         if after:
             payload["after"] = after
 
-        return await self._req.request(Route("GET", f"/guilds/{guild_id}/members"), params=payload)
+        res = await self._req.request(Route("GET", f"/guilds/{guild_id}/members"), params=payload)
+        guild = self.cache[Guild].get(Snowflake(guild_id))
+        if guild.members is None:
+            guild.members = [Member(**_res, _client=self) for _res in res]
+        else:
+            for member in [Member(**_res, _client=self) for _res in res]:
+                for index, _member in enumerate(guild.members):
+                    if _member.id == member.id:
+                        guild.members[index] = member
+                        break
+                else:
+                    guild.members.append(member)
+        self.cache[Guild].add(guild)  # yes it should just be overwritten
+        return res
 
     async def search_guild_members(self, guild_id: int, query: str, limit: int = 1) -> List[dict]:
         """

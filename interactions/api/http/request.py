@@ -1,6 +1,7 @@
 import asyncio
 import traceback
 from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
+from contextlib import suppress
 from json import dumps
 from logging import Logger
 from sys import version_info
@@ -10,12 +11,12 @@ from urllib.parse import quote
 from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
 
-from interactions.base import __version__, get_logger
-
-from ...api.error import HTTPException
+from ...api.error import LibraryException
+from ...base import __version__, get_logger
 from .limiter import Limiter
 from .route import Route
 
+__all__ = ("_Request",)
 log: Logger = get_logger("http")
 _session: ClientSession = ClientSession()
 
@@ -96,14 +97,14 @@ class _Request:
         :return: The contents of the request if any.
         :rtype: Optional[Any]
         """
+        # sourcery skip: low-code-quality
 
         kwargs["headers"] = {**self._headers, **kwargs.get("headers", {})}
 
         if kwargs.get("json"):
             kwargs["headers"]["Content-Type"] = "application/json"
 
-        reason = kwargs.pop("reason", None)
-        if reason:
+        if reason := kwargs.pop("reason", None):
             kwargs["headers"]["X-Audit-Log-Reason"] = quote(reason, safe="/ ")
 
         # Huge credit and thanks to LordOfPolls for the lock/retry logic.
@@ -161,24 +162,29 @@ class _Request:
                     if _bucket is not None:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
-
-                    if isinstance(data, dict) and data.get("errors"):
+                    if isinstance(data, dict) and (
+                        data.get("errors") or (data.get("code") and data.get("code") != 429)
+                    ):
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
                         )
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
-                        raise HTTPException(data["code"], message=data["message"])
+                        raise LibraryException(
+                            message=data["message"], code=data["code"], severity=40, data=data
+                        )
+                    elif isinstance(data, dict) and data.get("code") == 0 and data.get("message"):
+                        log.debug(
+                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
+                        )
+                        # This "redundant" debug line is for debug use and tracing back the error codes.
 
+                        raise LibraryException(
+                            message=f"'{data['message']}'. Make sure that your token is set properly.",
+                            severity=50,
+                        )
                     if response.status == 429:
-                        if not is_global:
-                            log.warning(
-                                f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
-                            )
-                            _limiter.reset_after = reset_after
-                            await asyncio.sleep(_limiter.reset_after)
-                            continue
-                        else:
+                        if is_global:
                             log.warning(
                                 f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
                             )
@@ -186,6 +192,13 @@ class _Request:
                             self._loop.call_later(
                                 self._global_lock.reset_after, self._global_lock.lock.release
                             )
+                        else:
+                            log.warning(
+                                f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
+                            )
+                            _limiter.reset_after = reset_after
+                            await asyncio.sleep(_limiter.reset_after)
+                            continue
                     if remaining is not None and int(remaining) == 0:
                         log.warning(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
@@ -203,21 +216,19 @@ class _Request:
                 if tries < 4 and e.errno in (54, 10054):
                     await asyncio.sleep(2 * tries + 1)
                     continue
-                try:
+                with suppress(RuntimeError):
                     _limiter.lock.release()
-                except RuntimeError:
-                    pass
                 raise
 
             # For generic exceptions we give a traceback for debug reasons.
             except Exception as e:
-                try:
+                with suppress(RuntimeError):
                     _limiter.lock.release()
-                except RuntimeError:
-                    pass
+                if isinstance(e, LibraryException):
+                    raise
                 log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
                 break
 
     async def close(self) -> None:
         """Closes the current session."""
-        await self.session.close()
+        await self._session.close()

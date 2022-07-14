@@ -1,8 +1,33 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import Callable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
-from .misc import MISSING, DictSerializerMixin, File, Overwrite, Snowflake
+from ..error import LibraryException
+from .attrs_utils import (
+    MISSING,
+    ClientSerializerMixin,
+    DictSerializerMixin,
+    convert_list,
+    define,
+    field,
+)
+from .misc import File, IDMixin, Overwrite, Snowflake
+from .user import User
+from .webhook import Webhook
+
+if TYPE_CHECKING:
+    from ...client.models.component import ActionRow, Button, SelectMenu
+    from .guild import Invite, InviteTargetType
+    from .member import Member
+    from .message import Attachment, Embed, Message, MessageInteraction, Sticker
+
+__all__ = (
+    "ChannelType",
+    "Thread",
+    "Channel",
+    "ThreadMember",
+    "ThreadMetadata",
+)
 
 
 class ChannelType(IntEnum):
@@ -21,6 +46,7 @@ class ChannelType(IntEnum):
     GUILD_STAGE_VOICE = 13
 
 
+@define()
 class ThreadMetadata(DictSerializerMixin):
     """
     A class object representing the metadata of a thread.
@@ -36,25 +62,15 @@ class ThreadMetadata(DictSerializerMixin):
     :ivar Optional[bool] invitable?: The ability to invite users to the thread.
     """
 
-    __slots__ = (
-        "_json",
-        "archived",
-        "auto_archive_duration",
-        "archive_timestamp",
-        "locked",
-        "invitable",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.archive_timestamp = (
-            datetime.fromisoformat(self._json.get("archive_timestamp"))
-            if self._json.get("archive_timestamp")
-            else datetime.now(timezone.utc)
-        )
+    archived: bool = field()
+    auto_archive_duration: int = field()
+    archive_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
+    locked: bool = field()
+    invitable: Optional[bool] = field(default=None)
 
 
-class ThreadMember(DictSerializerMixin):
+@define()
+class ThreadMember(ClientSerializerMixin):
     """
     A class object representing a member in a thread.
 
@@ -66,33 +82,19 @@ class ThreadMember(DictSerializerMixin):
     :ivar Snowflake user_id: The user ID of the member.
     :ivar datetime join_timestamp: The timestamp of when the member joined the thread.
     :ivar int flags: The bitshift flags for the member in the thread.
+    :ivar bool muted: Whether the member is muted or not.
     """
 
-    __slots__ = (
-        "_json",
-        "id",
-        "user_id",
-        "join_timestamp",
-        "flags",
-        # TODO: Document below attributes.
-        "user",
-        "team_id",
-        "membership_state",
-        "permissions",
-    )
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.user_id = Snowflake(self.user_id) if self._json.get("user_id") else None
-        self.join_timestamp = (
-            datetime.fromisoformat(self._json.get("join_timestamp"))
-            if self._json.get("join_timestamp")
-            else None
-        )
+    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    join_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
+    flags: int = field()
+    muted: bool = field()
+    mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
 
 
-class Channel(DictSerializerMixin):
+@define()
+class Channel(ClientSerializerMixin, IDMixin):
     """
     A class object representing all types of channels.
 
@@ -129,65 +131,46 @@ class Channel(DictSerializerMixin):
     """
 
     __slots__ = (
-        "_json",
-        "id",
-        "type",
-        "guild_id",
-        "position",
-        "permission_overwrites",
-        "name",
-        "topic",
-        "nsfw",
-        "last_message_id",
-        "bitrate",
-        "user_limit",
-        "rate_limit_per_user",
-        "recipients",
-        "icon",
-        "owner_id",
-        "application_id",
-        "parent_id",
-        "last_pin_timestamp",
-        "rtc_region",
-        "video_quality_mode",
-        "message_count",
-        "member_count",
-        "thread_metadata",
-        "member",
-        "default_auto_archive_duration",
-        "permissions",
-        "_client",
         # TODO: Document banner when Discord officially documents them.
         "banner",
         "guild_hashes",
     )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.type = ChannelType(self.type)
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.last_message_id = (
-            Snowflake(self.last_message_id) if self._json.get("last_message_id") else None
-        )
-        self.owner_id = Snowflake(self.owner_id) if self._json.get("owner_id") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.parent_id = Snowflake(self.parent_id) if self._json.get("parent_id") else None
-        self.last_pin_timestamp = (
-            datetime.fromisoformat(self._json.get("last_pin_timestamp"))
-            if self._json.get("last_pin_timestamp")
-            else None
-        )
-        self.permission_overwrites = (
-            [
-                Overwrite(**overwrite) if isinstance(overwrite, dict) else overwrite
-                for overwrite in self._json.get("permission_overwrites")
-            ]
-            if self._json.get("permission_overwrites")
-            else None
-        )
+    type: ChannelType = field(converter=ChannelType)
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    position: Optional[int] = field(default=None)
+    permission_overwrites: Optional[List[Overwrite]] = field(
+        converter=convert_list(Overwrite), factory=list
+    )
+    name: str = field(factory=str)
+    topic: Optional[str] = field(default=None)
+    nsfw: Optional[bool] = field(default=None)
+    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    bitrate: Optional[int] = field(default=None)
+    user_limit: Optional[int] = field(default=None)
+    rate_limit_per_user: Optional[int] = field(default=None)
+    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None)
+    icon: Optional[str] = field(default=None)
+    owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    parent_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    last_pin_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    rtc_region: Optional[str] = field(default=None)
+    video_quality_mode: Optional[int] = field(default=None)
+    message_count: Optional[int] = field(default=None)
+    member_count: Optional[int] = field(default=None)
+    thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
+    member: Optional[ThreadMember] = field(converter=ThreadMember, default=None, add_client=True)
+    default_auto_archive_duration: Optional[int] = field(default=None)
+    permissions: Optional[str] = field(default=None)
+    flags: Optional[int] = field(default=None)
+
+    def __attrs_post_init__(self):  # sourcery skip: last-if-guard
+        if self._client:
+            if channel := self._client.cache[Channel].get(self.id):
+                if not self.recipients:
+                    self.recipients = channel.recipients
 
     def __repr__(self) -> str:
         return self.name
@@ -207,20 +190,22 @@ class Channel(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,  # noqa
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
-    ) -> "Message":  # noqa
+    ) -> "Message":  # noqa  # sourcery skip: dict-assign-update-to-union
         """
         Sends a message in the channel.
 
@@ -230,25 +215,31 @@ class Channel(DictSerializerMixin):
         :type tts: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from ...client.models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
-        # _attachments = [] if attachments else None
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
         if not embeds or embeds is MISSING:
             _embeds: list = []
         elif isinstance(embeds, list):
@@ -269,18 +260,27 @@ class Channel(DictSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        payload = Message(
+        _files.extend(_attachments)
+
+        payload = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            sticker_ids=_sticker_ids,
         )
 
         res = await self._client.create_message(
-            channel_id=int(self.id), payload=payload._json, files=files
+            channel_id=int(self.id), payload=payload, files=files
         )
+
+        # dumb hack, discord doesn't send the full author data
+        author = {"id": None, "username": None, "discriminator": None}
+        author.update(res["author"])
+        res["author"] = author
+
         return Message(**res, _client=self._client)
 
     async def delete(self) -> None:
@@ -288,7 +288,7 @@ class Channel(DictSerializerMixin):
         Deletes the channel.
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.delete_channel(channel_id=int(self.id))
 
     async def modify(
@@ -343,7 +343,7 @@ class Channel(DictSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _name = self.name if name is MISSING else name
         _topic = self.topic if topic is MISSING else topic
         _bitrate = self.bitrate if bitrate is MISSING else bitrate
@@ -360,12 +360,14 @@ class Channel(DictSerializerMixin):
         _nsfw = self.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
             [overwrite._json for overwrite in self.permission_overwrites]
+            if self.permission_overwrites
+            else None
             if permission_overwrites is MISSING
             else [overwrite._json for overwrite in permission_overwrites]
         )
         _type = self.type
 
-        payload = Channel(
+        payload = dict(
             name=_name,
             type=_type,
             topic=_topic,
@@ -378,12 +380,10 @@ class Channel(DictSerializerMixin):
             permission_overwrites=_permission_overwrites,
         )
 
-        payload = payload._json
-
         if (
             archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
         ) and not self.thread_metadata:
-            raise ValueError("The specified channel is not a Thread!")
+            raise LibraryException(message="The specified channel is not a Thread!", code=12)
 
         if archived is not MISSING:
             payload["archived"] = archived
@@ -397,12 +397,10 @@ class Channel(DictSerializerMixin):
             reason=reason,
             payload=payload,
         )
-        ch = Channel(**res, _client=self._client)
 
-        for attr in self.__slots__:
-            setattr(self, attr, getattr(ch, attr))
+        self.update(res)
 
-        return ch
+        return self
 
     async def set_name(
         self,
@@ -460,7 +458,7 @@ class Channel(DictSerializerMixin):
         """
 
         if self.type != ChannelType.GUILD_VOICE:
-            raise TypeError("Bitrate is only available for VoiceChannels")
+            raise LibraryException(message="Bitrate is only available for VoiceChannels", code=12)
 
         return await self.modify(bitrate=bitrate, reason=reason)
 
@@ -482,7 +480,9 @@ class Channel(DictSerializerMixin):
         """
 
         if self.type != ChannelType.GUILD_VOICE:
-            raise TypeError("user_limit is only available for VoiceChannels")
+            raise LibraryException(
+                message="user_limit is only available for VoiceChannels", code=12
+            )
 
         return await self.modify(user_limit=user_limit, reason=reason)
 
@@ -493,7 +493,7 @@ class Channel(DictSerializerMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
-        Sets the position of the channel.
+        Sets the amount of seconds a user has to wait before sending another message.
 
         :param rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
         :type rate_limit_per_user: int
@@ -621,7 +621,7 @@ class Channel(DictSerializerMixin):
 
     async def add_member(
         self,
-        member_id: int,
+        member_id: Union[int, Snowflake, "Member"],
     ) -> None:
         """
         This adds a member to the channel, if the channel is a thread.
@@ -630,63 +630,99 @@ class Channel(DictSerializerMixin):
         :type member_id: int
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if not self.thread_metadata:
-            raise TypeError(
-                "The Channel you specified is not a thread!"
-            )  # TODO: Move to new error formatter.
-        await self._client.add_member_to_thread(thread_id=int(self.id), user_id=member_id)
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        _member_id = (
+            int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
+        )
+
+        await self._client.add_member_to_thread(thread_id=int(self.id), user_id=_member_id)
+
+    async def remove_member(
+        self,
+        member_id: Union[int, Snowflake, "Member"],
+    ) -> None:
+        """
+        This removes a member of the channel, if the channel is a thread.
+
+        :param member_id: The id of the member to remove of the channel
+        :type member_id: int
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        _member_id = (
+            int(member_id) if isinstance(member_id, (int, Snowflake)) else int(member_id.id)
+        )
+
+        await self._client.remove_member_from_thread(thread_id=int(self.id), user_id=_member_id)
 
     async def pin_message(
         self,
-        message_id: int,
+        message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
         Pins a message to the channel.
 
         :param message_id: The id of the message to pin
-        :type message_id: int
+        :type message_id: Union[int, Snowflake, "Message"]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
-        await self._client.pin_message(channel_id=int(self.id), message_id=message_id)
+        _message_id = (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )
+
+        await self._client.pin_message(channel_id=int(self.id), message_id=_message_id)
 
     async def unpin_message(
         self,
-        message_id: int,
+        message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
         Unpins a message from the channel.
 
         :param message_id: The id of the message to unpin
-        :type message_id: int
+        :type message_id: Union[int, Snowflake, "Message"]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
-        await self._client.unpin_message(channel_id=int(self.id), message_id=message_id)
+        _message_id = (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )
+
+        await self._client.unpin_message(channel_id=int(self.id), message_id=_message_id)
 
     async def publish_message(
         self,
-        message_id: int,
-    ) -> "Message":  # noqa
+        message_id: Union[int, Snowflake, "Message"],
+    ) -> "Message":
         """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
         :param message_id: The id of the message to publish
-        :type message_id: int
+        :type message_id: Union[int, Snowflake, "Message"]
         :return: The message published
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .message import Message
 
-        res = await self._client.publish_message(channel_id=int(self.id), message_id=message_id)
+        _message_id = (
+            int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+        )
+
+        res = await self._client.publish_message(channel_id=int(self.id), message_id=_message_id)
 
         return Message(**res, _client=self._client)
 
-    async def get_pinned_messages(self) -> List["Message"]:  # noqa
+    async def get_pinned_messages(self) -> List["Message"]:
         """
         Get all pinned messages from the channel.
 
@@ -694,7 +730,7 @@ class Channel(DictSerializerMixin):
         :rtype: List[Message]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .message import Message
 
         res = await self._client.get_pinned_messages(int(self.id))
@@ -702,17 +738,19 @@ class Channel(DictSerializerMixin):
 
     async def get_message(
         self,
-        message_id: int,
-    ) -> "Message":  # noqa
+        message_id: Union[int, Snowflake],
+    ) -> "Message":
         """
         Gets a message sent in that channel.
 
+        :param message_id: The ID of the message to get
+        :type message_id: Union[int, Snowflake]
         :return: The message as object
         :rtype: Message
         """
         res = await self._client.get_message(
             channel_id=int(self.id),
-            message_id=message_id,
+            message_id=int(message_id),
         )
         from .message import Message
 
@@ -721,11 +759,11 @@ class Channel(DictSerializerMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable = MISSING,
+        check: Callable[[Any], bool] = MISSING,
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
-    ) -> List["Message"]:  # noqa
+    ) -> List["Message"]:  # noqa  # sourcery skip: low-code-quality
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 
@@ -751,7 +789,7 @@ class Channel(DictSerializerMixin):
         :rtype: List[Message]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .message import Message
 
         _before = None if before is MISSING else before
@@ -926,7 +964,7 @@ class Channel(DictSerializerMixin):
         type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
-        message_id: Optional[int] = MISSING,
+        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> "Channel":
         """
@@ -942,24 +980,30 @@ class Channel(DictSerializerMixin):
         :param invitable?: Boolean to display if the Thread is open to join or private.
         :type invitable: Optional[bool]
         :param message_id?: An optional message to create a thread from.
-        :type message_id: Optional[int]
+        :type message_id: Optional[Union[int, Snowflake, "Message"]]
         :param reason?: An optional reason for the audit log
         :type reason: Optional[str]
         :return: The created thread
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if type not in [
             ChannelType.GUILD_NEWS_THREAD,
             ChannelType.GUILD_PUBLIC_THREAD,
             ChannelType.GUILD_PRIVATE_THREAD,
         ]:
-            raise AttributeError("type must be a thread type!")
+            raise LibraryException(message="type must be a thread type!", code=12)
 
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
-        _message_id = None if message_id is MISSING else message_id
+        _message_id = (
+            None
+            if message_id is MISSING
+            else (
+                int(message_id) if isinstance(message_id, (int, Snowflake)) else int(message_id.id)
+            )
+        )
         res = await self._client.create_thread(
             channel_id=int(self.id),
             thread_type=type.value,
@@ -983,11 +1027,11 @@ class Channel(DictSerializerMixin):
         max_uses: Optional[int] = 0,
         temporary: Optional[bool] = False,
         unique: Optional[bool] = False,
-        target_type: Optional["InviteTargetType"] = MISSING,  # noqa
+        target_type: Optional["InviteTargetType"] = MISSING,
         target_user_id: Optional[int] = MISSING,
         target_application_id: Optional[int] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Invite":  # noqa
+    ) -> "Invite":
         """
         Creates an invite for the channel
 
@@ -1010,7 +1054,7 @@ class Channel(DictSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         payload = {
             "max_age": max_age,
@@ -1022,16 +1066,17 @@ class Channel(DictSerializerMixin):
         if (target_user_id is not MISSING and target_user_id) and (
             target_application_id is not MISSING and target_application_id
         ):
-            raise ValueError(
-                "target user id and target application are mutually exclusive!"
-            )  # TODO: move to custom error formatter
+            raise LibraryException(
+                message="target user id and target application are mutually exclusive!", code=12
+            )
 
         elif (
             (target_user_id is not MISSING and target_user_id)
             or (target_application_id is not MISSING and target_application_id)
         ) and not target_type:
-            raise ValueError(
-                "you have to specify a target_type if you specify target_user-/target_application_id"
+            raise LibraryException(
+                message="you have to specify a target_type if you specify target_user-/target_application_id",
+                code=12,
             )
 
         if target_user_id is not MISSING:
@@ -1056,7 +1101,7 @@ class Channel(DictSerializerMixin):
 
         return Invite(**res, _client=self._client)
 
-    async def get_history(self, limit: int = 100) -> List["Message"]:  # noqa
+    async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:
         """
         Gets messages from the channel's history.
 
@@ -1067,12 +1112,12 @@ class Channel(DictSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         from .message import Message
 
         _messages: List[Message] = []
-        _before: int = None
+        _before: Optional[int] = None
         while limit > 100:
             _msgs = [
                 Message(**res, _client=self._client)
@@ -1083,7 +1128,9 @@ class Channel(DictSerializerMixin):
                 )
             ]
             limit -= 100
-            _before = int(_messages[-1].id)
+            if not _msgs:
+                return _messages
+            _before = int(_msgs[-1].id)
 
             for msg in _msgs:
                 if msg in _messages:
@@ -1098,6 +1145,8 @@ class Channel(DictSerializerMixin):
                     channel_id=int(self.id), limit=limit, before=_before
                 )
             ]
+            if not _msgs:
+                return _messages
             for msg in _msgs:
                 if msg in _messages:
                     return _messages
@@ -1106,7 +1155,56 @@ class Channel(DictSerializerMixin):
 
         return _messages
 
+    async def get_webhooks(self) -> List[Webhook]:
+        """
+        Gets a list of webhooks of that channel
+        """
 
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = await self._client.get_channel_webhooks(int(self.id))
+        return [Webhook(**_, _client=self._client) for _ in res]
+
+    async def get_members(self) -> List[ThreadMember]:
+        """
+        Gets the list of thread members
+
+        :return: The members of the thread.
+        :rtype: List[ThreadMember]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        res = await self._client.list_thread_members(int(self.id))
+        return [ThreadMember(**member, _client=self._client) for member in res]
+
+    async def leave(self) -> None:
+        """
+        Removes the bot from the thread
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        await self._client.leave_thread(int(self.id))
+
+    async def join(self) -> None:
+        """
+        Add the bot to the thread
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if not self.thread_metadata:
+            raise LibraryException(message="The Channel you specified is not a thread!", code=12)
+
+        await self._client.join_thread(int(self.id))
+
+
+@define()
 class Thread(Channel):
     """An object representing a thread.
 

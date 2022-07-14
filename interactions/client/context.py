@@ -1,12 +1,15 @@
 from logging import Logger
 from typing import List, Optional, Union
 
-from ..api import InteractionException
+from ..api.error import LibraryException
+from ..api.http.client import HTTPClient
+from ..api.models.attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from ..api.models.channel import Channel
+from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Embed, Message, MessageInteraction, MessageReference
-from ..api.models.misc import MISSING, DictSerializerMixin, Snowflake
+from ..api.models.message import Attachment, Embed, Message, MessageInteraction, MessageReference
+from ..api.models.misc import Snowflake
 from ..api.models.user import User
 from ..base import get_logger
 from .enums import InteractionCallbackType, InteractionType
@@ -16,8 +19,15 @@ from .models.misc import InteractionData
 
 log: Logger = get_logger("context")
 
+__all__ = (
+    "_Context",
+    "CommandContext",
+    "ComponentContext",
+)
 
-class _Context(DictSerializerMixin):
+
+@define()
+class _Context(ClientSerializerMixin):
     """
     The base class of "context" for dispatched event data
     from the gateway. The premise of having this class is so
@@ -32,67 +42,41 @@ class _Context(DictSerializerMixin):
     :ivar Optional[Guild] guild: The guild data model.
     """
 
-    __slots__ = (
-        "message",
-        "member",
-        "author",
-        "user",
-        "channel",
-        "channel_id",
-        "guild",
-        "guild_id",
-        "client",
-        "id",
-        "application_id",
-        "type",
-        "data",
-        "token",
+    client: HTTPClient = field(default=None)
+    message: Optional[Message] = field(converter=Message, default=None, add_client=True)
+    author: Member = field(converter=Member, default=None, add_client=True)
+    member: Member = field(converter=Member, add_client=True)
+    user: User = field(converter=User, default=None, add_client=True)
+    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
+    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
+    id: Snowflake = field(converter=Snowflake)
+    application_id: Snowflake = field(converter=Snowflake)
+    type: InteractionType = field(converter=InteractionType)
+    callback: Optional[InteractionCallbackType] = field(
+        converter=InteractionCallbackType, default=None
     )
+    data: InteractionData = field(converter=InteractionData)
+    version: int = field()
+    token: str = field()
+    guild_id: Snowflake = field(converter=Snowflake)
+    channel_id: Snowflake = field(converter=Snowflake)
+    responded: bool = field(default=False)
+    deferred: bool = field(default=False)
+    app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.message = (
-            Message(**self.message, _client=self.client) if self._json.get("message") else None
-        )
-        self.member = (
-            Member(**self.member, _client=self.client) if self._json.get("member") else None
-        )
+    def __attrs_post_init__(self) -> None:
+        # backwards compatibility
+        self.client = self._client
         self.author = self.member
-        if self._json.get("user"):
-            self.user = User(**self.user)
-        elif self.member:
-            self.user = self.member.user
-        else:
-            self.user = None
 
-        self.id = Snowflake(self.id) if self._json.get("id") else None
-        self.application_id = (
-            Snowflake(self.application_id) if self._json.get("application_id") else None
-        )
-        self.guild_id = Snowflake(self.guild_id) if self._json.get("guild_id") else None
-        self.channel_id = Snowflake(self.channel_id) if self._json.get("channel_id") else None
-        self.callback = None
-        self.type = InteractionType(self.type)
-        self.data = InteractionData(**self.data) if self._json.get("data") else None
+        if self.user is None:
+            self.user = self.member.user if self.member else None
 
-        if guild := self._json.get("guild"):
-            self.guild = Guild(**guild)
-        elif self.guild_id is None:
-            self.guild = None
-        elif guild := self.client.cache.guilds.get(self.guild_id):
-            self.guild = guild
-        else:
-            self.guild = MISSING
+        if self.guild is None and self.guild_id is not None:
+            self.guild = self._client.cache[Guild].get(self.guild_id, MISSING)
 
-        if channel := self._json.get("channel"):
-            self.channel = Channel(**channel)
-        elif channel := self.client.cache.channels.get(self.channel_id):
-            self.channel = channel
-        else:
-            self.channel = MISSING
-
-        self.responded = False
-        self.deferred = False
+        if self.channel is None:
+            self.channel = self._client.cache[Channel].get(self.channel_id, MISSING)
 
     async def get_channel(self) -> Channel:
         """
@@ -102,8 +86,8 @@ class _Context(DictSerializerMixin):
         :rtype: Channel
         """
 
-        res = await self.client.get_channel(int(self.channel_id))
-        self.channel = Channel(**res, _client=self.client)
+        res = await self._client.get_channel(int(self.channel_id))
+        self.channel = Channel(**res, _client=self._client)
         return self.channel
 
     async def get_guild(self) -> Guild:
@@ -114,8 +98,8 @@ class _Context(DictSerializerMixin):
         :rtype: Guild
         """
 
-        res = await self.client.get_guild(int(self.guild_id))
-        self.guild = Guild(**res, _client=self.client)
+        res = await self._client.get_guild(int(self.guild_id))
+        self.guild = Guild(**res, _client=self._client)
         return self.guild
 
     async def send(
@@ -123,14 +107,14 @@ class _Context(DictSerializerMixin):
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # attachments: Optional[List[Any]] = None,  # TODO: post-v4: Replace with own file type.
+        attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         ephemeral: Optional[bool] = False,
-    ) -> Message:
+    ) -> dict:
         """
         This allows the invocation state described in the "context"
         to send an interaction response.
@@ -139,6 +123,8 @@ class _Context(DictSerializerMixin):
         :type content: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
@@ -159,8 +145,6 @@ class _Context(DictSerializerMixin):
         else:
             _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
-        # _attachments = [] if attachments else None
 
         if (
             embeds is MISSING
@@ -195,40 +179,36 @@ class _Context(DictSerializerMixin):
 
         _ephemeral: int = (1 << 6) if ephemeral else 0
 
-        # TODO: post-v4: Add attachments into Message obj.
-        payload: Message = Message(
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
+
+        return dict(
             content=_content,
             tts=_tts,
-            # file=file,
-            # attachments=_attachments,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            attachments=_attachments,
             flags=_ephemeral,
         )
-        self.message = payload
-        self.message._client = self.client
-        return payload
 
     async def edit(
         self,
         content: Optional[str] = MISSING,
         *,
         tts: Optional[bool] = MISSING,
-        # file: Optional[FileIO] = None,
+        attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[MessageInteraction] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
-    ) -> Message:
+    ) -> dict:
         """
         This allows the invocation state described in the "context"
         to send an interaction response. This inherits the arguments
-        of the ``.send()`` method.
+        of the Context ``.send()`` method.
 
-        :inherit:`interactions.context.CommandContext.send()`
         :return: The edited message as an object.
         :rtype: Message
         """
@@ -240,21 +220,32 @@ class _Context(DictSerializerMixin):
             payload["content"] = _content
         _tts: bool = False if tts is MISSING else tts
         payload["tts"] = _tts
-        # _file = None if file is None else file
 
         if self.message.embeds is not None or embeds is not MISSING:
             if embeds is MISSING:
                 embeds = self.message.embeds
             _embeds: list = (
-                []
-                if not embeds
-                else (
-                    [embed._json for embed in embeds]
-                    if isinstance(embeds, list)
-                    else [embeds._json]
-                )
+                ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+                if embeds
+                else []
             )
+
             payload["embeds"] = _embeds
+
+        if self.message.attachments is not None or attachments is not MISSING:
+            if attachments is MISSING:
+                attachments = self.message.attachments
+            _attachments: list = (
+                (
+                    [attachment._json for attachment in attachments]
+                    if isinstance(attachments, list)
+                    else [attachments._json]
+                )
+                if attachments
+                else []
+            )
+
+            payload["attachments"] = _attachments
 
         _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
@@ -271,9 +262,6 @@ class _Context(DictSerializerMixin):
                 _components = _build_components(components=components)
 
             payload["components"] = _components
-
-        payload = Message(**payload)
-        self.message._client = self.client
 
         return payload
 
@@ -295,7 +283,7 @@ class _Context(DictSerializerMixin):
             },
         }
 
-        await self.client.create_interaction_response(
+        await self._client.create_interaction_response(
             token=self.token,
             application_id=int(self.id),
             data=payload,
@@ -305,6 +293,7 @@ class _Context(DictSerializerMixin):
         return payload
 
 
+@define()
 class CommandContext(_Context):
     """
     A derivation of :class:`interactions.context.Context`
@@ -322,6 +311,7 @@ class CommandContext(_Context):
         ``interactions.Guild(**data)`` for an object or continue
         with a dictionary for your own purposes.
 
+    :ivar _client: the HTTP client
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
@@ -334,49 +324,27 @@ class CommandContext(_Context):
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar str locale?: The selected language of the user invoking the interaction.
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
+    :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 
-    __slots__ = (
-        "message",
-        "member",
-        "author",
-        "user",
-        "channel",
-        "guild",
-        "client",
-        "id",
-        "application_id",
-        "callback",
-        "type",
-        "data",
-        "target",
-        "version",
-        "token",
-        "guild_id",
-        "channel_id",
-        "responded",
-        "deferred",
-        "locale",
-        "guild_locale",
-    )
+    target: Optional[Union[Message, Member, User]] = field(default=None)
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
+    def __attrs_post_init__(self) -> None:
+        super().__attrs_post_init__()
 
-        if self._json.get("data").get("target_id"):
-            self.target = str(self.data.target_id)
+        if self.data.target_id:
+            target = self.data.target_id
 
             if self.data.type == 2:
-                if (
-                    self._json.get("guild_id")
-                    and str(self.data.target_id) in self.data.resolved.members
-                ):
-                    # member id would have potential to exist, and therefore have target def priority.
-                    self.target = self.data.resolved.members[self.target]
-                else:
-                    self.target = self.data.resolved.users[self.target]
+                self.target = (
+                    self.data.resolved.members[target]
+                    if self.guild_id and str(self.data.target_id) in self.data.resolved.members
+                    else self.data.resolved.users[target]
+                )
+                # member id would have potential to exist, and therefore have target def priority.
+
             elif self.data.type == 3:
-                self.target = self.data.resolved.messages[self.target]
+                self.target = self.data.resolved.messages[target]
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
@@ -384,44 +352,58 @@ class CommandContext(_Context):
         msg = None
 
         if self.deferred:
-            if hasattr(self.message, "id") and self.message.id is not None:
-                res = await self.client.edit_message(
-                    int(self.channel_id), int(self.message.id), payload=payload._json
-                )
-                self.message = msg = Message(**res, _client=self.client)
-            else:
-                res = await self.client.edit_interaction_response(
-                    token=self.token,
-                    application_id=str(self.id),
-                    data={"type": self.callback.value, "data": payload._json},
-                    message_id=self.message.id if self.message else "@original",
-                )
-                if res["flags"] == 64:
-                    log.warning("You can't edit hidden messages.")
-                    self.message = payload
-                    self.message._client = self.client
-                else:
-                    await self.client.edit_message(
-                        int(self.channel_id), res["id"], payload=payload._json
+            if (
+                hasattr(self.message, "id")
+                and self.message.id is not None
+                and self.message.flags != 64
+            ):
+                try:
+                    res = await self._client.edit_message(
+                        int(self.channel_id), int(self.message.id), payload=payload
                     )
-                    self.message = msg = Message(**res, _client=self.client)
-        else:
-            res = await self.client.edit_interaction_response(
-                token=self.token,
-                application_id=str(self.application_id),
-                data={"type": self.callback.value, "data": payload._json},
-            )
-            if res["flags"] == 64:
-                log.warning("You can't edit hidden messages.")
+                except LibraryException as e:
+                    if e.code in {10015, 10018}:
+                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    else:
+                        # if its not ephemeral or some other thing.
+                        raise e from e
+                else:
+                    self.message = msg = Message(**res, _client=self._client)
             else:
-                await self.client.edit_message(
-                    int(self.channel_id), res["id"], payload=payload._json
+                try:
+                    res = await self._client.edit_interaction_response(
+                        token=self.token,
+                        application_id=str(self.id),
+                        data=payload,
+                        message_id=self.message.id
+                        if self.message and self.message.flags != 64
+                        else "@original",
+                    )
+                except LibraryException as e:
+                    if e.code in {10015, 10018}:
+                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    else:
+                        # if its not ephemeral or some other thing.
+                        raise e from e
+                else:
+                    self.message = msg = Message(**res, _client=self._client)
+        else:
+            try:
+                res = await self._client.edit_interaction_response(
+                    token=self.token, application_id=str(self.application_id), data=payload
                 )
-                self.message = msg = Message(**res, _client=self.client)
+            except LibraryException as e:
+                if e.code in {10015, 10018}:
+                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                else:
+                    # if its not ephemeral or some other thing.
+                    raise e from e
+            else:
+                self.message = msg = Message(**res, _client=self._client)
 
         if msg is not None:
             return msg
-        return payload
+        return Message(**payload, _client=self._client)
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
         """
@@ -431,15 +413,18 @@ class CommandContext(_Context):
         :param ephemeral?: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
         """
-        self.deferred = True
-        _ephemeral: int = (1 << 6) if ephemeral else 0
-        self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        if not self.responded:
+            self.deferred = True
+            _ephemeral: int = (1 << 6) if ephemeral else 0
+            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
-        await self.client.create_interaction_response(
-            token=self.token,
-            application_id=int(self.id),
-            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
-        )
+            await self._client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+            )
+
+            self.responded = True
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
@@ -447,43 +432,41 @@ class CommandContext(_Context):
         if not self.deferred:
             self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
-        _payload: dict = {"type": self.callback.value, "data": payload._json}
+        _payload: dict = {"type": self.callback.value, "data": payload}
 
         msg = None
-        if self.responded or self.deferred:
-            if self.deferred:
-                res = await self.client.edit_interaction_response(
-                    data=payload._json,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
-                self.responded = True
-            else:
-                res = await self.client._post_followup(
-                    data=payload._json,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
-            self.message = msg = Message(**res, _client=self.client)
+        if self.responded:
+            res = await self._client._post_followup(
+                data=payload,
+                token=self.token,
+                application_id=str(self.application_id),
+            )
+            self.message = msg = Message(**res, _client=self._client)
         else:
-            await self.client.create_interaction_response(
+            await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data=_payload,
             )
-            __newdata = await self.client.edit_interaction_response(
-                data={},
-                token=self.token,
-                application_id=str(self.application_id),
-            )
-            if not __newdata.get("code"):
-                # if sending message fails somehow
-                msg = Message(**__newdata, _client=self.client)
-                self.message = msg
+
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
+
             self.responded = True
+
         if msg is not None:
             return msg
-        return payload
+        return Message(
+            **payload,
+            _client=self._client,
+            author={"_client": self._client, "id": None, "username": None, "discriminator": None},
+        )
 
     async def delete(self) -> None:
         """
@@ -495,11 +478,11 @@ class CommandContext(_Context):
             being present.
         """
         if self.responded:
-            await self.client.delete_webhook_message(
+            await self._client.delete_webhook_message(
                 webhook_id=int(self.id), webhook_token=self.token, message_id=int(self.message.id)
             )
         else:
-            await self.client.delete_original_webhook_message(int(self.id), self.token)
+            await self._client.delete_original_webhook_message(int(self.id), self.token)
         self.message = None
 
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
@@ -534,11 +517,11 @@ class CommandContext(_Context):
             ):
                 _choices = list(choices)
             else:
-                raise InteractionException(
+                raise LibraryException(
                     6, message="Autocomplete choice items must be of type Choice"
                 )
 
-            await self.client.create_interaction_response(
+            await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data={
@@ -552,40 +535,12 @@ class CommandContext(_Context):
         return await func()
 
 
+@define()
 class ComponentContext(_Context):
     """
     A derivation of :class:`interactions.context.CommandContext`
     designed specifically for component data.
     """
-
-    __slots__ = (
-        "message",
-        "member",
-        "author",
-        "user",
-        "channel",
-        "guild",
-        "client",
-        "id",
-        "application_id",
-        "callback",
-        "type",
-        "data",
-        "target",
-        "version",
-        "token",
-        "guild_id",
-        "channel_id",
-        "responded",
-        "deferred",
-        "locale",
-        "guild_locale",
-    )
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.responded = False  # remind components that it was not responded to.
-        self.deferred = False  # remind components they not have been deferred
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
@@ -594,32 +549,41 @@ class ComponentContext(_Context):
 
         if not self.deferred:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
-            await self.client.create_interaction_response(
-                data={"type": self.callback.value, "data": payload._json},
+            await self._client.create_interaction_response(
+                data={"type": self.callback.value, "data": payload},
                 token=self.token,
                 application_id=int(self.id),
             )
-            self.message = payload
+
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
+
             self.responded = True
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-            await self.client._post_followup(
-                data=payload._json,
+            await self._client._post_followup(
+                data=payload,
                 token=self.token,
                 application_id=str(self.application_id),
             )
         else:
-            res = await self.client.edit_interaction_response(
-                data=payload._json,
+            res = await self._client.edit_interaction_response(
+                data=payload,
                 token=self.token,
                 application_id=str(self.application_id),
             )
             self.responded = True
-            self.message = msg = Message(**res, _client=self.client)
+            self.message = msg = Message(**res, _client=self._client)
 
         if msg is not None:
             return msg
 
-        return payload
+        return Message(**payload, _client=self._client)
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
@@ -627,49 +591,37 @@ class ComponentContext(_Context):
         if not self.deferred:
             self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
-        _payload: dict = {"type": self.callback.value, "data": payload._json}
+        _payload: dict = {"type": self.callback.value, "data": payload}
 
         msg = None
-        if (
-            self.responded
-            or self.deferred
-            or self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        ):
-            if self.deferred:
-                res = await self.client.edit_interaction_response(
-                    data=payload._json,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
-                self.responded = True
-            else:
-                res = await self.client._post_followup(
-                    data=payload._json,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
-            self.message = msg = Message(**res, _client=self.client)
-
+        if self.responded:
+            res = await self._client._post_followup(
+                data=payload,
+                token=self.token,
+                application_id=str(self.application_id),
+            )
+            self.message = msg = Message(**res, _client=self._client)
         else:
-            await self.client.create_interaction_response(
+            await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data=_payload,
             )
-            __newdata = await self.client.edit_interaction_response(
-                data={},
-                token=self.token,
-                application_id=str(self.application_id),
-            )
-            if not __newdata.get("code"):
-                # if sending message fails somehow
-                msg = Message(**__newdata, _client=self.client)
-                self.message = msg
+
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = msg = Message(**_msg, _client=self._client)
+
             self.responded = True
 
         if msg is not None:
             return msg
-        return payload
+        return Message(**payload, _client=self._client)
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
@@ -683,20 +635,24 @@ class ComponentContext(_Context):
         :param edit_origin?: Whether you want to edit the original message or send a followup message
         :type edit_origin: Optional[bool]
         """
-        self.deferred = True
-        _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
+        if not self.responded:
 
-        # ephemeral doesn't change callback typings. just data json
-        if edit_origin:
-            self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-        else:
-            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            self.deferred = True
+            _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
 
-        await self.client.create_interaction_response(
-            token=self.token,
-            application_id=int(self.id),
-            data={"type": self.callback.value, "data": {"flags": _ephemeral}},
-        )
+            # ephemeral doesn't change callback typings. just data json
+            if edit_origin:
+                self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+            else:
+                self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+
+            await self._client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+            )
+
+            self.responded = True
 
     @property
     def custom_id(self) -> Optional[str]:
