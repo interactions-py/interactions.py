@@ -1,6 +1,6 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
-from typing import TYPE_CHECKING, Awaitable, Callable, Iterable, List, TypeVar, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, Iterable, List, Optional, TypeVar, Union
 
 from ...api.error import LibraryException
 from .component import ActionRow, Button, SelectMenu
@@ -142,7 +142,7 @@ def spread_to_rows(
 
 
 def search_iterable(
-    iterable: Iterable[_T], check: Callable[[_T], bool] = None, /, **kwargs
+    iterable: Iterable[_T], check: Optional[Callable[[_T], bool]] = None, /, **kwargs
 ) -> List[_T]:
     """
     Searches through an iterable for items that:
