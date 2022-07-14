@@ -69,7 +69,7 @@ class Storage(Generic[_T]):
                 if isinstance(getattr(old_item, attrib), list):
                     for value in getattr(item, attrib):
                         old_item_attrib = getattr(old_item, attrib)
-                        if value not in old_item.attrib:
+                        if value not in getattr(old_item, attrib):
                             old_item_attrib.append(value)
                         setattr(old_item, attrib, old_item_attrib)
                 else:
