@@ -585,8 +585,6 @@ class GuildRequest:
             },
         )
 
-        # self.cache[Member].add(Member(**request))
-        # This should fire a gw event?
 
         return request
 
