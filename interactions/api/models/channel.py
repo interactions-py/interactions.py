@@ -168,8 +168,9 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
         if self._client:
-            if not self.recipients:
-                self.recipients = self._client.cache[Channel].get(self.id).recipients
+            if channel := self._client.cache[Channel].get(self.id):
+                if not self.recipients:
+                    self.recipients = channel.recipients
 
     def __repr__(self) -> str:
         return self.name

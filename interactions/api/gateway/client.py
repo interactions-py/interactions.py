@@ -402,7 +402,11 @@ class WebSocketClient:
 
                 if "_create" in name or "_add" in name:
                     _cache.merge(obj, id)
-                    if guild_id := data.get("guild_id") and not isinstance(obj, Guild):
+                    if (
+                        guild_id := data.get("guild_id")
+                        and not isinstance(obj, Guild)
+                        and "message" not in name
+                    ):
                         guild = self._http.cache[Guild].get(Snowflake(guild_id))
                         model_name = model.__name__.lower()
                         _obj = getattr(guild, f"{model_name}s", None)
@@ -420,6 +424,10 @@ class WebSocketClient:
                     old_obj = self._http.cache[model].get(id)
 
                     if old_obj:
+                        for key, value in old_obj._json.items():
+                            if hasattr(value, "_json"):
+                                old_obj._json[key] = value._json
+
                         before = model(**old_obj._json)
                         old_obj.update(**obj._json)
                     else:
@@ -428,7 +436,11 @@ class WebSocketClient:
 
                     _cache.add(old_obj, id)
 
-                    if guild_id := data.get("guild_id") and not isinstance(obj, Guild):
+                    if (
+                        guild_id := data.get("guild_id")
+                        and not isinstance(obj, Guild)
+                        and "message" not in name
+                    ):
                         guild = self._http.cache[Guild].get(Snowflake(guild_id))
                         model_name = model.__name__.lower()
                         _obj = getattr(guild, f"{model_name}s", None)
@@ -453,7 +465,11 @@ class WebSocketClient:
                 elif "_remove" in name or "_delete" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
 
-                    if guild_id := data.get("guild_id") and not isinstance(obj, Guild):
+                    if (
+                        guild_id := data.get("guild_id")
+                        and not isinstance(obj, Guild)
+                        and "message" not in name
+                    ):
                         guild = self._http.cache[Guild].get(Snowflake(guild_id))
                         model_name = model.__name__.lower()
                         _obj = getattr(guild, f"{model_name}s", None)
