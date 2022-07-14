@@ -66,7 +66,13 @@ portal and add the intent to your current intents when connecting:
 4.1.0 → 4.3.0
 ~~~~~~~~~~~~~~~
 
-``4.3.0`` introduces a new method of creating commands, subcommands, and options.
+A new big change in this release is the implementation of the ``get` utility method.
+It allows you to no longer use ``**await bot._http...``.
+
+You can get more information by reading the `get-documentation`_.
+
+
+``4.3.0`` also introduces a new method of creating commands, subcommands, and options.
 There are also numerous new features, such as a default scope and utilities.
 
 The following example shows and explains how to create commands effortlessly and use new features mentioned above:
@@ -175,3 +181,5 @@ The following example shows and explains how to create commands effortlessly and
         # configurable
 
     bot.start()
+
+.. _get-documentation: https://interactionspy.readthedocs.io/en/latest/get.html#the-get-utility-method
