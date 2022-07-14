@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Awaitable, Coroutine, Iterable, List, Literal, Optional, Type, TypeVar, Union, overload
+from typing import Awaitable, Coroutine, List, Literal, Optional, Type, TypeVar, Union, overload
 
 from interactions.client.bot import Client
 from ..api.http.client import HTTPClient
@@ -96,7 +96,6 @@ def get(
 # Having a not-overloaded definition stops showing a warning/complaint from the IDE if wrong arguments are put in,
 # so we'll leave that out
 
-def _search_iterable(item: Iterable[_T], **kwargs) -> Optional[_T]:...
 def _get_cache(
     _object: Type[_T], client: Client, kwarg_name: str, _list: bool = False, **kwargs
 ) -> Union[Optional[_T], List[Optional[_T]]]:...
