@@ -345,18 +345,19 @@ class Guild(ClientSerializerMixin, IDMixin):
             if self.members:
                 self._client.cache[Member].update({(self.id, m.id): m for m in self.members})
 
-            if not self.channels:
-                self.channels = self._client.cache[Guild].get(self.id).channels
-            if not self.threads:
-                self.threads = self._client.cache[Guild].get(self.id).threads
-            if not self.roles:
-                self.roles = self._client.cache[Guild].get(self.id).roles
-            if not self.members:
-                self.members = self._client.cache[Guild].get(self.id).members
-            if not self.member_count:
-                self.member_count = self._client.cache[Guild].get(self.id).member_count
-            if not self.presences:
-                self.presences = self._client.cache[Guild].get(self.id).presences
+            if guild := self._client.cache[Guild].get(self.id):
+                if not self.channels:
+                    self.channels = guild.channels
+                if not self.threads:
+                    self.threads = guild.threads
+                if not self.roles:
+                    self.roles = guild.roles
+                if not self.members:
+                    self.members = guild.members
+                if not self.member_count:
+                    self.member_count = guild.member_count
+                if not self.presences:
+                    self.presences = guild.presences
 
     def __repr__(self) -> str:
         return self.name
