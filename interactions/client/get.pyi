@@ -1,15 +1,15 @@
-from typing import overload, Type, TypeVar, List, Iterable, Optional, Callable, Awaitable, Literal, Coroutine, Union
+from enum import Enum
+from typing import Awaitable, Coroutine, Iterable, List, Literal, Optional, Type, TypeVar, Union, overload
 
 from interactions.client.bot import Client
-from enum import Enum
+from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Message, Emoji, Sticker
+from ..api.models.message import Emoji, Message, Sticker
+from ..api.models.role import Role
 from ..api.models.user import User
 from ..api.models.webhook import Webhook
-from ..api.models.role import Role
-from ..api.http.client import HTTPClient
 
 _SA = TypeVar("_SA", Channel, Guild, Webhook, User, Sticker)
 _MA = TypeVar("_MA", Member, Emoji, Role, Message)
@@ -24,11 +24,6 @@ class Force(str, Enum):
     CACHE: str
     HTTP: str
 
-# not API-object related
-@overload
-def get(
-    items: Iterable[_T], /, *, id: Optional[int] = None, name: Optional[str] = None, check: Callable[..., bool], **kwargs
-) -> Optional[_T]: ...
 
 # API-object related
 

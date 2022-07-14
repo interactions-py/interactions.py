@@ -1,6 +1,6 @@
 from asyncio import sleep
 from enum import Enum
-from inspect import isawaitable, isfunction
+from inspect import isawaitable
 from logging import getLogger
 from typing import Coroutine, Iterable, List, Optional, Type, TypeVar, Union, get_args
 
@@ -271,9 +271,6 @@ def get(*args, **kwargs):
         else:
             return _http_request(obj=obj, http=client._http, _name=http_name, **kwargs)
 
-    elif len(args) == 1:
-        return _search_iterable(*args, **kwargs)
-
 
 async def _http_request(
     obj: Type[_T],
@@ -337,40 +334,6 @@ def _get_cache(
 
         _obj = client._http.cache[_object].get(_values)
     return _obj
-
-
-def _search_iterable(items: Iterable[_T], **kwargs) -> Optional[_T]:
-    if not isinstance(items, Iterable):
-        raise LibraryException(message="The specified items must be an iterable!", code=12)
-
-    if not kwargs:
-        raise LibraryException(
-            message="You have to specify either a custom check or a keyword argument to check against!",
-            code=12,
-        )
-
-    if len(list(kwargs)) > 1:
-        raise LibraryException(
-            message="Only one keyword argument to check against is allowed!", code=12
-        )
-
-    _arg = str(list(kwargs)[0])
-    kwarg = kwargs.get(_arg)
-    kwarg_is_function: bool = isfunction(kwarg)
-
-    __obj = next(
-        (
-            item
-            for item in items
-            if (
-                str(getattr(item, _arg, None)) == str(kwarg)
-                if not kwarg_is_function
-                else kwarg(item)
-            )
-        ),
-        None,
-    )
-    return __obj
 
 
 def _resolve_kwargs(obj, **kwargs):
