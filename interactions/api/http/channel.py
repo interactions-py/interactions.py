@@ -87,7 +87,7 @@ class ChannelRequest:
         if isinstance(request, list):
             for message in request:
                 if message.get("id"):
-                    self.cache[Message].merge(Message(**message))
+                    self.cache[Message].merge(Message(**message, _client=self))
 
         return request
 
