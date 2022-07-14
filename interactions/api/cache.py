@@ -61,14 +61,17 @@ class Storage(Generic[_T]):
                 continue
                 # we can only assume that discord did not provide it, falsely deleting is worse than not deleting
             if getattr(old_item, attrib) != getattr(item, attrib):
-                if isinstance(item.attrib, list) and not isinstance(
-                    old_item.attrib, list
+
+                if isinstance(getattr(item, attrib), list) and not isinstance(
+                    getattr(old_item, attrib), list
                 ):  # could be None
-                    old_item.attrib = []
-                if isinstance(old_item.attrib, list):
-                    for value in item.attrib:
+                    setattr(old_item, attrib, [])
+                if isinstance(getattr(old_item, attrib), list):
+                    for value in getattr(item, attrib):
+                        old_item_attrib = getattr(old_item, attrib)
                         if value not in old_item.attrib:
-                            old_item.attrib.append(value)
+                            old_item_attrib.append(value)
+                        setattr(old_item, attrib, old_item_attrib)
                 else:
                     setattr(old_item, attrib, item.attrib)
 
