@@ -73,7 +73,7 @@ class Storage(Generic[_T]):
                             old_item_attrib.append(value)
                         setattr(old_item, attrib, old_item_attrib)
                 else:
-                    setattr(old_item, attrib, item.attrib)
+                    setattr(old_item, attrib, getattr(item, attrib))
 
         self.values[_id] = old_item
 
