@@ -97,7 +97,7 @@ The following example shows and explains how to create commands effortlessly and
     @interactions.option(4, name="opt2", description="This is an option.")
     @interactions.option(interactions.Channel, name="opt3", required=True)
     async def command_with_options(
-        ctx, opt1: str, opt2, int, opt3: interactions.Channel = None
+        ctx, opt1: str, opt2: int, opt3: interactions.Channel = None
     ):
         ...  # do something here.
         # the default scope is disabled for this command, so this is a global command.
@@ -181,5 +181,34 @@ The following example shows and explains how to create commands effortlessly and
         # configurable
 
     bot.start()
+
+
+Another change in ``4.3.0``: We added converters! These allow you name your argument in your function differently than
+your option name! Example:
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client("TOKEN", default_scope=1234567890)
+    # the default scope will be applied to all commands except for those
+    # that disable the feature in the command decorator via: `default_scope=False`
+
+    @bot.command()
+    async def command_name(ctx):
+        """Command description"""
+        ...  # do something here.
+        # the name of the command is the coroutine name.
+        # the description is the first line of the docstring or "No description set".
+
+    @bot.command(default_scope=False)
+    @interactions.option(str, name="opt1")  # description is optional.
+    @interactions.option(4, name="opt2", description="This is an option.", converter="hi")
+    @interactions.option(interactions.Channel, name="opt3", required=True)
+    async def command_with_options(
+        ctx, opt1: str, hi: int, opt3: interactions.Channel = None
+    ):
+        ...
+
 
 .. _get-documentation: https://interactionspy.readthedocs.io/en/latest/get.html#the-get-utility-method
