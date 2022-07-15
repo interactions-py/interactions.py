@@ -458,7 +458,9 @@ class Client:
 
             if cmd.default_scope and self._default_scope:
                 cmd.scope = (
-                    cmd.scope.extend(cmd.default_scope) if cmd.scope else self._default_scope
+                    cmd.scope.extend(cmd.default_scope)
+                    if isinstance(cmd.scope, list)
+                    else self._default_scope
                 )
 
             data: Union[dict, List[dict]] = cmd.full_data
@@ -1690,20 +1692,18 @@ def extension_modal(*args, **kwargs):
 
 
 @wraps(Client.message_command)
-def extension_message_command(*args, **kwargs):
-    def decorator(func):
+def extension_message_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]:
+    def decorator(func) -> Command:
         kwargs["type"] = ApplicationCommandType.MESSAGE
-        func.__command_data__ = (args, kwargs)
-        return func
+        return extension_command(**kwargs)(func)
 
     return decorator
 
 
 @wraps(Client.user_command)
-def extension_user_command(*args, **kwargs):
-    def decorator(func):
+def extension_user_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]:
+    def decorator(func) -> Command:
         kwargs["type"] = ApplicationCommandType.USER
-        func.__command_data__ = (args, kwargs)
-        return func
+        return extension_command(**kwargs)(func)
 
     return decorator
