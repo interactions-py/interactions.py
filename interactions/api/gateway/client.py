@@ -392,6 +392,27 @@ class WebSocketClient:
         elif event != "TYPING_START":
             name: str = event.lower()
             try:
+
+                def __modify_guild_cache():
+                    if not (
+                        guild_id := data.get("guild_id")
+                        and not isinstance(obj, Guild)
+                        and "message" not in name
+                    ):
+                        return
+                    if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
+                        model_name = model.__name__.lower()
+                        if "guild" in model_name:
+                            model_name = model_name[5:]
+                        _obj = getattr(guild, f"{model_name}s", None)
+                        if _obj is not None and isinstance(_obj, list):
+                            for __obj in _obj:
+                                if __obj.id == obj.id:
+                                    _obj.remove(__obj)
+                                    break
+                            setattr(guild, f"{model_name}s", _obj)
+                        self._http.cache[Guild].add(guild)
+
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
                 model = getattr(__import__(path), _name)
@@ -407,24 +428,7 @@ class WebSocketClient:
 
                 if "_create" in name or "_add" in name:
                     _cache.merge(obj, id)
-                    if (
-                        guild_id := data.get("guild_id")
-                        and not isinstance(obj, Guild)
-                        and "message" not in name
-                    ):
-                        if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
-                            model_name = model.__name__.lower()
-                            if "guild" in model_name:
-                                model_name = model_name[5:]
-                            _obj = getattr(guild, f"{model_name}s", None)
-                            if _obj is not None:
-                                if isinstance(_obj, list):
-                                    _obj.append(obj)
-                                    setattr(guild, f"{model_name}s", _obj)
-                            else:
-                                _obj = [obj]
-                                setattr(guild, f"{model_name}s", _obj)
-                            self._http.cache[Guild].merge(guild)
+                    __modify_guild_cache()
                     self._dispatch.dispatch(f"on_{name}", obj)
 
                 elif "_update" in name and hasattr(obj, "id"):
@@ -442,30 +446,7 @@ class WebSocketClient:
                         old_obj = obj
 
                     _cache.add(old_obj, id)
-
-                    if (
-                        guild_id := data.get("guild_id")
-                        and not isinstance(obj, Guild)
-                        and "message" not in name
-                    ):
-                        if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
-                            model_name = model.__name__.lower()
-                            if "guild" in model_name:
-                                model_name = model_name[5:]
-                            _obj = getattr(guild, f"{model_name}s", None)
-                            if _obj is not None:
-                                if isinstance(_obj, list):
-                                    for __obj in _obj:
-                                        if __obj.id == obj.id:
-                                            _obj.remove(__obj)
-                                            break
-                                    _obj.append(obj)
-                                    setattr(guild, f"{model_name}s", _obj)
-                            else:
-                                _obj = [obj]
-                                setattr(guild, f"{model_name}s", _obj)
-                            self._http.cache[Guild].add(guild)
-
+                    __modify_guild_cache()
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
@@ -473,26 +454,7 @@ class WebSocketClient:
 
                 elif "_remove" in name or "_delete" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-
-                    if (
-                        guild_id := data.get("guild_id")
-                        and not isinstance(obj, Guild)
-                        and "message" not in name
-                    ):
-                        if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
-                            model_name = model.__name__.lower()
-                            if "guild" in model_name:
-                                model_name = model_name[5:]
-                            _obj = getattr(guild, f"{model_name}s", None)
-                            if _obj is not None:
-                                if isinstance(_obj, list):
-                                    for __obj in _obj:
-                                        if __obj.id == obj.id:
-                                            _obj.remove(__obj)
-                                            break
-                                    setattr(guild, f"{model_name}s", _obj)
-                            self._http.cache[Guild].add(guild)
-
+                    __modify_guild_cache()
                     old_obj = _cache.pop(id)
                     self._dispatch.dispatch(f"on_{name}", old_obj)
 
