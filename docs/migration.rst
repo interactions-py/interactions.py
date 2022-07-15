@@ -97,7 +97,7 @@ The following example shows and explains how to create commands effortlessly and
     @interactions.option(4, name="opt2", description="This is an option.")
     @interactions.option(interactions.Channel, name="opt3", required=True)
     async def command_with_options(
-        ctx, opt1: str, opt2: int, opt3: interactions.Channel = None
+        ctx, opt3: interactions.Channel, opt1: str = None, opt2: int = None,
     ):
         ...  # do something here.
         # the default scope is disabled for this command, so this is a global command.
@@ -206,7 +206,7 @@ your option name! Example:
     @interactions.option(4, name="opt2", description="This is an option.", converter="hi")
     @interactions.option(interactions.Channel, name="opt3", required=True)
     async def command_with_options(
-        ctx, opt1: str, hi: int, opt3: interactions.Channel = None
+        ctx, opt3: interactions.Channel, opt1: str = None, hi: int = None,
     ):
         ...
 
