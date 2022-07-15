@@ -266,7 +266,7 @@ class WebSocketClient:
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
             self.ready.set()
         else:
-            log.debug(f"{event}: {data}")
+            log.debug(f"{event}: {str(data).encode('utf-8')}")
             self._dispatch_event(event, data)
 
     async def wait_until_ready(self) -> None:
