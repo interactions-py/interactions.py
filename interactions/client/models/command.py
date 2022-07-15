@@ -106,6 +106,7 @@ class Option(DictSerializerMixin):
     :ivar Optional[bool] autocomplete?: A status denoting whether this option is an autocomplete option.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+    :ivar Optional[str] converter: How the argument for the option in your function is called, if any
     """
 
     type: OptionType = field(converter=OptionType)
@@ -128,6 +129,7 @@ class Option(DictSerializerMixin):
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(
         default=None
     )  # so can this
+    converter: Optional[str] = field(default=None)
 
     def __attrs_post_init__(self):
         # needed for nested classes
@@ -444,6 +446,13 @@ class Command(DictSerializerMixin):
         :rtype: Awaitable
         """
         return self.dispatcher(*args, **kwargs)
+
+    @property
+    def converters(self) -> dict:
+        """
+        Returns a dictionary with all converters added to the options of the command
+        """
+        return {_option.name: _option.converter for _option in self.options if _option.converter}
 
     @property
     def full_data(self) -> Union[dict, List[dict]]:

@@ -44,6 +44,8 @@ class ChannelType(IntEnum):
     GUILD_PUBLIC_THREAD = 11
     GUILD_PRIVATE_THREAD = 12
     GUILD_STAGE_VOICE = 13
+    NNN = 14
+    MMM = 15
 
 
 @define()

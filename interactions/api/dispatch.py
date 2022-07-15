@@ -35,6 +35,12 @@ class Listener:
         :type **kwargs: dict
         """
         for event in self.events.get(__name, []):
+            converters: dict
+            if converters := getattr(event, "_converters", None):
+                for key, value in kwargs.items():
+                    if key in converters.keys():
+                        del kwargs[key]
+                        kwargs[converters[key]] = value
 
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
