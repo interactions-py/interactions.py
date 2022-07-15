@@ -191,15 +191,6 @@ your option name! Example:
     import interactions
 
     bot = interactions.Client("TOKEN", default_scope=1234567890)
-    # the default scope will be applied to all commands except for those
-    # that disable the feature in the command decorator via: `default_scope=False`
-
-    @bot.command()
-    async def command_name(ctx):
-        """Command description"""
-        ...  # do something here.
-        # the name of the command is the coroutine name.
-        # the description is the first line of the docstring or "No description set".
 
     @bot.command(default_scope=False)
     @interactions.option(str, name="opt1")  # description is optional.
