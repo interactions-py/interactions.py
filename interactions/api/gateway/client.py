@@ -80,6 +80,7 @@ class WebSocketClient:
         "__shard",
         "__presence",
         "__task",
+        "__started",
         "session_id",
         "sequence",
         "ready",
@@ -126,6 +127,7 @@ class WebSocketClient:
         self.__shard: Optional[List[Tuple[int]]] = None
         self.__presence: Optional[ClientPresence] = None
         self.__task: Optional[Task] = None
+        self.__started: bool = False
         self.session_id: Optional[str] = None if session_id is MISSING else session_id
         self.sequence: Optional[str] = None if sequence is MISSING else sequence
         self.ready: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
@@ -258,6 +260,9 @@ class WebSocketClient:
             self.session_id = data["session_id"]
             self.sequence = stream["s"]
             self._dispatch.dispatch("on_ready")
+            if not self.__started:
+                self.__started = True
+                self._dispatch.dispatch("on_start")
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
             self.ready.set()
         else:
