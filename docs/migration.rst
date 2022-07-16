@@ -93,11 +93,11 @@ The following example shows and explains how to create commands effortlessly and
         # the description is the first line of the docstring or "No description set".
 
     @bot.command(default_scope=False)
-    @interactions.option(str, name="opt1")  # description is optional.
-    @interactions.option(4, name="opt2", description="This is an option.")
-    @interactions.option(interactions.Channel, name="opt3", required=True)
+    @interactions.option(str, name="opt1", required=True)  # description is optional.
+    @interactions.option(4, name="opt2", description="This is an option.", required=True)
+    @interactions.option(interactions.Channel, name="opt3")
     async def command_with_options(
-        ctx, opt3: interactions.Channel, opt1: str = None, opt2: int = None,
+        ctx, opt1: str, hi: int, opt3: interactions.Channel = None
     ):
         ...  # do something here.
         # the default scope is disabled for this command, so this is a global command.
@@ -193,11 +193,11 @@ your option name! Example:
     bot = interactions.Client("TOKEN", default_scope=1234567890)
 
     @bot.command(default_scope=False)
-    @interactions.option(str, name="opt1")  # description is optional.
-    @interactions.option(4, name="opt2", description="This is an option.", converter="hi")
-    @interactions.option(interactions.Channel, name="opt3", required=True)
+    @interactions.option(str, name="opt1", required=True)  # description is optional.
+    @interactions.option(4, name="opt2", description="This is an option.", converter="hi", required=True)
+    @interactions.option(interactions.Channel, name="opt3")
     async def command_with_options(
-        ctx, opt3: interactions.Channel, opt1: str = None, hi: int = None,
+        ctx, opt1: str, hi: int, opt3: interactions.Channel = None
     ):
         ...
 
