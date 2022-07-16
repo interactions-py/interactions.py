@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,6 +128,7 @@ msgstr ""
 
 #: interactions.api.models.webhook.Webhook.avatar_url
 #: interactions.api.models.webhook.Webhook.create
+#: interactions.api.models.webhook.Webhook.delete
 #: interactions.api.models.webhook.Webhook.execute
 #: interactions.api.models.webhook.Webhook.get
 #: interactions.api.models.webhook.Webhook.modify of
@@ -197,28 +198,34 @@ msgid "true if this is a TTS message"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:14 of
-msgid "embedded ``rich`` content"
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:16 of
-msgid "allowed mentions for the message"
+msgid "embedded ``rich`` content"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:18 of
-msgid "the components to include with the message"
+msgid "allowed mentions for the message"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:20 of
-msgid "The files to attach to the message"
+msgid "the components to include with the message"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:22 of
+msgid "The files to attach to the message"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:24 of
 msgid ""
 "Send a message to a specified thread within a webhook's channel. The "
 "thread will automatically be unarchived"
 msgstr ""
 
-#: interactions.api.models.webhook.Webhook.execute:24 of
+#: interactions.api.models.webhook.Webhook.execute:26 of
 msgid "The sent message, if present"
 msgstr ""
 
@@ -236,4 +243,16 @@ msgstr ""
 
 #: interactions.api.models.webhook.WebhookType:1 of
 msgid "An enumeration."
+msgstr ""
+
+#: interactions.api.models.webhook.WebhookType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.webhook.WebhookType:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.webhook.WebhookType:1 of
+msgid "Valid values are as follows:"
 msgstr ""

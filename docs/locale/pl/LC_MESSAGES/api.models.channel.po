@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,6 +24,18 @@ msgstr ""
 
 #: interactions.api.models.channel.ChannelType:1 of
 msgid "An enumerable object representing the type of channels."
+msgstr ""
+
+#: interactions.api.models.channel.ChannelType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.channel.ChannelType:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.channel.ChannelType:1 of
+msgid "Valid values are as follows:"
 msgstr ""
 
 #: interactions.api.models.channel.Thread:1 of
@@ -165,6 +177,7 @@ msgstr ""
 #: interactions.api.models.channel.Channel.archive
 #: interactions.api.models.channel.Channel.create_thread
 #: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_members
 #: interactions.api.models.channel.Channel.get_message
 #: interactions.api.models.channel.Channel.get_pinned_messages
 #: interactions.api.models.channel.Channel.lock
@@ -189,16 +202,25 @@ msgstr ""
 msgid "The string of the mentioned channel."
 msgstr ""
 
+#: interactions.api.models.channel.Channel.add_member
 #: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_invite
 #: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.delete
 #: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_members
 #: interactions.api.models.channel.Channel.get_message
 #: interactions.api.models.channel.Channel.get_pinned_messages
+#: interactions.api.models.channel.Channel.get_webhooks
+#: interactions.api.models.channel.Channel.join
+#: interactions.api.models.channel.Channel.leave
 #: interactions.api.models.channel.Channel.lock
 #: interactions.api.models.channel.Channel.mention
 #: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.pin_message
 #: interactions.api.models.channel.Channel.publish_message
 #: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.remove_member
 #: interactions.api.models.channel.Channel.send
 #: interactions.api.models.channel.Channel.set_auto_archive_duration
 #: interactions.api.models.channel.Channel.set_bitrate
@@ -208,7 +230,8 @@ msgstr ""
 #: interactions.api.models.channel.Channel.set_position
 #: interactions.api.models.channel.Channel.set_rate_limit_per_user
 #: interactions.api.models.channel.Channel.set_topic
-#: interactions.api.models.channel.Channel.set_user_limit of
+#: interactions.api.models.channel.Channel.set_user_limit
+#: interactions.api.models.channel.Channel.unpin_message of
 msgid "Return type"
 msgstr ""
 
@@ -221,11 +244,13 @@ msgstr ""
 #: interactions.api.models.channel.Channel.create_invite
 #: interactions.api.models.channel.Channel.create_thread
 #: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_message
 #: interactions.api.models.channel.Channel.lock
 #: interactions.api.models.channel.Channel.modify
 #: interactions.api.models.channel.Channel.pin_message
 #: interactions.api.models.channel.Channel.publish_message
 #: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.remove_member
 #: interactions.api.models.channel.Channel.send
 #: interactions.api.models.channel.Channel.set_auto_archive_duration
 #: interactions.api.models.channel.Channel.set_bitrate
@@ -253,18 +278,30 @@ msgid "A file or list of files to be attached to the message."
 msgstr ""
 
 #: interactions.api.models.channel.Channel.send:9 of
-msgid "An embed, or list of embeds for the message."
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
 msgstr ""
 
 #: interactions.api.models.channel.Channel.send:11 of
-msgid "The message interactions/mention limits that the message can refer to."
+msgid "An embed, or list of embeds for the message."
 msgstr ""
 
 #: interactions.api.models.channel.Channel.send:13 of
-msgid "A component, or list of components for the message."
+msgid "The message interactions/mention limits that the message can refer to."
 msgstr ""
 
 #: interactions.api.models.channel.Channel.send:15 of
+msgid ""
+"A list of stickers to send with your message. You can send up to 3 "
+"stickers per message."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:17 of
+msgid "A component, or list of components for the message."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.send:19 of
 msgid "The sent message as an object."
 msgstr ""
 
@@ -412,13 +449,18 @@ msgstr ""
 msgid "The new user limit of the channel"
 msgstr ""
 
-#: interactions.api.models.channel.Channel.set_position:1
 #: interactions.api.models.channel.Channel.set_rate_limit_per_user:1 of
-msgid "Sets the position of the channel."
+msgid ""
+"Sets the amount of seconds a user has to wait before sending another "
+"message."
 msgstr ""
 
 #: interactions.api.models.channel.Channel.set_rate_limit_per_user:3 of
 msgid "The new rate_limit_per_user of the channel (0-21600)"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.set_position:1 of
+msgid "Sets the position of the channel."
 msgstr ""
 
 #: interactions.api.models.channel.Channel.set_position:3 of
@@ -473,6 +515,14 @@ msgstr ""
 msgid "The id of the member to add to the channel"
 msgstr ""
 
+#: interactions.api.models.channel.Channel.remove_member:1 of
+msgid "This removes a member of the channel, if the channel is a thread."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.remove_member:3 of
+msgid "The id of the member to remove of the channel"
+msgstr ""
+
 #: interactions.api.models.channel.Channel.pin_message:1 of
 msgid "Pins a message to the channel."
 msgstr ""
@@ -516,6 +566,10 @@ msgid "Gets a message sent in that channel."
 msgstr ""
 
 #: interactions.api.models.channel.Channel.get_message:3 of
+msgid "The ID of the message to get"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_message:5 of
 msgid "The message as object"
 msgstr ""
 
@@ -658,6 +712,22 @@ msgstr ""
 
 #: interactions.api.models.channel.Channel.get_webhooks:1 of
 msgid "Gets a list of webhooks of that channel"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_members:1 of
+msgid "Gets the list of thread members"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.get_members:3 of
+msgid "The members of the thread."
+msgstr ""
+
+#: interactions.api.models.channel.Channel.leave:1 of
+msgid "Removes the bot from the thread"
+msgstr ""
+
+#: interactions.api.models.channel.Channel.join:1 of
+msgid "Add the bot to the thread"
 msgstr ""
 
 #: interactions.api.models.channel.ThreadMember:1 of

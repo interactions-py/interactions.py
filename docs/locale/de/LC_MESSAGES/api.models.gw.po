@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,19 +22,15 @@ msgstr ""
 msgid "Gateway-specific Event Models"
 msgstr ""
 
-#: interactions.api.models.gw.ApplicationCommandPermissions:1 of
+#: interactions.api.models.gw.AutoModerationAction:1 of
 msgid ""
 "A class object representing the gateway event "
-"``APPLICATION_COMMAND_PERMISSIONS_UPDATE``."
-msgstr ""
-
-#: interactions.api.models.gw.ApplicationCommandPermissions:3 of
-msgid ""
-"This is undocumented by the Discord API, so these attribute docs may or "
-"may not be finalised."
+"``AUTO_MODERATION_ACTION_EXECUTION``."
 msgstr ""
 
 #: interactions.api.models.gw.ApplicationCommandPermissions
+#: interactions.api.models.gw.AutoModerationAction
+#: interactions.api.models.gw.AutoModerationRule
 #: interactions.api.models.gw.ChannelPins
 #: interactions.api.models.gw.EmbeddedActivity
 #: interactions.api.models.gw.GuildBan interactions.api.models.gw.GuildEmojis
@@ -53,6 +49,122 @@ msgstr ""
 #: interactions.api.models.gw.ThreadMembers interactions.api.models.gw.Webhooks
 #: of
 msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:3 of
+msgid "The ID of the guild in which the action was executed."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:4 of
+msgid "The action which was executed."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:5 of
+msgid "The rule ID that the action belongs to."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:6 of
+msgid "The trigger rule type."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:7 of
+msgid "The id of the channel in which user content was posted."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:8 of
+msgid "The id of any user message which content belongs to."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:9 of
+msgid ""
+"The id of any system automoderation messages posted as a result of this "
+"action."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:10 of
+msgid "The user-generated text content in question."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:11 of
+msgid "The word/phrase configured in rule that triggered rule."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationAction:12 of
+msgid "The substring in content that triggered rule."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:1 of
+msgid ""
+"A class object representing the gateway events "
+"``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and "
+"``AUTO_MODERATION_RULE_DELETE``"
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:3
+#: interactions.api.models.gw.AutoModerationRule:4 of
+msgid ""
+"This is undocumented by the Discord API, so these attribute docs may or "
+"may not be finalised."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:7 of
+msgid ""
+"``event_type`` at the moment is only ``1``, which represents message "
+"sending."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:9 of
+msgid "The ID of the rule."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:10 of
+msgid "The guild ID associated with the rule."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:11 of
+msgid "The rule name."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:12 of
+msgid "The user ID that first created this rule."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:13 of
+msgid "The rule type in which automod checks."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:14 of
+msgid ""
+"The automod type. It characterises what type of information that is "
+"checked."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:15 of
+msgid ""
+"Additional data needed to figure out whether this rule should be "
+"triggered."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:16 of
+msgid "The actions that will be executed when the rule is triggered."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:17 of
+msgid "Whether the rule is enabled."
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:18 of
+msgid "The role IDs that should not be affected by this rule. (Max 20)"
+msgstr ""
+
+#: interactions.api.models.gw.AutoModerationRule:19 of
+msgid "The channel IDs that should not be affected by this rule. (Max 20)"
+msgstr ""
+
+#: interactions.api.models.gw.ApplicationCommandPermissions:1 of
+msgid ""
+"A class object representing the gateway event "
+"``APPLICATION_COMMAND_PERMISSIONS_UPDATE``."
 msgstr ""
 
 #: interactions.api.models.gw.ApplicationCommandPermissions:5 of
@@ -371,6 +483,7 @@ msgstr ""
 #: interactions.api.models.gw.GuildMember.id
 #: interactions.api.models.gw.GuildMember.mention
 #: interactions.api.models.gw.GuildMember.modify
+#: interactions.api.models.gw.GuildMember.name
 #: interactions.api.models.gw.GuildMember.send of
 msgid "Returns"
 msgstr ""
@@ -379,11 +492,25 @@ msgstr ""
 msgid "The ID of the user"
 msgstr ""
 
+#: interactions.api.models.gw.GuildMember.add_role
+#: interactions.api.models.gw.GuildMember.add_to_thread
+#: interactions.api.models.gw.GuildMember.ban
 #: interactions.api.models.gw.GuildMember.id
+#: interactions.api.models.gw.GuildMember.kick
 #: interactions.api.models.gw.GuildMember.mention
 #: interactions.api.models.gw.GuildMember.modify
+#: interactions.api.models.gw.GuildMember.name
+#: interactions.api.models.gw.GuildMember.remove_role
 #: interactions.api.models.gw.GuildMember.send of
 msgid "Return type"
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.name:1 of
+msgid "Returns the string of either the user's nickname or username."
+msgstr ""
+
+#: interactions.api.models.gw.GuildMember.name:3 of
+msgid "The name of the member"
 msgstr ""
 
 #: interactions.api.models.gw.GuildMember.mention:1 of

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,14 +75,18 @@ msgstr ""
 msgid "The channel as object"
 msgstr ""
 
+#: interactions.client.context.CommandContext.defer
+#: interactions.client.context.CommandContext.delete
 #: interactions.client.context.CommandContext.edit
 #: interactions.client.context.CommandContext.populate
 #: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext.defer
 #: interactions.client.context.ComponentContext.edit
 #: interactions.client.context.ComponentContext.send
 #: interactions.client.context._Context.edit
 #: interactions.client.context._Context.get_channel
 #: interactions.client.context._Context.get_guild
+#: interactions.client.context._Context.popup
 #: interactions.client.context._Context.send of
 msgid "Return type"
 msgstr ""
@@ -103,12 +107,16 @@ msgid ""
 "interaction response."
 msgstr ""
 
+#: interactions.api.models.attrs_utils.ClientSerializerMixin.__init__
 #: interactions.api.models.attrs_utils.DictSerializerMixin.update
 #: interactions.client.context.CommandContext.defer
+#: interactions.client.context.CommandContext.edit
 #: interactions.client.context.CommandContext.populate
 #: interactions.client.context.CommandContext.send
 #: interactions.client.context.ComponentContext.defer
+#: interactions.client.context.ComponentContext.edit
 #: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context.edit
 #: interactions.client.context._Context.popup
 #: interactions.client.context._Context.send of
 msgid "Parameters"
@@ -129,30 +137,38 @@ msgstr ""
 #: interactions.client.context.CommandContext.send:8
 #: interactions.client.context.ComponentContext.send:8
 #: interactions.client.context._Context.send:8 of
-msgid "An embed, or list of embeds for the message."
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:10
 #: interactions.client.context.ComponentContext.send:10
 #: interactions.client.context._Context.send:10 of
-msgid "The message interactions/mention limits that the message can refer to."
+msgid "An embed, or list of embeds for the message."
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:12
 #: interactions.client.context.ComponentContext.send:12
 #: interactions.client.context._Context.send:12 of
-msgid "A component, or list of components for the message."
+msgid "The message interactions/mention limits that the message can refer to."
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:14
 #: interactions.client.context.ComponentContext.send:14
 #: interactions.client.context._Context.send:14 of
-msgid "Whether the response is hidden or not."
+msgid "A component, or list of components for the message."
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:16
 #: interactions.client.context.ComponentContext.send:16
 #: interactions.client.context._Context.send:16 of
+msgid "Whether the response is hidden or not."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:18
+#: interactions.client.context.ComponentContext.send:18
+#: interactions.client.context._Context.send:18 of
 msgid "The sent message as an object."
 msgstr ""
 
@@ -260,6 +276,12 @@ msgstr ""
 
 #: interactions.client.context.CommandContext:28 of
 msgid "The guild's preferred language, if invoked in a guild."
+msgstr ""
+
+#: interactions.client.context.CommandContext:29 of
+msgid ""
+"Bitwise set of permissions the bot has within the channel the interaction"
+" was sent from."
 msgstr ""
 
 #: interactions.client.context.CommandContext.defer:1 of

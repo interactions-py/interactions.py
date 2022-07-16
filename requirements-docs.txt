@@ -1,5 +1,5 @@
+enum-tools[sphinx]
 furo
 Sphinx
-sphinx-hoverxref
 sphinx-copybutton
-enum-tools[sphinx]
+sphinx-hoverxref
