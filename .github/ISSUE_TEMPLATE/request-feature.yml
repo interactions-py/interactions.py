@@ -7,9 +7,9 @@ assignees:
   - EdVraz
   - Astrea49
   - Toricane
+  - Catalyst4222
 body:
   - type: markdown
-    id: thanks
     attributes:
       value: |
         Thank you for taking the time to fill out this feature request!
