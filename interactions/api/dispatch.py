@@ -42,7 +42,6 @@ class Listener:
                     if key in converters.keys():
                         del kwargs[key]
                         kwargs[converters[key]] = value
-                kwargs = _kwargs
 
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
