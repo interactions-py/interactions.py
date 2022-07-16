@@ -132,8 +132,7 @@ class Option(DictSerializerMixin):
     converter: Optional[str] = field(default=None)
 
     def __attrs_post_init__(self):
-        if self._json.get("converter"):
-            del self._json["converter"]
+        self._json.pop("converter", None)
 
         # needed for nested classes
         self.options = (
