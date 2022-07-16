@@ -393,6 +393,13 @@ class WebSocketClient:
             name: str = event.lower()
             try:
 
+                _event_path: list = [section.capitalize() for section in name.split("_")]
+                _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
+                model = getattr(__import__(path), _name)
+
+                data["_client"] = self._http
+                obj = model(**data)
+
                 def __modify_guild_cache():
                     if not (
                         guild_id := data.get("guild_id")
@@ -413,12 +420,6 @@ class WebSocketClient:
                             setattr(guild, f"{model_name}s", _obj)
                         self._http.cache[Guild].add(guild)
 
-                _event_path: list = [section.capitalize() for section in name.split("_")]
-                _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
-                model = getattr(__import__(path), _name)
-
-                data["_client"] = self._http
-                obj = model(**data)
                 _cache: "Storage" = self._http.cache[model]
 
                 if isinstance(obj, Member):
