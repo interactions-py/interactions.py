@@ -478,6 +478,7 @@ class Client:
 
             coro._command_data = data
             coro._name = cmd.name
+            coro._converters = cmd.converters
 
             if (data["name"] if isinstance(data, dict) else data[0]["name"]) not in (
                 (
