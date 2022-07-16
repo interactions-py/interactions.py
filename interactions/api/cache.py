@@ -67,11 +67,12 @@ class Storage(Generic[_T]):
                 ):  # could be None
                     setattr(old_item, attrib, [])
                 if isinstance(getattr(old_item, attrib), list):
-                    for value in getattr(item, attrib):
-                        old_item_attrib = getattr(old_item, attrib)
-                        if value not in getattr(old_item, attrib):
-                            old_item_attrib.append(value)
-                        setattr(old_item, attrib, old_item_attrib)
+                    if _attrib := getattr(item, attrib):
+                        for value in _attrib:
+                            old_item_attrib = getattr(old_item, attrib)
+                            if value not in old_item_attrib:
+                                old_item_attrib.append(value)
+                            setattr(old_item, attrib, old_item_attrib)
                 else:
                     setattr(old_item, attrib, getattr(item, attrib))
 
