@@ -33,13 +33,21 @@ version = ".".join(__version__.split(".", 2)[:2])
 autosectionlabel_prefix_document = True
 hoverxref_auto_ref = True
 hoverxref_sphinxtabs = True
+
+
+# descriptions of the relevant function/method.
+autodoc_typehints = "description"
+
+# Don't show class signature with the class' name.
+autodoc_class_signature = "separated"
+
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
     "hoverxref.extension",
-    "karma_sphinx_theme",
-    "sphinx_search.extension",
+    'sphinx_copybutton',
+    'enum_tools.autoenum'
 ]
 
 # Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
@@ -80,7 +88,7 @@ autodoc_default_options = {"member-order": "bysource", "private-members": True}
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "karma_sphinx_theme"
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
