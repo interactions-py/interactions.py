@@ -7,7 +7,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -149,9 +149,3 @@ msgid ""
 "Example:"
 msgstr ""
 
-#~ msgid ""
-#~ "A new big change in this release"
-#~ " is the implementation of the ``get``"
-#~ " utility method. It allows you to "
-#~ "no longer use ``**await bot._http...``."
-#~ msgstr ""
