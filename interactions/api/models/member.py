@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from ..error import LibraryException
-from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
+from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, convert_list, define, field
 from .channel import Channel
 from .flags import Permissions
 from .misc import File, IDMixin, Snowflake
@@ -30,7 +30,7 @@ class Member(ClientSerializerMixin, IDMixin):
     :ivar User user: The user of the guild.
     :ivar str nick: The nickname of the member.
     :ivar Optional[str] avatar?: The hash containing the user's guild avatar, if applicable.
-    :ivar List[Role] roles: The list of roles of the member.
+    :ivar List[int] roles: The list of roles of the member.
     :ivar datetime joined_at: The timestamp the member joined the guild at.
     :ivar datetime premium_since: The timestamp the member has been a server booster since.
     :ivar bool deaf: Whether the member is deafened.
@@ -43,7 +43,7 @@ class Member(ClientSerializerMixin, IDMixin):
     user: Optional[User] = field(converter=User, default=None, add_client=True, repr=True)
     nick: Optional[str] = field(default=None, repr=True)
     _avatar: Optional[str] = field(default=None, discord_name="avatar")
-    roles: List[int] = field()
+    roles: List[int] = field(converter=convert_list(int))
     joined_at: datetime = field(converter=datetime.fromisoformat)
     premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     deaf: bool = field()
