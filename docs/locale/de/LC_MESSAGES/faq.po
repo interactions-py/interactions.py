@@ -521,4 +521,3 @@ msgid ""
 "Please join our `Discord Server`_ for any further support regarding our "
 "library and/or any integration code depending on it."
 msgstr ""
-

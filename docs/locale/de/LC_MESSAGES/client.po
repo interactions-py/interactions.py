@@ -639,4 +639,3 @@ msgstr ""
 #: interactions.client.bot.Extension:5 of
 msgid "The structure of an extension:"
 msgstr ""
-

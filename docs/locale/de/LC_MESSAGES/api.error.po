@@ -59,4 +59,3 @@ msgstr ""
 #: interactions.api.error.LibraryException.log:1 of
 msgid "Log the error message."
 msgstr ""
-

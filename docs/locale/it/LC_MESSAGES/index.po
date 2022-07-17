@@ -247,4 +247,3 @@ msgstr ""
 #: ../../index.rst:88
 msgid ":ref:`modindex`"
 msgstr ""
-

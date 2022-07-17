@@ -183,4 +183,3 @@ msgstr ""
 #: interactions.api.models.team.Application.icon_url of
 msgid "Return type"
 msgstr ""
-

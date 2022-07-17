@@ -197,4 +197,3 @@ msgstr ""
 #: interactions.api.models.role.RoleTags:5 of
 msgid "Whether if this is the guild's premium subscriber role"
 msgstr ""
-

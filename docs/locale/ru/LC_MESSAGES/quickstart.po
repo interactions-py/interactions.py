@@ -673,4 +673,3 @@ msgstr ""
 #: ../../quickstart.rst:675
 msgid "Usage of ``@autodefer()``:"
 msgstr ""
-

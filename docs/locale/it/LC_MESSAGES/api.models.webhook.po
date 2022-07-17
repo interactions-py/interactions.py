@@ -257,4 +257,3 @@ msgstr ""
 #: interactions.api.models.webhook.WebhookType:1 of
 msgid "Valid values are as follows:"
 msgstr ""
-

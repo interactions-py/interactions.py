@@ -92,4 +92,3 @@ msgid ""
 "An integer flag bitshift object representing the different member "
 "permissions given by Discord."
 msgstr ""
-

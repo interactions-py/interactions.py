@@ -85,4 +85,3 @@ msgstr ""
 #: interactions.client.models.utils.spread_to_rows:28 of
 msgid "The maximum number of components in a single row. Defaults to ``5``."
 msgstr ""
-
