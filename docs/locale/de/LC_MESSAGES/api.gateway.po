@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,12 +11,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Brain of EdVraz™️️\n"
+
 
 #: ../../api.gateway.rst:4
 msgid "Gateway"
@@ -28,77 +29,78 @@ msgstr ""
 
 #: interactions.api.gateway:3 of
 msgid "This section of the library maintains and handles all of the Gateway work."
-msgstr ""
+msgstr "Diese Sektion der Bibliothek betreibt und handelt die gesamte Gateway-Arbeit."
 
 #: interactions.api.gateway.client.WebSocketClient:1 of
 msgid ""
 "A class representing the client's connection to the Gateway via. "
 "WebSocket."
 msgstr ""
+"Eine Klasse, die die Verbindung des Clients zum Gateway via WebSocket repräsentiert."
 
 #: interactions.api.gateway.client.WebSocketClient of
 msgid "Variables"
-msgstr ""
+msgstr "Variablen"
 
 #: interactions.api.gateway.client.WebSocketClient:3 of
 msgid "The asynchronous event loop."
-msgstr ""
+msgstr "Der asynchrone Event-Loop."
 
 #: interactions.api.gateway.client.WebSocketClient:4 of
 msgid "The built-in event dispatcher."
-msgstr ""
+msgstr "Der eingebaute Event-Dispatcher."
 
 #: interactions.api.gateway.client.WebSocketClient:5 of
 msgid "The user-facing HTTP client."
-msgstr ""
+msgstr "Der Nutzerorientierte HTTP Client."
 
 #: interactions.api.gateway.client.WebSocketClient:6 of
 msgid "The WebSocket data of the connection."
-msgstr ""
+msgstr "Die WebSocket Daten der Verbindung."
 
 #: interactions.api.gateway.client.WebSocketClient:7 of
 msgid "Whether the connection has been closed or not."
-msgstr ""
+msgstr "Ob die Verbindung geschlossen wurde."
 
 #: interactions.api.gateway.client.WebSocketClient:8 of
 msgid "The connection options made during connection."
-msgstr ""
+msgstr "Die Verbindungsoptionen"
 
 #: interactions.api.gateway.client.WebSocketClient:9 of
 msgid "The gateway intents used for connection."
-msgstr ""
+msgstr "Die Gateway-Intents, die für die Verbindung genutzt werden."
 
 #: interactions.api.gateway.client.WebSocketClient:10 of
 msgid "The contents of the application returned when ready."
-msgstr ""
+msgstr "Die Inhalte der Applikation."
 
 #: interactions.api.gateway.client.WebSocketClient:11 of
 msgid "The context state of a \"heartbeat\" made to the Gateway."
-msgstr ""
+msgstr "Der Kontext zustand eines \"heartbeat\"."
 
 #: interactions.api.gateway.client.WebSocketClient:12 of
 msgid "The shards used during connection."
-msgstr ""
+msgstr "Die shards."
 
 #: interactions.api.gateway.client.WebSocketClient:13 of
 msgid "The presence used in connection."
-msgstr ""
+msgstr "Die genutzte Präsenz."
 
 #: interactions.api.gateway.client.WebSocketClient:14 of
 msgid "The ready state of the client as an ``asyncio.Event``."
-msgstr ""
+msgstr "Der Zustand des Bereits des Clients."
 
 #: interactions.api.gateway.client.WebSocketClient:15 of
 msgid "The closing task for ending connections."
-msgstr ""
+msgstr "Die End-Task zum beenden einer Verbindung"
 
 #: interactions.api.gateway.client.WebSocketClient:16 of
 msgid "The ID of the ongoing session."
-msgstr ""
+msgstr "Die ID der aktuellen session"
 
 #: interactions.api.gateway.client.WebSocketClient:17 of
 msgid "The sequence identifier of the ongoing session."
-msgstr ""
+msgstr "Der Sequenz-Identifier der aktuellen session"
 
 #: interactions.api.gateway.client.WebSocketClient:18 of
 msgid ""
