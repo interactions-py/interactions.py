@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.rst:11
+msgid "Client"
+msgstr ""
+
+#: ../../api.rst:17
+msgid "Frameworks/Commands"
+msgstr ""
+
+#: ../../api.rst:25 ../../api.rst:42
+msgid "Model/Design"
+msgstr ""
+
+#: ../../api.rst:35
+msgid "Client Connections"
+msgstr ""
+
+#: ../../api.rst:50
+msgid "Events"
+msgstr ""
+
+#: ../../api.rst:4
+msgid "API Reference"
+msgstr ""
+
+#: ../../api.rst:6
+msgid "This page outlines the API wrapper of discord-interactions."
+msgstr ""
+
+#: ../../api.rst:9
+msgid "Interactions"
+msgstr ""
+
+#: ../../api.rst:33
+msgid "Discord API"
+msgstr ""
+

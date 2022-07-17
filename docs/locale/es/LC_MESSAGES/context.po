@@ -1,0 +1,345 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../context.rst:4
+msgid "Event Context"
+msgstr ""
+
+#: interactions.client.context._Context:1 of
+msgid ""
+"The base class of \"context\" for dispatched event data from the gateway."
+" The premise of having this class is so that the user-facing API is able "
+"to allow developers to easily access information presented from any event"
+" in a \"contextualized\" sense."
+msgstr ""
+
+#: interactions.client.context.CommandContext
+#: interactions.client.context._Context of
+msgid "Variables"
+msgstr ""
+
+#: interactions.client.context._Context:7 of
+msgid "The message data model."
+msgstr ""
+
+#: interactions.client.context._Context:8 of
+msgid "The member data model."
+msgstr ""
+
+#: interactions.client.context._Context:9 of
+msgid "The user data model."
+msgstr ""
+
+#: interactions.client.context._Context:10 of
+msgid "The channel data model."
+msgstr ""
+
+#: interactions.client.context._Context:11 of
+msgid "The guild data model."
+msgstr ""
+
+#: interactions.api.models.attrs_utils.DictSerializerMixin.update
+#: interactions.client.context.CommandContext
+#: interactions.client.context.CommandContext.defer
+#: interactions.client.context.CommandContext.edit
+#: interactions.client.context.CommandContext.populate
+#: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext
+#: interactions.client.context.ComponentContext.defer
+#: interactions.client.context.ComponentContext.edit
+#: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context
+#: interactions.client.context._Context.edit
+#: interactions.client.context._Context.popup
+#: interactions.client.context._Context.send of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.client.context._Context.get_channel:1 of
+msgid "This gets the channel the context was invoked in."
+msgstr ""
+
+#: interactions.client.context.CommandContext.edit
+#: interactions.client.context.CommandContext.populate
+#: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext.edit
+#: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context.edit
+#: interactions.client.context._Context.get_channel
+#: interactions.client.context._Context.get_guild
+#: interactions.client.context._Context.send of
+msgid "Returns"
+msgstr ""
+
+#: interactions.client.context._Context.get_channel:3 of
+msgid "The channel as object"
+msgstr ""
+
+#: interactions.client.context.CommandContext.defer
+#: interactions.client.context.CommandContext.delete
+#: interactions.client.context.CommandContext.edit
+#: interactions.client.context.CommandContext.populate
+#: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext.defer
+#: interactions.client.context.ComponentContext.edit
+#: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context.edit
+#: interactions.client.context._Context.get_channel
+#: interactions.client.context._Context.get_guild
+#: interactions.client.context._Context.popup
+#: interactions.client.context._Context.send of
+msgid "Return type"
+msgstr ""
+
+#: interactions.client.context._Context.get_guild:1 of
+msgid "This gets the guild the context was invoked in."
+msgstr ""
+
+#: interactions.client.context._Context.get_guild:3 of
+msgid "The guild as object"
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:1
+#: interactions.client.context.ComponentContext.send:1
+#: interactions.client.context._Context.send:1 of
+msgid ""
+"This allows the invocation state described in the \"context\" to send an "
+"interaction response."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:4
+#: interactions.client.context.ComponentContext.send:4
+#: interactions.client.context._Context.send:4 of
+msgid "The contents of the message as a string or string-converted value."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:6
+#: interactions.client.context.ComponentContext.send:6
+#: interactions.client.context._Context.send:6 of
+msgid "Whether the message utilizes the text-to-speech Discord programme or not."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:8
+#: interactions.client.context.ComponentContext.send:8
+#: interactions.client.context._Context.send:8 of
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:10
+#: interactions.client.context.ComponentContext.send:10
+#: interactions.client.context._Context.send:10 of
+msgid "An embed, or list of embeds for the message."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:12
+#: interactions.client.context.ComponentContext.send:12
+#: interactions.client.context._Context.send:12 of
+msgid "The message interactions/mention limits that the message can refer to."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:14
+#: interactions.client.context.ComponentContext.send:14
+#: interactions.client.context._Context.send:14 of
+msgid "A component, or list of components for the message."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:16
+#: interactions.client.context.ComponentContext.send:16
+#: interactions.client.context._Context.send:16 of
+msgid "Whether the response is hidden or not."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:18
+#: interactions.client.context.ComponentContext.send:18
+#: interactions.client.context._Context.send:18 of
+msgid "The sent message as an object."
+msgstr ""
+
+#: interactions.client.context.CommandContext.edit:1
+#: interactions.client.context.ComponentContext.edit:1
+#: interactions.client.context._Context.edit:1 of
+msgid ""
+"This allows the invocation state described in the \"context\" to send an "
+"interaction response. This inherits the arguments of the Context "
+"``.send()`` method."
+msgstr ""
+
+#: interactions.client.context.CommandContext.edit:5
+#: interactions.client.context.ComponentContext.edit:5
+#: interactions.client.context._Context.edit:5 of
+msgid "The edited message as an object."
+msgstr ""
+
+#: interactions.client.context._Context.popup:1 of
+msgid "This \"pops up\" a modal to present information back to the user."
+msgstr ""
+
+#: interactions.client.context._Context.popup:4 of
+msgid "The components you wish to show."
+msgstr ""
+
+#: interactions.api.models.attrs_utils.DictSerializerMixin.update:1 of
+msgid ""
+"Update an object with new attributes. All data will be converted, and any"
+" extra attributes will be put in _extras"
+msgstr ""
+
+#: interactions.api.models.attrs_utils.DictSerializerMixin.update:4 of
+msgid "The dictionary to update from"
+msgstr ""
+
+#: interactions.client.context.CommandContext:1 of
+msgid ""
+"A derivation of :class:`interactions.context.Context` designed "
+"specifically for application command data."
+msgstr ""
+
+#: interactions.client.context.CommandContext:5 of
+msgid ""
+"The ``guild`` attribute of the base context is not accessible for any "
+"interaction-related events since the current Discord API schema does not "
+"return this as a value, but instead ``guild_id``. You will need to "
+"manually fetch for this data for the time being."
+msgstr ""
+
+#: interactions.client.context.CommandContext:11 of
+msgid ""
+"You can fetch with ``client.get_guild(guild_id)`` which will return a "
+"JSON dictionary, which you can then use ``interactions.Guild(**data)`` "
+"for an object or continue with a dictionary for your own purposes."
+msgstr ""
+
+#: interactions.client.context.CommandContext:16 of
+msgid "the HTTP client"
+msgstr ""
+
+#: interactions.client.context.CommandContext:17 of
+msgid "The ID of the interaction."
+msgstr ""
+
+#: interactions.client.context.CommandContext:18 of
+msgid "The application ID of the interaction."
+msgstr ""
+
+#: interactions.client.context.CommandContext:19 of
+msgid "The type of interaction."
+msgstr ""
+
+#: interactions.client.context.CommandContext:20 of
+msgid "The application command data."
+msgstr ""
+
+#: interactions.client.context.CommandContext:21 of
+msgid "The target selected if this interaction is invoked as a context menu."
+msgstr ""
+
+#: interactions.client.context.CommandContext:22 of
+msgid "The token of the interaction response."
+msgstr ""
+
+#: interactions.client.context.CommandContext:23 of
+msgid "The ID of the current guild."
+msgstr ""
+
+#: interactions.client.context.CommandContext:24 of
+msgid "The ID of the current channel."
+msgstr ""
+
+#: interactions.client.context.CommandContext:25 of
+msgid "Whether an original response was made or not."
+msgstr ""
+
+#: interactions.client.context.CommandContext:26 of
+msgid "Whether the response was deferred or not."
+msgstr ""
+
+#: interactions.client.context.CommandContext:27 of
+msgid "The selected language of the user invoking the interaction."
+msgstr ""
+
+#: interactions.client.context.CommandContext:28 of
+msgid "The guild's preferred language, if invoked in a guild."
+msgstr ""
+
+#: interactions.client.context.CommandContext:29 of
+msgid ""
+"Bitwise set of permissions the bot has within the channel the interaction"
+" was sent from."
+msgstr ""
+
+#: interactions.client.context.CommandContext.defer:1 of
+msgid ""
+"This \"defers\" an interaction response, allowing up to a 15-minute delay"
+" between invocation and responding."
+msgstr ""
+
+#: interactions.client.context.CommandContext.defer:4
+#: interactions.client.context.ComponentContext.defer:4 of
+msgid "Whether the deferred state is hidden or not."
+msgstr ""
+
+#: interactions.client.context.CommandContext.delete:1 of
+msgid ""
+"This deletes the interaction response of a message sent by the "
+"contextually derived information from this class."
+msgstr ""
+
+#: interactions.client.context.CommandContext.delete:5 of
+msgid "Doing this will proceed in the context message no longer being present."
+msgstr ""
+
+#: interactions.client.context.CommandContext.populate:1 of
+msgid ""
+"This \"populates\" the list of choices that the client-end user will be "
+"able to select from in the autocomplete field."
+msgstr ""
+
+#: interactions.client.context.CommandContext.populate:5 of
+msgid ""
+"Only a maximum of ``25`` choices may be presented within an autocomplete "
+"option."
+msgstr ""
+
+#: interactions.client.context.CommandContext.populate:8 of
+msgid "The choices you wish to present."
+msgstr ""
+
+#: interactions.client.context.CommandContext.populate:10 of
+msgid "The list of choices you've given."
+msgstr ""
+
+#: interactions.client.context.ComponentContext:1 of
+msgid ""
+"A derivation of :class:`interactions.context.CommandContext` designed "
+"specifically for component data."
+msgstr ""
+
+#: interactions.client.context.ComponentContext.defer:1 of
+msgid ""
+"This \"defers\" a component response, allowing up to a 15-minute delay "
+"between invocation and responding."
+msgstr ""
+
+#: interactions.client.context.ComponentContext.defer:6 of
+msgid "Whether you want to edit the original message or send a followup message"
+msgstr ""
+

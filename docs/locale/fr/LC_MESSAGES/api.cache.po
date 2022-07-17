@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,9 +34,9 @@ msgstr ""
 msgid "The list of items stored."
 msgstr ""
 
-#: interactions.api.cache.Cache.__init__
-#: interactions.api.cache.Storage.__init__ interactions.api.cache.Storage.add
-#: interactions.api.cache.Storage.get interactions.api.cache.Storage.merge of
+#: interactions.api.cache.Cache interactions.api.cache.Storage
+#: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
+#: interactions.api.cache.Storage.merge interactions.api.cache.Storage.view of
 msgid "Return type"
 msgstr ""
 
@@ -79,7 +79,7 @@ msgstr ""
 msgid "The default value to return if the item is not found."
 msgstr ""
 
-#: interactions.api.cache.Storage.get of
+#: interactions.api.cache.Storage.get interactions.api.cache.Storage.view of
 msgid "Returns"
 msgstr ""
 
@@ -100,13 +100,19 @@ msgid "Views all items from storage."
 msgstr ""
 
 #: interactions.api.cache.Storage.view:3 of
-msgid ":return The items stored. :rtype: List[dict]"
+msgid "The items stored."
 msgstr ""
 
 #: interactions.api.cache.Cache:1 of
 msgid ""
 "A class representing the cache. This cache collects all of the HTTP "
 "requests made for the represented instances of the class."
+msgstr ""
+
+#: interactions.api.cache.Cache:5 of
+msgid ""
+"A dictionary denoting the Type and the objects that correspond to the "
+"Type."
 msgstr ""
 
 #~ msgid "A class representing the defined item in a stored dataset."
@@ -152,4 +158,7 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "The cached interactions upon interaction."
+#~ msgstr ""
+
+#~ msgid ":return The items stored. :rtype: List[dict]"
 #~ msgstr ""

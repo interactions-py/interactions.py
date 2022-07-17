@@ -1,0 +1,203 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../enums.rst:4
+msgid "Enumerable Objects"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:1 of
+msgid "An enumerable object representing the types of application commands."
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType
+#: interactions.client.enums.ButtonStyle
+#: interactions.client.enums.ComponentType
+#: interactions.client.enums.InteractionCallbackType
+#: interactions.client.enums.InteractionType
+#: interactions.client.enums.OptionType
+#: interactions.client.enums.PermissionType
+#: interactions.client.enums.TextStyleType of
+msgid "Variables"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:3
+#: interactions.client.enums.ButtonStyle:3
+#: interactions.client.enums.ComponentType:3
+#: interactions.client.enums.InteractionCallbackType:3
+#: interactions.client.enums.InteractionType:3
+#: interactions.client.enums.OptionType:3
+#: interactions.client.enums.PermissionType:3
+#: interactions.client.enums.TextStyleType:3 of
+msgid "1"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:4
+#: interactions.client.enums.ButtonStyle:4
+#: interactions.client.enums.ComponentType:4
+#: interactions.client.enums.InteractionType:4
+#: interactions.client.enums.OptionType:4
+#: interactions.client.enums.PermissionType:4
+#: interactions.client.enums.TextStyleType:4 of
+msgid "2"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:5
+#: interactions.client.enums.ButtonStyle:5
+#: interactions.client.enums.ComponentType:5
+#: interactions.client.enums.InteractionType:5
+#: interactions.client.enums.OptionType:5
+#: interactions.client.enums.PermissionType:5 of
+msgid "3"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:6
+#: interactions.client.enums.ButtonStyle:6
+#: interactions.client.enums.ComponentType:6
+#: interactions.client.enums.InteractionCallbackType:4
+#: interactions.client.enums.InteractionType:6
+#: interactions.client.enums.OptionType:6 of
+msgid "4"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType
+#: interactions.client.enums.ButtonStyle
+#: interactions.client.enums.ComponentType
+#: interactions.client.enums.InteractionCallbackType
+#: interactions.client.enums.InteractionType interactions.client.enums.Locale
+#: interactions.client.enums.OptionType
+#: interactions.client.enums.PermissionType
+#: interactions.client.enums.TextStyleType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:1
+#: interactions.client.enums.ButtonStyle:1
+#: interactions.client.enums.ComponentType:1
+#: interactions.client.enums.InteractionCallbackType:1
+#: interactions.client.enums.InteractionType:1
+#: interactions.client.enums.OptionType:1
+#: interactions.client.enums.PermissionType:1
+#: interactions.client.enums.TextStyleType:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:1
+#: interactions.client.enums.ButtonStyle:1
+#: interactions.client.enums.ComponentType:1
+#: interactions.client.enums.InteractionCallbackType:1
+#: interactions.client.enums.InteractionType:1
+#: interactions.client.enums.Locale:1 interactions.client.enums.OptionType:1
+#: interactions.client.enums.PermissionType:1
+#: interactions.client.enums.TextStyleType:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.client.enums.InteractionType:1 of
+msgid "An enumerable object representing the types of interactions."
+msgstr ""
+
+#: interactions.client.enums.ButtonStyle:7
+#: interactions.client.enums.InteractionCallbackType:5
+#: interactions.client.enums.InteractionType:7
+#: interactions.client.enums.OptionType:7 of
+msgid "5"
+msgstr ""
+
+#: interactions.client.enums.InteractionCallbackType:1 of
+msgid ""
+"An enumerable object representing the callback types of interaction "
+"responses."
+msgstr ""
+
+#: interactions.client.enums.InteractionCallbackType:6
+#: interactions.client.enums.OptionType:8 of
+msgid "6"
+msgstr ""
+
+#: interactions.client.enums.InteractionCallbackType:7
+#: interactions.client.enums.OptionType:9 of
+msgid "7"
+msgstr ""
+
+#: interactions.client.enums.InteractionCallbackType:8
+#: interactions.client.enums.OptionType:10 of
+msgid "8"
+msgstr ""
+
+#: interactions.client.enums.InteractionCallbackType:9
+#: interactions.client.enums.OptionType:11 of
+msgid "9"
+msgstr ""
+
+#: interactions.client.enums.OptionType:1 of
+msgid ""
+"An enumerable object representing the types of an application command "
+"option."
+msgstr ""
+
+#: interactions.client.enums.OptionType:12 of
+msgid "10"
+msgstr ""
+
+#: interactions.client.enums.OptionType:13 of
+msgid "11"
+msgstr ""
+
+#: interactions.client.enums.PermissionType:1 of
+msgid ""
+"Enumerable object of literal integers holding equivocal values of a slash"
+" command's permission(s)."
+msgstr ""
+
+#: interactions.client.enums.ComponentType:1 of
+msgid "An enumerable object representing the types of a component."
+msgstr ""
+
+#: interactions.client.enums.ButtonStyle:1 of
+msgid "An enumerable object representing the styles of button components."
+msgstr ""
+
+#: interactions.client.enums.TextStyleType:1 of
+msgid "An enumerable object representing the styles of text inputs."
+msgstr ""
+
+#: interactions.client.enums.Locale:1 of
+msgid "An enumerable object representing Discord locales."
+msgstr ""
+
+#: interactions.client.enums.Locale:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.client.enums.Locale:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
+msgstr ""
+
+#: enum.Enum._generate_next_value_:1 of
+msgid "Generate the next value when not given."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:3 of
+msgid ""
+"name: the name of the member start: the initial start value or None "
+"count: the number of existing members last_value: the last value assigned"
+" or None"
+msgstr ""
+

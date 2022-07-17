@@ -1,0 +1,101 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../ext.error.rst:4
+msgid "Error Exceptions"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:1 of
+msgid "An enumerable object representing the type of error responses raised."
+msgstr ""
+
+#: interactions.ext.error.ErrorType of
+msgid "Variables"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:3 of
+msgid ""
+"You cannot have more than one alphanumeric identifier, or identifier with"
+" a missing value."
+msgstr ""
+
+#: interactions.ext.error.ErrorType:4 of
+msgid "You cannot have a missing numerical value."
+msgstr ""
+
+#: interactions.ext.error.ErrorType:5 of
+msgid ""
+"A version can only have one main author. The rest of the authors must be "
+"co-authors."
+msgstr ""
+
+#: interactions.ext.error.ErrorType:6 of
+msgid "The service specified does not exist."
+msgstr ""
+
+#: interactions.ext.error.ErrorType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
+msgstr ""
+
+#: enum.Enum._generate_next_value_:1 of
+msgid "Generate the next value when not given."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:3 of
+msgid ""
+"name: the name of the member start: the initial start value or None "
+"count: the number of existing members last_value: the last value assigned"
+" or None"
+msgstr ""
+
+#: interactions.ext.error.IncorrectAlphanumeric:1 of
+msgid ""
+"An exception raised whenever a ``Version`` object has an incorrect "
+"alphanumeric formatting."
+msgstr ""
+
+#: interactions.ext.error.MissingNumeric:1 of
+msgid ""
+"An exception raised whenever a ``Version`` object has an incorrect "
+"numerical formatting."
+msgstr ""
+
+#: interactions.ext.error.TooManyAuthors:1 of
+msgid ""
+"An exception raised whenever a ``VersionAuthor`` object have too many "
+"\"main\" authors."
+msgstr ""
+
+#: interactions.ext.error.UnknownService:1 of
+msgid "An exception raised whenever a ``Base`` object cannot find a service."
+msgstr ""
+

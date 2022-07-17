@@ -1,0 +1,231 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../get.rst:4
+msgid "The ``get`` utility method"
+msgstr ""
+
+#: interactions.client.get.get:1 of
+msgid "Helper method to get an object."
+msgstr ""
+
+#: interactions.client.get.get:11 of
+msgid "This method can do the following:"
+msgstr ""
+
+#: interactions.client.get.get:6 of
+msgid "Get a list of specific objects"
+msgstr ""
+
+#: interactions.client.get.get:5 interactions.client.get.get:9 of
+msgid "purely from cache"
+msgstr ""
+
+#: interactions.client.get.get:6 interactions.client.get.get:10 of
+msgid "purely from HTTP"
+msgstr ""
+
+#: interactions.client.get.get:7 of
+msgid ""
+"from cache and additionally from HTTP for every ID that was not found in "
+"cache"
+msgstr ""
+
+#: interactions.client.get.get:11 of
+msgid "Get a single specific object"
+msgstr ""
+
+#: interactions.client.get.get:11 of
+msgid "from HTTP if not found in cache else from cache"
+msgstr ""
+
+#: interactions.client.get.get:14 of
+msgid "The method has to be awaited when:"
+msgstr ""
+
+#: interactions.client.get.get:14 of
+msgid "You don't force anything"
+msgstr ""
+
+#: interactions.client.get.get:15 of
+msgid "You force HTTP"
+msgstr ""
+
+#: interactions.client.get.get:17 of
+msgid "The method doesn't have to be awaited when:"
+msgstr ""
+
+#: interactions.client.get.get:17 of
+msgid "You force cache"
+msgstr ""
+
+#: interactions.client.get.get:20 of
+msgid ""
+"Technically, there is no need for an ``await`` if there is an object "
+"found in the cache. Because of the fact, that, as long as you don't "
+"enforce the cache, the function will get the object from HTTP, if it is "
+"not in the cache, you still have to await it. This has been done to "
+"reduce confusion on whether the object origins from an HTTP call or a "
+"cache result and to remove the extra step for you to check if the "
+"returned object is an awaitable or not."
+msgstr ""
+
+#: interactions.client.get.get:41 of
+msgid "Forcing:"
+msgstr ""
+
+#: interactions.client.get.get:41 of
+msgid "Forcing can be done via the ``force`` keyword argument."
+msgstr ""
+
+#: interactions.client.get.get:31 of
+msgid "``force=\"cache\"`` or ``force=interactions.Force.CACHE``:"
+msgstr ""
+
+#: interactions.client.get.get:30 of
+msgid ""
+"This forces the method to only return from cache (if the object is not "
+"found it will return ``None``). If you use this, you don't need to await "
+"the method."
+msgstr ""
+
+#: interactions.client.get.get:41 of
+msgid "``force=\"http\"`` or ``force=interactions.Force.HTTP``:"
+msgstr ""
+
+#: interactions.client.get.get:34 of
+msgid ""
+"This forces the method to make an HTTP request to the discord API and "
+"return the result of it. If you use this, you have to await the method."
+msgstr ""
+
+#: interactions.client.get.get:38 of
+msgid ""
+"If you are a PyCharm user, please be aware of a bug that causes incorrect"
+" suggestions to appear if using an enum. Even if PyCharm shows a normal "
+"object as result, you have to await the method if you enforce HTTP. To "
+"prevent this bug from happening it is suggested using ``force=\"http\"`` "
+"instead of the enum."
+msgstr ""
+
+#: interactions.client.get.get:43 of
+msgid "Getting an object:"
+msgstr ""
+
+#: interactions.client.get.get:45 of
+msgid ""
+"Here you will see two examples on how to get a single objects and the "
+"variations of how the object can be gotten."
+msgstr ""
+
+#: interactions.client.get.get:48 of
+msgid "Example 1/2: Getting a Channel:"
+msgstr ""
+
+#: interactions.client.get.get:65 of
+msgid "Example 2/2: Getting a Member:"
+msgstr ""
+
+#: interactions.client.get.get:88 of
+msgid ""
+"Both examples should have given you a basic overview on how to get a "
+"single object. Now we will move on with lists of objects."
+msgstr ""
+
+#: interactions.client.get.get:92 of
+msgid ""
+"The ``parent_id`` represents the channel or guild id that belongs to the "
+"objects you want to get. It is called ``parent_id`` because "
+"``guild_or_channel_id`` would be horrible to type out every time."
+msgstr ""
+
+#: interactions.client.get.get:115 of
+msgid "Getting a list of an object:"
+msgstr ""
+
+#: interactions.client.get.get:96 of
+msgid ""
+"Here you will see 1 example of how to get a list of objects. The "
+"possibilities on how to force (and their results) are the same as in the "
+"examples above."
+msgstr ""
+
+#: interactions.client.get.get:99 of
+msgid "Example 1/1: Getting a list of members:"
+msgstr ""
+
+#: interactions.client.get.get:115 of
+msgid ""
+"If you enforce cache when getting a list of objects, found objets will be"
+" placed into the list and not found objects will be placed as ``None`` "
+"into the list."
+msgstr ""
+
+#: interactions.client.get.get of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.client.get.get of
+msgid "Return type"
+msgstr ""
+
+#: interactions.client.get.Force:1 of
+msgid "An enumerable object representing the force types for the get method."
+msgstr ""
+
+#: interactions.client.get.Force of
+msgid "Variables"
+msgstr ""
+
+#: interactions.client.get.Force:3 of
+msgid "Enforce the usage of cache and block the usage of http"
+msgstr ""
+
+#: interactions.client.get.Force:4 of
+msgid "Enforce the usage of http and block the usage of cache"
+msgstr ""
+
+#: interactions.client.get.Force of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.client.get.Force:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.client.get.Force:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.client.get.Force:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
+msgstr ""
+
+#: enum.Enum._generate_next_value_:1 of
+msgid "Generate the next value when not given."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:3 of
+msgid ""
+"name: the name of the member start: the initial start value or None "
+"count: the number of existing members last_value: the last value assigned"
+" or None"
+msgstr ""
+
