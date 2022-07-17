@@ -38,9 +38,6 @@ hoverxref_sphinxtabs = True
 # descriptions of the relevant function/method.
 autodoc_typehints = "description"
 
-# Don't show class signature with the class' name.
-autodoc_class_signature = "separated"
-
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",

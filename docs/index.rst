@@ -86,7 +86,6 @@ Advanced Search
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
 .. _contribution requirements: https://github.com/interactions-py/library/blob/stable/CONTRIBUTING.rst
 .. _MIT License: https://github.com/interactions-py/library/blob/stable/LICENSE
