@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,6 +41,15 @@ msgstr ""
 
 #: interactions.api.models.presence.PresenceParty:4 of
 msgid "An array denoting the party's current and max size"
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence
+#: interactions.api.models.presence.PresenceActivity
+#: interactions.api.models.presence.PresenceAssets
+#: interactions.api.models.presence.PresenceParty
+#: interactions.api.models.presence.PresenceSecrets
+#: interactions.api.models.presence.PresenceTimestamp of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceAssets:1 of

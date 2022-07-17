@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,11 +30,11 @@ msgstr ""
 msgid "Variables"
 msgstr ""
 
-#: interactions.ext.base.Base:3 interactions.ext.base.Base.__init__:3 of
+#: interactions.ext.base.Base:3 of
 msgid "The version of the library."
 msgstr ""
 
-#: interactions.ext.base.Base:4 interactions.ext.base.Base.__init__:1 of
+#: interactions.ext.base.Base:4 of
 msgid "The name of the library."
 msgstr ""
 
@@ -62,39 +62,13 @@ msgstr ""
 msgid "The objects running under the service."
 msgstr ""
 
-#: interactions.ext.base.Base.__init__
-#: interactions.ext.base.Base._check_service
+#: interactions.ext.base.Base interactions.ext.base.Base._check_service
 #: interactions.ext.base.Base.add_service
 #: interactions.ext.base.Base.remove_service interactions.ext.base.build of
 msgid "Parameters"
 msgstr ""
 
-#: interactions.ext.base.Base.__init__:5 of
-msgid "The repository link of the library via. GitHub."
-msgstr ""
-
-#: interactions.ext.base.Base.__init__:7 of
-msgid "The description of the library, e.g. the purpose."
-msgstr ""
-
-#: interactions.ext.base.Base.__init__:9 of
-msgid "The full description of the library, e.g. README. Defaults to ``None``."
-msgstr ""
-
-#: interactions.ext.base.Base.__init__:11 of
-msgid "The package(s) of the library. Defaults to ``None``."
-msgstr ""
-
-#: interactions.ext.base.Base.__init__:13 of
-msgid "The required modules needed for library function. Defaults to ``None``."
-msgstr ""
-
-#: interactions.ext.base.Base.__init__:15 of
-msgid "Any other keyword arguments. Defaults to ``None``."
-msgstr ""
-
-#: interactions.ext.base.Base.__init__
-#: interactions.ext.base.Base._check_service
+#: interactions.ext.base.Base interactions.ext.base.Base._check_service
 #: interactions.ext.base.Base.add_service
 #: interactions.ext.base.Base.remove_service
 #: interactions.ext.base.Base.services interactions.ext.base.build of
@@ -174,3 +148,21 @@ msgstr ""
 #: interactions.ext.base.build:1 of
 msgid "Builds the base 3rd party the same way as ``setup`` from ``setuptools``."
 msgstr ""
+
+#~ msgid "The repository link of the library via. GitHub."
+#~ msgstr ""
+
+#~ msgid "The description of the library, e.g. the purpose."
+#~ msgstr ""
+
+#~ msgid "The full description of the library, e.g. README. Defaults to ``None``."
+#~ msgstr ""
+
+#~ msgid "The package(s) of the library. Defaults to ``None``."
+#~ msgstr ""
+
+#~ msgid "The required modules needed for library function. Defaults to ``None``."
+#~ msgstr ""
+
+#~ msgid "Any other keyword arguments. Defaults to ``None``."
+#~ msgstr ""

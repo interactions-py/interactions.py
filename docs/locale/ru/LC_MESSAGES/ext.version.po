@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,34 +46,19 @@ msgstr ""
 msgid "The email of the author."
 msgstr ""
 
-#: interactions.ext.version.VersionAuthor:7
-#: interactions.ext.version.VersionAuthor.__init__:1 of
+#: interactions.ext.version.VersionAuthor:7 of
 msgid "The name of the author."
 msgstr ""
 
-#: interactions.ext.version.Version.__init__
 #: interactions.ext.version.Version.extend_version
-#: interactions.ext.version.VersionAuthor.__init__ of
+#: interactions.ext.version.VersionAuthor of
 msgid "Parameters"
 msgstr ""
 
-#: interactions.ext.version.VersionAuthor.__init__:3 of
-msgid "The author's relationship as the main or co-author. Defaults to ``False``."
-msgstr ""
-
-#: interactions.ext.version.VersionAuthor.__init__:5 of
-msgid "The author's state of activity. Defaults to ``True``."
-msgstr ""
-
-#: interactions.ext.version.VersionAuthor.__init__:7 of
-msgid "The author's email address or point of contact. Defaults to ``None``."
-msgstr ""
-
-#: interactions.ext.version.Version.__init__
-#: interactions.ext.version.Version.author
+#: interactions.ext.version.Version interactions.ext.version.Version.author
 #: interactions.ext.version.Version.authors
 #: interactions.ext.version.Version.extend_version
-#: interactions.ext.version.VersionAuthor.__init__ of
+#: interactions.ext.version.VersionAuthor of
 msgid "Return type"
 msgstr ""
 
@@ -147,24 +132,6 @@ msgstr ""
 msgid "The alphanumeric typing of the version."
 msgstr ""
 
-#: interactions.ext.version.Version.__init__:1 of
-msgid "The major version. If not specified, ``version`` will be read from."
-msgstr ""
-
-#: interactions.ext.version.Version.__init__:3 of
-msgid "The minor version. If not specified, ``version`` will be read from."
-msgstr ""
-
-#: interactions.ext.version.Version.__init__:5 of
-msgid "The patch version. If not specified, ``version`` will be read from."
-msgstr ""
-
-#: interactions.ext.version.Version.__init__:7 of
-msgid ""
-"The overall version. Must be used if ``major``, ``minor`` or ``patch`` "
-"are not."
-msgstr ""
-
 #: interactions.ext.version.Version.major:1 of
 msgid "Returns the major version."
 msgstr ""
@@ -231,3 +198,29 @@ msgstr ""
 #: interactions.ext.version.Version.extend_version:7 of
 msgid "The alphanumeric version was incorrectly formatted."
 msgstr ""
+
+#~ msgid ""
+#~ "The author's relationship as the main"
+#~ " or co-author. Defaults to ``False``."
+#~ msgstr ""
+
+#~ msgid "The author's state of activity. Defaults to ``True``."
+#~ msgstr ""
+
+#~ msgid "The author's email address or point of contact. Defaults to ``None``."
+#~ msgstr ""
+
+#~ msgid "The major version. If not specified, ``version`` will be read from."
+#~ msgstr ""
+
+#~ msgid "The minor version. If not specified, ``version`` will be read from."
+#~ msgstr ""
+
+#~ msgid "The patch version. If not specified, ``version`` will be read from."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The overall version. Must be used "
+#~ "if ``major``, ``minor`` or ``patch`` are"
+#~ " not."
+#~ msgstr ""
