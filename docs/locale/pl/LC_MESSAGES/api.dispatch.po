@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,6 +36,12 @@ msgstr ""
 
 #: interactions.api.dispatch.Listener:4 of
 msgid "A list of events being dispatched."
+msgstr ""
+
+#: interactions.api.dispatch.Listener.__init__
+#: interactions.api.dispatch.Listener.dispatch
+#: interactions.api.dispatch.Listener.register of
+msgid "Return type"
 msgstr ""
 
 #: interactions.api.dispatch.Listener.dispatch:1 of

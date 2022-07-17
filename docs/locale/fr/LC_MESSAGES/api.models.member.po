@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,10 +97,16 @@ msgstr ""
 msgid "The ID of the user"
 msgstr ""
 
+#: interactions.api.models.member.Member.add_role
+#: interactions.api.models.member.Member.add_to_thread
+#: interactions.api.models.member.Member.ban
+#: interactions.api.models.member.Member.get_avatar_url
 #: interactions.api.models.member.Member.id
+#: interactions.api.models.member.Member.kick
 #: interactions.api.models.member.Member.mention
 #: interactions.api.models.member.Member.modify
 #: interactions.api.models.member.Member.name
+#: interactions.api.models.member.Member.remove_role
 #: interactions.api.models.member.Member.send of
 msgid "Return type"
 msgstr ""
@@ -128,6 +134,7 @@ msgstr ""
 #: interactions.api.models.member.Member.add_role
 #: interactions.api.models.member.Member.add_to_thread
 #: interactions.api.models.member.Member.ban
+#: interactions.api.models.member.Member.get_avatar_url
 #: interactions.api.models.member.Member.kick
 #: interactions.api.models.member.Member.modify
 #: interactions.api.models.member.Member.remove_role
@@ -208,18 +215,24 @@ msgid "Whether the message utilizes the text-to-speech Discord programme or not.
 msgstr ""
 
 #: interactions.api.models.member.Member.send:9 of
-msgid "A file or list of files to be attached to the message."
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
 msgstr ""
 
 #: interactions.api.models.member.Member.send:11 of
-msgid "An embed, or list of embeds for the message."
+msgid "A file or list of files to be attached to the message."
 msgstr ""
 
 #: interactions.api.models.member.Member.send:13 of
-msgid "The message interactions/mention limits that the message can refer to."
+msgid "An embed, or list of embeds for the message."
 msgstr ""
 
 #: interactions.api.models.member.Member.send:15 of
+msgid "The message interactions/mention limits that the message can refer to."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:17 of
 msgid "The sent message as an object."
 msgstr ""
 
@@ -277,6 +290,17 @@ msgstr ""
 msgid ""
 "Returns the URL of the member's avatar for the specified guild. :param "
 "guild_id: The id of the guild to get the member's avatar from :type "
-"guild_id: int :return: URL of the members's avatar (None will be returned"
-" if no avatar is set) :rtype: str"
+"guild_id: Union[int, Snowflake, \"Guild\"] :return: URL of the members's "
+"avatar (None will be returned if no avatar is set) :rtype: str"
 msgstr ""
+
+#~ msgid ""
+#~ "Returns the URL of the member's "
+#~ "avatar for the specified guild. :param"
+#~ " guild_id: The id of the guild "
+#~ "to get the member's avatar from "
+#~ ":type guild_id: int :return: URL of "
+#~ "the members's avatar (None will be "
+#~ "returned if no avatar is set) "
+#~ ":rtype: str"
+#~ msgstr ""

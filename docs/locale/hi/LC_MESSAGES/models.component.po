@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -308,4 +308,28 @@ msgstr ""
 
 #: interactions.client.models.component.ActionRow:16 of
 msgid "A list of components the ActionRow has, if any."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new:1 of
+msgid "A class method for creating a new ``ActionRow``."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new:3 of
+msgid "The components to add to the ``ActionRow``."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new of
+msgid "Returns"
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new:5 of
+msgid "A new ``ActionRow``."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new of
+msgid "Return type"
 msgstr ""

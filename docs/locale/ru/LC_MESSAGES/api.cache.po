@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,80 +22,77 @@ msgstr ""
 msgid "Client Cache"
 msgstr ""
 
-#: interactions.api.cache.Item:1 of
-msgid "A class representing the defined item in a stored dataset."
-msgstr ""
-
-#: interactions.api.cache.Cache interactions.api.cache.Item
-#: interactions.api.cache.Storage of
-msgid "Variables"
-msgstr ""
-
-#: interactions.api.cache.Item:3 interactions.api.cache.Storage.get:3 of
-msgid "The ID of the item."
-msgstr ""
-
-#: interactions.api.cache.Item:4 of
-msgid "The item itself."
-msgstr ""
-
-#: interactions.api.cache.Item:5 of
-msgid "The ID type representation."
-msgstr ""
-
 #: interactions.api.cache.Storage:1 of
 msgid "A class representing a set of items stored as a cache state."
+msgstr ""
+
+#: interactions.api.cache.Cache interactions.api.cache.Storage of
+msgid "Variables"
 msgstr ""
 
 #: interactions.api.cache.Storage:3 of
 msgid "The list of items stored."
 msgstr ""
 
-#: interactions.api.cache.Storage.add:1 of
-msgid "Adds a new item to the storage."
+#: interactions.api.cache.Cache.__init__
+#: interactions.api.cache.Storage.__init__ interactions.api.cache.Storage.add
+#: interactions.api.cache.Storage.get interactions.api.cache.Storage.merge of
+msgid "Return type"
+msgstr ""
+
+#: interactions.api.cache.Storage.merge:1 of
+msgid "Merges new data of an item into an already present item of the cache"
 msgstr ""
 
 #: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
-#: interactions.api.cache.Storage.update of
+#: interactions.api.cache.Storage.merge interactions.api.cache.Storage.update
+#: of
 msgid "Parameters"
+msgstr ""
+
+#: interactions.api.cache.Storage.merge:3 of
+msgid "The item to merge."
+msgstr ""
+
+#: interactions.api.cache.Storage.add:5 interactions.api.cache.Storage.merge:5
+#: of
+msgid "The unique id of the item."
+msgstr ""
+
+#: interactions.api.cache.Storage.add:1 of
+msgid "Adds a new item to the storage."
 msgstr ""
 
 #: interactions.api.cache.Storage.add:3 of
 msgid "The item to add."
 msgstr ""
 
-#: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
-#: interactions.api.cache.Storage.update of
-msgid "Returns"
-msgstr ""
-
-#: interactions.api.cache.Storage.add:5 of
-msgid "The new storage."
-msgstr ""
-
-#: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
-#: interactions.api.cache.Storage.update of
-msgid "Return type"
-msgstr ""
-
 #: interactions.api.cache.Storage.get:1 of
 msgid "Gets an item from the storage."
 msgstr ""
 
+#: interactions.api.cache.Storage.get:3 of
+msgid "The ID of the item."
+msgstr ""
+
 #: interactions.api.cache.Storage.get:5 of
+msgid "The default value to return if the item is not found."
+msgstr ""
+
+#: interactions.api.cache.Storage.get of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.cache.Storage.get:7 of
 msgid "The item from the storage if any."
 msgstr ""
 
 #: interactions.api.cache.Storage.update:1 of
-msgid "Updates an item from the storage."
+msgid "Updates multiple items from the storage."
 msgstr ""
 
 #: interactions.api.cache.Storage.update:3 of
-msgid "The item to update."
-msgstr ""
-
-#: interactions.api.cache.Storage.update:4 of
-msgid "The updated item, if stored."
+msgid "The data to update with."
 msgstr ""
 
 #: interactions.api.cache.Storage.view:1 of
@@ -112,34 +109,47 @@ msgid ""
 "requests made for the represented instances of the class."
 msgstr ""
 
-#: interactions.api.cache.Cache:5 of
-msgid "The cached Direct Messages."
-msgstr ""
+#~ msgid "A class representing the defined item in a stored dataset."
+#~ msgstr ""
 
-#: interactions.api.cache.Cache:6 of
-msgid "The cached guilds upon gateway connection."
-msgstr ""
+#~ msgid "The item itself."
+#~ msgstr ""
 
-#: interactions.api.cache.Cache:7 of
-msgid "The cached guilds after ready."
-msgstr ""
+#~ msgid "The ID type representation."
+#~ msgstr ""
 
-#: interactions.api.cache.Cache:8 of
-msgid "The cached channels of guilds."
-msgstr ""
+#~ msgid "The new storage."
+#~ msgstr ""
 
-#: interactions.api.cache.Cache:9 of
-msgid "The cached roles of guilds."
-msgstr ""
+#~ msgid "Updates an item from the storage."
+#~ msgstr ""
 
-#: interactions.api.cache.Cache:10 of
-msgid "The cached members of guilds and threads."
-msgstr ""
+#~ msgid "The item to update."
+#~ msgstr ""
 
-#: interactions.api.cache.Cache:11 of
-msgid "The cached messages of DMs and channels."
-msgstr ""
+#~ msgid "The updated item, if stored."
+#~ msgstr ""
 
-#: interactions.api.cache.Cache:12 of
-msgid "The cached interactions upon interaction."
-msgstr ""
+#~ msgid "The cached Direct Messages."
+#~ msgstr ""
+
+#~ msgid "The cached guilds upon gateway connection."
+#~ msgstr ""
+
+#~ msgid "The cached guilds after ready."
+#~ msgstr ""
+
+#~ msgid "The cached channels of guilds."
+#~ msgstr ""
+
+#~ msgid "The cached roles of guilds."
+#~ msgstr ""
+
+#~ msgid "The cached members of guilds and threads."
+#~ msgstr ""
+
+#~ msgid "The cached messages of DMs and channels."
+#~ msgstr ""
+
+#~ msgid "The cached interactions upon interaction."
+#~ msgstr ""

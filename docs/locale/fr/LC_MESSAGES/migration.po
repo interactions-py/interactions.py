@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -98,4 +98,38 @@ msgid ""
 "required for reading all message content. In order to make sure your bot "
 "works still, you will need to enable this intent in your bot's developer "
 "portal and add the intent to your current intents when connecting:"
+msgstr ""
+
+#: ../../migration.rst:67
+msgid "4.1.0 → 4.3.0"
+msgstr ""
+
+#: ../../migration.rst:69
+msgid ""
+"A new big change in this release is the implementation of the ``get`` "
+"utility method. It allows you to no longer use ``**await bot._http...``."
+msgstr ""
+
+#: ../../migration.rst:72
+msgid "You can get more information by reading the `get-documentation`_."
+msgstr ""
+
+#: ../../migration.rst:75
+msgid ""
+"``4.3.0`` also introduces a new method of creating commands, subcommands,"
+" and options. There are also numerous new features, such as a default "
+"scope and utilities."
+msgstr ""
+
+#: ../../migration.rst:78
+msgid ""
+"The following example shows and explains how to create commands "
+"effortlessly and use new features mentioned above:"
+msgstr ""
+
+#: ../../migration.rst:186
+msgid ""
+"Another change in ``4.3.0``: We added converters! These allow you name "
+"your argument in your function differently than your option name! "
+"Example:"
 msgstr ""
