@@ -49,10 +49,10 @@ class Client:
 
     :param token: The token of the application for authentication and connection.
     :type token: str
-    :param intents: Allows specific control of permissions the application has when connected. In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
-    :type intents: Optional[Intents]
-    :param shards: Dictates and controls the shards that the application connects under.
-    :type shards: Optional[List[Tuple[int]]]
+    :param intents?: Allows specific control of permissions the application has when connected. In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
+    :type intents?: Optional[Intents]
+    :param shards?: Dictates and controls the shards that the application connects under.
+    :type shards?: Optional[List[Tuple[int]]]
     :param presence: Sets an RPC-like presence on the application when connected to the Gateway.
     :type presence: Optional[ClientPresence]
     :param default_scope: Sets the default scope of all commands.
