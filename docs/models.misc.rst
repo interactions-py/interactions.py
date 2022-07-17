@@ -5,4 +5,3 @@ Miscellaneous Models
 
 .. automodule:: interactions.client.models.misc
     :members:
-    :noindex:
