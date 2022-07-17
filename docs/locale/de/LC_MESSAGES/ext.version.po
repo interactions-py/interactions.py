@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,12 +50,40 @@ msgstr ""
 msgid "The name of the author."
 msgstr ""
 
+#: interactions.ext.version.Version.extend_version
+#: interactions.ext.version.VersionAuthor of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.ext.version.Version interactions.ext.version.Version.author
+#: interactions.ext.version.Version.authors
+#: interactions.ext.version.Version.extend_version
+#: interactions.ext.version.VersionAuthor of
+msgid "Return type"
+msgstr ""
+
 #: interactions.ext.version.VersionAuthor.is_co_author:1 of
 msgid "Returns whether the author is a co-author or not."
 msgstr ""
 
 #: interactions.ext.version.VersionAlphanumericType:1 of
 msgid "An enumeration."
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
 msgstr ""
 
 #: enum.Enum._generate_next_value_:1 of
@@ -133,12 +161,6 @@ msgid "The author of the version, if one exists."
 msgstr ""
 
 #: interactions.ext.version.Version.author
-#: interactions.ext.version.Version.authors
-#: interactions.ext.version.Version.extend_version of
-msgid "Return type"
-msgstr ""
-
-#: interactions.ext.version.Version.author
 #: interactions.ext.version.Version.extend_version of
 msgid "Raises"
 msgstr ""
@@ -163,10 +185,6 @@ msgstr ""
 msgid "Allows the version to be extended upon with an alphanumeric format."
 msgstr ""
 
-#: interactions.ext.version.Version.extend_version of
-msgid "Parameters"
-msgstr ""
-
 #: interactions.ext.version.Version.extend_version:3 of
 msgid ""
 "Key-word arguments to be supplied as ``alpha``, ``beta`` or ``rc`` "
@@ -180,3 +198,29 @@ msgstr ""
 #: interactions.ext.version.Version.extend_version:7 of
 msgid "The alphanumeric version was incorrectly formatted."
 msgstr ""
+
+#~ msgid ""
+#~ "The author's relationship as the main"
+#~ " or co-author. Defaults to ``False``."
+#~ msgstr ""
+
+#~ msgid "The author's state of activity. Defaults to ``True``."
+#~ msgstr ""
+
+#~ msgid "The author's email address or point of contact. Defaults to ``None``."
+#~ msgstr ""
+
+#~ msgid "The major version. If not specified, ``version`` will be read from."
+#~ msgstr ""
+
+#~ msgid "The minor version. If not specified, ``version`` will be read from."
+#~ msgstr ""
+
+#~ msgid "The patch version. If not specified, ``version`` will be read from."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The overall version. Must be used "
+#~ "if ``major``, ``minor`` or ``patch`` are"
+#~ " not."
+#~ msgstr ""

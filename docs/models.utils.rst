@@ -5,4 +5,3 @@ Utilities
 
 .. automodule:: interactions.client.models.utils
     :members:
-    :noindex:

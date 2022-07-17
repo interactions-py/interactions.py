@@ -66,7 +66,34 @@ portal and add the intent to your current intents when connecting:
 4.1.0 → 4.3.0
 ~~~~~~~~~~~~~~~
 
-A new big change in this release is the implementation of the ``get`` utility method.
+A new feature was added; an event called ``on_start``.
+Unlike ``on_ready``, this event is only dispatched when the bot is first started.
+
+Instead of using the ``on_ready`` event and a check to only run code once:
+
+.. code-block:: python
+
+    _ready: bool = False
+    bot = interactions.Client(...)
+
+    @bot.event
+    async def on_ready():
+        global _ready
+        if not _ready:
+            ... # do stuff
+            _ready = True
+
+You can now utilize the ``on_start`` event to achieve the same goal:
+
+.. code-block:: python
+
+    bot = interactions.Client(...)
+
+    @bot.event
+    async def on_start():
+        ... # do stuff
+
+Another big change in this release is the implementation of the ``get`` utility method.
 It allows you to no longer use ``**await bot._http...``.
 
 You can get more information by reading the `get-documentation`_.

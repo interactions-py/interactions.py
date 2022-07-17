@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,6 @@ msgstr ""
 #: interactions.api.models.presence.ClientPresence
 #: interactions.api.models.presence.PresenceActivity
 #: interactions.api.models.presence.PresenceAssets
-#: interactions.api.models.presence.PresenceButtons
 #: interactions.api.models.presence.PresenceParty
 #: interactions.api.models.presence.PresenceSecrets
 #: interactions.api.models.presence.PresenceTimestamp of
@@ -42,6 +41,15 @@ msgstr ""
 
 #: interactions.api.models.presence.PresenceParty:4 of
 msgid "An array denoting the party's current and max size"
+msgstr ""
+
+#: interactions.api.models.presence.ClientPresence
+#: interactions.api.models.presence.PresenceActivity
+#: interactions.api.models.presence.PresenceAssets
+#: interactions.api.models.presence.PresenceParty
+#: interactions.api.models.presence.PresenceSecrets
+#: interactions.api.models.presence.PresenceTimestamp of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceAssets:1 of
@@ -104,63 +112,72 @@ msgid ""
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:7 of
-msgid "The activity name"
-msgstr ""
-
-#: interactions.api.models.presence.PresenceActivity:8 of
-msgid "The activity type"
-msgstr ""
-
-#: interactions.api.models.presence.PresenceActivity:9 of
-msgid "stream url (if type is 1)"
+msgid ""
+"The ``button`` attribute technically contains an object denoting Presence"
+" buttons. However, the gateway dispatches these as strings (of button "
+"labels) as bots don't read the button URLs."
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:10 of
-msgid "Unix timestamp of when the activity was created to the User's session"
+msgid "The activity name"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:11 of
-msgid "Unix timestamps for start and/or end of the game"
+msgid "The activity type"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:12 of
-msgid "Application ID for the game"
+msgid "stream url (if type is 1)"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:13 of
-msgid "What the player is currently doing"
+msgid ""
+"Unix timestamp (in milliseconds) of when the activity was added to the "
+"user's session"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:14 of
-msgid "Current party status"
+msgid "Unix timestamps for start and/or end of the game"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:15 of
-msgid "The emoji used for the custom status"
+msgid "Application ID for the game"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:16 of
-msgid "Info for the current players' party"
+msgid "What the player is currently doing"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:17 of
-msgid "Images for the presence and their associated hover texts"
+msgid "Current party status"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:18 of
-msgid "for RPC join/spectate"
+msgid "The emoji used for the custom status"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:19 of
-msgid "A status denoting if the activity is a game session"
+msgid "Info for the current players' party"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:20 of
-msgid "activity flags"
+msgid "Images for the presence and their associated hover texts"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity:21 of
-msgid "Custom buttons shown in the RPC."
+msgid "for RPC join/spectate"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:22 of
+msgid "A status denoting if the activity is a game session"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:23 of
+msgid "activity flags"
+msgstr ""
+
+#: interactions.api.models.presence.PresenceActivity:24 of
+msgid "Custom button labels shown in the status, if any."
 msgstr ""
 
 #: interactions.api.models.presence.PresenceActivity.gateway_json:1 of
@@ -179,16 +196,16 @@ msgstr ""
 msgid "A class object representing all supported Discord activity types."
 msgstr ""
 
-#: interactions.api.models.presence.PresenceButtons:1 of
-msgid "A class object representing the buttons of a presence."
+#: interactions.api.models.presence.PresenceActivityType of
+msgid "Member Type"
 msgstr ""
 
-#: interactions.api.models.presence.PresenceButtons:3 of
-msgid "Text of the button"
+#: interactions.api.models.presence.PresenceActivityType:1 of
+msgid ":py:class:`int`"
 msgstr ""
 
-#: interactions.api.models.presence.PresenceButtons:4 of
-msgid "URL of the button"
+#: interactions.api.models.presence.PresenceActivityType:1 of
+msgid "Valid values are as follows:"
 msgstr ""
 
 #: interactions.api.models.presence.ClientPresence:1 of
@@ -214,3 +231,18 @@ msgstr ""
 #: interactions.api.models.presence.ClientPresence:6 of
 msgid "Whether the client is afk or not."
 msgstr ""
+
+#~ msgid "Unix timestamp of when the activity was created to the User's session"
+#~ msgstr ""
+
+#~ msgid "Custom buttons shown in the RPC."
+#~ msgstr ""
+
+#~ msgid "A class object representing the buttons of a presence."
+#~ msgstr ""
+
+#~ msgid "Text of the button"
+#~ msgstr ""
+
+#~ msgid "URL of the button"
+#~ msgstr ""

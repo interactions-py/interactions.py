@@ -134,7 +134,7 @@ class Storage(Generic[_T]):
     def view(self) -> List[dict]:
         """Views all items from storage.
 
-        :return The items stored.
+        :return: The items stored.
         :rtype: List[dict]
         """
         return [v._json for v in self.values.values()]
@@ -155,7 +155,7 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
-    :ivar defaultdict[Type, Storage] storages:
+    :ivar defaultdict[Type, Storage] storages: A dictionary denoting the Type and the objects that correspond to the Type.
     """
 
     __slots__ = "storages"

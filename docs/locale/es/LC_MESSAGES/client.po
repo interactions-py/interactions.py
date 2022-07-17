@@ -1,0 +1,641 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../client.rst:4
+msgid "Bot Client"
+msgstr ""
+
+#: interactions.client.bot.Client:1 of
+msgid ""
+"A class representing the client connection to Discord's gateway and API "
+"via. WebSocket and HTTP."
+msgstr ""
+
+#: interactions.client.bot.Client
+#: interactions.client.bot.Client.__check_command
+#: interactions.client.bot.Client.__compare_sync
+#: interactions.client.bot.Client.__raw_channel_create
+#: interactions.client.bot.Client.__raw_guild_create
+#: interactions.client.bot.Client.__raw_message_create
+#: interactions.client.bot.Client.__raw_socket_create
+#: interactions.client.bot.Client._find_command
+#: interactions.client.bot.Client.autocomplete
+#: interactions.client.bot.Client.change_presence
+#: interactions.client.bot.Client.command
+#: interactions.client.bot.Client.component
+#: interactions.client.bot.Client.event interactions.client.bot.Client.load
+#: interactions.client.bot.Client.message_command
+#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
+#: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
+#: interactions.client.bot.Client.user_command
+#: interactions.client.bot.Extension of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.client.bot.Client:3 of
+msgid "The token of the application for authentication and connection."
+msgstr ""
+
+#: interactions.client.bot.Client:5 of
+msgid ""
+"Allows specific control of permissions the application has when "
+"connected. In order to use multiple intents, the | operator is "
+"recommended. Defaults to ``Intents.DEFAULT``."
+msgstr ""
+
+#: interactions.client.bot.Client:7 of
+msgid "Dictates and controls the shards that the application connects under."
+msgstr ""
+
+#: interactions.client.bot.Client:9 of
+msgid ""
+"Sets an RPC-like presence on the application when connected to the "
+"Gateway."
+msgstr ""
+
+#: interactions.client.bot.Client:11 of
+msgid "Sets the default scope of all commands."
+msgstr ""
+
+#: interactions.client.bot.Client:13 of
+msgid ""
+"Controls whether synchronization in the user-facing API should be "
+"automatic or not."
+msgstr ""
+
+#: interactions.client.bot.Client of
+msgid "Variables"
+msgstr ""
+
+#: interactions.client.bot.Client:16 of
+msgid "The asynchronous event loop of the client."
+msgstr ""
+
+#: interactions.client.bot.Client:17 of
+msgid ""
+"The user-facing HTTP connection to the Web API, as its own separate "
+"client."
+msgstr ""
+
+#: interactions.client.bot.Client:18 of
+msgid "An object-orientation of a websocket server connection to the Gateway."
+msgstr ""
+
+#: interactions.client.bot.Client:19 of
+msgid "The Gateway intents of the application. Defaults to ``Intents.DEFAULT``."
+msgstr ""
+
+#: interactions.client.bot.Client:20 of
+msgid "The list of bucketed shards for the application's connection."
+msgstr ""
+
+#: interactions.client.bot.Client:21 of
+msgid "The RPC-like presence shown on an application once connected."
+msgstr ""
+
+#: interactions.client.bot.Client:22 of
+msgid "The token of the application used for authentication when connecting."
+msgstr ""
+
+#: interactions.client.bot.Client:23 of
+msgid "The \"extensions\" or cog equivalence registered to the main client."
+msgstr ""
+
+#: interactions.client.bot.Client:24 of
+msgid "The application representation of the client."
+msgstr ""
+
+#: interactions.client.bot.Client
+#: interactions.client.bot.Client.__check_command
+#: interactions.client.bot.Client.__compare_sync
+#: interactions.client.bot.Client.__raw_channel_create
+#: interactions.client.bot.Client.__raw_guild_create
+#: interactions.client.bot.Client.__raw_message_create
+#: interactions.client.bot.Client.__raw_socket_create
+#: interactions.client.bot.Client.__register_events
+#: interactions.client.bot.Client.__resolve_commands
+#: interactions.client.bot.Client.__sync
+#: interactions.client.bot.Client._find_command
+#: interactions.client.bot.Client._login interactions.client.bot.Client._ready
+#: interactions.client.bot.Client.autocomplete
+#: interactions.client.bot.Client.change_presence
+#: interactions.client.bot.Client.command
+#: interactions.client.bot.Client.component
+#: interactions.client.bot.Client.event interactions.client.bot.Client.load
+#: interactions.client.bot.Client.message_command
+#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
+#: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
+#: interactions.client.bot.Client.start
+#: interactions.client.bot.Client.user_command
+#: interactions.client.bot.Client.wait_until_ready
+#: interactions.client.bot.Extension of
+msgid "Return type"
+msgstr ""
+
+#: interactions.client.bot.Client.guilds:1 of
+msgid "Returns a list of guilds the bot is in."
+msgstr ""
+
+#: interactions.client.bot.Client.latency:1 of
+msgid "Returns the connection latency in milliseconds."
+msgstr ""
+
+#: interactions.client.bot.Client.start:1 of
+msgid "Starts the client session."
+msgstr ""
+
+#: interactions.client.bot.Client.__register_events:1 of
+msgid "Registers all raw gateway events to the known events."
+msgstr ""
+
+#: interactions.client.bot.Client.__compare_sync:1 of
+msgid "Compares an application command during the synchronization process."
+msgstr ""
+
+#: interactions.client.bot.Client.__compare_sync:3 of
+msgid "The application command to compare."
+msgstr ""
+
+#: interactions.client.bot.Client.__compare_sync:5 of
+msgid "The \"pool\" or list of commands to compare from."
+msgstr ""
+
+#: interactions.client.bot.Client.__compare_sync
+#: interactions.client.bot.Client.__raw_channel_create
+#: interactions.client.bot.Client.__raw_guild_create
+#: interactions.client.bot.Client.__raw_message_create
+#: interactions.client.bot.Client.__raw_socket_create
+#: interactions.client.bot.Client._find_command
+#: interactions.client.bot.Client.autocomplete
+#: interactions.client.bot.Client.command
+#: interactions.client.bot.Client.component
+#: interactions.client.bot.Client.event interactions.client.bot.Client.load
+#: interactions.client.bot.Client.message_command
+#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
+#: interactions.client.bot.Client.reload
+#: interactions.client.bot.Client.user_command of
+msgid "Returns"
+msgstr ""
+
+#: interactions.client.bot.Client.__compare_sync:7 of
+msgid "Whether the command has changed or not."
+msgstr ""
+
+#: interactions.client.bot.Client._ready:1 of
+msgid ""
+"Prepares the client with an internal \"ready\" check to ensure that all "
+"conditions have been met in a chronological order:"
+msgstr ""
+
+#: interactions.client.bot.Client._login:1 of
+msgid "Makes a login with the Discord API."
+msgstr ""
+
+#: interactions.client.bot.Client.wait_until_ready:1 of
+msgid "Helper method that waits until the websocket is ready."
+msgstr ""
+
+#: interactions.client.bot.Client.__resolve_commands:1 of
+msgid "Resolves all commands to the command coroutines."
+msgstr ""
+
+#: interactions.client.bot.Client.__resolve_commands:4
+#: interactions.client.bot.Client.__sync:4 of
+msgid ""
+"This is an internal method. Do not call it unless you know what you are "
+"doing!"
+msgstr ""
+
+#: interactions.client.bot.Client.__sync:1 of
+msgid "Synchronizes all commands to the API."
+msgstr ""
+
+#: interactions.client.bot.Client.event:1 of
+msgid "A decorator for listening to events dispatched from the Gateway."
+msgstr ""
+
+#: interactions.client.bot.Client.event:4 of
+msgid "The coroutine of the event."
+msgstr ""
+
+#: interactions.client.bot.Client.event:6 of
+msgid ""
+"The name of the event. If not given, this defaults to the coroutine's "
+"name."
+msgstr ""
+
+#: interactions.client.bot.Client.autocomplete:20
+#: interactions.client.bot.Client.command:65
+#: interactions.client.bot.Client.component:27
+#: interactions.client.bot.Client.event:8
+#: interactions.client.bot.Client.message_command:30
+#: interactions.client.bot.Client.modal:24
+#: interactions.client.bot.Client.user_command:30 of
+msgid "A callable response."
+msgstr ""
+
+#: interactions.client.bot.Client.change_presence:1 of
+msgid "A method that changes the current client's presence on runtime."
+msgstr ""
+
+#: interactions.client.bot.Client.change_presence:4 of
+msgid ""
+"There is a ratelimit to using this method (5 per minute). As there's no "
+"gateway ratelimiter yet, breaking this ratelimit will force your bot to "
+"disconnect."
+msgstr ""
+
+#: interactions.client.bot.Client.change_presence:8 of
+msgid "The presence to change the bot to on identify."
+msgstr ""
+
+#: interactions.client.bot.Client.__check_command:1 of
+msgid "Checks if a command is valid."
+msgstr ""
+
+#: interactions.client.bot.Client.command:1 of
+msgid ""
+"A decorator for registering an application command to the Discord API, as"
+" well as being able to listen for ``INTERACTION_CREATE`` dispatched "
+"gateway events."
+msgstr ""
+
+#: interactions.client.bot.Client.command:5 of
+msgid "The structure of a chat-input command:"
+msgstr ""
+
+#: interactions.client.bot.Client.command:13 of
+msgid ""
+"You are also able to establish it as a message or user command by simply "
+"passing the ``type`` kwarg field into the decorator:"
+msgstr ""
+
+#: interactions.client.bot.Client.command:22
+#: interactions.client.bot.Client.message_command:13
+#: interactions.client.bot.Client.user_command:13 of
+msgid ""
+"The ``scope`` kwarg field may also be used to designate the command in "
+"question applicable to a guild or set of guilds."
+msgstr ""
+
+#: interactions.client.bot.Client.command:25 of
+msgid ""
+"To properly utilise the ``default_member_permissions`` kwarg, it requires"
+" OR'ing the permission values, similar to instantiating the client with "
+"Intents. For example:"
+msgstr ""
+
+#: interactions.client.bot.Client.command:34 of
+msgid "Another example below for instance is an admin-only command:"
+msgstr ""
+
+#: interactions.client.bot.Client.command:43 of
+msgid ""
+"If ``default_member_permissions`` is not given, this will default to "
+"anyone that is able to use the command."
+msgstr ""
+
+#: interactions.client.bot.Client.command:45 of
+msgid ""
+"The type of application command. Defaults to "
+":meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``."
+msgstr ""
+
+#: interactions.client.bot.Client.command:47 of
+msgid ""
+"The name of the application command. This *is* required but kept optional"
+" to follow kwarg rules."
+msgstr ""
+
+#: interactions.client.bot.Client.command:49 of
+msgid ""
+"The description of the application command. This should be left blank if "
+"you are not using ``CHAT_INPUT``."
+msgstr ""
+
+#: interactions.client.bot.Client.command:51 of
+msgid "The \"scope\"/applicable guilds the application command applies to."
+msgstr ""
+
+#: interactions.client.bot.Client.command:53 of
+msgid ""
+"The \"arguments\"/options of an application command. This should be left "
+"blank if you are not using ``CHAT_INPUT``."
+msgstr ""
+
+#: interactions.client.bot.Client.command:55
+#: interactions.client.bot.Client.message_command:22
+#: interactions.client.bot.Client.user_command:22 of
+msgid ""
+"The dictionary of localization for the ``name`` field. This enforces the "
+"same restrictions as the ``name`` field."
+msgstr ""
+
+#: interactions.client.bot.Client.command:57 of
+msgid ""
+"The dictionary of localization for the ``description`` field. This "
+"enforces the same restrictions as the ``description`` field."
+msgstr ""
+
+#: interactions.client.bot.Client.command:59
+#: interactions.client.bot.Client.message_command:24
+#: interactions.client.bot.Client.user_command:24 of
+msgid ""
+"The permissions bit value of "
+"``interactions.api.model.flags.Permissions``. If not given, defaults to "
+":meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS`"
+" or ``2147483648``"
+msgstr ""
+
+#: interactions.client.bot.Client.command:61
+#: interactions.client.bot.Client.message_command:26
+#: interactions.client.bot.Client.user_command:26 of
+msgid ""
+"The application permissions if executed in a Direct Message. Defaults to "
+"``True``."
+msgstr ""
+
+#: interactions.client.bot.Client.command:63
+#: interactions.client.bot.Client.message_command:28
+#: interactions.client.bot.Client.user_command:28 of
+msgid ""
+"Whether the scope of the command is the default scope set in the client. "
+"Defaults to ``True``."
+msgstr ""
+
+#: interactions.client.bot.Client.message_command:1 of
+msgid ""
+"A decorator for registering a message context menu to the Discord API, as"
+" well as being able to listen for ``INTERACTION_CREATE`` dispatched "
+"gateway events."
+msgstr ""
+
+#: interactions.client.bot.Client.message_command:5 of
+msgid "The structure of a message context menu:"
+msgstr ""
+
+#: interactions.client.bot.Client.message_command:16
+#: interactions.client.bot.Client.user_command:16 of
+msgid "The name of the application command."
+msgstr ""
+
+#: interactions.client.bot.Client.message_command:18
+#: interactions.client.bot.Client.user_command:18 of
+msgid ""
+"The \"scope\"/applicable guilds the application command applies to. "
+"Defaults to ``None``."
+msgstr ""
+
+#: interactions.client.bot.Client.message_command:20
+#: interactions.client.bot.Client.user_command:20 of
+msgid ""
+"The default permission of accessibility for the application command. "
+"Defaults to ``True``."
+msgstr ""
+
+#: interactions.client.bot.Client.user_command:1 of
+msgid ""
+"A decorator for registering a user context menu to the Discord API, as "
+"well as being able to listen for ``INTERACTION_CREATE`` dispatched "
+"gateway events."
+msgstr ""
+
+#: interactions.client.bot.Client.user_command:5 of
+msgid "The structure of a user context menu:"
+msgstr ""
+
+#: interactions.client.bot.Client.component:1 of
+msgid ""
+"A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway "
+"events involving components."
+msgstr ""
+
+#: interactions.client.bot.Client.component:4 of
+msgid "The structure for a component callback:"
+msgstr ""
+
+#: interactions.client.bot.Client.component:22 of
+msgid ""
+"The context of the component callback decorator inherits the same as of "
+"the command decorator."
+msgstr ""
+
+#: interactions.client.bot.Client.component:25 of
+msgid "The component you wish to callback for."
+msgstr ""
+
+#: interactions.client.bot.Client._find_command:1 of
+msgid ""
+"Iterates over `commands` and returns an :class:`ApplicationCommand` if it"
+" matches the name from `command`"
+msgstr ""
+
+#: interactions.client.bot.Client._find_command:3 of
+msgid "The name of the command to match"
+msgstr ""
+
+#: interactions.client.bot.Client._find_command:5 of
+msgid "An ApplicationCommand model"
+msgstr ""
+
+#: interactions.client.bot.Client.autocomplete:1 of
+msgid ""
+"A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway "
+"events involving autocompletion fields."
+msgstr ""
+
+#: interactions.client.bot.Client.autocomplete:4 of
+msgid "The structure for an autocomplete callback:"
+msgstr ""
+
+#: interactions.client.bot.Client.autocomplete:16 of
+msgid "The command, command ID, or command name with the option."
+msgstr ""
+
+#: interactions.client.bot.Client.autocomplete:18 of
+msgid "The name of the option to autocomplete."
+msgstr ""
+
+#: interactions.client.bot.Client.modal:1 of
+msgid ""
+"A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway "
+"events involving modals."
+msgstr ""
+
+#: interactions.client.bot.Client.modal:4 of
+msgid "The structure for a modal callback:"
+msgstr ""
+
+#: interactions.client.bot.Client.modal:19 of
+msgid ""
+"The context of the modal callback decorator inherits the same as of the "
+"component decorator."
+msgstr ""
+
+#: interactions.client.bot.Client.modal:22 of
+msgid "The modal or custom_id of modal you wish to callback for."
+msgstr ""
+
+#: interactions.client.bot.Client.load:1 of
+msgid ""
+"\"Loads\" an extension off of the current client by adding a new class "
+"which is imported from the library."
+msgstr ""
+
+#: interactions.client.bot.Client.load:4
+#: interactions.client.bot.Client.remove:3 of
+msgid "The name of the extension."
+msgstr ""
+
+#: interactions.client.bot.Client.load:6
+#: interactions.client.bot.Client.remove:7 of
+msgid "The package of the extension."
+msgstr ""
+
+#: interactions.client.bot.Client.load:8
+#: interactions.client.bot.Client.reload:14 of
+msgid "Optional arguments to pass to the extension"
+msgstr ""
+
+#: interactions.client.bot.Client.load:10
+#: interactions.client.bot.Client.reload:16 of
+msgid "Optional keyword-only arguments to pass to the extension."
+msgstr ""
+
+#: interactions.client.bot.Client.load:12 of
+msgid "The loaded extension."
+msgstr ""
+
+#: interactions.client.bot.Client.remove:1 of
+msgid "Removes an extension out of the current client from an import resolve."
+msgstr ""
+
+#: interactions.client.bot.Client.remove:5 of
+msgid "Whether to remove commands before reloading. Defaults to True."
+msgstr ""
+
+#: interactions.client.bot.Client.reload:1 of
+msgid "\"Reloads\" an extension off of current client from an import resolve."
+msgstr ""
+
+#: interactions.client.bot.Client.reload:4 of
+msgid ""
+"This will remove and re-add application commands, counting towards your "
+"daily application command creation limit, as long as you have the "
+"``remove_commands`` argument set to ``True``, what it is by default."
+msgstr ""
+
+#: interactions.client.bot.Client.reload:8 of
+msgid "The name of the extension"
+msgstr ""
+
+#: interactions.client.bot.Client.reload:10 of
+msgid "The package of the extension"
+msgstr ""
+
+#: interactions.client.bot.Client.reload:12 of
+msgid "Whether to remove commands before reloading. Defaults to True"
+msgstr ""
+
+#: interactions.client.bot.Client.reload:18 of
+msgid "The reloaded extension."
+msgstr ""
+
+#: interactions.client.bot.Client.modify:1 of
+msgid "Modify the bot user account settings."
+msgstr ""
+
+#: interactions.client.bot.Client.modify:3 of
+msgid "The new username of the bot"
+msgstr ""
+
+#: interactions.client.bot.Client.modify:5 of
+msgid "The new avatar of the bot"
+msgstr ""
+
+#: interactions.client.bot.Client.modify:7 of
+msgid "The modified User object"
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_socket_create:1 of
+msgid ""
+"This is an internal function that takes any gateway socket event and then"
+" returns the data purely based off of what it does in the client "
+"instantiation class."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_socket_create:5 of
+msgid "The data that is returned"
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_socket_create:7 of
+msgid "A dictionary of raw data."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_channel_create:1 of
+msgid ""
+"This is an internal function that caches the channel creates when "
+"dispatched."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_channel_create:3 of
+msgid "The channel object data in question."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_channel_create:5 of
+msgid "The channel as a dictionary of raw data."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_message_create:1 of
+msgid ""
+"This is an internal function that caches the message creates when "
+"dispatched."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_message_create:3 of
+msgid "The message object data in question."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_message_create:5 of
+msgid "The message as a dictionary of raw data."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_guild_create:1 of
+msgid "This is an internal function that caches the guild creates on ready."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_guild_create:3 of
+msgid "The guild object data in question."
+msgstr ""
+
+#: interactions.client.bot.Client.__raw_guild_create:5 of
+msgid "The guild as a dictionary of raw data."
+msgstr ""
+
+#: interactions.client.bot.Extension:1 of
+msgid ""
+"A class that allows you to represent \"extensions\" of your code, or "
+"essentially cogs that can be ran independent of the root file in an "
+"object-oriented structure."
+msgstr ""
+
+#: interactions.client.bot.Extension:5 of
+msgid "The structure of an extension:"
+msgstr ""

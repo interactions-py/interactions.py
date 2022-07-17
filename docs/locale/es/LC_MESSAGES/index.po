@@ -1,0 +1,249 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../index.rst:47
+msgid "Pages:"
+msgstr ""
+
+#: ../../index.rst:4
+msgid "interactions.py"
+msgstr ""
+
+#: ../../index.rst:5
+msgid ""
+"Ever since December 2019, this open-source project has become the "
+"culmination of dedication and research towards figuring out the best way "
+"to bring **interactions from Discord to you:** we are an easy, simple, "
+"scalable and modular library for Discord interactions."
+msgstr ""
+
+#: ../../index.rst:7
+msgid ""
+"Tired of using numerous module dependencies for slash commands and "
+"buttons?"
+msgstr ""
+
+#: ../../index.rst:8
+msgid "Looking for a compatible library that implements all interactions?"
+msgstr ""
+
+#: ../../index.rst:9
+msgid "Itching to get your hands on slash commands, but in a simple manner?"
+msgstr ""
+
+#: ../../index.rst:11
+msgid ""
+"Look no more! The goal of this library is to make all three of these "
+"questions go from possibilites to trivial matters."
+msgstr ""
+
+#: ../../index.rst:14
+msgid "What can we do?"
+msgstr ""
+
+#: ../../index.rst:15
+msgid ""
+"Our library---inside and out, offers numerous benefits and presents "
+"itself as a worthy module in your bot's dependencies:"
+msgstr ""
+
+#: ../../index.rst:17
+msgid "The base features of our library, built with our API include:"
+msgstr ""
+
+#: ../../index.rst:19
+msgid ""
+"**Dynamic object data generation**: all event data dispatched from the "
+"Gateway is dynamically transformed and generated into two-way "
+"serializable JSON objects."
+msgstr ""
+
+#: ../../index.rst:20
+msgid ""
+"**Sane rate limiting**: our HTTP client implements pre-emptive rate limit"
+" avoidance, so your bot is guaranteed to never hit HTTP ``429``."
+msgstr ""
+
+#: ../../index.rst:21
+msgid ""
+"**On-demand cache**: every HTTP request and Gateway event made is cached "
+"when needed, so you never have to save information yourself."
+msgstr ""
+
+#: ../../index.rst:22
+msgid ""
+"**Simplified data models**: every object presented is accessible as "
+"either a raw dictionary/``application/json`` or list of recursive "
+"attributes."
+msgstr ""
+
+#: ../../index.rst:24
+msgid "Some more unique features that are exclusive to our interactions include:"
+msgstr ""
+
+#: ../../index.rst:26
+msgid ""
+"**Event-triggered callbacks**: whether a component, application command "
+"or interaction response, you'll never need to worry about bridging "
+"responses."
+msgstr ""
+
+#: ../../index.rst:27
+msgid ""
+"**Dual-way decorator logic**: a decorator can act as both a constructor "
+"for an interaction, as well as a callback."
+msgstr ""
+
+#: ../../index.rst:28
+msgid ""
+"**API-strict naming**: no more confusion with the naming approach of many"
+" libraries; we follow the naming style of interactions from the "
+"officially curated Discord Developers documentation."
+msgstr ""
+
+#: ../../index.rst:29
+msgid ""
+"**Extensive framework structure**: build your own tools and technologies "
+"for our library to develop and integrate community creations."
+msgstr ""
+
+#: ../../index.rst:32
+msgid "What do we not offer?"
+msgstr ""
+
+#: ../../index.rst:33
+msgid ""
+"While we certainly offer a lot of benefits, we unfortunately have our own"
+" downsides:"
+msgstr ""
+
+#: ../../index.rst:36
+msgid ""
+"This list is subject to change as time goes on: some of these items may "
+"be added to the core of the library in the future."
+msgstr ""
+
+#: ../../index.rst:40
+msgid "No native cooldown decorator/method."
+msgstr ""
+
+#: ../../index.rst:41
+msgid "Lack of automatic sharding and voice clients."
+msgstr ""
+
+#: ../../index.rst:44
+msgid "Where do I start?"
+msgstr ""
+
+#: ../../index.rst:45
+msgid "Please look at our pages below to find out where to go."
+msgstr ""
+
+#: ../../index.rst:58
+msgid "How can I contribute?"
+msgstr ""
+
+#: ../../index.rst:59
+msgid ""
+"Please read up on our `contribution requirements`_ for the project. This "
+"open-source project also enforces the `MIT License`_."
+msgstr ""
+
+#: ../../index.rst:61
+msgid "This open-source project utilizes the following workflows for development:"
+msgstr ""
+
+#: ../../index.rst:63
+msgid ""
+"**pre-commit** ``2.20.0``: the architecture uses this before every commit"
+" to format and check for severity/QOL-breaking changes."
+msgstr ""
+
+#: ../../index.rst:65
+msgid "**black** ``22.6.0``"
+msgstr ""
+
+#: ../../index.rst:66
+msgid "**flake8** ``4.0.1``"
+msgstr ""
+
+#: ../../index.rst:67
+msgid "**isort** ``5.10.1``"
+msgstr ""
+
+#: ../../index.rst:69
+msgid ""
+"**Sphinx** ``4.4.0``: all of our documentation is powered off of "
+"autogenerated documentation of the Sphinx engine."
+msgstr ""
+
+#: ../../index.rst:70
+msgid ""
+"**Conventional Commits** ``1.0.0``: every commit that we make to our "
+"branches use the official specification of CC 1.0.0 to make git graphs "
+"easier when improving and refining communication between code reviews, "
+"Pull Requests and commits."
+msgstr ""
+
+#: ../../index.rst:73
+msgid "When can I start?"
+msgstr ""
+
+#: ../../index.rst:74
+msgid ""
+"We also have some extra ground rules about making any specific "
+"contributions involving:"
+msgstr ""
+
+#: ../../index.rst:76
+msgid ""
+"We do not accept abstraction-based requests. (e.g. ``colour`` for "
+"``color``)"
+msgstr ""
+
+#: ../../index.rst:77
+msgid "A request has to be approved by at least one developer."
+msgstr ""
+
+#: ../../index.rst:78
+msgid ""
+"You must be willing to change/adhere to reviews from participants **where"
+" necessary.**"
+msgstr ""
+
+#: ../../index.rst:81
+msgid "I think I'm all ready!"
+msgstr ""
+
+#: ../../index.rst:82
+msgid "Feel free to begin making `Pull Requests`_ and `Issues`_ on our GitHub!"
+msgstr ""
+
+#: ../../index.rst:85
+msgid "Advanced Search"
+msgstr ""
+
+#: ../../index.rst:87
+msgid ":ref:`genindex`"
+msgstr ""
+
+#: ../../index.rst:88
+msgid ":ref:`modindex`"
+msgstr ""

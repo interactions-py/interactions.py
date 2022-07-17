@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -238,14 +238,40 @@ msgid ""
 msgstr ""
 
 #: ../../quickstart.rst:128
-msgid "``name`` and ``description`` are required."
+msgid "Here is another way we can create the same command:"
 msgstr ""
 
-#: ../../quickstart.rst:131
+#: ../../quickstart.rst:146
+msgid "The ``name`` field defaults to the coroutine name."
+msgstr ""
+
+#: ../../quickstart.rst:147
+msgid ""
+"The ``description`` field defaults to the first line of the coroutine "
+"docstring if it exists. If it does not exist, it defaults to ``\"No "
+"description provided.\"``."
+msgstr ""
+
+#: ../../quickstart.rst:148
+msgid ""
+"``default_scope`` -- This sets the scope for all the commands "
+"automatically. If you want to disable this feature in a specific command,"
+" you can add ``default_scope=False`` to the command decorator."
+msgstr ""
+
+#: ../../quickstart.rst:149
+msgid "You could still use the ``scope`` field instead of ``default_scope``."
+msgstr ""
+
+#: ../../quickstart.rst:151
+msgid "``name`` and ``description`` are not required."
+msgstr ""
+
+#: ../../quickstart.rst:154
 msgid "Difference between global and guild slash commands:"
 msgstr ""
 
-#: ../../quickstart.rst:133
+#: ../../quickstart.rst:156
 msgid ""
 "guild slash commands are instantly available in the guild with the given "
 "id. In order to copy your guild ID you have to enable the developer mode "
@@ -253,7 +279,7 @@ msgid ""
 "pictures beyond."
 msgstr ""
 
-#: ../../quickstart.rst:134
+#: ../../quickstart.rst:157
 msgid ""
 "global commands are created by *not* including the ``scope`` argument "
 "into the ``@bot.command`` decorator. They will appear in all guilds your "
@@ -261,33 +287,181 @@ msgid ""
 "guilds."
 msgstr ""
 
-#: ../../quickstart.rst:141
+#: ../../quickstart.rst:164
 msgid "Next, let's create an Option"
 msgstr ""
 
-#: ../../quickstart.rst:143
+#: ../../quickstart.rst:166
 msgid ""
 ":ref:`Options <models.command:Application Command Models>` are extra "
 "arguments of a command, filled in by the user executing the command."
 msgstr ""
 
-#: ../../quickstart.rst:171
+#: ../../quickstart.rst:168
+msgid "Here is the structure of an option:"
+msgstr ""
+
+#: ../../quickstart.rst:194
+msgid ""
+"The :ref:`@option() <models.command:Application Command Models>` "
+"decorator creates options in another way:"
+msgstr ""
+
+#: ../../quickstart.rst:208
+msgid ""
+"The first field in the ``@option()`` decorator is the type of the option."
+" This is positional only and required. You can use integers, the default "
+"Python types, the ``OptionType`` enum, or supported objects such as "
+"``interactions.Channel``."
+msgstr ""
+
+#: ../../quickstart.rst:209
+msgid "All other arguments in the decorator are keyword arguments only."
+msgstr ""
+
+#: ../../quickstart.rst:210
+msgid "The ``name`` field is required."
+msgstr ""
+
+#: ../../quickstart.rst:211
+msgid ""
+"The ``description`` field is optional and defaults to ``\"No description "
+"set``."
+msgstr ""
+
+#: ../../quickstart.rst:212
+msgid ""
+"Any parameters from ``Option`` can be passed into the ``@option()`` "
+"decorator."
+msgstr ""
+
+#: ../../quickstart.rst:215
 msgid "The limit for options per command is 25."
 msgstr ""
 
-#: ../../quickstart.rst:174
+#: ../../quickstart.rst:218
 msgid "Nested commands: subcommands"
 msgstr ""
 
-#: ../../quickstart.rst:218
-msgid "You can add a SUB_COMMAND_GROUP in between the base and command."
+#: ../../quickstart.rst:220
+msgid ""
+"Subcommands are options that are nested to create subcategories of "
+"commands."
 msgstr ""
 
 #: ../../quickstart.rst:222
+msgid "Here is the structure of a subcommand:"
+msgstr ""
+
+#: ../../quickstart.rst:265
+msgid "You can also create subcommands using the command system:"
+msgstr ""
+
+#: ../../quickstart.rst:291
+msgid "You can add a SUB_COMMAND_GROUP in between the base and command."
+msgstr ""
+
+#: ../../quickstart.rst:294
+msgid "Additional information about subcommands"
+msgstr ""
+
+#: ../../quickstart.rst:296
+msgid ""
+"Base commands are returned the :ref:`Command <models.command:Application "
+"Command Models>` object. From this, you can utilize the following "
+"decorators:"
+msgstr ""
+
+#: ../../quickstart.rst:299
+msgid ""
+":ref:`@subcommand() <models.command:Application Command Models>`: creates"
+" a subcommand."
+msgstr ""
+
+#: ../../quickstart.rst:300
+msgid ""
+":ref:`@group() <models.command:Application Command Models>`: creates a "
+"group."
+msgstr ""
+
+#: ../../quickstart.rst:301
+msgid ""
+":ref:`@error <models.command:Application Command Models>`: registers an "
+"error callback."
+msgstr ""
+
+#: ../../quickstart.rst:303
+msgid "Check the documentation for the parameters of each of these decorators."
+msgstr ""
+
+#: ../../quickstart.rst:305
+msgid "The following is an example of a base command:"
+msgstr ""
+
+#: ../../quickstart.rst:313
+msgid "The examples below will be using the base command above."
+msgstr ""
+
+#: ../../quickstart.rst:315
+msgid "The following is an example of a subcommand of the base command:"
+msgstr ""
+
+#: ../../quickstart.rst:323
+msgid "This code results in the following subcommand: `/base_command subcommand`."
+msgstr ""
+
+#: ../../quickstart.rst:326
+msgid ""
+"You can use the ``base_res`` parameter in groups and subcommands, and "
+"``group_res`` in subcommands inside groups to access the result of the "
+"previous callback. They are both optional and are placed right after the "
+"``ctx`` parameter."
+msgstr ""
+
+#: ../../quickstart.rst:329
+msgid "The following is an example of a group with subcommands:"
+msgstr ""
+
+#: ../../quickstart.rst:341
+msgid ""
+"You can have multiple groups, with multiple subcommands in each group. "
+"Subcommands and groups are options, so the same restrictions apply."
+msgstr ""
+
+#: ../../quickstart.rst:344
+msgid "Create any subcommands without groups *before* creating any groups."
+msgstr ""
+
+#: ../../quickstart.rst:346
+msgid ""
+"Since there are multiple coroutines involved that each get executed, you "
+"may be wondering how you can stop the chain. Luckily, there is a way:"
+msgstr ""
+
+#: ../../quickstart.rst:360
+msgid "This works on both groups and subcommands."
+msgstr ""
+
+#: ../../quickstart.rst:362
+msgid "The following is an example of an error callback:"
+msgstr ""
+
+#: ../../quickstart.rst:378
+msgid ""
+"The parameters ``ctx`` and ``error`` are required, but you can have more "
+"parameters, such as ``*args`` and ``**kwargs``, if you need to access "
+"options."
+msgstr ""
+
+#: ../../quickstart.rst:382
+msgid "You can have one error callback per command."
+msgstr ""
+
+#: ../../quickstart.rst:385
 msgid "Special type of commands: Context menus"
 msgstr ""
 
-#: ../../quickstart.rst:224
+#: ../../quickstart.rst:387
 msgid ""
 "While, granted that application commands are way more intuitive and "
 "easier to work with as both a bot developer and user from a UX approach, "
@@ -298,35 +472,39 @@ msgid ""
 " right-click actions with menial effort."
 msgstr ""
 
-#: ../../quickstart.rst:230
+#: ../../quickstart.rst:393
 msgid ""
 "In order to create a menu-based command, all you need to do is simply add"
 " this one line into your ``@command`` decorator:"
 msgstr ""
 
-#: ../../quickstart.rst:245
+#: ../../quickstart.rst:406
+msgid "Here is an alternate way of creating a context menu:"
+msgstr ""
+
+#: ../../quickstart.rst:415
 msgid ""
 "The structure of a menu command differs significantly from that of a "
 "regular one:"
 msgstr ""
 
-#: ../../quickstart.rst:247
+#: ../../quickstart.rst:417
 msgid "You cannot have any options or choices."
 msgstr ""
 
-#: ../../quickstart.rst:248
+#: ../../quickstart.rst:418
 msgid "You cannot have a description."
 msgstr ""
 
-#: ../../quickstart.rst:249
+#: ../../quickstart.rst:419
 msgid "The ``name`` filter follows a different regex pattern."
 msgstr ""
 
-#: ../../quickstart.rst:252
+#: ../../quickstart.rst:422
 msgid "Creating and sending Components"
 msgstr ""
 
-#: ../../quickstart.rst:254
+#: ../../quickstart.rst:424
 msgid ""
 "Being able to run your own commands is very useful for a lot of "
 "automation-related purposes as a bot developer, however, we also have "
@@ -335,14 +513,14 @@ msgid ""
 "components."
 msgstr ""
 
-#: ../../quickstart.rst:259
+#: ../../quickstart.rst:429
 msgid ""
 "Components are ways of being able to select pre-defined data, or define "
 "your own. They're very simple but quite powerful when put into practice "
 "This code block below shows a simplified implementation of a component:"
 msgstr ""
 
-#: ../../quickstart.rst:285
+#: ../../quickstart.rst:455
 msgid ""
 "This is a design that we ended up choosing to simplify responding to "
 "buttons when someone presses on one, and to allow bot developers to plug "
@@ -352,11 +530,11 @@ msgid ""
 "modularity."
 msgstr ""
 
-#: ../../quickstart.rst:292
+#: ../../quickstart.rst:462
 msgid "What kinds of components are there?"
 msgstr ""
 
-#: ../../quickstart.rst:294
+#: ../../quickstart.rst:464
 msgid ""
 "As a bot developer, this may be fairly important for you to want to know."
 " Different components provide difference user experiences, interactions "
@@ -365,18 +543,18 @@ msgid ""
 "able to `find these component types`_ here."
 msgstr ""
 
-#: ../../quickstart.rst:301
+#: ../../quickstart.rst:471
 msgid "How do I send components in a row?"
 msgstr ""
 
-#: ../../quickstart.rst:303
+#: ../../quickstart.rst:473
 msgid ""
 "You are also able to organize these components into rows, which are "
 "defined as ``ActionRow``'s. It is worth noting that you can have only a "
 "maximum of 5 per message that you send. This code block below shows how:"
 msgstr ""
 
-#: ../../quickstart.rst:330
+#: ../../quickstart.rst:505
 msgid ""
 "By default, the ``components`` keyword-argument field in the context "
 "sending method will always support ``ActionRow``-less sending: you only "
@@ -385,57 +563,57 @@ msgid ""
 "class objects instead."
 msgstr ""
 
-#: ../../quickstart.rst:336
+#: ../../quickstart.rst:511
 msgid ""
 "You cannot use ``TextInput`` with the above shown method. Look :ref:`here"
 " <quickstart:Creating a TextInput>` how to create and send them."
 msgstr ""
 
-#: ../../quickstart.rst:341
+#: ../../quickstart.rst:516
 msgid "Creating a TextInput"
 msgstr ""
 
-#: ../../quickstart.rst:342
+#: ../../quickstart.rst:517
 msgid "You want to get a Text from a user? You can use ``TextInput`` for that."
 msgstr ""
 
-#: ../../quickstart.rst:354
+#: ../../quickstart.rst:529
 msgid ""
 "But how to send it? You can't use ``ctx.send`` for it. Take a look at "
 ":ref:`Modals <quickstart:Modals>` for that."
 msgstr ""
 
-#: ../../quickstart.rst:358
+#: ../../quickstart.rst:533
 msgid "Modals"
 msgstr ""
 
-#: ../../quickstart.rst:359
+#: ../../quickstart.rst:534
 msgid ""
 "Modals are a new way to interact with a user. Currently only a "
 "``TextInput`` component is supported. You can have up to five "
 "``TextInput`` in a Modal."
 msgstr ""
 
-#: ../../quickstart.rst:372
+#: ../../quickstart.rst:547
 msgid "with the ``TextInput`` example from above we get:"
 msgstr ""
 
-#: ../../quickstart.rst:377
+#: ../../quickstart.rst:552
 msgid "Responding to a Modal interaction"
 msgstr ""
 
-#: ../../quickstart.rst:385
+#: ../../quickstart.rst:560
 msgid ""
 "You can respond to a modal the same way as you would respond to a normal "
 "``chat-input`` command, except your function has an extra argument for "
 "the text what was put into the modal."
 msgstr ""
 
-#: ../../quickstart.rst:388
+#: ../../quickstart.rst:563
 msgid "Adding v2 Permissions"
 msgstr ""
 
-#: ../../quickstart.rst:390
+#: ../../quickstart.rst:565
 msgid ""
 "v2 permissions consist of the ``default_member_permissions`` and "
 "``dm_permission`` keyword arguments. Similar to adding privileged "
@@ -443,15 +621,58 @@ msgid ""
 "etc.) as follows:"
 msgstr ""
 
-#: ../../quickstart.rst:429
+#: ../../quickstart.rst:604
 msgid ""
 "Adding guild-only commands is easier as the only thing it takes is a "
 "boolean. Here's an example of a guild-only command:"
 msgstr ""
 
-#: ../../quickstart.rst:448
+#: ../../quickstart.rst:623
 msgid ""
 "Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. "
 "Just to note that this argument's mainly used for global commands. Guild "
 "commands with this argument will have no effect."
 msgstr ""
+
+#: ../../quickstart.rst:627
+msgid "Utilities"
+msgstr ""
+
+#: ../../quickstart.rst:629
+msgid "You can use the following utilities to help you with your commands:"
+msgstr ""
+
+#: ../../quickstart.rst:631
+msgid "``ActionRow.new()``: Creates a new ``ActionRow`` object."
+msgstr ""
+
+#: ../../quickstart.rst:632
+msgid "``spread_to_rows()``: Spreads a list of components into a list of rows."
+msgstr ""
+
+#: ../../quickstart.rst:633
+msgid ""
+"``@autodefer()``: Automatically defers a command if it did not respond "
+"within the specified time."
+msgstr ""
+
+#: ../../quickstart.rst:635
+msgid ""
+"Look at their documentation :ref:`here <models.command:Utilities>` for "
+"more information."
+msgstr ""
+
+#: ../../quickstart.rst:637
+msgid "Usage of ``ActionRow.new()``:"
+msgstr ""
+
+#: ../../quickstart.rst:653
+msgid "Usage of ``spread_to_rows()``:"
+msgstr ""
+
+#: ../../quickstart.rst:675
+msgid "Usage of ``@autodefer()``:"
+msgstr ""
+
+#~ msgid "``name`` and ``description`` are required."
+#~ msgstr ""
