@@ -294,3 +294,4 @@ msgid ""
 "guild_id: Union[int, Snowflake, \"Guild\"] :return: URL of the members's "
 "avatar (None will be returned if no avatar is set) :rtype: str"
 msgstr ""
+

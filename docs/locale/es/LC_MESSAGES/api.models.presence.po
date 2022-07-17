@@ -231,3 +231,4 @@ msgstr ""
 #: interactions.api.models.presence.ClientPresence:6 of
 msgid "Whether the client is afk or not."
 msgstr ""
+

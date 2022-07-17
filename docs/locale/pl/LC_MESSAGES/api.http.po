@@ -7,7 +7,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -2744,20 +2744,3 @@ msgstr ""
 msgid "Deletes the original message object sent."
 msgstr ""
 
-#~ msgid "The HTTP request method."
-#~ msgstr ""
-
-#~ msgid "The path of the HTTP/URL."
-#~ msgstr ""
-
-#~ msgid "Optional keyword-only arguments to pass as information in the route."
-#~ msgstr ""
-
-#~ msgid "The asynchronous lock to control limits for."
-#~ msgstr ""
-
-#~ msgid "The remaining time to run the limited lock on. Defaults to ``0``."
-#~ msgstr ""
-
-#~ msgid "The application token used for authorizing."
-#~ msgstr ""

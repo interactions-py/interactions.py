@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,15 +86,16 @@ msgid ""
 "flow)"
 msgstr ""
 
-#: interactions.api.models.webhook.Webhook.create:1 of
-msgid "Creates a webhook in a channel."
-msgstr ""
-
+#: interactions.api.models.webhook.Webhook
 #: interactions.api.models.webhook.Webhook.create
 #: interactions.api.models.webhook.Webhook.execute
 #: interactions.api.models.webhook.Webhook.get
 #: interactions.api.models.webhook.Webhook.modify of
 msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:1 of
+msgid "Creates a webhook in a channel."
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.create:3
@@ -256,3 +257,4 @@ msgstr ""
 #: interactions.api.models.webhook.WebhookType:1 of
 msgid "Valid values are as follows:"
 msgstr ""
+

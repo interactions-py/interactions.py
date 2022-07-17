@@ -149,3 +149,4 @@ msgstr ""
 #: interactions.client.models.misc.Interaction:13 of
 msgid "The message of the interaction."
 msgstr ""
+

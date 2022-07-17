@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,6 +60,22 @@ msgstr ""
 msgid ""
 "The dictionary of localization for the ``name`` field. This enforces the "
 "same restrictions as the ``name`` field."
+msgstr ""
+
+#: interactions.client.models.command.ApplicationCommand
+#: interactions.client.models.command.Choice
+#: interactions.client.models.command.Command
+#: interactions.client.models.command.Command.__call
+#: interactions.client.models.command.Command.__check_command
+#: interactions.client.models.command.Command.__wrap_coro
+#: interactions.client.models.command.Command.autocomplete
+#: interactions.client.models.command.Command.error
+#: interactions.client.models.command.Command.group
+#: interactions.client.models.command.Command.subcommand
+#: interactions.client.models.command.Option
+#: interactions.client.models.command.Permission
+#: interactions.client.models.command.option of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.client.models.command.Option:1 of
@@ -233,17 +249,6 @@ msgstr ""
 
 #: interactions.client.models.command.option:3 of
 msgid "The structure of an option:"
-msgstr ""
-
-#: interactions.client.models.command.Command.__call
-#: interactions.client.models.command.Command.__check_command
-#: interactions.client.models.command.Command.__wrap_coro
-#: interactions.client.models.command.Command.autocomplete
-#: interactions.client.models.command.Command.error
-#: interactions.client.models.command.Command.group
-#: interactions.client.models.command.Command.subcommand
-#: interactions.client.models.command.option of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.client.models.command.option:12 of
@@ -521,11 +526,3 @@ msgid ""
 " any."
 msgstr ""
 
-#~ msgid "The structure for a choice: ::"
-#~ msgstr ""
-
-#~ msgid "The structure for an option: ::"
-#~ msgstr ""
-
-#~ msgid "The structure for a permission: ::"
-#~ msgstr ""

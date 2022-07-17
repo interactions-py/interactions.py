@@ -1093,3 +1093,4 @@ msgstr ""
 #: interactions.api.models.message.Sticker:14 of
 msgid "The standard sticker's sort order within its pack"
 msgstr ""
+

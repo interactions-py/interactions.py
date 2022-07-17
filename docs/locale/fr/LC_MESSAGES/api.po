@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,15 +26,15 @@ msgstr ""
 msgid "Frameworks/Commands"
 msgstr ""
 
-#: ../../api.rst:24 ../../api.rst:41
+#: ../../api.rst:25 ../../api.rst:42
 msgid "Model/Design"
 msgstr ""
 
-#: ../../api.rst:34
+#: ../../api.rst:35
 msgid "Client Connections"
 msgstr ""
 
-#: ../../api.rst:49
+#: ../../api.rst:50
 msgid "Events"
 msgstr ""
 
@@ -50,6 +50,7 @@ msgstr ""
 msgid "Interactions"
 msgstr ""
 
-#: ../../api.rst:32
+#: ../../api.rst:33
 msgid "Discord API"
 msgstr ""
+

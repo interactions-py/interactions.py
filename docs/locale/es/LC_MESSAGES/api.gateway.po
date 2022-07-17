@@ -314,3 +314,4 @@ msgstr ""
 #: interactions.api.gateway.heartbeat._Heartbeat:1 of
 msgid "An internal class representing the heartbeat in a WebSocket connection."
 msgstr ""
+

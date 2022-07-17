@@ -525,3 +525,4 @@ msgid ""
 ":class:`interactions.client.bot.Extension` is passed to the coroutine, if"
 " any."
 msgstr ""
+

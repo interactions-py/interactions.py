@@ -133,3 +133,4 @@ msgstr ""
 #: interactions.api.models.user.User.banner_url:3 of
 msgid "URL of the user's banner (None will be returned if no banner is set)"
 msgstr ""
+

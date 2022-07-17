@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,6 +46,36 @@ msgstr ""
 msgid ""
 "This is a derivation of the base Channel, since a thread can be its own "
 "event."
+msgstr ""
+
+#: interactions.api.models.channel.Channel
+#: interactions.api.models.channel.Channel.add_member
+#: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_invite
+#: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_message
+#: interactions.api.models.channel.Channel.lock
+#: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.pin_message
+#: interactions.api.models.channel.Channel.publish_message
+#: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.remove_member
+#: interactions.api.models.channel.Channel.send
+#: interactions.api.models.channel.Channel.set_auto_archive_duration
+#: interactions.api.models.channel.Channel.set_bitrate
+#: interactions.api.models.channel.Channel.set_name
+#: interactions.api.models.channel.Channel.set_nsfw
+#: interactions.api.models.channel.Channel.set_parent_id
+#: interactions.api.models.channel.Channel.set_position
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user
+#: interactions.api.models.channel.Channel.set_topic
+#: interactions.api.models.channel.Channel.set_user_limit
+#: interactions.api.models.channel.Channel.unpin_message
+#: interactions.api.models.channel.Thread
+#: interactions.api.models.channel.ThreadMember
+#: interactions.api.models.channel.ThreadMetadata of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.channel.Channel:1 of
@@ -237,32 +267,6 @@ msgstr ""
 
 #: interactions.api.models.channel.Channel.send:1 of
 msgid "Sends a message in the channel."
-msgstr ""
-
-#: interactions.api.models.channel.Channel.add_member
-#: interactions.api.models.channel.Channel.archive
-#: interactions.api.models.channel.Channel.create_invite
-#: interactions.api.models.channel.Channel.create_thread
-#: interactions.api.models.channel.Channel.get_history
-#: interactions.api.models.channel.Channel.get_message
-#: interactions.api.models.channel.Channel.lock
-#: interactions.api.models.channel.Channel.modify
-#: interactions.api.models.channel.Channel.pin_message
-#: interactions.api.models.channel.Channel.publish_message
-#: interactions.api.models.channel.Channel.purge
-#: interactions.api.models.channel.Channel.remove_member
-#: interactions.api.models.channel.Channel.send
-#: interactions.api.models.channel.Channel.set_auto_archive_duration
-#: interactions.api.models.channel.Channel.set_bitrate
-#: interactions.api.models.channel.Channel.set_name
-#: interactions.api.models.channel.Channel.set_nsfw
-#: interactions.api.models.channel.Channel.set_parent_id
-#: interactions.api.models.channel.Channel.set_position
-#: interactions.api.models.channel.Channel.set_rate_limit_per_user
-#: interactions.api.models.channel.Channel.set_topic
-#: interactions.api.models.channel.Channel.set_user_limit
-#: interactions.api.models.channel.Channel.unpin_message of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.channel.Channel.send:3 of
@@ -789,3 +793,4 @@ msgstr ""
 #: interactions.api.models.channel.ThreadMetadata:11 of
 msgid "The ability to invite users to the thread."
 msgstr ""
+

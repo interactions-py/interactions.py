@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,6 +66,15 @@ msgstr ""
 msgid "Timeout duration in seconds, if timed out."
 msgstr ""
 
+#: interactions.api.models.misc.AutoModAction
+#: interactions.api.models.misc.AutoModMetaData
+#: interactions.api.models.misc.AutoModTriggerMetadata
+#: interactions.api.models.misc.ClientStatus interactions.api.models.misc.File
+#: interactions.api.models.misc.Image interactions.api.models.misc.Overwrite
+#: interactions.api.models.misc.Snowflake of
+msgid "Parameters"
+msgstr ""
+
 #: interactions.api.models.misc.AutoModAction:1 of
 msgid ""
 "A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event. "
@@ -120,12 +129,6 @@ msgid ""
 "integer."
 msgstr ""
 
-#: interactions.api.models.misc.File.__init__
-#: interactions.api.models.misc.Image.__init__
-#: interactions.api.models.misc.Snowflake.__init__ of
-msgid "Parameters"
-msgstr ""
-
 #: interactions.api.models.misc.Color.black
 #: interactions.api.models.misc.Color.blurple
 #: interactions.api.models.misc.Color.fuchsia
@@ -133,7 +136,7 @@ msgstr ""
 #: interactions.api.models.misc.Color.red
 #: interactions.api.models.misc.Color.white
 #: interactions.api.models.misc.Color.yellow
-#: interactions.api.models.misc.Snowflake.__init__ of
+#: interactions.api.models.misc.Snowflake of
 msgid "Return type"
 msgstr ""
 
@@ -285,8 +288,3 @@ msgstr ""
 msgid "Permission bit set."
 msgstr ""
 
-#~ msgid ""
-#~ "A pseudosentinel based from an empty "
-#~ "object. This does violate PEP, but, "
-#~ "I don't care."
-#~ msgstr ""
