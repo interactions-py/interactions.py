@@ -951,21 +951,21 @@ class Message(ClientSerializerMixin, IDMixin):
         This method edits a message. Only available for messages sent by the bot.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param suppress_embeds?: Whether to suppress embeds in the message.
-        :type suppress_embeds: Optional[bool]
+        :type suppress_embeds?: Optional[bool]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type allowed_mentions?: Optional[MessageInteraction]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The edited message as an object.
         :rtype: Message
         """
@@ -1065,21 +1065,21 @@ class Message(ClientSerializerMixin, IDMixin):
         Sends a new message replying to the old.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type allowed_mentions?: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
-        :type stickers: Optional[List[Sticker]]
+        :type stickers?: Optional[List[Sticker]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -1177,11 +1177,11 @@ class Message(ClientSerializerMixin, IDMixin):
         :type name: str
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable: Optional[bool]
+        :type invitable?: Optional[bool]
         :param reason?: An optional reason for the audit log
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The created thread
         :rtype: Channel
         """

@@ -103,9 +103,9 @@ class WebSocketClient:
         :param intents: The Gateway intents of the application for event dispatch.
         :type intents: Intents
         :param session_id?: The ID of the session if trying to reconnect. Defaults to ``None``.
-        :type session_id: Optional[str]
+        :type session_id?: Optional[str]
         :param sequence?: The identifier sequence if trying to reconnect. Defaults to ``None``.
-        :type sequence: Optional[int]
+        :type sequence?: Optional[int]
         """
         try:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
@@ -169,7 +169,7 @@ class WebSocketClient:
         Establishes a client connection with the Gateway.
 
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: Optional[List[Tuple[int]]]
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[ClientPresence]
         """
@@ -211,7 +211,7 @@ class WebSocketClient:
         :param stream: The packet stream to handle.
         :type stream: Dict[str, Any]
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: Optional[List[Tuple[int]]]
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[ClientPresence]
         """
@@ -662,9 +662,9 @@ class WebSocketClient:
         Sends an ``IDENTIFY`` packet to the gateway.
 
         :param shard?: The shard ID to identify under.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: Optional[List[Tuple[int]]]
         :param presence?: The presence to change the bot to on identify.
-        :type presence: Optional[ClientPresence]
+        :type presence?: Optional[ClientPresence]
         """
         self.__shard = shard
         self.__presence = presence

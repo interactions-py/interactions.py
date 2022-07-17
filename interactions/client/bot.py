@@ -50,15 +50,15 @@ class Client:
     :param token: The token of the application for authentication and connection.
     :type token: str
     :param intents?: Allows specific control of permissions the application has when connected. In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
-    :type intents: Optional[Intents]
+    :type intents?: Optional[Intents]
     :param shards?: Dictates and controls the shards that the application connects under.
-    :type shards: Optional[List[Tuple[int]]]
+    :type shards?: Optional[List[Tuple[int]]]
     :param presence?: Sets an RPC-like presence on the application when connected to the Gateway.
-    :type presence: Optional[ClientPresence]
+    :type presence?: Optional[ClientPresence]
     :param default_scope?: Sets the default scope of all commands.
-    :type default_scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+    :type default_scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
     :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
-    :type disable_sync: Optional[bool]
+    :type disable_sync?: Optional[bool]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
@@ -961,25 +961,25 @@ class Client:
             If ``default_member_permissions`` is not given, this will default to anyone that is able to use the command.
 
         :param type?: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
-        :type type: Optional[Union[str, int, ApplicationCommandType]]
+        :type type?: Optional[Union[str, int, ApplicationCommandType]]
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
         :type name: Optional[str]
         :param description?: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param options?: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
+        :type options?: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type description_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :type default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions?: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :type dm_permission: Optional[bool]
+        :type dm_permission?: Optional[bool]
         :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
-        :type default_scope: bool
+        :type default_scope?: bool
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1032,17 +1032,17 @@ class Client:
         :param name: The name of the application command.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
+        :type default_permission?: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :type default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions?: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :type dm_permission: Optional[bool]
+        :type dm_permission?: Optional[bool]
         :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
-        :type default_scope: bool
+        :type default_scope?: bool
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1089,17 +1089,17 @@ class Client:
         :param name: The name of the application command.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
+        :type default_permission?: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :type default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions?: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :type dm_permission: Optional[bool]
+        :type dm_permission?: Optional[bool]
         :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
-        :type default_scope: bool
+        :type default_scope?: bool
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1298,11 +1298,11 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
-        :type package: Optional[str]
+        :type package?: Optional[str]
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
-        :type \**kwargs: dict
+        :type \**kwargs?: dict
         :return: The loaded extension.
         :rtype: Optional[Extension]
         """
@@ -1337,9 +1337,9 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param remove_commands?: Whether to remove commands before reloading. Defaults to True.
-        :type remove_commands: bool
+        :type remove_commands?: bool
         :param package?: The package of the extension.
-        :type package: Optional[str]
+        :type package?: Optional[str]
         """
         try:
             _name: str = resolve_name(name, package)
@@ -1393,13 +1393,13 @@ class Client:
         :param name: The name of the extension
         :type name: str
         :param package?: The package of the extension
-        :type package: Optional[str]
+        :type package?: Optional[str]
         :param remove_commands?: Whether to remove commands before reloading. Defaults to True
-        :type remove_commands: bool
+        :type remove_commands?: bool
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
-        :type \**kwargs: dict
+        :type \**kwargs?: dict
         :return: The reloaded extension.
         :rtype: Optional[Extension]
         """

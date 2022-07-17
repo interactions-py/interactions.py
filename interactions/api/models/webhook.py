@@ -210,7 +210,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         :param tts: true if this is a TTS message
         :type tts: bool
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]
         :param allowed_mentions: allowed mentions for the message
