@@ -7,7 +7,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -198,29 +198,3 @@ msgstr ""
 #: interactions.ext.version.Version.extend_version:7 of
 msgid "The alphanumeric version was incorrectly formatted."
 msgstr ""
-
-#~ msgid ""
-#~ "The author's relationship as the main"
-#~ " or co-author. Defaults to ``False``."
-#~ msgstr ""
-
-#~ msgid "The author's state of activity. Defaults to ``True``."
-#~ msgstr ""
-
-#~ msgid "The author's email address or point of contact. Defaults to ``None``."
-#~ msgstr ""
-
-#~ msgid "The major version. If not specified, ``version`` will be read from."
-#~ msgstr ""
-
-#~ msgid "The minor version. If not specified, ``version`` will be read from."
-#~ msgstr ""
-
-#~ msgid "The patch version. If not specified, ``version`` will be read from."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The overall version. Must be used "
-#~ "if ``major``, ``minor`` or ``patch`` are"
-#~ " not."
-#~ msgstr ""

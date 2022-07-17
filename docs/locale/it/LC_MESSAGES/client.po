@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,6 @@ msgstr ""
 #: interactions.client.bot.Client
 #: interactions.client.bot.Client.__check_command
 #: interactions.client.bot.Client.__compare_sync
-#: interactions.client.bot.Client.__init__
 #: interactions.client.bot.Client.__raw_channel_create
 #: interactions.client.bot.Client.__raw_guild_create
 #: interactions.client.bot.Client.__raw_message_create
@@ -46,7 +45,7 @@ msgstr ""
 #: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
 #: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
 #: interactions.client.bot.Client.user_command
-#: interactions.client.bot.Extension.__new__ of
+#: interactions.client.bot.Extension of
 msgid "Parameters"
 msgstr ""
 
@@ -123,9 +122,9 @@ msgstr ""
 msgid "The application representation of the client."
 msgstr ""
 
+#: interactions.client.bot.Client
 #: interactions.client.bot.Client.__check_command
 #: interactions.client.bot.Client.__compare_sync
-#: interactions.client.bot.Client.__init__
 #: interactions.client.bot.Client.__raw_channel_create
 #: interactions.client.bot.Client.__raw_guild_create
 #: interactions.client.bot.Client.__raw_message_create
@@ -146,7 +145,7 @@ msgstr ""
 #: interactions.client.bot.Client.start
 #: interactions.client.bot.Client.user_command
 #: interactions.client.bot.Client.wait_until_ready
-#: interactions.client.bot.Extension.__new__ of
+#: interactions.client.bot.Extension of
 msgid "Return type"
 msgstr ""
 
@@ -640,12 +639,3 @@ msgstr ""
 #: interactions.client.bot.Extension:5 of
 msgid "The structure of an extension:"
 msgstr ""
-
-#~ msgid ""
-#~ "A wrapper designed to interpret the "
-#~ "client-facing API for how a "
-#~ "command is to be created and used."
-#~ msgstr ""
-
-#~ msgid "A list of command payloads."
-#~ msgstr ""

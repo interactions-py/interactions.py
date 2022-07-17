@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,6 +53,23 @@ msgstr ""
 
 #: interactions.client.context._Context:11 of
 msgid "The guild data model."
+msgstr ""
+
+#: interactions.api.models.attrs_utils.DictSerializerMixin.update
+#: interactions.client.context.CommandContext
+#: interactions.client.context.CommandContext.defer
+#: interactions.client.context.CommandContext.edit
+#: interactions.client.context.CommandContext.populate
+#: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext
+#: interactions.client.context.ComponentContext.defer
+#: interactions.client.context.ComponentContext.edit
+#: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context
+#: interactions.client.context._Context.edit
+#: interactions.client.context._Context.popup
+#: interactions.client.context._Context.send of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.client.context._Context.get_channel:1 of
@@ -105,21 +122,6 @@ msgstr ""
 msgid ""
 "This allows the invocation state described in the \"context\" to send an "
 "interaction response."
-msgstr ""
-
-#: interactions.api.models.attrs_utils.ClientSerializerMixin.__init__
-#: interactions.api.models.attrs_utils.DictSerializerMixin.update
-#: interactions.client.context.CommandContext.defer
-#: interactions.client.context.CommandContext.edit
-#: interactions.client.context.CommandContext.populate
-#: interactions.client.context.CommandContext.send
-#: interactions.client.context.ComponentContext.defer
-#: interactions.client.context.ComponentContext.edit
-#: interactions.client.context.ComponentContext.send
-#: interactions.client.context._Context.edit
-#: interactions.client.context._Context.popup
-#: interactions.client.context._Context.send of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:4
