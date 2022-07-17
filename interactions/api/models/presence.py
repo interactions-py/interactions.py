@@ -23,8 +23,8 @@ class PresenceParty(DictSerializerMixin):
     """
     A class object representing the party data of a presence.
 
-    :ivar Optional[Snowflake] id: ID of the party.
-    :ivar Optional[List[int]] size: An array denoting the party's current and max size
+    :ivar Optional[Snowflake] id?: ID of the party.
+    :ivar Optional[List[int]] size?: An array denoting the party's current and max size
     """
 
     id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -36,10 +36,10 @@ class PresenceAssets(DictSerializerMixin):
     """
     A class object representing the assets of a presence.
 
-    :ivar Optional[str] large_image: ID for a large asset of the activity
-    :ivar Optional[str] large_text: Text associated with the large asset
-    :ivar Optional[str] small_image: ID for a small asset of the activity
-    :ivar Optional[str] small_text: Text associated with the small asset
+    :ivar Optional[str] large_image?: ID for a large asset of the activity
+    :ivar Optional[str] large_text?: Text associated with the large asset
+    :ivar Optional[str] small_image?: ID for a small asset of the activity
+    :ivar Optional[str] small_text?: Text associated with the small asset
     """
 
     large_image: Optional[str] = field(default=None)
@@ -53,9 +53,9 @@ class PresenceSecrets(DictSerializerMixin):
     """
     A class object representing "secret" join information of a presence.
 
-    :ivar Optional[str] join: Join secret
-    :ivar Optional[str] spectate: Spectate secret
-    :ivar Optional[str] match: Instanced match secret
+    :ivar Optional[str] join?: Join secret
+    :ivar Optional[str] spectate?: Spectate secret
+    :ivar Optional[str] match?: Instanced match secret
     """
 
     join: Optional[str] = field(default=None)
@@ -68,8 +68,8 @@ class PresenceTimestamp(DictSerializerMixin):
     """
     A class object representing the timestamp data of a presence.
 
-    :ivar Optional[int] start: Unix time in ms when the activity started
-    :ivar Optional[int] end: Unix time in ms when the activity ended
+    :ivar Optional[int] start?: Unix time in ms when the activity started
+    :ivar Optional[int] end?: Unix time in ms when the activity ended
     """
 
     start: Optional[int] = field(default=None)
@@ -103,19 +103,19 @@ class PresenceActivity(DictSerializerMixin):
 
     :ivar str name: The activity name
     :ivar Union[int, PresenceActivityType] type: The activity type
-    :ivar Optional[str] url: stream url (if type is 1)
+    :ivar Optional[str] url?: stream url (if type is 1)
     :ivar int created_at: Unix timestamp (in milliseconds) of when the activity was added to the user's session
-    :ivar Optional[PresenceTimestamp] timestamps: Unix timestamps for start and/or end of the game
-    :ivar Optional[Snowflake] application_id: Application ID for the game
-    :ivar Optional[str] details: What the player is currently doing
-    :ivar Optional[str] state: Current party status
-    :ivar Optional[Emoji] emoji: The emoji used for the custom status
-    :ivar Optional[PresenceParty] party: Info for the current players' party
-    :ivar Optional[PresenceAssets] assets: Images for the presence and their associated hover texts
-    :ivar Optional[PresenceSecrets] secrets: for RPC join/spectate
-    :ivar Optional[bool] instance: A status denoting if the activity is a game session
-    :ivar Optional[int] flags: activity flags
-    :ivar Optional[List[str]] buttons: Custom button labels shown in the status, if any.
+    :ivar Optional[PresenceTimestamp] timestamps?: Unix timestamps for start and/or end of the game
+    :ivar Optional[Snowflake] application_id?: Application ID for the game
+    :ivar Optional[str] details?: What the player is currently doing
+    :ivar Optional[str] state?: Current party status
+    :ivar Optional[Emoji] emoji?: The emoji used for the custom status
+    :ivar Optional[PresenceParty] party?: Info for the current players' party
+    :ivar Optional[PresenceAssets] assets?: Images for the presence and their associated hover texts
+    :ivar Optional[PresenceSecrets] secrets?: for RPC join/spectate
+    :ivar Optional[bool] instance?: A status denoting if the activity is a game session
+    :ivar Optional[int] flags?: activity flags
+    :ivar Optional[List[str]] buttons?: Custom button labels shown in the status, if any.
     """
 
     name: str = field()
@@ -163,7 +163,7 @@ class ClientPresence(DictSerializerMixin):
     """
     An object that symbolizes the presence of the current client's session upon creation.
 
-    :ivar Optional[int] since: Unix time in milliseconds of when the client went idle. None if it is not idle.
+    :ivar Optional[int] since?: Unix time in milliseconds of when the client went idle. None if it is not idle.
     :ivar Optional[List[PresenceActivity]] activities: Array of activity objects.
     :ivar Union[str, StatusType] status: The client's new status.
     :ivar bool afk: Whether the client is afk or not.

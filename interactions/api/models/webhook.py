@@ -30,16 +30,16 @@ class Webhook(ClientSerializerMixin, IDMixin):
 
     :ivar Snowflake id: the id of the webhook
     :ivar WebhookType type: the type of the webhook
-    :ivar Snowflake guild_id: the guild id this webhook is for, if any
-    :ivar Snowflake channel_id: the channel id this webhook is for, if any
-    :ivar User user: the user this webhook was created by (not returned when getting a webhook with its token)
+    :ivar Snowflake guild_id?: the guild id this webhook is for, if any
+    :ivar Snowflake channel_id?: the channel id this webhook is for, if any
+    :ivar User user?: the user this webhook was created by (not returned when getting a webhook with its token)
     :ivar str name: the default name of the webhook
     :ivar str avatar: the default user avatar hash of the webhook
     :ivar str token: the secure token of the webhook (returned for Incoming Webhooks)
     :ivar Snowflake application_id: the bot/OAuth2 application that created this webhook
-    :ivar Guild source_guild: the guild of the channel that this webhook is following (returned for Channel Follower Webhooks)
-    :ivar Channel source_channel: the channel that this webhook is following (returned for Channel Follower Webhooks)
-    :ivar str url: the url used for executing the webhook (returned by the webhooks OAuth2 flow)
+    :ivar Guild source_guild?: the guild of the channel that this webhook is following (returned for Channel Follower Webhooks)
+    :ivar Channel source_channel?: the channel that this webhook is following (returned for Channel Follower Webhooks)
+    :ivar str url?: the url used for executing the webhook (returned by the webhooks OAuth2 flow)
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -209,7 +209,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         :type avatar_url: str
         :param tts: true if this is a TTS message
         :type tts: bool
-        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments: Optional[List[Attachment]]
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]

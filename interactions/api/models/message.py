@@ -87,7 +87,7 @@ class MessageActivity(DictSerializerMixin):
         i.e. : Phasmophobia and Call of Duty.
 
     :ivar str type: The message activity type.
-    :ivar Optional[Snowflake] party_id: The party ID of the activity.
+    :ivar Optional[Snowflake] party_id?: The party ID of the activity.
     """
 
     type: int = field()
@@ -103,10 +103,10 @@ class MessageReference(DictSerializerMixin):
         All of the attributes in this class are optionals because
         a message can potentially never be referenced.
 
-    :ivar Optional[Snowflake] message_id: The ID of the referenced message.
-    :ivar Optional[Snowflake] channel_id: The channel ID of the referenced message.
-    :ivar Optional[Snowflake] guild_id: The guild ID of the referenced message.
-    :ivar Optional[bool] fail_if_not_exists: Whether the message reference exists.
+    :ivar Optional[Snowflake] message_id?: The ID of the referenced message.
+    :ivar Optional[Snowflake] channel_id?: The channel ID of the referenced message.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the referenced message.
+    :ivar Optional[bool] fail_if_not_exists?: Whether the message reference exists.
     """
 
     message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -130,13 +130,13 @@ class Attachment(ClientSerializerMixin, IDMixin):
 
     :ivar int id: The ID of the attachment.
     :ivar str filename: The name of the attachment file.
-    :ivar Optional[str] description: The description of the file.
-    :ivar Optional[str] content_type: The type of attachment file.
+    :ivar Optional[str] description?: The description of the file.
+    :ivar Optional[str] content_type?: The type of attachment file.
     :ivar int size: The size of the attachment file.
     :ivar str url: The CDN URL of the attachment file.
     :ivar str proxy_url: The proxied/cached CDN URL of the attachment file.
-    :ivar Optional[int] height: The height of the attachment file.
-    :ivar Optional[int] width: The width of the attachment file.
+    :ivar Optional[int] height?: The height of the attachment file.
+    :ivar Optional[int] width?: The width of the attachment file.
     :ivar Optional[bool] ephemeral: Whether the attachment is ephemeral.
     """
 
@@ -193,14 +193,14 @@ class Emoji(ClientSerializerMixin):
     """
     A class objecting representing an emoji.
 
-    :ivar Optional[Snowflake] id: Emoji id
-    :ivar Optional[str] name: Emoji name.
-    :ivar Optional[List[Role]] roles: Roles allowed to use this emoji
-    :ivar Optional[User] user: User that created this emoji
-    :ivar Optional[bool] require_colons: Status denoting of this emoji must be wrapped in colons
-    :ivar Optional[bool] managed: Status denoting if this emoji is managed (by an integration)
-    :ivar Optional[bool] animated: Status denoting if this emoji is animated
-    :ivar Optional[bool] available: Status denoting if this emoji can be used. (Can be false via server boosting)
+    :ivar Optional[Snowflake] id?: Emoji id
+    :ivar Optional[str] name?: Emoji name.
+    :ivar Optional[List[Role]] roles?: Roles allowed to use this emoji
+    :ivar Optional[User] user?: User that created this emoji
+    :ivar Optional[bool] require_colons?: Status denoting of this emoji must be wrapped in colons
+    :ivar Optional[bool] managed?: Status denoting if this emoji is managed (by an integration)
+    :ivar Optional[bool] animated?: Status denoting if this emoji is animated
+    :ivar Optional[bool] available?: Status denoting if this emoji can be used. (Can be false via server boosting)
     """
 
     id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -269,8 +269,8 @@ class Emoji(ClientSerializerMixin):
 
         :param guild_id: The guild id to delete the emoji from
         :type guild_id: Union[int, Snowflake, "Guild"]
-        :param reason: The reason of the deletion
-        :type reason: Optional[str]
+        :param reason?: The reason of the deletion
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -310,9 +310,9 @@ class EmbedImageStruct(DictSerializerMixin):
         )
 
     :ivar str url: Source URL of the object.
-    :ivar Optional[str] proxy_url: Proxied url of the object.
-    :ivar Optional[int] height: Height of the object.
-    :ivar Optional[int] width: Width of the object.
+    :ivar Optional[str] proxy_url?: Proxied url of the object.
+    :ivar Optional[int] height?: Height of the object.
+    :ivar Optional[int] width?: Width of the object.
     """
 
     url: str = field()
@@ -337,8 +337,8 @@ class EmbedProvider(DictSerializerMixin):
     """
     A class object representing the provider of an embed.
 
-    :ivar Optional[str] name: Name of provider
-    :ivar Optional[str] url: URL of provider
+    :ivar Optional[str] name?: Name of provider
+    :ivar Optional[str] url?: URL of provider
     """
 
     name: Optional[str] = field(default=None)
@@ -370,9 +370,9 @@ class EmbedAuthor(DictSerializerMixin):
         )
 
     :ivar str name: Name of author
-    :ivar Optional[str] url: URL of author
-    :ivar Optional[str] icon_url: URL of author icon
-    :ivar Optional[str] proxy_icon_url: Proxied URL of author icon
+    :ivar Optional[str] url?: URL of author
+    :ivar Optional[str] icon_url?: URL of author icon
+    :ivar Optional[str] proxy_icon_url?: Proxied URL of author icon
     """
 
     name: str = field()
@@ -406,8 +406,8 @@ class EmbedFooter(DictSerializerMixin):
         )
 
     :ivar str text: Footer text
-    :ivar Optional[str] icon_url: URL of footer icon
-    :ivar Optional[str] proxy_icon_url: Proxied URL of footer icon
+    :ivar Optional[str] icon_url?: URL of footer icon
+    :ivar Optional[str] proxy_icon_url?: Proxied URL of footer icon
     """
 
     text: str = field()
@@ -443,7 +443,7 @@ class EmbedField(DictSerializerMixin):
 
     :ivar str name: Name of the field.
     :ivar str value: Value of the field
-    :ivar Optional[bool] inline: A status denoting if the field should be displayed inline.
+    :ivar Optional[bool] inline?: A status denoting if the field should be displayed inline.
     """
 
     name: str = field()
@@ -482,19 +482,19 @@ class Embed(DictSerializerMixin):
             fields=[interaction.EmbedField(...)],
         )
 
-    :ivar Optional[str] title: Title of embed
-    :ivar Optional[str] type: Embed type, relevant by CDN file connected. This is only important to rendering.
-    :ivar Optional[str] description: Embed description
-    :ivar Optional[str] url: URL of embed
-    :ivar Optional[datetime] timestamp: Timestamp of embed content
-    :ivar Optional[int] color: Color code of embed
-    :ivar Optional[EmbedFooter] footer: Footer information
-    :ivar Optional[EmbedImageStruct] image: Image information
-    :ivar Optional[EmbedImageStruct] thumbnail: Thumbnail information
-    :ivar Optional[EmbedImageStruct] video: Video information
-    :ivar Optional[EmbedProvider] provider: Provider information
-    :ivar Optional[EmbedAuthor] author: Author information
-    :ivar Optional[List[EmbedField]] fields: A list of fields denoting field information
+    :ivar Optional[str] title?: Title of embed
+    :ivar Optional[str] type?: Embed type, relevant by CDN file connected. This is only important to rendering.
+    :ivar Optional[str] description?: Embed description
+    :ivar Optional[str] url?: URL of embed
+    :ivar Optional[datetime] timestamp?: Timestamp of embed content
+    :ivar Optional[int] color?: Color code of embed
+    :ivar Optional[EmbedFooter] footer?: Footer information
+    :ivar Optional[EmbedImageStruct] image?: Image information
+    :ivar Optional[EmbedImageStruct] thumbnail?: Thumbnail information
+    :ivar Optional[EmbedImageStruct] video?: Video information
+    :ivar Optional[EmbedProvider] provider?: Provider information
+    :ivar Optional[EmbedAuthor] author?: Author information
+    :ivar Optional[List[EmbedField]] fields?: A list of fields denoting field information
     """
 
     title: Optional[str] = field(default=None)
@@ -543,8 +543,8 @@ class Embed(DictSerializerMixin):
         :type name: str
         :param value: The value of the field
         :type value: str
-        :param inline: if the field is in the same line as the previous one
-        :type inline: Optional[bool]
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
         """
 
         fields = self.fields or []
@@ -574,8 +574,8 @@ class Embed(DictSerializerMixin):
         :type name: str
         :param value: The value of the field
         :type value: str
-        :param inline: if the field is in the same line as the previous one
-        :type inline: Optional[bool]
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
         """
 
     def set_field_at(
@@ -590,8 +590,8 @@ class Embed(DictSerializerMixin):
         :type name: str
         :param value: The value of the field
         :type value: str
-        :param inline: if the field is in the same line as the previous one
-        :type inline: Optional[bool]
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
         """
 
         try:
@@ -642,12 +642,12 @@ class Embed(DictSerializerMixin):
 
         :param name: The name of the author
         :type name: str
-        :param url: Url of author
-        :type url: Optional[str]
-        :param icon_url: Url of author icon (only supports http(s) and attachments)
-        :type icon_url: Optional[str]
-        :param proxy_icon_url: A proxied url of author icon
-        :type proxy_icon_url: Optional[str]
+        :param url?: Url of author
+        :type url?: Optional[str]
+        :param icon_url?: Url of author icon (only supports http(s) and attachments)
+        :type icon_url?: Optional[str]
+        :param proxy_icon_url?: A proxied url of author icon
+        :type proxy_icon_url?: Optional[str]
         """
 
         self.author = EmbedAuthor(
@@ -662,10 +662,10 @@ class Embed(DictSerializerMixin):
 
         :param text: The text of the footer
         :type text: str
-        :param icon_url: Url of footer icon (only supports http(s) and attachments)
-        :type icon_url: Optional[str]
-        :param proxy_icon_url: A proxied url of footer icon
-        :type proxy_icon_url: Optional[str]
+        :param icon_url?: Url of footer icon (only supports http(s) and attachments)
+        :type icon_url?: Optional[str]
+        :param proxy_icon_url?: A proxied url of footer icon
+        :type proxy_icon_url?: Optional[str]
         """
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
@@ -682,12 +682,12 @@ class Embed(DictSerializerMixin):
 
         :param url: Url of the image
         :type url: str
-        :param proxy_url: A proxied url of the image
-        :type proxy_url: Optional[str]
-        :param height: The image's height
-        :type height: Optional[int]
-        :param width: The image's width
-        :type width: Optional[int]
+        :param proxy_url?: A proxied url of the image
+        :type proxy_url?: Optional[str]
+        :param height?: The image's height
+        :type height?: Optional[int]
+        :param width?: The image's width
+        :type width?: Optional[int]
         """
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
@@ -704,12 +704,12 @@ class Embed(DictSerializerMixin):
 
         :param url: Url of the video
         :type url: str
-        :param proxy_url: A proxied url of the video
-        :type proxy_url: Optional[str]
-        :param height: The video's height
-        :type height: Optional[int]
-        :param width: The video's width
-        :type width: Optional[int]
+        :param proxy_url?: A proxied url of the video
+        :type proxy_url?: Optional[str]
+        :param height?: The video's height
+        :type height?: Optional[int]
+        :param width?: The video's width
+        :type width?: Optional[int]
         """
 
         self.video = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
@@ -726,12 +726,12 @@ class Embed(DictSerializerMixin):
 
         :param url: Url of the thumbnail
         :type url: str
-        :param proxy_url: A proxied url of the thumbnail
-        :type proxy_url: Optional[str]
-        :param height: The thumbnail's height
-        :type height: Optional[int]
-        :param width: The thumbnail's width
-        :type width: Optional[int]
+        :param proxy_url?: A proxied url of the thumbnail
+        :type proxy_url?: Optional[str]
+        :param height?: The thumbnail's height
+        :type height?: Optional[int]
+        :param width?: The thumbnail's width
+        :type width?: Optional[int]
         """
 
         self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
@@ -758,17 +758,17 @@ class Sticker(PartialSticker, IDMixin):
     A class object representing a full sticker apart from a partial.
 
     :ivar Snowflake id: ID of the sticker
-    :ivar Optional[Snowflake] pack_id: ID of the pack the sticker is from.
+    :ivar Optional[Snowflake] pack_id?: ID of the pack the sticker is from.
     :ivar str name: Name of the sticker
-    :ivar Optional[str] description: Description of the sticker
+    :ivar Optional[str] description?: Description of the sticker
     :ivar str tags: Autocomplete/suggestion tags for the sticker (max 200 characters)
     :ivar str asset: Previously a sticker asset hash, now an empty string.
     :ivar int type: Type of sticker
     :ivar int format_type: Type of sticker format
-    :ivar Optional[bool] available: Status denoting if this sticker can be used. (Can be false via server boosting)
-    :ivar Optional[Snowflake] guild_id: Guild ID that owns the sticker.
-    :ivar Optional[User] user: The user that uploaded the sticker.
-    :ivar Optional[int] sort_value: The standard sticker's sort order within its pack
+    :ivar Optional[bool] available?: Status denoting if this sticker can be used. (Can be false via server boosting)
+    :ivar Optional[Snowflake] guild_id?: Guild ID that owns the sticker.
+    :ivar Optional[User] user?: The user that uploaded the sticker.
+    :ivar Optional[int] sort_value?: The standard sticker's sort order within its pack
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -806,34 +806,34 @@ class Message(ClientSerializerMixin, IDMixin):
 
     :ivar Snowflake id: ID of the message.
     :ivar Snowflake channel_id: ID of the channel the message was sent in
-    :ivar Optional[Snowflake] guild_id: ID of the guild the message was sent in, if it exists.
+    :ivar Optional[Snowflake] guild_id?: ID of the guild the message was sent in, if it exists.
     :ivar User author: The author of the message.
-    :ivar Optional[Member] member: The member object associated with the author, if any.
+    :ivar Optional[Member] member?: The member object associated with the author, if any.
     :ivar str content: Message contents.
     :ivar datetime timestamp: Timestamp denoting when the message was sent.
-    :ivar Optional[datetime] edited_timestamp: Timestamp denoting when the message was edited, if any.
+    :ivar Optional[datetime] edited_timestamp?: Timestamp denoting when the message was edited, if any.
     :ivar bool tts: Status dictating if this was a TTS message or not.
     :ivar bool mention_everyone: Status dictating of this message mentions everyone
-    :ivar Optional[List[Union[Member, User]]] mentions: Array of user objects with an additional partial member field.
-    :ivar Optional[List[str]] mention_roles: Array of roles mentioned in this message
-    :ivar Optional[List[ChannelMention]] mention_channels: Channels mentioned in this message, if any.
+    :ivar Optional[List[Union[Member, User]]] mentions?: Array of user objects with an additional partial member field.
+    :ivar Optional[List[str]] mention_roles?: Array of roles mentioned in this message
+    :ivar Optional[List[ChannelMention]] mention_channels?: Channels mentioned in this message, if any.
     :ivar List[Attachment] attachments: An array of attachments
     :ivar List[Embed] embeds: An array of embeds
-    :ivar Optional[List[ReactionObject]] reactions: Reactions to the message.
+    :ivar Optional[List[ReactionObject]] reactions?: Reactions to the message.
     :ivar Union[int, str] nonce: Used for message validation
     :ivar bool pinned: Whether this message is pinned.
-    :ivar Optional[Snowflake] webhook_id: Webhook ID if the message is generated by a webhook.
+    :ivar Optional[Snowflake] webhook_id?: Webhook ID if the message is generated by a webhook.
     :ivar MessageType type: Type of message
-    :ivar Optional[MessageActivity] activity: Message activity object that's sent by Rich Presence
-    :ivar Optional[Application] application: Application object that's sent by Rich Presence
-    :ivar Optional[MessageReference] message_reference: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
+    :ivar Optional[MessageActivity] activity?: Message activity object that's sent by Rich Presence
+    :ivar Optional[Application] application?: Application object that's sent by Rich Presence
+    :ivar Optional[MessageReference] message_reference?: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
     :ivar Optional[Any] allowed_mentions: The allowed mentions of roles attached in the message.
     :ivar int flags: Message flags
-    :ivar Optional[MessageInteraction] interaction: Message interaction object, if the message is sent by an interaction.
-    :ivar Optional[Channel] thread: The thread that started from this message, if any, with a thread member object embedded.
-    :ivar Optional[Union[Component, List[Component]]] components: Components associated with this message, if any.
-    :ivar Optional[List[PartialSticker]] sticker_items: An array of message sticker item objects, if sent with them.
-    :ivar Optional[List[Sticker]] stickers: Array of sticker objects sent with the message if any. Deprecated.
+    :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
+    :ivar Optional[Channel] thread?: The thread that started from this message, if any, with a thread member object embedded.
+    :ivar Optional[Union[Component, List[Component]]] components?: Components associated with this message, if any.
+    :ivar Optional[List[PartialSticker]] sticker_items?: An array of message sticker item objects, if sent with them.
+    :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -950,21 +950,21 @@ class Message(ClientSerializerMixin, IDMixin):
         """
         This method edits a message. Only available for messages sent by the bot.
 
-        :param content: The contents of the message as a string or string-converted value.
+        :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
-        :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param files: A file or list of files to be attached to the message.
+        :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
-        :param embeds: An embed, or list of embeds for the message.
+        :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param suppress_embeds: Whether to suppress embeds in the message.
+        :param suppress_embeds?: Whether to suppress embeds in the message.
         :type suppress_embeds: Optional[bool]
-        :param allowed_mentions: The message interactions/mention limits that the message can refer to.
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
-        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments: Optional[List[Attachment]]
-        :param components: A component, or list of components for the message. If `[]` the components will be removed
+        :param components?: A component, or list of components for the message. If `[]` the components will be removed
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The edited message as an object.
         :rtype: Message
@@ -1064,21 +1064,21 @@ class Message(ClientSerializerMixin, IDMixin):
         """
         Sends a new message replying to the old.
 
-        :param content: The contents of the message as a string or string-converted value.
+        :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
-        :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments: Optional[List[Attachment]]
-        :param files: A file or list of files to be attached to the message.
+        :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
-        :param embeds: An embed, or list of embeds for the message.
+        :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions: The message interactions/mention limits that the message can refer to.
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
-        :param components: A component, or list of components for the message.
+        :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
-        :param stickers: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
         :type stickers: Optional[List[Sticker]]
         :return: The sent message as an object.
         :rtype: Message
@@ -1175,12 +1175,12 @@ class Message(ClientSerializerMixin, IDMixin):
 
         :param name: The name of the thread
         :type name: str
-        :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
+        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
         :type auto_archive_duration: Optional[int]
-        :param invitable: Boolean to display if the Thread is open to join or private.
+        :param invitable?: Boolean to display if the Thread is open to join or private.
         :type invitable: Optional[bool]
-        :param reason: An optional reason for the audit log
+        :param reason?: An optional reason for the audit log
         :type reason: Optional[str]
         :return: The created thread
         :rtype: Channel

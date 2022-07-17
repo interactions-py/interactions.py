@@ -27,7 +27,7 @@ class Route:
         :type method: str
         :param path: The path of the HTTP/URL.
         :type path: str
-        :param \**kwargs: Optional keyword-only arguments to pass as information in the route.
+        :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
         :type \**kwargs: dict
         """
         self.method = method

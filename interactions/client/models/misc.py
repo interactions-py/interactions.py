@@ -49,12 +49,12 @@ class InteractionData(DictSerializerMixin):
     :ivar str id: The ID of the interaction data.
     :ivar str name: The name of the interaction.
     :ivar ApplicationCommandType type: The type of command from the interaction.
-    :ivar Optional[InteractionResolvedData] resolved: The resolved version of the data.
-    :ivar Optional[Option, List[Option]] options: The options of the interaction.
-    :ivar Optional[str] custom_id: The custom ID of the interaction.
-    :ivar Optional[ComponentType] component_type: The type of component from the interaction.
-    :ivar Optional[List[str]] values: The values of the selected options in the interaction.
-    :ivar Optional[str] target_id: The targeted ID of the interaction.
+    :ivar Optional[InteractionResolvedData] resolved?: The resolved version of the data.
+    :ivar Optional[Option, List[Option]] options?: The options of the interaction.
+    :ivar Optional[str] custom_id?: The custom ID of the interaction.
+    :ivar Optional[ComponentType] component_type?: The type of component from the interaction.
+    :ivar Optional[List[str]] values?: The values of the selected options in the interaction.
+    :ivar Optional[str] target_id?: The targeted ID of the interaction.
     """
 
     id: Snowflake = field(converter=Snowflake, default=None)
@@ -79,14 +79,14 @@ class Interaction(DictSerializerMixin):
     :ivar str id: The ID of the interaction.
     :ivar str application_id: The application's ID of the interaction.
     :ivar InteractionType type: The type of interaction.
-    :ivar Optional[InteractionData] data: The data of the interaction.
-    :ivar Optional[str] guild_id: The guild ID of the interaction.
-    :ivar Optional[str] channel_id: The channel ID of the interaction.
-    :ivar Optional[Member] member: The member who invoked the interaction.
-    :ivar Optional[User] user: The user who invoked the interaction.
+    :ivar Optional[InteractionData] data?: The data of the interaction.
+    :ivar Optional[str] guild_id?: The guild ID of the interaction.
+    :ivar Optional[str] channel_id?: The channel ID of the interaction.
+    :ivar Optional[Member] member?: The member who invoked the interaction.
+    :ivar Optional[User] user?: The user who invoked the interaction.
     :ivar str token: The token of the interaction.
     :ivar version: The version of the interaction as an autoincrement identifier.
-    :ivar Optional[Message] message: The message of the interaction.
+    :ivar Optional[Message] message?: The message of the interaction.
     """
 
     id: Snowflake = field(converter=Snowflake)

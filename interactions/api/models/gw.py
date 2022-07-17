@@ -237,15 +237,15 @@ class GuildMember(ClientSerializerMixin):
     A class object representing the gateway events ``GUILD_MEMBER_ADD``, ``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Optional[List[Role]] roles: The roles of the event.
-    :ivar Optional[User] user: The user of the event.
-    :ivar Optional[str] nick: The nickname of the user of the event.
-    :ivar Optional[str] avatar: The avatar URL of the user of the event.
-    :ivar Optional[datetime] joined_at: The time that the user of the event joined at.
-    :ivar Optional[datetime] premium_since: The time that the user of the event has since had "premium."
-    :ivar Optional[bool] deaf: Whether the member of the event is deafened or not.
-    :ivar Optional[bool] mute: Whether the member of the event is muted or not.
-    :ivar Optional[bool] pending: Whether the member of the event is still pending -- pass membership screening -- or not.
+    :ivar Optional[List[Role]] roles?: The roles of the event.
+    :ivar Optional[User] user?: The user of the event.
+    :ivar Optional[str] nick?: The nickname of the user of the event.
+    :ivar Optional[str] avatar?: The avatar URL of the user of the event.
+    :ivar Optional[datetime] joined_at?: The time that the user of the event joined at.
+    :ivar Optional[datetime] premium_since?: The time that the user of the event has since had "premium."
+    :ivar Optional[bool] deaf?: Whether the member of the event is deafened or not.
+    :ivar Optional[bool] mute?: Whether the member of the event is muted or not.
+    :ivar Optional[bool] pending?: Whether the member of the event is still pending -- pass membership screening -- or not.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
@@ -304,9 +304,9 @@ class GuildMember(ClientSerializerMixin):
         """
         Bans the member from a guild.
 
-        :param reason: The reason of the ban
+        :param reason?: The reason of the ban
         :type reason: Optional[str]
-        :param delete_message_days: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
         :type delete_message_days: Optional[int]
         """
         await self._client.create_guild_ban(
@@ -323,7 +323,7 @@ class GuildMember(ClientSerializerMixin):
         """
         Kicks the member from a guild.
 
-        :param reason: The reason for the kick
+        :param reason?: The reason for the kick
         :type reason: Optional[str]
         """
         if not self._client:
@@ -344,7 +344,7 @@ class GuildMember(ClientSerializerMixin):
 
         :param role: The role to add. Either ``Role`` object or role_id
         :type role: Union[Role, int]
-        :param reason: The reason why the roles are added
+        :param reason?: The reason why the roles are added
         :type reason: Optional[str]
         """
         if not self._client:
@@ -374,7 +374,7 @@ class GuildMember(ClientSerializerMixin):
 
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
-        :param reason: The reason why the roles are removed
+        :param reason?: The reason why the roles are removed
         :type reason: Optional[str]
         """
         if not self._client:
@@ -416,17 +416,17 @@ class GuildMember(ClientSerializerMixin):
         """
         Sends a DM to the member.
 
-        :param content: The contents of the message as a string or string-converted value.
+        :param content?: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
-        :param components: A component, or list of components for the message.
+        :param components?: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
-        :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param files: A file or list of files to be attached to the message.
+        :param files?: A file or list of files to be attached to the message.
         :type files: Optional[Union[File, List[File]]]
-        :param embeds: An embed, or list of embeds for the message.
+        :param embeds?: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions: The message interactions/mention limits that the message can refer to.
+        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
         :return: The sent message as an object.
         :rtype: Message
@@ -488,19 +488,19 @@ class GuildMember(ClientSerializerMixin):
         """
         Modifies the member of a guild.
 
-        :param nick: The nickname of the member
+        :param nick?: The nickname of the member
         :type nick: Optional[str]
-        :param roles: A list of all role ids the member has
+        :param roles?: A list of all role ids the member has
         :type roles: Optional[List[int]]
-        :param mute: whether the user is muted in voice channels
+        :param mute?: whether the user is muted in voice channels
         :type mute: Optional[bool]
-        :param deaf: whether the user is deafened in voice channels
+        :param deaf?: whether the user is deafened in voice channels
         :type deaf: Optional[bool]
-        :param channel_id: id of channel to move user to (if they are connected to voice)
+        :param channel_id?: id of channel to move user to (if they are connected to voice)
         :type channel_id: Optional[int]
-        :param communication_disabled_until: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
+        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
         :type communication_disabled_until: Optional[datetime.isoformat]
-        :param reason: The reason of the modifying
+        :param reason?: The reason of the modifying
         :type reason: Optional[str]
         :return: The modified member object
         :rtype: Member
@@ -585,7 +585,7 @@ class GuildRole(ClientSerializerMixin):
 
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar Optional[Role] role: The role of the event.
-    :ivar Optional[Snowflake] role_id: The role ID of the event.
+    :ivar Optional[Snowflake] role_id?: The role ID of the event.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
@@ -618,18 +618,18 @@ class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
 
     :ivar Snowflake id: The ID of the scheduled event.
     :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
-    :ivar Optional[Snowflake] channel_id: The channel ID in which the scheduled event belongs to, if any.
-    :ivar Optional[Snowflake] creator_id: The ID of the user that created the scheduled event.
+    :ivar Optional[Snowflake] channel_id?: The channel ID in which the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] creator_id?: The ID of the user that created the scheduled event.
     :ivar str name: The name of the scheduled event.
     :ivar str description: The description of the scheduled event.
-    :ivar datetime scheduled_start_time: The scheduled event start time.
-    :ivar Optional[datetime] scheduled_end_time: The scheduled event end time, if any.
+    :ivar datetime scheduled_start_time?: The scheduled event start time.
+    :ivar Optional[datetime] scheduled_end_time?: The scheduled event end time, if any.
     :ivar int privacy_level: The privacy level of the scheduled event.
     :ivar int entity_type: The type of the scheduled event.
-    :ivar Optional[Snowflake] entity_id: The ID of the entity associated with the scheduled event.
-    :ivar Optional[EventMetadata] entity_metadata: Additional metadata associated with the scheduled event.
-    :ivar Optional[User] creator: The user that created the scheduled event.
-    :ivar Optional[int] user_count: The number of users subscribed to the scheduled event.
+    :ivar Optional[Snowflake] entity_id?: The ID of the entity associated with the scheduled event.
+    :ivar Optional[EventMetadata] entity_metadata?: Additional metadata associated with the scheduled event.
+    :ivar Optional[User] creator?: The user that created the scheduled event.
+    :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
     :ivar int status: The status of the scheduled event
     :ivar Optional[str] image: The hash containing the image of an event, if applicable.
     """
@@ -760,12 +760,12 @@ class MessageReaction(DictSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD``.
 
-    :ivar Optional[Snowflake] user_id: The user ID of the event.
+    :ivar Optional[Snowflake] user_id?: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
     :ivar Snowflake message_id: The message ID of the event.
-    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
-    :ivar Optional[Member] member: The member of the event.
-    :ivar Optional[Emoji] emoji: The emoji of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    :ivar Optional[Member] member?: The member of the event.
+    :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
     user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -784,11 +784,11 @@ class ReactionRemove(MessageReaction):
         This class inherits the already existing attributes of :class:`interactions.api.models.gw.Reaction`.
         The main missing attribute is ``member``.
 
-    :ivar Optional[Snowflake] user_id: The user ID of the event.
+    :ivar Optional[Snowflake] user_id?: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
     :ivar Snowflake message_id: The message ID of the event.
-    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
-    :ivar Optional[Emoji] emoji: The emoji of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    :ivar Optional[Emoji] emoji?: The emoji of the event.
     """
 
     # todo see if the missing member attribute affects anything
@@ -800,7 +800,7 @@ class ThreadList(DictSerializerMixin):
     A class object representing the gateway event ``THREAD_LIST_SYNC``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Optional[List[Snowflake]] channel_ids: The channel IDs of the event.
+    :ivar Optional[List[Snowflake]] channel_ids?: The channel IDs of the event.
     :ivar List[Channel] threads: The threads of the event.
     :ivar List[ThreadMember] members: The members of the thread of the event.
     """
@@ -819,8 +819,8 @@ class ThreadMembers(DictSerializerMixin, IDMixin):
     :ivar Snowflake id: The ID of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar int member_count: The member count of the event.
-    :ivar Optional[List[ThreadMember]] added_members: The added members of the thread of the event.
-    :ivar Optional[List[Snowflake]] removed_member_ids: The removed IDs of members of the thread of the event.
+    :ivar Optional[List[ThreadMember]] added_members?: The added members of the thread of the event.
+    :ivar Optional[List[Snowflake]] removed_member_ids?: The removed IDs of members of the thread of the event.
     """
 
     id: Snowflake = field(converter=Snowflake)

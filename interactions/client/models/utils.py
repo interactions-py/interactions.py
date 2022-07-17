@@ -31,11 +31,11 @@ def autodefer(
             await asyncio.sleep(5)
             await ctx.send("I'm awake now!")
 
-    :param delay: The amount of time in seconds to wait before defering the command. Defaults to ``2`` seconds.
+    :param delay?: The amount of time in seconds to wait before defering the command. Defaults to ``2`` seconds.
     :type delay: Union[float, int]
-    :param ephemeral: Whether the command is deferred ephemerally. Defaults to ``False``.
+    :param ephemeral?: Whether the command is deferred ephemerally. Defaults to ``False``.
     :type ephemeral: bool
-    :param edit_origin: Whether the command is deferred on origin. Defaults to ``False``.
+    :param edit_origin?: Whether the command is deferred on origin. Defaults to ``False``.
     :type edit_origin: bool
     :return: The inner function, for decorating.
     :rtype:
@@ -101,7 +101,7 @@ def spread_to_rows(
 
     :param \*components: The components to spread.
     :type \*components: Union[ActionRow, Button, SelectMenu]
-    :param max_in_row: The maximum number of components in a single row. Defaults to ``5``.
+    :param max_in_row?: The maximum number of components in a single row. Defaults to ``5``.
     :type max_in_row: int
     """
     if not components or len(components) > 25:
