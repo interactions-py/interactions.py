@@ -374,9 +374,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param member_id: The id of the member to ban
         :type member_id: Union[int, Member, Snowflake]
         :param reason?: The reason of the ban
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
-        :type delete_message_days: Optional[int]
+        :type delete_message_days?: Optional[int]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -406,7 +406,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param user_id: The id of the user to remove the ban from
         :type user_id: Union[int, Snowflake]
         :param reason?: The reason for the removal of the ban
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -427,7 +427,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param member_id: The id of the member to kick
         :type member_id: Union[int, Member, Snowflake]
         :param reason?: The reason for the kick
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -456,7 +456,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param member_id: The id of the member to add the roles to
         :type member_id: Union[Member, int, Snowflake]
         :param reason?: The reason why the roles are added
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -485,7 +485,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param member_id: The id of the member to remove the roles from
         :type member_id: Union[Member, int, Snowflake]
         :param reason?: The reason why the roles are removed
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -517,19 +517,19 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param name: The name of the role
         :type name: str
         :param color?: RGB color value as integer, default ``0``
-        :type color: Optional[int]
+        :type color?: Optional[int]
         :param permissions?: Bitwise value of the enabled/disabled permissions
-        :type permissions: Optional[int]
+        :type permissions?: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, default ``False``
-        :type hoist: Optional[bool]
+        :type hoist?: Optional[bool]
         :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature)
-        :type icon: Optional[Image]
+        :type icon?: Optional[Image]
         :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
-        :type unicode_emoji: Optional[str]
+        :type unicode_emoji?: Optional[str]
         :param mentionable?: Whether the role should be mentionable, default ``False``
-        :type mentionable: Optional[bool]
+        :type mentionable?: Optional[bool]
         :param reason?: The reason why the role is created, default ``None``
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The created Role
         :rtype: Role
         """
@@ -620,7 +620,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param role_id: The id of the role to delete
         :type role_id: Union[int, Snowflake, Role]
         :param reason?: The reason of the deletion
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -657,21 +657,21 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param role_id: The id of the role to edit
         :type role_id: Union[int, Snowflake, Role]
         :param name?: The name of the role, defaults to the current value of the role
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
-        :type color: Optional[int]
+        :type color?: Optional[int]
         :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
-        :type permissions: Optional[int]
+        :type permissions?: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
-        :type hoist: Optional[bool]
+        :type hoist?: Optional[bool]
         :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type icon: Optional[Image]
+        :type icon?: Optional[Image]
         :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type unicode_emoji: Optional[str]
+        :type unicode_emoji?: Optional[str]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
-        :type mentionable: Optional[bool]
+        :type mentionable?: Optional[bool]
         :param reason?: The reason why the role is edited, default ``None``
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified role object
         :rtype: Role
         """
@@ -737,15 +737,15 @@ class Guild(ClientSerializerMixin, IDMixin):
         :type channel_id: Union[int, Snowflake, Channel]
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param type?: The type of thread, defaults to public. ignored if creating thread from a message
-        :type type: Optional[ChannelType]
+        :type type?: Optional[ChannelType]
         :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable: Optional[bool]
+        :type invitable?: Optional[bool]
         :param message_id?: An optional message to create a thread from.
-        :type message_id: Optional[Union[int, Snowflake, "Message"]]
+        :type message_id?: Optional[Union[int, Snowflake, "Message"]]
         :param reason?: An optional reason for the audit log
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The created thread
         :rtype: Channel
         """
@@ -802,21 +802,21 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param type: The type of the channel
         :type type: ChannelType
         :param topic?: The topic of that channel
-        :type topic: Optional[str]
+        :type topic?: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
-        :type bitrate: Optional[int]
+        :type bitrate?: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel
-        :type user_limit: Optional[int]
+        :type user_limit?: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
         :type rate_limit_per_user: Optional[int]
         :param position?: Sorting position of the channel
-        :type position: Optional[int]
+        :type position?: Optional[int]
         :param parent_id?: The id of the parent category for a channel
-        :type parent_id: Optional[Union[int, Channel, Snowflake]]
+        :type parent_id?: Optional[Union[int, Channel, Snowflake]]
         :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites: Optional[Overwrite]
+        :type permission_overwrites?: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, default ``False``
-        :type nsfw: Optional[bool]
+        :type nsfw?: Optional[bool]
         :param reason: The reason for the creation
         :type reason: Optional[str]
         :return: The created channel
@@ -929,29 +929,29 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param channel_id: The id of the channel to modify
         :type channel_id: Union[int, Snowflake, Channel]
         :param name?: The name of the channel, defaults to the current value of the channel
-        :type name: str
+        :type name?: str
         :param topic?: The topic of that channel, defaults to the current value of the channel
-        :type topic: Optional[str]
+        :type topic?: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate: Optional[int]
+        :type bitrate?: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
-        :type user_limit: Optional[int]
+        :type user_limit?: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
         :type rate_limit_per_user: Optional[int]
         :param position?: Sorting position of the channel, defaults to the current value of the channel
-        :type position: Optional[int]
+        :type position?: Optional[int]
         :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
-        :type parent_id: Optional[int]
+        :type parent_id?: Optional[int]
         :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites: Optional[Overwrite]
+        :type permission_overwrites?: Optional[Overwrite]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
-        :type nsfw: Optional[bool]
+        :type nsfw?: Optional[bool]
         :param archived?: Whether the thread is archived
-        :type archived: Optional[bool]
+        :type archived?: Optional[bool]
         :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param locked?: Whether the thread is locked
-        :type locked: Optional[bool]
+        :type locked?: Optional[bool]
         :param reason: The reason for the edit
         :type reason: Optional[str]
         :return: The modified channel
@@ -1050,19 +1050,19 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param member_id: The id of the member to modify
         :type member_id: Union[int, Snowflake, Member]
         :param nick?: The nickname of the member
-        :type nick: Optional[str]
+        :type nick?: Optional[str]
         :param roles?: A list of all role ids the member has
-        :type roles: Optional[List[int]]
+        :type roles?: Optional[List[int]]
         :param mute?: whether the user is muted in voice channels
-        :type mute: Optional[bool]
+        :type mute?: Optional[bool]
         :param deaf?: whether the user is deafened in voice channels
-        :type deaf: Optional[bool]
+        :type deaf?: Optional[bool]
         :param channel_id?: id of channel to move user to (if they are connected to voice)
-        :type channel_id: Optional[int]
+        :type channel_id?: Optional[int]
         :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
-        :type communication_disabled_until: Optional[datetime.isoformat]
+        :type communication_disabled_until?: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified member
         :rtype: Member
         """
@@ -1157,49 +1157,49 @@ class Guild(ClientSerializerMixin, IDMixin):
         Modifies the current guild.
 
         :param name?: The new name of the guild
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param verification_level?: The verification level of the guild
-        :type verification_level: Optional[VerificationLevel]
+        :type verification_level?: Optional[VerificationLevel]
         :param default_message_notifications?: The default message notification level for members
-        :type default_message_notifications: Optional[DefaultMessageNotificationLevel]
+        :type default_message_notifications?: Optional[DefaultMessageNotificationLevel]
         :param explicit_content_filter?: The explicit content filter level for media content
-        :type explicit_content_filter: Optional[ExplicitContentFilterLevel]
+        :type explicit_content_filter?: Optional[ExplicitContentFilterLevel]
         :param afk_channel_id?: The id for the afk voice channel
-        :type afk_channel_id: Optional[int]
+        :type afk_channel_id?: Optional[int]
         :param afk_timeout?: Afk timeout in seconds
-        :type afk_timeout: Optional[int]
+        :type afk_timeout?: Optional[int]
         :param icon?: 1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when the server has the ANIMATED_ICON feature)
-        :type icon: Optional[Image]
+        :type icon?: Optional[Image]
         :param owner_id?: The id of the user to transfer the guild ownership to. You must be the owner to perform this
-        :type owner_id: Optional[int]
+        :type owner_id?: Optional[int]
         :param splash?: 16:9 png/jpeg image for the guild splash (when the server has the INVITE_SPLASH feature)
-        :type splash: Optional[Image]
+        :type splash?: Optional[Image]
         :param discovery_splash?: 16:9 png/jpeg image for the guild discovery splash (when the server has the DISCOVERABLE feature)
-        :type discovery_splash: Optional[Image]
+        :type discovery_splash?: Optional[Image]
         :param banner?: 16:9 png/jpeg image for the guild banner (when the server has the BANNER feature; can be animated gif when the server has the ANIMATED_BANNER feature)
-        :type banner: Optional[Image]
+        :type banner?: Optional[Image]
         :param system_channel_id?: The id of the channel where guild notices such as welcome messages and boost events are posted
-        :type system_channel_id: Optional[int]
+        :type system_channel_id?: Optional[int]
         :param suppress_join_notifications?: Whether to suppress member join notifications in the system channel or not
-        :type suppress_join_notifications: Optional[bool]
+        :type suppress_join_notifications?: Optional[bool]
         :param suppress_premium_subscriptions?: Whether to suppress server boost notifications in the system channel or not
-        :type suppress_premium_subscriptions: Optional[bool]
+        :type suppress_premium_subscriptions?: Optional[bool]
         :param suppress_guild_reminder_notifications?: Whether to suppress server setup tips in the system channel or not
-        :type suppress_guild_reminder_notifications: Optional[bool]
+        :type suppress_guild_reminder_notifications?: Optional[bool]
         :param suppress_join_notification_replies?: Whether to hide member join sticker reply buttons in the system channel or not
-        :type suppress_join_notification_replies: Optional[bool]
+        :type suppress_join_notification_replies?: Optional[bool]
         :param rules_channel_id?: The id of the channel where guilds display rules and/or guidelines
-        :type rules_channel_id: Optional[int]
+        :type rules_channel_id?: Optional[int]
         :param public_updates_channel_id?: The id of the channel where admins and moderators of community guilds receive notices from Discord
-        :type public_updates_channel_id: Optional[int]
+        :type public_updates_channel_id?: Optional[int]
         :param preferred_locale?: The preferred locale of a community guild used in server discovery and notices from Discord; defaults to "en-US"
-        :type preferred_locale: Optional[str]
+        :type preferred_locale?: Optional[str]
         :param description?: The description for the guild, if the guild is discoverable
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param premium_progress_bar_enabled?: Whether the guild's boost progress bar is enabled
-        :type premium_progress_bar_enabled: Optional[bool]
+        :type premium_progress_bar_enabled?: Optional[bool]
         :param reason?: The reason for the modifying
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified guild
         :rtype: Guild
         """
@@ -1294,7 +1294,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param name: The new name of the guild
         :type name: str
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(name=name, reason=reason)
 
@@ -1310,7 +1310,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param verification_level: The new verification level of the guild
         :type verification_level: VerificationLevel
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(verification_level=verification_level, reason=reason)
 
@@ -1326,7 +1326,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param default_message_notifications: The new default message notification level of the guild
         :type default_message_notifications: DefaultMessageNotificationLevel
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(
             default_message_notifications=default_message_notifications, reason=reason
@@ -1344,7 +1344,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param explicit_content_filter: The new explicit content filter level of the guild
         :type explicit_content_filter: ExplicitContentFilterLevel
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(explicit_content_filter=explicit_content_filter, reason=reason)
 
@@ -1360,7 +1360,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param afk_channel_id: The new name of the guild
         :type afk_channel_id: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(afk_channel_id=afk_channel_id, reason=reason)
 
@@ -1376,7 +1376,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param afk_timeout: The new afk timeout of the guild
         :type afk_timeout: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(afk_timeout=afk_timeout, reason=reason)
 
@@ -1392,7 +1392,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param system_channel_id: The new system channel id of the guild
         :type system_channel_id: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(system_channel_id=system_channel_id, reason=reason)
 
@@ -1408,7 +1408,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param rules_channel_id: The new rules channel id of the guild
         :type rules_channel_id: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(rules_channel_id=rules_channel_id, reason=reason)
 
@@ -1424,7 +1424,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param public_updates_channel_id: The new public updates channel id of the guild
         :type public_updates_channel_id: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(public_updates_channel_id=public_updates_channel_id, reason=reason)
 
@@ -1440,7 +1440,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param preferred_locale: The new preferredlocale of the guild
         :type preferred_locale: str
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(preferred_locale=preferred_locale, reason=reason)
 
@@ -1456,7 +1456,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param description: The new description of the guild
         :type description: str
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(description=description, reason=reason)
 
@@ -1472,7 +1472,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param premium_progress_bar_enabled: Whether the bar is enabled or not
         :type premium_progress_bar_enabled: bool
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(
             premium_progress_bar_enabled=premium_progress_bar_enabled, reason=reason
@@ -1490,7 +1490,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param icon: The new icon of the guild
         :type icon: Image
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(icon=icon, reason=reason)
 
@@ -1506,7 +1506,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param splash: The new splash of the guild
         :type splash: Image
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(splash=splash, reason=reason)
 
@@ -1522,7 +1522,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param discovery_splash: The new discovery_splash of the guild
         :type discovery_splash: Image
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(discovery_splash=discovery_splash, reason=reason)
 
@@ -1538,7 +1538,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param banner: The new banner of the guild
         :type banner: Image
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         return await self.modify(banner=banner, reason=reason)
 
@@ -1564,13 +1564,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param scheduled_start_time: The time to schedule the scheduled event
         :type scheduled_start_time: datetime.isoformat
         :param scheduled_end_time?: The time when the scheduled event is scheduled to end
-        :type scheduled_end_time: Optional[datetime.isoformat]
+        :type scheduled_end_time?: Optional[datetime.isoformat]
         :param entity_metadata?: The entity metadata of the scheduled event
-        :type entity_metadata: Optional[EventMetadata]
+        :type entity_metadata?: Optional[EventMetadata]
         :param channel_id?: The channel id of the scheduled event.
-        :type channel_id: Optional[int]
+        :type channel_id?: Optional[int]
         :param description?: The description of the scheduled event
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param image?: The cover image of the scheduled event
         :type image?: Optional[Image]
         :return: The created event
@@ -1639,15 +1639,15 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param scheduled_start_time: The time to schedule the scheduled event
         :type scheduled_start_time: Optional[datetime.isoformat]
         :param scheduled_end_time?: The time when the scheduled event is scheduled to end
-        :type scheduled_end_time: Optional[datetime.isoformat]
+        :type scheduled_end_time?: Optional[datetime.isoformat]
         :param entity_metadata?: The entity metadata of the scheduled event
-        :type entity_metadata: Optional[EventMetadata]
+        :type entity_metadata?: Optional[EventMetadata]
         :param channel_id?: The channel id of the scheduled event.
-        :type channel_id: Optional[int]
+        :type channel_id?: Optional[int]
         :param description?: The description of the scheduled event
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param status?: The status of the scheduled event
-        :type status: Optional[EventStatus]
+        :type status?: Optional[EventStatus]
         :param image?: The cover image of the scheduled event
         :type image?: Optional[Image]
         :return: The modified event
@@ -1796,7 +1796,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param position: The new position of the role
         :type position: int
         :param reason?: The reason for the modifying
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """
@@ -2021,9 +2021,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         Lists the members of a guild.
 
         :param limit?: How many members to get from the API. Max is 1000.
-        :type limit: Optional[int]
+        :type limit?: Optional[int]
         :param after?: Get only Members after this member.
-        :type after: Optional[Union[Member, int]]
+        :type after?: Optional[Union[Member, int]]
         :return: A list of members
         :rtype: List[Member]
         """
@@ -2051,7 +2051,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param query: The string to search for
         :type query: str
         :param limit?: The number of members to return.
-        :type limit: Optional[int]
+        :type limit?: Optional[int]
         :return: A list of matching members
         :rtype: List[Member]
         """

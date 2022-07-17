@@ -58,7 +58,7 @@ class Listener:
         :param coro: The coroutine to register as an event.
         :type coro: Callable[..., Coroutine]
         :param name?: The name to associate the coroutine with. Defaults to None.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         """
         _name: str = coro.__name__ if name is None else name
         event = self.events.get(_name, [])

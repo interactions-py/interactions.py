@@ -233,7 +233,7 @@ def option(
     :param name: The name of the option.
     :type name: str
     :param description?: The description of the option. Defaults to ``"No description set"``.
-    :type description: str
+    :type description?: str
     :param \**kwargs: The keyword arguments of the option, same as :class:`Option`.
     :type \**kwargs: dict
     """
@@ -524,17 +524,17 @@ class Command(DictSerializerMixin):
             first create the subcommands without groups, then create the subcommands with groups.
 
         :param group?: The name of the group the subcommand belongs to. Defaults to the most recently used group.
-        :type group: Optional[str]
+        :type group?: Optional[str]
         :param name?: The name of the subcommand. Defaults to the name of the coroutine.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param description?: The description of the subcommand. Defaults to the docstring of the coroutine.
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param options?: The options of the subcommand.
-        :type options: Optional[List[Option]]
+        :type options?: Optional[List[Option]]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type description_localizations?: Optional[Dict[Union[str, Locale], str]]
         :return: The :class:`interactions.client.models.command.Command` object.
         :rtype: Command
         """
@@ -631,13 +631,13 @@ class Command(DictSerializerMixin):
             first create the subcommands without groups, then create the subcommands with groups.
 
         :param name?: The name of the group. Defaults to the name of the coroutine.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param description?: The description of the group. Defaults to the docstring of the coroutine.
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type description_localizations?: Optional[Dict[Union[str, Locale], str]]
         :return: The :class:`interactions.client.models.command.Command` object.
         :rtype: Command
         """
@@ -740,7 +740,7 @@ class Command(DictSerializerMixin):
         Decorator for creating an autocomplete for the command.
 
         :param name?: The name of the option to autocomplete. Defaults to the name of the coroutine.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :return: The coroutine
         :rtype: Callable[..., Coroutine]
         """
