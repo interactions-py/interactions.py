@@ -50,9 +50,9 @@ class SelectOption(ComponentMixin):
         )
     :ivar str label: The label of the select option.
     :ivar str value: The returned value of the select option.
-    :ivar Optional[str] description?: The description of the select option.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the select option.
-    :ivar Optional[bool] default?: Whether the select option is the default for the select menu.
+    :ivar Optional[str] description: The description of the select option.
+    :ivar Optional[Emoji] emoji: The emoji used alongside the label of the select option.
+    :ivar Optional[bool] default: Whether the select option is the default for the select menu.
     """
 
     label: str = field()
@@ -79,10 +79,10 @@ class SelectMenu(ComponentMixin):
     :ivar ComponentType type: The type of select menu. Always defaults to ``3``.
     :ivar str custom_id: The customized "ID" of the select menu.
     :ivar List[SelectOption] options: The list of select options in the select menu.
-    :ivar Optional[str] placeholder?: The placeholder of the select menu.
-    :ivar Optional[int] min_values?: The minimum "options"/values to choose from the component.
-    :ivar Optional[int] max_values?: The maximum "options"/values to choose from the component.
-    :ivar Optional[bool] disabled?: Whether the select menu is unable to be used.
+    :ivar Optional[str] placeholder: The placeholder of the select menu.
+    :ivar Optional[int] min_values: The minimum "options"/values to choose from the component.
+    :ivar Optional[int] max_values: The maximum "options"/values to choose from the component.
+    :ivar Optional[bool] disabled: Whether the select menu is unable to be used.
     """
 
     type: ComponentType = field(converter=ComponentType, default=ComponentType.SELECT)
@@ -111,10 +111,10 @@ class Button(ComponentMixin):
     :ivar ComponentType type: The type of button. Always defaults to ``2``.
     :ivar ButtonStyle style: The style of the button.
     :ivar str label: The label of the button.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the button.
-    :ivar Optional[str] custom_id?: The customized "ID" of the button.
-    :ivar Optional[str] url?: The URL route/path of the button.
-    :ivar Optional[bool] disabled?: Whether the button is unable to be used.
+    :ivar Optional[Emoji] emoji: The emoji used alongside the label of the button.
+    :ivar Optional[str] custom_id: The customized "ID" of the button.
+    :ivar Optional[str] url: The URL route/path of the button.
+    :ivar Optional[bool] disabled: Whether the button is unable to be used.
     """
 
     type: ComponentType = field(converter=ComponentType, default=ComponentType.BUTTON)
@@ -144,21 +144,21 @@ class Component(ComponentMixin):
         back information involving a component. Do not use this object for sending.
 
     :ivar ComponentType type: The type of component.
-    :ivar Optional[str] custom_id?: The customized "ID" of the component.
-    :ivar Optional[bool] disabled?: Whether the component is unable to be used.
-    :ivar Optional[ButtonStyle] style?: The style of the component.
-    :ivar Optional[str] label?: The label of the component.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the component.
-    :ivar Optional[str] url?: The URl route/path of the component.
-    :ivar Optional[List[SelectMenu]] options?: The "choices"/options of the component.
-    :ivar Optional[str] placeholder?: The placeholder text/value of the component.
-    :ivar Optional[int] min_values?: The minimum "options"/values to choose from the component.
-    :ivar Optional[int] max_values?: The maximum "options"/values to choose from the component.
-    :ivar Optional[List[Component]] components?: A list of components nested in the component.
-    :ivar Optional[int] min_length?: The minimum input length to choose from the component.
-    :ivar Optional[int] max_length?: The maximum input length to choose from the component.
-    :ivar Optional[bool] required?: Whether this component is required to be filled.
-    :ivar Optional[str] value?: The pre-filled value of the component.
+    :ivar Optional[str] custom_id: The customized "ID" of the component.
+    :ivar Optional[bool] disabled: Whether the component is unable to be used.
+    :ivar Optional[ButtonStyle] style: The style of the component.
+    :ivar Optional[str] label: The label of the component.
+    :ivar Optional[Emoji] emoji: The emoji used alongside the label of the component.
+    :ivar Optional[str] url: The URl route/path of the component.
+    :ivar Optional[List[SelectMenu]] options: The "choices"/options of the component.
+    :ivar Optional[str] placeholder: The placeholder text/value of the component.
+    :ivar Optional[int] min_values: The minimum "options"/values to choose from the component.
+    :ivar Optional[int] max_values: The maximum "options"/values to choose from the component.
+    :ivar Optional[List[Component]] components: A list of components nested in the component.
+    :ivar Optional[int] min_length: The minimum input length to choose from the component.
+    :ivar Optional[int] max_length: The maximum input length to choose from the component.
+    :ivar Optional[bool] required: Whether this component is required to be filled.
+    :ivar Optional[str] value: The pre-filled value of the component.
     """
 
     type: ComponentType = field(converter=ComponentType)
@@ -205,10 +205,10 @@ class TextInput(ComponentMixin):
     :ivar str custom_id: The custom Id of the input.
     :ivar str label: The label of the input.
     :ivar Optional[str] value: The pre-filled value of the input.
-    :ivar Optional[bool] required?: Whether the input is required or not.
-    :ivar Optional[str] placeholder?: The placeholder of the input.
-    :ivar Optional[int] min_length?: The minimum length of the input.
-    :ivar Optional[int] max_length?: The maximum length of the input.
+    :ivar Optional[bool] required: Whether the input is required or not.
+    :ivar Optional[str] placeholder: The placeholder of the input.
+    :ivar Optional[int] min_length: The minimum length of the input.
+    :ivar Optional[int] max_length: The maximum length of the input.
     """
 
     type: ComponentType = field(converter=ComponentType, default=ComponentType.INPUT_TEXT)
@@ -274,7 +274,7 @@ class ActionRow(ComponentMixin):
         interactions.ActionRow(components=[...])
 
     :ivar int type: The type of component. Always defaults to ``1``.
-    :ivar Optional[List[Component]] components?: A list of components the ActionRow has, if any.
+    :ivar Optional[List[Component]] components: A list of components the ActionRow has, if any.
     """
 
     type: ComponentType = field(ComponentType, default=ComponentType.ACTION_ROW)

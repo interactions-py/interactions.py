@@ -46,7 +46,7 @@ class Choice(DictSerializerMixin):
 
     :ivar str name: The name of the choice.
     :ivar Union[str, int, float] value: The returned value of the choice.
-    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     """
 
     name: str = field()
@@ -96,16 +96,16 @@ class Option(DictSerializerMixin):
     :ivar str name: The name of the option.
     :ivar str description: The description of the option.
     :ivar bool focused: Whether the option is currently being autocompleted or not.
-    :ivar Optional[bool] required?: Whether the option has to be filled out.
-    :ivar Optional[str] value?: The value that's currently typed out, if autocompleting.
-    :ivar Optional[List[Choice]] choices?: The list of choices to select from.
-    :ivar Optional[List[Option]] options?: The list of subcommand options included.
-    :ivar Optional[List[ChannelType]] channel_types?: Restrictive shown channel types, if given.
-    :ivar Optional[int] min_value?: The minimum value supported by the option.
-    :ivar Optional[int] max_value?: The maximum value supported by the option.
-    :ivar Optional[bool] autocomplete?: A status denoting whether this option is an autocomplete option.
-    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-    :ivar Optional[Dict[Union[str, Locale], str]] description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+    :ivar Optional[bool] required: Whether the option has to be filled out.
+    :ivar Optional[str] value: The value that's currently typed out, if autocompleting.
+    :ivar Optional[List[Choice]] choices: The list of choices to select from.
+    :ivar Optional[List[Option]] options: The list of subcommand options included.
+    :ivar Optional[List[ChannelType]] channel_types: Restrictive shown channel types, if given.
+    :ivar Optional[int] min_value: The minimum value supported by the option.
+    :ivar Optional[int] max_value: The maximum value supported by the option.
+    :ivar Optional[bool] autocomplete: A status denoting whether this option is an autocomplete option.
+    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+    :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
     :ivar Optional[str] converter: How the option value is passed to the function, if different than ``name``
     """
 
@@ -181,12 +181,12 @@ class ApplicationCommand(DictSerializerMixin):
 
     :ivar Snowflake id: The ID of the application command.
     :ivar ApplicationCommandType type: The application command type.
-    :ivar Optional[Snowflake] application_id?: The general application ID of the command itself.
-    :ivar Optional[Snowflake] guild_id?: The guild ID of the application command.
+    :ivar Optional[Snowflake] application_id: The general application ID of the command itself.
+    :ivar Optional[Snowflake] guild_id: The guild ID of the application command.
     :ivar str name: The name of the application command.
     :ivar str description: The description of the application command.
-    :ivar Optional[List[Option]] options?: The "options"/arguments of the application command.
-    :ivar Optional[bool] default_permission?: The default permission accessibility state of the application command.
+    :ivar Optional[List[Option]] options: The "options"/arguments of the application command.
+    :ivar Optional[bool] default_permission: The default permission accessibility state of the application command.
     :ivar int version: The Application Command version autoincrement identifier.
     :ivar str default_member_permissions: The default member permission state of the application command.
     :ivar boolean dm_permission: The application permissions if executed in a Direct Message.
@@ -232,7 +232,7 @@ def option(
     :type option_type: OptionType
     :param name: The name of the option.
     :type name: str
-    :param description?: The description of the option. Defaults to ``"No description set"``.
+    :param description: The description of the option. Defaults to ``"No description set"``.
     :type description: str
     :param \**kwargs: The keyword arguments of the option, same as :class:`Option`.
     :type \**kwargs: dict
@@ -523,17 +523,17 @@ class Command(DictSerializerMixin):
             If you want to create both subcommands and subcommands with groups,
             first create the subcommands without groups, then create the subcommands with groups.
 
-        :param group?: The name of the group the subcommand belongs to. Defaults to the most recently used group.
+        :param group: The name of the group the subcommand belongs to. Defaults to the most recently used group.
         :type group: Optional[str]
-        :param name?: The name of the subcommand. Defaults to the name of the coroutine.
+        :param name: The name of the subcommand. Defaults to the name of the coroutine.
         :type name: Optional[str]
-        :param description?: The description of the subcommand. Defaults to the docstring of the coroutine.
+        :param description: The description of the subcommand. Defaults to the docstring of the coroutine.
         :type description: Optional[str]
-        :param options?: The options of the subcommand.
+        :param options: The options of the subcommand.
         :type options: Optional[List[Option]]
-        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :type name_localizations: Optional[Dict[Union[str, Locale], str]]
-        :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :param description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
         :type description_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: The :class:`interactions.client.models.command.Command` object.
         :rtype: Command
@@ -630,13 +630,13 @@ class Command(DictSerializerMixin):
             If you want to create both subcommands and subcommands with groups,
             first create the subcommands without groups, then create the subcommands with groups.
 
-        :param name?: The name of the group. Defaults to the name of the coroutine.
+        :param name: The name of the group. Defaults to the name of the coroutine.
         :type name: Optional[str]
-        :param description?: The description of the group. Defaults to the docstring of the coroutine.
+        :param description: The description of the group. Defaults to the docstring of the coroutine.
         :type description: Optional[str]
-        :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :type name_localizations: Optional[Dict[Union[str, Locale], str]]
-        :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :param description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
         :type description_localizations: Optional[Dict[Union[str, Locale], str]]
         :return: The :class:`interactions.client.models.command.Command` object.
         :rtype: Command
@@ -739,7 +739,7 @@ class Command(DictSerializerMixin):
         """
         Decorator for creating an autocomplete for the command.
 
-        :param name?: The name of the option to autocomplete. Defaults to the name of the coroutine.
+        :param name: The name of the option to autocomplete. Defaults to the name of the coroutine.
         :type name: Optional[str]
         :return: The coroutine
         :rtype: Callable[..., Coroutine]

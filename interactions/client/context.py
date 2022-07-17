@@ -35,7 +35,7 @@ class _Context(ClientSerializerMixin):
     easily access information presented from any event in
     a "contextualized" sense.
 
-    :ivar Optional[Message] message?: The message data model.
+    :ivar Optional[Message] message: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
     :ivar Optional[Channel] channel: The channel data model.
@@ -119,19 +119,19 @@ class _Context(ClientSerializerMixin):
         This allows the invocation state described in the "context"
         to send an interaction response.
 
-        :param content?: The contents of the message as a string or string-converted value.
+        :param content: The contents of the message as a string or string-converted value.
         :type content: Optional[str]
-        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param tts: Whether the message utilizes the text-to-speech Discord programme or not.
         :type tts: Optional[bool]
-        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments: Optional[List[Attachment]]
-        :param embeds?: An embed, or list of embeds for the message.
+        :param embeds: An embed, or list of embeds for the message.
         :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
+        :param allowed_mentions: The message interactions/mention limits that the message can refer to.
         :type allowed_mentions: Optional[MessageInteraction]
-        :param components?: A component, or list of components for the message.
+        :param components: A component, or list of components for the message.
         :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
-        :param ephemeral?: Whether the response is hidden or not.
+        :param ephemeral: Whether the response is hidden or not.
         :type ephemeral: Optional[bool]
         :return: The sent message as an object.
         :rtype: Message
@@ -315,16 +315,16 @@ class CommandContext(_Context):
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
-    :ivar InteractionData data?: The application command data.
+    :ivar InteractionData data: The application command data.
     :ivar Optional[Union[Message, Member, User]] target: The target selected if this interaction is invoked as a context menu.
     :ivar str token: The token of the interaction response.
-    :ivar Snowflake guild_id?: The ID of the current guild.
-    :ivar Snowflake channel_id?: The ID of the current channel.
+    :ivar Snowflake guild_id: The ID of the current guild.
+    :ivar Snowflake channel_id: The ID of the current channel.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
-    :ivar str locale?: The selected language of the user invoking the interaction.
-    :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
-    :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar str locale: The selected language of the user invoking the interaction.
+    :ivar str guild_locale: The guild's preferred language, if invoked in a guild.
+    :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 
     target: Optional[Union[Message, Member, User]] = field(default=None)
@@ -410,7 +410,7 @@ class CommandContext(_Context):
         This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
-        :param ephemeral?: Whether the deferred state is hidden or not.
+        :param ephemeral: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
         """
         if not self.responded:
@@ -630,9 +630,9 @@ class ComponentContext(_Context):
         This "defers" a component response, allowing up
         to a 15-minute delay between invocation and responding.
 
-        :param ephemeral?: Whether the deferred state is hidden or not.
+        :param ephemeral: Whether the deferred state is hidden or not.
         :type ephemeral: Optional[bool]
-        :param edit_origin?: Whether you want to edit the original message or send a followup message
+        :param edit_origin: Whether you want to edit the original message or send a followup message
         :type edit_origin: Optional[bool]
         """
         if not self.responded:

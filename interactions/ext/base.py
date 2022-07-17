@@ -55,13 +55,13 @@ class Base:
         :type link: str
         :param description: The description of the library, e.g. the purpose.
         :type description: str
-        :param long_description?: The full description of the library, e.g. README. Defaults to ``None``.
+        :param long_description: The full description of the library, e.g. README. Defaults to ``None``.
         :type long_description: Optional[str]
-        :param packages?: The package(s) of the library. Defaults to ``None``.
+        :param packages: The package(s) of the library. Defaults to ``None``.
         :type packages: Optional[List[str]]
-        :param requirements?: The required modules needed for library function. Defaults to ``None``.
+        :param requirements: The required modules needed for library function. Defaults to ``None``.
         :type requirements: Optional[List[str]]
-        :param kwargs?: Any other keyword arguments. Defaults to ``None``.
+        :param kwargs: Any other keyword arguments. Defaults to ``None``.
         :type kwargs: Optional[dict]
         """
         self.version: Version = version
