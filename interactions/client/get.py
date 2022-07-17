@@ -258,7 +258,7 @@ async def _http_request(
             return await _func(**kwargs)
 
         _func = getattr(http, _name)
-        _obj = await _func
+        _obj = await _func(**kwargs)
         return obj(**_obj, _client=http)
 
     if not isinstance(request, list):
