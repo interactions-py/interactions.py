@@ -1897,4 +1897,3 @@ msgstr ""
 #: interactions.api.models.guild.Invite.delete:1 of
 msgid "Deletes the invite"
 msgstr ""
-
