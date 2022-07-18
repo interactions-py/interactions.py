@@ -312,7 +312,7 @@ msgstr "Gibt die aktuelle Präsenz zurück."
 
 #: interactions.api.gateway.client.WebSocketClient._update_presence:1 of
 msgid "Sends an ``UPDATE_PRESENCE`` packet to the gateway."
-msgstr "Sendet ein ``UPDATE_PRESENFE.`` Paket zum Gateway."
+msgstr "Sendet ein ``UPDATE_PRESENCE.`` Paket zum Gateway."
 
 #: interactions.api.gateway.client.WebSocketClient._update_presence:4 of
 msgid ""
