@@ -114,12 +114,12 @@ msgid ""
 "The latest time of the last ``HEARTBEAT_ACK`` event since connection "
 "creation, in seconds."
 msgstr ""
-"Der letzte Zeitpunkt, an dem das ``HEARTBEAT_ACK` Event aufgetreten ist," 
-" seit Beginn der Verbindung, in Sekunden." 
+"Der letzte Zeitpunkt, an dem das ``HEARTBEAT_ACK` Event aufgetreten ist,"
+" seit Beginn der Verbindung, in Sekunden."
 
 #: interactions.api.gateway.client.WebSocketClient:20 of
 msgid "The latency of the connection, in seconds."
-msgstr "Die Latenz der Verbindung, in Sekunden. 
+msgstr "Die Latenz der Verbindung, in Sekunden."
 
 #: interactions.api.gateway.client.WebSocketClient.__contextualize
 #: interactions.api.gateway.client.WebSocketClient.__identify
@@ -177,7 +177,7 @@ msgstr "Verwaltet den Heartbeat-Loop."
 
 #: interactions.api.gateway.client.WebSocketClient.__restart:1 of
 msgid "Restart the client's connection and heartbeat with the Gateway."
-msgstr "Startet die Verbindung des Client neu." 
+msgstr "Startet die Verbindung des Client neu."
 
 #: interactions.api.gateway.client.WebSocketClient._establish_connection:1 of
 msgid "Establishes a client connection with the Gateway."
@@ -244,7 +244,7 @@ msgid ""
 "Checks if an application command schema has sub commands needed for "
 "argument collection."
 msgstr ""
-"Überprüft, ob ein Applikations-Befehl-Schema Unterbefehle hat, um" 
+"Überprüft, ob ein Applikations-Befehl-Schema Unterbefehle hat, um"
 " korrekte Argumente für die Funktion bereitzustellen."
 
 #: interactions.api.gateway.client.WebSocketClient.__sub_command_context:4 of
@@ -331,7 +331,7 @@ msgid ""
 "disconnect."
 msgstr ""
 "Es gibt ein Rate-Limit bei der Nutzung dieser Methode (5 mal pro Minute maximal)."
-" Da es noch keinen Gateway Rate-Limiter gibt, wird das brechen dieses Limits" 
+" Da es noch keinen Gateway Rate-Limiter gibt, wird das brechen dieses Limits"
 " den Bot dazu zwingen, die Verbindung zu beenden."
 
 #: interactions.api.gateway.heartbeat._Heartbeat:1 of
