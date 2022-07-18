@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -34,13 +34,15 @@ msgstr ""
 #: interactions.api.error.LibraryException._parse
 #: interactions.api.error.LibraryException.log of
 msgid "Parameters"
-msgstr ""
+msgstr "Parameter"
 
 #: interactions.api.error.LibraryException._parse:1 of
 msgid ""
 "Internal function that should not be executed externally. Parse the error"
 " data and set the code and message."
 msgstr ""
+"Interne Funktion, die nicht extern ausgeführt werden soll. Verarbeitet die Error-Daten"
+" und setzt den Code und die Nachricht."
 
 #: interactions.api.error.LibraryException._parse:4 of
 msgid "The error data to parse."

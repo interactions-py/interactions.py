@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -96,11 +96,11 @@ msgstr "Die End-Task zum beenden einer Verbindung."
 
 #: interactions.api.gateway.client.WebSocketClient:16 of
 msgid "Whether the client has started."
-msgstr ""
+msgstr "Ob der Client gestartet ist."
 
 #: interactions.api.gateway.client.WebSocketClient:17 of
 msgid "The ID of the ongoing session."
-msgstr ""
+msgstr "Die ID der aktuellen Session."
 
 #: interactions.api.gateway.client.WebSocketClient:18 of
 msgid "The sequence identifier of the ongoing session."
@@ -181,7 +181,7 @@ msgstr "Die shards mit denen die Verbindung hergestellt werden soll. Standardwer
 #: interactions.api.gateway.client.WebSocketClient._establish_connection:5
 #: interactions.api.gateway.client.WebSocketClient._handle_connection:7 of
 msgid "The presence to carry with. Defaults to ``None``."
-msgstr ""
+msgstr "Die Präsenz die übertragen werden soll. Standard ``None``."
 
 #: interactions.api.gateway.client.WebSocketClient._handle_connection:1 of
 msgid "Handles the client's connection with the Gateway."
