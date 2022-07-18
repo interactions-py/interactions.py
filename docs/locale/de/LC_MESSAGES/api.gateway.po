@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
 "Language-Team: None\n"
@@ -95,20 +95,26 @@ msgid "The closing task for ending connections."
 msgstr "Die End-Task zum beenden einer Verbindung."
 
 #: interactions.api.gateway.client.WebSocketClient:16 of
-msgid "The ID of the ongoing session."
-msgstr "Die ID der aktuellen session."
+msgid "Whether the client has started."
+msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:17 of
+msgid "The ID of the ongoing session."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:18 of
 msgid "The sequence identifier of the ongoing session."
 msgstr "Der Sequenz-Identifier der aktuellen session."
 
-#: interactions.api.gateway.client.WebSocketClient:18 of
+#: interactions.api.gateway.client.WebSocketClient:19 of
 msgid ""
 "The latest time of the last send_packet function call since connection "
 "creation, in seconds."
 msgstr ""
 "Der letzte Zeitpunkt an dem die `send_packet` Funktion aufgerufen wurde"
 " seitdem die Verbindung begonnen wurde in Sekunden."
+
+#: interactions.api.gateway.client.WebSocketClient:20 of
 #: interactions.api.gateway.client.WebSocketClient:19 of
 msgid ""
 "The latest time of the last ``HEARTBEAT_ACK`` event since connection "
@@ -117,13 +123,13 @@ msgstr ""
 "Der letzte Zeitpunkt, an dem das ``HEARTBEAT_ACK` Event aufgetreten ist,"
 " seit Beginn der Verbindung, in Sekunden."
 
-#: interactions.api.gateway.client.WebSocketClient:20 of
+#: interactions.api.gateway.client.WebSocketClient:21 of
 msgid "The latency of the connection, in seconds."
 msgstr "Die Latenz der Verbindung, in Sekunden."
 
+#: interactions.api.gateway.client.WebSocketClient
 #: interactions.api.gateway.client.WebSocketClient.__contextualize
 #: interactions.api.gateway.client.WebSocketClient.__identify
-#: interactions.api.gateway.client.WebSocketClient.__init__
 #: interactions.api.gateway.client.WebSocketClient.__option_type_context
 #: interactions.api.gateway.client.WebSocketClient.__sub_command_context
 #: interactions.api.gateway.client.WebSocketClient._dispatch_event
@@ -131,30 +137,14 @@ msgstr "Die Latenz der Verbindung, in Sekunden."
 #: interactions.api.gateway.client.WebSocketClient._handle_connection
 #: interactions.api.gateway.client.WebSocketClient._send_packet
 #: interactions.api.gateway.client.WebSocketClient._update_presence
-#: interactions.api.gateway.heartbeat._Heartbeat.__init__ of
+#: interactions.api.gateway.heartbeat._Heartbeat of
 msgid "Parameters"
-msgstr "Paramater"
+msgstr "Parameter"
 
-#: interactions.api.gateway.client.WebSocketClient.__init__:1 of
-msgid "The token of the application for connecting to the Gateway."
-msgstr "Das Token der Applikation, für die Verbindung zum Gateway."
-
-#: interactions.api.gateway.client.WebSocketClient.__init__:3 of
-msgid "The Gateway intents of the application for event dispatch."
-msgstr "Die Gateway-Intents der Applikation, für den Event-Dispatch."
-
-#: interactions.api.gateway.client.WebSocketClient.__init__:5 of
-msgid "The ID of the session if trying to reconnect. Defaults to ``None``."
-msgstr "Die ID der Session, falls versucht wird, erneut zu Verbinden. Standardwert: ``None``."
-
-#: interactions.api.gateway.client.WebSocketClient.__init__:7 of
-msgid "The identifier sequence if trying to reconnect. Defaults to ``None``."
-msgstr "Die Identifizierungs-Sequenz, wenn versucht wird, erneut zu verbinden. Standard: ``None``."
-
+#: interactions.api.gateway.client.WebSocketClient
 #: interactions.api.gateway.client.WebSocketClient.__contextualize
 #: interactions.api.gateway.client.WebSocketClient.__heartbeat
 #: interactions.api.gateway.client.WebSocketClient.__identify
-#: interactions.api.gateway.client.WebSocketClient.__init__
 #: interactions.api.gateway.client.WebSocketClient.__option_type_context
 #: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream
 #: interactions.api.gateway.client.WebSocketClient.__restart
@@ -167,7 +157,7 @@ msgstr "Die Identifizierungs-Sequenz, wenn versucht wird, erneut zu verbinden. S
 #: interactions.api.gateway.client.WebSocketClient._send_packet
 #: interactions.api.gateway.client.WebSocketClient._update_presence
 #: interactions.api.gateway.client.WebSocketClient.wait_until_ready
-#: interactions.api.gateway.heartbeat._Heartbeat.__init__ of
+#: interactions.api.gateway.heartbeat._Heartbeat of
 msgid "Return type"
 msgstr "Rückgabetyp"
 
@@ -337,7 +327,3 @@ msgstr ""
 #: interactions.api.gateway.heartbeat._Heartbeat:1 of
 msgid "An internal class representing the heartbeat in a WebSocket connection."
 msgstr "Eine interne Klasse, die den Heartbeat der WebSockets-Verbindung repräsentiert."
-
-#: interactions.api.gateway.heartbeat._Heartbeat.__init__:1 of
-msgid "The event loop to base the asynchronous manager."
-msgstr "Der Event-Loop als Basis des asynchronen Managers"

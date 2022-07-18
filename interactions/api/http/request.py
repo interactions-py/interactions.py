@@ -93,7 +93,7 @@ class _Request:
         :param route: The HTTP route to request.
         :type route: Route
         :param \**kwargs?: Optional keyword-only arguments to pass as information in the request.
-        :type \**kwargs: dict
+        :type \**kwargs?: dict
         :return: The contents of the request if any.
         :rtype: Optional[Any]
         """

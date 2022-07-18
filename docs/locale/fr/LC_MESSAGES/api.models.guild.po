@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,6 +83,67 @@ msgstr ""
 
 #: interactions.api.models.guild.EventMetadata:3 of
 msgid "The location of the event, if any."
+msgstr ""
+
+#: interactions.api.models.guild.EventMetadata
+#: interactions.api.models.guild.Guild
+#: interactions.api.models.guild.Guild.add_member_role
+#: interactions.api.models.guild.Guild.ban
+#: interactions.api.models.guild.Guild.clone_channel
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule
+#: interactions.api.models.guild.Guild.create_channel
+#: interactions.api.models.guild.Guild.create_emoji
+#: interactions.api.models.guild.Guild.create_role
+#: interactions.api.models.guild.Guild.create_scheduled_event
+#: interactions.api.models.guild.Guild.create_thread
+#: interactions.api.models.guild.Guild.delete_channel
+#: interactions.api.models.guild.Guild.delete_emoji
+#: interactions.api.models.guild.Guild.delete_role
+#: interactions.api.models.guild.Guild.delete_scheduled_event
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule
+#: interactions.api.models.guild.Guild.get_bans
+#: interactions.api.models.guild.Guild.get_emoji
+#: interactions.api.models.guild.Guild.get_list_of_members
+#: interactions.api.models.guild.Guild.get_member
+#: interactions.api.models.guild.Guild.get_role
+#: interactions.api.models.guild.Guild.kick
+#: interactions.api.models.guild.Guild.modify
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
+#: interactions.api.models.guild.Guild.modify_channel
+#: interactions.api.models.guild.Guild.modify_member
+#: interactions.api.models.guild.Guild.modify_role
+#: interactions.api.models.guild.Guild.modify_role_position
+#: interactions.api.models.guild.Guild.modify_role_positions
+#: interactions.api.models.guild.Guild.modify_scheduled_event
+#: interactions.api.models.guild.Guild.remove_ban
+#: interactions.api.models.guild.Guild.remove_member_role
+#: interactions.api.models.guild.Guild.search_members
+#: interactions.api.models.guild.Guild.set_afk_channel
+#: interactions.api.models.guild.Guild.set_afk_timeout
+#: interactions.api.models.guild.Guild.set_banner
+#: interactions.api.models.guild.Guild.set_default_message_notifications
+#: interactions.api.models.guild.Guild.set_description
+#: interactions.api.models.guild.Guild.set_discovery_splash
+#: interactions.api.models.guild.Guild.set_explicit_content_filter
+#: interactions.api.models.guild.Guild.set_icon
+#: interactions.api.models.guild.Guild.set_name
+#: interactions.api.models.guild.Guild.set_preferred_locale
+#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled
+#: interactions.api.models.guild.Guild.set_public_updates_channel
+#: interactions.api.models.guild.Guild.set_rules_channel
+#: interactions.api.models.guild.Guild.set_splash
+#: interactions.api.models.guild.Guild.set_system_channel
+#: interactions.api.models.guild.Guild.set_verification_level
+#: interactions.api.models.guild.GuildPreview
+#: interactions.api.models.guild.GuildTemplate
+#: interactions.api.models.guild.Integration
+#: interactions.api.models.guild.Invite
+#: interactions.api.models.guild.ScheduledEvents
+#: interactions.api.models.guild.StageInstance
+#: interactions.api.models.guild.UnavailableGuild
+#: interactions.api.models.guild.WelcomeChannels
+#: interactions.api.models.guild.WelcomeScreen of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.guild.EventStatus:1 of
@@ -606,56 +667,6 @@ msgstr ""
 msgid "Bans a member from the guild."
 msgstr ""
 
-#: interactions.api.models.guild.Guild.add_member_role
-#: interactions.api.models.guild.Guild.ban
-#: interactions.api.models.guild.Guild.clone_channel
-#: interactions.api.models.guild.Guild.create_auto_moderation_rule
-#: interactions.api.models.guild.Guild.create_channel
-#: interactions.api.models.guild.Guild.create_emoji
-#: interactions.api.models.guild.Guild.create_role
-#: interactions.api.models.guild.Guild.create_scheduled_event
-#: interactions.api.models.guild.Guild.create_thread
-#: interactions.api.models.guild.Guild.delete_channel
-#: interactions.api.models.guild.Guild.delete_emoji
-#: interactions.api.models.guild.Guild.delete_role
-#: interactions.api.models.guild.Guild.delete_scheduled_event
-#: interactions.api.models.guild.Guild.get_auto_moderation_rule
-#: interactions.api.models.guild.Guild.get_bans
-#: interactions.api.models.guild.Guild.get_emoji
-#: interactions.api.models.guild.Guild.get_list_of_members
-#: interactions.api.models.guild.Guild.get_member
-#: interactions.api.models.guild.Guild.get_role
-#: interactions.api.models.guild.Guild.kick
-#: interactions.api.models.guild.Guild.modify
-#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
-#: interactions.api.models.guild.Guild.modify_channel
-#: interactions.api.models.guild.Guild.modify_member
-#: interactions.api.models.guild.Guild.modify_role
-#: interactions.api.models.guild.Guild.modify_role_position
-#: interactions.api.models.guild.Guild.modify_role_positions
-#: interactions.api.models.guild.Guild.modify_scheduled_event
-#: interactions.api.models.guild.Guild.remove_ban
-#: interactions.api.models.guild.Guild.remove_member_role
-#: interactions.api.models.guild.Guild.search_members
-#: interactions.api.models.guild.Guild.set_afk_channel
-#: interactions.api.models.guild.Guild.set_afk_timeout
-#: interactions.api.models.guild.Guild.set_banner
-#: interactions.api.models.guild.Guild.set_default_message_notifications
-#: interactions.api.models.guild.Guild.set_description
-#: interactions.api.models.guild.Guild.set_discovery_splash
-#: interactions.api.models.guild.Guild.set_explicit_content_filter
-#: interactions.api.models.guild.Guild.set_icon
-#: interactions.api.models.guild.Guild.set_name
-#: interactions.api.models.guild.Guild.set_preferred_locale
-#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled
-#: interactions.api.models.guild.Guild.set_public_updates_channel
-#: interactions.api.models.guild.Guild.set_rules_channel
-#: interactions.api.models.guild.Guild.set_splash
-#: interactions.api.models.guild.Guild.set_system_channel
-#: interactions.api.models.guild.Guild.set_verification_level of
-msgid "Parameters"
-msgstr ""
-
 #: interactions.api.models.guild.Guild.ban:3 of
 msgid "The id of the member to ban"
 msgstr ""
@@ -764,7 +775,7 @@ msgstr ""
 msgid ""
 ":type role  Union[Role, int, Snowflake] :param member_id: The id of the "
 "member to add the roles to :type member_id: Union[Member, int, Snowflake]"
-" :param reason?: The reason why the roles are added :type reason: "
+" :param reason?: The reason why the roles are added :type reason?: "
 "Optional[str]"
 msgstr ""
 
@@ -1886,12 +1897,3 @@ msgstr ""
 #: interactions.api.models.guild.Invite.delete:1 of
 msgid "Deletes the invite"
 msgstr ""
-
-#~ msgid ""
-#~ ":type role Union[Role, int] :param "
-#~ "member_id: The id of the member to"
-#~ " add the roles to :type member_id:"
-#~ " int :param reason?: The reason why"
-#~ " the roles are added :type reason:"
-#~ " Optional[str]"
-#~ msgstr ""

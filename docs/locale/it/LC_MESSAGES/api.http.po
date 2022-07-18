@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,7 +68,7 @@ msgstr ""
 #: interactions.api.http.channel.ChannelRequest.modify_stage_instance
 #: interactions.api.http.channel.ChannelRequest.move_channel
 #: interactions.api.http.channel.ChannelRequest.trigger_typing
-#: interactions.api.http.client.HTTPClient.__init__
+#: interactions.api.http.client.HTTPClient
 #: interactions.api.http.emoji.EmojiRequest.create_guild_emoji
 #: interactions.api.http.emoji.EmojiRequest.delete_guild_emoji
 #: interactions.api.http.emoji.EmojiRequest.get_all_emoji
@@ -129,7 +129,7 @@ msgstr ""
 #: interactions.api.http.interaction.InteractionRequest.get_application_commands
 #: interactions.api.http.interaction.InteractionRequest.get_original_interaction_response
 #: interactions.api.http.interaction.InteractionRequest.overwrite_application_command
-#: interactions.api.http.limiter.Limiter.__init__
+#: interactions.api.http.limiter.Limiter
 #: interactions.api.http.member.MemberRequest.add_member_role
 #: interactions.api.http.member.MemberRequest.get_list_of_members
 #: interactions.api.http.member.MemberRequest.get_member
@@ -151,9 +151,9 @@ msgstr ""
 #: interactions.api.http.reaction.ReactionRequest.remove_all_reactions_of_emoji
 #: interactions.api.http.reaction.ReactionRequest.remove_self_reaction
 #: interactions.api.http.reaction.ReactionRequest.remove_user_reaction
-#: interactions.api.http.request._Request.__init__
+#: interactions.api.http.request._Request
 #: interactions.api.http.request._Request.request
-#: interactions.api.http.route.Route.__init__
+#: interactions.api.http.route.Route
 #: interactions.api.http.route.Route.get_bucket
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.create_scheduled_event
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.delete_scheduled_event
@@ -198,19 +198,7 @@ msgstr ""
 msgid "Parameters"
 msgstr ""
 
-#: interactions.api.http.route.Route.__init__:1 of
-msgid "The HTTP request method."
-msgstr ""
-
-#: interactions.api.http.route.Route.__init__:3 of
-msgid "The path of the HTTP/URL."
-msgstr ""
-
-#: interactions.api.http.route.Route.__init__:5 of
-msgid "Optional keyword-only arguments to pass as information in the route."
-msgstr ""
-
-#: interactions.api.http.channel.ChannelRequest.__init__
+#: interactions.api.http.channel.ChannelRequest
 #: interactions.api.http.channel.ChannelRequest.create_channel
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance
@@ -233,13 +221,13 @@ msgstr ""
 #: interactions.api.http.client.HTTPClient.get_gateway
 #: interactions.api.http.client.HTTPClient.login
 #: interactions.api.http.client.HTTPClient.logout
-#: interactions.api.http.emoji.EmojiRequest.__init__
+#: interactions.api.http.emoji.EmojiRequest
 #: interactions.api.http.emoji.EmojiRequest.create_guild_emoji
 #: interactions.api.http.emoji.EmojiRequest.delete_guild_emoji
 #: interactions.api.http.emoji.EmojiRequest.get_all_emoji
 #: interactions.api.http.emoji.EmojiRequest.get_guild_emoji
 #: interactions.api.http.emoji.EmojiRequest.modify_guild_emoji
-#: interactions.api.http.guild.GuildRequest.__init__
+#: interactions.api.http.guild.GuildRequest
 #: interactions.api.http.guild.GuildRequest.add_guild_member
 #: interactions.api.http.guild.GuildRequest.create_auto_moderation_rule
 #: interactions.api.http.guild.GuildRequest.create_guild_ban
@@ -283,7 +271,7 @@ msgstr ""
 #: interactions.api.http.guild.GuildRequest.remove_guild_ban
 #: interactions.api.http.guild.GuildRequest.remove_guild_member
 #: interactions.api.http.guild.GuildRequest.sync_guild_template
-#: interactions.api.http.interaction.InteractionRequest.__init__
+#: interactions.api.http.interaction.InteractionRequest
 #: interactions.api.http.interaction.InteractionRequest._post_followup
 #: interactions.api.http.interaction.InteractionRequest.create_application_command
 #: interactions.api.http.interaction.InteractionRequest.create_interaction_response
@@ -297,15 +285,15 @@ msgstr ""
 #: interactions.api.http.interaction.InteractionRequest.get_application_commands
 #: interactions.api.http.interaction.InteractionRequest.get_original_interaction_response
 #: interactions.api.http.interaction.InteractionRequest.overwrite_application_command
-#: interactions.api.http.limiter.Limiter.__init__
-#: interactions.api.http.member.MemberRequest.__init__
+#: interactions.api.http.limiter.Limiter
+#: interactions.api.http.member.MemberRequest
 #: interactions.api.http.member.MemberRequest.add_member_role
 #: interactions.api.http.member.MemberRequest.get_list_of_members
 #: interactions.api.http.member.MemberRequest.get_member
 #: interactions.api.http.member.MemberRequest.modify_member
 #: interactions.api.http.member.MemberRequest.remove_member_role
 #: interactions.api.http.member.MemberRequest.search_guild_members
-#: interactions.api.http.message.MessageRequest.__init__
+#: interactions.api.http.message.MessageRequest
 #: interactions.api.http.message.MessageRequest.create_message
 #: interactions.api.http.message.MessageRequest.delete_message
 #: interactions.api.http.message.MessageRequest.delete_messages
@@ -315,29 +303,28 @@ msgstr ""
 #: interactions.api.http.message.MessageRequest.publish_message
 #: interactions.api.http.message.MessageRequest.send_message
 #: interactions.api.http.message.MessageRequest.unpin_message
-#: interactions.api.http.reaction.ReactionRequest.__init__
+#: interactions.api.http.reaction.ReactionRequest
 #: interactions.api.http.reaction.ReactionRequest.create_reaction
 #: interactions.api.http.reaction.ReactionRequest.get_reactions_of_emoji
 #: interactions.api.http.reaction.ReactionRequest.remove_all_reactions
 #: interactions.api.http.reaction.ReactionRequest.remove_all_reactions_of_emoji
 #: interactions.api.http.reaction.ReactionRequest.remove_self_reaction
 #: interactions.api.http.reaction.ReactionRequest.remove_user_reaction
-#: interactions.api.http.request._Request.__init__
+#: interactions.api.http.request._Request
 #: interactions.api.http.request._Request._check_lock
 #: interactions.api.http.request._Request._check_session
 #: interactions.api.http.request._Request.close
 #: interactions.api.http.request._Request.request
-#: interactions.api.http.route.Route.__init__
-#: interactions.api.http.route.Route.endpoint
+#: interactions.api.http.route.Route interactions.api.http.route.Route.endpoint
 #: interactions.api.http.route.Route.get_bucket
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.__init__
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.create_scheduled_event
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.delete_scheduled_event
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event_users
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.modify_scheduled_event
-#: interactions.api.http.sticker.StickerRequest.__init__
+#: interactions.api.http.sticker.StickerRequest
 #: interactions.api.http.sticker.StickerRequest.create_guild_sticker
 #: interactions.api.http.sticker.StickerRequest.delete_guild_sticker
 #: interactions.api.http.sticker.StickerRequest.get_guild_sticker
@@ -345,7 +332,7 @@ msgstr ""
 #: interactions.api.http.sticker.StickerRequest.list_guild_stickers
 #: interactions.api.http.sticker.StickerRequest.list_nitro_sticker_packs
 #: interactions.api.http.sticker.StickerRequest.modify_guild_sticker
-#: interactions.api.http.thread.ThreadRequest.__init__
+#: interactions.api.http.thread.ThreadRequest
 #: interactions.api.http.thread.ThreadRequest.add_member_to_thread
 #: interactions.api.http.thread.ThreadRequest.create_thread
 #: interactions.api.http.thread.ThreadRequest.get_member_from_thread
@@ -357,13 +344,13 @@ msgstr ""
 #: interactions.api.http.thread.ThreadRequest.list_public_archived_threads
 #: interactions.api.http.thread.ThreadRequest.list_thread_members
 #: interactions.api.http.thread.ThreadRequest.remove_member_from_thread
-#: interactions.api.http.user.UserRequest.__init__
+#: interactions.api.http.user.UserRequest
 #: interactions.api.http.user.UserRequest.create_dm
 #: interactions.api.http.user.UserRequest.get_self
 #: interactions.api.http.user.UserRequest.get_user
 #: interactions.api.http.user.UserRequest.modify_self
 #: interactions.api.http.user.UserRequest.modify_self_nick_in_guild
-#: interactions.api.http.webhook.WebhookRequest.__init__
+#: interactions.api.http.webhook.WebhookRequest
 #: interactions.api.http.webhook.WebhookRequest.create_webhook
 #: interactions.api.http.webhook.WebhookRequest.delete_original_webhook_message
 #: interactions.api.http.webhook.WebhookRequest.delete_webhook_message
@@ -513,14 +500,6 @@ msgstr ""
 msgid "The remaining time before the request can be ran."
 msgstr ""
 
-#: interactions.api.http.limiter.Limiter.__init__:1 of
-msgid "The asynchronous lock to control limits for."
-msgstr ""
-
-#: interactions.api.http.limiter.Limiter.__init__:3 of
-msgid "The remaining time to run the limited lock on. Defaults to ``0``."
-msgstr ""
-
 #: interactions.api.http.request._Request:1 of
 msgid "A class representing how HTTP requests are sent/read."
 msgstr ""
@@ -551,10 +530,6 @@ msgstr ""
 
 #: interactions.api.http.request._Request:9 of
 msgid "The global rate limiter."
-msgstr ""
-
-#: interactions.api.http.request._Request.__init__:1 of
-msgid "The application token used for authorizing."
 msgstr ""
 
 #: interactions.api.http.request._Request._check_session:1 of

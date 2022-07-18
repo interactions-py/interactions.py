@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,16 +28,16 @@ msgid ""
 "what a specific code means, use `e.lookup(code)`"
 msgstr ""
 
+#: interactions.api.error.LibraryException
+#: interactions.api.error.LibraryException._parse
+#: interactions.api.error.LibraryException.log of
+msgid "Parameters"
+msgstr ""
+
 #: interactions.api.error.LibraryException._parse:1 of
 msgid ""
 "Internal function that should not be executed externally. Parse the error"
 " data and set the code and message."
-msgstr ""
-
-#: interactions.api.error.LibraryException.__init__
-#: interactions.api.error.LibraryException._parse
-#: interactions.api.error.LibraryException.log of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.api.error.LibraryException._parse:4 of
@@ -59,61 +59,3 @@ msgstr ""
 #: interactions.api.error.LibraryException.log:1 of
 msgid "Log the error message."
 msgstr ""
-
-#~ msgid "A customized error formatting script to return specific errors."
-#~ msgstr ""
-
-#~ msgid "An exception class for interactions."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is a WIP. This isn't meant"
-#~ " to be used yet, this is a "
-#~ "baseline, and for extensive testing/review "
-#~ "before integration. Likewise, this will "
-#~ "show the concepts before use, and "
-#~ "will be refined when time goes on."
-#~ msgstr ""
-
-#~ msgid "Variables"
-#~ msgstr ""
-
-#~ msgid "The built-in formatter."
-#~ msgstr ""
-
-#~ msgid "A dictionary containing the values from the built-in Enum."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "From the default error enum integer "
-#~ "declaration, generate a dictionary containing"
-#~ " the phrases used for the errors."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Grabs the type attribute. Primarily "
-#~ "useful to use it in conditions for"
-#~ " integral v4 (potential) logic."
-#~ msgstr ""
-
-#~ msgid "This calls the exception."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is a derivation of "
-#~ "InteractionException in that this is "
-#~ "used to represent Gateway closing OP "
-#~ "codes."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is a derivation of "
-#~ "InteractionException in that this is "
-#~ "used to represent HTTP Exceptions."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This is a derivation of "
-#~ "InteractionException in that this is "
-#~ "used to represent JSON API Exceptions."
-#~ msgstr ""

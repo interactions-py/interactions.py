@@ -305,9 +305,9 @@ class GuildMember(ClientSerializerMixin):
         Bans the member from a guild.
 
         :param reason?: The reason of the ban
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
-        :type delete_message_days: Optional[int]
+        :type delete_message_days?: Optional[int]
         """
         await self._client.create_guild_ban(
             guild_id=int(self.guild_id),
@@ -324,7 +324,7 @@ class GuildMember(ClientSerializerMixin):
         Kicks the member from a guild.
 
         :param reason?: The reason for the kick
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -345,7 +345,7 @@ class GuildMember(ClientSerializerMixin):
         :param role: The role to add. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param reason?: The reason why the roles are added
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -375,7 +375,7 @@ class GuildMember(ClientSerializerMixin):
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param reason?: The reason why the roles are removed
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -417,17 +417,17 @@ class GuildMember(ClientSerializerMixin):
         Sends a DM to the member.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type allowed_mentions?: Optional[MessageInteraction]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -489,19 +489,19 @@ class GuildMember(ClientSerializerMixin):
         Modifies the member of a guild.
 
         :param nick?: The nickname of the member
-        :type nick: Optional[str]
+        :type nick?: Optional[str]
         :param roles?: A list of all role ids the member has
-        :type roles: Optional[List[int]]
+        :type roles?: Optional[List[int]]
         :param mute?: whether the user is muted in voice channels
-        :type mute: Optional[bool]
+        :type mute?: Optional[bool]
         :param deaf?: whether the user is deafened in voice channels
-        :type deaf: Optional[bool]
+        :type deaf?: Optional[bool]
         :param channel_id?: id of channel to move user to (if they are connected to voice)
-        :type channel_id: Optional[int]
+        :type channel_id?: Optional[int]
         :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
-        :type communication_disabled_until: Optional[datetime.isoformat]
+        :type communication_disabled_until?: Optional[datetime.isoformat]
         :param reason?: The reason of the modifying
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified member object
         :rtype: Member
         """

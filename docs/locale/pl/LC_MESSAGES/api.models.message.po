@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -185,6 +185,47 @@ msgstr ""
 msgid "Array of sticker objects sent with the message if any. Deprecated."
 msgstr ""
 
+#: interactions.api.models.message.Attachment
+#: interactions.api.models.message.ChannelMention
+#: interactions.api.models.message.Embed
+#: interactions.api.models.message.Embed.add_field
+#: interactions.api.models.message.Embed.insert_field_at
+#: interactions.api.models.message.Embed.remove_field
+#: interactions.api.models.message.Embed.set_author
+#: interactions.api.models.message.Embed.set_field_at
+#: interactions.api.models.message.Embed.set_footer
+#: interactions.api.models.message.Embed.set_image
+#: interactions.api.models.message.Embed.set_thumbnail
+#: interactions.api.models.message.Embed.set_video
+#: interactions.api.models.message.EmbedAuthor
+#: interactions.api.models.message.EmbedField
+#: interactions.api.models.message.EmbedFooter
+#: interactions.api.models.message.EmbedImageStruct
+#: interactions.api.models.message.EmbedProvider
+#: interactions.api.models.message.Emoji
+#: interactions.api.models.message.Emoji.delete
+#: interactions.api.models.message.Emoji.get
+#: interactions.api.models.message.Emoji.get_all_of_guild
+#: interactions.api.models.message.Message
+#: interactions.api.models.message.Message.create_reaction
+#: interactions.api.models.message.Message.create_thread
+#: interactions.api.models.message.Message.delete
+#: interactions.api.models.message.Message.edit
+#: interactions.api.models.message.Message.get_from_url
+#: interactions.api.models.message.Message.get_users_from_reaction
+#: interactions.api.models.message.Message.remove_all_reactions_of
+#: interactions.api.models.message.Message.remove_own_reaction_of
+#: interactions.api.models.message.Message.remove_reaction_from
+#: interactions.api.models.message.Message.reply
+#: interactions.api.models.message.MessageActivity
+#: interactions.api.models.message.MessageInteraction
+#: interactions.api.models.message.MessageReference
+#: interactions.api.models.message.PartialSticker
+#: interactions.api.models.message.ReactionObject
+#: interactions.api.models.message.Sticker of
+msgid "Parameters"
+msgstr ""
+
 #: interactions.api.models.message.Message.get_channel:1 of
 msgid "Gets the channel where the message was sent."
 msgstr ""
@@ -230,31 +271,6 @@ msgstr ""
 
 #: interactions.api.models.message.Message.delete:1 of
 msgid "Deletes the message."
-msgstr ""
-
-#: interactions.api.models.message.Embed.add_field
-#: interactions.api.models.message.Embed.insert_field_at
-#: interactions.api.models.message.Embed.remove_field
-#: interactions.api.models.message.Embed.set_author
-#: interactions.api.models.message.Embed.set_field_at
-#: interactions.api.models.message.Embed.set_footer
-#: interactions.api.models.message.Embed.set_image
-#: interactions.api.models.message.Embed.set_thumbnail
-#: interactions.api.models.message.Embed.set_video
-#: interactions.api.models.message.Emoji.delete
-#: interactions.api.models.message.Emoji.get
-#: interactions.api.models.message.Emoji.get_all_of_guild
-#: interactions.api.models.message.Message.create_reaction
-#: interactions.api.models.message.Message.create_thread
-#: interactions.api.models.message.Message.delete
-#: interactions.api.models.message.Message.edit
-#: interactions.api.models.message.Message.get_from_url
-#: interactions.api.models.message.Message.get_users_from_reaction
-#: interactions.api.models.message.Message.remove_all_reactions_of
-#: interactions.api.models.message.Message.remove_own_reaction_of
-#: interactions.api.models.message.Message.remove_reaction_from
-#: interactions.api.models.message.Message.reply of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.message.Message.delete:3 of
