@@ -20,61 +20,63 @@ msgstr ""
 
 #: ../../get.rst:4
 msgid "The ``get`` utility method"
-msgstr ""
+msgstr "Die ``get`` Methode"
 
 #: interactions.client.get.get:1 of
 msgid "Helper method to get an object."
-msgstr ""
+msgstr "Hilfsmethode um ein Objekt zu holen"
 
 #: interactions.client.get.get:11 of
 msgid "This method can do the following:"
-msgstr ""
+msgstr "Diese Methode kann das Folgende:"
 
 #: interactions.client.get.get:6 of
 msgid "Get a list of specific objects"
-msgstr ""
+msgstr "Eine Liste spezifischer Objekte holen"
 
 #: interactions.client.get.get:5 interactions.client.get.get:9 of
 msgid "purely from cache"
-msgstr ""
+msgstr "nur aus dem Cache"
 
 #: interactions.client.get.get:6 interactions.client.get.get:10 of
 msgid "purely from HTTP"
-msgstr ""
+msgstr "nur über HTTP"
 
 #: interactions.client.get.get:7 of
 msgid ""
 "from cache and additionally from HTTP for every ID that was not found in "
 "cache"
 msgstr ""
+"vom Cache und zusätzlich über HTTP holen, für jedes Objekt das nicht im "
+"Cache gefunden wurde."
 
 #: interactions.client.get.get:11 of
 msgid "Get a single specific object"
-msgstr ""
+msgstr "Ein einzelnes spezifisches Objekt holen"
 
 #: interactions.client.get.get:11 of
 msgid "from HTTP if not found in cache else from cache"
-msgstr ""
+msgstr "über HTTP wenn nicht im Cache sonst vom Cache"
 
 #: interactions.client.get.get:14 of
 msgid "The method has to be awaited when:"
-msgstr ""
+msgstr "Diese Methode muss ``await``ed werden wenn:"
 
 #: interactions.client.get.get:14 of
 msgid "You don't force anything"
-msgstr ""
+msgstr "Sie nichts erzwingen"
 
 #: interactions.client.get.get:15 of
 msgid "You force HTTP"
-msgstr ""
+msgstr "Sie HTTP erzwingen"
 
 #: interactions.client.get.get:17 of
 msgid "The method doesn't have to be awaited when:"
-msgstr ""
+msgstr "Die Methode muss nicht ``await``ed werden wenn:"
 
 #: interactions.client.get.get:17 of
 msgid "You force cache"
-msgstr ""
+msgstr "Sie Cache erzwingen"
 
 #: interactions.client.get.get:20 of
 msgid ""
@@ -86,18 +88,23 @@ msgid ""
 "cache result and to remove the extra step for you to check if the "
 "returned object is an awaitable or not."
 msgstr ""
+"Technisch gesehen gibt es keine Notwendigkeit für ein ``await``, wenn ein Objekt "
+"im Cache gefunden wurde. Aufgrund der Tatsache, dass, so lange Sie nicht Cache erzwingen, "
+"die Funktion ein Objekt über HTTP holen wird, wenn es nicht im Cache ist, müssen Sie ``await`` trotzdem "
+"verwenden. Dies wurde getan, um Verwirrung bei Entwicklern zu reduzieren, ob das Objekt nun von HTTP oder Cache "
+"stammt und den extra Schritt, zu überprüfen ob das objekt eine ``awaitable`` oder nicht ist, zu entfernen."
 
 #: interactions.client.get.get:41 of
 msgid "Forcing:"
-msgstr ""
+msgstr "Erzwingen:"
 
 #: interactions.client.get.get:41 of
 msgid "Forcing can be done via the ``force`` keyword argument."
-msgstr ""
+msgstr "Erzwungen werden kann über das ``force`` Keyword-Argument."
 
 #: interactions.client.get.get:31 of
 msgid "``force=\"cache\"`` or ``force=interactions.Force.CACHE``:"
-msgstr ""
+msgstr "``force=\"cache\"`` oder ``force=interactions.Force.CACHE``:"
 
 #: interactions.client.get.get:30 of
 msgid ""
@@ -105,16 +112,21 @@ msgid ""
 "found it will return ``None``). If you use this, you don't need to await "
 "the method."
 msgstr ""
+"Dies zwingt die Methode nur vom Cache zurückzugeben (wenn das Objekt nicht gefunden "
+"wird, wird ``None`` zurückgegeben). Wenn Sie dies nutzen, müssen Sie die Methode nicht ``await``en."
+
 
 #: interactions.client.get.get:41 of
 msgid "``force=\"http\"`` or ``force=interactions.Force.HTTP``:"
-msgstr ""
+msgstr "``force=\"http\"`` oder ``force=interactions.Force.HTTP``:"
 
 #: interactions.client.get.get:34 of
 msgid ""
 "This forces the method to make an HTTP request to the discord API and "
 "return the result of it. If you use this, you have to await the method."
 msgstr ""
+"Dies zwingt die Methode eine HTTP-Anfrage zur Discord-API zu machen und "
+"das Ergebnis zurückzugeben. Wenn Sie dies nutzen, muss die Methode ``await``ed werden."
 
 #: interactions.client.get.get:38 of
 msgid ""
@@ -124,30 +136,36 @@ msgid ""
 "prevent this bug from happening it is suggested using ``force=\"http\"`` "
 "instead of the enum."
 msgstr ""
+"Sollten Sie PyCharm nutzen, bitten wir Sie anstatt ``force=interactions.Force.HTTP`` "
+"``force=\"http\"`` zu nutzen, da es einen Bug in PyCharm gibt, der das anzeigen korrekter "
+"Rückgabewerte ansonsten verhindert."
 
 #: interactions.client.get.get:43 of
 msgid "Getting an object:"
-msgstr ""
+msgstr "Ein Objekt holen:"
 
 #: interactions.client.get.get:45 of
 msgid ""
 "Here you will see two examples on how to get a single objects and the "
 "variations of how the object can be gotten."
 msgstr ""
+"Hier können Sie zwei Beispiele sehen, wie man ein einzelnes Objekt holen kann:"
 
 #: interactions.client.get.get:48 of
 msgid "Example 1/2: Getting a Channel:"
-msgstr ""
+msgstr "Beispiel 1/2: Einen Channel holen:"
 
 #: interactions.client.get.get:65 of
 msgid "Example 2/2: Getting a Member:"
-msgstr ""
+msgstr "Beispiel 2/2: Ein Mitglied holen:"
 
 #: interactions.client.get.get:88 of
 msgid ""
 "Both examples should have given you a basic overview on how to get a "
 "single object. Now we will move on with lists of objects."
 msgstr ""
+"Beide Beispiele sollten Ihnen eine grundlegende Übersicht gegeben haben, "
+"wie man ein einzelnes Objekt holen kann. Nun werden wir mit Listen von Objekten weitermachen."
 
 #: interactions.client.get.get:92 of
 msgid ""
@@ -155,10 +173,12 @@ msgid ""
 "objects you want to get. It is called ``parent_id`` because "
 "``guild_or_channel_id`` would be horrible to type out every time."
 msgstr ""
+"Die ``parent_id`` repräsentiert die Kanal oder Guild ID, die zum Objekt gehört, das sie holen "
+"wollen. Es ist so genannt, da ``guild_or_channel_id`` grausam zum schreiben gewesen wäre."
 
 #: interactions.client.get.get:115 of
 msgid "Getting a list of an object:"
-msgstr ""
+msgstr "Eine Liste von Objekten holen:"
 
 #: interactions.client.get.get:96 of
 msgid ""
@@ -166,10 +186,12 @@ msgid ""
 "possibilities on how to force (and their results) are the same as in the "
 "examples above."
 msgstr ""
+"Hier werden Sie 1 Beispiel sehen, wie man eine Liste von Objekten holt. Die "
+"Möglichkeiten wie erzwungen wird sind die gleichen wie oben."
 
 #: interactions.client.get.get:99 of
 msgid "Example 1/1: Getting a list of members:"
-msgstr ""
+msgstr "Beispiel 1/1: Eine Liste von Mitgliedern Holen"
 
 #: interactions.client.get.get:115 of
 msgid ""
@@ -177,34 +199,37 @@ msgid ""
 " placed into the list and not found objects will be placed as ``None`` "
 "into the list."
 msgstr ""
+"Falls sie Cache erzwingen, während sie eine Liste von Objekten holen, so werden nicht gefundene "
+"Objekte als ``None`` in die Liste gesetzt."
+
 
 #: interactions.client.get.get of
 msgid "Parameters"
-msgstr ""
+msgstr "Parameter"
 
 #: interactions.client.get.get of
 msgid "Return type"
-msgstr ""
+msgstr "Rückgabetyp"
 
 #: interactions.client.get.Force:1 of
 msgid "An enumerable object representing the force types for the get method."
-msgstr ""
+msgstr "Ein aufzählbares Objekt, dass die Zwangstypen für die Get-Methode repräsentiert."
 
 #: interactions.client.get.Force of
 msgid "Variables"
-msgstr ""
+msgstr "Variablen"
 
 #: interactions.client.get.Force:3 of
 msgid "Enforce the usage of cache and block the usage of http"
-msgstr ""
+msgstr "Erzwingt die Nutzung von Cache und blockiert HTTP"
 
 #: interactions.client.get.Force:4 of
 msgid "Enforce the usage of http and block the usage of cache"
-msgstr ""
+msgstr "Erzwingt die Nutzung von HTTP und blockiert Cache"
 
 #: interactions.client.get.Force of
 msgid "Member Type"
-msgstr ""
+msgstr "Mitgliedstyp"
 
 #: interactions.client.get.Force:1 of
 msgid ":py:class:`str`"
@@ -212,11 +237,11 @@ msgstr ""
 
 #: interactions.client.get.Force:1 of
 msgid "Valid values are as follows:"
-msgstr ""
+msgstr "Zulässige Werte sind wie folgt:"
 
 #: interactions.client.get.Force:1 of
 msgid "The :class:`~enum.Enum` and its members also have the following methods:"
-msgstr ""
+msgstr "Die :class:`~enum.Enum` und ihre Mitglieder haben auch die folgenden Methoden:"
 
 #: enum.Enum._generate_next_value_:1 of
 msgid "Generate the next value when not given."
