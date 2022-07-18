@@ -412,6 +412,8 @@ class WebSocketClient:
                         model_name = model.__name__.lower()
                         if "guild" in model_name:
                             model_name = model_name[5:]
+                        elif model_name == "threadmembers":
+                            return
                         _obj = getattr(guild, f"{model_name}s", None)
                         if _obj is not None and isinstance(_obj, list):
                             for __obj in _obj:
