@@ -50,9 +50,16 @@ class DictSerializerMixin:
                     if value is not None and attrib.metadata.get("add_client"):
                         if isinstance(value, list):
                             for item in value:
-                                item["_client"] = client
+                                if isinstance(item, dict):
+                                    item["_client"] = client
+                                elif isinstance(item, ClientSerializerMixin):
+                                    item._client = client
+
                         else:
-                            value["_client"] = client
+                            if isinstance(value, dict):
+                                value["_client"] = client
+                            elif isinstance(value, ClientSerializerMixin):
+                                value._client = client
 
                     # make sure json is recursively handled
                     if isinstance(value, list):
