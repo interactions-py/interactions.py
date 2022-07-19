@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,20 +11,20 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Brain of EdVraz™️️\n"
 
 #: ../../index.rst:47
 msgid "Pages:"
-msgstr ""
+msgstr "Seiten:"
 
 #: ../../index.rst:4
 msgid "interactions.py"
-msgstr ""
+msgstr "interactions.py"
 
 #: ../../index.rst:5
 msgid ""
@@ -33,40 +33,48 @@ msgid ""
 "to bring **interactions from Discord to you:** we are an easy, simple, "
 "scalable and modular library for Discord interactions."
 msgstr ""
+"Seit Dezember 2019 wurde dieses open-source Projekt der Höhepunkt von "
+"Hingabe und Forschung, um den besten Weg zu finden, **Interaktionen von Discord zu Ihnen zu bringen:** " 
+"Wir sind eine Einfache, Simple, Skalierbar und Modulare Bibliothek für Discord Interaktionen."
 
 #: ../../index.rst:7
 msgid ""
 "Tired of using numerous module dependencies for slash commands and "
 "buttons?"
 msgstr ""
+"Sind Sie müde, verschiedene Module für slash Befehle und Knöpfe zu verwenden?" 
 
 #: ../../index.rst:8
 msgid "Looking for a compatible library that implements all interactions?"
-msgstr ""
+msgstr "Suchen Sie eine kompatible Bibliothek, die alle Interaktionen implementiert?"
 
 #: ../../index.rst:9
 msgid "Itching to get your hands on slash commands, but in a simple manner?"
-msgstr ""
+msgstr "Juckt es Ihnen in den Händen slash Befehle auf eine simple Art zu nutzen?"
 
 #: ../../index.rst:11
 msgid ""
 "Look no more! The goal of this library is to make all three of these "
 "questions go from possibilites to trivial matters."
 msgstr ""
+"Sie müssen nicht weitersuchen! Das Ziel dieser Bibliothek ist es, all diese Fragen " 
+"von Möglichkeiten zur Realität zu machen."
 
 #: ../../index.rst:14
 msgid "What can we do?"
-msgstr ""
+msgstr "Was können wir tun?"
 
 #: ../../index.rst:15
 msgid ""
 "Our library---inside and out, offers numerous benefits and presents "
 "itself as a worthy module in your bot's dependencies:"
 msgstr ""
+"Unsere Bibliothek---von innen und außen, bietet zahlreiche Vorteile und Geschenke "
+"selbst als würdiges Modul in den dependencies Ihres Bots:"
 
 #: ../../index.rst:17
 msgid "The base features of our library, built with our API include:"
-msgstr ""
+msgstr "Die grundlegenden Funktionen unserer Bibliothek, mit unserer API eingeschlossen:"
 
 #: ../../index.rst:19
 msgid ""
@@ -74,18 +82,27 @@ msgid ""
 "Gateway is dynamically transformed and generated into two-way "
 "serializable JSON objects."
 msgstr ""
+"**Dynamische Objektdatengeneraion**: Die Gesamtheit der Event-Daten, die vom Gateway "
+"dispatcht werden, werden dynamisch transformiert und in zwei-weg serialisierbare JSON-Objekte "
+"generiert." 
 
 #: ../../index.rst:20
 msgid ""
 "**Sane rate limiting**: our HTTP client implements pre-emptive rate limit"
 " avoidance, so your bot is guaranteed to never hit HTTP ``429``."
 msgstr ""
+"**Sichere Ratenbegrenzung**: Unser HTTP-Client implementiert präventive "
+"Ratenbegrenzungsvermeidung, so dass garantiert wird, dass ihr Bot niemals "
+"``HTTP 429``(too many requests) erreicht."
 
 #: ../../index.rst:21
 msgid ""
 "**On-demand cache**: every HTTP request and Gateway event made is cached "
 "when needed, so you never have to save information yourself."
 msgstr ""
+"**Cache auf Abfrage**: Jede HTTP-Anfrage und jedes Gateway Event erhalten wird " 
+"im Cache gespeichert, wenn benötigt, so dass für Sie keine Notwendigkeit besteht, "
+"Informationen selber zu speichern." 
 
 #: ../../index.rst:22
 msgid ""
@@ -93,10 +110,13 @@ msgid ""
 "either a raw dictionary/``application/json`` or list of recursive "
 "attributes."
 msgstr ""
+"**Vereinfachte Daten Modelle**: Jedes Objekt, das präsentiert wird, ist " 
+"sowohl als rohes Dictionary/``application/json`` als auch als Liste von rekursiven " 
+"Attributen vorhanden." 
 
 #: ../../index.rst:24
 msgid "Some more unique features that are exclusive to our interactions include:"
-msgstr ""
+msgstr "Einige weitere einzigartige Funktionen, die exclusive zu unseren Interaktionen sind, schließen ein:"
 
 #: ../../index.rst:26
 msgid ""
@@ -104,12 +124,17 @@ msgid ""
 "or interaction response, you'll never need to worry about bridging "
 "responses."
 msgstr ""
+"**Event-getriggerte Callbacks**: Ob eine Komponente, ein Applikationsbefehl "
+"oder eine Interaktionsantwort, Sie müssen sich niemals darum sorgen, antworten "
+"zu überbrücken." 
 
 #: ../../index.rst:27
 msgid ""
 "**Dual-way decorator logic**: a decorator can act as both a constructor "
 "for an interaction, as well as a callback."
 msgstr ""
+"**Zwei-weg Decorator Logik**: Ein Decorator kann sowohl als Konstruktor "
+"für eine Interaktion, als auch als Callback für diese Interaktion dienen."
 
 #: ../../index.rst:28
 msgid ""
@@ -117,64 +142,76 @@ msgid ""
 " libraries; we follow the naming style of interactions from the "
 "officially curated Discord Developers documentation."
 msgstr ""
+"**API-gebundene Namensgebung**: Keine Verwirrung mit dem Namensgebungsansatz vieler" 
+" Bibliotheken; wir folgen dem Namensgebungs-Style der offiziellen Discord-Entwickler-" 
+"Dokumentation." 
 
 #: ../../index.rst:29
 msgid ""
 "**Extensive framework structure**: build your own tools and technologies "
 "for our library to develop and integrate community creations."
 msgstr ""
+"**Umfangreiche Framework Struktur**: Bauen Sie Ihre eigenen Werkzeuge und Technologien "
+"für unsere Bibliothek zum entwickeln und einbauen von Gemeinschafts Kreationen." 
 
 #: ../../index.rst:32
 msgid "What do we not offer?"
-msgstr ""
+msgstr "Was stellen wir nicht bereit?"
 
 #: ../../index.rst:33
 msgid ""
 "While we certainly offer a lot of benefits, we unfortunately have our own"
 " downsides:"
 msgstr ""
+"Während wir viele Vorteile bereitstellen, haben wir leider auch unsere "
+" Nachteile:" 
 
 #: ../../index.rst:36
 msgid ""
 "This list is subject to change as time goes on: some of these items may "
 "be added to the core of the library in the future."
 msgstr ""
+"Diese Liste kann sich mit der Zeit ändern."
 
 #: ../../index.rst:40
 msgid "No native cooldown decorator/method."
-msgstr ""
+msgstr "Keine native Cooldown Dekoratoren/Methoden, allerdings als Erweiterung vorhanden."
 
 #: ../../index.rst:41
 msgid "Lack of automatic sharding and voice clients."
-msgstr ""
+msgstr "Fehlen von automatischem sharding (Erweiterung vorhanden) und Voice Clients (Erweiterung in Entwicklung)."
 
 #: ../../index.rst:44
 msgid "Where do I start?"
-msgstr ""
+msgstr "Wo kann ich anfangen?"
 
 #: ../../index.rst:45
 msgid "Please look at our pages below to find out where to go."
-msgstr ""
+msgstr "Bitte schauen Sie auf unsere Seiten unten, um herauszufinden wohin zu gehen."
 
 #: ../../index.rst:58
 msgid "How can I contribute?"
-msgstr ""
+msgstr "Wie kann ich beitragen?"
 
 #: ../../index.rst:59
 msgid ""
 "Please read up on our `contribution requirements`_ for the project. This "
 "open-source project also enforces the `MIT License`_."
 msgstr ""
+"Bitte lesen Sie unsere `contribution requirements`_ für das Projekt. Dieses "
+"open-source Projekt vollstreckt außerdem die `MIT License`_."
 
 #: ../../index.rst:61
 msgid "This open-source project utilizes the following workflows for development:"
-msgstr ""
+msgstr "Dieses open-source Projekt nutzt die folgenden Workflows für Entwicklung:"
 
 #: ../../index.rst:63
 msgid ""
 "**pre-commit** ``2.20.0``: the architecture uses this before every commit"
 " to format and check for severity/QOL-breaking changes."
 msgstr ""
+"**pre-commit**: Die Architektur nutzt dies vor jedem Commit zum Formatieren" 
+" und überprüfen von Problemen."
 
 #: ../../index.rst:65
 msgid "**black** ``22.6.0``"
@@ -193,6 +230,7 @@ msgid ""
 "**Sphinx** ``4.4.0``: all of our documentation is powered off of "
 "autogenerated documentation of the Sphinx engine."
 msgstr ""
+"**Sphinx**: Generiert unsere Dokumentation."
 
 #: ../../index.rst:70
 msgid ""
@@ -201,44 +239,49 @@ msgid ""
 "easier when improving and refining communication between code reviews, "
 "Pull Requests and commits."
 msgstr ""
+"**Conventional Commits**: Jeder unserer commits sollte diesem entsprechen."
 
 #: ../../index.rst:73
 msgid "When can I start?"
-msgstr ""
+msgstr "Wann kann ich anfangen?"
 
 #: ../../index.rst:74
 msgid ""
 "We also have some extra ground rules about making any specific "
 "contributions involving:"
 msgstr ""
+"Wir haben auch einige Grundregeln über spezifische Beiträge:"
 
 #: ../../index.rst:76
 msgid ""
 "We do not accept abstraction-based requests. (e.g. ``colour`` for "
 "``color``)"
 msgstr ""
+"Wir akzeptieren keine Abstraktions-basierten Anfragen."
 
 #: ../../index.rst:77
 msgid "A request has to be approved by at least one developer."
-msgstr ""
+msgstr "Mindestens ein Entwickler muss die Anfrage akzeptieren."
 
 #: ../../index.rst:78
 msgid ""
 "You must be willing to change/adhere to reviews from participants **where"
 " necessary.**"
 msgstr ""
+"Sie müssen einverstanden sein, ihren Beitrag gemäß Ansichten von Beitragenden "
+"anzupassen, **wenn und wo nötig**."
 
 #: ../../index.rst:81
 msgid "I think I'm all ready!"
-msgstr ""
+msgstr "Ich glaube ich bin bereit!"
 
 #: ../../index.rst:82
 msgid "Feel free to begin making `Pull Requests`_ and `Issues`_ on our GitHub!"
-msgstr ""
+msgstr "Fühlen Sie sich frei anzufangen, `Pull Requests`_ und `Issues`_ auf unserem GitHub zu machen!"
 
 #: ../../index.rst:85
 msgid "Advanced Search"
-msgstr ""
+msgstr "Fortgeschrittene Suche"
 
 #: ../../index.rst:87
 msgid ":ref:`genindex`"
