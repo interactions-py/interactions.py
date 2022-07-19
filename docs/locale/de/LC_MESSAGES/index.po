@@ -34,7 +34,7 @@ msgid ""
 "scalable and modular library for Discord interactions."
 msgstr ""
 "Seit Dezember 2019 wurde dieses open-source Projekt der Höhepunkt von "
-"Hingabe und Forschung, um den besten Weg zu finden, **Interaktionen von Discord zu Ihnen zu bringen:** " 
+"Hingabe und Forschung, um den besten Weg zu finden, **Interaktionen von Discord zu Ihnen zu bringen:** "
 "Wir sind eine Einfache, Simple, Skalierbar und Modulare Bibliothek für Discord Interaktionen."
 
 #: ../../index.rst:7
@@ -42,7 +42,7 @@ msgid ""
 "Tired of using numerous module dependencies for slash commands and "
 "buttons?"
 msgstr ""
-"Sind Sie müde, verschiedene Module für slash Befehle und Knöpfe zu verwenden?" 
+"Sind Sie müde, verschiedene Module für slash Befehle und Knöpfe zu verwenden?"
 
 #: ../../index.rst:8
 msgid "Looking for a compatible library that implements all interactions?"
@@ -57,7 +57,7 @@ msgid ""
 "Look no more! The goal of this library is to make all three of these "
 "questions go from possibilites to trivial matters."
 msgstr ""
-"Sie müssen nicht weitersuchen! Das Ziel dieser Bibliothek ist es, all diese Fragen " 
+"Sie müssen nicht weitersuchen! Das Ziel dieser Bibliothek ist es, all diese Fragen "
 "von Möglichkeiten zur Realität zu machen."
 
 #: ../../index.rst:14
@@ -84,7 +84,7 @@ msgid ""
 msgstr ""
 "**Dynamische Objektdatengeneraion**: Die Gesamtheit der Event-Daten, die vom Gateway "
 "dispatcht werden, werden dynamisch transformiert und in zwei-weg serialisierbare JSON-Objekte "
-"generiert." 
+"generiert."
 
 #: ../../index.rst:20
 msgid ""
@@ -100,9 +100,9 @@ msgid ""
 "**On-demand cache**: every HTTP request and Gateway event made is cached "
 "when needed, so you never have to save information yourself."
 msgstr ""
-"**Cache auf Abfrage**: Jede HTTP-Anfrage und jedes Gateway Event erhalten wird " 
+"**Cache auf Abfrage**: Jede HTTP-Anfrage und jedes Gateway Event erhalten wird "
 "im Cache gespeichert, wenn benötigt, so dass für Sie keine Notwendigkeit besteht, "
-"Informationen selber zu speichern." 
+"Informationen selber zu speichern."
 
 #: ../../index.rst:22
 msgid ""
@@ -110,9 +110,9 @@ msgid ""
 "either a raw dictionary/``application/json`` or list of recursive "
 "attributes."
 msgstr ""
-"**Vereinfachte Daten Modelle**: Jedes Objekt, das präsentiert wird, ist " 
-"sowohl als rohes Dictionary/``application/json`` als auch als Liste von rekursiven " 
-"Attributen vorhanden." 
+"**Vereinfachte Daten Modelle**: Jedes Objekt, das präsentiert wird, ist "
+"sowohl als rohes Dictionary/``application/json`` als auch als Liste von rekursiven "
+"Attributen vorhanden."
 
 #: ../../index.rst:24
 msgid "Some more unique features that are exclusive to our interactions include:"
@@ -126,7 +126,7 @@ msgid ""
 msgstr ""
 "**Event-getriggerte Callbacks**: Ob eine Komponente, ein Applikationsbefehl "
 "oder eine Interaktionsantwort, Sie müssen sich niemals darum sorgen, antworten "
-"zu überbrücken." 
+"zu überbrücken."
 
 #: ../../index.rst:27
 msgid ""
@@ -142,9 +142,9 @@ msgid ""
 " libraries; we follow the naming style of interactions from the "
 "officially curated Discord Developers documentation."
 msgstr ""
-"**API-gebundene Namensgebung**: Keine Verwirrung mit dem Namensgebungsansatz vieler" 
-" Bibliotheken; wir folgen dem Namensgebungs-Style der offiziellen Discord-Entwickler-" 
-"Dokumentation." 
+"**API-gebundene Namensgebung**: Keine Verwirrung mit dem Namensgebungsansatz vieler"
+" Bibliotheken; wir folgen dem Namensgebungs-Style der offiziellen Discord-Entwickler-"
+"Dokumentation."
 
 #: ../../index.rst:29
 msgid ""
@@ -152,7 +152,7 @@ msgid ""
 "for our library to develop and integrate community creations."
 msgstr ""
 "**Umfangreiche Framework Struktur**: Bauen Sie Ihre eigenen Werkzeuge und Technologien "
-"für unsere Bibliothek zum entwickeln und einbauen von Gemeinschafts Kreationen." 
+"für unsere Bibliothek zum entwickeln und einbauen von Gemeinschafts Kreationen."
 
 #: ../../index.rst:32
 msgid "What do we not offer?"
@@ -164,7 +164,7 @@ msgid ""
 " downsides:"
 msgstr ""
 "Während wir viele Vorteile bereitstellen, haben wir leider auch unsere "
-" Nachteile:" 
+" Nachteile:"
 
 #: ../../index.rst:36
 msgid ""
@@ -210,7 +210,7 @@ msgid ""
 "**pre-commit** ``2.20.0``: the architecture uses this before every commit"
 " to format and check for severity/QOL-breaking changes."
 msgstr ""
-"**pre-commit**: Die Architektur nutzt dies vor jedem Commit zum Formatieren" 
+"**pre-commit**: Die Architektur nutzt dies vor jedem Commit zum Formatieren"
 " und überprüfen von Problemen."
 
 #: ../../index.rst:65
