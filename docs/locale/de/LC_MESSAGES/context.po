@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,12 +11,12 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Brain of EdVraz™️️\n"
 
 #: ../../context.rst:4
 msgid "Event Context"
@@ -29,31 +29,32 @@ msgid ""
 "to allow developers to easily access information presented from any event"
 " in a \"contextualized\" sense."
 msgstr ""
+"Die Grundklasse des \"context\" für dispatchte Event Daten vom Gateway."
 
 #: interactions.client.context.CommandContext
 #: interactions.client.context._Context of
 msgid "Variables"
-msgstr ""
+msgstr "Variablen"
 
 #: interactions.client.context._Context:7 of
 msgid "The message data model."
-msgstr ""
+msgstr "Das Nachrichten Datenmodell"
 
 #: interactions.client.context._Context:8 of
 msgid "The member data model."
-msgstr ""
+msgstr "Das Mitglieds Datenmodell"
 
 #: interactions.client.context._Context:9 of
 msgid "The user data model."
-msgstr ""
+msgstr "Das Nutzer Datenmodell"
 
 #: interactions.client.context._Context:10 of
 msgid "The channel data model."
-msgstr ""
+msgstr "Das Kanal Datenmodell"
 
 #: interactions.client.context._Context:11 of
 msgid "The guild data model."
-msgstr ""
+msgstr "Das Guild Datenmodell"
 
 #: interactions.api.models.attrs_utils.DictSerializerMixin.update
 #: interactions.client.context.CommandContext
@@ -70,11 +71,11 @@ msgstr ""
 #: interactions.client.context._Context.popup
 #: interactions.client.context._Context.send of
 msgid "Parameters"
-msgstr ""
+msgstr "Parameter"
 
 #: interactions.client.context._Context.get_channel:1 of
 msgid "This gets the channel the context was invoked in."
-msgstr ""
+msgstr "Dies holt den channel, in dem der Context aufgerufen wurde."
 
 #: interactions.client.context.CommandContext.edit
 #: interactions.client.context.CommandContext.populate
@@ -90,7 +91,7 @@ msgstr ""
 
 #: interactions.client.context._Context.get_channel:3 of
 msgid "The channel as object"
-msgstr ""
+msgstr "Der Kanal als Objekt"
 
 #: interactions.client.context.CommandContext.defer
 #: interactions.client.context.CommandContext.delete
@@ -106,15 +107,15 @@ msgstr ""
 #: interactions.client.context._Context.popup
 #: interactions.client.context._Context.send of
 msgid "Return type"
-msgstr ""
+msgstr "Rückgabetyp"
 
 #: interactions.client.context._Context.get_guild:1 of
 msgid "This gets the guild the context was invoked in."
-msgstr ""
+msgstr "Dies holt den Guild in den der Kontext aufgerufen wurde."
 
 #: interactions.client.context._Context.get_guild:3 of
 msgid "The guild as object"
-msgstr ""
+msgstr "Der Guild als Objekt"
 
 #: interactions.client.context.CommandContext.send:1
 #: interactions.client.context.ComponentContext.send:1
@@ -123,18 +124,19 @@ msgid ""
 "This allows the invocation state described in the \"context\" to send an "
 "interaction response."
 msgstr ""
+"Sendet eine Nachricht als Interaktionsantwort."
 
 #: interactions.client.context.CommandContext.send:4
 #: interactions.client.context.ComponentContext.send:4
 #: interactions.client.context._Context.send:4 of
 msgid "The contents of the message as a string or string-converted value."
-msgstr ""
+msgstr "Die Inhalte der Nachricht als string."
 
 #: interactions.client.context.CommandContext.send:6
 #: interactions.client.context.ComponentContext.send:6
 #: interactions.client.context._Context.send:6 of
 msgid "Whether the message utilizes the text-to-speech Discord programme or not."
-msgstr ""
+msgstr "Ob TTS verwendet werden soll."
 
 #: interactions.client.context.CommandContext.send:8
 #: interactions.client.context.ComponentContext.send:8
@@ -143,36 +145,38 @@ msgid ""
 "The attachments to attach to the message. Needs to be uploaded to the CDN"
 " first"
 msgstr ""
+"Anhänge, die an die Nachricht angehängt werden sollen. Müssen bereits auf Discord"
+" hochgeladen sein."
 
 #: interactions.client.context.CommandContext.send:10
 #: interactions.client.context.ComponentContext.send:10
 #: interactions.client.context._Context.send:10 of
 msgid "An embed, or list of embeds for the message."
-msgstr ""
+msgstr "Die Embeds für die Nachricht."
 
 #: interactions.client.context.CommandContext.send:12
 #: interactions.client.context.ComponentContext.send:12
 #: interactions.client.context._Context.send:12 of
 msgid "The message interactions/mention limits that the message can refer to."
-msgstr ""
+msgstr "Die Erwähnungsbeschränkungen für die Nachricht."
 
 #: interactions.client.context.CommandContext.send:14
 #: interactions.client.context.ComponentContext.send:14
 #: interactions.client.context._Context.send:14 of
 msgid "A component, or list of components for the message."
-msgstr ""
+msgstr "Komponenten, die an die Nachricht angehängt werden sollen."
 
 #: interactions.client.context.CommandContext.send:16
 #: interactions.client.context.ComponentContext.send:16
 #: interactions.client.context._Context.send:16 of
 msgid "Whether the response is hidden or not."
-msgstr ""
+msgstr "Ob die Antwort versteckt ist oder nicht."
 
 #: interactions.client.context.CommandContext.send:18
 #: interactions.client.context.ComponentContext.send:18
 #: interactions.client.context._Context.send:18 of
 msgid "The sent message as an object."
-msgstr ""
+msgstr "Die gesendete Nachricht als Objekt."
 
 #: interactions.client.context.CommandContext.edit:1
 #: interactions.client.context.ComponentContext.edit:1
@@ -182,36 +186,40 @@ msgid ""
 "interaction response. This inherits the arguments of the Context "
 "``.send()`` method."
 msgstr ""
+"Modifiziert die Nachricht. Hat alle Argumente der send Methode, außer ``ephemeral``." 
 
 #: interactions.client.context.CommandContext.edit:5
 #: interactions.client.context.ComponentContext.edit:5
 #: interactions.client.context._Context.edit:5 of
 msgid "The edited message as an object."
-msgstr ""
+msgstr "Die modifizierte Nachricht als Objekt."
 
 #: interactions.client.context._Context.popup:1 of
 msgid "This \"pops up\" a modal to present information back to the user."
-msgstr ""
+msgstr "Die öffnet ein Modal für den Nutzer."
 
 #: interactions.client.context._Context.popup:4 of
 msgid "The components you wish to show."
-msgstr ""
+msgstr "Die Komponenten, die Sie zeigen möchten."
 
 #: interactions.api.models.attrs_utils.DictSerializerMixin.update:1 of
 msgid ""
 "Update an object with new attributes. All data will be converted, and any"
 " extra attributes will be put in _extras"
 msgstr ""
+"Aktualisiere ein Objekt mit neuen Attributen."
 
 #: interactions.api.models.attrs_utils.DictSerializerMixin.update:4 of
 msgid "The dictionary to update from"
-msgstr ""
+msgstr "Das Dictionary von dem geupdated werden soll"
 
 #: interactions.client.context.CommandContext:1 of
 msgid ""
 "A derivation of :class:`interactions.context.Context` designed "
 "specifically for application command data."
 msgstr ""
+"Eine Abwandlung von :class:`interactions.context.Context`, entwickelt "
+"speziell für Applikations Befehl Daten."
 
 #: interactions.client.context.CommandContext:5 of
 msgid ""
@@ -220,6 +228,8 @@ msgid ""
 "return this as a value, but instead ``guild_id``. You will need to "
 "manually fetch for this data for the time being."
 msgstr ""
+"Standardmäßig ist das Guild Attribut nicht gesetzt. Sie müssen es deshalb "
+"selber holen" 
 
 #: interactions.client.context.CommandContext:11 of
 msgid ""
@@ -227,118 +237,127 @@ msgid ""
 "JSON dictionary, which you can then use ``interactions.Guild(**data)`` "
 "for an object or continue with a dictionary for your own purposes."
 msgstr ""
+"Sie können über ``await ctx.get_guild()`` das Objekt holen." 
 
 #: interactions.client.context.CommandContext:16 of
 msgid "the HTTP client"
-msgstr ""
+msgstr "Der HTTP Client"
 
 #: interactions.client.context.CommandContext:17 of
 msgid "The ID of the interaction."
-msgstr ""
+msgstr "Die ID der Interaktion."
 
 #: interactions.client.context.CommandContext:18 of
 msgid "The application ID of the interaction."
-msgstr ""
+msgstr "Die Applikations ID der Interaktion."
 
 #: interactions.client.context.CommandContext:19 of
 msgid "The type of interaction."
-msgstr ""
+msgstr "Der Typ der Interaktion."
 
 #: interactions.client.context.CommandContext:20 of
 msgid "The application command data."
-msgstr ""
+msgstr "Die Befehlsdaten."
 
 #: interactions.client.context.CommandContext:21 of
 msgid "The target selected if this interaction is invoked as a context menu."
-msgstr ""
+msgstr "Das ausgewählte Ziel, wenn die Interaktion als Kontext Menü ausgeführt wurde."
 
 #: interactions.client.context.CommandContext:22 of
 msgid "The token of the interaction response."
-msgstr ""
+msgstr "Das Token der Interaktionsantwort."
 
 #: interactions.client.context.CommandContext:23 of
 msgid "The ID of the current guild."
-msgstr ""
+msgstr "Die ID des aktuellen Guilds."
 
 #: interactions.client.context.CommandContext:24 of
 msgid "The ID of the current channel."
-msgstr ""
+msgstr "Die ID des aktuellen Kanals."
 
 #: interactions.client.context.CommandContext:25 of
 msgid "Whether an original response was made or not."
-msgstr ""
+msgstr "Ob eine originale Antwort gemacht wurde oder nicht."
 
 #: interactions.client.context.CommandContext:26 of
 msgid "Whether the response was deferred or not."
-msgstr ""
+msgstr "Ob die Antwort deferred war oder nicht."
 
 #: interactions.client.context.CommandContext:27 of
 msgid "The selected language of the user invoking the interaction."
-msgstr ""
+msgstr "Die ausgewählte Sprache des Nutzers, der die Interaktion gemacht hat."
 
 #: interactions.client.context.CommandContext:28 of
 msgid "The guild's preferred language, if invoked in a guild."
-msgstr ""
+msgstr "Die bevorzugte Sprache des Guilds."
 
 #: interactions.client.context.CommandContext:29 of
 msgid ""
 "Bitwise set of permissions the bot has within the channel the interaction"
 " was sent from."
 msgstr ""
+"Bitwise Set von Berechtigungen, die der Bot im gegebenen Kanal hat."
 
 #: interactions.client.context.CommandContext.defer:1 of
 msgid ""
 "This \"defers\" an interaction response, allowing up to a 15-minute delay"
 " between invocation and responding."
 msgstr ""
+"Dies defert eine Interaktionsantwort und gibt Ihnen 15 Minuten Zeit um zu antworten."
 
 #: interactions.client.context.CommandContext.defer:4
 #: interactions.client.context.ComponentContext.defer:4 of
 msgid "Whether the deferred state is hidden or not."
-msgstr ""
+msgstr "Ob der deferred Zustand versteckt ist oder nicht."
 
 #: interactions.client.context.CommandContext.delete:1 of
 msgid ""
 "This deletes the interaction response of a message sent by the "
 "contextually derived information from this class."
 msgstr ""
+"Löscht die getätigte Interaktionsantwort." 
 
 #: interactions.client.context.CommandContext.delete:5 of
 msgid "Doing this will proceed in the context message no longer being present."
-msgstr ""
+msgstr "Dadurch wird auch die gelöschte Nachricht gelöscht."
 
 #: interactions.client.context.CommandContext.populate:1 of
 msgid ""
 "This \"populates\" the list of choices that the client-end user will be "
 "able to select from in the autocomplete field."
 msgstr ""
+"Dies populiert eine Liste von Auswahlmöglichkeiten, die der Nutzer bei einer "
+"Option mit autocomplete auswählen kann."
 
 #: interactions.client.context.CommandContext.populate:5 of
 msgid ""
 "Only a maximum of ``25`` choices may be presented within an autocomplete "
 "option."
-msgstr ""
+msgstr "Es können maximal 25 Auswahlmöglichkeiten auf einmal angezeigt werden."
 
 #: interactions.client.context.CommandContext.populate:8 of
 msgid "The choices you wish to present."
-msgstr ""
+msgstr "Die Auswahlmöglichkeiten, die Sie wünschen zu zeigen."
 
 #: interactions.client.context.CommandContext.populate:10 of
 msgid "The list of choices you've given."
-msgstr ""
+msgstr "Die Liste von Auswahlmöglichkeiten, die Sie gegeben haben."
 
 #: interactions.client.context.ComponentContext:1 of
 msgid ""
 "A derivation of :class:`interactions.context.CommandContext` designed "
 "specifically for component data."
 msgstr ""
+"Eine Abwandlung von :class:`interactions.context.CommandContext` "
+"entwickelt speziell für Komponenten-Daten."
 
 #: interactions.client.context.ComponentContext.defer:1 of
 msgid ""
 "This \"defers\" a component response, allowing up to a 15-minute delay "
 "between invocation and responding."
 msgstr ""
+"Dies defert eine Interaktionsantwort und gibt Ihnen 15 Minuten Zeit um zu antworten."
 
 #: interactions.client.context.ComponentContext.defer:6 of
 msgid "Whether you want to edit the original message or send a followup message"
-msgstr ""
+msgstr "Ob sie die originale Nachricht bearbeiten wollen oder nicht."
