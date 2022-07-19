@@ -74,7 +74,7 @@ msgid ""
 "Sets an RPC-like presence on the application when connected to the "
 "Gateway."
 msgstr ""
-"Setzt eine RPC-ähnliche Präsenz der Applikation, wenn sie zum Gateway " 
+"Setzt eine RPC-ähnliche Präsenz der Applikation, wenn sie zum Gateway "
 "verbunden ist."
 
 #: interactions.client.bot.Client:11 of
@@ -276,7 +276,7 @@ msgid ""
 "gateway ratelimiter yet, breaking this ratelimit will force your bot to "
 "disconnect."
 msgstr ""
-"Sie dürfen diese Methode nicht öfter als 5 mal pro Minute ausführen, da " 
+"Sie dürfen diese Methode nicht öfter als 5 mal pro Minute ausführen, da "
 "der Bot sonst abstürzen wird, da es noch keinen Gateway-Begrenzer gibt."
 
 #: interactions.client.bot.Client.change_presence:8 of
@@ -293,7 +293,7 @@ msgid ""
 " well as being able to listen for ``INTERACTION_CREATE`` dispatched "
 "gateway events."
 msgstr ""
-"Ein decorator, mit dem ein Befehl erstellt werden kann." 
+"Ein decorator, mit dem ein Befehl erstellt werden kann."
 
 #: interactions.client.bot.Client.command:5 of
 msgid "The structure of a chat-input command:"
@@ -304,7 +304,7 @@ msgid ""
 "You are also able to establish it as a message or user command by simply "
 "passing the ``type`` kwarg field into the decorator:"
 msgstr ""
-"Sie können über das ``type`` kwarg den Typen des Befehls verändern." 
+"Sie können über das ``type`` kwarg den Typen des Befehls verändern."
 
 #: interactions.client.bot.Client.command:22
 #: interactions.client.bot.Client.message_command:13
@@ -321,8 +321,8 @@ msgid ""
 " OR'ing the permission values, similar to instantiating the client with "
 "Intents. For example:"
 msgstr ""
-"Sie können ``default_member_permissions`` ähnlich wie Intents nutzen." 
-"Beispiel:" 
+"Sie können ``default_member_permissions`` ähnlich wie Intents nutzen."
+"Beispiel:"
 
 #: interactions.client.bot.Client.command:34 of
 msgid "Another example below for instance is an admin-only command:"
@@ -374,7 +374,7 @@ msgid ""
 "The dictionary of localization for the ``name`` field. This enforces the "
 "same restrictions as the ``name`` field."
 msgstr ""
-"Lokalisierungen für das ``name`` Feld." 
+"Lokalisierungen für das ``name`` Feld."
 
 #: interactions.client.bot.Client.command:57 of
 msgid ""
@@ -480,7 +480,7 @@ msgid ""
 "Iterates over `commands` and returns an :class:`ApplicationCommand` if it"
 " matches the name from `command`"
 msgstr ""
-"Findet einen Befehl aus allen Befehlen des Clients." 
+"Findet einen Befehl aus allen Befehlen des Clients."
 
 #: interactions.client.bot.Client._find_command:3 of
 msgid "The name of the command to match"
@@ -495,7 +495,7 @@ msgid ""
 "A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway "
 "events involving autocompletion fields."
 msgstr ""
-"Ein decorator, um auf Autocomplete eines Befehls zu hören." 
+"Ein decorator, um auf Autocomplete eines Befehls zu hören."
 
 #: interactions.client.bot.Client.autocomplete:4 of
 msgid "The structure for an autocomplete callback:"
@@ -581,7 +581,7 @@ msgid ""
 "``remove_commands`` argument set to ``True``, what it is by default."
 msgstr ""
 "Dies wird Befehle des extension entfernen und neu hinzufügen, was zu "
-"Ihrem täglichen Befehls-erstellungs-Limit zählt, so lange Sie " 
+"Ihrem täglichen Befehls-erstellungs-Limit zählt, so lange Sie "
 "``remove_commands`` auf ``True`` gesetzt haben, was Standardmäßig der Fall ist."
 
 #: interactions.client.bot.Client.reload:8 of
