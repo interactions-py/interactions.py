@@ -842,8 +842,8 @@ class Message(ClientSerializerMixin, IDMixin):
     author: User = field(converter=User, add_client=True, default=None)
     member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     content: str = field(default=None)
-    timestamp: datetime = field(converter=str, default=None)
-    edited_timestamp: Optional[datetime] = field(converter=str, default=None)
+    timestamp: datetime = field(converter=datetime.fromisoformat, default=None)
+    edited_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     tts: bool = field(default=None)
     mention_everyone: bool = field(default=None)
     # mentions: array of Users, and maybe partial members
@@ -881,12 +881,6 @@ class Message(ClientSerializerMixin, IDMixin):
     stickers: Optional[List[Sticker]] = field(
         converter=convert_list(Sticker), default=None
     )  # deprecated
-
-    def __attrs_post_init__(self):
-        if self.timestamp and isinstance(self.timestamp, str):
-            self.timestamp = datetime.fromisoformat(self.timestamp)
-        if self.edited_timestamp and isinstance(self.edited_timestamp, str):
-            self.edited_timestamp = datetime.fromisoformat(self.edited_timestamp)
 
     async def get_channel(self) -> Channel:
         """
