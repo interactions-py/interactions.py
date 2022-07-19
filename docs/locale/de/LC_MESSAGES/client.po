@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,22 +11,24 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Brain of EdVraz™️️\n"
 
 #: ../../client.rst:4
 msgid "Bot Client"
-msgstr ""
+msgstr "Bot Client"
 
 #: interactions.client.bot.Client:1 of
 msgid ""
 "A class representing the client connection to Discord's gateway and API "
 "via. WebSocket and HTTP."
 msgstr ""
+"Eine Klasse, die die Verbindung des Client zu Discords Gateway und API "
+"über WebSocket und HTTP repräsentiert."
 
 #: interactions.client.bot.Client
 #: interactions.client.bot.Client.__check_command
@@ -47,11 +49,11 @@ msgstr ""
 #: interactions.client.bot.Client.user_command
 #: interactions.client.bot.Extension of
 msgid "Parameters"
-msgstr ""
+msgstr "Parameter"
 
 #: interactions.client.bot.Client:3 of
 msgid "The token of the application for authentication and connection."
-msgstr ""
+msgstr "Das Token der Applikation für Authentifizierung und Verbindung."
 
 #: interactions.client.bot.Client:5 of
 msgid ""
@@ -59,56 +61,64 @@ msgid ""
 "connected. In order to use multiple intents, the | operator is "
 "recommended. Defaults to ``Intents.DEFAULT``."
 msgstr ""
+"Erlaubt spezifische Kontrolle über Berechtigungen, die die Applikation "
+"hat, wenn Verbunden. Um mehrere Intents zu nutzen, ist der ``|`` Operator "
+"empfohlen. Standardwert ist ``Intents.DEFAULT``."
 
 #: interactions.client.bot.Client:7 of
 msgid "Dictates and controls the shards that the application connects under."
-msgstr ""
+msgstr "Diktiert und Kontrolliert die shards, unter denen sich dir Applikation verbindet."
 
 #: interactions.client.bot.Client:9 of
 msgid ""
 "Sets an RPC-like presence on the application when connected to the "
 "Gateway."
 msgstr ""
+"Setzt eine RPC-ähnliche Präsenz der Applikation, wenn sie zum Gateway " 
+"verbunden ist."
 
 #: interactions.client.bot.Client:11 of
 msgid "Sets the default scope of all commands."
-msgstr ""
+msgstr "Setzt den Standard scope aller Befehle."
 
 #: interactions.client.bot.Client:13 of
 msgid ""
 "Controls whether synchronization in the user-facing API should be "
 "automatic or not."
 msgstr ""
+"Kontrolliert, ob die Synchronisation von Befehlen automatisiert "
+"geschieht."
 
 #: interactions.client.bot.Client of
 msgid "Variables"
-msgstr ""
+msgstr "Variablen"
 
 #: interactions.client.bot.Client:16 of
 msgid "The asynchronous event loop of the client."
-msgstr ""
+msgstr "Der asynchrone Event-Loop des Client."
 
 #: interactions.client.bot.Client:17 of
 msgid ""
 "The user-facing HTTP connection to the Web API, as its own separate "
 "client."
 msgstr ""
+"Die Nutzer-gerichtete HTTP-Verbindung zur Web API, als eigener Client."
 
 #: interactions.client.bot.Client:18 of
 msgid "An object-orientation of a websocket server connection to the Gateway."
-msgstr ""
+msgstr "Eine Objekt-Orientierung von einer Websocket Server Verbindung zum Gateway."
 
 #: interactions.client.bot.Client:19 of
 msgid "The Gateway intents of the application. Defaults to ``Intents.DEFAULT``."
-msgstr ""
+msgstr "Die Gateway Intents der Applikation."
 
 #: interactions.client.bot.Client:20 of
 msgid "The list of bucketed shards for the application's connection."
-msgstr ""
+msgstr "Die Liste von shards für die Verbindung der Applikation."
 
 #: interactions.client.bot.Client:21 of
 msgid "The RPC-like presence shown on an application once connected."
-msgstr ""
+msgstr "Die RPC-ähnliche Präsenz, die bei der Applikation angezeigt wird, wenn verbunden."
 
 #: interactions.client.bot.Client:22 of
 msgid "The token of the application used for authentication when connecting."
@@ -116,11 +126,11 @@ msgstr ""
 
 #: interactions.client.bot.Client:23 of
 msgid "The \"extensions\" or cog equivalence registered to the main client."
-msgstr ""
+msgstr "Die \" extensions\" die beim Hauptclient registriert sind."
 
 #: interactions.client.bot.Client:24 of
 msgid "The application representation of the client."
-msgstr ""
+msgstr "Die Applikation Repräsentation des Clients."
 
 #: interactions.client.bot.Client
 #: interactions.client.bot.Client.__check_command
@@ -147,35 +157,35 @@ msgstr ""
 #: interactions.client.bot.Client.wait_until_ready
 #: interactions.client.bot.Extension of
 msgid "Return type"
-msgstr ""
+msgstr "Rückgabetyp"
 
 #: interactions.client.bot.Client.guilds:1 of
 msgid "Returns a list of guilds the bot is in."
-msgstr ""
+msgstr "Gibt eine Liste aller Guilds, in denen der Bot ist, zurück."
 
 #: interactions.client.bot.Client.latency:1 of
 msgid "Returns the connection latency in milliseconds."
-msgstr ""
+msgstr "Gibt die Latenz der Verbindung in Millisekunden zurück."
 
 #: interactions.client.bot.Client.start:1 of
 msgid "Starts the client session."
-msgstr ""
+msgstr "Startet die Client-Session."
 
 #: interactions.client.bot.Client.__register_events:1 of
 msgid "Registers all raw gateway events to the known events."
-msgstr ""
+msgstr "Registriert alle puren Gateway-Ereignisse."
 
 #: interactions.client.bot.Client.__compare_sync:1 of
 msgid "Compares an application command during the synchronization process."
-msgstr ""
+msgstr "Vergleicht einen Applikationsbefehl während der Synchronisation."
 
 #: interactions.client.bot.Client.__compare_sync:3 of
 msgid "The application command to compare."
-msgstr ""
+msgstr "Der Befehl zum Vergleichen."
 
 #: interactions.client.bot.Client.__compare_sync:5 of
 msgid "The \"pool\" or list of commands to compare from."
-msgstr ""
+msgstr "Der \" pool\" oder Liste von Befehlen zum Vergleichen."
 
 #: interactions.client.bot.Client.__compare_sync
 #: interactions.client.bot.Client.__raw_channel_create
@@ -192,29 +202,31 @@ msgstr ""
 #: interactions.client.bot.Client.reload
 #: interactions.client.bot.Client.user_command of
 msgid "Returns"
-msgstr ""
+msgstr "Gibt zurück"
 
 #: interactions.client.bot.Client.__compare_sync:7 of
 msgid "Whether the command has changed or not."
-msgstr ""
+msgstr "Ob sich der Befehl geändert hat oder nicht."
 
 #: interactions.client.bot.Client._ready:1 of
 msgid ""
 "Prepares the client with an internal \"ready\" check to ensure that all "
 "conditions have been met in a chronological order:"
 msgstr ""
+"Bereitet den Client mit einem internen \"ready\" check vor um sicherzustellen, "
+"dass alle Bedingungen eingehalten wurden:"
 
 #: interactions.client.bot.Client._login:1 of
 msgid "Makes a login with the Discord API."
-msgstr ""
+msgstr "Macht einen Login mit der Discord Api."
 
 #: interactions.client.bot.Client.wait_until_ready:1 of
 msgid "Helper method that waits until the websocket is ready."
-msgstr ""
+msgstr "Hilfsmethode, die wartet, bis der Websocket bereit ist."
 
 #: interactions.client.bot.Client.__resolve_commands:1 of
 msgid "Resolves all commands to the command coroutines."
-msgstr ""
+msgstr "Bereitet alle Befehle vor und weist sie ihrer Funktion zu."
 
 #: interactions.client.bot.Client.__resolve_commands:4
 #: interactions.client.bot.Client.__sync:4 of
@@ -222,24 +234,27 @@ msgid ""
 "This is an internal method. Do not call it unless you know what you are "
 "doing!"
 msgstr ""
+"Die ist eine interne Methode. Führen Sie diese auf keinen Fall aus, wenn Sie "
+"nicht wissen, was Sie tun!"
 
 #: interactions.client.bot.Client.__sync:1 of
 msgid "Synchronizes all commands to the API."
-msgstr ""
+msgstr "Synchronisiert alle Befehle zur API."
 
 #: interactions.client.bot.Client.event:1 of
 msgid "A decorator for listening to events dispatched from the Gateway."
-msgstr ""
+msgstr "Ein decorator zum Hören auf Events die vom Gateway dispatcht werden."
 
 #: interactions.client.bot.Client.event:4 of
 msgid "The coroutine of the event."
-msgstr ""
+msgstr "Die Coroutine des Events."
 
 #: interactions.client.bot.Client.event:6 of
 msgid ""
 "The name of the event. If not given, this defaults to the coroutine's "
 "name."
 msgstr ""
+"Der Name des Events. Wenn nicht gegeben, wird der Name der Coroutine verwendet."
 
 #: interactions.client.bot.Client.autocomplete:20
 #: interactions.client.bot.Client.command:65
@@ -249,11 +264,11 @@ msgstr ""
 #: interactions.client.bot.Client.modal:24
 #: interactions.client.bot.Client.user_command:30 of
 msgid "A callable response."
-msgstr ""
+msgstr "Eine aufrufbare Antwort."
 
 #: interactions.client.bot.Client.change_presence:1 of
 msgid "A method that changes the current client's presence on runtime."
-msgstr ""
+msgstr "Eine Methode, die die aktuelle Präsenz des Clients ändert."
 
 #: interactions.client.bot.Client.change_presence:4 of
 msgid ""
@@ -261,14 +276,16 @@ msgid ""
 "gateway ratelimiter yet, breaking this ratelimit will force your bot to "
 "disconnect."
 msgstr ""
+"Sie dürfen diese Methode nicht öfter als 5 mal pro Minute ausführen, da " 
+"der Bot sonst abstürzen wird, da es noch keinen Gateway-Begrenzer gibt."
 
 #: interactions.client.bot.Client.change_presence:8 of
 msgid "The presence to change the bot to on identify."
-msgstr ""
+msgstr "Die Präsenz, zu der der Bot geändert werden soll."
 
 #: interactions.client.bot.Client.__check_command:1 of
 msgid "Checks if a command is valid."
-msgstr ""
+msgstr "Prüft ob ein Befehl gültig ist."
 
 #: interactions.client.bot.Client.command:1 of
 msgid ""
@@ -276,16 +293,18 @@ msgid ""
 " well as being able to listen for ``INTERACTION_CREATE`` dispatched "
 "gateway events."
 msgstr ""
+"Ein decorator, mit dem ein Befehl erstellt werden kann." 
 
 #: interactions.client.bot.Client.command:5 of
 msgid "The structure of a chat-input command:"
-msgstr ""
+msgstr "Die Struktur eines chat-input Befehls:"
 
 #: interactions.client.bot.Client.command:13 of
 msgid ""
 "You are also able to establish it as a message or user command by simply "
 "passing the ``type`` kwarg field into the decorator:"
 msgstr ""
+"Sie können über das ``type`` kwarg den Typen des Befehls verändern." 
 
 #: interactions.client.bot.Client.command:22
 #: interactions.client.bot.Client.message_command:13
@@ -294,6 +313,7 @@ msgid ""
 "The ``scope`` kwarg field may also be used to designate the command in "
 "question applicable to a guild or set of guilds."
 msgstr ""
+"Mit dem ``scope`` kwarg können Sie den Befehl auf bestimme Guilds begrenzen."
 
 #: interactions.client.bot.Client.command:25 of
 msgid ""
@@ -301,44 +321,51 @@ msgid ""
 " OR'ing the permission values, similar to instantiating the client with "
 "Intents. For example:"
 msgstr ""
+"Sie können ``default_member_permissions`` ähnlich wie Intents nutzen." 
+"Beispiel:" 
 
 #: interactions.client.bot.Client.command:34 of
 msgid "Another example below for instance is an admin-only command:"
-msgstr ""
+msgstr "Ein weiteres Beispiel für einen nur-Admin Befehl:"
 
 #: interactions.client.bot.Client.command:43 of
 msgid ""
 "If ``default_member_permissions`` is not given, this will default to "
 "anyone that is able to use the command."
 msgstr ""
+"Ist das Feld jedoch nicht gesetzt, so kann jeder den Befehl nutzen."
 
 #: interactions.client.bot.Client.command:45 of
 msgid ""
 "The type of application command. Defaults to "
 ":meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``."
 msgstr ""
+"Der Typ des Befehls. Standard: Chat-Input."
 
 #: interactions.client.bot.Client.command:47 of
 msgid ""
 "The name of the application command. This *is* required but kept optional"
 " to follow kwarg rules."
 msgstr ""
+"Der Name des Befehls."
 
 #: interactions.client.bot.Client.command:49 of
 msgid ""
 "The description of the application command. This should be left blank if "
 "you are not using ``CHAT_INPUT``."
 msgstr ""
+"Die Beschreibung des Befehls. Nur benötigt bei Chat-Input Befehlen."
 
 #: interactions.client.bot.Client.command:51 of
 msgid "The \"scope\"/applicable guilds the application command applies to."
-msgstr ""
+msgstr "Die Guilds, auf denen der Befehl vorhanden sein soll."
 
 #: interactions.client.bot.Client.command:53 of
 msgid ""
 "The \"arguments\"/options of an application command. This should be left "
 "blank if you are not using ``CHAT_INPUT``."
 msgstr ""
+"Die Argumente/Optionen des Befehls. Nutzen Sie dies nur bei Chat-Input Befehlen."
 
 #: interactions.client.bot.Client.command:55
 #: interactions.client.bot.Client.message_command:22
@@ -347,12 +374,14 @@ msgid ""
 "The dictionary of localization for the ``name`` field. This enforces the "
 "same restrictions as the ``name`` field."
 msgstr ""
+"Lokalisierungen für das ``name`` Feld." 
 
 #: interactions.client.bot.Client.command:57 of
 msgid ""
 "The dictionary of localization for the ``description`` field. This "
 "enforces the same restrictions as the ``description`` field."
 msgstr ""
+"Lokalisierungen für das ``description`` Feld."
 
 #: interactions.client.bot.Client.command:59
 #: interactions.client.bot.Client.message_command:24
@@ -371,6 +400,7 @@ msgid ""
 "The application permissions if executed in a Direct Message. Defaults to "
 "``True``."
 msgstr ""
+"Ob der Befehl in Privatnachrichten ausführbar ist oder nicht. Standard: ausführbar."
 
 #: interactions.client.bot.Client.command:63
 #: interactions.client.bot.Client.message_command:28
@@ -379,6 +409,7 @@ msgid ""
 "Whether the scope of the command is the default scope set in the client. "
 "Defaults to ``True``."
 msgstr ""
+"Ob bei diesem Befehl ``default_scope`` verwendet werden soll. Standard: ``True``."
 
 #: interactions.client.bot.Client.message_command:1 of
 msgid ""
@@ -386,15 +417,16 @@ msgid ""
 " well as being able to listen for ``INTERACTION_CREATE`` dispatched "
 "gateway events."
 msgstr ""
+"Ein decorator um ein Nachrichten-Kontext-Menü zu erstellen."
 
 #: interactions.client.bot.Client.message_command:5 of
 msgid "The structure of a message context menu:"
-msgstr ""
+msgstr "Die Struktur eines Nachrichten-Kontext-Menüs:"
 
 #: interactions.client.bot.Client.message_command:16
 #: interactions.client.bot.Client.user_command:16 of
 msgid "The name of the application command."
-msgstr ""
+msgstr "Der Name des Befehls."
 
 #: interactions.client.bot.Client.message_command:18
 #: interactions.client.bot.Client.user_command:18 of
@@ -402,6 +434,7 @@ msgid ""
 "The \"scope\"/applicable guilds the application command applies to. "
 "Defaults to ``None``."
 msgstr ""
+"Die Guilds, auf denen der Befehl vorhanden sein soll."
 
 #: interactions.client.bot.Client.message_command:20
 #: interactions.client.bot.Client.user_command:20 of
@@ -415,125 +448,131 @@ msgid ""
 "A decorator for registering a user context menu to the Discord API, as "
 "well as being able to listen for ``INTERACTION_CREATE`` dispatched "
 "gateway events."
-msgstr ""
+msgstr "Ein decorator um ein Nutzer-Kontext-Menü zu erstellen."
 
 #: interactions.client.bot.Client.user_command:5 of
 msgid "The structure of a user context menu:"
-msgstr ""
+msgstr "Die Struktur eines Nutzer-Kontext-Menüs:"
 
 #: interactions.client.bot.Client.component:1 of
 msgid ""
 "A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway "
 "events involving components."
-msgstr ""
+msgstr "Ein decorator um auf eine genutzte Komponente zu hören."
 
 #: interactions.client.bot.Client.component:4 of
 msgid "The structure for a component callback:"
-msgstr ""
+msgstr "Die Struktur eines Komponenten-callbacks:"
 
 #: interactions.client.bot.Client.component:22 of
 msgid ""
 "The context of the component callback decorator inherits the same as of "
 "the command decorator."
 msgstr ""
+"Der Kontext des Component-Callbacks."
 
 #: interactions.client.bot.Client.component:25 of
 msgid "The component you wish to callback for."
-msgstr ""
+msgstr "Die Komponente, auf die Sie hören möchten."
 
 #: interactions.client.bot.Client._find_command:1 of
 msgid ""
 "Iterates over `commands` and returns an :class:`ApplicationCommand` if it"
 " matches the name from `command`"
 msgstr ""
+"Findet einen Befehl aus allen Befehlen des Clients." 
 
 #: interactions.client.bot.Client._find_command:3 of
 msgid "The name of the command to match"
-msgstr ""
+msgstr "Der Name des Befehls der gefunden werden soll."
 
 #: interactions.client.bot.Client._find_command:5 of
 msgid "An ApplicationCommand model"
-msgstr ""
+msgstr "Ein ApplicationCommand Modell."
 
 #: interactions.client.bot.Client.autocomplete:1 of
 msgid ""
 "A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway "
 "events involving autocompletion fields."
 msgstr ""
+"Ein decorator, um auf Autocomplete eines Befehls zu hören." 
 
 #: interactions.client.bot.Client.autocomplete:4 of
 msgid "The structure for an autocomplete callback:"
-msgstr ""
+msgstr "Die Struktur eines Autocomplete-Callbacks:"
 
 #: interactions.client.bot.Client.autocomplete:16 of
 msgid "The command, command ID, or command name with the option."
-msgstr ""
+msgstr "Der Befehl, Befehls ID, oder Befehlsname."
 
 #: interactions.client.bot.Client.autocomplete:18 of
 msgid "The name of the option to autocomplete."
-msgstr ""
+msgstr "Der Name der Option für Autocomplete."
 
 #: interactions.client.bot.Client.modal:1 of
 msgid ""
 "A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway "
 "events involving modals."
 msgstr ""
+"Ein decorator um auf ein Modal zu hören."
 
 #: interactions.client.bot.Client.modal:4 of
 msgid "The structure for a modal callback:"
-msgstr ""
+msgstr "Die Struktur eines Modal-Callbacks:"
 
 #: interactions.client.bot.Client.modal:19 of
 msgid ""
 "The context of the modal callback decorator inherits the same as of the "
 "component decorator."
 msgstr ""
+"Der Kontext des Modals."
 
 #: interactions.client.bot.Client.modal:22 of
 msgid "The modal or custom_id of modal you wish to callback for."
-msgstr ""
+msgstr "Das Modal oder die custom ID des modals."
 
 #: interactions.client.bot.Client.load:1 of
 msgid ""
 "\"Loads\" an extension off of the current client by adding a new class "
 "which is imported from the library."
 msgstr ""
+"Lädt eine extension."
 
 #: interactions.client.bot.Client.load:4
 #: interactions.client.bot.Client.remove:3 of
 msgid "The name of the extension."
-msgstr ""
+msgstr "Der Name der extension."
 
 #: interactions.client.bot.Client.load:6
 #: interactions.client.bot.Client.remove:7 of
 msgid "The package of the extension."
-msgstr ""
+msgstr "Die package der extension."
 
 #: interactions.client.bot.Client.load:8
 #: interactions.client.bot.Client.reload:14 of
 msgid "Optional arguments to pass to the extension"
-msgstr ""
+msgstr "Optionale Argumente, die zur extension gegeben werden sollen."
 
 #: interactions.client.bot.Client.load:10
 #: interactions.client.bot.Client.reload:16 of
 msgid "Optional keyword-only arguments to pass to the extension."
-msgstr ""
+msgstr "Optionale keyword Argumente, die zur extension gegeben werden sollen."
 
 #: interactions.client.bot.Client.load:12 of
 msgid "The loaded extension."
-msgstr ""
+msgstr "Die geladene extension."
 
 #: interactions.client.bot.Client.remove:1 of
 msgid "Removes an extension out of the current client from an import resolve."
-msgstr ""
+msgstr "Entfernt eine geladene extension"
 
 #: interactions.client.bot.Client.remove:5 of
 msgid "Whether to remove commands before reloading. Defaults to True."
-msgstr ""
+msgstr "Ob Befehle entfernt werden sollen, bevor neu geladen wird. Standard: True."
 
 #: interactions.client.bot.Client.reload:1 of
 msgid "\"Reloads\" an extension off of current client from an import resolve."
-msgstr ""
+msgstr "Lädt eine geladene Erweiterung neu."
 
 #: interactions.client.bot.Client.reload:4 of
 msgid ""
@@ -541,38 +580,41 @@ msgid ""
 "daily application command creation limit, as long as you have the "
 "``remove_commands`` argument set to ``True``, what it is by default."
 msgstr ""
+"Dies wird Befehle des extension entfernen und neu hinzufügen, was zu "
+"Ihrem täglichen Befehls-erstellungs-Limit zählt, so lange Sie " 
+"``remove_commands`` auf ``True`` gesetzt haben, was Standardmäßig der Fall ist."
 
 #: interactions.client.bot.Client.reload:8 of
 msgid "The name of the extension"
-msgstr ""
+msgstr "Der Name der extension."
 
 #: interactions.client.bot.Client.reload:10 of
 msgid "The package of the extension"
-msgstr ""
+msgstr "Die package der extension"
 
 #: interactions.client.bot.Client.reload:12 of
 msgid "Whether to remove commands before reloading. Defaults to True"
-msgstr ""
+msgstr "Ob Befehle entfernt werden sollen, bevor neu geladen wird."
 
 #: interactions.client.bot.Client.reload:18 of
 msgid "The reloaded extension."
-msgstr ""
+msgstr "Die neu geladene extension. "
 
 #: interactions.client.bot.Client.modify:1 of
 msgid "Modify the bot user account settings."
-msgstr ""
+msgstr "Aktualisiert die Bot-Nutzer-Account Einstellungen."
 
 #: interactions.client.bot.Client.modify:3 of
 msgid "The new username of the bot"
-msgstr ""
+msgstr "Der neue Nutzername des Bots"
 
 #: interactions.client.bot.Client.modify:5 of
 msgid "The new avatar of the bot"
-msgstr ""
+msgstr "Der neue Avatar des Bots"
 
 #: interactions.client.bot.Client.modify:7 of
 msgid "The modified User object"
-msgstr ""
+msgstr "Das modifizierte Nutzer-Objekt"
 
 #: interactions.client.bot.Client.__raw_socket_create:1 of
 msgid ""
@@ -580,54 +622,56 @@ msgid ""
 " returns the data purely based off of what it does in the client "
 "instantiation class."
 msgstr ""
+"Eine interne Funktion die alle Gateway Socket Events zurückgibt."
 
 #: interactions.client.bot.Client.__raw_socket_create:5 of
 msgid "The data that is returned"
-msgstr ""
+msgstr "Die Daten, die zurückgegeben werden."
 
 #: interactions.client.bot.Client.__raw_socket_create:7 of
 msgid "A dictionary of raw data."
-msgstr ""
+msgstr "Ein Dictionary von rohen Daten."
 
 #: interactions.client.bot.Client.__raw_channel_create:1 of
 msgid ""
 "This is an internal function that caches the channel creates when "
 "dispatched."
 msgstr ""
+"Interne Funktion für das channel create event."
 
 #: interactions.client.bot.Client.__raw_channel_create:3 of
 msgid "The channel object data in question."
-msgstr ""
+msgstr "Das channel Objekt."
 
 #: interactions.client.bot.Client.__raw_channel_create:5 of
 msgid "The channel as a dictionary of raw data."
-msgstr ""
+msgstr "Der Channel als Dictionary."
 
 #: interactions.client.bot.Client.__raw_message_create:1 of
 msgid ""
 "This is an internal function that caches the message creates when "
 "dispatched."
-msgstr ""
+msgstr "Eine interne Funktion die Daten des message create events speichert."
 
 #: interactions.client.bot.Client.__raw_message_create:3 of
 msgid "The message object data in question."
-msgstr ""
+msgstr "Das Nachricht Objekt."
 
 #: interactions.client.bot.Client.__raw_message_create:5 of
 msgid "The message as a dictionary of raw data."
-msgstr ""
+msgstr "Die Nachricht als Dictionary."
 
 #: interactions.client.bot.Client.__raw_guild_create:1 of
 msgid "This is an internal function that caches the guild creates on ready."
-msgstr ""
+msgstr "Eine interne Funktion die Daten des Guild create events speichert."
 
 #: interactions.client.bot.Client.__raw_guild_create:3 of
 msgid "The guild object data in question."
-msgstr ""
+msgstr "Das guild Objekt."
 
 #: interactions.client.bot.Client.__raw_guild_create:5 of
 msgid "The guild as a dictionary of raw data."
-msgstr ""
+msgstr "Der Guild as Dictionary."
 
 #: interactions.client.bot.Extension:1 of
 msgid ""
@@ -635,7 +679,8 @@ msgid ""
 "essentially cogs that can be ran independent of the root file in an "
 "object-oriented structure."
 msgstr ""
+"Eine Klasse die es Ihnen ermöglicht, eine Extension in Ihrem Code zu erstellen."
 
 #: interactions.client.bot.Extension:5 of
 msgid "The structure of an extension:"
-msgstr ""
+msgstr "Die Struktur einer Extension:"
