@@ -403,7 +403,7 @@ class WebSocketClient:
 
                 def __modify_guild_cache():
                     if not (
-                        guild_id := data.get("guild_id")
+                        (guild_id := data.get("guild_id"))
                         and not isinstance(obj, Guild)
                         and "message" not in name
                     ):
