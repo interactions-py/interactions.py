@@ -87,7 +87,7 @@ msgstr "Dies holt den channel, in dem der Context aufgerufen wurde."
 #: interactions.client.context._Context.get_guild
 #: interactions.client.context._Context.send of
 msgid "Returns"
-msgstr ""
+msgstr "Gibt zurück"
 
 #: interactions.client.context._Context.get_channel:3 of
 msgid "The channel as object"
@@ -186,7 +186,7 @@ msgid ""
 "interaction response. This inherits the arguments of the Context "
 "``.send()`` method."
 msgstr ""
-"Modifiziert die Nachricht. Hat alle Argumente der send Methode, außer ``ephemeral``."
+"Modifiziert die Nachricht. Hat alle Argumente der send Methode, außer ``ephemeral``." 
 
 #: interactions.client.context.CommandContext.edit:5
 #: interactions.client.context.ComponentContext.edit:5
@@ -229,7 +229,7 @@ msgid ""
 "manually fetch for this data for the time being."
 msgstr ""
 "Standardmäßig ist das Guild Attribut nicht gesetzt. Sie müssen es deshalb "
-"selber holen"
+"selber holen" 
 
 #: interactions.client.context.CommandContext:11 of
 msgid ""
@@ -237,7 +237,7 @@ msgid ""
 "JSON dictionary, which you can then use ``interactions.Guild(**data)`` "
 "for an object or continue with a dictionary for your own purposes."
 msgstr ""
-"Sie können über ``await ctx.get_guild()`` das Objekt holen."
+"Sie können über ``await ctx.get_guild()`` das Objekt holen." 
 
 #: interactions.client.context.CommandContext:16 of
 msgid "the HTTP client"
@@ -315,7 +315,7 @@ msgid ""
 "This deletes the interaction response of a message sent by the "
 "contextually derived information from this class."
 msgstr ""
-"Löscht die getätigte Interaktionsantwort."
+"Löscht die getätigte Interaktionsantwort." 
 
 #: interactions.client.context.CommandContext.delete:5 of
 msgid "Doing this will proceed in the context message no longer being present."
