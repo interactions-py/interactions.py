@@ -2,86 +2,90 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Brain of EdVraz™️️\n"
 
 #: ../../models.utils.rst:4
 msgid "Utilities"
-msgstr ""
+msgstr "Utilities"
 
 #: interactions.client.models.utils.autodefer:1 of
 msgid ""
 "A decorator that automatically defers a command if it did not respond "
 "within ``delay`` seconds."
 msgstr ""
+"Ein Dekorator der automatisch einen Befehl defert, wenn dieser nicht "
+"innerhalb von ``delay`` Sekunden geantwortet hat."
 
 #: interactions.client.models.utils.autodefer:3 of
 msgid "The structure of the decorator is:"
-msgstr ""
+msgstr "Die Struktur des Dekorators ist:"
 
 #: interactions.client.models.utils.autodefer
 #: interactions.client.models.utils.spread_to_rows of
 msgid "Parameters"
-msgstr ""
+msgstr "Parameter"
 
 #: interactions.client.models.utils.autodefer:13 of
 msgid ""
 "The amount of time in seconds to wait before defering the command. "
 "Defaults to ``2`` seconds."
 msgstr ""
+"Wie lange vor dem deferren gewartet werden soll. Standard: ``2`` Sekunden."
 
 #: interactions.client.models.utils.autodefer:15 of
 msgid "Whether the command is deferred ephemerally. Defaults to ``False``."
-msgstr ""
+msgstr "Ob der Befehl ephemeral defert ist. Standard: ``False``."
 
 #: interactions.client.models.utils.autodefer:17 of
 msgid "Whether the command is deferred on origin. Defaults to ``False``."
-msgstr ""
+msgstr "Ob der Befehl auf origin defert ist. Standard: ``False``."
 
 #: interactions.client.models.utils.autodefer of
 msgid "Returns"
-msgstr ""
+msgstr "Gibt zurück"
 
 #: interactions.client.models.utils.autodefer:19 of
 msgid "The inner function, for decorating."
-msgstr ""
+msgstr "Die innere Funktion."
 
 #: interactions.client.models.utils.autodefer
 #: interactions.client.models.utils.spread_to_rows of
 msgid "Return type"
-msgstr ""
+msgstr "Rückgabetyp"
 
 #: interactions.client.models.utils.spread_to_rows:1 of
 msgid "A helper function that spreads components into :class:`ActionRow`s."
-msgstr ""
+msgstr "Eine Hilfsfunktion die Komponenten in :class:`ActionRow`s teilt."
 
 #: interactions.client.models.utils.spread_to_rows:3 of
 msgid "Example:"
-msgstr ""
+msgstr "Beispiel:"
 
 #: interactions.client.models.utils.spread_to_rows:24 of
 msgid ""
 "You can only pass in :class:`ActionRow`s, :class:`Button`s, and "
 ":class:`SelectMenu`s, but in any order."
-msgstr ""
+msgstr "Sie könenn nur :class:`ActionRow`s, :class:`Button`s, und "
+":class:`SelectMenu`s eingeben, aber in sämtlicher Reihenfolge."
 
 #: interactions.client.models.utils.spread_to_rows:26 of
 msgid "The components to spread."
-msgstr ""
+msgstr "Die Komponenten zum aufteilen."
 
 #: interactions.client.models.utils.spread_to_rows:28 of
 msgid "The maximum number of components in a single row. Defaults to ``5``."
-msgstr ""
+msgstr "Die maximale Zahl an Komponenten in einer Reihe. Standard: ``5``."
