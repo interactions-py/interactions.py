@@ -12,7 +12,6 @@ from asyncio import (
     new_event_loop,
     sleep,
 )
-from datetime import datetime
 from sys import platform, version_info
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
