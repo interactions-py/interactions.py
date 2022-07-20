@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,141 +11,141 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Brain of EdVraz™️️\n"
 
 #: ../../models.misc.rst:4
 msgid "Miscellaneous Models"
-msgstr ""
+msgstr "Sonstige Modelle"
 
 #: interactions.client.models.misc.InteractionResolvedData:1 of
 msgid "A class representing the resolved information of an interaction data."
-msgstr ""
+msgstr "Eine Klasse, die aufgelöste Informationen von Interaktiondaten repräsentiert."
 
 #: interactions.client.models.misc.Interaction
 #: interactions.client.models.misc.InteractionData
 #: interactions.client.models.misc.InteractionResolvedData of
 msgid "Variables"
-msgstr ""
+msgstr "Variablen"
 
 #: interactions.client.models.misc.InteractionResolvedData:3 of
 msgid "The resolved users data."
-msgstr ""
+msgstr "Die aufgelösten Nutzerdaten."
 
 #: interactions.client.models.misc.InteractionResolvedData:4 of
 msgid "The resolved members data."
-msgstr ""
+msgstr "Die aufgelösten Mitgliedsdaten."
 
 #: interactions.client.models.misc.InteractionResolvedData:5 of
 msgid "The resolved roles data."
-msgstr ""
+msgstr "Die aufgelösten Rollendaten."
 
 #: interactions.client.models.misc.InteractionResolvedData:6 of
 msgid "The resolved channels data."
-msgstr ""
+msgstr "Die aufgelösten Kanaldaten."
 
 #: interactions.client.models.misc.InteractionResolvedData:7 of
 msgid "The resolved messages data."
-msgstr ""
+msgstr "Die aufgelösten Nachrichtendaten."
 
 #: interactions.client.models.misc.InteractionResolvedData:8 of
 msgid "The resolved attachments data."
-msgstr ""
+msgstr "Die aufgelösten Anhangsdaten."
 
 #: interactions.client.models.misc.Interaction
 #: interactions.client.models.misc.InteractionData
 #: interactions.client.models.misc.InteractionResolvedData of
 msgid "Parameters"
-msgstr ""
+msgstr "Parameter"
 
 #: interactions.client.models.misc.InteractionData:1 of
 msgid "A class object representing the data of an interaction."
-msgstr ""
+msgstr "Eine Klasse, die Daten einer Interaktion repräsentiert."
 
 #: interactions.client.models.misc.InteractionData:3 of
 msgid "The ID of the interaction data."
-msgstr ""
+msgstr "Die ID der Interaktionsdaten."
 
 #: interactions.client.models.misc.InteractionData:4 of
 msgid "The name of the interaction."
-msgstr ""
+msgstr "Der Name der Interaktion."
 
 #: interactions.client.models.misc.InteractionData:5 of
 msgid "The type of command from the interaction."
-msgstr ""
+msgstr "Die Art des Befehls der Interaktion."
 
 #: interactions.client.models.misc.InteractionData:6 of
 msgid "The resolved version of the data."
-msgstr ""
+msgstr "Die aufgelöste Version der Daten."
 
 #: interactions.client.models.misc.InteractionData:7 of
 msgid "The options of the interaction."
-msgstr ""
+msgstr "Die Optionen der Interaktion."
 
 #: interactions.client.models.misc.InteractionData:8 of
 msgid "The custom ID of the interaction."
-msgstr ""
+msgstr "Die custom ID der Interaktion."
 
 #: interactions.client.models.misc.InteractionData:9 of
 msgid "The type of component from the interaction."
-msgstr ""
+msgstr "Die Art der Komponente der Interaktion."
 
 #: interactions.client.models.misc.InteractionData:10 of
 msgid "The values of the selected options in the interaction."
-msgstr ""
+msgstr "Die Daten der ausgewählten Option in der Interaktion."
 
 #: interactions.client.models.misc.InteractionData:11 of
 msgid "The targeted ID of the interaction."
-msgstr ""
+msgstr "Die targeted ID der Interaktion."
 
 #: interactions.client.models.misc.Interaction:1 of
 msgid "A class object representing an interaction."
-msgstr ""
+msgstr "Eine Klasse, die eine Interaktion repräsentiert."
 
 #: interactions.client.models.misc.Interaction:3 of
 msgid "The ID of the interaction."
-msgstr ""
+msgstr "Die ID der Interaktion."
 
 #: interactions.client.models.misc.Interaction:4 of
 msgid "The application's ID of the interaction."
-msgstr ""
+msgstr "Die ID der Applikation der Interaktion."
 
 #: interactions.client.models.misc.Interaction:5 of
 msgid "The type of interaction."
-msgstr ""
+msgstr "Der Typ der Interaktion."
 
 #: interactions.client.models.misc.Interaction:6 of
 msgid "The data of the interaction."
-msgstr ""
+msgstr "Die Daten der Interaktion."
 
 #: interactions.client.models.misc.Interaction:7 of
 msgid "The guild ID of the interaction."
-msgstr ""
+msgstr "Die Guild ID der Interaktion."
 
 #: interactions.client.models.misc.Interaction:8 of
 msgid "The channel ID of the interaction."
-msgstr ""
+msgstr "Die Kanal ID der Interaktion."
 
 #: interactions.client.models.misc.Interaction:9 of
 msgid "The member who invoked the interaction."
-msgstr ""
+msgstr "Das Mitglied, das die Interaktion ausgeführt hat."
 
 #: interactions.client.models.misc.Interaction:10 of
 msgid "The user who invoked the interaction."
-msgstr ""
+msgstr "Der Nutzer, der die Interaktion ausgeführt hat."
 
 #: interactions.client.models.misc.Interaction:11 of
 msgid "The token of the interaction."
-msgstr ""
+msgstr "Das Token der Interaktion-"
 
 #: interactions.client.models.misc.Interaction:12 of
 msgid "The version of the interaction as an autoincrement identifier."
-msgstr ""
+msgstr "Die Version der Interaktion als selsbterhöhender Identifier."
 
 #: interactions.client.models.misc.Interaction:13 of
 msgid "The message of the interaction."
-msgstr ""
+msgstr "Die Nachricht der Interaktion"
