@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# FIRST AUTHOR: EdVraz - edvraz12@gmail.com - A Python Programmer#4269, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,16 +11,16 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: EdVraz edvraz12@gmail.com, A Python Programmer#4269 (preferred way to contact me is Discord)\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Brain of EdVraz™️️\n"
 
 #: ../../migration.rst:2
 msgid "Migration"
-msgstr ""
+msgstr "Migration"
 
 #: ../../migration.rst:4
 msgid ""
@@ -28,10 +28,13 @@ msgid ""
 "breaking or otherwise important design choices made between versions to "
 "guide towards easy migration between one another."
 msgstr ""
+"Diese Seite zielt darauf ab, dem Nutzer als Führer zu dienen und ihm "
+"schwerwiegende oder anderwertige wichtige Design-Änderungen, die zwischen "
+"Versionen gemacht wurden, zu zeigen und es ihm zu erleichtern, diese einzubauen."
 
 #: ../../migration.rst:8
 msgid "4.0.1 → 4.0.2"
-msgstr ""
+msgstr "4.0.1 → 4.0.2"
 
 #: ../../migration.rst:10
 msgid ""
@@ -43,16 +46,25 @@ msgid ""
 "object for use will need it appended as a key-word argument. The example "
 "below shows this change:"
 msgstr ""
+"Die gröte Änderung zwischen diesen beiden Versionen ist die Art, in der "
+"``HTTPClient`` und moddelierte API-schema Objekte genutzt werden. In ``4.0.2`` "
+"wurde ein neues ``_client`` Attribut zu den Modell-Objekten hinzugefügt, damit "
+"Hilfsmethoden benutzbar sind. Dies ist nicht benötigt, sofern es sich um ein Event "
+"handelt, dass vom Gateway dispatcht wurde, sollten Sie jedoch manuell ein Modell "
+"generieren, so müssen Sie das Attribut selber einfügen. Dieses Beispiel zeigt "
+"die Änderung:"
 
 #: ../../migration.rst:25
 msgid ""
 "This change was added in favor for being able to use endpoints in an "
 "abstracted state."
 msgstr ""
+"Diese Änderung wurde hinzugefügt, damit Endpunkte in einem abstrahierten Zustand "
+"genutzt werden können."
 
 #: ../../migration.rst:28
 msgid "4.0.2 → 4.1.0"
-msgstr ""
+msgstr "4.0.2 → 4.1.0"
 
 #: ../../migration.rst:30
 msgid ""
@@ -61,6 +73,9 @@ msgid ""
 "processes information, as well as supplying a ``reason`` argument to "
 "``HTTPClient``-based methods."
 msgstr ""
+"``4.1.0`` leitet zahlreiche Breaking-Änderungen ein, die die Fähigkeit "
+"des Bot-Entwicklers zu Arbeiten betreffen, jedoch hauptsächlich durch "
+"Modifikationen wie unser Gateway Informationen verarbeitet."
 
 #: ../../migration.rst:33
 msgid ""
@@ -68,18 +83,24 @@ msgid ""
 "every HTTP request. You can instead send it as an optional, which will "
 "work to keep any existing modifications of our codebase from breaking."
 msgstr ""
+"In dieser Version ist es auch nicht länger nötig, für jede HTTP-Anfrage "
+"eine ``reason`` zu geben."
 
 #: ../../migration.rst:36
 msgid ""
 "Additionally, modifying the way information is dispatched from the "
 "Gateway must be done like this now:"
 msgstr ""
+"Zusätzlich muss eine Modifizierung von Informationen die vom Gateway "
+"dispatcht werden auf diese Weise vorgenommen werden: "
 
 #: ../../migration.rst:49
 msgid ""
 "We recommend that working in correspondence with this, you should be "
 "making use of our ``interactions.ext`` SDK framework."
 msgstr ""
+"Wir empfehlen, dass Sie auch unser ``interactions.ext`` SDK-Framework "
+"nutzen sollten."
 
 #: ../../migration.rst:51
 msgid ""
@@ -89,6 +110,8 @@ msgid ""
 "the full list of these, we highly encourage you to view the documentation"
 " readily available."
 msgstr ""
+"Eine weitere kleine, aber trotzdem schwerwiegende Änderung ist die Umbenennung "
+"des ``http`` Attributs des ``Client``. Es wurde zu ``_http`` geändert."
 
 #: ../../migration.rst:55
 msgid ""
@@ -99,10 +122,14 @@ msgid ""
 "works still, you will need to enable this intent in your bot's developer "
 "portal and add the intent to your current intents when connecting:"
 msgstr ""
+"Die letzte und größte Änderung ist die Einführung des ``MESSAGE_CONTENT`` "
+"priviliged-intents in die Bibliothek. Da wir mit ``4.1.0`` Version 10 der "
+"Discord API nutzen, ist dieser Intent nun erforderlich, um Inhalte von Nachrichten "
+"lesen zu können:"
 
 #: ../../migration.rst:67
 msgid "4.1.0 → 4.3.0"
-msgstr ""
+msgstr "4.1.0 → 4.3.0"
 
 #: ../../migration.rst:69
 msgid ""
@@ -110,24 +137,29 @@ msgid ""
 "``on_ready``, this event is only dispatched when the bot is first "
 "started."
 msgstr ""
+"Eine neue Funktion wurde hinzugefüht; ein Event namens ``on_start``. Im "
+"gegensatz zu ``on_ready`` wird dieses Event nur beim ersten Start des Bots"
+"dispatcht."
 
 #: ../../migration.rst:72
 msgid "Instead of using the ``on_ready`` event and a check to only run code once:"
-msgstr ""
+msgstr "Anstatt das ``on_ready`` Event zu nutzen und einen Check zu haben um Code nur einmal auszuführen:"
 
 #: ../../migration.rst:86
 msgid "You can now utilize the ``on_start`` event to achieve the same goal:"
-msgstr ""
+msgstr "Könenn Sie nun das ``on_start`` Event nutzen, um das Selbe zu erreichen:"
 
 #: ../../migration.rst:96
 msgid ""
 "Another big change in this release is the implementation of the ``get`` "
 "utility method. It allows you to no longer use ``**await bot._http...``."
 msgstr ""
+"Eine weitere große Änderung in dieser Veröffentlichugn ist der Einbau der "
+"``get`` Funktion. Es erlaubt, `**await bot._http...`` zu ersetzen."
 
 #: ../../migration.rst:99
 msgid "You can get more information by reading the `get-documentation`_."
-msgstr ""
+msgstr "Sie können mehr Informationen erhalten, wenn Sie die `get-documentation`_ lesen."
 
 #: ../../migration.rst:102
 msgid ""
@@ -135,12 +167,17 @@ msgid ""
 " and options. There are also numerous new features, such as a default "
 "scope and utilities."
 msgstr ""
+"``4.3.0`` führt zusätzlich eine neue Methode zum Erstellen von Befehlen, Unterbefehlen "
+"und Optionen zu erstellen. Auch gibt es zahlreiche Funktionen, wie Standard-Scope und "
+"utilities."
 
 #: ../../migration.rst:105
 msgid ""
 "The following example shows and explains how to create commands "
 "effortlessly and use new features mentioned above:"
 msgstr ""
+"Das folgende Beispiel zeigt und erklärt wie man Befehle mithilfe "
+"der neuen Funktionen erstellen kann:"
 
 #: ../../migration.rst:213
 msgid ""
@@ -148,3 +185,6 @@ msgid ""
 "your argument in your function differently than your option name! "
 "Example:"
 msgstr ""
+"Noch eine Änderung in ``4.3.0``: Wir haben converter hinzugefügt! Diese "
+"erlauben es Ihnen, das Argument in Ihrer Funktion anders zu benennen als "
+"Ihre Option. Beispiel:"
