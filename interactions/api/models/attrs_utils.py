@@ -96,7 +96,9 @@ class DictSerializerMixin:
                 continue
 
             self._json[name] = value
-            setattr(self, name, converter(value) if (converter := attribs[name].converter) else value)
+            setattr(
+                self, name, converter(value) if (converter := attribs[name].converter) else value
+            )
 
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
