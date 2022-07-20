@@ -50,24 +50,9 @@ class DictSerializerMixin:
                     if value is not None and attrib.metadata.get("add_client"):
                         if isinstance(value, list):
                             for item in value:
-                                if isinstance(item, dict):
-                                    item["_client"] = client
-                                elif isinstance(item, ClientSerializerMixin):
-                                    item._client = client
-
+                                item["_client"] = client
                         else:
-                            if isinstance(value, dict):
-                                value["_client"] = client
-                            elif isinstance(value, ClientSerializerMixin):
-                                value._client = client
-
-                    # make sure json is recursively handled
-                    if isinstance(value, list):
-                        self._json[attrib_name] = [
-                            i._json if hasattr(i, "_json") else i for i in value
-                        ]
-                    elif hasattr(value, "_json"):
-                        self._json[attrib_name] = value._json  # type: ignore
+                            value["_client"] = client
 
                     passed_kwargs[attrib_name] = value
 
@@ -110,11 +95,8 @@ class DictSerializerMixin:
             if value is None:
                 continue
 
-            if converter := attribs[name].converter:
-                value = converter(value)
-
             self._json[name] = value
-            setattr(self, name, value)
+            setattr(self, name, converter(value) if (converter := attribs[name].converter) else value)
 
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
