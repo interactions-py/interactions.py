@@ -563,7 +563,7 @@ class Embed(DictSerializerMixin):
         self.fields = []
 
     def insert_field_at(
-        self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
         """
         Inserts a field in the embed at the specified index
