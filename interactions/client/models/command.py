@@ -210,68 +210,76 @@ class ApplicationCommand(DictSerializerMixin):
 
 
 def option(
-    option_type: OptionType,
+    _coro: Callable[..., Awaitable] = MISSING,
     /,
-    name: str,
-    description: Optional[str] = "No description set",
     **kwargs,
-) -> Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]:
+) -> Union[
+    Callable[..., Awaitable], Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]
+]:
     r"""
     A decorator for adding options to a command.
+
+    The type and name of the option are defaulted to the parameter's typehint and name.
 
     The structure of an option:
 
     .. code-block:: python
 
         @client.command()
-        @interactions.option(str, name="opt", ...)
+        @interactions.option(...)  # kwargs are optional, same as Option
         async def my_command(ctx, opt: str):
             ...
 
-    :param option_type: The type of the option.
-    :type option_type: OptionType
-    :param name: The name of the option.
-    :type name: str
-    :param description?: The description of the option. Defaults to ``"No description set"``.
-    :type description?: str
-    :param \**kwargs: The keyword arguments of the option, same as :class:`Option`.
-    :type \**kwargs: dict
+    :param _coro?: The coroutine to be wrapped. Do not input this unless you know what you're doing.
+    :type _coro?: Callable[..., Awaitable]
+    :param \**kwargs?: The keyword arguments of the option, same as :class:`Option`.
+    :type \**kwargs?: dict
     """
-    if option_type in (str, int, float, bool):
-        if option_type is str:
-            option_type = OptionType.STRING
-        elif option_type is int:
-            option_type = OptionType.INTEGER
-        elif option_type is float:
-            option_type = OptionType.NUMBER
-        elif option_type is bool:
-            option_type = OptionType.BOOLEAN
-    elif option_type in (Member, User):
-        option_type = OptionType.USER
-    elif option_type is Channel:
-        option_type = OptionType.CHANNEL
-    elif option_type is Role:
-        option_type = OptionType.ROLE
-    elif option_type in (Attachment, File, Image):
-        option_type = OptionType.ATTACHMENT
-
-    option: Option = Option(
-        type=option_type,
-        name=name,
-        description=description,
-        **kwargs,
-    )
 
     def decorator(coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
-        nonlocal option
+        parameters = list(signature(coro).parameters.values())
 
-        if hasattr(coro, "_options") and isinstance(coro._options, list):
-            coro._options.insert(0, option)
-        else:
-            coro._options = [option]
+        if not hasattr(coro, "_options") or not isinstance(coro._options, list):
+            coro._options = []
 
+        param = parameters[-1 - len(coro._options)]
+
+        option_type = kwargs.get("type", param.annotation)
+        if option_type is param.empty:
+            raise LibraryException(
+                code=12,
+                message=f"No type specified for option {kwargs.get('name', param.name)}.",
+            )
+        if option_type in (str, int, float, bool):
+            if option_type is str:
+                option_type = OptionType.STRING
+            elif option_type is int:
+                option_type = OptionType.INTEGER
+            elif option_type is float:
+                option_type = OptionType.NUMBER
+            elif option_type is bool:
+                option_type = OptionType.BOOLEAN
+        elif option_type in (Member, User):
+            option_type = OptionType.USER
+        elif option_type is Channel:
+            option_type = OptionType.CHANNEL
+        elif option_type is Role:
+            option_type = OptionType.ROLE
+        elif option_type in (Attachment, File, Image):
+            option_type = OptionType.ATTACHMENT
+
+        _option = Option(
+            type=option_type,
+            name=kwargs.get("name", param.name),
+            description=kwargs.get("description", "No description set"),
+            required=kwargs.get("required", param.default is param.empty),
+            **kwargs,
+        )
+        coro._options.insert(0, _option)
         return coro
 
+    if _coro is not MISSING:
+        return decorator(_coro)
     return decorator
 
 
