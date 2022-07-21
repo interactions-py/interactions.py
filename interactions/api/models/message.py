@@ -586,9 +586,6 @@ class Embed(DictSerializerMixin):
         except AttributeError as e:
             raise AttributeError("No fields found in Embed") from e
 
-        except IndexError as e:
-            raise IndexError("No fields at this index") from e
-
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
