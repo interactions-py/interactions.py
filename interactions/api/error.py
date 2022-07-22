@@ -167,9 +167,9 @@ class LibraryException(Exception):
             20024: "Under minimum age",
             20028: "The channel you are writing has hit the write rate limit",
             20029: "The write action you are performing on the server has hit the write "
-                   "rate limit",
+            "rate limit",
             20031: "Your Stage topic, server name, server description, "
-                   "or channel names contain words that are not allowed",
+            "or channel names contain words that are not allowed",
             20035: "Guild premium subscription level too low",
             30001: "Maximum number of guilds reached (100)",
             30002: "Maximum number of friends reached (1000)",
@@ -188,8 +188,7 @@ class LibraryException(Exception):
             30031: "Guild already has a template",
             30032: "Maximum number of application commands reached",
             30033: "Max number of thread participants has been reached (1000)",
-            30034: "Max number of daily application command creates has been reached "
-                   "(200)",
+            30034: "Max number of daily application command creates has been reached " "(200)",
             30035: "Maximum number of bans for non-guild members have been exceeded",
             30037: "Maximum number of bans fetches has been reached",
             30038: "Maximum number of uncompleted guild scheduled events reached (100)",
@@ -230,7 +229,7 @@ class LibraryException(Exception):
             50014: "Invalid authentication token provided",
             50015: "Note was too long",
             50016: "Provided too few or too many messages to delete. "
-                   "Must provide at least 2 and fewer than 100 messages to delete",
+            "Must provide at least 2 and fewer than 100 messages to delete",
             50017: "Invalid MFA Level",
             50019: "A message can only be pinned to the channel it was sent in",
             50020: "Invite code was either invalid or taken",
@@ -243,7 +242,7 @@ class LibraryException(Exception):
             50033: "Invalid Recipient(s)",
             50034: "A message provided was too old to bulk delete",
             50035: "Invalid form body (returned for both application/json and multipart/form-data bodies),"
-                   " or invalid Content-Type provided",
+            " or invalid Content-Type provided",
             50036: "An invite was accepted to a guild the application's bot is not in",
             50041: "Invalid API version provided",
             50045: "File uploaded exceeds the maximum size",
@@ -256,7 +255,7 @@ class LibraryException(Exception):
             50080: "Cannot edit stickers within a message",
             50081: "Invalid sticker sent",
             50083: "Tried to perform an operation on an archived thread, such as editing "
-                   "a message or adding a user to the thread",
+            "a message or adding a user to the thread",
             50084: "Invalid thread notification settings",
             50085: "'before' value is earlier than the thread creation date",
             50086: "Community server channels must be text channels",
@@ -290,7 +289,7 @@ class LibraryException(Exception):
             180002: "Failed to create stage needed for stage event",
             200000: "Message was blocked by automatic moderation",
             200001: "Title was blocked by automatic moderation",
-            220003: "Webhooks can only create threads in forum channels"
+            220003: "Webhooks can only create threads in forum channels",
         }.get(code, f"Unknown error: {code}")
 
     def __init__(self, code: int = 0, message: str = None, severity: int = 0, **kwargs):
