@@ -2362,6 +2362,13 @@ class Guild(ClientSerializerMixin, IDMixin):
     ) -> AuditLogs:
         """
         Gets the full audit log of the guild.
+
+        :param user_id?: User ID snowflake. filter the log for actions made by a user.
+        :type user_id?: Optional[Union[User, int, Snowflake]]
+        :param action_type?: The Type of the audit log action.
+        :type action_type?: Optional[Union[int, AuditLogEvents]]
+        :return: The full AuditLog of the guild
+        :rtype: AuditLogs
         """
 
         _action_type = action_type if action_type is not MISSING else None
