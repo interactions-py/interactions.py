@@ -2355,8 +2355,69 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         return AuditLogs(**res)
 
-    async def get_full_audit_logs(self, type: AuditLogEvents, of: ...):
-        ...
+    async def get_full_audit_logs(
+        self,
+        user_id: Optional[Union[User, int, Snowflake]] = MISSING,
+        action_type: Optional[Union[int, AuditLogEvents]] = MISSING,
+    ) -> AuditLogs:
+        """
+        Gets the full audit log of the guild.
+        """
+
+        _action_type = action_type if action_type is not MISSING else None
+        _user_id = (
+            (user_id.id if isinstance(user_id, User) else user_id)
+            if user_id is not MISSING
+            else None
+        )
+        _audit_log_dict: dict = {
+            "audit_log_entries": [],
+            "users": [],
+            "integrations": [],
+            "webhooks": [],
+            "guild_scheduled_events": [],
+            "threads": [],
+            "application_commands": [],
+            "auto_moderation_rules": [],
+        }
+
+        res = await self._client.get_guild_auditlog(
+            guild_id=int(self.id), user_id=_user_id, action_type=_action_type, limit=100
+        )
+
+        if len(res["audit_log_entries"]) < 100:
+            return AuditLogs(**res)
+
+        while len(res["audit_log_entries"]) == 100:
+            _before = res["audit_log_entries"][-1]["id"]
+
+            double = False
+            for key, values in res.items():
+                for value in values:
+                    if value not in _audit_log_dict[key]:
+                        _audit_log_dict[key] = value
+                    else:
+                        double = True
+                        # It is possible that an item is already present, however we should not break directly out
+                        # in case other attributes are not present yet.
+            if double:
+                break
+
+            res = await self._client.get_guild_auditlog(
+                guild_id=int(self.id),
+                user_id=_user_id,
+                before=_before,
+                action_type=_action_type,
+                limit=100,
+            )
+
+        if not double:
+            for key, values in res.items():
+                for value in values:
+                    if value not in _audit_log_dict[key]:
+                        _audit_log_dict[key] = value
+
+        return AuditLogs(**_audit_log_dict)
 
     @property
     def icon_url(self) -> Optional[str]:
