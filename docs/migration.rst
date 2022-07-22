@@ -220,9 +220,9 @@ your option name! Example:
     bot = interactions.Client("TOKEN", default_scope=1234567890)
 
     @bot.command(default_scope=False)
-    @interactions.option(str, name="opt1", required=True)  # description is optional.
-    @interactions.option(4, name="opt2", description="This is an option.", converter="hi", required=True)
-    @interactions.option(interactions.Channel, name="opt3")
+    @interactions.option()  # type and name default to ones in the parameter.
+    @interactions.option(name="opt2", description="This is an option.", converter="hi")
+    @interactions.option()  # same kwargs as Option
     async def command_with_options(
         ctx, opt1: str, hi: int, opt3: interactions.Channel = None
     ):
