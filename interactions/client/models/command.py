@@ -103,6 +103,8 @@ class Option(DictSerializerMixin):
     :ivar Optional[List[ChannelType]] channel_types?: Restrictive shown channel types, if given.
     :ivar Optional[int] min_value?: The minimum value supported by the option.
     :ivar Optional[int] max_value?: The maximum value supported by the option.
+    :ivar Optional[int] min_length?: The minimum length supported by the option.
+    :ivar Optional[int] max_length?: The maximum length supported by the option.
     :ivar Optional[bool] autocomplete?: A status denoting whether this option is an autocomplete option.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
@@ -122,6 +124,8 @@ class Option(DictSerializerMixin):
     )
     min_value: Optional[int] = field(default=None)
     max_value: Optional[int] = field(default=None)
+    min_length: Optional[int] = field(default=None)
+    max_length: Optional[int] = field(default=None)
     autocomplete: Optional[bool] = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(
         default=None
