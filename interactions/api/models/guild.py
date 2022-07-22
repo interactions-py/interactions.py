@@ -2350,7 +2350,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             )
 
         else:
-            if isinstance(of, User):
+            if isinstance(of, (Member, User}):
                 of = of.id
             res = await self._client.get_guild_auditlog(guild_id=int(self.id), user_id=of, limit=1)
 
