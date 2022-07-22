@@ -239,7 +239,7 @@ class AuditLogs(DictSerializerMixin):
     A class object representing the audit logs of a guild.
 
     :ivar List[AuditLogEntry] audit_log_entries: List of audit log entries, sorted from most to least recent.
-    :ivar List[AutoModerationRule] auto_moderation_rules:
+    :ivar List[AutoModerationRule] auto_moderation_rules: List of auto moderation rules referenced in the audit log.
     :ivar List[ScheduledEvents] guild_scheduled_events: List of guild scheduled events referenced in the audit log
     :ivar List[Integration] integrations: List of partial integration objects
     :ivar List[Channel] threads: List of threads referenced in the audit log
