@@ -2318,7 +2318,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             Snowflake,
             AuditLogEvents,
             int,
-            Member, 
+            Member,
             Tuple[Union[User, Member, Snowflake, int], Union[AuditLogs, int]],
         ],
     ) -> AuditLogs:
