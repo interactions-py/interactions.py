@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, List, Optional, TypeVar
 
 from .attrs_utils import DictSerializerMixin, convert_list, define, field
 from .channel import Channel
-from .gw import AutoModerationRule
 from .misc import Snowflake
 from .user import User
 from .webhook import Webhook
@@ -21,6 +20,7 @@ _T = TypeVar("_T")
 
 if TYPE_CHECKING:
     from .guild import Integration, ScheduledEvents
+    from .gw import AutoModerationRule
 
 
 class AuditLogEvents(IntEnum):
@@ -250,9 +250,7 @@ class AuditLogs(DictSerializerMixin):
     audit_log_entries: List[AuditLogEntry] = field(
         converter=convert_list(AuditLogEntry), default=None
     )
-    auto_moderation_rules: List[AutoModerationRule] = field(
-        converter=convert_list(AutoModerationRule), default=None
-    )
+    auto_moderation_rules: List["AutoModerationRule"] = field(default=None)
     guild_scheduled_events: List["ScheduledEvents"] = field(default=None)
     integrations: List["Integration"] = field(default=None)
     threads: List[Channel] = field(converter=convert_list(Channel), default=None)
@@ -270,3 +268,10 @@ class AuditLogs(DictSerializerMixin):
             from .guild import Integration
 
             self.integrations = [Integration(**integration) for integration in self.integrations]
+
+        if self.auto_moderation_rules:
+            from .gw import AutoModerationRule
+
+            self.auto_moderation_rules = [
+                AutoModerationRule(**rule) for rule in self.auto_moderation_rules
+            ]

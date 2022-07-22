@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from ..error import LibraryException
 from .attrs_utils import (
@@ -11,6 +11,7 @@ from .attrs_utils import (
     define,
     field,
 )
+from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
 from .member import Member
 from .message import Emoji, Sticker
@@ -2270,6 +2271,92 @@ class Guild(ClientSerializerMixin, IDMixin):
             reason=reason,
         )
         return AutoModerationRule(**res)
+
+    async def get_audit_logs(
+        self,
+        limit: Optional[int] = 100,
+        user_id: Optional[Union[User, int, Snowflake]] = MISSING,
+        action_type: Optional[Union[int, AuditLogEvents]] = MISSING,
+        before: Optional[Union[int, Snowflake]] = MISSING,
+    ) -> AuditLogs:
+        """
+        Gets the audit logs of the guild.
+
+        :param limit?: How many entries to get, default 100
+        :type limit?: Optional[int]
+        :param user_id?: User ID snowflake. filter the log for actions made by a user.
+        :type user_id?: Optional[Union[User, int, Snowflake]]
+        :param action_type?: The Type of the audit log action.
+        :type action_type?: Optional[Union[int, AuditLogEvents]]
+        :param before?: filter the log before a certain entry id.
+        :type before?: Union[int, Snowflake]
+        :return: The guild audit logs
+        :rtype: AuditLogs
+        """
+
+        _user_id = (
+            (user_id.id if isinstance(user_id, User) else user_id)
+            if user_id is not MISSING
+            else None
+        )
+        _before = before if before is not MISSING else None
+        _action_type = action_type if action_type is not MISSING else None
+
+        res = await self._client.get_guild_auditlog(
+            guild_id=int(self.id),
+            limit=limit,
+            before=_before,
+            user_id=_user_id,
+            action_type=_action_type,
+        )
+        return AuditLogs(**res)
+
+    async def get_latest_audit_log_action(
+        self,
+        of: Union[
+            User,
+            Snowflake,
+            AuditLogEvents,
+            int,
+            Tuple[Union[User, Snowflake, int], Union[AuditLogs, int]],
+        ],
+    ) -> AuditLogs:
+        """
+        Gets the latest audit log action of either a user or an action type
+
+        :param of: The user, user id or action type to look for
+        :type of: Union[User, Snowflake, AuditLogEvents, int, Tuple[Union[User, Snowflake, int], Union[AuditLogs, int]]]
+        :return: The latest AuditLog action that applies to the ``of`` parameter
+        :rtype: AuditLogs
+        """
+
+        if isinstance(of, tuple):
+            if len(of) != 2 or len(str(of[1])) > 3:
+                raise LibraryException(
+                    12,
+                    "You specified invalid arguments in the tuple. Make sure the first argument"
+                    "is the user ID and the second is the action type!",
+                )
+
+            _user = of[0].id if isinstance(of[0], User) else of[0]
+            res = await self._client.get_guild_auditlog(
+                guild_id=int(self.id), user_id=_user, action_type=of[1]
+            )
+
+        elif isinstance(of, AuditLogs) or isinstance(of, int) and len(str(of)) <= 3:
+            res = await self._client.get_guild_auditlog(
+                guild_id=int(self.id), limit=1, action_type=of
+            )
+
+        else:
+            if isinstance(of, User):
+                of = of.id
+            res = await self._client.get_guild_auditlog(guild_id=int(self.id), user_id=of, limit=1)
+
+        return AuditLogs(**res)
+
+    async def get_full_audit_logs(self, type: AuditLogEvents, of: ...):
+        ...
 
     @property
     def icon_url(self) -> Optional[str]:
