@@ -456,9 +456,11 @@ class Client:
             if cmd.resolved:
                 continue
 
+            cmd.listener = self._websocket._dispatch
+
             if cmd.default_scope and self._default_scope:
                 cmd.scope = (
-                    cmd.scope.extend(cmd.default_scope)
+                    cmd.scope.extend(self._default_scope)
                     if isinstance(cmd.scope, list)
                     else self._default_scope
                 )

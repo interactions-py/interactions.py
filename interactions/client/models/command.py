@@ -15,6 +15,7 @@ from ...api.models.user import User
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
+    from ...api.dispatch import Listener
     from ..bot import Extension
     from ..context import CommandContext
 
@@ -396,7 +397,8 @@ class Command(DictSerializerMixin):
     :ivar Dict[str, Union[Callable[..., Awaitable], str]] autocompletions: The dictionary of autocompletions for the command.
     :ivar Optional[str] recent_group: The name of the group most recently utilized.
     :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
-    :ivar Extension extension: The extension that the command belongs to, if any.
+    :ivar Optional[Extension] extension: The extension that the command belongs to, if any.
+    :ivar Optional[Listener] listener: The listener, used for dispatching command errors.
     """
 
     coro: Callable[..., Awaitable] = field()
@@ -419,7 +421,8 @@ class Command(DictSerializerMixin):
     recent_group: Optional[str] = field(default=None, init=False)
     error_callback: Optional[Callable[..., Awaitable]] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
-    extension: "Extension" = field(default=None, init=False)
+    extension: Optional["Extension"] = field(default=None, init=False)
+    listener: Optional["Listener"] = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         if self.name is MISSING:
@@ -837,17 +840,19 @@ class Command(DictSerializerMixin):
         except CancelledError:
             pass
         except Exception as e:
-            if not self.error_callback:
-                raise e
+            if self.error_callback:
+                num_params = len(signature(self.error_callback).parameters)
 
-            num_params = len(signature(self.error_callback).parameters)
-
-            if num_params == (3 if self.extension else 2):
-                await self.error_callback(ctx, e)
-            elif num_params == (4 if self.extension else 3):
-                await self.error_callback(ctx, e, _res)
+                if num_params == (3 if self.extension else 2):
+                    await self.error_callback(ctx, e)
+                elif num_params == (4 if self.extension else 3):
+                    await self.error_callback(ctx, e, _res)
+                else:
+                    await self.error_callback(ctx, e, _res, *args, **kwargs)
+            elif self.listener and "on_command_error" in self.listener.events:
+                self.listener.dispatch("on_command_error", ctx, e)
             else:
-                await self.error_callback(ctx, e, _res, *args, **kwargs)
+                raise e
 
             return StopCommand
 
@@ -888,15 +893,17 @@ class Command(DictSerializerMixin):
             except CancelledError:
                 pass
             except Exception as e:
-                if self.has_subcommands or not self.error_callback:
-                    raise e
+                if self.error_callback:
+                    num_params = len(signature(self.error_callback).parameters)
 
-                num_params = len(signature(self.error_callback).parameters)
-
-                if num_params == (3 if self.extension else 2):
-                    await self.error_callback(ctx, e)
+                    if num_params == (3 if self.extension else 2):
+                        await self.error_callback(ctx, e)
+                    else:
+                        await self.error_callback(ctx, e, *args, **kwargs)
+                elif self.listener and "on_command_error" in self.listener.events:
+                    self.listener.dispatch("on_command_error", ctx, e)
                 else:
-                    await self.error_callback(ctx, e, *args, **kwargs)
+                    raise e
 
                 return StopCommand
 
