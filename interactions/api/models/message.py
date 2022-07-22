@@ -842,6 +842,7 @@ class Message(ClientSerializerMixin, IDMixin):
     :ivar Optional[Union[Component, List[Component]]] components?: Components associated with this message, if any.
     :ivar Optional[List[PartialSticker]] sticker_items?: An array of message sticker item objects, if sent with them.
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
+    :ivar Optional[int] position?: The approximate position of the message in a thread.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -889,6 +890,7 @@ class Message(ClientSerializerMixin, IDMixin):
     stickers: Optional[List[Sticker]] = field(
         converter=convert_list(Sticker), default=None
     )  # deprecated
+    position: Optional[int] = field(default=None)
 
     async def get_channel(self) -> Channel:
         """
