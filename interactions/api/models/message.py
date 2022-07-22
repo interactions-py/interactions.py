@@ -563,7 +563,7 @@ class Embed(DictSerializerMixin):
         self.fields = []
 
     def insert_field_at(
-        self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
         """
         Inserts a field in the embed at the specified index
@@ -577,6 +577,14 @@ class Embed(DictSerializerMixin):
         :param inline?: if the field is in the same line as the previous one
         :type inline?: Optional[bool]
         """
+
+        try:
+            fields = self.fields
+            fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+            self.fields = fields
+
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
