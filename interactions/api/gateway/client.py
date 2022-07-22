@@ -12,7 +12,6 @@ from asyncio import (
     new_event_loop,
     sleep,
 )
-from datetime import datetime
 from sys import platform, version_info
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
@@ -477,14 +476,6 @@ class WebSocketClient:
                     old_obj = self._http.cache[model].get(id)
 
                     if old_obj:
-                        for key, value in old_obj._json.items():
-                            if hasattr(value, "_json"):
-                                old_obj._json[key] = value._json
-                            elif isinstance(value, Snowflake):
-                                old_obj._json[key] = int(value)
-                            elif isinstance(value, datetime):
-                                old_obj._json[key] = value.isoformat()
-
                         before = model(**old_obj._json)
                         old_obj.update(**obj._json)
 
