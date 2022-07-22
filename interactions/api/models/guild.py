@@ -2343,7 +2343,7 @@ class Guild(ClientSerializerMixin, IDMixin):
                 guild_id=int(self.id), user_id=_user, action_type=of[1]
             )
 
-        elif isinstance(of, AuditLogs) or isinstance(of, int) and len(str(of)) <= 3:
+        elif isinstance(of, AuditLogEvents) or isinstance(of, int) and len(str(of)) <= 3:
             res = await self._client.get_guild_auditlog(
                 guild_id=int(self.id), limit=1, action_type=of
             )
