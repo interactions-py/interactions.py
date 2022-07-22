@@ -2365,7 +2365,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         :param user_id?: User ID snowflake. filter the log for actions made by a user.
         :type user_id?: Optional[Union[User, int, Snowflake]]
-        :param action_type?: The Type of the audit log action.
+        :param action_type?: The type of the audit log action.
         :type action_type?: Optional[Union[int, AuditLogEvents]]
         :return: The full AuditLog of the guild
         :rtype: AuditLogs
