@@ -129,6 +129,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     :ivar Optional[ThreadMember] member?: The member of the thread in the channel.
     :ivar Optional[int] default_auto_archive_duration?: The set auto-archive time for all threads to naturally follow in the channel.
     :ivar Optional[str] permissions?: The permissions of the channel.
+    :ivar Optional[int] flags?: The flags of the channel.
+    :ivar Optional[int] total_message_sent?: Number of messages ever sent in a thread.
     """
 
     __slots__ = (
@@ -166,6 +168,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     default_auto_archive_duration: Optional[int] = field(default=None)
     permissions: Optional[str] = field(default=None)
     flags: Optional[int] = field(default=None)
+    total_message_sent: Optional[int] = field(default=None)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
         if self._client:
