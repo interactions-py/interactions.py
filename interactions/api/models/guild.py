@@ -2339,7 +2339,7 @@ class Guild(ClientSerializerMixin, IDMixin):
                     "is the user ID and the second is the action type!",
                 )
 
-            _user = of[0].id if isinstance(of[0], User) else of[0]
+            _user = of[0].id if isinstance(of[0], (Member, User)) else of[0]
             res = await self._client.get_guild_auditlog(
                 guild_id=int(self.id), user_id=_user, action_type=of[1]
             )
