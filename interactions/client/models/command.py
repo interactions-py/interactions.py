@@ -140,11 +140,16 @@ class Option(DictSerializerMixin):
         self._json.pop("converter", None)
 
         # needed for nested classes
-        self.options = (
-            [Option(**option) if isinstance(option, dict) else option for option in self.options]
-            if self.options is not None
-            else None
-        )
+        if self.options is not None:
+            self.options = [
+                Option(**option) if isinstance(option, dict) else option for option in self.options
+            ]
+            self._json["options"] = [option._json for option in self.options]
+        if self.choices is not None:
+            self.choices = [
+                Choice(**choice) if isinstance(choice, dict) else choice for choice in self.choices
+            ]
+            self._json["choices"] = [choice._json for choice in self.choices]
 
 
 @define()
