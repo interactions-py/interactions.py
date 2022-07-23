@@ -259,7 +259,9 @@ class GuildMember(ClientSerializerMixin):
     deaf: Optional[bool] = field(default=None)
     mute: Optional[bool] = field(default=None)
     pending: Optional[bool] = field(default=None)
-    communication_disabled_until: Optional[datetime.isoformat] = field(converter=datetime.fromisoformat, default=None)
+    communication_disabled_until: Optional[datetime.isoformat] = field(
+        converter=datetime.fromisoformat, default=None
+    )
 
     def __str__(self) -> str:
         return self.name or ""
