@@ -246,6 +246,7 @@ class GuildMember(ClientSerializerMixin):
     :ivar Optional[bool] deaf?: Whether the member of the event is deafened or not.
     :ivar Optional[bool] mute?: Whether the member of the event is muted or not.
     :ivar Optional[bool] pending?: Whether the member of the event is still pending -- pass membership screening -- or not.
+    :ivat Optional[datetime.isoformat] communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
@@ -258,6 +259,7 @@ class GuildMember(ClientSerializerMixin):
     deaf: Optional[bool] = field(default=None)
     mute: Optional[bool] = field(default=None)
     pending: Optional[bool] = field(default=None)
+    communication_disabled_until: Optional[datetime.isoformat] = field(converter=datetime.fromisoformat, default=None)
 
     def __str__(self) -> str:
         return self.name or ""
