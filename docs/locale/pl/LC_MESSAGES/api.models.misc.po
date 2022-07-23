@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,91 @@ msgstr ""
 
 #: ../../api.models.misc.rst:4
 msgid "Miscellanous Models"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModKeywordPresetTypes:1
+#: interactions.api.models.misc.AutoModTriggerType:1 of
+msgid "An enumeration."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModKeywordPresetTypes
+#: interactions.api.models.misc.AutoModTriggerType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModKeywordPresetTypes:1
+#: interactions.api.models.misc.AutoModTriggerType:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModKeywordPresetTypes:1
+#: interactions.api.models.misc.AutoModTriggerType:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModMetaData:1 of
+msgid "A class object used to represent the AutoMod Action Metadata. .. note::"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModMetaData:6 of
+msgid "The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModAction
+#: interactions.api.models.misc.AutoModMetaData
+#: interactions.api.models.misc.AutoModTriggerMetadata
+#: interactions.api.models.misc.ClientStatus
+#: interactions.api.models.misc.Overwrite of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModMetaData:8 of
+msgid "Channel to which user content should be logged, if set."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModMetaData:9 of
+msgid "Timeout duration in seconds, if timed out."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModAction
+#: interactions.api.models.misc.AutoModMetaData
+#: interactions.api.models.misc.AutoModTriggerMetadata
+#: interactions.api.models.misc.ClientStatus interactions.api.models.misc.File
+#: interactions.api.models.misc.Image interactions.api.models.misc.Overwrite
+#: interactions.api.models.misc.Snowflake of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModAction:1 of
+msgid ""
+"A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event. "
+".. note::"
+msgstr ""
+
+#: interactions.api.models.misc.AutoModAction:7 of
+msgid "The metadata can be omitted depending on the action type."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModAction:9 of
+msgid "Action type."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModAction:10 of
+msgid "Additional metadata needed during execution for this specific action type."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModTriggerMetadata:1 of
+msgid ""
+"A class object used to represent the trigger metadata from the AutoMod "
+"rule object."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModTriggerMetadata:3 of
+msgid "Words to match against content."
+msgstr ""
+
+#: interactions.api.models.misc.AutoModTriggerMetadata:4 of
+msgid "The internally pre-defined wordsets which will be searched for in content."
 msgstr ""
 
 #: interactions.api.models.misc.Snowflake:1 of
@@ -42,6 +127,17 @@ msgid ""
 "You can still provide integers to them, to ensure ease of use of "
 "transition and/or if discord API for some odd reason will switch to "
 "integer."
+msgstr ""
+
+#: interactions.api.models.misc.Color.black
+#: interactions.api.models.misc.Color.blurple
+#: interactions.api.models.misc.Color.fuchsia
+#: interactions.api.models.misc.Color.green
+#: interactions.api.models.misc.Color.red
+#: interactions.api.models.misc.Color.white
+#: interactions.api.models.misc.Color.yellow
+#: interactions.api.models.misc.Snowflake of
+msgid "Return type"
 msgstr ""
 
 #: interactions.api.models.misc.Snowflake.increment:1 of
@@ -131,11 +227,6 @@ msgstr ""
 msgid "An object that symbolizes the status per client device per session."
 msgstr ""
 
-#: interactions.api.models.misc.ClientStatus
-#: interactions.api.models.misc.Overwrite of
-msgid "Variables"
-msgstr ""
-
 #: interactions.api.models.misc.ClientStatus:3 of
 msgid "User's status set for an active desktop application session"
 msgstr ""
@@ -146,6 +237,10 @@ msgstr ""
 
 #: interactions.api.models.misc.ClientStatus:5 of
 msgid "User's status set for an active web application session"
+msgstr ""
+
+#: interactions.api.models.misc.IDMixin:1 of
+msgid "A mixin to implement equality and hashing for models that have an id."
 msgstr ""
 
 #: interactions.api.models.misc.Image:1 of
@@ -191,10 +286,4 @@ msgstr ""
 #: interactions.api.models.misc.Overwrite:5
 #: interactions.api.models.misc.Overwrite:6 of
 msgid "Permission bit set."
-msgstr ""
-
-#: interactions.api.models.attrs_utils.MISSING:1 of
-msgid ""
-"A pseudosentinel based from an empty object. This does violate PEP, but, "
-"I don't care."
 msgstr ""

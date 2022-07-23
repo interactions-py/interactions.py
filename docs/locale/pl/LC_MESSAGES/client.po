@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,46 +28,125 @@ msgid ""
 "via. WebSocket and HTTP."
 msgstr ""
 
+#: interactions.client.bot.Client
+#: interactions.client.bot.Client.__check_command
+#: interactions.client.bot.Client.__compare_sync
+#: interactions.client.bot.Client.__raw_channel_create
+#: interactions.client.bot.Client.__raw_guild_create
+#: interactions.client.bot.Client.__raw_message_create
+#: interactions.client.bot.Client.__raw_socket_create
+#: interactions.client.bot.Client._find_command
+#: interactions.client.bot.Client.autocomplete
+#: interactions.client.bot.Client.change_presence
+#: interactions.client.bot.Client.command
+#: interactions.client.bot.Client.component
+#: interactions.client.bot.Client.event interactions.client.bot.Client.load
+#: interactions.client.bot.Client.message_command
+#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
+#: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
+#: interactions.client.bot.Client.user_command
+#: interactions.client.bot.Extension of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.client.bot.Client:3 of
+msgid "The token of the application for authentication and connection."
+msgstr ""
+
+#: interactions.client.bot.Client:5 of
+msgid ""
+"Allows specific control of permissions the application has when "
+"connected. In order to use multiple intents, the | operator is "
+"recommended. Defaults to ``Intents.DEFAULT``."
+msgstr ""
+
+#: interactions.client.bot.Client:7 of
+msgid "Dictates and controls the shards that the application connects under."
+msgstr ""
+
+#: interactions.client.bot.Client:9 of
+msgid ""
+"Sets an RPC-like presence on the application when connected to the "
+"Gateway."
+msgstr ""
+
+#: interactions.client.bot.Client:11 of
+msgid "Sets the default scope of all commands."
+msgstr ""
+
+#: interactions.client.bot.Client:13 of
+msgid ""
+"Controls whether synchronization in the user-facing API should be "
+"automatic or not."
+msgstr ""
+
 #: interactions.client.bot.Client of
 msgid "Variables"
 msgstr ""
 
-#: interactions.client.bot.Client:3 of
+#: interactions.client.bot.Client:16 of
 msgid "The asynchronous event loop of the client."
 msgstr ""
 
-#: interactions.client.bot.Client:4 of
+#: interactions.client.bot.Client:17 of
 msgid ""
 "The user-facing HTTP connection to the Web API, as its own separate "
 "client."
 msgstr ""
 
-#: interactions.client.bot.Client:5 of
+#: interactions.client.bot.Client:18 of
 msgid "An object-orientation of a websocket server connection to the Gateway."
 msgstr ""
 
-#: interactions.client.bot.Client:6 of
+#: interactions.client.bot.Client:19 of
 msgid "The Gateway intents of the application. Defaults to ``Intents.DEFAULT``."
 msgstr ""
 
-#: interactions.client.bot.Client:7 of
+#: interactions.client.bot.Client:20 of
 msgid "The list of bucketed shards for the application's connection."
 msgstr ""
 
-#: interactions.client.bot.Client:8 of
+#: interactions.client.bot.Client:21 of
 msgid "The RPC-like presence shown on an application once connected."
 msgstr ""
 
-#: interactions.client.bot.Client:9 of
+#: interactions.client.bot.Client:22 of
 msgid "The token of the application used for authentication when connecting."
 msgstr ""
 
-#: interactions.client.bot.Client:10 of
+#: interactions.client.bot.Client:23 of
 msgid "The \"extensions\" or cog equivalence registered to the main client."
 msgstr ""
 
-#: interactions.client.bot.Client:11 of
+#: interactions.client.bot.Client:24 of
 msgid "The application representation of the client."
+msgstr ""
+
+#: interactions.client.bot.Client
+#: interactions.client.bot.Client.__check_command
+#: interactions.client.bot.Client.__compare_sync
+#: interactions.client.bot.Client.__raw_channel_create
+#: interactions.client.bot.Client.__raw_guild_create
+#: interactions.client.bot.Client.__raw_message_create
+#: interactions.client.bot.Client.__raw_socket_create
+#: interactions.client.bot.Client.__register_events
+#: interactions.client.bot.Client.__resolve_commands
+#: interactions.client.bot.Client.__sync
+#: interactions.client.bot.Client._find_command
+#: interactions.client.bot.Client._login interactions.client.bot.Client._ready
+#: interactions.client.bot.Client.autocomplete
+#: interactions.client.bot.Client.change_presence
+#: interactions.client.bot.Client.command
+#: interactions.client.bot.Client.component
+#: interactions.client.bot.Client.event interactions.client.bot.Client.load
+#: interactions.client.bot.Client.message_command
+#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
+#: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
+#: interactions.client.bot.Client.start
+#: interactions.client.bot.Client.user_command
+#: interactions.client.bot.Client.wait_until_ready
+#: interactions.client.bot.Extension of
+msgid "Return type"
 msgstr ""
 
 #: interactions.client.bot.Client.guilds:1 of
@@ -88,24 +167,6 @@ msgstr ""
 
 #: interactions.client.bot.Client.__compare_sync:1 of
 msgid "Compares an application command during the synchronization process."
-msgstr ""
-
-#: interactions.client.bot.Client.__compare_sync
-#: interactions.client.bot.Client.__raw_channel_create
-#: interactions.client.bot.Client.__raw_guild_create
-#: interactions.client.bot.Client.__raw_message_create
-#: interactions.client.bot.Client.__raw_socket_create
-#: interactions.client.bot.Client._find_command
-#: interactions.client.bot.Client.autocomplete
-#: interactions.client.bot.Client.change_presence
-#: interactions.client.bot.Client.command
-#: interactions.client.bot.Client.component
-#: interactions.client.bot.Client.event interactions.client.bot.Client.load
-#: interactions.client.bot.Client.message_command
-#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
-#: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
-#: interactions.client.bot.Client.user_command of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.client.bot.Client.__compare_sync:3 of
@@ -129,31 +190,12 @@ msgstr ""
 #: interactions.client.bot.Client.message_command
 #: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
 #: interactions.client.bot.Client.reload
-#: interactions.client.bot.Client.user_command
-#: interactions.client.decor.command of
+#: interactions.client.bot.Client.user_command of
 msgid "Returns"
 msgstr ""
 
 #: interactions.client.bot.Client.__compare_sync:7 of
 msgid "Whether the command has changed or not."
-msgstr ""
-
-#: interactions.client.bot.Client.__compare_sync
-#: interactions.client.bot.Client.__raw_channel_create
-#: interactions.client.bot.Client.__raw_guild_create
-#: interactions.client.bot.Client.__raw_message_create
-#: interactions.client.bot.Client.__raw_socket_create
-#: interactions.client.bot.Client._find_command
-#: interactions.client.bot.Client.autocomplete
-#: interactions.client.bot.Client.command
-#: interactions.client.bot.Client.component
-#: interactions.client.bot.Client.event interactions.client.bot.Client.load
-#: interactions.client.bot.Client.message_command
-#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
-#: interactions.client.bot.Client.reload
-#: interactions.client.bot.Client.user_command
-#: interactions.client.decor.command of
-msgid "Return type"
 msgstr ""
 
 #: interactions.client.bot.Client._ready:1 of
@@ -170,14 +212,19 @@ msgstr ""
 msgid "Helper method that waits until the websocket is ready."
 msgstr ""
 
-#: interactions.client.bot.Client.__sync:1 of
-msgid "Synchronizes all commands to the API."
+#: interactions.client.bot.Client.__resolve_commands:1 of
+msgid "Resolves all commands to the command coroutines."
 msgstr ""
 
+#: interactions.client.bot.Client.__resolve_commands:4
 #: interactions.client.bot.Client.__sync:4 of
 msgid ""
 "This is an internal method. Do not call it unless you know what you are "
 "doing!"
+msgstr ""
+
+#: interactions.client.bot.Client.__sync:1 of
+msgid "Synchronizes all commands to the API."
 msgstr ""
 
 #: interactions.client.bot.Client.event:1 of
@@ -195,12 +242,12 @@ msgid ""
 msgstr ""
 
 #: interactions.client.bot.Client.autocomplete:20
-#: interactions.client.bot.Client.command:63
+#: interactions.client.bot.Client.command:65
 #: interactions.client.bot.Client.component:27
 #: interactions.client.bot.Client.event:8
-#: interactions.client.bot.Client.message_command:28
+#: interactions.client.bot.Client.message_command:30
 #: interactions.client.bot.Client.modal:24
-#: interactions.client.bot.Client.user_command:28 of
+#: interactions.client.bot.Client.user_command:30 of
 msgid "A callable response."
 msgstr ""
 
@@ -323,6 +370,14 @@ msgstr ""
 msgid ""
 "The application permissions if executed in a Direct Message. Defaults to "
 "``True``."
+msgstr ""
+
+#: interactions.client.bot.Client.command:63
+#: interactions.client.bot.Client.message_command:28
+#: interactions.client.bot.Client.user_command:28 of
+msgid ""
+"Whether the scope of the command is the default scope set in the client. "
+"Defaults to ``True``."
 msgstr ""
 
 #: interactions.client.bot.Client.message_command:1 of
@@ -583,14 +638,4 @@ msgstr ""
 
 #: interactions.client.bot.Extension:5 of
 msgid "The structure of an extension:"
-msgstr ""
-
-#: interactions.client.decor.command:1 of
-msgid ""
-"A wrapper designed to interpret the client-facing API for how a command "
-"is to be created and used."
-msgstr ""
-
-#: interactions.client.decor.command:4 of
-msgid "A list of command payloads."
 msgstr ""

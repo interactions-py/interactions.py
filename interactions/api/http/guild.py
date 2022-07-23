@@ -4,7 +4,6 @@ from urllib.parse import quote
 from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.guild import Guild
-from ..models.member import Member
 from ..models.role import Role
 from .request import _Request
 from .route import Route
@@ -30,7 +29,7 @@ class GuildRequest:
 
         for guild in request:
             if guild.get("id"):
-                self.cache[Guild].add(Guild(**guild, _client=self))
+                self.cache[Guild].merge(Guild(**guild, _client=self))
 
         return request
 
@@ -45,7 +44,7 @@ class GuildRequest:
         request = await self._req.request(
             Route("GET", f"/guilds/{guild_id}{f'?{with_counts=}' if with_counts else ''}")
         )
-        self.cache[Guild].add(Guild(**request, _client=self))
+        self.cache[Guild].merge(Guild(**request, _client=self))
 
         return request
 
@@ -369,7 +368,7 @@ class GuildRequest:
 
         for channel in request:
             if channel.get("id"):
-                self.cache[Channel].add(Channel(**channel, _client=self))
+                self.cache[Channel].merge(Channel(**channel, _client=self))
 
         return request
 
@@ -386,7 +385,7 @@ class GuildRequest:
 
         for role in request:
             if role.get("id"):
-                self.cache[Role].add(Role(**role))
+                self.cache[Role].merge(Role(**role))
 
         return request
 
@@ -404,8 +403,6 @@ class GuildRequest:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=payload, reason=reason
         )
-        if request.get("id"):
-            self.cache[Role].add(Role(**request))
 
         return request
 
@@ -587,8 +584,6 @@ class GuildRequest:
                 if v is not None
             },
         )
-
-        self.cache[Member].add(Member(**request))
 
         return request
 

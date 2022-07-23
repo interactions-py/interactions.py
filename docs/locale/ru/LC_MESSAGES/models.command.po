@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,29 +33,49 @@ msgid ""
 msgstr ""
 
 #: interactions.client.models.command.Choice:7 of
-msgid "The structure for a choice: ::"
+msgid "The structure for a choice:"
 msgstr ""
 
 #: interactions.client.models.command.ApplicationCommand
 #: interactions.client.models.command.Choice
+#: interactions.client.models.command.Command
 #: interactions.client.models.command.Option
 #: interactions.client.models.command.Permission of
 msgid "Variables"
 msgstr ""
 
-#: interactions.client.models.command.Choice:11 of
+#: interactions.client.models.command.Choice:13 of
 msgid "The name of the choice."
 msgstr ""
 
-#: interactions.client.models.command.Choice:12 of
+#: interactions.client.models.command.Choice:14 of
 msgid "The returned value of the choice."
 msgstr ""
 
-#: interactions.client.models.command.Choice:13
-#: interactions.client.models.command.Option:32 of
+#: interactions.client.models.command.Choice:15
+#: interactions.client.models.command.Command:16
+#: interactions.client.models.command.Command.group:28
+#: interactions.client.models.command.Command.subcommand:33
+#: interactions.client.models.command.Option:34 of
 msgid ""
 "The dictionary of localization for the ``name`` field. This enforces the "
 "same restrictions as the ``name`` field."
+msgstr ""
+
+#: interactions.client.models.command.ApplicationCommand
+#: interactions.client.models.command.Choice
+#: interactions.client.models.command.Command
+#: interactions.client.models.command.Command.__call
+#: interactions.client.models.command.Command.__check_command
+#: interactions.client.models.command.Command.__wrap_coro
+#: interactions.client.models.command.Command.autocomplete
+#: interactions.client.models.command.Command.error
+#: interactions.client.models.command.Command.group
+#: interactions.client.models.command.Command.subcommand
+#: interactions.client.models.command.Option
+#: interactions.client.models.command.Permission
+#: interactions.client.models.command.option of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.client.models.command.Option:1 of
@@ -73,61 +93,69 @@ msgid ""
 msgstr ""
 
 #: interactions.client.models.command.Option:10 of
-msgid "The structure for an option: ::"
-msgstr ""
-
-#: interactions.client.models.command.Option:20 of
-msgid "The type of option."
-msgstr ""
-
-#: interactions.client.models.command.Option:21 of
-msgid "The name of the option."
+msgid "The structure for an option:"
 msgstr ""
 
 #: interactions.client.models.command.Option:22 of
-msgid "The description of the option."
+msgid "The type of option."
 msgstr ""
 
-#: interactions.client.models.command.Option:23 of
-msgid "Whether the option is currently being autocompleted or not."
+#: interactions.client.models.command.Option:23
+#: interactions.client.models.command.option:14 of
+msgid "The name of the option."
 msgstr ""
 
 #: interactions.client.models.command.Option:24 of
-msgid "Whether the option has to be filled out."
+msgid "The description of the option."
 msgstr ""
 
 #: interactions.client.models.command.Option:25 of
-msgid "The value that's currently typed out, if autocompleting."
+msgid "Whether the option is currently being autocompleted or not."
 msgstr ""
 
 #: interactions.client.models.command.Option:26 of
-msgid "The list of choices to select from."
+msgid "Whether the option has to be filled out."
 msgstr ""
 
 #: interactions.client.models.command.Option:27 of
-msgid "The list of subcommand options included."
+msgid "The value that's currently typed out, if autocompleting."
 msgstr ""
 
 #: interactions.client.models.command.Option:28 of
-msgid "Restrictive shown channel types, if given."
+msgid "The list of choices to select from."
 msgstr ""
 
 #: interactions.client.models.command.Option:29 of
-msgid "The minimum value supported by the option."
+msgid "The list of subcommand options included."
 msgstr ""
 
 #: interactions.client.models.command.Option:30 of
-msgid "The maximum value supported by the option."
+msgid "Restrictive shown channel types, if given."
 msgstr ""
 
 #: interactions.client.models.command.Option:31 of
-msgid "A status denoting whether this option is an autocomplete option."
+msgid "The minimum value supported by the option."
+msgstr ""
+
+#: interactions.client.models.command.Option:32 of
+msgid "The maximum value supported by the option."
 msgstr ""
 
 #: interactions.client.models.command.Option:33 of
+msgid "A status denoting whether this option is an autocomplete option."
+msgstr ""
+
+#: interactions.client.models.command.Command:17
+#: interactions.client.models.command.Command.group:30
+#: interactions.client.models.command.Command.subcommand:35
+#: interactions.client.models.command.Option:35 of
 msgid ""
 "The dictionary of localization for the ``description`` field. This "
 "enforces the same restrictions as the ``description`` field."
+msgstr ""
+
+#: interactions.client.models.command.Option:36 of
+msgid "How the option value is passed to the function, if different than ``name``"
 msgstr ""
 
 #: interactions.client.models.command.Permission:1 of
@@ -135,18 +163,18 @@ msgid "A class object representing the permission of an application command."
 msgstr ""
 
 #: interactions.client.models.command.Permission:3 of
-msgid "The structure for a permission: ::"
-msgstr ""
-
-#: interactions.client.models.command.Permission:10 of
-msgid "The ID of the permission."
-msgstr ""
-
-#: interactions.client.models.command.Permission:11 of
-msgid "The type of permission."
+msgid "The structure for a permission:"
 msgstr ""
 
 #: interactions.client.models.command.Permission:12 of
+msgid "The ID of the permission."
+msgstr ""
+
+#: interactions.client.models.command.Permission:13 of
+msgid "The type of permission."
+msgstr ""
+
+#: interactions.client.models.command.Permission:14 of
 msgid "The permission state. ``True`` for allow, ``False`` for disallow."
 msgstr ""
 
@@ -213,4 +241,287 @@ msgstr ""
 msgid ""
 "The localisation dictionary for the application command description, if "
 "any."
+msgstr ""
+
+#: interactions.client.models.command.option:1 of
+msgid "A decorator for adding options to a command."
+msgstr ""
+
+#: interactions.client.models.command.option:3 of
+msgid "The structure of an option:"
+msgstr ""
+
+#: interactions.client.models.command.option:12 of
+msgid "The type of the option."
+msgstr ""
+
+#: interactions.client.models.command.option:16 of
+msgid "The description of the option. Defaults to ``\"No description set\"``."
+msgstr ""
+
+#: interactions.client.models.command.option:18 of
+msgid "The keyword arguments of the option, same as :class:`Option`."
+msgstr ""
+
+#: interactions.client.models.command.Command.__call
+#: interactions.client.models.command.Command.__check_command
+#: interactions.client.models.command.Command.__check_options
+#: interactions.client.models.command.Command.__no_group
+#: interactions.client.models.command.Command.__wrap_coro
+#: interactions.client.models.command.Command.autocomplete
+#: interactions.client.models.command.Command.dispatcher
+#: interactions.client.models.command.Command.error
+#: interactions.client.models.command.Command.full_data
+#: interactions.client.models.command.Command.group
+#: interactions.client.models.command.Command.has_subcommands
+#: interactions.client.models.command.Command.subcommand
+#: interactions.client.models.command.option of
+msgid "Return type"
+msgstr ""
+
+#: interactions.client.models.command.StopCommand:1 of
+msgid "A class that when returned from a command, the command chain is stopped."
+msgstr ""
+
+#: interactions.client.models.command.StopCommand:3 of
+msgid "Usage:"
+msgstr ""
+
+#: interactions.client.models.command.StopCommand:17 of
+msgid "This allows for custom checks that allow stopping the command chain."
+msgstr ""
+
+#: interactions.client.models.command.Command:1 of
+msgid "A class object representing a command."
+msgstr ""
+
+#: interactions.client.models.command.Command:4 of
+msgid ""
+"This object is meant to be used internally when creating new commands "
+"using the command decorators. Do not use this object for declaring "
+"commands."
+msgstr ""
+
+#: interactions.client.models.command.Command:8 of
+msgid "The base command coroutine."
+msgstr ""
+
+#: interactions.client.models.command.Command:9 of
+msgid "The type of the command."
+msgstr ""
+
+#: interactions.client.models.command.Command:10 of
+msgid "The name of the command. Defaults to the coroutine name."
+msgstr ""
+
+#: interactions.client.models.command.Command:11 of
+msgid ""
+"The description of the command. Defaults to the docstring of the "
+"coroutine or ``\"No description set\"``."
+msgstr ""
+
+#: interactions.client.models.command.Command:12 of
+msgid "The list of options for the base command."
+msgstr ""
+
+#: interactions.client.models.command.Command:13 of
+msgid "The scope of the command."
+msgstr ""
+
+#: interactions.client.models.command.Command:14 of
+msgid "The default member permissions of the command."
+msgstr ""
+
+#: interactions.client.models.command.Command:15 of
+msgid "The DM permission of the command."
+msgstr ""
+
+#: interactions.client.models.command.Command:18 of
+msgid "Whether the command should use the default scope. Defaults to ``True``."
+msgstr ""
+
+#: interactions.client.models.command.Command:20 of
+msgid "The dictionary of coroutines for the command."
+msgstr ""
+
+#: interactions.client.models.command.Command:21 of
+msgid "The dictionary of the number of options per subcommand."
+msgstr ""
+
+#: interactions.client.models.command.Command:22 of
+msgid "The dictionary of autocompletions for the command."
+msgstr ""
+
+#: interactions.client.models.command.Command:23 of
+msgid "The name of the group most recently utilized."
+msgstr ""
+
+#: interactions.client.models.command.Command:24 of
+msgid "Whether the command is synced. Defaults to ``False``."
+msgstr ""
+
+#: interactions.client.models.command.Command:25 of
+msgid "The extension that the command belongs to, if any."
+msgstr ""
+
+#: interactions.client.models.command.Command.converters:1 of
+msgid ""
+"Returns a dictionary with all converters added to the options of the "
+"command"
+msgstr ""
+
+#: interactions.client.models.command.Command.full_data:1 of
+msgid "Returns the command data in JSON format."
+msgstr ""
+
+#: interactions.client.models.command.Command.autocomplete
+#: interactions.client.models.command.Command.dispatcher
+#: interactions.client.models.command.Command.full_data
+#: interactions.client.models.command.Command.group
+#: interactions.client.models.command.Command.has_subcommands
+#: interactions.client.models.command.Command.subcommand of
+msgid "Returns"
+msgstr ""
+
+#: interactions.client.models.command.Command.full_data:3 of
+msgid "The command data in JSON format."
+msgstr ""
+
+#: interactions.client.models.command.Command.has_subcommands:1 of
+msgid "Checks if the command has subcommand options."
+msgstr ""
+
+#: interactions.client.models.command.Command.has_subcommands:3 of
+msgid "Whether the command has subcommand options."
+msgstr ""
+
+#: interactions.client.models.command.Command.subcommand:1 of
+msgid "Decorator for creating a subcommand of the command."
+msgstr ""
+
+#: interactions.client.models.command.Command.subcommand:3 of
+msgid "The structure for a subcommand:"
+msgstr ""
+
+#: interactions.client.models.command.Command.group:21
+#: interactions.client.models.command.Command.subcommand:22 of
+msgid ""
+"If you want to create both subcommands and subcommands with groups, first"
+" create the subcommands without groups, then create the subcommands with "
+"groups."
+msgstr ""
+
+#: interactions.client.models.command.Command.subcommand:25 of
+msgid ""
+"The name of the group the subcommand belongs to. Defaults to the most "
+"recently used group."
+msgstr ""
+
+#: interactions.client.models.command.Command.subcommand:27 of
+msgid "The name of the subcommand. Defaults to the name of the coroutine."
+msgstr ""
+
+#: interactions.client.models.command.Command.subcommand:29 of
+msgid ""
+"The description of the subcommand. Defaults to the docstring of the "
+"coroutine."
+msgstr ""
+
+#: interactions.client.models.command.Command.subcommand:31 of
+msgid "The options of the subcommand."
+msgstr ""
+
+#: interactions.client.models.command.Command.group:32
+#: interactions.client.models.command.Command.subcommand:37 of
+msgid "The :class:`interactions.client.models.command.Command` object."
+msgstr ""
+
+#: interactions.client.models.command.Command.group:1 of
+msgid "Decorator for creating a group of the command."
+msgstr ""
+
+#: interactions.client.models.command.Command.group:3 of
+msgid "The structure for a group:"
+msgstr ""
+
+#: interactions.client.models.command.Command.group:24 of
+msgid "The name of the group. Defaults to the name of the coroutine."
+msgstr ""
+
+#: interactions.client.models.command.Command.group:26 of
+msgid "The description of the group. Defaults to the docstring of the coroutine."
+msgstr ""
+
+#: interactions.client.models.command.Command.dispatcher:1 of
+msgid ""
+"Returns a coroutine that calls the command along with the subcommands, if"
+" any."
+msgstr ""
+
+#: interactions.client.models.command.Command.dispatcher:4 of
+msgid "The coroutine returned is never the same object."
+msgstr ""
+
+#: interactions.client.models.command.Command.dispatcher:6 of
+msgid "A coroutine that calls the command along with the subcommands, if any."
+msgstr ""
+
+#: interactions.client.models.command.Command.autocomplete:1 of
+msgid "Decorator for creating an autocomplete for the command."
+msgstr ""
+
+#: interactions.client.models.command.Command.autocomplete:3 of
+msgid ""
+"The name of the option to autocomplete. Defaults to the name of the "
+"coroutine."
+msgstr ""
+
+#: interactions.client.models.command.Command.autocomplete:5 of
+msgid "The coroutine"
+msgstr ""
+
+#: interactions.client.models.command.Command.error:1 of
+msgid ""
+"Decorator for assigning a callback coroutine to be called when an error "
+"occurs."
+msgstr ""
+
+#: interactions.client.models.command.Command.error:3 of
+msgid "The structure of the decorator:"
+msgstr ""
+
+#: interactions.client.models.command.Command.error:16 of
+msgid ""
+"The context and error are required as parameters, but you can also have "
+"additional parameters so that the base or group result (if any) and/or "
+"options are passed."
+msgstr ""
+
+#: interactions.client.models.command.Command.error:20 of
+msgid "The coroutine to be called when an error occurs."
+msgstr ""
+
+#: interactions.client.models.command.Command.__call:1 of
+msgid "Handles calling the coroutine based on parameter count."
+msgstr ""
+
+#: interactions.client.models.command.Command.__check_command:1 of
+msgid ""
+"Checks if subcommands, groups, or autocompletions are created on context "
+"menus."
+msgstr ""
+
+#: interactions.client.models.command.Command.__check_options:1 of
+msgid "Checks the options to make sure they are compatible with subcommands."
+msgstr ""
+
+#: interactions.client.models.command.Command.__no_group:1 of
+msgid "This is the coroutine used when no group coroutine is provided."
+msgstr ""
+
+#: interactions.client.models.command.Command.__wrap_coro:1 of
+msgid ""
+"Wraps a coroutine to make sure the "
+":class:`interactions.client.bot.Extension` is passed to the coroutine, if"
+" any."
 msgstr ""

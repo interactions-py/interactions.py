@@ -1,6 +1,6 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
-from typing import TYPE_CHECKING, Awaitable, Callable, List, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, Iterable, List, Optional, TypeVar, Union
 
 from ...api.error import LibraryException
 from .component import ActionRow, Button, SelectMenu
@@ -8,8 +8,9 @@ from .component import ActionRow, Button, SelectMenu
 if TYPE_CHECKING:
     from ..context import CommandContext
 
-
 __all__ = ("autodefer", "spread_to_rows")
+
+_T = TypeVar("_T")
 
 
 def autodefer(
@@ -31,11 +32,11 @@ def autodefer(
             await ctx.send("I'm awake now!")
 
     :param delay?: The amount of time in seconds to wait before defering the command. Defaults to ``2`` seconds.
-    :type delay: Union[float, int]
+    :type delay?: Union[float, int]
     :param ephemeral?: Whether the command is deferred ephemerally. Defaults to ``False``.
-    :type ephemeral: bool
+    :type ephemeral?: bool
     :param edit_origin?: Whether the command is deferred on origin. Defaults to ``False``.
-    :type edit_origin: bool
+    :type edit_origin?: bool
     :return: The inner function, for decorating.
     :rtype:
     """
@@ -101,7 +102,7 @@ def spread_to_rows(
     :param \*components: The components to spread.
     :type \*components: Union[ActionRow, Button, SelectMenu]
     :param max_in_row?: The maximum number of components in a single row. Defaults to ``5``.
-    :type max_in_row: int
+    :type max_in_row?: int
     """
     if not components or len(components) > 25:
         raise LibraryException(code=12, message="Number of components should be between 1 and 25.")
@@ -138,3 +139,32 @@ def spread_to_rows(
         raise LibraryException(code=12, message="Number of rows exceeds 5.")
 
     return rows
+
+
+def search_iterable(
+    iterable: Iterable[_T], check: Optional[Callable[[_T], bool]] = None, /, **kwargs
+) -> List[_T]:
+    """
+    Searches through an iterable for items that:
+    - Are True for the check, if one is given
+    - Have attributes that match the keyword arguments (e.x. passing `id=your_id` will only return objects with that id)
+
+    :param iterable: The iterable to search through
+    :type iterable: Iterable
+    :param check: The check that items will be checked against
+    :type check: Callable[[Any], bool]
+    :param kwargs: Any attributes the items should have
+    :type kwargs: Any
+    :return: All items that match the check and keywords
+    :rtype: list
+    """
+    if check:
+        iterable = filter(check, iterable)
+
+    if kwargs:
+        iterable = filter(
+            lambda item: all(getattr(item, attr) == value for attr, value in kwargs.items()),
+            iterable,
+        )
+
+    return list(iterable)

@@ -5,4 +5,3 @@ Enumerable Objects
 
 .. automodule:: interactions.client.enums
     :members:
-    :noindex:
