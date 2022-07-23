@@ -26,6 +26,8 @@ __all__ = (
     "ApplicationCommand",
     "option",
     "StopCommand",
+    "BaseResult",
+    "GroupResult",
     "Command",
 )
 
