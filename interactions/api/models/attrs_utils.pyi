@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, Type, overload
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union, overload
 
 import attrs
 
