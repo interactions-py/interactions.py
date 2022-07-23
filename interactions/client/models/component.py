@@ -1,5 +1,5 @@
 import contextlib
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
