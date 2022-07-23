@@ -90,7 +90,7 @@ class Role(ClientSerializerMixin, IDMixin):
 
         await self._client.delete_guild_role(
             guild_id=_guild_id, role_id=int(self.id), reason=reason
-        ),
+        )
 
     async def modify(
         self,
@@ -113,7 +113,7 @@ class Role(ClientSerializerMixin, IDMixin):
         :type name?: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
         :type color?: Optional[int]
-         :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
         :type permissions?: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
         :type hoist?: Optional[bool]

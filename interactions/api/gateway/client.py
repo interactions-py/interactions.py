@@ -116,7 +116,7 @@ class WebSocketClient:
         self._client: Optional["ClientWebSocketResponse"] = None
         self._closed: bool = False
         self._options: dict = {
-            "max_msg_size": 1024**2,
+            "max_msg_size": 1024 ** 2,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
