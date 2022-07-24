@@ -409,30 +409,29 @@ class WebSocketClient:
                     id = getattr(obj, "id", None)
 
                 if id is None:
-                    if model.__name__.startswith("Guild"):
-                        if model.__name__ == "GuildScheduledEventUser":
-                            id = model.guild_scheduled_event_id
-                        elif model.__name__ in [
-                            "Invite",
-                            "GuildBan",
-                            "ChannelPins",
-                            "MessageReaction",
-                            "ReactionRemove",
-                            # Extend this for everything that should not be cached
-                        ]:
-                            id = None
+                    if model.__name__ == "GuildScheduledEventUser":
+                        id = model.guild_scheduled_event_id
+                    elif model.__name__ in [
+                        "Invite",
+                        "GuildBan",
+                        "ChannelPins",
+                        "MessageReaction",
+                        "MessageReactionRemove"
+                        # Extend this for everything that should not be cached
+                    ]:
+                        id = None
+                    elif model.__name__.startswith("Guild"):
+                        model_name = model.__name__[5:]
+                        if _data := getattr(obj, model_name, None):
+                            id = (
+                                getattr(_data, "id")
+                                if not isinstance(_data, dict)
+                                else Snowflake(_data["id"])
+                            )
+                        elif hasattr(obj, f"{model_name}_id"):
+                            id = getattr(obj, f"{model_name}_id")
                         else:
-                            model_name = model.__name__[5:]
-                            if _data := getattr(obj, model_name, None):
-                                id = (
-                                    getattr(_data, "id")
-                                    if not isinstance(_data, dict)
-                                    else Snowflake(_data["id"])
-                                )
-                            elif hasattr(obj, f"{model_name}_id"):
-                                id = getattr(obj, f"{model_name}_id")
-                            else:
-                                id = None
+                            id = None
 
                 def __modify_guild_cache():
                     if not (
@@ -450,18 +449,15 @@ class WebSocketClient:
                             return
                         _obj = getattr(guild, f"{model_name.lower()}s", None)
                         if _obj is not None and isinstance(_obj, list):
-                            _data = getattr(obj, model_name, None)
-
                             if "_create" in name or "_add" in name:
                                 _obj.append(obj)
-
                             for index, __obj in enumerate(_obj):
                                 if __obj.id == id:
                                     if "_remove" in name or "_delete" in name:
                                         _obj.remove(__obj)
 
                                     elif "_update" in name and hasattr(obj, "id"):
-                                        _obj[index] = _data
+                                        _obj[index] = obj
                                     break
                             setattr(guild, f"{model_name}s", _obj)
                         self._http.cache[Guild].add(guild)
@@ -474,15 +470,14 @@ class WebSocketClient:
 
                 elif "_update" in name and hasattr(obj, "id"):
                     old_obj = self._http.cache[model].get(id)
-
                     if old_obj:
                         before = model(**old_obj._json)
                         old_obj.update(**obj._json)
-
-                        _cache.add(old_obj, id)
                     else:
                         before = None
                         old_obj = obj
+
+                    _cache.add(old_obj, id)
                     __modify_guild_cache()
 
                     self._dispatch.dispatch(
