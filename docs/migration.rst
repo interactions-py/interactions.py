@@ -96,7 +96,7 @@ You can now utilize the ``on_start`` event to achieve the same goal:
 Another big change in this release is the implementation of the ``get`` utility method.
 It allows you to no longer use ``**await bot._http...``.
 
-You can get more information by reading the :meth:`interactions.client.get.get`
+You can get more information by reading the :meth:`interactions.client.get.get`-documentation
 
 
 ``4.3.0`` also introduces a new method of creating commands, subcommands, and options.
