@@ -429,7 +429,7 @@ class WebSocketClient:
                                 else Snowflake(_data["id"])
                             )
                         elif hasattr(obj, f"{model_name}_id"):
-                            id = getattr(obj, f"{model_name}_id")
+                            id = getattr(obj, f"{model_name}_id", None)
 
                 def __modify_guild_cache():
                     if not (
