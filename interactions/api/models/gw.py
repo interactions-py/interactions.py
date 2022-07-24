@@ -38,7 +38,7 @@ __all__ = (
     "ChannelPins",
     "ThreadMembers",
     "ThreadList",
-    "ReactionRemove",
+    "MessageReactionRemove",
     "MessageReaction",
     "GuildIntegrations",
     "GuildBan",
@@ -762,7 +762,7 @@ class Presence(ClientSerializerMixin):
 @define()
 class MessageReaction(DictSerializerMixin):
     """
-    A class object representing the gateway event ``MESSAGE_REACTION_ADD``.
+    A class object representing the gateway event ``MESSAGE_REACTION_ADD`` and ``MESSAGE_REACTION_REMOVE``.
 
     :ivar Optional[Snowflake] user_id?: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
@@ -780,9 +780,9 @@ class MessageReaction(DictSerializerMixin):
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
 
-class ReactionRemove(MessageReaction):
+class MessageReactionRemove(MessageReaction):
     """
-    A class object representing the gateway events ``MESSAGE_REACTION_REMOVE``, ``MESSAGE_REACTION_REMOVE_ALL`` and ``MESSAGE_REACTION_REMOVE_EMOJI``.
+    A class object representing the gateway events ``MESSAGE_REACTION_REMOVE_ALL`` and ``MESSAGE_REACTION_REMOVE_EMOJI``.
 
     .. note::
         This class inherits the already existing attributes of :class:`interactions.api.models.gw.Reaction`.
