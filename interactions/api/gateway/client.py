@@ -501,7 +501,7 @@ class WebSocketClient:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
             except AttributeError as error:
-                log.fatal(f"An error occurred dispatching {name}: {error}")
+                log.warning(f"An error occurred dispatching {name}: {error}")
 
     def __contextualize(self, data: dict) -> "_Context":
         """
