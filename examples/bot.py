@@ -1,7 +1,7 @@
 # This code shows a very brief and small example of how to create a bot with our library.
 # This example does not cover all the features of the library, but it is enough to get you started.
 # In order to learn more about how to use the library, please head over to our documentation:
-# https://interactionspy.rtfd.io/en/latest/
+# https://interactionspy.readthedocs.io/en/latest/
 
 # The first thing you need to do is import the library.
 import interactions
@@ -11,6 +11,7 @@ import interactions
 # The client is the main object that interacts with the Gateway, what talks to Discord.
 # The client is also the main object that interacts with the API, what makes requests with Discord.
 client = interactions.Client("your bot token will go here.")
+
 
 # With our client established, let's have the library inform us when the client is ready.
 # These are known as event listeners. An event listener can be established in one of two ways.
@@ -64,7 +65,7 @@ async def hello_world(ctx: interactions.CommandContext):
 
 # - we'll be syncing the commands automatically.
 #   if you want to do this manually, you can do it by passing disable_sync=False in the Client
-#   object on line 8.
+#   object on line 13.
 # - we are not setting a presence.
 # - we are not automatically sharding, and registering the connection under 1 shard.
 # - we are using default intents, which are Gateway intents excluding privileged ones.

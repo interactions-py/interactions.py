@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,6 +48,22 @@ msgstr ""
 
 #: interactions.ext.error.ErrorType:6 of
 msgid "The service specified does not exist."
+msgstr ""
+
+#: interactions.ext.error.ErrorType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.ext.error.ErrorType:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
 msgstr ""
 
 #: enum.Enum._generate_next_value_:1 of
