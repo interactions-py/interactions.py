@@ -390,7 +390,7 @@ class WebSocketClient:
                 log.warning(
                     "Context is being created for the interaction, but no type is specified. Skipping..."
                 )
-        elif event != "TYPING_START":
+        elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
             name: str = event.lower()
             try:
 
@@ -501,7 +501,7 @@ class WebSocketClient:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
             except AttributeError as error:
-                log.fatal(f"An error occured dispatching {name}: {error}")
+                log.fatal(f"An error occurred dispatching {name}: {error}")
 
     def __contextualize(self, data: dict) -> "_Context":
         """
