@@ -1,5 +1,5 @@
 import contextlib
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
@@ -297,12 +297,12 @@ class ActionRow(ComponentMixin):
             self._json["components"] = [component._json for component in self.components]
 
     @classmethod
-    def new(cls, *components: Component) -> "ActionRow":
+    def new(cls, *components: Union[Button, SelectMenu, TextInput]) -> "ActionRow":
         r"""
         A class method for creating a new ``ActionRow``.
 
         :param \*components: The components to add to the ``ActionRow``.
-        :type \*components: Component
+        :type \*components: Union[Button, SelectMenu, TextInput]
         :return: A new ``ActionRow``.
         :rtype: ActionRow
         """

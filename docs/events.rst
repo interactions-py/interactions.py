@@ -51,8 +51,10 @@ All events mentioned in this section have the exact naming as they must be put i
 There are several different internal events:
 
     - ``raw_socket_create``
+    - ``on_start``
     - ``on_interaction``
     - ``on_command``
+    - ``on_command_error``
     - ``on_component``
     - ``on_autocomplete``
     - ``on_modal``
@@ -69,6 +71,15 @@ The function handling the event should take in one argument, the type of this ar
 The value of the argument will be the *raw* data sent from Discord, so it is not recommended to use that event
 as long as you don't absolutely need it.
 
+
+Event: ``on_start``
+^^^^^^^^^^^^^^^^^^^
+This event fires only when the bot is started.
+
+This function takes no arguments.
+
+.. attention::
+    Unlike ``on_ready``, this event will never be dispatched more than once.
 
 Event: ``on_interaction``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -88,6 +99,16 @@ The function takes in one argument of the type ``CommandContext``.
 
 Using this event, you will have to manually check everything, from name to whether the used commands have sub commands,
 options or anything else - everything will be in the raw context and you will have to search for it
+
+
+Event: ``on_command_error``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This event fires when the following conditions are met:
+
+1. There is an error in the command (or subcommand within the command)
+2. There is no error callback assigned to that command
+
+The function takes in two arguments, one of the type ``CommandContext``, and the other contains the error.
 
 
 Event: ``on_component``

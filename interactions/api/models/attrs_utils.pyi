@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, Type, overload
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union, overload
 
 import attrs
 
@@ -67,13 +67,9 @@ def convert_dict(
     """A helper function to convert the keys and values of a dictionary with the specified converters"""
 
 @overload
-def deepcopy_kwargs() -> Callable[[_T], _T]:
-    ...
-
+def deepcopy_kwargs() -> Callable[[_T], _T]: ...
 @overload
-def deepcopy_kwargs(cls: _T) -> _T:
-    ...
-
+def deepcopy_kwargs(cls: _T) -> _T: ...
 def deepcopy_kwargs(cls: Optional[_T] = None) -> Union[Callable[[_T], _T], _T]:
     """
     A decorator to make the DictSerializerMixin deepcopy the kwargs before processing them.

@@ -169,7 +169,11 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
     if version_info >= (3, 9):
 
         def _check():
-            return obj == list[get_args(obj)[0]]
+            return (
+                obj == list[get_args(obj)[0]]
+                if isinstance(get_args(obj), tuple) and get_args(obj)
+                else False
+            )
 
     else:
 
@@ -254,7 +258,7 @@ async def _http_request(
             return await _func(**kwargs)
 
         _func = getattr(http, _name)
-        _obj = await _func
+        _obj = await _func(**kwargs)
         return obj(**_obj, _client=http)
 
     if not isinstance(request, list):

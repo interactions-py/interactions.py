@@ -35,6 +35,14 @@ class Listener:
         :type **kwargs: dict
         """
         for event in self.events.get(__name, []):
+            converters: dict
+            if converters := getattr(event, "_converters", None):
+                _kwargs = kwargs.copy()
+                for key, value in _kwargs.items():
+
+                    if key in converters.keys():
+                        del kwargs[key]
+                        kwargs[converters[key]] = value
 
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
@@ -50,7 +58,7 @@ class Listener:
         :param coro: The coroutine to register as an event.
         :type coro: Callable[..., Coroutine]
         :param name?: The name to associate the coroutine with. Defaults to None.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         """
         _name: str = coro.__name__ if name is None else name
         event = self.events.get(_name, [])
