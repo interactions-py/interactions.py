@@ -430,8 +430,6 @@ class WebSocketClient:
                             )
                         elif hasattr(obj, f"{model_name}_id"):
                             id = getattr(obj, f"{model_name}_id")
-                        else:
-                            id = None
 
                 def __modify_guild_cache():
                     if not (
