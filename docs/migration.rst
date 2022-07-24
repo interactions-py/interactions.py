@@ -96,7 +96,7 @@ You can now utilize the ``on_start`` event to achieve the same goal:
 Another big change in this release is the implementation of the ``get`` utility method.
 It allows you to no longer use ``**await bot._http...``.
 
-You can get more information by reading the `get-documentation`_.
+You can get more information by reading the :meth:`interactions.client.get.get`
 
 
 ``4.3.0`` also introduces a new method of creating commands, subcommands, and options.
@@ -227,6 +227,3 @@ your option name! Example:
         ctx, opt1: str, hi: int, opt3: interactions.Channel = None
     ):
         ...
-
-
-.. _get-documentation: https://interactionspy.readthedocs.io/en/latest/get.html#the-get-utility-method
