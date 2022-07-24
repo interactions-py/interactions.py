@@ -440,7 +440,6 @@ class WebSocketClient:
                     ):
                         return
                     if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
-                        model_name: str = model.__name__.lower()
                         model_name: str = model.__name__
                         if "guild" in model_name:
                             model_name = model_name[5:]
