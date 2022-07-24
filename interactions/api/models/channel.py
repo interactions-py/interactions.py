@@ -1215,7 +1215,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         .. note::
             The permissions returned by this function take into account role and
             user overwrites that can be assigned to channels or categories. If you
-            don't need these overwrites, look into `Member.get_guild_permissions()` function.
+            don't need these overwrites, look into :meth:`.Member.get_guild_permissions`.
 
         :param member: The member to get the permissions from
         :type member: Member

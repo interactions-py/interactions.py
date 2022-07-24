@@ -380,6 +380,7 @@ class Member(ClientSerializerMixin, IDMixin):
     def get_avatar_url(self, guild_id: Union[int, Snowflake, "Guild"]) -> Optional[str]:
         """
         Returns the URL of the member's avatar for the specified guild.
+
         :param guild_id: The id of the guild to get the member's avatar from
         :type guild_id: Union[int, Snowflake, "Guild"]
         :return: URL of the members's avatar (None will be returned if no avatar is set)
@@ -401,7 +402,7 @@ class Member(ClientSerializerMixin, IDMixin):
         .. note::
             The permissions returned by this function will not take into account role and
             user overwrites that can be assigned to channels or categories. If you need
-            these overwrites, look into `Channel.get_permissions_for()` function.
+            these overwrites, look into :meth:`.Channel.get_permissions_for`.
 
         :param guild: The guild of the member
         :type guild: Guild
