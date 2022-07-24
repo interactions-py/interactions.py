@@ -1,6 +1,6 @@
 from enum import Enum, IntFlag
 
-__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions")
+__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions", "ALL_PERMISSIONS")
 
 
 class Intents(IntFlag):
@@ -92,6 +92,11 @@ class Permissions(IntFlag):
     SEND_MESSAGES_IN_THREADS = 1 << 38
     START_EMBEDDED_ACTIVITIES = 1 << 39
     MODERATE_MEMBERS = 1 << 40
+
+
+ALL_PERMISSIONS = Permissions(0)
+for perm in Permissions:
+    ALL_PERMISSIONS |= perm
 
 
 class UserFlags(IntFlag):

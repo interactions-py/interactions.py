@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, convert_list, define, field
 from .channel import Channel
-from .flags import Permissions
+from .flags import Permissions, ALL_PERMISSIONS
 from .misc import File, IDMixin, Snowflake
 from .role import Role
 from .user import User
@@ -393,3 +393,32 @@ class Member(ClientSerializerMixin, IDMixin):
         url = f"https://cdn.discordapp.com/guilds/{_guild_id}/users/{int(self.user.id)}/avatars/{self.avatar}"
         url += ".gif" if self.avatar.startswith("a_") else ".png"
         return url
+
+    async def get_guild_permissions(self, guild: "Guild") -> Permissions:
+        """
+        Returns the permissions of the member for the specified guild.
+
+        .. note::
+            The permissions returned by this function will not take into account role and
+            user overwrites that can be assigned to channels or categories. If you need
+            these overwrites, look into `Channel.get_permissions_for()` function.
+
+        :param guild: The guild of the member
+        :type guild: Guild
+        :return: Base permissions of the member in the specified guild
+        :rtype: Permissions
+        """
+        if int(guild.owner_id) == int(self.id):
+            return ALL_PERMISSIONS
+
+        role_everyone = await guild.get_role(int(guild.id))
+        permissions = int(role_everyone.permissions)
+
+        for role_id in self.roles:
+            role = await guild.get_role(role_id)
+            permissions |= int(role.permissions)
+
+        if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
+            return ALL_PERMISSIONS
+
+        return Permissions(permissions)
