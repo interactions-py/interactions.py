@@ -416,12 +416,13 @@ class WebSocketClient:
                         "GuildBan",
                         "ChannelPins",
                         "MessageReaction",
-                        "MessageReactionRemove"
+                        "MessageReactionRemove",
+                        "GuildEmojis"
                         # Extend this for everything that should not be cached
                     ]:
                         id = None
                     elif model.__name__.startswith("Guild"):
-                        model_name = model.__name__[5:]
+                        model_name = model.__name__[5:].lower()
                         if _data := getattr(obj, model_name, None):
                             id = (
                                 getattr(_data, "id")
@@ -440,12 +441,12 @@ class WebSocketClient:
                     ):
                         return
                     if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
-                        model_name: str = model.__name__
+                        model_name: str = model.__name__.lower()
                         if "guild" in model_name:
                             model_name = model_name[5:]
                         elif model_name == "threadmembers":
                             return
-                        _obj = getattr(guild, f"{model_name.lower()}s", None)
+                        _obj = getattr(guild, f"{model_name}s", None)
                         if _obj is not None and isinstance(_obj, list):
                             if "_create" in name or "_add" in name:
                                 _obj.append(obj)
