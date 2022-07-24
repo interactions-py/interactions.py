@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, convert_list, define, field
 from .channel import Channel
-from .flags import Permissions, ALL_PERMISSIONS
+from .flags import ALL_PERMISSIONS, Permissions
 from .misc import File, IDMixin, Snowflake
 from .role import Role
 from .user import User
