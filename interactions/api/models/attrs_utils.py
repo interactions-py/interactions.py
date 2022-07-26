@@ -63,9 +63,9 @@ class DictSerializerMixin:
                     # make sure json is recursively handled
                     if isinstance(value, list):
                         self._json[attrib_name] = [
-                            i._json if isinstance(item, DictSerializerMixin) else i for i in value
+                            i._json if isinstance(i, DictSerializerMixin) else i for i in value
                         ]
-                    elif isinstance(item, DictSerializerMixin):
+                    elif isinstance(value, DictSerializerMixin):
                         self._json[attrib_name] = value._json  # type: ignore
 
                     passed_kwargs[attrib_name] = value
