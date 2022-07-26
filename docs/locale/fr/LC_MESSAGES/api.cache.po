@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# mAxYoLo01 - maxyolo01.ytb@gmail.com - mAxYoLo01#4491, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,106 +11,109 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: mAxYoLo01 - maxyolo01.ytb@gmail.com - mAxYoLo01#4491\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: mAxYoLo01\n"
 
 #: ../../api.cache.rst:4
 msgid "Client Cache"
-msgstr ""
+msgstr "Cache du client"
 
 #: interactions.api.cache.Storage:1 of
 msgid "A class representing a set of items stored as a cache state."
-msgstr ""
+msgstr "Une classe représentant des éléments stockés en tant que cache."
 
 #: interactions.api.cache.Cache interactions.api.cache.Storage of
 msgid "Variables"
-msgstr ""
+msgstr "Variables"
 
 #: interactions.api.cache.Storage:3 of
 msgid "The list of items stored."
-msgstr ""
+msgstr "La liste des éléments stockés."
 
 #: interactions.api.cache.Cache interactions.api.cache.Storage
 #: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
 #: interactions.api.cache.Storage.merge interactions.api.cache.Storage.view of
 msgid "Return type"
-msgstr ""
+msgstr "Type de retour"
 
 #: interactions.api.cache.Storage.merge:1 of
 msgid "Merges new data of an item into an already present item of the cache"
-msgstr ""
+msgstr "Fusionne les nouvelles données d'un élément avec celles d'un élément déjà présent dans le cache."
 
 #: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
 #: interactions.api.cache.Storage.merge interactions.api.cache.Storage.update
 #: of
 msgid "Parameters"
-msgstr ""
+msgstr "Paramètres"
 
 #: interactions.api.cache.Storage.merge:3 of
 msgid "The item to merge."
-msgstr ""
+msgstr "L'élément à fusionner."
 
 #: interactions.api.cache.Storage.add:5 interactions.api.cache.Storage.merge:5
 #: of
 msgid "The unique id of the item."
-msgstr ""
+msgstr "L'ID unique de l'élément."
 
 #: interactions.api.cache.Storage.add:1 of
 msgid "Adds a new item to the storage."
-msgstr ""
+msgstr "Ajoute un élément au stockage."
 
 #: interactions.api.cache.Storage.add:3 of
 msgid "The item to add."
-msgstr ""
+msgstr "L'élément à rajouter."
 
 #: interactions.api.cache.Storage.get:1 of
 msgid "Gets an item from the storage."
-msgstr ""
+msgstr "Cherche un élément du stockage."
 
 #: interactions.api.cache.Storage.get:3 of
 msgid "The ID of the item."
-msgstr ""
+msgstr "L'ID de l'élément."
 
 #: interactions.api.cache.Storage.get:5 of
 msgid "The default value to return if the item is not found."
-msgstr ""
+msgstr "La valeur par défaut à retourner si l'élément n'est pas trouvé."
 
 #: interactions.api.cache.Storage.get interactions.api.cache.Storage.view of
 msgid "Returns"
-msgstr ""
+msgstr "Retourne"
 
 #: interactions.api.cache.Storage.get:7 of
 msgid "The item from the storage if any."
-msgstr ""
+msgstr "L'élément du stockage s'il y en a un."
 
 #: interactions.api.cache.Storage.update:1 of
 msgid "Updates multiple items from the storage."
-msgstr ""
+msgstr "Mets à jour plusieurs éléments du stockage."
 
 #: interactions.api.cache.Storage.update:3 of
 msgid "The data to update with."
-msgstr ""
+msgstr "Les données à mettre à jour."
 
 #: interactions.api.cache.Storage.view:1 of
 msgid "Views all items from storage."
-msgstr ""
+msgstr "Voir tout les éléments du stockage."
 
 #: interactions.api.cache.Storage.view:3 of
 msgid "The items stored."
-msgstr ""
+msgstr "Les éléments stockés."
 
 #: interactions.api.cache.Cache:1 of
 msgid ""
 "A class representing the cache. This cache collects all of the HTTP "
 "requests made for the represented instances of the class."
 msgstr ""
+"Une classe représentant le cache. Ce cache recueille toutes les "
+"requêtes HTTP effectuées pour les instances de la classe."
 
 #: interactions.api.cache.Cache:5 of
 msgid ""
 "A dictionary denoting the Type and the objects that correspond to the "
 "Type."
 msgstr ""
+"Un dictionnaire indiquant le type et les objets correspondant au type."
