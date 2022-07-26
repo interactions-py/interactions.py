@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# mAxYoLo01 - maxyolo01.ytb@gmail.com - mAxYoLo01#4491, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,59 +11,59 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: mAxYoLo01 - maxyolo01.ytb@gmail.com - mAxYoLo01#4491\n"
+"Language-Team: None\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: mAxYoLo01\n"
 
 #: ../../api.dispatch.rst:4
 msgid "Dispatching"
-msgstr ""
+msgstr "Distribution"
 
 #: interactions.api.dispatch.Listener:1 of
 msgid "A class representing how events become dispatched and listened to."
-msgstr ""
+msgstr "Une classe représentant la façon dont les événements sont distribués et écoutés."
 
 #: interactions.api.dispatch.Listener of
 msgid "Variables"
-msgstr ""
+msgstr "Variables"
 
 #: interactions.api.dispatch.Listener:3 of
 msgid "The coroutine event loop established on."
-msgstr ""
+msgstr "La boucle d'évènement de la coroutine."
 
 #: interactions.api.dispatch.Listener:4 of
 msgid "A list of events being dispatched."
-msgstr ""
+msgstr "Une liste des événements distribués."
 
 #: interactions.api.dispatch.Listener
 #: interactions.api.dispatch.Listener.dispatch
 #: interactions.api.dispatch.Listener.register of
 msgid "Return type"
-msgstr ""
+msgstr "Type de retour"
 
 #: interactions.api.dispatch.Listener.dispatch:1 of
 msgid "Dispatches an event given out by the gateway."
-msgstr ""
+msgstr "Distribue un événement donné par la gateway."
 
 #: interactions.api.dispatch.Listener.dispatch
 #: interactions.api.dispatch.Listener.register of
 msgid "Parameters"
-msgstr ""
+msgstr "Paramètres"
 
 #: interactions.api.dispatch.Listener.dispatch:3 of
 msgid "The name of the event to dispatch."
-msgstr ""
+msgstr "Le nom de l'événement à distribuer."
 
 #: interactions.api.dispatch.Listener.dispatch:5 of
 msgid "Multiple arguments of the coroutine."
-msgstr ""
+msgstr "Les arguments de la coroutine."
 
 #: interactions.api.dispatch.Listener.dispatch:7 of
 msgid "Keyword-only arguments of the coroutine."
-msgstr ""
+msgstr "Les arguments nommés de la coroutine."
 
 #: interactions.api.dispatch.Listener.register:1 of
 msgid ""
@@ -71,15 +71,18 @@ msgid ""
 " the event is not given, it will then be determined by the coroutine's "
 "name."
 msgstr ""
+"Enregistre une coroutine comme un événement à écouter. Si le nom de "
+"l'événement n'est pas spécifié, il sera déterminé par le nom de la "
+"coroutine."
 
 #: interactions.api.dispatch.Listener.register:5 of
 msgid "i.e. : async def on_guild_create -> \"ON_GUILD_CREATE\" dispatch."
-msgstr ""
+msgstr "ex: async def on_guild_create -> Distribue \"ON_GUILD_CREATE\"."
 
 #: interactions.api.dispatch.Listener.register:7 of
 msgid "The coroutine to register as an event."
-msgstr ""
+msgstr "La coroutine à enregistrer en tant qu'événement."
 
 #: interactions.api.dispatch.Listener.register:9 of
 msgid "The name to associate the coroutine with. Defaults to None."
-msgstr ""
+msgstr "Le nom à associer à la coroutine. La valeur par défaut est None."
