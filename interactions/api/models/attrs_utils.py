@@ -54,6 +54,13 @@ class DictSerializerMixin:
                         else:
                             value["_client"] = client
 
+                    if isinstance(value, list):
+                        self._json[attrib_name] = [
+                            i._json if hasattr(i, "_json") else i for i in value
+                        ]
+                    elif hasattr(value, "_json"):
+                        self._json[attrib_name] = value._json  # type: ignore
+
                     passed_kwargs[attrib_name] = value
 
                 elif attrib.default:
