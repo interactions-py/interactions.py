@@ -466,7 +466,10 @@ class WebSocketClient:
                     self._dispatch.dispatch(f"on_{name}", obj)
                     __modify_guild_cache()
 
-                elif "_update" in name and hasattr(obj, "id"):
+                elif "_update" in name:
+                    self._dispatch.dispatch(f"on_raw_{name}", obj)
+                    if not hasattr(obj, "id"):
+                        return
                     old_obj = self._http.cache[model].get(id)
                     if old_obj:
                         before = model(**old_obj._json)
@@ -481,7 +484,6 @@ class WebSocketClient:
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
-                    return
 
                 elif "_remove" in name or "_delete" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
