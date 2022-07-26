@@ -367,7 +367,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         self,
         member_id: Union[int, Member, Snowflake],
         reason: Optional[str] = None,
-        delete_message_seconds: Optional[int] = 0
+        delete_message_seconds: Optional[int] = 0,
     ) -> None:
         """
         Bans a member from the guild.
