@@ -8,6 +8,7 @@ models for dispatched Gateway events.
 from .attrs_utils import *  # noqa: F401 F403
 from .audit_log import *  # noqa: F401 F403
 from .channel import *  # noqa: F401 F403
+from .emoji import *  # noqa: F401 F403
 from .flags import *  # noqa: F401 F403
 from .guild import *  # noqa: F401 F403
 from .gw import *  # noqa: F401 F403
