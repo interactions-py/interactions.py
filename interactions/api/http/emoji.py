@@ -1,7 +1,8 @@
 from typing import List, Optional
 
 from ...api.cache import Cache
-from ...api.models.guild import Emoji, Guild
+from ...api.models.emoji import Emoji
+from ...api.models.guild import Guild
 from ...api.models.misc import Snowflake
 from .request import _Request
 from .route import Route

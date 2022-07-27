@@ -12,9 +12,10 @@ from .attrs_utils import (
     field,
 )
 from .channel import Channel, ThreadMember
+from .emoji import Emoji
 from .guild import EventMetadata
 from .member import Member
-from .message import Embed, Emoji, Message, MessageInteraction, Sticker
+from .message import Embed, Message, MessageInteraction, Sticker
 from .misc import (
     AutoModAction,
     AutoModTriggerMetadata,

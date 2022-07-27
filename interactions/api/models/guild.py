@@ -13,8 +13,9 @@ from .attrs_utils import (
 )
 from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
+from .emoji import Emoji
 from .member import Member
-from .message import Emoji, Sticker
+from .message import Sticker
 from .misc import (
     AutoModAction,
     AutoModTriggerMetadata,

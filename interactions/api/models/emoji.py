@@ -1,12 +1,7 @@
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..error import LibraryException
-from .attrs_utils import (
-    ClientSerializerMixin,
-    convert_list,
-    define,
-    field,
-)
+from .attrs_utils import ClientSerializerMixin, convert_list, define, field
 from .misc import Snowflake
 from .role import Role
 from .user import User
