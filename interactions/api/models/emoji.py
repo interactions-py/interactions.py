@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ..http import HTTPClient
     from .guild import Guild
 
-__all__ = ["Emoji"]
+__all__ = ("Emoji", )
 
 
 @define()
