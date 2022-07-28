@@ -56,6 +56,7 @@ class InteractionData(DictSerializerMixin):
     :ivar Optional[ComponentType] component_type?: The type of component from the interaction.
     :ivar Optional[List[str]] values?: The values of the selected options in the interaction.
     :ivar Optional[str] target_id?: The targeted ID of the interaction.
+    :ivar Optional[List[ActionRow]]: Array of Action Rows in modal.
     """
 
     id: Snowflake = field(converter=Snowflake, default=None)
@@ -69,7 +70,7 @@ class InteractionData(DictSerializerMixin):
     component_type: Optional[ComponentType] = field(converter=ComponentType, default=None)
     values: Optional[List[str]] = field(default=None)
     target_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    components: List[ActionRow] = field(converter=convert_list(ActionRow), default=None)
+    components: Optional[List[ActionRow]] = field(converter=convert_list(ActionRow), default=None)
 
 
 @define()
