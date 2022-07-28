@@ -15,16 +15,15 @@ from .attrs_utils import (
     field,
 )
 from .channel import Channel
+from .emoji import Emoji
 from .member import Member
 from .misc import File, IDMixin, Snowflake
-from .role import Role
 from .team import Application
 from .user import User
 
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, Component, SelectMenu
     from ..http import HTTPClient
-    from .guild import Guild
 
 __all__ = (
     "MessageType",
@@ -39,7 +38,6 @@ __all__ = (
     "EmbedImageStruct",
     "EmbedField",
     "Attachment",
-    "Emoji",
     "EmbedFooter",
     "ReactionObject",
     "PartialSticker",
@@ -186,112 +184,6 @@ class ChannelMention(DictSerializerMixin, IDMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     type: int = field()  # Replace with enum from Channel Type, another PR
     name: str = field()
-
-
-@define()
-class Emoji(ClientSerializerMixin):
-    """
-    A class objecting representing an emoji.
-
-    :ivar Optional[Snowflake] id?: Emoji id
-    :ivar Optional[str] name?: Emoji name.
-    :ivar Optional[List[Role]] roles?: Roles allowed to use this emoji
-    :ivar Optional[User] user?: User that created this emoji
-    :ivar Optional[bool] require_colons?: Status denoting of this emoji must be wrapped in colons
-    :ivar Optional[bool] managed?: Status denoting if this emoji is managed (by an integration)
-    :ivar Optional[bool] animated?: Status denoting if this emoji is animated
-    :ivar Optional[bool] available?: Status denoting if this emoji can be used. (Can be false via server boosting)
-    """
-
-    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    name: Optional[str] = field(default=None)
-    roles: Optional[List[Role]] = field(converter=convert_list(Role), default=None)
-    user: Optional[User] = field(converter=User, default=None)
-    require_colons: Optional[bool] = field(default=None)
-    managed: Optional[bool] = field(default=None)
-    animated: Optional[bool] = field(default=None)
-    available: Optional[bool] = field(default=None)
-
-    @classmethod
-    async def get(
-        cls,
-        guild_id: Union[int, Snowflake, "Guild"],
-        emoji_id: Union[int, Snowflake],
-        client: "HTTPClient",
-    ) -> "Emoji":
-        """
-        Gets an emoji.
-
-        :param guild_id: The id of the guild of the emoji
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param emoji_id: The id of the emoji
-        :type emoji_id: Union[int, Snowflake]
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
-        :return: The Emoji as object
-        :rtype: Emoji
-        """
-
-        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-
-        res = await client.get_guild_emoji(guild_id=_guild_id, emoji_id=int(emoji_id))
-        return cls(**res, _client=client)
-
-    @classmethod
-    async def get_all_of_guild(
-        cls,
-        guild_id: Union[int, Snowflake, "Guild"],
-        client: "HTTPClient",
-    ) -> List["Emoji"]:
-        """
-        Gets all emoji of a guild.
-
-        :param guild_id: The id of the guild to get the emojis of
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
-        :return: The Emoji as list
-        :rtype: List[Emoji]
-        """
-
-        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-
-        res = await client.get_all_emoji(guild_id=_guild_id)
-        return [cls(**emoji, _client=client) for emoji in res]
-
-    async def delete(
-        self,
-        guild_id: Union[int, Snowflake, "Guild"],
-        reason: Optional[str] = None,
-    ) -> None:
-        """
-        Deletes the emoji.
-
-        :param guild_id: The guild id to delete the emoji from
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param reason?: The reason of the deletion
-        :type reason?: Optional[str]
-        """
-        if not self._client:
-            raise LibraryException(code=13)
-
-        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-
-        return await self._client.delete_guild_emoji(
-            guild_id=_guild_id, emoji_id=int(self.id), reason=reason
-        )
-
-    @property
-    def url(self) -> str:
-        """
-        Returns the emoji's URL.
-
-        :return: URL of the emoji
-        :rtype: str
-        """
-        url = f"https://cdn.discordapp.com/emojis/{self.id}"
-        url += ".gif" if self.animated else ".png"
-        return url
 
 
 @define()

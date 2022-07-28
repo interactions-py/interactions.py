@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
-from ...api.models.message import Emoji
+from ...api.models.emoji import Emoji
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 __all__ = (

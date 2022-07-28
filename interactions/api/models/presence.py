@@ -2,9 +2,9 @@ import time
 from enum import IntEnum
 from typing import Any, List, Optional
 
-from ..models import StatusType
-from ..models.message import Emoji
 from .attrs_utils import DictSerializerMixin, convert_list, define, field
+from .emoji import Emoji
+from .flags import StatusType
 from .misc import Snowflake
 
 __all__ = (
