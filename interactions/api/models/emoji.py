@@ -20,7 +20,7 @@ class Emoji(ClientSerializerMixin):
 
     :ivar Optional[Snowflake] id?: Emoji id
     :ivar Optional[str] name?: Emoji name.
-    :ivar Optional[List[Role]] roles?: Roles allowed to use this emoji
+    :ivar Optional[List[int]] roles?: Roles allowed to use this emoji
     :ivar Optional[User] user?: User that created this emoji
     :ivar Optional[bool] require_colons?: Status denoting of this emoji must be wrapped in colons
     :ivar Optional[bool] managed?: Status denoting if this emoji is managed (by an integration)
@@ -30,7 +30,7 @@ class Emoji(ClientSerializerMixin):
 
     id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     name: Optional[str] = field(default=None)
-    roles: Optional[List[Role]] = field(converter=convert_list(Role), default=None)
+    roles: Optional[List[int]] = field(converter=convert_list(int), default=None)
     user: Optional[User] = field(converter=User, default=None)
     require_colons: Optional[bool] = field(default=None)
     managed: Optional[bool] = field(default=None)
