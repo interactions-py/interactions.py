@@ -342,7 +342,7 @@ class GuildMember(ClientSerializerMixin):
     async def add_role(
         self,
         role: Union[Role, int],
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method adds a role to a member.
@@ -372,7 +372,7 @@ class GuildMember(ClientSerializerMixin):
     async def remove_role(
         self,
         role: Union[Role, int],
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method removes a role from a member.
