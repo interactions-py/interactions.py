@@ -888,7 +888,7 @@ class Message(ClientSerializerMixin, IDMixin):
             _attachments = [a._json for a in attachments]
 
         if not files or files is MISSING:
-            _files = self.attachments
+            _files = [] if attachments is MISSING else [a._json for a in self.attachments]
         elif isinstance(files, list):
             _files = [file._json_payload(id) for id, file in enumerate(files)]
         else:
