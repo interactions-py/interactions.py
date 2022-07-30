@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from ...api.models.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
 from ...api.models.channel import Channel
@@ -9,6 +9,7 @@ from ...api.models.role import Role
 from ...api.models.user import User
 from ..enums import ApplicationCommandType, ComponentType, InteractionType, PermissionType
 from ..models.command import Option
+from .component import ActionRow
 
 __all__ = ("InteractionResolvedData", "InteractionData", "Interaction")
 
@@ -55,6 +56,7 @@ class InteractionData(DictSerializerMixin):
     :ivar Optional[ComponentType] component_type?: The type of component from the interaction.
     :ivar Optional[List[str]] values?: The values of the selected options in the interaction.
     :ivar Optional[str] target_id?: The targeted ID of the interaction.
+    :ivar Optional[List[ActionRow]] components?: Array of Action Rows in modal.
     """
 
     id: Snowflake = field(converter=Snowflake, default=None)
@@ -68,7 +70,7 @@ class InteractionData(DictSerializerMixin):
     component_type: Optional[ComponentType] = field(converter=ComponentType, default=None)
     values: Optional[List[str]] = field(default=None)
     target_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    components: Any = field(default=None)  # todo check this type
+    components: Optional[List[ActionRow]] = field(converter=convert_list(ActionRow), default=None)
 
 
 @define()

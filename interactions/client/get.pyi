@@ -7,7 +7,8 @@ from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Emoji, Message, Sticker
+from ..api.models.message import Message, Sticker
+from ..api.models.emoji import Emoji
 from ..api.models.role import Role
 from ..api.models.user import User
 from ..api.models.webhook import Webhook
