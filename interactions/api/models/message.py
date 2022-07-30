@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ...client.models.component import ActionRow, Button, SelectMenu
 from ..error import LibraryException
 from .attrs_utils import (
     MISSING,
@@ -22,7 +23,6 @@ from .team import Application
 from .user import User
 
 if TYPE_CHECKING:
-    from ...client.models.component import ActionRow, Button, Component, SelectMenu
     from ..http import HTTPClient
 
 __all__ = (
@@ -731,7 +731,7 @@ class Message(ClientSerializerMixin, IDMixin):
     :ivar int flags: Message flags
     :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread?: The thread that started from this message, if any, with a thread member object embedded.
-    :ivar Optional[Union[Component, List[Component]]] components?: Components associated with this message, if any.
+    :ivar Optional[List[ActionRow]] components?: Array of Action Rows associated with this message, if any.
     :ivar Optional[List[PartialSticker]] sticker_items?: An array of message sticker item objects, if sent with them.
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
     :ivar Optional[int] position?: The approximate position of the message in a thread.
@@ -775,7 +775,7 @@ class Message(ClientSerializerMixin, IDMixin):
     )
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
-    components: Optional[Union["Component", List["Component"]]] = field(default=None)
+    components: Optional[List["ActionRow"]] = field(converter=convert_list(ActionRow), default=None)
     sticker_items: Optional[List[PartialSticker]] = field(
         converter=convert_list(PartialSticker), default=None
     )

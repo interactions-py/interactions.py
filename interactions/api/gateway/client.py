@@ -372,13 +372,9 @@ class WebSocketClient:
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
                     _name = f"modal_{_context.data.custom_id}"
 
-                    if _context.data._json.get("components"):
+                    if _context.data.components:
                         for component in _context.data.components:
-                            if component.get("components"):
-                                __args.append(
-                                    [_value["value"] for _value in component["components"]][0]
-                                )
-                            else:
+                            if component.components:
                                 __args.append([_value.value for _value in component.components][0])
 
                     self._dispatch.dispatch("on_modal", _context)
