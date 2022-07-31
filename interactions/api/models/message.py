@@ -910,7 +910,7 @@ class Message(ClientSerializerMixin, IDMixin):
         if not components:
             _components = []
         elif components is MISSING:
-            _components = self.components
+            _components = _build_components(components=self.components)
         else:
             _components = _build_components(components=components)
 
