@@ -861,7 +861,7 @@ class Message(ClientSerializerMixin, IDMixin):
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments?: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
-        :type components?: Optional[List[ActionRow]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The edited message as an object.
         :rtype: Message
         """
