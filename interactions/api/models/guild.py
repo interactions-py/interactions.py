@@ -368,7 +368,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         self,
         member_id: Union[int, Member, Snowflake],
         reason: Optional[str] = None,
-        delete_message_days: Optional[int] = 0,
+        delete_message_seconds: Optional[int] = 0,
     ) -> None:
         """
         Bans a member from the guild.
@@ -377,8 +377,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         :type member_id: Union[int, Member, Snowflake]
         :param reason?: The reason of the ban
         :type reason?: Optional[str]
-        :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
-        :type delete_message_days?: Optional[int]
+        :param delete_message_seconds?: Number of seconds to delete messages, from 0 to 604800. Defaults to 0.
+        :type delete_message_seconds?: Optional[int]
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -388,7 +388,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             guild_id=int(self.id),
             user_id=_member_id,
             reason=reason,
-            delete_message_days=delete_message_days,
+            delete_message_seconds=delete_message_seconds,
         )
 
         if not self.members:
