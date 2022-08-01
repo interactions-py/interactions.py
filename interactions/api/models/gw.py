@@ -39,6 +39,7 @@ __all__ = (
     "ChannelPins",
     "ThreadMembers",
     "ThreadList",
+    "MessageDelete",
     "MessageReactionRemove",
     "MessageReaction",
     "GuildIntegrations",
@@ -758,6 +759,21 @@ class Presence(ClientSerializerMixin):
     status: str = field()
     activities: List[PresenceActivity] = field(converter=convert_list(PresenceActivity))
     client_status: ClientStatus = field(converter=ClientStatus)
+
+
+@define()
+class MessageDelete(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``MESSAGE_DELETE_BULK``.
+
+    :ivar List[Snowflake] ids: The message IDs of the event.
+    :ivar Snowflake channel_id: The channel ID of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    """
+
+    ids: List[Snowflake] = field(converter=convert_list(Snowflake))
+    channel_id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
 
 
 @define()

@@ -412,7 +412,8 @@ class WebSocketClient:
                         "GuildBan",
                         "ChannelPins",
                         "MessageReaction",
-                        "MessageReactionRemove",
+                        "MessageReactionRemove"
+                        "MessageDelete",
                         # Extend this for everything that should not be cached
                     ]:
                         id = None
@@ -487,6 +488,8 @@ class WebSocketClient:
                     if id:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
+                    elif "_delete_bulk" in name:
+                        self._dispatch.dispatch(f"on_{name}", obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
