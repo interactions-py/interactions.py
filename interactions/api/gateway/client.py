@@ -412,7 +412,7 @@ class WebSocketClient:
                         "GuildBan",
                         "ChannelPins",
                         "MessageReaction",
-                        "MessageReactionRemove"
+                        "MessageReactionRemove",
                         "MessageDelete",
                         # Extend this for everything that should not be cached
                     ]:
