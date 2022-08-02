@@ -777,7 +777,7 @@ class MessageDelete(DictSerializerMixin):
 
 
 @define()
-class MessageReaction(DictSerializerMixin):
+class MessageReaction(ClientSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD`` and ``MESSAGE_REACTION_REMOVE``.
 
@@ -795,6 +795,9 @@ class MessageReaction(DictSerializerMixin):
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     member: Optional[Member] = field(converter=Member, default=None)
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
+
+    def __attrs_post_init__(self):
+        self.member._client = self._client
 
 
 class MessageReactionRemove(MessageReaction):
