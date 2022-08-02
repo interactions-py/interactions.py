@@ -115,3 +115,6 @@ class Application(ClientSerializerMixin, IDMixin):
         else:
             url = None
         return url
+
+    def __str__(self) -> str:
+        return self.name
