@@ -283,7 +283,7 @@ class WebSocketClient:
         :param data: The data for the event.
         :type data: dict
         """
-        self._dispatch.dispatch("raw_socket_create", data)
+        self._dispatch.dispatch("raw_socket_create", event, data)
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
