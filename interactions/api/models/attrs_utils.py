@@ -48,17 +48,18 @@ class DictSerializerMixin:
 
                 if (value := kwargs.pop(discord_name, MISSING)) is not MISSING:
                     if value is not None and attrib.metadata.get("add_client"):
-                        if isinstance(value, list):
-                            for item in value:
-                                if isinstance(item, dict):
-                                    item["_client"] = client
-                                elif isinstance(item, DictSerializerMixin):
-                                    item._client = client
-                        else:
-                            if isinstance(value, dict):
-                                value["_client"] = client
-                            elif isinstance(value, DictSerializerMixin):
-                                value._client = client
+                        if client is not None:
+                            if isinstance(value, list):
+                                for item in value:
+                                    if isinstance(item, dict):
+                                        item["_client"] = client
+                                    elif isinstance(item, DictSerializerMixin):
+                                        item._client = client
+                            else:
+                                if isinstance(value, dict):
+                                    value["_client"] = client
+                                elif isinstance(value, DictSerializerMixin):
+                                    value._client = client
 
                     # make sure json is recursively handled
                     if isinstance(value, list):
