@@ -411,6 +411,7 @@ def _build_components(components) -> List[dict]:
             raise LibraryException(
                 11, message="The specified components are invalid and could not be created!"
             )
+
     if not components:
         return components
 
