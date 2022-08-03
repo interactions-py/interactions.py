@@ -7,7 +7,7 @@
 
 import datetime
 from base64 import b64encode
-from enum import IntEnum
+from enum import Enum, IntEnum
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
@@ -16,7 +16,7 @@ from typing import List, Optional, Union
 
 from ...base import get_logger
 from ..error import LibraryException
-from .attrs_utils import MISSING, DictSerializerMixin, define, field
+from .attrs_utils import MISSING, DictSerializerMixin, define, field, convert_list
 
 __all__ = (
     "AutoModKeywordPresetTypes",

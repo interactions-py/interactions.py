@@ -5,7 +5,7 @@ from aiohttp import MultipartWriter
 from ...api.cache import Cache
 from ..models.attrs_utils import MISSING
 from ..models.message import Embed, Message, MessageInteraction, Sticker
-from ..models.misc import File, Snowflake
+from ..models.misc import File, Snowflake, AllowedMentions
 from .request import _Request
 from .route import Route
 
@@ -26,7 +26,7 @@ class MessageRequest:
         tts: bool = False,
         embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,  # don't know type
+        allowed_mentions: Optional[AllowedMentions] = None,
         message_reference: Optional[Message] = None,
         stickers: Optional[List[Sticker]] = None,
     ) -> dict:
@@ -49,7 +49,7 @@ class MessageRequest:
             payload["nonce"] = nonce
 
         if allowed_mentions:
-            payload["allowed_mentions"] = allowed_mentions
+            payload["allowed_mentions"] = allowed_mentions._json
 
         if message_reference:
             payload["message_reference"] = message_reference

@@ -5,14 +5,14 @@ from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, convert_list, define, field
 from .channel import Channel
 from .flags import Permissions
-from .misc import File, IDMixin, Snowflake
+from .misc import File, IDMixin, Snowflake, AllowedMentions
 from .role import Role
 from .user import User
 
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from .guild import Guild
-    from .message import Attachment, Embed, Message, MessageInteraction
+    from .message import Attachment, Embed, Message
 
 __all__ = ("Member",)
 
@@ -222,7 +222,7 @@ class Member(ClientSerializerMixin, IDMixin):
         attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[AllowedMentions] = MISSING,
     ) -> "Message":
         """
         Sends a DM to the member.
@@ -239,8 +239,8 @@ class Member(ClientSerializerMixin, IDMixin):
         :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[AllowedMentions]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -257,7 +257,7 @@ class Member(ClientSerializerMixin, IDMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json
         if not components or components is MISSING:
             _components = []
         else:
