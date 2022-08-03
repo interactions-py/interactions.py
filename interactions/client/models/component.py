@@ -412,6 +412,9 @@ def _build_components(components) -> List[dict]:
                 11, message="The specified components are invalid and could not be created!"
             )
 
+    if not components:
+        return components
+
     _components = __check_action_row()
 
     if _components:
