@@ -1222,6 +1222,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         :return: Permissions of the member in this channel
         :rtype: Permissions
         """
+        if not self.guild_id:
+            return Permissions.DEFAULT
+
         from .guild import Guild
 
         guild = Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
