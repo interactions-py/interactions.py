@@ -793,11 +793,8 @@ class MessageReaction(ClientSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     message_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    member: Optional[Member] = field(converter=Member, default=None)
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
-
-    def __attrs_post_init__(self):
-        self.member._client = self._client
 
 
 class MessageReactionRemove(MessageReaction):
