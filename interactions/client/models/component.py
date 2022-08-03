@@ -417,4 +417,4 @@ def _build_components(components) -> List[dict]:
     if _components:
         return _components
     else:
-        return __check_components()
+        return __check_components() if _components else _components
