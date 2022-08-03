@@ -24,6 +24,8 @@ __all__ = (
     "AutoModMetaData",
     "AutoModAction",
     "AutoModTriggerMetadata",
+    "AllowedMentionType",
+    "AllowedMentions",
     "Snowflake",
     "Color",
     "ClientStatus",
