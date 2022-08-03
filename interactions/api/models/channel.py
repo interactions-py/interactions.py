@@ -12,7 +12,7 @@ from .attrs_utils import (
     field,
 )
 from .flags import Permissions
-from .misc import File, IDMixin, Overwrite, Snowflake
+from .misc import File, IDMixin, Overwrite, Snowflake, AllowedMentions
 from .user import User
 from .webhook import Webhook
 
@@ -198,7 +198,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[AllowedMentions] = MISSING,
         stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
@@ -224,8 +224,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[AllowedMentions]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
         :type stickers?: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
@@ -241,7 +241,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json
         _sticker_ids: list = (
             [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
         )

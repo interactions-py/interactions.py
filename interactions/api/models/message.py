@@ -19,7 +19,7 @@ from .attrs_utils import (
 from .channel import Channel
 from .emoji import Emoji
 from .member import Member
-from .misc import File, IDMixin, Snowflake
+from .misc import File, IDMixin, Snowflake, AllowedMentions
 from .team import Application
 from .user import User
 
@@ -846,7 +846,7 @@ class Message(ClientSerializerMixin, IDMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         suppress_embeds: Optional[bool] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[AllowedMentions] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
@@ -873,8 +873,8 @@ class Message(ClientSerializerMixin, IDMixin):
         :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param suppress_embeds?: Whether to suppress embeds in the message.
         :type suppress_embeds?: Optional[bool]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[AllowedMentions]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments?: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
@@ -922,7 +922,7 @@ class Message(ClientSerializerMixin, IDMixin):
             else []
         )
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
             _components = []
