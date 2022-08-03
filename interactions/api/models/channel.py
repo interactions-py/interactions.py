@@ -1245,8 +1245,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             permissions |= int(overwrite_everyone[0].allow)
 
         # Apply role specific overwrites
-        allow = 0
-        deny = 0
+        allow, deny = 0, 0
         for role_id in member.roles:
             overwrite_role = search_iterable(
                 self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(role_id)
@@ -1256,9 +1255,9 @@ class Channel(ClientSerializerMixin, IDMixin):
                 deny |= int(overwrite_role[0].deny)
 
         if deny:
-            permissions &= ~int(deny)
+            permissions &= ~deny
         if allow:
-            permissions |= int(allow)
+            permissions |= allow
 
         # Apply member specific overwrites
         overwrite_member = search_iterable(
