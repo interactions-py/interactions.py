@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from .guild import Invite, InviteTargetType
     from .member import Member
-    from .message import Attachment, Embed, Message, MessageInteraction, Sticker
+    from .message import Attachment, Embed, Message, Sticker
 
 __all__ = (
     "ChannelType",

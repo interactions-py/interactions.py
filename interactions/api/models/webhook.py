@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, define, field
-from .misc import File, IDMixin, Image, Snowflake, AllowedMentions
+from .misc import AllowedMentions, File, IDMixin, Image, Snowflake
 from .user import User
 
 if TYPE_CHECKING:

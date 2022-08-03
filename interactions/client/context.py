@@ -8,8 +8,8 @@ from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Attachment, Embed, Message, MessageInteraction, MessageReference
-from ..api.models.misc import Snowflake, AllowedMentions
+from ..api.models.message import Attachment, Embed, Message, MessageReference
+from ..api.models.misc import AllowedMentions, Snowflake
 from ..api.models.user import User
 from ..base import get_logger
 from .enums import InteractionCallbackType, InteractionType

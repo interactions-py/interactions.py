@@ -16,7 +16,7 @@ from typing import List, Optional, Union
 
 from ...base import get_logger
 from ..error import LibraryException
-from .attrs_utils import MISSING, DictSerializerMixin, define, field, convert_list
+from .attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 
 __all__ = (
     "AutoModKeywordPresetTypes",
@@ -378,6 +378,7 @@ class AllowedMentionType(str, Enum):
     """
     An enumerable object representing the allowed mention types
     """
+
     EVERYONE = "everyone"
     USERS = "users"
     ROLES = "roles"
@@ -394,8 +395,9 @@ class AllowedMentions(DictSerializerMixin):
     :ivar replied_user?: Optional[bool]: For replies, whether to mention the author of the message being replied to.
     """
 
-    parse: Optional[List[AllowedMentionType]] = field(converter=convert_list(AllowedMentionType), default=None)
+    parse: Optional[List[AllowedMentionType]] = field(
+        converter=convert_list(AllowedMentionType), default=None
+    )
     users: Optional[list] = field(default=None)
     roles: Optional[list] = field(default=None)
     replied_user: Optional[bool] = field(default=None)
-

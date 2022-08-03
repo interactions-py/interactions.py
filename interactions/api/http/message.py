@@ -4,8 +4,8 @@ from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
 from ..models.attrs_utils import MISSING
-from ..models.message import Embed, Message, MessageInteraction, Sticker
-from ..models.misc import File, Snowflake, AllowedMentions
+from ..models.message import Embed, Message, Sticker
+from ..models.misc import AllowedMentions, File, Snowflake
 from .request import _Request
 from .route import Route
 

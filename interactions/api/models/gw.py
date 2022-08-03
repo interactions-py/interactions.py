@@ -17,6 +17,7 @@ from .guild import EventMetadata
 from .member import Member
 from .message import Embed, Message, Sticker
 from .misc import (
+    AllowedMentions,
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,
@@ -24,7 +25,6 @@ from .misc import (
     File,
     IDMixin,
     Snowflake,
-    AllowedMentions
 )
 from .presence import PresenceActivity
 from .role import Role
