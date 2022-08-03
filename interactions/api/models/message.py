@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ...client.models.component import ActionRow, Button, SelectMenu
 from ..error import LibraryException
 from .attrs_utils import (
     MISSING,
@@ -15,16 +16,14 @@ from .attrs_utils import (
     field,
 )
 from .channel import Channel
+from .emoji import Emoji
 from .member import Member
 from .misc import File, IDMixin, Snowflake
-from .role import Role
 from .team import Application
 from .user import User
 
 if TYPE_CHECKING:
-    from ...client.models.component import ActionRow, Button, Component, SelectMenu
     from ..http import HTTPClient
-    from .guild import Guild
 
 __all__ = (
     "MessageType",
@@ -39,7 +38,6 @@ __all__ = (
     "EmbedImageStruct",
     "EmbedField",
     "Attachment",
-    "Emoji",
     "EmbedFooter",
     "ReactionObject",
     "PartialSticker",
@@ -186,112 +184,6 @@ class ChannelMention(DictSerializerMixin, IDMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     type: int = field()  # Replace with enum from Channel Type, another PR
     name: str = field()
-
-
-@define()
-class Emoji(ClientSerializerMixin):
-    """
-    A class objecting representing an emoji.
-
-    :ivar Optional[Snowflake] id?: Emoji id
-    :ivar Optional[str] name?: Emoji name.
-    :ivar Optional[List[Role]] roles?: Roles allowed to use this emoji
-    :ivar Optional[User] user?: User that created this emoji
-    :ivar Optional[bool] require_colons?: Status denoting of this emoji must be wrapped in colons
-    :ivar Optional[bool] managed?: Status denoting if this emoji is managed (by an integration)
-    :ivar Optional[bool] animated?: Status denoting if this emoji is animated
-    :ivar Optional[bool] available?: Status denoting if this emoji can be used. (Can be false via server boosting)
-    """
-
-    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    name: Optional[str] = field(default=None)
-    roles: Optional[List[Role]] = field(converter=convert_list(Role), default=None)
-    user: Optional[User] = field(converter=User, default=None)
-    require_colons: Optional[bool] = field(default=None)
-    managed: Optional[bool] = field(default=None)
-    animated: Optional[bool] = field(default=None)
-    available: Optional[bool] = field(default=None)
-
-    @classmethod
-    async def get(
-        cls,
-        guild_id: Union[int, Snowflake, "Guild"],
-        emoji_id: Union[int, Snowflake],
-        client: "HTTPClient",
-    ) -> "Emoji":
-        """
-        Gets an emoji.
-
-        :param guild_id: The id of the guild of the emoji
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param emoji_id: The id of the emoji
-        :type emoji_id: Union[int, Snowflake]
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
-        :return: The Emoji as object
-        :rtype: Emoji
-        """
-
-        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-
-        res = await client.get_guild_emoji(guild_id=_guild_id, emoji_id=int(emoji_id))
-        return cls(**res, _client=client)
-
-    @classmethod
-    async def get_all_of_guild(
-        cls,
-        guild_id: Union[int, Snowflake, "Guild"],
-        client: "HTTPClient",
-    ) -> List["Emoji"]:
-        """
-        Gets all emoji of a guild.
-
-        :param guild_id: The id of the guild to get the emojis of
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
-        :return: The Emoji as list
-        :rtype: List[Emoji]
-        """
-
-        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-
-        res = await client.get_all_emoji(guild_id=_guild_id)
-        return [cls(**emoji, _client=client) for emoji in res]
-
-    async def delete(
-        self,
-        guild_id: Union[int, Snowflake, "Guild"],
-        reason: Optional[str] = None,
-    ) -> None:
-        """
-        Deletes the emoji.
-
-        :param guild_id: The guild id to delete the emoji from
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param reason?: The reason of the deletion
-        :type reason?: Optional[str]
-        """
-        if not self._client:
-            raise LibraryException(code=13)
-
-        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-
-        return await self._client.delete_guild_emoji(
-            guild_id=_guild_id, emoji_id=int(self.id), reason=reason
-        )
-
-    @property
-    def url(self) -> str:
-        """
-        Returns the emoji's URL.
-
-        :return: URL of the emoji
-        :rtype: str
-        """
-        url = f"https://cdn.discordapp.com/emojis/{self.id}"
-        url += ".gif" if self.animated else ".png"
-        return url
 
 
 @define()
@@ -563,7 +455,7 @@ class Embed(DictSerializerMixin):
         self.fields = []
 
     def insert_field_at(
-        self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
         """
         Inserts a field in the embed at the specified index
@@ -577,6 +469,14 @@ class Embed(DictSerializerMixin):
         :param inline?: if the field is in the same line as the previous one
         :type inline?: Optional[bool]
         """
+
+        try:
+            fields = self.fields
+            fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+            self.fields = fields
+
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
@@ -831,9 +731,10 @@ class Message(ClientSerializerMixin, IDMixin):
     :ivar int flags: Message flags
     :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread?: The thread that started from this message, if any, with a thread member object embedded.
-    :ivar Optional[Union[Component, List[Component]]] components?: Components associated with this message, if any.
+    :ivar Optional[List[ActionRow]] components?: Array of Action Rows associated with this message, if any.
     :ivar Optional[List[PartialSticker]] sticker_items?: An array of message sticker item objects, if sent with them.
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
+    :ivar Optional[int] position?: The approximate position of the message in a thread.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -842,8 +743,8 @@ class Message(ClientSerializerMixin, IDMixin):
     author: User = field(converter=User, add_client=True, default=None)
     member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     content: str = field(default=None)
-    timestamp: datetime = field(converter=str, default=None)
-    edited_timestamp: Optional[datetime] = field(converter=str, default=None)
+    timestamp: datetime = field(converter=datetime.fromisoformat, default=None)
+    edited_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     tts: bool = field(default=None)
     mention_everyone: bool = field(default=None)
     # mentions: array of Users, and maybe partial members
@@ -874,19 +775,14 @@ class Message(ClientSerializerMixin, IDMixin):
     )
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
-    components: Optional[Union["Component", List["Component"]]] = field(default=None)
+    components: Optional[List["ActionRow"]] = field(converter=convert_list(ActionRow), default=None)
     sticker_items: Optional[List[PartialSticker]] = field(
         converter=convert_list(PartialSticker), default=None
     )
     stickers: Optional[List[Sticker]] = field(
         converter=convert_list(Sticker), default=None
     )  # deprecated
-
-    def __attrs_post_init__(self):
-        if self.timestamp and isinstance(self.timestamp, str):
-            self.timestamp = datetime.fromisoformat(self.timestamp)
-        if self.edited_timestamp and isinstance(self.edited_timestamp, str):
-            self.edited_timestamp = datetime.fromisoformat(self.edited_timestamp)
+    position: Optional[int] = field(default=None)
 
     async def get_channel(self) -> Channel:
         """
@@ -951,21 +847,21 @@ class Message(ClientSerializerMixin, IDMixin):
         This method edits a message. Only available for messages sent by the bot.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param suppress_embeds?: Whether to suppress embeds in the message.
-        :type suppress_embeds: Optional[bool]
+        :type suppress_embeds?: Optional[bool]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type allowed_mentions?: Optional[MessageInteraction]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The edited message as an object.
         :rtype: Message
         """
@@ -992,7 +888,7 @@ class Message(ClientSerializerMixin, IDMixin):
             _attachments = [a._json for a in attachments]
 
         if not files or files is MISSING:
-            _files = self.attachments
+            _files = []
         elif isinstance(files, list):
             _files = [file._json_payload(id) for id, file in enumerate(files)]
         else:
@@ -1014,7 +910,7 @@ class Message(ClientSerializerMixin, IDMixin):
         if not components:
             _components = []
         elif components is MISSING:
-            _components = self.components
+            _components = _build_components(components=self.components)
         else:
             _components = _build_components(components=components)
 
@@ -1065,21 +961,21 @@ class Message(ClientSerializerMixin, IDMixin):
         Sends a new message replying to the old.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type allowed_mentions?: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
-        :type stickers: Optional[List[Sticker]]
+        :type stickers?: Optional[List[Sticker]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -1177,11 +1073,11 @@ class Message(ClientSerializerMixin, IDMixin):
         :type name: str
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable: Optional[bool]
+        :type invitable?: Optional[bool]
         :param reason?: An optional reason for the audit log
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The created thread
         :rtype: Channel
         """
@@ -1213,7 +1109,7 @@ class Message(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1247,7 +1143,7 @@ class Message(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1270,7 +1166,7 @@ class Message(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1291,16 +1187,19 @@ class Message(ClientSerializerMixin, IDMixin):
         :type user: Union[Member, user, int]
         """
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
         if not self._client:
             raise LibraryException(code=13)
 
-        _user_id = user if isinstance(user, int) else user.id
+        _user_id = user if isinstance(user, (int, Snowflake)) else user.id
         return await self._client.remove_user_reaction(
-            channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
+            channel_id=int(self.channel_id),
+            message_id=int(self.id),
+            user_id=int(_user_id),
+            emoji=_emoji,
         )
 
     async def get_users_from_reaction(
@@ -1321,7 +1220,7 @@ class Message(ClientSerializerMixin, IDMixin):
         _all_users: List[User] = []
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )

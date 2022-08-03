@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,6 +28,28 @@ msgid ""
 "gateway intent type."
 msgstr ""
 
+#: interactions.api.models.flags.AppFlags interactions.api.models.flags.Intents
+#: interactions.api.models.flags.Permissions
+#: interactions.api.models.flags.StatusType
+#: interactions.api.models.flags.UserFlags of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.flags.AppFlags:1
+#: interactions.api.models.flags.Intents:1
+#: interactions.api.models.flags.Permissions:1
+#: interactions.api.models.flags.UserFlags:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.flags.AppFlags:1
+#: interactions.api.models.flags.Intents:1
+#: interactions.api.models.flags.Permissions:1
+#: interactions.api.models.flags.StatusType:1
+#: interactions.api.models.flags.UserFlags:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
 #: interactions.api.models.flags.AppFlags:1 of
 msgid ""
 "An integer flag bitshift object representing the different application "
@@ -38,6 +60,14 @@ msgstr ""
 msgid ""
 "An enumerable object representing Discord status icons that a user may "
 "have."
+msgstr ""
+
+#: interactions.api.models.flags.StatusType:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.api.models.flags.StatusType:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
 msgstr ""
 
 #: enum.Enum._generate_next_value_:1 of

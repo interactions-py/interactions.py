@@ -60,6 +60,7 @@ class WebSocketClient:
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Event ready: The ready state of the client as an ``asyncio.Event``.
     :ivar Task __task: The closing task for ending connections.
+    :ivar bool __started: Whether the client has started.
     :ivar Optional[str] session_id: The ID of the ongoing session.
     :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
     :ivar float _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
@@ -80,6 +81,7 @@ class WebSocketClient:
         "__shard",
         "__presence",
         "__task",
+        "__started",
         "session_id",
         "sequence",
         "ready",
@@ -101,9 +103,9 @@ class WebSocketClient:
         :param intents: The Gateway intents of the application for event dispatch.
         :type intents: Intents
         :param session_id?: The ID of the session if trying to reconnect. Defaults to ``None``.
-        :type session_id: Optional[str]
+        :type session_id?: Optional[str]
         :param sequence?: The identifier sequence if trying to reconnect. Defaults to ``None``.
-        :type sequence: Optional[int]
+        :type sequence?: Optional[int]
         """
         try:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
@@ -126,6 +128,7 @@ class WebSocketClient:
         self.__shard: Optional[List[Tuple[int]]] = None
         self.__presence: Optional[ClientPresence] = None
         self.__task: Optional[Task] = None
+        self.__started: bool = False
         self.session_id: Optional[str] = None if session_id is MISSING else session_id
         self.sequence: Optional[str] = None if sequence is MISSING else sequence
         self.ready: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
@@ -166,7 +169,7 @@ class WebSocketClient:
         Establishes a client connection with the Gateway.
 
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: Optional[List[Tuple[int]]]
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[ClientPresence]
         """
@@ -208,7 +211,7 @@ class WebSocketClient:
         :param stream: The packet stream to handle.
         :type stream: Dict[str, Any]
         :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: Optional[List[Tuple[int]]]
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[ClientPresence]
         """
@@ -258,10 +261,13 @@ class WebSocketClient:
             self.session_id = data["session_id"]
             self.sequence = stream["s"]
             self._dispatch.dispatch("on_ready")
+            if not self.__started:
+                self.__started = True
+                self._dispatch.dispatch("on_start")
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
             self.ready.set()
         else:
-            log.debug(f"{event}: {data}")
+            log.debug(f"{event}: {str(data).encode('utf-8')}")
             self._dispatch_event(event, data)
 
     async def wait_until_ready(self) -> None:
@@ -366,13 +372,9 @@ class WebSocketClient:
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
                     _name = f"modal_{_context.data.custom_id}"
 
-                    if _context.data._json.get("components"):
+                    if _context.data.components:
                         for component in _context.data.components:
-                            if component.get("components"):
-                                __args.append(
-                                    [_value["value"] for _value in component["components"]][0]
-                                )
-                            else:
+                            if component.components:
                                 __args.append([_value.value for _value in component.components][0])
 
                     self._dispatch.dispatch("on_modal", _context)
@@ -384,15 +386,17 @@ class WebSocketClient:
                 log.warning(
                     "Context is being created for the interaction, but no type is specified. Skipping..."
                 )
-        elif event != "TYPING_START":
+        elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
             name: str = event.lower()
             try:
+
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
                 model = getattr(__import__(path), _name)
 
                 data["_client"] = self._http
                 obj = model(**data)
+
                 _cache: "Storage" = self._http.cache[model]
 
                 if isinstance(obj, Member):
@@ -400,34 +404,71 @@ class WebSocketClient:
                 else:
                     id = getattr(obj, "id", None)
 
-                if "_create" in name or "_add" in name:
-                    _cache.merge(obj, id)
-                    if (
-                        guild_id := data.get("guild_id")
+                if id is None:
+                    if model.__name__ == "GuildScheduledEventUser":
+                        id = model.guild_scheduled_event_id
+                    elif model.__name__ in [
+                        "Invite",
+                        "GuildBan",
+                        "ChannelPins",
+                        "MessageReaction",
+                        "MessageReactionRemove",
+                        "MessageDelete",
+                        # Extend this for everything that should not be cached
+                    ]:
+                        id = None
+                    elif model.__name__.startswith("Guild"):
+                        model_name = model.__name__[5:]
+                        if _data := getattr(obj, model_name, None):
+                            id = (
+                                getattr(_data, "id")
+                                if not isinstance(_data, dict)
+                                else Snowflake(_data["id"])
+                            )
+                        elif hasattr(obj, f"{model_name}_id"):
+                            id = getattr(obj, f"{model_name}_id", None)
+
+                def __modify_guild_cache():
+                    if not (
+                        (guild_id := data.get("guild_id"))
                         and not isinstance(obj, Guild)
                         and "message" not in name
+                        and id is not None
                     ):
-                        guild = self._http.cache[Guild].get(Snowflake(guild_id))
-                        model_name = model.__name__.lower()
-                        _obj = getattr(guild, f"{model_name}s", None)
-                        if _obj is not None:
-                            if isinstance(_obj, list):
+                        return
+                    if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
+                        model_name: str = model.__name__
+                        if "guild" in model_name:
+                            model_name = model_name[5:]
+                        elif model_name == "threadmembers":
+                            return
+                        _obj = getattr(guild, f"{model_name.lower()}s", None)
+                        if _obj is not None and isinstance(_obj, list):
+                            if "_create" in name or "_add" in name:
                                 _obj.append(obj)
-                                setattr(guild, f"{model_name}s", _obj)
-                        else:
-                            _obj = [obj]
+                            for index, __obj in enumerate(_obj):
+                                if __obj.id == id:
+                                    if "_remove" in name or "_delete" in name:
+                                        _obj.remove(__obj)
+
+                                    elif "_update" in name and hasattr(obj, "id"):
+                                        _obj[index] = obj
+                                    break
                             setattr(guild, f"{model_name}s", _obj)
                         self._http.cache[Guild].add(guild)
+
+                if "_create" in name or "_add" in name:
+                    if id:
+                        _cache.merge(obj, id)
                     self._dispatch.dispatch(f"on_{name}", obj)
+                    __modify_guild_cache()
 
-                elif "_update" in name and hasattr(obj, "id"):
+                elif "_update" in name:
+                    self._dispatch.dispatch(f"on_raw_{name}", obj)
+                    if not hasattr(obj, "id"):
+                        return
                     old_obj = self._http.cache[model].get(id)
-
                     if old_obj:
-                        for key, value in old_obj._json.items():
-                            if hasattr(value, "_json"):
-                                old_obj._json[key] = value._json
-
                         before = model(**old_obj._json)
                         old_obj.update(**obj._json)
                     else:
@@ -435,61 +476,26 @@ class WebSocketClient:
                         old_obj = obj
 
                     _cache.add(old_obj, id)
-
-                    if (
-                        guild_id := data.get("guild_id")
-                        and not isinstance(obj, Guild)
-                        and "message" not in name
-                    ):
-                        guild = self._http.cache[Guild].get(Snowflake(guild_id))
-                        model_name = model.__name__.lower()
-                        _obj = getattr(guild, f"{model_name}s", None)
-                        if _obj is not None:
-                            if isinstance(_obj, list):
-                                for __obj in _obj:
-                                    if __obj.id == obj.id:
-                                        _obj.remove(__obj)
-                                        break
-                                _obj.append(obj)
-                                setattr(guild, f"{model_name}s", _obj)
-                        else:
-                            _obj = [obj]
-                            setattr(guild, f"{model_name}s", _obj)
-                        self._http.cache[Guild].add(guild)
+                    __modify_guild_cache()
 
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
-                    return
 
                 elif "_remove" in name or "_delete" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-
-                    if (
-                        guild_id := data.get("guild_id")
-                        and not isinstance(obj, Guild)
-                        and "message" not in name
-                    ):
-                        guild = self._http.cache[Guild].get(Snowflake(guild_id))
-                        model_name = model.__name__.lower()
-                        _obj = getattr(guild, f"{model_name}s", None)
-                        if _obj is not None:
-                            if isinstance(_obj, list):
-                                for __obj in _obj:
-                                    if __obj.id == obj.id:
-                                        _obj.remove(__obj)
-                                        break
-                                setattr(guild, f"{model_name}s", _obj)
-                        self._http.cache[Guild].add(guild)
-
-                    old_obj = _cache.pop(id)
-                    self._dispatch.dispatch(f"on_{name}", old_obj)
+                    __modify_guild_cache()
+                    if id:
+                        old_obj = _cache.pop(id)
+                        self._dispatch.dispatch(f"on_{name}", old_obj)
+                    elif "_delete_bulk" in name:
+                        self._dispatch.dispatch(f"on_{name}", obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
             except AttributeError as error:
-                log.fatal(f"An error occured dispatching {name}: {error}")
+                log.warning(f"An error occurred dispatching {name}: {error}")
 
     def __contextualize(self, data: dict) -> "_Context":
         """
@@ -687,9 +693,9 @@ class WebSocketClient:
         Sends an ``IDENTIFY`` packet to the gateway.
 
         :param shard?: The shard ID to identify under.
-        :type shard: Optional[List[Tuple[int]]]
+        :type shard?: Optional[List[Tuple[int]]]
         :param presence?: The presence to change the bot to on identify.
-        :type presence: Optional[ClientPresence]
+        :type presence?: Optional[ClientPresence]
         """
         self.__shard = shard
         self.__presence = presence

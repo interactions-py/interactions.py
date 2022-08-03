@@ -66,10 +66,37 @@ portal and add the intent to your current intents when connecting:
 4.1.0 → 4.3.0
 ~~~~~~~~~~~~~~~
 
-A new big change in this release is the implementation of the ``get`` utility method.
+A new feature was added; an event called ``on_start``.
+Unlike ``on_ready``, this event is only dispatched when the bot is first started.
+
+Instead of using the ``on_ready`` event and a check to only run code once:
+
+.. code-block:: python
+
+    _ready: bool = False
+    bot = interactions.Client(...)
+
+    @bot.event
+    async def on_ready():
+        global _ready
+        if not _ready:
+            ... # do stuff
+            _ready = True
+
+You can now utilize the ``on_start`` event to achieve the same goal:
+
+.. code-block:: python
+
+    bot = interactions.Client(...)
+
+    @bot.event
+    async def on_start():
+        ... # do stuff
+
+Another big change in this release is the implementation of the ``get`` utility method.
 It allows you to no longer use ``**await bot._http...``.
 
-You can get more information by reading the `get-documentation`_.
+You can get more information by reading the :meth:`interactions.client.get.get`-documentation
 
 
 ``4.3.0`` also introduces a new method of creating commands, subcommands, and options.
@@ -93,11 +120,11 @@ The following example shows and explains how to create commands effortlessly and
         # the description is the first line of the docstring or "No description set".
 
     @bot.command(default_scope=False)
-    @interactions.option(str, name="opt1")  # description is optional.
-    @interactions.option(4, name="opt2", description="This is an option.")
-    @interactions.option(interactions.Channel, name="opt3", required=True)
+    @interactions.option(str, name="opt1", required=True)  # description is optional.
+    @interactions.option(4, name="opt2", description="This is an option.", required=True)
+    @interactions.option(interactions.Channel, name="opt3")
     async def command_with_options(
-        ctx, opt1: str, opt2, int, opt3: interactions.Channel = None
+        ctx, opt1: str, opt2: int, opt3: interactions.Channel = None
     ):
         ...  # do something here.
         # the default scope is disabled for this command, so this is a global command.
@@ -182,4 +209,21 @@ The following example shows and explains how to create commands effortlessly and
 
     bot.start()
 
-.. _get-documentation: https://interactionspy.readthedocs.io/en/latest/get.html#the-get-utility-method
+
+Another change in ``4.3.0``: We added converters! These allow you name your argument in your function differently than
+your option name! Example:
+
+.. code-block:: python
+
+    import interactions
+
+    bot = interactions.Client("TOKEN", default_scope=1234567890)
+
+    @bot.command(default_scope=False)
+    @interactions.option()  # type and name default to ones in the parameter.
+    @interactions.option(name="opt2", description="This is an option.", converter="hi")
+    @interactions.option()  # same kwargs as Option
+    async def command_with_options(
+        ctx, opt1: str, hi: int, opt3: interactions.Channel = None
+    ):
+        ...

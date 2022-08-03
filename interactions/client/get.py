@@ -14,9 +14,10 @@ from sys import version_info
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
+from ..api.models.emoji import Emoji
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Emoji, Message
+from ..api.models.message import Message
 from ..api.models.misc import Snowflake
 from ..api.models.role import Role
 from .bot import Client
@@ -169,7 +170,11 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
     if version_info >= (3, 9):
 
         def _check():
-            return obj == list[get_args(obj)[0]]
+            return (
+                obj == list[get_args(obj)[0]]
+                if isinstance(get_args(obj), tuple) and get_args(obj)
+                else False
+            )
 
     else:
 
@@ -254,7 +259,7 @@ async def _http_request(
             return await _func(**kwargs)
 
         _func = getattr(http, _name)
-        _obj = await _func
+        _obj = await _func(**kwargs)
         return obj(**_obj, _client=http)
 
     if not isinstance(request, list):

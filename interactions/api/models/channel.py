@@ -44,6 +44,7 @@ class ChannelType(IntEnum):
     GUILD_PUBLIC_THREAD = 11
     GUILD_PRIVATE_THREAD = 12
     GUILD_STAGE_VOICE = 13
+    GUILD_FORUM = 15
 
 
 @define()
@@ -128,6 +129,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     :ivar Optional[ThreadMember] member?: The member of the thread in the channel.
     :ivar Optional[int] default_auto_archive_duration?: The set auto-archive time for all threads to naturally follow in the channel.
     :ivar Optional[str] permissions?: The permissions of the channel.
+    :ivar Optional[int] flags?: The flags of the channel.
+    :ivar Optional[int] total_message_sent?: Number of messages ever sent in a thread.
     """
 
     __slots__ = (
@@ -165,6 +168,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     default_auto_archive_duration: Optional[int] = field(default=None)
     permissions: Optional[str] = field(default=None)
     flags: Optional[int] = field(default=None)
+    total_message_sent: Optional[int] = field(default=None)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
         if self._client:
@@ -210,21 +214,21 @@ class Channel(ClientSerializerMixin, IDMixin):
         Sends a message in the channel.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type allowed_mentions?: Optional[MessageInteraction]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
-        :type stickers: Optional[List[Sticker]]
+        :type stickers?: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -314,31 +318,31 @@ class Channel(ClientSerializerMixin, IDMixin):
             The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
 
         :param name?: The name of the channel, defaults to the current value of the channel
-        :type name: str
+        :type name?: str
         :param topic?: The topic of that channel, defaults to the current value of the channel
-        :type topic: Optional[str]
+        :type topic?: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate: Optional[int]
+        :type bitrate?: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
-        :type user_limit: Optional[int]
+        :type user_limit?: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
         :type rate_limit_per_user: Optional[int]
         :param position?: Sorting position of the channel, defaults to the current value of the channel
-        :type position: Optional[int]
+        :type position?: Optional[int]
         :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
-        :type parent_id: Optional[int]
+        :type parent_id?: Optional[int]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
-        :type nsfw: Optional[bool]
+        :type nsfw?: Optional[bool]
         :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites: Optional[List[Overwrite]]
+        :type permission_overwrites?: Optional[List[Overwrite]]
         :param archived?: Whether the thread is archived
-        :type archived: Optional[bool]
+        :type archived?: Optional[bool]
         :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param locked?: Whether the thread is locked
-        :type locked: Optional[bool]
+        :type locked?: Optional[bool]
         :param reason?: The reason for the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified channel as new object
         :rtype: Channel
         """
@@ -359,11 +363,11 @@ class Channel(ClientSerializerMixin, IDMixin):
         )
         _nsfw = self.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
-            [overwrite._json for overwrite in self.permission_overwrites]
+            [overwrite._json for overwrite in permission_overwrites]
+            if permission_overwrites is not MISSING
+            else [overwrite._json for overwrite in self.permission_overwrites]
             if self.permission_overwrites
             else None
-            if permission_overwrites is MISSING
-            else [overwrite._json for overwrite in permission_overwrites]
         )
         _type = self.type
 
@@ -414,7 +418,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param name: The new name of the channel
         :type name: str
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -433,7 +437,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param topic: The new topic of the channel
         :type topic: str
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -452,7 +456,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param bitrate: The new bitrate of the channel
         :type bitrate: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -474,7 +478,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param user_limit: The new user limit of the channel
         :type user_limit: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -498,7 +502,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
         :type rate_limit_per_user: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -517,7 +521,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param position: The new position of the channel
         :type position: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -536,7 +540,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param parent_id: The new parent_id of the channel
         :type parent_id: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -555,7 +559,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param nsfw: The new nsfw-flag of the channel
         :type nsfw: bool
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -574,7 +578,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param archived: Whether the Thread is archived, defaults to True
         :type archived: bool
         :param reason?: The reason of the archiving
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -593,7 +597,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
         :type auto_archive_duration: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -612,7 +616,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param locked: Whether the Thread is locked, defaults to True
         :type locked: bool
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -778,13 +782,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param amount: The amount of messages to delete
         :type amount: int
         :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
-        :type check: Callable[[Message], bool]
+        :type check?: Callable[[Message], bool]
         :param before?: An id of a message to purge only messages before that message
-        :type before: Optional[int]
+        :type before?: Optional[int]
         :param bulk?: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
         :param bulk: Optional[bool]
         :param reason?: The reason of the deletes
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
@@ -974,15 +978,15 @@ class Channel(ClientSerializerMixin, IDMixin):
         :type name: str
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param type?: The type of thread, defaults to public. ignored if creating thread from a message
-        :type type: Optional[ChannelType]
+        :type type?: Optional[ChannelType]
         :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable: Optional[bool]
+        :type invitable?: Optional[bool]
         :param message_id?: An optional message to create a thread from.
-        :type message_id: Optional[Union[int, Snowflake, "Message"]]
+        :type message_id?: Optional[Union[int, Snowflake, "Message"]]
         :param reason?: An optional reason for the audit log
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The created thread
         :rtype: Channel
         """
@@ -1036,21 +1040,21 @@ class Channel(ClientSerializerMixin, IDMixin):
         Creates an invite for the channel
 
         :param max_age?: Duration of invite in seconds before expiry, or 0 for never. between 0 and 604800 (7 days). Default 86400 (24h)
-        :type max_age: Optional[int]
+        :type max_age?: Optional[int]
         :param max_uses?: Max number of uses or 0 for unlimited. between 0 and 100. Default 0
-        :type max_uses: Optional[int]
+        :type max_uses?: Optional[int]
         :param temporary?: Whether this invite only grants temporary membership. Default False
-        :type temporary: Optional[bool]
+        :type temporary?: Optional[bool]
         :param unique?: If true, don't try to reuse a similar invite (useful for creating many unique one time use invites). Default False
-        :type unique: Optional[bool]
+        :type unique?: Optional[bool]
         :param target_type?: The type of target for this voice channel invite
-        :type target_type: Optional["InviteTargetType"]
+        :type target_type?: Optional["InviteTargetType"]
         :param target_user_id?: The id of the user whose stream to display for this invite, required if target_type is STREAM, the user must be streaming in the channel
-        :type target_user_id: Optional[int]
+        :type target_user_id?: Optional[int]
         :param target_application_id?: The id of the embedded application to open for this invite, required if target_type is EMBEDDED_APPLICATION, the application must have the EMBEDDED flag
-        :type target_application_id: Optional[int]
+        :type target_application_id?: Optional[int]
         :param reason?: The reason for the creation of the invite
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
 
         if not self._client:

@@ -120,19 +120,19 @@ class _Context(ClientSerializerMixin):
         to send an interaction response.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type allowed_mentions?: Optional[MessageInteraction]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
-        :type ephemeral: Optional[bool]
+        :type ephemeral?: Optional[bool]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -255,7 +255,7 @@ class _Context(ClientSerializerMixin):
 
         if self.message.components is not None or components is not MISSING:
             if components is MISSING:
-                _components = self.message.components
+                _components = _build_components(components=self.message.components)
             elif not components:
                 _components = []
             else:
@@ -411,7 +411,7 @@ class CommandContext(_Context):
         to a 15-minute delay between invocation and responding.
 
         :param ephemeral?: Whether the deferred state is hidden or not.
-        :type ephemeral: Optional[bool]
+        :type ephemeral?: Optional[bool]
         """
         if not self.responded:
             self.deferred = True
@@ -631,9 +631,9 @@ class ComponentContext(_Context):
         to a 15-minute delay between invocation and responding.
 
         :param ephemeral?: Whether the deferred state is hidden or not.
-        :type ephemeral: Optional[bool]
+        :type ephemeral?: Optional[bool]
         :param edit_origin?: Whether you want to edit the original message or send a followup message
-        :type edit_origin: Optional[bool]
+        :type edit_origin?: Optional[bool]
         """
         if not self.responded:
 

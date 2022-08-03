@@ -67,11 +67,12 @@ class Storage(Generic[_T]):
                 ):  # could be None
                     setattr(old_item, attrib, [])
                 if isinstance(getattr(old_item, attrib), list):
-                    for value in getattr(item, attrib):
-                        old_item_attrib = getattr(old_item, attrib)
-                        if value not in getattr(old_item, attrib):
-                            old_item_attrib.append(value)
-                        setattr(old_item, attrib, old_item_attrib)
+                    if _attrib := getattr(item, attrib):
+                        for value in _attrib:
+                            old_item_attrib = getattr(old_item, attrib)
+                            if value not in old_item_attrib:
+                                old_item_attrib.append(value)
+                            setattr(old_item, attrib, old_item_attrib)
                 else:
                     setattr(old_item, attrib, getattr(item, attrib))
 
@@ -133,7 +134,7 @@ class Storage(Generic[_T]):
     def view(self) -> List[dict]:
         """Views all items from storage.
 
-        :return The items stored.
+        :return: The items stored.
         :rtype: List[dict]
         """
         return [v._json for v in self.values.values()]
@@ -154,7 +155,7 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
-    :ivar defaultdict[Type, Storage] storages:
+    :ivar defaultdict[Type, Storage] storages: A dictionary denoting the Type and the objects that correspond to the Type.
     """
 
     __slots__ = "storages"
