@@ -411,10 +411,12 @@ def _build_components(components) -> List[dict]:
             raise LibraryException(
                 11, message="The specified components are invalid and could not be created!"
             )
+    if not components:
+        return components
 
     _components = __check_action_row()
 
     if _components:
         return _components
     else:
-        return __check_components() if _components else _components
+        return __check_components()
