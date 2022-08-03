@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 from ..error import LibraryException
 from .attrs_utils import MISSING, ClientSerializerMixin, convert_int, convert_list, define, field
 from .channel import Channel
-from .flags import ALL_PERMISSIONS, Permissions
+from .flags import Permissions
 from .misc import File, IDMixin, Snowflake
 from .role import Role
 from .user import User
@@ -410,7 +410,7 @@ class Member(ClientSerializerMixin, IDMixin):
         :rtype: Permissions
         """
         if int(guild.owner_id) == int(self.id):
-            return ALL_PERMISSIONS
+            return Permissions.ALL
 
         role_everyone = await guild.get_role(int(guild.id))
         permissions = int(role_everyone.permissions)
@@ -420,6 +420,6 @@ class Member(ClientSerializerMixin, IDMixin):
             permissions |= int(role.permissions)
 
         if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
-            return ALL_PERMISSIONS
+            return Permissions.ALL
 
         return Permissions(permissions)

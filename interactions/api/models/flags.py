@@ -1,6 +1,6 @@
 from enum import Enum, IntFlag
 
-__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions", "ALL_PERMISSIONS")
+__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions")
 
 
 class Intents(IntFlag):
@@ -93,10 +93,52 @@ class Permissions(IntFlag):
     START_EMBEDDED_ACTIVITIES = 1 << 39
     MODERATE_MEMBERS = 1 << 40
 
-
-ALL_PERMISSIONS = Permissions(0)
-for perm in Permissions:
-    ALL_PERMISSIONS |= perm
+    DEFAULT = (
+        ADD_REACTIONS
+        | VIEW_CHANNEL
+        | SEND_MESSAGES
+        | EMBED_LINKS
+        | ATTACH_FILES
+        | READ_MESSAGE_HISTORY
+        | MENTION_EVERYONE
+        | USE_EXTERNAL_EMOJIS
+    )
+    ALL = (
+        DEFAULT
+        | CREATE_INSTANT_INVITE
+        | KICK_MEMBERS
+        | BAN_MEMBERS
+        | ADMINISTRATOR
+        | MANAGE_CHANNELS
+        | MANAGE_GUILD
+        | VIEW_AUDIT_LOG
+        | PRIORITY_SPEAKER
+        | STREAM
+        | SEND_TTS_MESSAGES
+        | MANAGE_MESSAGES
+        | VIEW_GUILD_INSIGHTS
+        | CONNECT
+        | SPEAK
+        | MUTE_MEMBERS
+        | DEAFEN_MEMBERS
+        | MOVE_MEMBERS
+        | USE_VAD
+        | CHANGE_NICKNAME
+        | MANAGE_NICKNAMES
+        | MANAGE_ROLES
+        | MANAGE_WEBHOOKS
+        | MANAGE_EMOJIS_AND_STICKERS
+        | USE_APPLICATION_COMMANDS
+        | REQUEST_TO_SPEAK
+        | MANAGE_EVENTS
+        | MANAGE_THREADS
+        | CREATE_PUBLIC_THREADS
+        | CREATE_PRIVATE_THREADS
+        | USE_EXTERNAL_STICKERS
+        | SEND_MESSAGES_IN_THREADS
+        | START_EMBEDDED_ACTIVITIES
+        | MODERATE_MEMBERS
+    )
 
 
 class UserFlags(IntFlag):

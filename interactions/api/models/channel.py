@@ -11,7 +11,7 @@ from .attrs_utils import (
     define,
     field,
 )
-from .flags import ALL_PERMISSIONS, Permissions
+from .flags import Permissions
 from .misc import File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
@@ -1229,7 +1229,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         permissions = await member.get_guild_permissions(guild)
 
         if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
-            return ALL_PERMISSIONS
+            return Permissions.ALL
 
         # @everyone role overwrites
         from ...client.models.utils import search_iterable
