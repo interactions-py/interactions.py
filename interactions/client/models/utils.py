@@ -8,7 +8,7 @@ from .component import ActionRow, Button, SelectMenu
 if TYPE_CHECKING:
     from ..context import CommandContext
 
-__all__ = ("autodefer", "spread_to_rows")
+__all__ = ("autodefer", "spread_to_rows", "search_iterable")
 
 _T = TypeVar("_T")
 
