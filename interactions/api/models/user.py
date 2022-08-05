@@ -1,4 +1,4 @@
-from typing import Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
 from .attrs_utils import ClientSerializerMixin, define, field
 from .flags import UserFlags
@@ -111,4 +111,3 @@ class User(ClientSerializerMixin, IDMixin):
         from .gw import Presence
 
         return self._client.cache[Presence].get(self.id)
-
