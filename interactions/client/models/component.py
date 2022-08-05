@@ -266,7 +266,7 @@ class ActionRow(ComponentMixin):
         only.
 
     The structure for an action row:
-    ::
+    ..code-block:: python
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
