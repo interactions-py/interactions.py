@@ -394,7 +394,9 @@ class WebSocketClient:
                                 if isinstance(_option, dict):
                                     _option = Option(**_option)
                                 if _option.focused:
-                                    __name, _value = self.__sub_command_context(_option, _context)
+                                    __name, _value = self.__sub_command_context(
+                                        _option, _context
+                                    )
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
@@ -445,7 +447,6 @@ class WebSocketClient:
         :param data: The data for the event.
         :type data: dict
         """
-
         def __modify_guild_cache():
             if not (
                 (guild_id := data.get("guild_id"))
