@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union, overload
 
 import attrs
 
@@ -8,10 +8,22 @@ from interactions.api.http.client import HTTPClient
 _T = TypeVar("_T")
 _P = TypeVar("_P")
 
-class MISSING:
-    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
 
-    ...
+class _Missing:
+    """A pseudosentinel based from an empty object. This is now more compliant with PEP"""
+    _instance: ClassVar["_Missing"] = None
+
+    def __eq__(self, other): ...
+
+    def __repr__(self): ...
+
+    def __hash__(self): ...
+
+    def __bool__(self): ...
+
+
+MISSING = _Missing()
+
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class DictSerializerMixin:
@@ -20,7 +32,9 @@ class DictSerializerMixin:
     """A dict containing values that were not serialized from Discord."""
     __deepcopy_kwargs__: bool = attrs.field(init=False)
     """Should the kwargs be deepcopied or not?"""
+
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs): ...
+
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class ClientSerializerMixin(DictSerializerMixin):
