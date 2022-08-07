@@ -106,7 +106,7 @@ class User(ClientSerializerMixin, IDMixin):
         Returns the presence of the user.
 
         :return: Presence of the user (None will be returned if not cached)
-        :rtype: Optional["Presence"]
+        :rtype: Optional[Presence]
         """
         from .gw import Presence
 
