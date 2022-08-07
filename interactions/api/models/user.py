@@ -101,12 +101,12 @@ class User(ClientSerializerMixin, IDMixin):
         return url
 
     @property
-    def presence(self) -> "Presence":
+    def presence(self) -> Optional["Presence"]:
         """
         Returns the presence of the user.
 
         :return: Presence of the user (None will be returned if not cached)
-        :rtype: Presence
+        :rtype: Optional["Presence"]
         """
         from .gw import Presence
 
