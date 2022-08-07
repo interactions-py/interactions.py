@@ -777,7 +777,7 @@ class MessageDelete(DictSerializerMixin):
 
 
 @define()
-class MessageReaction(DictSerializerMixin):
+class MessageReaction(ClientSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD`` and ``MESSAGE_REACTION_REMOVE``.
 
@@ -793,7 +793,7 @@ class MessageReaction(DictSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     message_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    member: Optional[Member] = field(converter=Member, default=None)
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
 
