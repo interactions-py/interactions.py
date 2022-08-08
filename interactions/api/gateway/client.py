@@ -6,11 +6,12 @@ except ImportError:
 from asyncio import (
     Event,
     Task,
+    TimeoutError,
     ensure_future,
     get_event_loop,
     get_running_loop,
     new_event_loop,
-    sleep,
+    wait_for,
 )
 from sys import platform, version_info
 from time import perf_counter
@@ -33,6 +34,7 @@ from ..models.member import Member
 from ..models.misc import Snowflake
 from ..models.presence import ClientPresence
 from .heartbeat import _Heartbeat
+from .ratelimit import WSRateLimit
 
 if TYPE_CHECKING:
     from ...client.context import _Context
@@ -47,8 +49,13 @@ class WebSocketClient:
     """
     A class representing the client's connection to the Gateway via. WebSocket.
 
+    .. note ::
+        The ``__heartbeat_event`` Event object is different from the one built in to the Heartbeater object.
+        The latter is used to trace heartbeat acknowledgement.
+
     :ivar AbstractEventLoop _loop: The asynchronous event loop.
     :ivar Listener _dispatch: The built-in event dispatcher.
+    :ivar WSRateLimit _ratelimiter: The websocket ratelimiter object.
     :ivar HTTPClient _http: The user-facing HTTP client.
     :ivar ClientWebSocketResponse _client: The WebSocket data of the connection.
     :ivar bool _closed: Whether the connection has been closed or not.
@@ -56,6 +63,7 @@ class WebSocketClient:
     :ivar Intents _intents: The gateway intents used for connection.
     :ivar dict _ready: The contents of the application returned when ready.
     :ivar _Heartbeat __heartbeater: The context state of a "heartbeat" made to the Gateway.
+    :ivar Event __heartbeat_event: The state of the overall heartbeat process.
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Event ready: The ready state of the client as an ``asyncio.Event``.
@@ -65,12 +73,13 @@ class WebSocketClient:
     :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
     :ivar float _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
     :ivar float _last_ack: The latest time of the last ``HEARTBEAT_ACK`` event since connection creation, in seconds.
-    :ivar float latency: The latency of the connection, in seconds.
+    :ivar Optional[str] resume_url: The Websocket ratelimit URL for resuming connections, if any.
     """
 
     __slots__ = (
         "_loop",
         "_dispatch",
+        "_ratelimiter",
         "_http",
         "_client",
         "_closed",
@@ -81,13 +90,14 @@ class WebSocketClient:
         "__shard",
         "__presence",
         "__task",
+        "__heartbeat_event",
         "__started",
         "session_id",
         "sequence",
         "ready",
         "_last_send",
         "_last_ack",
-        "latency",
+        "resume_url",
     )
 
     def __init__(
@@ -112,8 +122,15 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+        self._ratelimiter = (
+            WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
+        )
+        self.__heartbeater: _Heartbeat = _Heartbeat(
+            loop=self._loop if version_info < (3, 10) else None
+        )
         self._http: HTTPClient = HTTPClient(token)
         self._client: Optional["ClientWebSocketResponse"] = None
+
         self._closed: bool = False
         self._options: dict = {
             "max_msg_size": 1024**2,
@@ -121,36 +138,55 @@ class WebSocketClient:
             "autoclose": False,
             "compress": 0,
         }
+
         self._intents: Intents = intents
-        self.__heartbeater: _Heartbeat = _Heartbeat(
-            loop=self._loop if version_info < (3, 10) else None
-        )
         self.__shard: Optional[List[Tuple[int]]] = None
         self.__presence: Optional[ClientPresence] = None
+
         self.__task: Optional[Task] = None
+        self.__heartbeat_event = Event(loop=self._loop) if version_info < (3, 10) else Event()
         self.__started: bool = False
+
         self.session_id: Optional[str] = None if session_id is MISSING else session_id
         self.sequence: Optional[str] = None if sequence is MISSING else sequence
         self.ready: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
 
         self._last_send: float = perf_counter()
         self._last_ack: float = perf_counter()
-        self.latency: float = float("nan")  # noqa: F821
         # self.latency has to be noqa, this is valid in python but not in Flake8.
+        self.resume_url: Optional[str] = None
+
+    @property
+    def latency(self) -> float:
+        """
+        The latency of the connection, in seconds.
+        """
+        return self._last_ack - self._last_send
 
     async def _manage_heartbeat(self) -> None:
         """Manages the heartbeat loop."""
-        while True:
+        log.debug(f"Sending heartbeat every {self.__heartbeater.delay} seconds...")
+        while not self.__heartbeat_event.is_set():
+
             if self._closed:
                 await self.__restart()
-            if self.__heartbeater.event.is_set():
-                await self.__heartbeat()
-                self.__heartbeater.event.clear()
-                await sleep(self.__heartbeater.delay / 1000)
-            else:
+
+            if not self.__heartbeater.event.is_set():
                 log.debug("HEARTBEAT_ACK missing, reconnecting...")
-                await self.__restart()
-                break
+                await self.__restart()  # resume here.
+
+            self.__heartbeater.event.clear()
+            await self.__heartbeat()
+
+            try:
+                # wait for next iteration, accounting for latency
+                await wait_for(
+                    self.__heartbeat_event.wait(), timeout=self.__heartbeater.delay / 1000
+                )
+            except TimeoutError:
+                continue  # Then we can check heartbeat ack this way and then like it autorestarts.
+            else:
+                return  # break loop because something went wrong.
 
     async def __restart(self) -> None:
         """Restart the client's connection and heartbeat with the Gateway."""
@@ -177,7 +213,7 @@ class WebSocketClient:
         self.__heartbeater.delay = 0.0
         self._closed = False
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
-        url = await self._http.get_gateway()
+        url = self.resume_url if self.resume_url else await self._http.get_gateway()
 
         async with self._http._req._session.ws_connect(url, **self._options) as self._client:
             self._closed = self._client.closed
@@ -241,7 +277,6 @@ class WebSocketClient:
                 self._last_ack = perf_counter()
                 log.debug("HEARTBEAT_ACK")
                 self.__heartbeater.event.set()
-                self.latency = self._last_ack - self._last_send
             if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
                 log.debug("INVALID_SESSION/RECONNECT")
 
@@ -261,6 +296,7 @@ class WebSocketClient:
             self.session_id = data["session_id"]
             self.sequence = stream["s"]
             self._dispatch.dispatch("on_ready")
+            self.resume_url = data["resume_gateway_url"]
             if not self.__started:
                 self.__started = True
                 self._dispatch.dispatch("on_start")
@@ -680,9 +716,10 @@ class WebSocketClient:
         :param data: The data to send to the Gateway.
         :type data: Dict[str, Any]
         """
-        self._last_send = perf_counter()
         _data = dumps(data) if isinstance(data, dict) else data
         packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
+        await self._ratelimiter.block()
+        self._last_send = perf_counter()
         await self._client.send_str(packet)
         log.debug(packet)
 
