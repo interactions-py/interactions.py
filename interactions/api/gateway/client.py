@@ -465,7 +465,7 @@ class WebSocketClient:
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-                    if not hasattr(obj, "id"):
+                    if not id:
                         return
                     old_obj = self._http.cache[model].get(id)
                     if old_obj:
