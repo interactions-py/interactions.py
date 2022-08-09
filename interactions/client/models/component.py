@@ -229,7 +229,6 @@ class TextInput(ComponentMixin):
 class Modal(ComponentMixin):
     """
     A class object representing a modal.
-
     The structure for a modal: ::
         interactions.Modal(
             title="Application Form",
@@ -266,7 +265,8 @@ class ActionRow(ComponentMixin):
         An ActionRow may also support only 1 text input component
         only.
 
-    The structure for an action row: ::
+    The structure for an action row:
+    ..code-block:: python
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
