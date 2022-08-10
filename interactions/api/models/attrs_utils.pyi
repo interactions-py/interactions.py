@@ -10,7 +10,7 @@ _P = TypeVar("_P")
 
 
 class _Missing:
-    """A pseudosentinel based from an empty object. This is now more compliant with PEP"""
+    """A sentinel object for places where None is a valid value"""
     _instance: ClassVar["_Missing"] = None
 
     def __eq__(self, other): ...
