@@ -257,7 +257,7 @@ def option(
 
         param = parameters[-1 - len(coro._options)]
 
-        option_type = kwargs.get("type", param.annotation)
+        option_type = kwargs.pop("type", param.annotation)
         name = kwargs.pop("name", param.name)
         if name != param.name:
             kwargs["converter"] = param.name
