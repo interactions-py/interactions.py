@@ -5,6 +5,7 @@ except ImportError:
 
 from asyncio import (
     Event,
+    Lock,
     Task,
     TimeoutError,
     ensure_future,
@@ -74,6 +75,7 @@ class WebSocketClient:
     :ivar float _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
     :ivar float _last_ack: The latest time of the last ``HEARTBEAT_ACK`` event since connection creation, in seconds.
     :ivar Optional[str] resume_url: The Websocket ratelimit URL for resuming connections, if any.
+    :ivar Lock reconnect_lock: The lock used for reconnecting the client.
     """
 
     __slots__ = (
@@ -83,6 +85,7 @@ class WebSocketClient:
         "_http",
         "_client",
         "_closed",
+        "__closed",  # placeholder to work with variables atm. its event variant of "_closed"
         "_options",
         "_intents",
         "_ready",
@@ -98,6 +101,7 @@ class WebSocketClient:
         "_last_send",
         "_last_ack",
         "resume_url",
+        "reconnect_lock",
     )
 
     def __init__(
@@ -132,6 +136,7 @@ class WebSocketClient:
         self._client: Optional["ClientWebSocketResponse"] = None
 
         self._closed: bool = False
+        self.__closed: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
         self._options: dict = {
             "max_msg_size": 1024**2,
             "timeout": 60,
@@ -153,8 +158,9 @@ class WebSocketClient:
 
         self._last_send: float = perf_counter()
         self._last_ack: float = perf_counter()
-        # self.latency has to be noqa, this is valid in python but not in Flake8.
+
         self.resume_url: Optional[str] = None
+        self.reconnect_lock = Lock(loop=self._loop) if version_info < (3, 10) else Lock()
 
     @property
     def latency(self) -> float:
@@ -167,9 +173,6 @@ class WebSocketClient:
         """Manages the heartbeat loop."""
         log.debug(f"Sending heartbeat every {self.__heartbeater.delay} seconds...")
         while not self.__heartbeat_event.is_set():
-
-            if self._closed:
-                await self.__restart()
 
             if not self.__heartbeater.event.is_set():
                 log.debug("HEARTBEAT_ACK missing, reconnecting...")
@@ -255,6 +258,10 @@ class WebSocketClient:
         event: Optional[str] = stream.get("t")
         data: Optional[Dict[str, Any]] = stream.get("d")
 
+        seq: Optional[str] = stream.get("s")
+        if seq:
+            self.sequence = seq
+
         if op != OpCodeType.DISPATCH:
             log.debug(data)
 
@@ -294,7 +301,6 @@ class WebSocketClient:
         elif event == "READY":
             self._ready = data
             self.session_id = data["session_id"]
-            self.sequence = stream["s"]
             self._dispatch.dispatch("on_ready")
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
@@ -685,6 +691,30 @@ class WebSocketClient:
     async def restart(self) -> None:
         await self.__restart()
 
+    async def _reconnect(self, to_resume: bool, code: Optional[int] = 1012) -> None:
+        """
+        Restart the client's connection and heartbeat with the Gateway.
+        """
+
+        async with self.reconnect_lock:
+            self.__closed.clear()
+
+            if self._client is not None:
+                await self._client.close(code=code)
+
+            self._client = None
+
+            if not to_resume:
+                self.session_id = None
+                url = self._http.get_gateway()
+            else:
+                url = self.resume_url
+
+            self._client = await self._http._req._session.ws_connect(url, **self._options)
+
+            self.__closed.set()
+            self.__heartbeat_event.set()
+
     @property
     async def __receive_packet_stream(self) -> Optional[Union[Dict[str, Any], WSMessage]]:
         """
@@ -708,6 +738,40 @@ class WebSocketClient:
             return WS_CLOSED_MESSAGE
 
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
+
+    async def __receive_packet(self) -> Optional[Dict[str, Any]]:
+        """
+        Receives a stream of packets sent from the Gateway in an async process.
+
+        :return: The packet stream.
+        :rtype: Optional[Dict[str, Any]]
+        """
+
+        while True:
+            packet: WSMessage = await self._client.receive()
+
+            if packet.type == WSMsgType.CLOSE:
+                log.debug(f"Disconnecting from gateway = {packet.data}::{packet.extra}")
+
+                if packet.data >= 4000:
+                    # This means that the error code is 4000+, which may signify Discord-provided error codes.
+                    raise LibraryException(packet.data)  # Works because gateway!!
+                    # We need to work on __aexit__ / __aentry__ though, since we're not using the ws request manager.
+
+                await self._reconnect(packet.data != 1000, packet.data)
+
+            elif packet.type == WSMsgType.CLOSED:
+                # We need to wait/reconnect depending about other event holders.
+
+                if not self.__closed.is_set():
+                    await self.__closed.wait()
+                else:
+                    await self._reconnect(True)
+
+            elif packet.type == WSMsgType.CLOSING:
+                await self.__closed.wait()
+
+            return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
