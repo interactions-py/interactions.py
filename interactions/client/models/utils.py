@@ -1,6 +1,17 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
-from typing import TYPE_CHECKING, Awaitable, Callable, Iterable, List, Optional, TypeVar, Union
+from inspect import getfullargspec
+from typing import (
+    TYPE_CHECKING,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Iterable,
+    List,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 from ...api.error import LibraryException
 from .component import ActionRow, Button, SelectMenu
@@ -41,16 +52,27 @@ def autodefer(
     :rtype:
     """
 
-    def decorator(coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
+    def decorator(coro: Callable[..., Union[Awaitable, Coroutine]]) -> Callable[..., Awaitable]:
         from ..context import ComponentContext
 
         @wraps(coro)
-        async def deferring_func(ctx: Union["CommandContext", "ComponentContext"], *args, **kwargs):
+        async def deferring_func(
+            ctx: Union["CommandContext", "ComponentContext"], *args: tuple, **kwargs
+        ):
             try:
                 loop = get_running_loop()
             except RuntimeError as e:
                 raise RuntimeError("No running event loop detected!") from e
-            task: Task = loop.create_task(coro(ctx, *args, **kwargs))
+
+            if "self" in getfullargspec(coro).args:
+                self = ctx
+                args = list(args)
+                ctx = args.pop(0)
+
+                task: Task = loop.create_task(coro(self, ctx, *args, **kwargs))
+
+            else:
+                task: Task = loop.create_task(coro(ctx, *args, **kwargs))
 
             await sleep(delay)
 
