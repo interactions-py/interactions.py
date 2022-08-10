@@ -47,7 +47,11 @@ class DictSerializerMixin:
                     discord_name = attrib_name
 
                 if (value := kwargs.pop(discord_name, MISSING)) is not MISSING:
-                    if value is not None and attrib.metadata.get("add_client"):
+                    if (
+                        value is not None
+                        and attrib.metadata.get("add_client")
+                        and client is not None
+                    ):
                         if isinstance(value, list):
                             for item in value:
                                 if isinstance(item, dict):

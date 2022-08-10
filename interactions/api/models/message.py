@@ -910,7 +910,7 @@ class Message(ClientSerializerMixin, IDMixin):
         if not components:
             _components = []
         elif components is MISSING:
-            _components = self.components
+            _components = _build_components(components=self.components)
         else:
             _components = _build_components(components=components)
 
@@ -1109,7 +1109,7 @@ class Message(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1143,7 +1143,7 @@ class Message(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1166,7 +1166,7 @@ class Message(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1187,16 +1187,19 @@ class Message(ClientSerializerMixin, IDMixin):
         :type user: Union[Member, user, int]
         """
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
         if not self._client:
             raise LibraryException(code=13)
 
-        _user_id = user if isinstance(user, int) else user.id
+        _user_id = user if isinstance(user, (int, Snowflake)) else user.id
         return await self._client.remove_user_reaction(
-            channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
+            channel_id=int(self.channel_id),
+            message_id=int(self.id),
+            user_id=int(_user_id),
+            emoji=_emoji,
         )
 
     async def get_users_from_reaction(
@@ -1217,7 +1220,7 @@ class Message(ClientSerializerMixin, IDMixin):
         _all_users: List[User] = []
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )

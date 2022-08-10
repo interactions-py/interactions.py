@@ -39,6 +39,7 @@ __all__ = (
     "ChannelPins",
     "ThreadMembers",
     "ThreadList",
+    "MessageDelete",
     "MessageReactionRemove",
     "MessageReaction",
     "GuildIntegrations",
@@ -761,7 +762,22 @@ class Presence(ClientSerializerMixin):
 
 
 @define()
-class MessageReaction(DictSerializerMixin):
+class MessageDelete(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``MESSAGE_DELETE_BULK``.
+
+    :ivar List[Snowflake] ids: The message IDs of the event.
+    :ivar Snowflake channel_id: The channel ID of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    """
+
+    ids: List[Snowflake] = field(converter=convert_list(Snowflake))
+    channel_id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+
+@define()
+class MessageReaction(ClientSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD`` and ``MESSAGE_REACTION_REMOVE``.
 
@@ -777,7 +793,7 @@ class MessageReaction(DictSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     message_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    member: Optional[Member] = field(converter=Member, default=None)
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
 

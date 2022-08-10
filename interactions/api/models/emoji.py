@@ -36,6 +36,13 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = field(default=None)
     available: Optional[bool] = field(default=None)
 
+    def __str__(self):
+        return (
+            f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
+            if self.id is not None
+            else self.name
+        )
+
     @classmethod
     async def get(
         cls,

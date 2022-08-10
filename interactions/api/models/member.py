@@ -380,6 +380,7 @@ class Member(ClientSerializerMixin, IDMixin):
     def get_avatar_url(self, guild_id: Union[int, Snowflake, "Guild"]) -> Optional[str]:
         """
         Returns the URL of the member's avatar for the specified guild.
+
         :param guild_id: The id of the guild to get the member's avatar from
         :type guild_id: Union[int, Snowflake, "Guild"]
         :return: URL of the members's avatar (None will be returned if no avatar is set)
@@ -393,3 +394,32 @@ class Member(ClientSerializerMixin, IDMixin):
         url = f"https://cdn.discordapp.com/guilds/{_guild_id}/users/{int(self.user.id)}/avatars/{self.avatar}"
         url += ".gif" if self.avatar.startswith("a_") else ".png"
         return url
+
+    async def get_guild_permissions(self, guild: "Guild") -> Permissions:
+        """
+        Returns the permissions of the member for the specified guild.
+
+        .. note::
+            The permissions returned by this function will not take into account role and
+            user overwrites that can be assigned to channels or categories. If you need
+            these overwrites, look into :meth:`.Channel.get_permissions_for`.
+
+        :param guild: The guild of the member
+        :type guild: Guild
+        :return: Base permissions of the member in the specified guild
+        :rtype: Permissions
+        """
+        if int(guild.owner_id) == int(self.id):
+            return Permissions.ALL
+
+        role_everyone = await guild.get_role(int(guild.id))
+        permissions = int(role_everyone.permissions)
+
+        for role_id in self.roles:
+            role = await guild.get_role(role_id)
+            permissions |= int(role.permissions)
+
+        if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
+            return Permissions.ALL
+
+        return Permissions(permissions)

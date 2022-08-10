@@ -413,6 +413,7 @@ class WebSocketClient:
                         "ChannelPins",
                         "MessageReaction",
                         "MessageReactionRemove",
+                        "MessageDelete",
                         # Extend this for everything that should not be cached
                     ]:
                         id = None
@@ -464,7 +465,7 @@ class WebSocketClient:
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-                    if not hasattr(obj, "id"):
+                    if not id:
                         return
                     old_obj = self._http.cache[model].get(id)
                     if old_obj:
@@ -487,6 +488,8 @@ class WebSocketClient:
                     if id:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
+                    elif "_delete_bulk" in name:
+                        self._dispatch.dispatch(f"on_{name}", obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
