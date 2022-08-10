@@ -77,7 +77,7 @@ class Client:
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = HTTPClient(token=token)
+        self._http: HTTPClient = token
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
@@ -91,7 +91,7 @@ class Client:
         self.__global_commands = {}
         self.__guild_commands = {}
         self.__name_autocomplete = {}
-        self.me = None
+        self.me: Application = None
 
         if self._default_scope:
             if not isinstance(self._default_scope, list):
@@ -111,9 +111,6 @@ class Client:
         else:
             self._automate_sync = True
 
-        data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data, _client=self._http)
-
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
@@ -128,12 +125,21 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
+
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
+
+        data = self._loop.run_until_complete(self._http.get_current_bot_information())
+        self.me = Application(**data, _client=self._http)
         try:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
+            self._loop.run_until_complete(self._logout())
             raise e from e
         except KeyboardInterrupt:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
+
+        self._loop.run_until_complete(self._logout())
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
@@ -1490,6 +1496,13 @@ class Client:
         self._http.cache[Guild].add(guild)
 
         return guild._json
+
+    async def _logout(self) -> None:
+        await self._websocket.close()
+        await self._http._req.close()
+
+    def stop(self) -> None:
+        self._loop.run_until_complete(self._logout())
 
 
 # TODO: Implement the rest of cog behaviour when possible.

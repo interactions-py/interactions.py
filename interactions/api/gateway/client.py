@@ -112,7 +112,7 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
-        self._http: HTTPClient = HTTPClient(token)
+        self._http: HTTPClient = token
         self._client: Optional["ClientWebSocketResponse"] = None
         self._closed: bool = False
         self._options: dict = {
@@ -173,6 +173,9 @@ class WebSocketClient:
         :param presence: The presence to carry with. Defaults to ``None``.
         :type presence: Optional[ClientPresence]
         """
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
+
         self._client = None
         self.__heartbeater.delay = 0.0
         self._closed = False
@@ -763,3 +766,10 @@ class WebSocketClient:
         await self._send_packet(payload)
         log.debug(f"UPDATE_PRESENCE: {presence._json}")
         self.__presence = presence
+
+    async def close(self) -> None:
+        """
+        Closes the current connection.
+        """
+        if self._client:
+            await self._client.close()
