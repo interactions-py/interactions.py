@@ -90,7 +90,7 @@ class Client:
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
-        self.__name_autocomplete = {}
+        self.__id_autocomplete = {}
         self.me = None
 
         if self._default_scope:
@@ -142,16 +142,24 @@ class Client:
         self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
         self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
 
-    async def __register_name_autocomplete(self) -> None:
-        for key in self.__name_autocomplete.keys():
-            _command_obj = self._find_command(key)
-            _command: Union[Snowflake, int] = int(_command_obj.id)
-            for _ in self.__name_autocomplete[key]:
-                # _ contains {"coro" : coro, "name": <name_as_string>}
-                self.event(
-                    _["coro"],
-                    name=f"autocomplete_{_command}_{_['name']}",
-                )
+    async def __register_id_autocomplete(self) -> None:  # TODO: make this use ID and not name
+        for key in self.__id_autocomplete.keys():
+            if isinstance(key, str):  # compatibility with the decorator from the Command obj
+                for _ in self.__id_autocomplete[key]:
+                    # _ contains {"coro" : coro, "name": <name_as_string>}
+                    self.event(
+                        _["coro"],
+                        name=f"autocomplete_{key}_{_['name']}",
+                    )
+            else:
+                _command_obj = self._find_command(key)
+                _command: str = _command_obj.name
+                for _ in self.__id_autocomplete[key]:
+                    # _ contains {"coro" : coro, "name": <name_as_string>}
+                    self.event(
+                        _["coro"],
+                        name=f"autocomplete_{_command}_{_['name']}",
+                    )
 
     @staticmethod
     async def __compare_sync(
@@ -380,7 +388,7 @@ class Client:
                 await self.__sync()
             else:
                 await self.__get_all_commands()
-            await self.__register_name_autocomplete()
+            await self.__register_id_autocomplete()
 
             ready = True
         except Exception:
@@ -474,7 +482,7 @@ class Client:
             )
 
             if cmd.autocompletions:
-                self.__name_autocomplete.update(cmd.autocompletions)
+                self.__id_autocomplete.update(cmd.autocompletions)
 
             coro = coro.__func__ if hasattr(coro, "__func__") else coro
 
@@ -1163,21 +1171,22 @@ class Client:
 
         return decorator
 
-    def _find_command(self, command: str) -> ApplicationCommand:
+    def _find_command(self, command: Union[str, int]) -> ApplicationCommand:
         """
         Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
 
-        :param command: The name of the command to match
-        :type command: str
+        :param command: The name or ID of the command to match
+        :type command: Union[str, int]
         :return: An ApplicationCommand model
         :rtype: ApplicationCommand
         """
+        key = "name" if isinstance(command, str) else "id"
         _command: Dict
         _command_obj = next(
             (
                 ApplicationCommand(**_command)
                 for _command in self.__global_commands["commands"]
-                if _command["name"] == command
+                if str(_command[key]) == str(command)
             ),
             None,
         )
@@ -1188,7 +1197,7 @@ class Client:
                     (
                         ApplicationCommand(**_command)
                         for _command in self.__guild_commands[scope]["commands"]
-                        if _command["name"] == command
+                        if str(_command[key]) == str(command)
                     ),
                     None,
                 )
@@ -1232,10 +1241,10 @@ class Client:
         """
 
         if isinstance(command, ApplicationCommand):
-            _command: Union[Snowflake, int] = command.id
+            _command: str = command.name
         elif isinstance(command, str):
             _command: str = command
-        elif isinstance(command, int) or isinstance(command, Snowflake):
+        elif isinstance(command, (int, Snowflake)):
             _command: Union[Snowflake, int] = int(command)
         else:
             raise LibraryException(
@@ -1244,10 +1253,10 @@ class Client:
             )
 
         def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            if isinstance(_command, str):
-                curr_autocomplete = self.__name_autocomplete.get(_command, [])
+            if isinstance(_command, (int, Snowflake)):
+                curr_autocomplete = self.__id_autocomplete.get(_command, [])
                 curr_autocomplete.append({"coro": coro, "name": name})
-                self.__name_autocomplete[_command] = curr_autocomplete
+                self.__id_autocomplete[_command] = curr_autocomplete
                 return coro
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
