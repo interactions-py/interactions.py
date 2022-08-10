@@ -11,6 +11,7 @@ from .attrs_utils import (
     define,
     field,
 )
+from .flags import Permissions
 from .misc import File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
@@ -1206,6 +1207,67 @@ class Channel(ClientSerializerMixin, IDMixin):
             raise LibraryException(message="The Channel you specified is not a thread!", code=12)
 
         await self._client.join_thread(int(self.id))
+
+    async def get_permissions_for(self, member: "Member") -> Permissions:
+        """
+        Returns the permissions of the member in this specific channel.
+
+        .. note::
+            The permissions returned by this function take into account role and
+            user overwrites that can be assigned to channels or categories. If you
+            don't need these overwrites, look into :meth:`.Member.get_guild_permissions`.
+
+        :param member: The member to get the permissions from
+        :type member: Member
+        :return: Permissions of the member in this channel
+        :rtype: Permissions
+        """
+        if not self.guild_id:
+            return Permissions.DEFAULT
+
+        from .guild import Guild
+
+        guild = Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
+
+        permissions = await member.get_guild_permissions(guild)
+
+        if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
+            return Permissions.ALL
+
+        # @everyone role overwrites
+        from ...client.models.utils import search_iterable
+
+        overwrite_everyone = search_iterable(
+            self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(self.guild_id)
+        )
+        if overwrite_everyone:
+            permissions &= ~int(overwrite_everyone[0].deny)
+            permissions |= int(overwrite_everyone[0].allow)
+
+        # Apply role specific overwrites
+        allow, deny = 0, 0
+        for role_id in member.roles:
+            overwrite_role = search_iterable(
+                self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(role_id)
+            )
+            if overwrite_role:
+                allow |= int(overwrite_role[0].allow)
+                deny |= int(overwrite_role[0].deny)
+
+        if deny:
+            permissions &= ~deny
+        if allow:
+            permissions |= allow
+
+        # Apply member specific overwrites
+        overwrite_member = search_iterable(
+            self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(member.id)
+        )
+        if overwrite_member:
+            permissions &= ~int(overwrite_member[0].deny)
+            permissions |= int(overwrite_member[0].allow)
+
+        return Permissions(permissions)
 
 
 @define()
