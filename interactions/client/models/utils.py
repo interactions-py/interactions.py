@@ -56,9 +56,7 @@ def autodefer(
         from ..context import ComponentContext
 
         @wraps(coro)
-        async def deferring_func(
-            ctx: Union["CommandContext", "ComponentContext"], *args: tuple, **kwargs
-        ):
+        async def deferring_func(ctx: Union["CommandContext", "ComponentContext"], *args, **kwargs):
             try:
                 loop = get_running_loop()
             except RuntimeError as e:
