@@ -265,7 +265,7 @@ class _Context(ClientSerializerMixin):
 
         return payload
 
-    async def popup(self, modal: Modal) -> None:
+    async def popup(self, modal: Modal) -> dict:
         """
         This "pops up" a modal to present information back to the
         user.
@@ -653,6 +653,37 @@ class ComponentContext(_Context):
             )
 
             self.responded = True
+
+    async def disable_all_components(
+        self, respond_to_interaction: Optional[bool] = True, **other_kwargs: Optional[dict]
+    ) -> Message:
+        r"""
+        Disables all components of the message.
+
+        :param respond_to_interaction?: Whether the components should be disabled in an interaction response, default True
+        :type respond_to_interaction?: Optional[bool]
+        :param \**other_kwargs?: Additional keyword-arguments to pass to the edit method. This only works when this method is used as interaction response and takes the same arguments as :meth:`interactions.client.context._Context:edit()`
+        :type \**other_kwargs?: Optional[dict]
+
+        :return: The modified Message
+        :rtype: Message
+        """
+
+        if not respond_to_interaction:
+            return await self.message.disable_all_components()
+
+        else:
+            for components in self.message.components:
+                for component in components.components:
+                    component.disabled = True
+
+            if other_kwargs.get("components"):
+                raise LibraryException(
+                    12, "You must not specify the `components` argument in this method."
+                )
+
+            other_kwargs["components"] = self.message.components
+            await self.edit(**other_kwargs)
 
     @property
     def custom_id(self) -> Optional[str]:

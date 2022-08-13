@@ -1276,3 +1276,29 @@ class Message(ClientSerializerMixin, IDMixin):
         """
         guild = self.guild_id or "@me"
         return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
+
+    async def disable_all_components(self) -> "Message":
+        """
+        Sets all components to disabled on this message.
+
+        :return: The modified message.
+        :rtype: Message
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if not self.components:
+            return self
+
+        for components in self.components:
+            for component in components.components:
+                component.disabled = True
+
+        return Message(
+            **await self._client.edit_message(
+                int(self.channel_id),
+                int(self.id),
+                payload={"components": [component._json for component in self.components]},
+            ),
+            _client=self._client,
+        )
