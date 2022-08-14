@@ -1502,10 +1502,6 @@ class Client:
         await self._websocket.close()
         await self._http._req.close()
 
-    def stop(self) -> None:
-        self._websocket._closed = True
-        self._loop.run_until_complete(self._logout())
-
 
 # TODO: Implement the rest of cog behaviour when possible.
 class Extension:
