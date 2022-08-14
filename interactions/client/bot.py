@@ -131,6 +131,7 @@ class Client:
 
         data = self._loop.run_until_complete(self._http.get_current_bot_information())
         self.me = Application(**data, _client=self._http)
+
         try:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
@@ -138,8 +139,8 @@ class Client:
             raise e from e
         except KeyboardInterrupt:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
-
-        self._loop.run_until_complete(self._logout())
+        finally:
+            self._loop.run_until_complete(self._logout())
 
     def __register_events(self) -> None:
         """Registers all raw gateway events to the known events."""
