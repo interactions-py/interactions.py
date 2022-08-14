@@ -1502,6 +1502,7 @@ class Client:
         await self._http._req.close()
 
     def stop(self) -> None:
+        self._websocket._closed = True
         self._loop.run_until_complete(self._logout())
 
 

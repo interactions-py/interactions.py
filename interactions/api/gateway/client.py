@@ -773,3 +773,4 @@ class WebSocketClient:
         """
         if self._client:
             await self._client.close()
+        self._closed = True
