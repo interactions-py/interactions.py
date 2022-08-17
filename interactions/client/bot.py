@@ -14,10 +14,8 @@ from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.attrs_utils import MISSING, convert_list
-from ..api.models.channel import Channel
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
-from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
@@ -141,13 +139,6 @@ class Client:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
         finally:
             self._loop.run_until_complete(self._logout())
-
-    def __register_events(self) -> None:
-        """Registers all raw gateway events to the known events."""
-        self._websocket._dispatch.register(self.__raw_socket_create)
-        self._websocket._dispatch.register(self.__raw_channel_create, "on_channel_create")
-        self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
-        self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
 
     async def __register_name_autocomplete(self) -> None:
         for key in self.__name_autocomplete.keys():
@@ -380,7 +371,6 @@ class Client:
             elif self._intents.value != Intents.DEFAULT.value:
                 raise RuntimeError("Client not authorised for any privileged intents.")
 
-            self.__register_events()
             self.__resolve_commands()
 
             if self._automate_sync:
@@ -809,7 +799,7 @@ class Client:
             if not re.fullmatch(reg, _option.name):
                 raise LibraryException(
                     11,
-                    message=f"The option name does not match the regex for valid names ('{regex}')",
+                    message=f"The option name ('{_option.name}') does not match the regex for valid names ('{regex}').",
                 )
             if _option.description is MISSING or not _option.description:
                 raise LibraryException(
@@ -871,7 +861,7 @@ class Client:
             and command.type == ApplicationCommandType.CHAT_INPUT
         ):
             raise LibraryException(
-                11, message=f"Your command does not match the regex for valid names ('{regex}')"
+                11, message=f"Your command name ('{command.name}') does not match the regex for valid names ('{regex}')."
             )
         elif command.type == ApplicationCommandType.CHAT_INPUT and (
             command.description is MISSING or not command.description
@@ -1444,59 +1434,6 @@ class Client:
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)
-
-    async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
-        """
-        This is an internal function that takes any gateway socket event
-        and then returns the data purely based off of what it does in
-        the client instantiation class.
-
-        :param data: The data that is returned
-        :type data: Dict[Any, Any]
-        :return: A dictionary of raw data.
-        :rtype: Dict[Any, Any]
-        """
-
-        return data
-
-    async def __raw_channel_create(self, channel) -> dict:
-        """
-        This is an internal function that caches the channel creates when dispatched.
-
-        :param channel: The channel object data in question.
-        :type channel: Channel
-        :return: The channel as a dictionary of raw data.
-        :rtype: dict
-        """
-        self._http.cache[Channel].add(channel)
-
-        return channel._json
-
-    async def __raw_message_create(self, message) -> dict:
-        """
-        This is an internal function that caches the message creates when dispatched.
-
-        :param message: The message object data in question.
-        :type message: Message
-        :return: The message as a dictionary of raw data.
-        :rtype: dict
-        """
-        self._http.cache[Message].add(message)
-
-        return message._json
-
-    async def __raw_guild_create(self, guild) -> dict:
-        """
-        This is an internal function that caches the guild creates on ready.
-
-        :param guild: The guild object data in question.
-        :type guild: Guild
-        :return: The guild as a dictionary of raw data.
-        :rtype: dict
-        """
-        self._http.cache[Guild].add(guild)
-
-        return guild._json
 
     async def _logout(self) -> None:
         await self._websocket.close()
