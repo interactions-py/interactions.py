@@ -1,6 +1,7 @@
 import contextlib
 from datetime import datetime
 from enum import IntEnum
+from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu
@@ -147,6 +148,22 @@ class Attachment(ClientSerializerMixin, IDMixin):
     height: Optional[int] = field(default=None)
     width: Optional[int] = field(default=None)
     ephemeral: Optional[bool] = field(default=None)
+
+    async def download(self) -> BytesIO:
+        """
+        Downloads the attachment.
+
+        :returns: The attachment's bytes as BytesIO object
+        :rtype: BytesIO
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        async with self._client._req._session.get(self.url) as response:
+            _bytes: bytes = await response.content.read()
+
+        return BytesIO(_bytes)
 
 
 @define()
