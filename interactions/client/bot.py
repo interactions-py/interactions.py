@@ -861,7 +861,8 @@ class Client:
             and command.type == ApplicationCommandType.CHAT_INPUT
         ):
             raise LibraryException(
-                11, message=f"Your command name ('{command.name}') does not match the regex for valid names ('{regex}')."
+                11,
+                message=f"Your command name ('{command.name}') does not match the regex for valid names ('{regex}').",
             )
         elif command.type == ApplicationCommandType.CHAT_INPUT and (
             command.description is MISSING or not command.description
