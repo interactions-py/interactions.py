@@ -88,6 +88,7 @@ class WebSocketClient:
         "_last_send",
         "_last_ack",
         "latency",
+        "resume_gateway_url",
     )
 
     def __init__(
@@ -137,6 +138,7 @@ class WebSocketClient:
         self._last_ack: float = perf_counter()
         self.latency: float = float("nan")  # noqa: F821
         # self.latency has to be noqa, this is valid in python but not in Flake8.
+        self.resume_gateway_url: Optional[str] = None
 
     async def _manage_heartbeat(self) -> None:
         """Manages the heartbeat loop."""
@@ -177,7 +179,11 @@ class WebSocketClient:
         self.__heartbeater.delay = 0.0
         self._closed = False
         self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
-        url = await self._http.get_gateway()
+        url = (
+            f"{self.resume_gateway_url}?v=10&encoding=json"
+            if self.resume_gateway_url
+            else await self._http.get_gateway()
+        )
 
         async with self._http._req._session.ws_connect(url, **self._options) as self._client:
             self._closed = self._client.closed
@@ -259,6 +265,7 @@ class WebSocketClient:
         elif event == "READY":
             self._ready = data
             self.session_id = data["session_id"]
+            self.resume_gateway_url = data["resume_gateway_url"]
             self.sequence = stream["s"]
             self._dispatch.dispatch("on_ready")
             if not self.__started:
