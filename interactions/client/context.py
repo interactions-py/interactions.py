@@ -683,7 +683,7 @@ class ComponentContext(_Context):
                 )
 
             other_kwargs["components"] = self.message.components
-            await self.edit(**other_kwargs)
+            return await self.edit(**other_kwargs)
 
     @property
     def custom_id(self) -> Optional[str]:
