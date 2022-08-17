@@ -372,13 +372,9 @@ class WebSocketClient:
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
                     _name = f"modal_{_context.data.custom_id}"
 
-                    if _context.data._json.get("components"):
+                    if _context.data.components:
                         for component in _context.data.components:
-                            if component.get("components"):
-                                __args.append(
-                                    [_value["value"] for _value in component["components"]][0]
-                                )
-                            else:
+                            if component.components:
                                 __args.append([_value.value for _value in component.components][0])
 
                     self._dispatch.dispatch("on_modal", _context)
@@ -390,7 +386,7 @@ class WebSocketClient:
                 log.warning(
                     "Context is being created for the interaction, but no type is specified. Skipping..."
                 )
-        elif event != "TYPING_START":
+        elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
             name: str = event.lower()
             try:
 
@@ -409,30 +405,28 @@ class WebSocketClient:
                     id = getattr(obj, "id", None)
 
                 if id is None:
-                    if model.__name__.startswith("Guild"):
-                        if model.__name__ == "GuildScheduledEventUser":
-                            id = model.guild_scheduled_event_id
-                        elif model.__name__ in [
-                            "Invite",
-                            "GuildBan",
-                            "ChannelPins",
-                            "MessageReaction",
-                            "ReactionRemove",
-                            # Extend this for everything that should not be cached
-                        ]:
-                            id = None
-                        else:
-                            model_name = model.__name__[5:]
-                            if _data := getattr(obj, model_name, None):
-                                id = (
-                                    getattr(_data, "id")
-                                    if not isinstance(_data, dict)
-                                    else Snowflake(_data["id"])
-                                )
-                            elif hasattr(obj, f"{model_name}_id"):
-                                id = getattr(obj, f"{model_name}_id")
-                            else:
-                                id = None
+                    if model.__name__ == "GuildScheduledEventUser":
+                        id = model.guild_scheduled_event_id
+                    elif model.__name__ in [
+                        "Invite",
+                        "GuildBan",
+                        "ChannelPins",
+                        "MessageReaction",
+                        "MessageReactionRemove",
+                        "MessageDelete",
+                        # Extend this for everything that should not be cached
+                    ]:
+                        id = None
+                    elif model.__name__.startswith("Guild"):
+                        model_name = model.__name__[5:]
+                        if _data := getattr(obj, model_name, None):
+                            id = (
+                                getattr(_data, "id")
+                                if not isinstance(_data, dict)
+                                else Snowflake(_data["id"])
+                            )
+                        elif hasattr(obj, f"{model_name}_id"):
+                            id = getattr(obj, f"{model_name}_id", None)
 
                 def __modify_guild_cache():
                     if not (
@@ -450,18 +444,15 @@ class WebSocketClient:
                             return
                         _obj = getattr(guild, f"{model_name.lower()}s", None)
                         if _obj is not None and isinstance(_obj, list):
-                            _data = getattr(obj, model_name, None)
-
                             if "_create" in name or "_add" in name:
                                 _obj.append(obj)
-
                             for index, __obj in enumerate(_obj):
                                 if __obj.id == id:
                                     if "_remove" in name or "_delete" in name:
                                         _obj.remove(__obj)
 
                                     elif "_update" in name and hasattr(obj, "id"):
-                                        _obj[index] = _data
+                                        _obj[index] = obj
                                     break
                             setattr(guild, f"{model_name}s", _obj)
                         self._http.cache[Guild].add(guild)
@@ -472,23 +463,24 @@ class WebSocketClient:
                     self._dispatch.dispatch(f"on_{name}", obj)
                     __modify_guild_cache()
 
-                elif "_update" in name and hasattr(obj, "id"):
+                elif "_update" in name:
+                    self._dispatch.dispatch(f"on_raw_{name}", obj)
+                    if not id:
+                        return
                     old_obj = self._http.cache[model].get(id)
-
                     if old_obj:
                         before = model(**old_obj._json)
                         old_obj.update(**obj._json)
-
-                        _cache.add(old_obj, id)
                     else:
                         before = None
                         old_obj = obj
+
+                    _cache.add(old_obj, id)
                     __modify_guild_cache()
 
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
-                    return
 
                 elif "_remove" in name or "_delete" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
@@ -496,12 +488,14 @@ class WebSocketClient:
                     if id:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
+                    elif "_delete_bulk" in name:
+                        self._dispatch.dispatch(f"on_{name}", obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
             except AttributeError as error:
-                log.fatal(f"An error occured dispatching {name}: {error}")
+                log.warning(f"An error occurred dispatching {name}: {error}")
 
     def __contextualize(self, data: dict) -> "_Context":
         """

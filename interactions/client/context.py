@@ -255,7 +255,7 @@ class _Context(ClientSerializerMixin):
 
         if self.message.components is not None or components is not MISSING:
             if components is MISSING:
-                _components = self.message.components
+                _components = _build_components(components=self.message.components)
             elif not components:
                 _components = []
             else:

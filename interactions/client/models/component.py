@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from ...api.error import LibraryException
 from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
-from ...api.models.message import Emoji
+from ...api.models.emoji import Emoji
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 __all__ = (
@@ -229,7 +229,6 @@ class TextInput(ComponentMixin):
 class Modal(ComponentMixin):
     """
     A class object representing a modal.
-
     The structure for a modal: ::
         interactions.Modal(
             title="Application Form",
@@ -266,7 +265,8 @@ class ActionRow(ComponentMixin):
         An ActionRow may also support only 1 text input component
         only.
 
-    The structure for an action row: ::
+    The structure for an action row:
+    ..code-block:: python
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
@@ -411,6 +411,9 @@ def _build_components(components) -> List[dict]:
             raise LibraryException(
                 11, message="The specified components are invalid and could not be created!"
             )
+
+    if not components:
+        return components
 
     _components = __check_action_row()
 

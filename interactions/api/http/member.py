@@ -1,9 +1,9 @@
 from typing import List, Optional
 
 from ...api.cache import Cache
-from ...api.models.guild import Guild
-from ...api.models.member import Member
-from ...api.models.misc import Snowflake
+from ..models.guild import Guild
+from ..models.member import Member
+from ..models.misc import Snowflake
 from .request import _Request
 from .route import Route
 

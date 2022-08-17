@@ -163,7 +163,8 @@ class _Request:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
                     if isinstance(data, dict) and (
-                        data.get("errors") or (data.get("code") and data.get("code") != 429)
+                        data.get("errors")
+                        or ((code := data.get("code")) and code != 429 and data.get("message"))
                     ):
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
