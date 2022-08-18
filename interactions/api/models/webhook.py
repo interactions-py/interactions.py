@@ -180,7 +180,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         avatar_url: Optional[str] = MISSING,
         tts: Optional[bool] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Optional[AllowedMentions] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
@@ -214,7 +214,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]
         :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[AllowedMentions]
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components: the components to include with the message
         :type components: Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         :param files: The files to attach to the message
@@ -240,7 +240,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
 
         if not components or components is MISSING:
             _components = []

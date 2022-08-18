@@ -845,7 +845,7 @@ class Message(ClientSerializerMixin, IDMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         suppress_embeds: Optional[bool] = MISSING,
-        allowed_mentions: Optional[AllowedMentions] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
@@ -873,7 +873,7 @@ class Message(ClientSerializerMixin, IDMixin):
         :param suppress_embeds?: Whether to suppress embeds in the message.
         :type suppress_embeds?: Optional[bool]
         :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[AllowedMentions]
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments?: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
@@ -921,7 +921,7 @@ class Message(ClientSerializerMixin, IDMixin):
             else []
         )
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
             _components = []
@@ -960,7 +960,7 @@ class Message(ClientSerializerMixin, IDMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
-        allowed_mentions: Optional[AllowedMentions] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
@@ -987,7 +987,7 @@ class Message(ClientSerializerMixin, IDMixin):
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[AllowedMentions]
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components?: A component, or list of components for the message.
         :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
@@ -1008,7 +1008,7 @@ class Message(ClientSerializerMixin, IDMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
         _message_reference = MessageReference(message_id=int(self.id))._json
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         if not components or components is MISSING:

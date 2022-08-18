@@ -222,7 +222,7 @@ class Member(ClientSerializerMixin, IDMixin):
         attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Optional[AllowedMentions] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
     ) -> "Message":
         """
         Sends a DM to the member.
@@ -240,7 +240,7 @@ class Member(ClientSerializerMixin, IDMixin):
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[AllowedMentions]
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -257,7 +257,7 @@ class Member(ClientSerializerMixin, IDMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json
+        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
         if not components or components is MISSING:
             _components = []
         else:

@@ -26,7 +26,7 @@ class MessageRequest:
         tts: bool = False,
         embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
-        allowed_mentions: Optional[AllowedMentions] = None,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = None,
         message_reference: Optional[Message] = None,
         stickers: Optional[List[Sticker]] = None,
     ) -> dict:
@@ -49,7 +49,7 @@ class MessageRequest:
             payload["nonce"] = nonce
 
         if allowed_mentions:
-            payload["allowed_mentions"] = allowed_mentions._json
+            payload["allowed_mentions"] = allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
 
         if message_reference:
             payload["message_reference"] = message_reference
