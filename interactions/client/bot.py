@@ -1,7 +1,6 @@
 import contextlib
 import re
 import sys
-import traceback
 from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
@@ -391,13 +390,23 @@ class Client:
                 log.debug("Client is now ready.")
                 await self._login()
 
+    async def _stop(self) -> None:
+        """Stops the websocket connection gracefully."""
+
+        log.debug("Shutting down the client....")
+        self._websocket.ready.clear()  # Clears ready state.
+        self._websocket._closing_lock.set()  # Toggles the "ready-to-shutdown" state for the bot.
+        # And subsequently, the processes will close itself.
+
+        await self._http._req._session.close()  # Closes the HTTP session associated with the client.
+
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
 
         try:
             await self._websocket.run()
         except Exception as e:
-            log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
+            log.exception(f"Websocket have raised an exception, closing because of: {e}")
 
             if self._websocket._closing_lock.is_set():
                 # signal for closing.

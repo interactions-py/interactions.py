@@ -807,8 +807,8 @@ class WebSocketClient:
             await self._ratelimiter.block()
 
         self._last_send = perf_counter()
-        await self._client.send_str(packet)
         log.debug(packet)
+        await self._client.send_str(packet)
 
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
