@@ -393,8 +393,6 @@ class Client:
 
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
-        # while not self._websocket._closed:
-        #     await self._websocket._establish_connection(self._shards, self._presence)
 
         try:
             await self._websocket.run()
@@ -408,7 +406,8 @@ class Client:
                     if self._websocket.__task is not None:
                         self._websocket.__heartbeat_event.set()
                         try:
-                            await self._websocket.__task  # Wait for the keep-alive handler to finish so we can discard it gracefully
+                            # Wait for the keep-alive handler to finish so we can discard it gracefully
+                            await self._websocket.__task
                         finally:
                             self._websocket.__task = None
                 finally:  # then the overall WS client
