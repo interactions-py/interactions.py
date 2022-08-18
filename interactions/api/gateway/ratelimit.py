@@ -47,7 +47,7 @@ class WSRateLimit:
     @property
     def delay(self) -> float:
         """
-        A function that calculates how long we need to wait for ratelimit to pass, if any.
+        An attribute that reflects how long we need to wait for ratelimit to pass, if any.
 
         :return: How long to wait in seconds, if any. Defaults to ``0.0``.
         :rtype: float
