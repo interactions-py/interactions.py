@@ -194,7 +194,7 @@ class WebSocketClient:
             await self._manage_heartbeat()
         except Exception:
             self._closing_lock.set()
-            log.error("Heartbeater exception: ", exc_info=True)
+            log.exception("Heartbeater exception.")
 
     async def _manage_heartbeat(self) -> None:
         """Manages the heartbeat loop."""
@@ -690,7 +690,7 @@ class WebSocketClient:
 
     async def _reconnect(self, to_resume: bool, code: Optional[int] = 1012) -> None:
         """
-        Restart the client's connection and heartbeat with the Gateway.
+        Restarts the client's connection and heartbeat with the Gateway.
         """
 
         self._ready.clear()

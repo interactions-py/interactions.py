@@ -405,8 +405,8 @@ class Client:
 
         try:
             await self._websocket.run()
-        except Exception as e:
-            log.exception(f"Websocket have raised an exception, closing because of: {e}")
+        except Exception:
+            log.exception("Websocket have raised an exception, closing.")
 
             if self._websocket._closing_lock.is_set():
                 # signal for closing.
