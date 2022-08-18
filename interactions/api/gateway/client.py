@@ -748,10 +748,15 @@ class WebSocketClient:
             if packet.type == WSMsgType.CLOSE:
                 log.debug(f"Disconnecting from gateway = {packet.data}::{packet.extra}")
 
-                if packet.data >= 4000:
+                if (
+                    packet.data >= 4000 and packet.data != 4001
+                ):  # suppress 4001 because of weird presence errors
                     # This means that the error code is 4000+, which may signify Discord-provided error codes.
-                    raise LibraryException(packet.data)  # Works because gateway!!
-                    # We need to work on __aexit__ / __aentry__ though, since we're not using the ws request manager.
+
+                    # However, we suppress 4001 because of weird presence errors with change_presence
+                    # The payload is correct, and the presence object persists. /shrug
+
+                    raise LibraryException(packet.data)
 
                 if ignore_lock:
                     raise LibraryException(
