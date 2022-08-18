@@ -198,7 +198,7 @@ class WebSocketClient:
 
     async def _manage_heartbeat(self) -> None:
         """Manages the heartbeat loop."""
-        log.debug(f"Sending heartbeat every {self.__heartbeater.delay} seconds...")
+        log.debug(f"Sending heartbeat every {self.__heartbeater.delay / 1000} seconds...")
         while not self.__heartbeat_event.is_set():
 
             log.debug("Sending heartbeat...")
