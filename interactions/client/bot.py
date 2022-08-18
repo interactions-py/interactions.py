@@ -1,6 +1,7 @@
 import contextlib
 import re
 import sys
+import traceback
 from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction
 from functools import wraps
 from importlib import import_module
@@ -392,8 +393,31 @@ class Client:
 
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
-        while not self._websocket._closed:
-            await self._websocket._establish_connection(self._shards, self._presence)
+        # while not self._websocket._closed:
+        #     await self._websocket._establish_connection(self._shards, self._presence)
+
+        try:
+            await self._websocket.run()
+        except Exception as e:
+            log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
+
+            if self._websocket._closing_lock.is_set():
+                # signal for closing.
+
+                try:
+                    if self._websocket.__task is not None:
+                        self._websocket.__heartbeat_event.set()
+                        try:
+                            await self._websocket.__task  # Wait for the keep-alive handler to finish so we can discard it gracefully
+                        finally:
+                            self._websocket.__task = None
+                finally:  # then the overall WS client
+                    if self._websocket._client is not None:
+                        # This needs to be properly closed
+                        try:
+                            await self._websocket._client.close(code=1000)
+                        finally:
+                            self._websocket._client = None
 
     async def wait_until_ready(self) -> None:
         """Helper method that waits until the websocket is ready."""

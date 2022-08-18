@@ -4,14 +4,16 @@ except ImportError:
     from json import dumps, loads
 
 from asyncio import (
+    FIRST_COMPLETED,
     Event,
     Lock,
     Task,
     TimeoutError,
-    ensure_future,
+    create_task,
     get_event_loop,
     get_running_loop,
     new_event_loop,
+    wait,
     wait_for,
 )
 from sys import platform, version_info
@@ -101,7 +103,10 @@ class WebSocketClient:
         "_last_send",
         "_last_ack",
         "resume_url",
+        "ws_url",
         "reconnect_lock",
+        "_closing_lock",  # document closing for gateway
+        "__stopping",
     )
 
     def __init__(
@@ -142,6 +147,7 @@ class WebSocketClient:
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
+            "headers": {"User-Agent": self._http._req._headers["User-Agent"]},
         }
 
         self._intents: Intents = intents
@@ -160,7 +166,12 @@ class WebSocketClient:
         self._last_ack: float = perf_counter()
 
         self.resume_url: Optional[str] = None
+        self.ws_url: Optional[str] = None
         self.reconnect_lock = Lock(loop=self._loop) if version_info < (3, 10) else Lock()
+
+        self._closing_lock = Event(loop=self._loop) if version_info < (3, 10) else Event()
+
+        self.__stopping: Optional[Task] = None
 
     @property
     def latency(self) -> float:
@@ -169,14 +180,31 @@ class WebSocketClient:
         """
         return self._last_ack - self._last_send
 
+    async def run_heartbeat(self) -> None:
+        """Controls the heartbeat manager. Do note that this shouldn't be executed by outside processes."""
+
+        if self.__heartbeat_event.is_set():  # resets task of heartbeat event mgr loop
+            # Because we're hardresetting the process every instance its called, also helps with recursion
+            self.__heartbeat_event.clear()
+
+        if not self.__heartbeater.event.is_set():  # resets task of heartbeat ack event
+            self.__heartbeater.event.set()
+
+        try:
+            await self._manage_heartbeat()
+        except Exception:
+            self._closing_lock.set()
+            log.error("Heartbeater exception: ", exc_info=True)
+
     async def _manage_heartbeat(self) -> None:
         """Manages the heartbeat loop."""
         log.debug(f"Sending heartbeat every {self.__heartbeater.delay} seconds...")
         while not self.__heartbeat_event.is_set():
 
+            log.debug("Sending heartbeat...")
             if not self.__heartbeater.event.is_set():
                 log.debug("HEARTBEAT_ACK missing, reconnecting...")
-                await self.__restart()  # resume here.
+                await self._reconnect(True)  # resume here.
 
             self.__heartbeater.event.clear()
             await self.__heartbeat()
@@ -190,6 +218,7 @@ class WebSocketClient:
                 continue  # Then we can check heartbeat ack this way and then like it autorestarts.
             else:
                 return  # break loop because something went wrong.
+        log.debug("Somehow it reaches here (if in process please fix)")
 
     async def __restart(self) -> None:
         """Restart the client's connection and heartbeat with the Gateway."""
@@ -238,6 +267,97 @@ class WebSocketClient:
 
                 await self._handle_connection(stream, shard, presence)
 
+    async def run(self) -> None:
+        """
+        Handles the client's connection with the Gateway.
+        """
+
+        url = await self._http.get_gateway()
+        self.ws_url = url
+        self._client = await self._http._req._session.ws_connect(url, **self._options)
+
+        data = await self.__receive_packet(True)  # First data is the hello packet.
+
+        self.__heartbeater.delay = data["d"]["heartbeat_interval"]
+
+        self.__task = create_task(self.run_heartbeat())
+
+        await self.__identify(self.__shard, self.__presence)
+
+        self.__closed.set()
+        self.__heartbeater.event.set()
+
+        while True:
+            if self.__stopping is None:
+                self.__stopping = create_task(self._closing_lock.wait())
+            _receive = create_task(self.__receive_packet())
+
+            done, _ = await wait({self.__stopping, _receive}, return_when=FIRST_COMPLETED)
+            # Using asyncio.wait to find which one reaches first, when its *closed* or when a message is
+            # *received*
+
+            if _receive in done:
+                msg = await _receive
+            else:
+                await self.__stopping
+                _receive.cancel()
+                return
+
+            await self._handle_stream(msg)
+
+    async def _handle_stream(self, stream: Dict[str, Any]):
+        """
+        Parses raw stream data recieved from the Gateway, including Gateway opcodes and events.
+
+        .. note ::
+            This should never be called directly.
+
+        :param stream: The packet stream to handle.
+        :type stream: Dict[str, Any]
+        """
+        op: Optional[int] = stream.get("op")
+        event: Optional[str] = stream.get("t")
+        data: Optional[Dict[str, Any]] = stream.get("d")
+
+        seq: Optional[str] = stream.get("s")
+        if seq:
+            self.sequence = seq
+
+        if op != OpCodeType.DISPATCH:
+            log.debug(data)
+
+            if op == OpCodeType.HEARTBEAT:
+                await self.__heartbeat()
+            if op == OpCodeType.HEARTBEAT_ACK:
+                self._last_ack = perf_counter()
+                log.debug("HEARTBEAT_ACK")
+                self.__heartbeater.event.set()
+
+            if op == OpCodeType.INVALIDATE_SESSION:
+                log.debug("INVALID_SESSION")
+                self.ready.clear()
+                await self._reconnect(bool(data))
+
+            if op == OpCodeType.RECONNECT:
+                log.debug("RECONNECT")
+                await self._reconnect(True)
+
+        elif event == "RESUMED":
+            log.debug(f"RESUMED (session_id: {self.session_id}, seq: {self.sequence})")
+        elif event == "READY":
+            self.ready.set()
+            self._dispatch.dispatch("on_ready")
+            self._ready = data
+            self.session_id = data["session_id"]
+            self.resume_url = data["resume_gateway_url"]
+            if not self.__started:
+                self.__started = True
+                self._dispatch.dispatch("on_start")
+            log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
+        else:
+            log.debug(f"{event}: {str(data).encode('utf-8')}")
+            self._dispatch_event(event, data)
+
     async def _handle_connection(
         self,
         stream: Dict[str, Any],
@@ -266,48 +386,58 @@ class WebSocketClient:
             log.debug(data)
 
             if op == OpCodeType.HELLO:
-                self.__heartbeater.delay = data["heartbeat_interval"]
-                self.__heartbeater.event.set()
-
-                if self.__task:
-                    self.__task.cancel()  # so we can reduce redundant heartbeat bg tasks.
-
-                self.__task = ensure_future(self._manage_heartbeat())
-
-                if not self.session_id:
-                    await self.__identify(shard, presence)
-                else:
-                    await self.__resume()
+                ...
+                # self.__heartbeater.delay = data["heartbeat_interval"]
+                # self.__heartbeater.event.set()
+            #
+            # if self.__task:
+            #     self.__task.cancel()  # so we can reduce redundant heartbeat bg tasks.
+            #
+            # self.__task = ensure_future(self._manage_heartbeat())
+            #
+            # if not self.session_id:
+            #     await self.__identify(shard, presence)
+            # else:
+            #     await self.__resume()
             if op == OpCodeType.HEARTBEAT:
                 await self.__heartbeat()
             if op == OpCodeType.HEARTBEAT_ACK:
                 self._last_ack = perf_counter()
                 log.debug("HEARTBEAT_ACK")
                 self.__heartbeater.event.set()
-            if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
-                log.debug("INVALID_SESSION/RECONNECT")
 
-                # if data and op != OpCodeType.RECONNECT:
-                #    self.session_id = None
-                #    self.sequence = None
-                # self._closed = True
+            if op == OpCodeType.INVALIDATE_SESSION:
+                log.debug("INVALID_SESSION")
+                await self._reconnect(bool(data))
 
-                if not bool(data) and op == OpCodeType.INVALIDATE_SESSION:
-                    self.session_id = None
+            if op == OpCodeType.RECONNECT:
+                log.debug("RECONNECT")
+                await self._reconnect(True)
 
-                await self.__restart()
+            # if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
+            #     log.debug("INVALID_SESSION/RECONNECT")
+        #
+        #     # if data and op != OpCodeType.RECONNECT:
+        #     #    self.session_id = None
+        #     #    self.sequence = None
+        #     # self._closed = True
+        #
+        #     if not bool(data) and op == OpCodeType.INVALIDATE_SESSION:
+        #         self.session_id = None
+        #
+        #     await self.__restart()
         elif event == "RESUMED":
             log.debug(f"RESUMED (session_id: {self.session_id}, seq: {self.sequence})")
         elif event == "READY":
+            self.ready.set()
+            self._dispatch.dispatch("on_ready")
             self._ready = data
             self.session_id = data["session_id"]
-            self._dispatch.dispatch("on_ready")
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
                 self.__started = True
                 self._dispatch.dispatch("on_start")
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
-            self.ready.set()
         else:
             log.debug(f"{event}: {str(data).encode('utf-8')}")
             self._dispatch_event(event, data)
@@ -696,6 +826,8 @@ class WebSocketClient:
         Restart the client's connection and heartbeat with the Gateway.
         """
 
+        self._ready.clear()
+
         async with self.reconnect_lock:
             self.__closed.clear()
 
@@ -705,12 +837,29 @@ class WebSocketClient:
             self._client = None
 
             if not to_resume:
-                self.session_id = None
-                url = self._http.get_gateway()
+                url = self.ws_url if self.ws_url else await self._http.get_gateway()
             else:
+                log.info("resuming...")
                 url = self.resume_url
 
             self._client = await self._http._req._session.ws_connect(url, **self._options)
+
+            data = await self.__receive_packet(True)  # First data is the hello packet.
+
+            self.__heartbeater.delay = data["d"]["heartbeat_interval"]
+
+            if self.__task:
+                log.debug("Heartbeat manager reset...")
+                self.__task.cancel()
+                if self.__heartbeat_event.is_set():
+                    self.__heartbeat_event.clear()  # Because we're hardresetting the process
+
+                self.__task = create_task(self.run_heartbeat())
+
+            if not to_resume:
+                await self.__identify(self.__shard, self.__presence)
+            else:
+                await self.__resume()
 
             self.__closed.set()
             self.__heartbeat_event.set()
@@ -739,7 +888,7 @@ class WebSocketClient:
 
         return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
-    async def __receive_packet(self) -> Optional[Dict[str, Any]]:
+    async def __receive_packet(self, ignore_lock: bool = False) -> Optional[Dict[str, Any]]:
         """
         Receives a stream of packets sent from the Gateway in an async process.
 
@@ -748,6 +897,11 @@ class WebSocketClient:
         """
 
         while True:
+
+            if not ignore_lock:
+                # meaning if we're reconnecting or something because of tasks
+                await self.__closed.wait()
+
             packet: WSMessage = await self._client.receive()
 
             if packet.type == WSMsgType.CLOSE:
@@ -758,20 +912,44 @@ class WebSocketClient:
                     raise LibraryException(packet.data)  # Works because gateway!!
                     # We need to work on __aexit__ / __aentry__ though, since we're not using the ws request manager.
 
+                if ignore_lock:
+                    raise LibraryException(
+                        message="Discord unexpectedly wants to close the WS on receiving by force.",
+                        severity=50,
+                    )
+
                 await self._reconnect(packet.data != 1000, packet.data)
+                continue
 
             elif packet.type == WSMsgType.CLOSED:
                 # We need to wait/reconnect depending about other event holders.
 
+                if ignore_lock:
+                    raise LibraryException(
+                        message="Discord unexpectedly closed on receiving by force.", severity=50
+                    )
+
                 if not self.__closed.is_set():
                     await self.__closed.wait()
+
+                    # Edge case on force reconnecting if we dont
                 else:
                     await self._reconnect(True)
 
             elif packet.type == WSMsgType.CLOSING:
-                await self.__closed.wait()
 
-            return loads(packet.data) if packet and isinstance(packet.data, str) else None
+                if ignore_lock:
+                    raise LibraryException(
+                        message="Discord unexpectedly closing on receiving by force.", severity=50
+                    )
+
+                await self.__closed.wait()
+                continue
+
+            if packet.data is None:
+                continue  # We just loop it over because it could just be processing something.
+
+            return loads(packet.data) if isinstance(packet.data, str) else None
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
@@ -782,7 +960,11 @@ class WebSocketClient:
         """
         _data = dumps(data) if isinstance(data, dict) else data
         packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
-        await self._ratelimiter.block()
+
+        if data["op"] != OpCodeType.HEARTBEAT:
+            # This is because the ratelimiter limits already accounts for this.
+            await self._ratelimiter.block()
+
         self._last_send = perf_counter()
         await self._client.send_str(packet)
         log.debug(packet)

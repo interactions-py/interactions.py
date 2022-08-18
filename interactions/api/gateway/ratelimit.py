@@ -13,10 +13,10 @@ class WSRateLimit:
 
     .. note ::
         While the docs state that the Gateway ratelimits are 120/60 (120 requests per 60 seconds),
-        this ratelimit offsets to 110 instead of 120 for room.
+        this ratelimit offsets to 115 instead of 120 for room.
 
     :ivar Lock lock: The gateway Lock object.
-    :ivar int max: The upper limit of the ratelimit. Defaults to `110` seconds.
+    :ivar int max: The upper limit of the ratelimit. Defaults to `115` seconds.
     :ivar int remaining: How many requests are left per ``per_second``. This is automatically decremented and reset.
     :ivar float current_limit: When this cooldown session began. This is defined automatically.
     :ivar float per_second: A constant denoting how many requests can be done per unit of seconds. (i.e., per 60 seconds, per 45, etc.)
@@ -24,9 +24,9 @@ class WSRateLimit:
 
     def __init__(self, loop=Optional[asyncio.AbstractEventLoop]):
         self.lock = asyncio.Lock(loop=loop) if version_info < (3, 10) else asyncio.Lock()
-        # To conserve timings, we need to do 110/60
+        # To conserve timings, we need to do 115/60
 
-        self.max = self.remaining = 110
+        self.max = self.remaining = 115
         self.per_second = 60.0
         self.current_limit = 0.0
 
