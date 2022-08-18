@@ -21,7 +21,6 @@ from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
-from aiohttp.http import WS_CLOSED_MESSAGE, WS_CLOSING_MESSAGE
 
 from ...base import get_logger
 from ...client.enums import InteractionType, OptionType
@@ -61,7 +60,7 @@ class WebSocketClient:
     :ivar WSRateLimit _ratelimiter: The websocket ratelimiter object.
     :ivar HTTPClient _http: The user-facing HTTP client.
     :ivar ClientWebSocketResponse _client: The WebSocket data of the connection.
-    :ivar bool _closed: Whether the connection has been closed or not.
+    :ivar Event __closed: Whether the connection has been closed or not.
     :ivar dict _options: The connection options made during connection.
     :ivar Intents _intents: The gateway intents used for connection.
     :ivar dict _ready: The contents of the application returned when ready.
@@ -70,14 +69,17 @@ class WebSocketClient:
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Event ready: The ready state of the client as an ``asyncio.Event``.
-    :ivar Task __task: The closing task for ending connections.
+    :ivar Task __task: The task containing the heartbeat manager process.
     :ivar bool __started: Whether the client has started.
     :ivar Optional[str] session_id: The ID of the ongoing session.
     :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
     :ivar float _last_send: The latest time of the last send_packet function call since connection creation, in seconds.
     :ivar float _last_ack: The latest time of the last ``HEARTBEAT_ACK`` event since connection creation, in seconds.
     :ivar Optional[str] resume_url: The Websocket ratelimit URL for resuming connections, if any.
+    :ivar Optional[str] ws_url: The Websocket URL for instantiating connections without resuming.
     :ivar Lock reconnect_lock: The lock used for reconnecting the client.
+    :ivar Lock _closing_lock: The lock used for closing the client.
+    :ivar Optional[Task] __stopping: The task containing stopping the client, if any.
     """
 
     __slots__ = (
@@ -86,7 +88,6 @@ class WebSocketClient:
         "_ratelimiter",
         "_http",
         "_client",
-        "_closed",
         "__closed",  # placeholder to work with variables atm. its event variant of "_closed"
         "_options",
         "_intents",
@@ -105,7 +106,7 @@ class WebSocketClient:
         "resume_url",
         "ws_url",
         "reconnect_lock",
-        "_closing_lock",  # document closing for gateway
+        "_closing_lock",
         "__stopping",
     )
 
@@ -140,7 +141,6 @@ class WebSocketClient:
         self._http: HTTPClient = HTTPClient(token)
         self._client: Optional["ClientWebSocketResponse"] = None
 
-        self._closed: bool = False
         self.__closed: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
         self._options: dict = {
             "max_msg_size": 1024**2,
@@ -218,59 +218,13 @@ class WebSocketClient:
                 continue  # Then we can check heartbeat ack this way and then like it autorestarts.
             else:
                 return  # break loop because something went wrong.
-        log.debug("Somehow it reaches here (if in process please fix)")
-
-    async def __restart(self) -> None:
-        """Restart the client's connection and heartbeat with the Gateway."""
-        if self.__task:
-            self.__task.cancel()
-        self._client = None  # clear pending waits
-        self.__heartbeater.event.clear()
-        await self._establish_connection(self.__shard, self.__presence)
-
-    async def _establish_connection(
-        self,
-        shard: Optional[List[Tuple[int]]] = MISSING,
-        presence: Optional[ClientPresence] = MISSING,
-    ) -> None:
-        """
-        Establishes a client connection with the Gateway.
-
-        :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard?: Optional[List[Tuple[int]]]
-        :param presence: The presence to carry with. Defaults to ``None``.
-        :type presence: Optional[ClientPresence]
-        """
-        self._client = None
-        self.__heartbeater.delay = 0.0
-        self._closed = False
-        self._options["headers"] = {"User-Agent": self._http._req._headers["User-Agent"]}
-        url = self.resume_url if self.resume_url else await self._http.get_gateway()
-
-        async with self._http._req._session.ws_connect(url, **self._options) as self._client:
-            self._closed = self._client.closed
-
-            if self._closed:
-                await self._establish_connection(self.__shard, self.__presence)
-
-            while not self._closed:
-                stream = await self.__receive_packet_stream
-
-                if stream is None:
-                    continue
-                if self._client is None or stream == WS_CLOSED_MESSAGE or stream == WSMsgType.CLOSE:
-                    await self._establish_connection(self.__shard, self.__presence)
-                    break
-
-                if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
-                    raise LibraryException(self._client.close_code)
-
-                await self._handle_connection(stream, shard, presence)
 
     async def run(self) -> None:
         """
         Handles the client's connection with the Gateway.
         """
+
+        # Credit to NAFF for inspiration for the Gateway logic.
 
         url = await self._http.get_gateway()
         self.ws_url = url
@@ -342,90 +296,6 @@ class WebSocketClient:
                 log.debug("RECONNECT")
                 await self._reconnect(True)
 
-        elif event == "RESUMED":
-            log.debug(f"RESUMED (session_id: {self.session_id}, seq: {self.sequence})")
-        elif event == "READY":
-            self.ready.set()
-            self._dispatch.dispatch("on_ready")
-            self._ready = data
-            self.session_id = data["session_id"]
-            self.resume_url = data["resume_gateway_url"]
-            if not self.__started:
-                self.__started = True
-                self._dispatch.dispatch("on_start")
-            log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
-        else:
-            log.debug(f"{event}: {str(data).encode('utf-8')}")
-            self._dispatch_event(event, data)
-
-    async def _handle_connection(
-        self,
-        stream: Dict[str, Any],
-        shard: Optional[List[Tuple[int]]] = MISSING,
-        presence: Optional[ClientPresence] = MISSING,
-    ) -> None:
-        """
-        Handles the client's connection with the Gateway.
-
-        :param stream: The packet stream to handle.
-        :type stream: Dict[str, Any]
-        :param shard?: The shards to establish a connection with. Defaults to ``None``.
-        :type shard?: Optional[List[Tuple[int]]]
-        :param presence: The presence to carry with. Defaults to ``None``.
-        :type presence: Optional[ClientPresence]
-        """
-        op: Optional[int] = stream.get("op")
-        event: Optional[str] = stream.get("t")
-        data: Optional[Dict[str, Any]] = stream.get("d")
-
-        seq: Optional[str] = stream.get("s")
-        if seq:
-            self.sequence = seq
-
-        if op != OpCodeType.DISPATCH:
-            log.debug(data)
-
-            if op == OpCodeType.HELLO:
-                ...
-                # self.__heartbeater.delay = data["heartbeat_interval"]
-                # self.__heartbeater.event.set()
-            #
-            # if self.__task:
-            #     self.__task.cancel()  # so we can reduce redundant heartbeat bg tasks.
-            #
-            # self.__task = ensure_future(self._manage_heartbeat())
-            #
-            # if not self.session_id:
-            #     await self.__identify(shard, presence)
-            # else:
-            #     await self.__resume()
-            if op == OpCodeType.HEARTBEAT:
-                await self.__heartbeat()
-            if op == OpCodeType.HEARTBEAT_ACK:
-                self._last_ack = perf_counter()
-                log.debug("HEARTBEAT_ACK")
-                self.__heartbeater.event.set()
-
-            if op == OpCodeType.INVALIDATE_SESSION:
-                log.debug("INVALID_SESSION")
-                await self._reconnect(bool(data))
-
-            if op == OpCodeType.RECONNECT:
-                log.debug("RECONNECT")
-                await self._reconnect(True)
-
-            # if op in (OpCodeType.INVALIDATE_SESSION, OpCodeType.RECONNECT):
-            #     log.debug("INVALID_SESSION/RECONNECT")
-        #
-        #     # if data and op != OpCodeType.RECONNECT:
-        #     #    self.session_id = None
-        #     #    self.sequence = None
-        #     # self._closed = True
-        #
-        #     if not bool(data) and op == OpCodeType.INVALIDATE_SESSION:
-        #         self.session_id = None
-        #
-        #     await self.__restart()
         elif event == "RESUMED":
             log.debug(f"RESUMED (session_id: {self.session_id}, seq: {self.sequence})")
         elif event == "READY":
@@ -818,9 +688,6 @@ class WebSocketClient:
             }
         return _resolved
 
-    async def restart(self) -> None:
-        await self.__restart()
-
     async def _reconnect(self, to_resume: bool, code: Optional[int] = 1012) -> None:
         """
         Restart the client's connection and heartbeat with the Gateway.
@@ -839,7 +706,6 @@ class WebSocketClient:
             if not to_resume:
                 url = self.ws_url if self.ws_url else await self._http.get_gateway()
             else:
-                log.info("resuming...")
                 url = self.resume_url
 
             self._client = await self._http._req._session.ws_connect(url, **self._options)
@@ -849,7 +715,6 @@ class WebSocketClient:
             self.__heartbeater.delay = data["d"]["heartbeat_interval"]
 
             if self.__task:
-                log.debug("Heartbeat manager reset...")
                 self.__task.cancel()
                 if self.__heartbeat_event.is_set():
                     self.__heartbeat_event.clear()  # Because we're hardresetting the process
@@ -863,30 +728,6 @@ class WebSocketClient:
 
             self.__closed.set()
             self.__heartbeat_event.set()
-
-    @property
-    async def __receive_packet_stream(self) -> Optional[Union[Dict[str, Any], WSMessage]]:
-        """
-        Receives a stream of packets sent from the Gateway.
-
-        :return: The packet stream.
-        :rtype: Optional[Dict[str, Any]]
-        """
-
-        packet: WSMessage = await self._client.receive()
-
-        if packet == WSMsgType.CLOSE:
-            await self._client.close()
-            return packet
-
-        elif packet == WS_CLOSED_MESSAGE:
-            return packet
-
-        elif packet == WS_CLOSING_MESSAGE:
-            await self._client.close()
-            return WS_CLOSED_MESSAGE
-
-        return loads(packet.data) if packet and isinstance(packet.data, str) else None
 
     async def __receive_packet(self, ignore_lock: bool = False) -> Optional[Dict[str, Any]]:
         """
