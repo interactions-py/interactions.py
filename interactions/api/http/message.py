@@ -49,7 +49,11 @@ class MessageRequest:
             payload["nonce"] = nonce
 
         if allowed_mentions:
-            payload["allowed_mentions"] = allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
+            payload["allowed_mentions"] = (
+                allowed_mentions._json
+                if isinstance(allowed_mentions, AllowedMentions)
+                else allowed_mentions
+            )
 
         if message_reference:
             payload["message_reference"] = message_reference

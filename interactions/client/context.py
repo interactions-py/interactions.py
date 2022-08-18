@@ -157,7 +157,13 @@ class _Context(ClientSerializerMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
 
         if components is not MISSING and components:
             # components could be not missing but an empty list
@@ -247,7 +253,13 @@ class _Context(ClientSerializerMixin):
 
             payload["attachments"] = _attachments
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
         payload["allowed_mentions"] = _allowed_mentions

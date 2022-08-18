@@ -12,7 +12,7 @@ from .attrs_utils import (
     field,
 )
 from .flags import Permissions
-from .misc import File, IDMixin, Overwrite, Snowflake, AllowedMentions
+from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
 
@@ -241,7 +241,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _sticker_ids: list = (
             [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
         )

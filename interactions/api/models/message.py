@@ -921,7 +921,13 @@ class Message(ClientSerializerMixin, IDMixin):
             else []
         )
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
             _components = []
@@ -1008,7 +1014,13 @@ class Message(ClientSerializerMixin, IDMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions._json if isinstance(allowed_mentions, AllowedMentions) else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference = MessageReference(message_id=int(self.id))._json
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         if not components or components is MISSING:
