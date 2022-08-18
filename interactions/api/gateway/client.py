@@ -385,7 +385,7 @@ class WebSocketClient:
 
                 self._dispatch.dispatch("on_component", _context)
             elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                _name = f"autocomplete_{_context.data.id}"
+                _name = f"autocomplete_{_context.data.name}"
 
                 if _context.data._json.get("options"):
                     for option in _context.data.options:
