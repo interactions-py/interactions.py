@@ -748,9 +748,7 @@ class WebSocketClient:
             if packet.type == WSMsgType.CLOSE:
                 log.debug(f"Disconnecting from gateway = {packet.data}::{packet.extra}")
 
-                if (
-                    packet.data >= 4000 and packet.data != 4001
-                ):  # suppress 4001 because of weird presence errors
+                if packet.data >= 4000:  # suppress 4001 because of weird presence errors
                     # This means that the error code is 4000+, which may signify Discord-provided error codes.
 
                     # However, we suppress 4001 because of weird presence errors with change_presence
@@ -807,7 +805,7 @@ class WebSocketClient:
         _data = dumps(data) if isinstance(data, dict) else data
         packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
 
-        if data["op"] != OpCodeType.HEARTBEAT:
+        if data["op"] != OpCodeType.HEARTBEAT.value:
             # This is because the ratelimiter limits already accounts for this.
             await self._ratelimiter.block()
 
@@ -829,7 +827,7 @@ class WebSocketClient:
         self.__shard = shard
         self.__presence = presence
         payload: dict = {
-            "op": OpCodeType.IDENTIFY,
+            "op": OpCodeType.IDENTIFY.value,
             "d": {
                 "token": self._http.token,
                 "intents": self._intents.value,
@@ -853,7 +851,7 @@ class WebSocketClient:
     async def __resume(self) -> None:
         """Sends a ``RESUME`` packet to the gateway."""
         payload: dict = {
-            "op": OpCodeType.RESUME,
+            "op": OpCodeType.RESUME.value,
             "d": {"token": self._http.token, "seq": self.sequence, "session_id": self.session_id},
         }
         log.debug(f"RESUMING: {payload}")
@@ -862,7 +860,7 @@ class WebSocketClient:
 
     async def __heartbeat(self) -> None:
         """Sends a ``HEARTBEAT`` packet to the gateway."""
-        payload: dict = {"op": OpCodeType.HEARTBEAT, "d": self.sequence}
+        payload: dict = {"op": OpCodeType.HEARTBEAT.value, "d": self.sequence}
         await self._send_packet(payload)
         log.debug("HEARTBEAT")
 
@@ -888,7 +886,7 @@ class WebSocketClient:
         :param presence: The presence to change the bot to on identify.
         :type presence: ClientPresence
         """
-        payload: dict = {"op": OpCodeType.PRESENCE, "d": presence._json}
+        payload: dict = {"op": OpCodeType.PRESENCE.value, "d": presence._json}
         await self._send_packet(payload)
         log.debug(f"UPDATE_PRESENCE: {presence._json}")
         self.__presence = presence
