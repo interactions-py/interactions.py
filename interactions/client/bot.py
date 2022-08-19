@@ -412,13 +412,13 @@ class Client:
                 # signal for closing.
 
                 try:
-                    if self._websocket.__task is not None:
+                    if self._websocket._task is not None:
                         self._websocket.__heartbeat_event.set()
                         try:
                             # Wait for the keep-alive handler to finish so we can discard it gracefully
-                            await self._websocket.__task
+                            await self._websocket._task
                         finally:
-                            self._websocket.__task = None
+                            self._websocket._task = None
                 finally:  # then the overall WS client
                     if self._websocket._client is not None:
                         # This needs to be properly closed

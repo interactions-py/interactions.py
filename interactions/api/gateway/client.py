@@ -69,7 +69,7 @@ class WebSocketClient:
     :ivar Optional[List[Tuple[int]]] __shard: The shards used during connection.
     :ivar Optional[ClientPresence] __presence: The presence used in connection.
     :ivar Event ready: The ready state of the client as an ``asyncio.Event``.
-    :ivar Task __task: The task containing the heartbeat manager process.
+    :ivar Task _task: The task containing the heartbeat manager process.
     :ivar bool __started: Whether the client has started.
     :ivar Optional[str] session_id: The ID of the ongoing session.
     :ivar Optional[int] sequence: The sequence identifier of the ongoing session.
@@ -95,7 +95,7 @@ class WebSocketClient:
         "__heartbeater",
         "__shard",
         "__presence",
-        "__task",
+        "_task",
         "__heartbeat_event",
         "__started",
         "session_id",
@@ -154,7 +154,7 @@ class WebSocketClient:
         self.__shard: Optional[List[Tuple[int]]] = None
         self.__presence: Optional[ClientPresence] = None
 
-        self.__task: Optional[Task] = None
+        self._task: Optional[Task] = None
         self.__heartbeat_event = Event(loop=self._loop) if version_info < (3, 10) else Event()
         self.__started: bool = False
 
@@ -234,7 +234,7 @@ class WebSocketClient:
 
         self.__heartbeater.delay = data["d"]["heartbeat_interval"]
 
-        self.__task = create_task(self.run_heartbeat())
+        self._task = create_task(self.run_heartbeat())
 
         await self.__identify(self.__shard, self.__presence)
 
@@ -714,12 +714,12 @@ class WebSocketClient:
 
             self.__heartbeater.delay = data["d"]["heartbeat_interval"]
 
-            if self.__task:
-                self.__task.cancel()
+            if self._task:
+                self._task.cancel()
                 if self.__heartbeat_event.is_set():
                     self.__heartbeat_event.clear()  # Because we're hardresetting the process
 
-                self.__task = create_task(self.run_heartbeat())
+                self._task = create_task(self.run_heartbeat())
 
             if not to_resume:
                 await self.__identify(self.__shard, self.__presence)
