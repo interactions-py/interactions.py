@@ -15,4 +15,3 @@ __pycache__
 *.token
 *.pypirc
 *.code-workspace
-*.mo

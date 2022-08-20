@@ -2,7 +2,7 @@
 # Copyright (C) 2022, goverfl0w
 # This file is distributed under the same license as the interactions.py
 # package.
-# mAxYoLo01 - maxyolo01.ytb@gmail.com - mAxYoLo01#4491, 2022.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
@@ -11,12 +11,12 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: mAxYoLo01 - maxyolo01.ytb@gmail.com - mAxYoLo01#4491\n"
-"Language-Team: None\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: mAxYoLo01\n"
+"Generated-By: Babel 2.9.1\n"
 
 #: ../../api.http.rst:4
 msgid "HTTP"
@@ -24,33 +24,33 @@ msgstr ""
 
 #: interactions.api.http.route.Route:1 of
 msgid "A class representing how an HTTP route is structured."
-msgstr "Une classe représentant la structure d'une route HTTP."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient
 #: interactions.api.http.limiter.Limiter interactions.api.http.request._Request
 #: interactions.api.http.route.Route of
 msgid "Variables"
-msgstr "Variables"
+msgstr ""
 
 #: interactions.api.http.route.Route:3 of
 msgid "The HTTP route path."
-msgstr "Le chemin d'accès HTTP."
+msgstr ""
 
 #: interactions.api.http.route.Route:4 of
 msgid "The HTTP method."
-msgstr "La méthode HTTP."
+msgstr ""
 
 #: interactions.api.http.route.Route:5 of
 msgid "The URL path."
-msgstr "Le chemin URL."
+msgstr ""
 
 #: interactions.api.http.route.Route:6 of
 msgid "The channel ID from the bucket if given."
-msgstr "L'ID du canal du bucket, s'il est donné."
+msgstr ""
 
 #: interactions.api.http.route.Route:7 of
 msgid "The guild ID from the bucket if given."
-msgstr "L'ID du serveur du bucket, s'il est donné."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite
@@ -196,7 +196,7 @@ msgstr "L'ID du serveur du bucket, s'il est donné."
 #: interactions.api.http.webhook.WebhookRequest.get_webhook_message
 #: interactions.api.http.webhook.WebhookRequest.modify_webhook of
 msgid "Parameters"
-msgstr "Paramètres"
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest
 #: interactions.api.http.channel.ChannelRequest.create_channel
@@ -364,19 +364,17 @@ msgstr "Paramètres"
 #: interactions.api.http.webhook.WebhookRequest.get_webhook_message
 #: interactions.api.http.webhook.WebhookRequest.modify_webhook of
 msgid "Return type"
-msgstr "Type de retour"
+msgstr ""
 
 #: interactions.api.http.route.Route.get_bucket:1 of
 msgid ""
 "Returns the route's bucket. If shared_bucket is None, returns the path "
 "with major parameters. Otherwise, it relies on Discord's given bucket."
 msgstr ""
-"Renvoie le bucket de la route. Si shared_bucket est None, renvoie le chemin"
-"avec les paramètres majeurs. Sinon, il s'appuie sur le bucket donné par Discord."
 
 #: interactions.api.http.route.Route.get_bucket:4 of
 msgid "The bucket that Discord provides, if available."
-msgstr "Le bucket que Discord fournit, s'il y en a un."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite
@@ -476,153 +474,146 @@ msgstr "Le bucket que Discord fournit, s'il y en a un."
 #: interactions.api.http.webhook.WebhookRequest.get_webhook_message
 #: interactions.api.http.webhook.WebhookRequest.modify_webhook of
 msgid "Returns"
-msgstr "Retourne"
+msgstr ""
 
 #: interactions.api.http.route.Route.get_bucket:7 of
 msgid "The route bucket."
-msgstr "Le bucket de la route."
+msgstr ""
 
 #: interactions.api.http.route.Route.endpoint:1 of
 msgid "Returns the route's endpoint."
-msgstr "Retourne l'endpoint de la route."
+msgstr ""
 
 #: interactions.api.http.route.Route.endpoint:3 of
 msgid "The route endpoint."
-msgstr "L'endpoint de la route."
+msgstr ""
 
 #: interactions.api.http.limiter.Limiter:1 of
 msgid "A class representing a limitation for an HTTP request."
-msgstr "Une classe représentatn une limitation pour une requête HTTP."
+msgstr ""
 
 #: interactions.api.http.limiter.Limiter:3 of
 msgid "The \"lock\" or controller of the request."
-msgstr "Le \"lock\" ou contrôleur de la requête."
+msgstr ""
 
 #: interactions.api.http.limiter.Limiter:4 of
 msgid "The remaining time before the request can be ran."
-msgstr "Le temps restant avant que la requête puisse être exécutée."
+msgstr ""
 
 #: interactions.api.http.request._Request:1 of
 msgid "A class representing how HTTP requests are sent/read."
-msgstr "Une classe représentant la façon dont les requêtes HTTP "
-"sont lues/envoyées."
+msgstr ""
 
 #: interactions.api.http.request._Request:3 of
 msgid "The current application token."
-msgstr "Le token de l'application."
+msgstr ""
 
 #: interactions.api.http.request._Request:4 of
 msgid "The current coroutine event loop."
-msgstr "La boucle d'événement de la coroutine actuelle."
+msgstr ""
 
 #: interactions.api.http.request._Request:5 of
 msgid "The current per-route rate limiters from the API."
-msgstr "Les limiteurs par-route actuels de l'API."
+msgstr ""
 
 #: interactions.api.http.request._Request:6 of
 msgid "The current endpoint to shared_bucket cache from the API."
-msgstr "Le cache de l'API de l'endpoint actuel au shared_bucket."
+msgstr ""
 
 #: interactions.api.http.request._Request:7 of
 msgid "The current headers for an HTTP request."
-msgstr "Les headers actuels de la requête HTTP."
+msgstr ""
 
 #: interactions.api.http.request._Request:8 of
 msgid "The current session for making requests."
-msgstr "La session actuelle pour exécuter les requêtes."
+msgstr ""
 
 #: interactions.api.http.request._Request:9 of
 msgid "The global rate limiter."
-msgstr "Le limiteur global."
+msgstr ""
 
 #: interactions.api.http.request._Request._check_session:1 of
 msgid "Ensures that we have a valid connection session."
-msgstr "S'assure qu'il y a une session de connexion valide."
+msgstr ""
 
 #: interactions.api.http.request._Request._check_lock:1 of
 msgid "Checks the global lock for its current state."
-msgstr "Vérifie l'état actuel du lock global."
+msgstr ""
 
 #: interactions.api.http.request._Request.request:1 of
 msgid "Sends a request to the Discord API."
-msgstr "Envoie une requête à l'API Discord."
+msgstr ""
 
 #: interactions.api.http.request._Request.request:3 of
 msgid "The HTTP route to request."
-msgstr "La route HTTP de la requête."
+msgstr ""
 
 #: interactions.api.http.request._Request.request:5 of
 msgid "Optional keyword-only arguments to pass as information in the request."
-msgstr "Arguments nommés facultatifs à transmettre comme information dans la requête."
+msgstr ""
 
 #: interactions.api.http.request._Request.request:7 of
 msgid "The contents of the request if any."
-msgstr "Le contenu de la requête, s'il y en a."
+msgstr ""
 
 #: interactions.api.http.request._Request.close:1 of
 msgid "Closes the current session."
-msgstr "Ferme la session actuelle."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient:1 of
 msgid "The user-facing client of the Web API for individual endpoints."
-msgstr "Le client utilisateur de l'API Web pour les endpoints individuels."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient:3 of
 msgid "The token of the application."
-msgstr "Le token de l'application."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient:4 of
 msgid "The requesting interface for endpoints."
-msgstr "L'interface demandée pour les endpoints."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient:5 of
 msgid "The referenced cache."
-msgstr "Le cache référencé."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient.get_gateway:1 of
 msgid ""
 "This calls the Gateway endpoint and returns a v9 gateway link with JSON "
 "encoding."
 msgstr ""
-"Appelle l'endpoint de la gateway et retourne un lien de la v9 avec un encodage"
-"JSON."
 
 #: interactions.api.http.client.HTTPClient.get_bot_gateway:1 of
 msgid "This calls the BOT Gateway endpoint."
-msgstr "Appelle l'endpoint BOT de la gateway."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient.get_bot_gateway:3 of
 msgid "A tuple denoting (shard, gateway_url), url from API v9 and JSON encoding"
-msgstr "Un tuple indiquant (shard, gateway_url), URL de l'API v9 et encodage JSON."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient.login:1 of
 msgid ""
 "This 'logins' to the gateway, which makes it available to use any other "
 "endpoint."
 msgstr ""
-"Se connecter à la geteway, ce qui la rend disponible pour utiliser"
-"n'importe quel endpoint."
 
 #: interactions.api.http.client.HTTPClient.logout:1 of
 msgid "This 'log outs' the session."
-msgstr "Déconnecte la session."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient.get_current_bot_information:1 of
 msgid "Returns the bot user application object without flags."
-msgstr "Retourne l'Application du bot sans les flags."
+msgstr ""
 
 #: interactions.api.http.client.HTTPClient.get_current_authorisation_information:1
 #: of
 msgid "Returns info about the current authorization of the bot user"
-msgstr "Retourne des informations sur les autorisations actuelle du bot"
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel:1 of
 msgid ""
 "Gets a channel by ID. If the channel is a thread, it also includes thread"
 " members (and other thread attributes)."
 msgstr ""
-"Obtenir un canal via son ID. Si le canal est un thread, alors il inclut"
-"également les membres du thread (et d'autres attributs d'un thread)."
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:6
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:3
@@ -643,56 +634,55 @@ msgstr ""
 #: interactions.api.http.webhook.WebhookRequest.create_webhook:3
 #: interactions.api.http.webhook.WebhookRequest.get_channel_webhooks:3 of
 msgid "Channel ID snowflake."
-msgstr "Snowflake de l'ID du canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel:4 of
 msgid "Dictionary of the channel object."
-msgstr "Dictionnaire d'un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.delete_channel:1 of
 msgid "Deletes a channel."
-msgstr "Supprimer un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.delete_channel:3 of
 msgid "Channel ID snowflake"
-msgstr "Snowflake de l'ID du canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:1 of
 msgid "Get messages from a channel."
-msgstr "Obtenir les messages d'un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:4 of
 msgid "around, before, and after arguments are mutually exclusive."
-msgstr "around, before, et after sont des argument qui s'excluent"
-"mutuellement."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:7 of
 msgid "How many messages to get. Defaults to 50, the max is 100."
-msgstr "Combien de messages à obtenir. Par défaut à 50, le maximum est 100."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:8 of
 msgid "Get messages around this snowflake ID."
-msgstr "Obtenir des messages autour de cet ID."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:9 of
 msgid "Get messages before this snowflake ID."
-msgstr "Obtenir des messages avant cet ID."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:10 of
 msgid "Get messages after this snowflake ID."
-msgstr "Obtenir des messages après cet ID."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:11 of
 msgid "An array of Message objects."
-msgstr "Un tableau de Messages."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel:1 of
 msgid "Creates a channel within a guild."
-msgstr "Créer un canal dans une guilde."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel:4 of
 msgid "This does not handle payload in this method. Tread carefully."
-msgstr "Cette méthode ne gère pas le payload. Faites attention."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel:6
 #: interactions.api.http.channel.ChannelRequest.move_channel:3
@@ -741,196 +731,193 @@ msgstr "Cette méthode ne gère pas le payload. Faites attention."
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.modify_scheduled_event:3
 #: of
 msgid "Guild ID snowflake."
-msgstr "Snowflake de l'ID de la guilde."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel:7 of
 msgid "Payload data."
-msgstr "Données du payload."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel:8 of
 msgid "Reason to show in audit log, if needed."
-msgstr "Raison à montrer dans l'audit log, si besoin."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel:9 of
 msgid "Channel object as dictionary."
-msgstr "Objet de type Canal en tant que dictionnaire."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.move_channel:1 of
 msgid "Moves a channel to a new position."
-msgstr "Déplace un canal à une nouvelle position."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.move_channel:5 of
 msgid "The new channel position."
-msgstr "La nouvelle position du canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.move_channel:6 of
 msgid "The category parent ID, if needed."
-msgstr "L'ID de la catégorie parente, si besoin."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.move_channel:7 of
 msgid ""
 "Sync permissions with the parent associated with parent_id. Defaults to "
 "False."
-msgstr "Synchroniser les permissions avec le parent associé au parent_id. "
-"Par défaut: False."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.move_channel:8 of
 msgid "Reason to display to the audit log, if any."
-msgstr "Raison à montrer dans l'audit log, si besoin."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.move_channel:9
 #: interactions.api.http.webhook.WebhookRequest.execute_github_webhook:7
 #: interactions.api.http.webhook.WebhookRequest.execute_slack_webhook:7 of
 msgid "?"
-msgstr "?"
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_channel:1 of
 msgid "Update a channel's settings."
-msgstr "Mettre à jour les paramètres d'un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_channel:4 of
 msgid "Data representing updated settings."
-msgstr "Données représentant les paramètres mis à jour."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_channel:5 of
 msgid "Reason, if any."
-msgstr "Raison, si besoin."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_channel:6 of
 msgid "Channel with updated attributes, if successful."
-msgstr "Canal avec les attributs à jour, en cas de réussite."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_invites:1 of
 msgid "Get the invites for the channel."
-msgstr "Obtenir les invitations pour un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_invites:4 of
 msgid "List of invite objects"
-msgstr "Liste des objets de type Invitation."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:1 of
 msgid "Creates an invite for the given channel."
-msgstr "Créer une invitation pour un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:4 of
 msgid "This method does not handle payload. It just sends it."
-msgstr "Cette méthode ne gère pas le payload. Elle l'envoie juste."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:7 of
 msgid "Data representing the payload/invite attributes."
-msgstr "Données représentant les attributs de l'invitation."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:8 of
 msgid "Reason to show in the audit log, if any."
-msgstr "Raison à montrer dans l'audit log, si besoin."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:9 of
 msgid "An invite object."
-msgstr "Un objet de type Invitation."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:1 of
 msgid ""
 "Edits the channel's permission overwrites for a user or role in a given "
 "channel."
-msgstr "Editer les permissions pour un utilisateur ou un role dans un "
-"certain canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.delete_channel_permission:4
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:4 of
 msgid "The ID of the overridden object."
-msgstr "L'ID de l'objet supprimé."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:5 of
 msgid "the bitwise value of all allowed permissions"
-msgstr "La valeur binaire de toutes les permissions autorisées."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:6 of
 msgid "the bitwise value of all disallowed permissions"
-msgstr "La valeur binaire de toutes les permissions non autorisées."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:7 of
 msgid "0 for a role or 1 for a member"
-msgstr "0 pour un role et 1 pour un membre"
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.delete_channel_permission:5
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:8 of
 msgid "Reason to display in the Audit Log, if given."
-msgstr "Raison à montrer dans l'audit log, si besoin."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.delete_channel_permission:1 of
 msgid "Deletes a channel permission overwrite for a user or role in a channel."
-msgstr "Supprimer les permissions pour un utilisateur ou un role dans un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.trigger_typing:1 of
 msgid "Posts \"... is typing\" in a given channel."
-msgstr "Poste \"... est en train d'écrire\" dans un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.trigger_typing:4 of
 msgid ""
 "By default, this lib doesn't use this endpoint, however, this is listed "
 "for third-party implementation."
-msgstr "Par défaut, la librairie n'utilise pas cet endpoint, mais elle est "
-"listée pour les implémentations tierces."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_pinned_messages:1 of
 msgid "Get all pinned messages from a channel."
-msgstr "Obtenir tout les messages épinglés d'un canal."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_pinned_messages:4 of
 msgid "A list of pinned message objects."
-msgstr "Une liste des messages épinglés."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:1 of
 msgid "Create a new stage instance."
-msgstr "Créer une nouvelle instange de stage."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:4 of
 msgid "The topic of the stage instance. Limited to 1-120 characters."
-msgstr "Le sujet du stage. Limité à 1-120 caractères."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:5 of
 msgid "The privacy_level of the stage instance (defaults to guild-only \"1\")."
-msgstr "Le niveau de confidentialité du stage (par défaut réservé à une guilde \"1\")."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:6
 #: interactions.api.http.channel.ChannelRequest.delete_stage_instance:4
 #: interactions.api.http.channel.ChannelRequest.modify_stage_instance:6 of
 msgid "The reason for the creating the stage instance, if any."
-msgstr "La raison pour créer un stage, si besoin."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:7 of
 msgid "The new stage instance"
-msgstr "Le nouveau stage"
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_stage_instance:1 of
 msgid "Get the stage instance associated with a given channel, if it exists."
-msgstr "Obtenir un stage associé à un canal, s'il existe."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.get_stage_instance:4 of
 msgid "A stage instance."
-msgstr "Un stage."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_stage_instance:1 of
 msgid "Update the fields of a given stage instance."
-msgstr "Mettre à jour les attributs d'un stage."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_stage_instance:4 of
 msgid ""
 "The new topic of the stage instance, if given. Limited to 1-120 "
 "characters."
-msgstr "Le nouveau sujet du stage, si besoin. Limité à 1-120 caractères."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_stage_instance:5 of
 msgid "The new privacy_level of the stage instance."
-msgstr "Le nouveau niveau de confidentialité du stage."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.modify_stage_instance:7 of
 msgid "The updated stage instance."
-msgstr "Le stage mis à jour."
+msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.delete_stage_instance:1 of
 msgid "Delete a stage instance."
-msgstr "Supprimer un stage."
+msgstr ""
 
 #: interactions.api.http.emoji.EmojiRequest.get_all_emoji:1 of
 msgid "Gets all emojis from a guild."
