@@ -247,7 +247,7 @@ class GuildMember(Member):
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    guild_id: Snowflake = field(converter=Snowflake)
+    _guild_id: Snowflake = field(converter=Snowflake, discord_name="guild_id")
 
 
 @define()
