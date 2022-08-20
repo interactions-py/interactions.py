@@ -39,11 +39,11 @@ class ChannelType(IntEnum):
     GUILD_VOICE = 2
     GROUP_DM = 3
     GUILD_CATEGORY = 4
-    GUILD_NEWS = 5
+    GUILD_ANNOUNCEMENT = 5
     GUILD_STORE = 6
-    GUILD_NEWS_THREAD = 10
-    GUILD_PUBLIC_THREAD = 11
-    GUILD_PRIVATE_THREAD = 12
+    ANNOUNCEMENT_THREAD = 10
+    PUBLIC_THREAD = 11
+    PRIVATE_THREAD = 12
     GUILD_STAGE_VOICE = 13
     GUILD_FORUM = 15
 
@@ -966,7 +966,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     async def create_thread(
         self,
         name: str,
-        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        type: Optional[ChannelType] = ChannelType.PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
         message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
@@ -994,9 +994,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
         if type not in [
-            ChannelType.GUILD_NEWS_THREAD,
-            ChannelType.GUILD_PUBLIC_THREAD,
-            ChannelType.GUILD_PRIVATE_THREAD,
+            ChannelType.ANNOUNCEMENT_THREAD,
+            ChannelType.PUBLIC_THREAD,
+            ChannelType.PRIVATE_THREAD,
         ]:
             raise LibraryException(message="type must be a thread type!", code=12)
 
