@@ -231,7 +231,9 @@ def deepcopy_kwargs(cls: Optional[type] = None):
     return decorator
 
 
-define_defaults = dict(kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP, repr=True)
+define_defaults = dict(
+    kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP, repr=True
+)
 
 
 @wraps(attrs.define)
