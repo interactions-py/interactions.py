@@ -68,7 +68,6 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Attempts to get the guild ID the member is in.
         Only works then roles or nick or joined at is present.
-
         :return: The ID of the guild this member belongs to.
         """
 
@@ -83,57 +82,30 @@ class Member(ClientSerializerMixin, IDMixin):
                 for role in guild.roles:
                     if role.id in self.roles:
                         return guild.id
-            else:
-                possible_guilds: List[Guild] = []
-                if self.nick:
 
-                    for guild in self._client.cache[Guild].values.values():
+        possible_guilds: List[Guild] = []
 
-                        def check(member: Member):
-                            return member.nick == self.nick and member.id == self.id
+        if self.nick:
+            def check(member: Member):
+                    return member.nick == self.nick and member.id == self.id
 
-                        if len(search_iterable(guild.members, check=check)) > 0:
-                            possible_guilds.append(guild)
+            for guild in self._client.cache[Guild].values.values():   
+                if len(search_iterable(guild.members, check=check)) > 0:
+                    possible_guilds.append(guild)
 
-                if len(possible_guilds) == 1:
-                    return possible_guilds[0].id
+        if len(possible_guilds) == 1:
+            return possible_guilds[0].id
 
-                elif len(possible_guilds) == 0:
-                    possible_guilds = list(self._client.cache[Guild].values.values())
+        elif len(possible_guilds) == 0:
+            possible_guilds = list(self._client.cache[Guild].values.values())
 
-                for guild in possible_guilds:
-                    for member in guild.members:
-                        if member.joined_at == self.joined_at:
-                            return guild.id
-
-                else:
-                    return None
+        for guild in possible_guilds:
+            for member in guild.members:
+                if member.joined_at == self.joined_at:
+                    return guild.id
 
         else:
-            possible_guilds: List[Guild] = []
-            if self.nick:
-
-                for guild in self._client.cache[Guild].values.values():
-
-                    def check(member: Member):
-                        return member.nick == self.nick and member.id == self.id
-
-                    if len(search_iterable(guild.members, check=check)) > 0:
-                        possible_guilds.append(guild)
-
-            if len(possible_guilds) == 1:
-                return possible_guilds[0].id
-
-            elif len(possible_guilds) == 0:
-                possible_guilds = list(self._client.cache[Guild].values.values())
-
-            for guild in possible_guilds:
-                for member in guild.members:
-                    if member.joined_at == self.joined_at:
-                        return guild.id
-
-            else:
-                return None
+            return None
 
     @property
     def avatar(self) -> Optional[str]:
