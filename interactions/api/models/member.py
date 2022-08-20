@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, convert_int, convert_list, define, field
 from ...utils.missing import MISSING
-from ...utils.utils import search_iterable
 from ..error import LibraryException
 from .channel import Channel
 from .flags import Permissions
@@ -65,78 +64,6 @@ class Member(ClientSerializerMixin, IDMixin):
         return self.name or ""
 
     @property
-    def guild_id(self) -> Optional[Snowflake]:
-        """
-        Attempts to get the guild ID the member is in.
-        Only works then roles or nick or joined at is present.
-
-        :return: The ID of the guild this member belongs to.
-        """
-
-        if hasattr(self, "guild_id"):
-            return self.guild_id
-
-        if not self._client:
-            raise LibraryException(code=13)
-
-        if self.roles:
-            for guild in self._client.cache[Guild].values.values():
-                for role in guild.roles:
-                    if role.id in self.roles:
-                        return guild.id
-            else:
-                possible_guilds: List[Guild] = []
-                if self.nick:
-
-                    for guild in self._client.cache[Guild].values.values():
-
-                        def check(member: Member):
-                            return member.nick == self.nick and member.id == self.id
-
-                        if len(search_iterable(guild.members, check=check)) > 0:
-                            possible_guilds.append(guild)
-
-                if len(possible_guilds) == 1:
-                    return possible_guilds[0].id
-
-                elif len(possible_guilds) == 0:
-                    possible_guilds = list(self._client.cache[Guild].values.values())
-
-                for guild in possible_guilds:
-                    for member in guild.members:
-                        if member.joined_at == self.joined_at:
-                            return guild.id
-
-                else:
-                    return None
-
-        else:
-            possible_guilds: List[Guild] = []
-            if self.nick:
-
-                for guild in self._client.cache[Guild].values.values():
-
-                    def check(member: Member):
-                        return member.nick == self.nick and member.id == self.id
-
-                    if len(search_iterable(guild.members, check=check)) > 0:
-                        possible_guilds.append(guild)
-
-            if len(possible_guilds) == 1:
-                return possible_guilds[0].id
-
-            elif len(possible_guilds) == 0:
-                possible_guilds = list(self._client.cache[Guild].values.values())
-
-            for guild in possible_guilds:
-                for member in guild.members:
-                    if member.joined_at == self.joined_at:
-                        return guild.id
-
-            else:
-                return None
-
-    @property
     def avatar(self) -> Optional[str]:
         return self._avatar or getattr(self.user, "avatar", None)
 
@@ -172,7 +99,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
     async def ban(
         self,
-        guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
         delete_message_days: Optional[int] = 0,
     ) -> None:
@@ -180,19 +107,14 @@ class Member(ClientSerializerMixin, IDMixin):
         Bans the member from a guild.
 
         :param guild_id: The id of the guild to ban the member from
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason of the ban
         :type reason?: Optional[str]
         :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
         :type delete_message_days?: Optional[int]
         """
 
-        if guild_id is MISSING:
-            _guild_id = self.guild_id
-        else:
-            _guild_id = (
-                int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
-            )
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
 
         await self._client.create_guild_ban(
             guild_id=_guild_id,
@@ -203,26 +125,21 @@ class Member(ClientSerializerMixin, IDMixin):
 
     async def kick(
         self,
-        guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
         Kicks the member from a guild.
 
         :param guild_id: The id of the guild to kick the member from
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason for the kick
         :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
 
-        if guild_id is MISSING:
-            _guild_id = self.guild_id
-        else:
-            _guild_id = (
-                int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
-            )
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
 
         await self._client.create_guild_kick(
             guild_id=_guild_id,
@@ -233,7 +150,7 @@ class Member(ClientSerializerMixin, IDMixin):
     async def add_role(
         self,
         role: Union[Role, int, Snowflake],
-        guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -242,7 +159,7 @@ class Member(ClientSerializerMixin, IDMixin):
         :param role: The role to add. Either ``Role`` object or role_id
         :type role: Union[Role, int, Snowflake]
         :param guild_id: The id of the guild to add the roles to the member
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason why the roles are added
         :type reason?: Optional[str]
         """
@@ -250,12 +167,7 @@ class Member(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _role = int(role.id) if isinstance(role, Role) else int(role)
-        if guild_id is MISSING:
-            _guild_id = self.guild_id
-        else:
-            _guild_id = (
-                int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
-            )
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
 
         await self._client.add_member_role(
             guild_id=_guild_id,
@@ -267,7 +179,7 @@ class Member(ClientSerializerMixin, IDMixin):
     async def remove_role(
         self,
         role: Union[Role, int],
-        guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -276,19 +188,14 @@ class Member(ClientSerializerMixin, IDMixin):
         :param role: The role to remove. Either ``Role`` object or role_id
         :type role: Union[Role, int]
         :param guild_id: The id of the guild to remove the roles of the member
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param reason?: The reason why the roles are removed
         :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
 
-        if guild_id is MISSING:
-            _guild_id = self.guild_id
-        else:
-            _guild_id = (
-                int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
-            )
+        _guild_id = int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
         _role = int(role.id) if isinstance(role, Role) else int(role)
 
         await self._client.remove_member_role(
@@ -384,7 +291,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
     async def modify(
         self,
-        guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
+        guild_id: Union[int, Snowflake, "Guild"],
         nick: Optional[str] = MISSING,
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
@@ -397,7 +304,7 @@ class Member(ClientSerializerMixin, IDMixin):
         Modifies the member of a guild.
 
         :param guild_id: The id of the guild to modify the member on
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :param nick?: The nickname of the member
         :type nick?: Optional[str]
         :param roles?: A list of all role ids the member has
@@ -418,12 +325,7 @@ class Member(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
 
-        if guild_id is MISSING:
-            _guild_id = self.guild_id
-        else:
-            _guild_id = (
-                int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-            )
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
         payload = {}
         if nick is not MISSING:
@@ -476,26 +378,19 @@ class Member(ClientSerializerMixin, IDMixin):
             thread_id=_thread_id,
         )
 
-    def get_avatar_url(
-        self, guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING
-    ) -> Optional[str]:
+    def get_avatar_url(self, guild_id: Union[int, Snowflake, "Guild"]) -> Optional[str]:
         """
         Returns the URL of the member's avatar for the specified guild.
 
         :param guild_id: The id of the guild to get the member's avatar from
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :type guild_id: Union[int, Snowflake, "Guild"]
         :return: URL of the members's avatar (None will be returned if no avatar is set)
         :rtype: str
         """
         if not self.avatar:
             return None
 
-        if guild_id is MISSING:
-            _guild_id = self.guild_id
-        else:
-            _guild_id = (
-                int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
-            )
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
         url = f"https://cdn.discordapp.com/guilds/{_guild_id}/users/{int(self.user.id)}/avatars/{self.avatar}"
         url += ".gif" if self.avatar.startswith("a_") else ".png"
