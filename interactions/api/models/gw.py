@@ -1,7 +1,13 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
-from .attrs_utils import ClientSerializerMixin, DictSerializerMixin, convert_list, define, field
+from ...utils.attrs_utils import (
+    ClientSerializerMixin,
+    DictSerializerMixin,
+    convert_list,
+    define,
+    field,
+)
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata

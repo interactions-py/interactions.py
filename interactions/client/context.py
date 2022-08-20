@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
@@ -12,6 +11,8 @@ from ..api.models.message import Attachment, Embed, Message, MessageInteraction,
 from ..api.models.misc import Snowflake
 from ..api.models.user import User
 from ..base import get_logger
+from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
+from ..utils.missing import MISSING
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components

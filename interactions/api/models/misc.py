@@ -15,8 +15,9 @@ from os.path import basename
 from typing import List, Optional, Union
 
 from ...base import get_logger
+from ...utils.attrs_utils import DictSerializerMixin, define, field
+from ...utils.missing import MISSING
 from ..error import LibraryException
-from .attrs_utils import MISSING, DictSerializerMixin, define, field
 
 __all__ = (
     "AutoModKeywordPresetTypes",

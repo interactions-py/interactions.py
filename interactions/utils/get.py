@@ -20,7 +20,7 @@ from ..api.models.member import Member
 from ..api.models.message import Message
 from ..api.models.misc import Snowflake
 from ..api.models.role import Role
-from .bot import Client
+from ..client.bot import Client
 
 log = getLogger("get")
 
@@ -163,8 +163,6 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
         If you enforce cache when getting a list of objects, found objets will be placed into the list and not found
         objects will be placed as ``None`` into the list.
 
-
-
     """
 
     if version_info >= (3, 9):
@@ -182,13 +180,14 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
             return False
 
     if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
-        client: Client
-        obj: Union[Type[_T], Type[List[_T]]]
         raise LibraryException(message="The object must not be an instance of a class!", code=12)
 
+    client: Client
+    obj: Union[Type[_T], Type[List[_T]]]
     kwargs = _resolve_kwargs(obj, **kwargs)
     http_name = f"get_{obj.__name__.lower()}"
     kwarg_name = f"{obj.__name__.lower()}_id"
+
     if isinstance(obj, _GenericAlias) or _check():
         _obj: Type[_T] = get_args(obj)[0]
         _objects: List[Union[_obj, Coroutine]] = []

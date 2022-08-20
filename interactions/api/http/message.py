@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
-from ..models.attrs_utils import MISSING
+from ...utils.missing import MISSING
 from ..models.message import Embed, Message, MessageInteraction, Sticker
 from ..models.misc import File, Snowflake
 from .request import _Request
