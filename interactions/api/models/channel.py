@@ -157,7 +157,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     user_limit: Optional[int] = field(default=None)
     rate_limit_per_user: Optional[int] = field(default=None)
     recipients: Optional[List[User]] = field(converter=convert_list(User), default=None, repr=False)
-    icon: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
     owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     parent_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -166,7 +166,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     )
     rtc_region: Optional[str] = field(default=None, repr=False)
     video_quality_mode: Optional[int] = field(default=None, repr=False)
-    message_count: Optional[int] = field(default=None)
+    message_count: Optional[int] = field(default=None, repr=False)
     member_count: Optional[int] = field(default=None, repr=False)
     thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
     member: Optional[ThreadMember] = field(
