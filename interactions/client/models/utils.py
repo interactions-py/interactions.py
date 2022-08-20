@@ -1,6 +1,5 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
-from inspect import getfullargspec
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -62,10 +61,9 @@ def autodefer(
             except RuntimeError as e:
                 raise RuntimeError("No running event loop detected!") from e
 
-            if "self" in getfullargspec(coro).args:
+            if isinstance(args[0], (ComponentContext, CommandContext)):
                 self = ctx
-                args = list(args)
-                ctx = args.pop(0)
+                ctx = list(args).pop(0)
 
                 task: Task = loop.create_task(coro(self, ctx, *args, **kwargs))
 
