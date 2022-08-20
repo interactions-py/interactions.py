@@ -86,10 +86,11 @@ class Member(ClientSerializerMixin, IDMixin):
         possible_guilds: List[Guild] = []
 
         if self.nick:
-            def check(member: Member):
-                    return member.nick == self.nick and member.id == self.id
 
-            for guild in self._client.cache[Guild].values.values():   
+            def check(member: Member):
+                return member.nick == self.nick and member.id == self.id
+
+            for guild in self._client.cache[Guild].values.values():
                 if len(search_iterable(guild.members, check=check)) > 0:
                     possible_guilds.append(guild)
 
