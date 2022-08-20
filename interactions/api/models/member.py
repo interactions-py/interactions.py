@@ -73,7 +73,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if hasattr(self, "guild_id"):
             return self.guild_id
-        elif _id := self._extras.get("guild_id"):
+        elif (_id := self._extras.get("guild_id")):
             return Snowflake(_id)
 
         if not self._client:
@@ -111,9 +111,7 @@ class Member(ClientSerializerMixin, IDMixin):
                     return guild.id
 
         else:
-            return LibraryException(
-                code=12, message="the guild_id could not be retrieved, please insert one!"
-            )
+            return LibraryException(code=12, message="the guild_id could not be retrieved, please insert one!") 
 
     @property
     def avatar(self) -> Optional[str]:
@@ -168,6 +166,9 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if guild_id is MISSING:
             _guild_id = self.guild_id
+            if isinstance(_guild_id, LibraryException):
+                raise _guild_id
+
         else:
             _guild_id = (
                 int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
@@ -198,6 +199,10 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if guild_id is MISSING:
             _guild_id = self.guild_id
+
+            if isinstance(_guild_id, LibraryException):
+                raise _guild_id
+
         else:
             _guild_id = (
                 int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
@@ -231,6 +236,9 @@ class Member(ClientSerializerMixin, IDMixin):
         _role = int(role.id) if isinstance(role, Role) else int(role)
         if guild_id is MISSING:
             _guild_id = self.guild_id
+            if isinstance(_guild_id, LibraryException):
+                raise _guild_id
+
         else:
             _guild_id = (
                 int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
@@ -264,6 +272,9 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if guild_id is MISSING:
             _guild_id = self.guild_id
+            if isinstance(_guild_id, LibraryException):
+                raise _guild_id
+
         else:
             _guild_id = (
                 int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
@@ -399,6 +410,9 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if guild_id is MISSING:
             _guild_id = self.guild_id
+            if isinstance(_guild_id, LibraryException):
+                raise _guild_id
+
         else:
             _guild_id = (
                 int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
@@ -471,6 +485,9 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if guild_id is MISSING:
             _guild_id = self.guild_id
+            if isinstance(_guild_id, LibraryException):
+                raise _guild_id
+
         else:
             _guild_id = (
                 int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
