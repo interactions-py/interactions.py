@@ -66,7 +66,7 @@ templates_path = ["_templates"]
 
 # Language is commented out because of PR reviews. In a RTD-hosted case,
 # the variable seems to be skipped.
-language = "de"
+# language = "de"
 
 locale_dirs = ["locale/"]
 gettext_compact = True
