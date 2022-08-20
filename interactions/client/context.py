@@ -7,8 +7,8 @@ from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Attachment, Embed, Message, MessageInteraction, MessageReference
-from ..api.models.misc import Snowflake
+from ..api.models.message import Attachment, Embed, Message, MessageReference
+from ..api.models.misc import AllowedMentions, Snowflake
 from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
@@ -110,7 +110,7 @@ class _Context(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
@@ -128,8 +128,8 @@ class _Context(ClientSerializerMixin):
         :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components?: A component, or list of components for the message.
         :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
@@ -158,7 +158,13 @@ class _Context(ClientSerializerMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
 
         if components is not MISSING and components:
             # components could be not missing but an empty list
@@ -199,7 +205,7 @@ class _Context(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
@@ -248,7 +254,13 @@ class _Context(ClientSerializerMixin):
 
             payload["attachments"] = _attachments
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
         payload["allowed_mentions"] = _allowed_mentions

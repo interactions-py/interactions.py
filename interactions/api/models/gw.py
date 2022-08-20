@@ -15,8 +15,9 @@ from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata
 from .member import Member
-from .message import Embed, Message, MessageInteraction, Sticker
+from .message import Embed, Message, Sticker
 from .misc import (
+    AllowedMentions,
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,
@@ -411,7 +412,7 @@ class GuildMember(Member):
         tts: Optional[bool] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
     ) -> Message:
         """
         Sends a DM to the member.
@@ -426,8 +427,8 @@ class GuildMember(Member):
         :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -443,7 +444,13 @@ class GuildMember(Member):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         if not components or components is MISSING:
             _components = []
         else:
