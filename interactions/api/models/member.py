@@ -73,7 +73,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if hasattr(self, "guild_id"):
             return self.guild_id
-        elif (_id := self._extras.get("guild_id")):
+        elif _id := self._extras.get("guild_id"):
             return Snowflake(_id)
 
         if not self._client:
@@ -111,7 +111,9 @@ class Member(ClientSerializerMixin, IDMixin):
                     return guild.id
 
         else:
-            return LibraryException(code=12, message="the guild_id could not be retrieved, please insert one!") 
+            return LibraryException(
+                code=12, message="the guild_id could not be retrieved, please insert one!"
+            )
 
     @property
     def avatar(self) -> Optional[str]:
