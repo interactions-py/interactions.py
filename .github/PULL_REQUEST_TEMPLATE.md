@@ -4,12 +4,20 @@ This pull request is about (X), which does (Y).
 
 ## Checklist
 
-- [ ] I've ran `pre-commit` to format and lint the change(s) made.
-- [ ] I've checked to make sure the change(s) work on `3.8.6` and higher.
-- [ ] This fixes/solves an [Issue](https://github.com/goverfl0w/discord-interactions/issues) (If existent):.
-  - resolves #
-- I've made this pull request for/as: (check all that apply)
-  - [ ] Documentation
-  - [ ] Breaking change
-  - [ ] New feature/enhancement
-  - [ ] Bugfix
+- [ ] The ``pre-commit`` code linter has been run over all edited files to make sure the code is linted.
+- [ ] I've ensured the change(s) work on `3.8.6` and higher.
+
+
+I've made this pull request: (check all that apply)
+  - [ ] For the documentation
+  - [ ] To add a new feature
+  - [ ] As a general enhancement
+  - [ ] As a refactor of the library/the library's code
+  - [ ] To fix an existing bug
+  - [ ] To resolve #ISSUENUMBER
+
+
+This is:
+  - [ ] A breaking change
+
+  <!--- Expand this when more comes up--->
