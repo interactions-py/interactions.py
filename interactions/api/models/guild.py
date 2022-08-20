@@ -724,7 +724,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         self,
         name: str,
         channel_id: Union[int, Snowflake, Channel],
-        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        type: Optional[ChannelType] = ChannelType.PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
         message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,
@@ -754,9 +754,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
         if type not in [
-            ChannelType.GUILD_NEWS_THREAD,
-            ChannelType.GUILD_PUBLIC_THREAD,
-            ChannelType.GUILD_PRIVATE_THREAD,
+            ChannelType.ANNOUNCEMENT_THREAD,
+            ChannelType.PUBLIC_THREAD,
+            ChannelType.PRIVATE_THREAD,
         ]:
             raise LibraryException(message="type must be a thread type!", code=12)
 
@@ -838,9 +838,9 @@ class Guild(ClientSerializerMixin, IDMixin):
             )
 
         if type in [
-            ChannelType.GUILD_NEWS_THREAD,
-            ChannelType.GUILD_PUBLIC_THREAD,
-            ChannelType.GUILD_PRIVATE_THREAD,
+            ChannelType.ANNOUNCEMENT_THREAD,
+            ChannelType.PUBLIC_THREAD,
+            ChannelType.PRIVATE_THREAD,
         ]:
             raise LibraryException(
                 message="Please use `create_thread` for creating threads!", code=12
