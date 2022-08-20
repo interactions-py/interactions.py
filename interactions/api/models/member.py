@@ -40,24 +40,24 @@ class Member(ClientSerializerMixin, IDMixin):
     :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    user: Optional[User] = field(converter=User, default=None, add_client=True, repr=True)
-    nick: Optional[str] = field(default=None, repr=True)
-    _avatar: Optional[str] = field(default=None, discord_name="avatar")
+    user: Optional[User] = field(converter=User, default=None, add_client=True)
+    nick: Optional[str] = field(default=None)
+    _avatar: Optional[str] = field(default=None, discord_name="avatar", repr=False)
     roles: List[int] = field(converter=convert_list(int))
-    joined_at: datetime = field(converter=datetime.fromisoformat)
-    premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    joined_at: datetime = field(converter=datetime.fromisoformat, repr=False)
+    premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None, repr=False)
     deaf: bool = field()
     mute: bool = field()
-    is_pending: Optional[bool] = field(default=None)
-    pending: Optional[bool] = field(default=None)
-    permissions: Optional[Permissions] = field(converter=convert_int(Permissions), default=None)
+    is_pending: Optional[bool] = field(default=None, repr=False)
+    pending: Optional[bool] = field(default=None, repr=False)
+    permissions: Optional[Permissions] = field(converter=convert_int(Permissions), default=None, repr=False)
     communication_disabled_until: Optional[datetime.isoformat] = field(
         converter=datetime.fromisoformat, default=None
     )
     hoisted_role: Optional[Any] = field(
-        default=None
+        default=None, repr=False
     )  # TODO: Investigate what this is for when documented by Discord.
-    flags: int = field()  # TODO: Investigate what this is for when documented by Discord.
+    flags: int = field(, repr=False)  # TODO: Investigate what this is for when documented by Discord.
 
     def __str__(self) -> str:
         return self.name or ""
