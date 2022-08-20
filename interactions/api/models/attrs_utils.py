@@ -245,7 +245,7 @@ def define(**kwargs):
 def field(
     converter=None,
     default=attrs.NOTHING,
-    repr=False,
+    repr=True,
     add_client: bool = False,
     discord_name: str = None,
     **kwargs,
