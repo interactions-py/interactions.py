@@ -323,7 +323,9 @@ class Guild(ClientSerializerMixin, IDMixin):
     max_video_channel_users: Optional[int] = field(default=None, repr=False)
     approximate_member_count: Optional[int] = field(default=None)
     approximate_presence_count: Optional[int] = field(default=None)
-    welcome_screen: Optional[WelcomeScreen] = field(converter=WelcomeScreen, default=None, repr=False)
+    welcome_screen: Optional[WelcomeScreen] = field(
+        converter=WelcomeScreen, default=None, repr=False
+    )
     nsfw_level: int = field(default=0)
     stage_instances: Optional[List[StageInstance]] = field(
         converter=convert_list(StageInstance), default=None
