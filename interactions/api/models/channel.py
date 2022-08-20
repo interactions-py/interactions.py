@@ -92,7 +92,9 @@ class ThreadMember(ClientSerializerMixin):
     join_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
     flags: int = field(repr=False)
     muted: bool = field()
-    mute_config: Optional[Any] = field(default=None, repr=False)  # todo explore this, it isn't in the ddev docs
+    mute_config: Optional[Any] = field(
+        default=None, repr=False
+    )  # todo explore this, it isn't in the ddev docs
 
 
 @define()
@@ -159,13 +161,17 @@ class Channel(ClientSerializerMixin, IDMixin):
     owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     parent_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    last_pin_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None, repr=False)
+    last_pin_timestamp: Optional[datetime] = field(
+        converter=datetime.fromisoformat, default=None, repr=False
+    )
     rtc_region: Optional[str] = field(default=None, repr=False)
     video_quality_mode: Optional[int] = field(default=None, repr=False)
     message_count: Optional[int] = field(default=None)
     member_count: Optional[int] = field(default=None, repr=False)
-    thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None) 
-    member: Optional[ThreadMember] = field(converter=ThreadMember, default=None, add_client=True, repr=False)
+    thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
+    member: Optional[ThreadMember] = field(
+        converter=ThreadMember, default=None, add_client=True, repr=False
+    )
     default_auto_archive_duration: Optional[int] = field(default=None)
     permissions: Optional[str] = field(default=None, repr=False)
     flags: Optional[int] = field(default=None, repr=False)
