@@ -64,7 +64,7 @@ class Member(ClientSerializerMixin, IDMixin):
         return self.name or ""
 
     @property
-    def guild_id(self) -> Optional[Snowflake]:
+    def guild_id(self) -> Optional[Union[Snowflake, LibraryException]]:
         """
         Attempts to get the guild ID the member is in.
         Only works then roles or nick or joined at is present.
@@ -73,6 +73,8 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if hasattr(self, "guild_id"):
             return self.guild_id
+        elif (_id := self._extras.get("guild_id")):
+            return Snowflake(_id)
 
         if not self._client:
             raise LibraryException(code=13)
@@ -81,6 +83,7 @@ class Member(ClientSerializerMixin, IDMixin):
             for guild in self._client.cache[Guild].values.values():
                 for role in guild.roles:
                     if role.id in self.roles:
+                        self._extras["guild_id"] = int(guild.id)
                         return guild.id
 
         possible_guilds: List[Guild] = []
@@ -95,6 +98,7 @@ class Member(ClientSerializerMixin, IDMixin):
                     possible_guilds.append(guild)
 
         if len(possible_guilds) == 1:
+            self._extras["guild_id"] = int(possible_guilds[0].id)
             return possible_guilds[0].id
 
         elif len(possible_guilds) == 0:
@@ -103,10 +107,11 @@ class Member(ClientSerializerMixin, IDMixin):
         for guild in possible_guilds:
             for member in guild.members:
                 if member.joined_at == self.joined_at:
+                    self._extras["guild_id"] = int(guild.id)
                     return guild.id
 
         else:
-            return None
+            return LibraryException(code=12, message="the guild_id could not be retrieved, please insert one!") 
 
     @property
     def avatar(self) -> Optional[str]:
