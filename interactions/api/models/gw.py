@@ -234,36 +234,30 @@ class GuildJoinRequest(DictSerializerMixin):
 
 
 @define()
-class GuildMember(ClientSerializerMixin):
+class GuildMember(Member):
     """
     A class object representing the gateway events ``GUILD_MEMBER_ADD``, ``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``.
 
-    :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Optional[List[Role]] roles?: The roles of the event.
-    :ivar Optional[User] user?: The user of the event.
-    :ivar Optional[str] nick?: The nickname of the user of the event.
-    :ivar Optional[str] avatar?: The avatar URL of the user of the event.
-    :ivar Optional[datetime] joined_at?: The time that the user of the event joined at.
-    :ivar Optional[datetime] premium_since?: The time that the user of the event has since had "premium."
-    :ivar Optional[bool] deaf?: Whether the member of the event is deafened or not.
-    :ivar Optional[bool] mute?: Whether the member of the event is muted or not.
-    :ivar Optional[bool] pending?: Whether the member of the event is still pending -- pass membership screening -- or not.
-    :ivat Optional[datetime.isoformat] communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
+    .. note::
+        ``pending`` and ``permissions`` only apply for members retroactively
+        requiring to verify rules via. membership screening or lack permissions
+        to speak.
+
+    :ivar Snowflake guild_id: The guild ID.
+    :ivar User user: The user of the guild.
+    :ivar str nick: The nickname of the member.
+    :ivar Optional[str] avatar?: The hash containing the user's guild avatar, if applicable.
+    :ivar List[int] roles: The list of roles of the member.
+    :ivar datetime joined_at: The timestamp the member joined the guild at.
+    :ivar datetime premium_since: The timestamp the member has been a server booster since.
+    :ivar bool deaf: Whether the member is deafened.
+    :ivar bool mute: Whether the member is muted.
+    :ivar Optional[bool] pending?: Whether the member is pending to pass membership screening.
+    :ivar Optional[Permissions] permissions?: Whether the member has permissions.
+    :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    roles: Optional[List[str]] = field(default=None)
-    user: Optional[User] = field(converter=User, default=None, add_client=True)
-    nick: Optional[str] = field(default=None)
-    _avatar: Optional[str] = field(default=None, discord_name="avatar")
-    joined_at: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
-    premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
-    deaf: Optional[bool] = field(default=None)
-    mute: Optional[bool] = field(default=None)
-    pending: Optional[bool] = field(default=None)
-    communication_disabled_until: Optional[datetime.isoformat] = field(
-        converter=datetime.fromisoformat, default=None
-    )
 
     def __str__(self) -> str:
         return self.name or ""
