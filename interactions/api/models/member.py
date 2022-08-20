@@ -71,8 +71,8 @@ class Member(ClientSerializerMixin, IDMixin):
         :return: The ID of the guild this member belongs to.
         """
 
-        if hasattr(self, "guild_id"):
-            return self.guild_id
+        if hasattr(self, "_guild_id"):
+            return self._guild_id
         elif _id := self._extras.get("guild_id"):
             return Snowflake(_id)
 
