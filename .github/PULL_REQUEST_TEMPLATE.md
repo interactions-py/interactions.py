@@ -4,7 +4,7 @@ This pull request is about (X), which does (Y).
 
 ## Checklist
 
-- [ ] The ``pre-commit`` code linter has been run over all edited files to make sure the code is linted.
+- [ ] The ``pre-commit`` code linter has been run over all edited files to ensure the code is linted.
 - [ ] I've ensured the change(s) work on `3.8.6` and higher.
 
 
