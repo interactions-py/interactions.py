@@ -1433,7 +1433,7 @@ class Client:
         :return: The modified User object
         :rtype: User
         """
-        payload: dict = {} 
+        payload: dict = {}
         if avatar is not MISSING:
             payload["avatar"] = avatar.data
         if username is not MISSING:
