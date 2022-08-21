@@ -3,12 +3,12 @@ from functools import wraps
 from typing import TYPE_CHECKING, Awaitable, Callable, Iterable, List, Optional, TypeVar, Union
 
 from ...api.error import LibraryException
-from .component import ActionRow, Button, SelectMenu
+from .component import ActionRow, Button, Component, SelectMenu
 
 if TYPE_CHECKING:
     from ..context import CommandContext
 
-__all__ = ("autodefer", "spread_to_rows", "search_iterable")
+__all__ = ("autodefer", "spread_to_rows", "search_iterable", "disable_components")
 
 _T = TypeVar("_T")
 
@@ -168,3 +168,45 @@ def search_iterable(
         )
 
     return list(iterable)
+
+
+def disable_components(
+    components: Union[
+        List[Component],
+        List[ActionRow],
+        List[Button],
+        List[SelectMenu],
+        ActionRow,
+        Component,
+        Button,
+        SelectMenu,
+    ]
+) -> None:
+    """
+    Disables the given components.
+
+    :param components: The components to disable
+    :type components: Union[List[Component], List[ActionRow], List[Button], List[SelectMenu], ActionRow, Component, Button, SelectMenu]
+    """
+    if isinstance(components, (Component, ActionRow)):
+        for component in components.components:
+            component.disabled = True
+    elif isinstance(components, (Button, SelectMenu)):
+        components.disabled = True
+    elif isinstance(components, list):
+        if not all(
+            isinstance(component, (Button, SelectMenu)) for component in components
+        ) or not all(isinstance(component, (ActionRow, Component)) for component in components):
+            raise LibraryException(
+                12,
+                "You must only specify lists of 'Buttons' and 'SelectMenus' or 'ActionRow' and 'Component'",
+            )
+        if isinstance(components[0], (Button, SelectMenu)):
+            for component in components:
+                component.disabled = True
+
+        elif isinstance(components[0], (ActionRow, Component)):
+            components: List[ActionRow, Component]
+            for _components in components:
+                for component in _components.components:
+                    component.disabled = True
