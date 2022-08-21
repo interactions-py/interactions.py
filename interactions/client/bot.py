@@ -1465,7 +1465,11 @@ class Client:
         :return: The modified User object
         :rtype: User
         """
-        payload: dict = {"username": username, "avatar": avatar.data}
+        payload: dict = {}
+        if avatar is not MISSING:
+            payload["avatar"] = avatar.data
+        if username is not MISSING:
+            payload["username"] = username
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)
