@@ -103,6 +103,11 @@ class Interaction(DictSerializerMixin):
     version: int = field()
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
 
+    def __attrs_post_init__(self):
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
+
 
 @define()
 class Permission(DictSerializerMixin):
