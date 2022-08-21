@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, convert_int, convert_list, define, field
 from ...utils.missing import MISSING
+from ...utils.utils import search_iterable
 from ..error import LibraryException
 from .channel import Channel
 from .flags import Permissions
