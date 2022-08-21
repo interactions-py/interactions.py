@@ -17,6 +17,7 @@ from .component import ActionRow, Button, SelectMenu
 
 if TYPE_CHECKING:
     from ..context import CommandContext
+    from ..bot import Extension
 
 __all__ = ("autodefer", "spread_to_rows", "search_iterable")
 
@@ -55,7 +56,7 @@ def autodefer(
         from ..context import ComponentContext
 
         @wraps(coro)
-        async def deferring_func(ctx: Union["CommandContext", "ComponentContext"], *args, **kwargs):
+        async def deferring_func(ctx: Union["CommandContext", "ComponentContext", "Extension"], *args, **kwargs):
             try:
                 loop = get_running_loop()
             except RuntimeError as e:
