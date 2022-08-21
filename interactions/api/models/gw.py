@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from typing import Any, List, Optional
 
 from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
@@ -12,7 +11,6 @@ from ...utils.attrs_utils import (
 )
 from ...utils.missing import MISSING
 from ..error import LibraryException
-
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata
