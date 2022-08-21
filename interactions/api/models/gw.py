@@ -8,7 +8,6 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
-from ..error import LibraryException
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata
