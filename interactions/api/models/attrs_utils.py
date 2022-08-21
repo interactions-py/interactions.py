@@ -232,7 +232,7 @@ def deepcopy_kwargs(cls: Optional[type] = None):
 
 
 define_defaults = dict(
-    kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP, repr=True
+    kw_only=True, eq=False, init=False, on_setattr=attrs.setters.NO_OP
 )
 
 
