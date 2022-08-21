@@ -67,6 +67,11 @@ class _Context(ClientSerializerMixin):
     def __attrs_post_init__(self) -> None:
         # backwards compatibility
         self.client = self._client
+
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
+
         self.author = self.member
 
         if self.user is None:
