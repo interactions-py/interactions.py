@@ -52,7 +52,7 @@ class Role(ClientSerializerMixin, IDMixin):
     name: str = field()
     color: int = field()
     hoist: bool = field()
-    icon: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
     unicode_emoji: Optional[str] = field(default=None)
     position: int = field()
     permissions: str = field()
