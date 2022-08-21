@@ -48,7 +48,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
     channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     user: Optional[User] = field(converter=User, default=None, add_client=True)
     name: str = field()
-    avatar: str = field()
+    avatar: str = field(repr=False)
     token: Optional[str] = field(default=None)
     application_id: Snowflake = field(converter=Snowflake)
     source_guild: Optional[Any] = field(default=None)
