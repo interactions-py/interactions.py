@@ -8,6 +8,7 @@ from .guild import EventMetadata
 from .member import Member
 from .message import Sticker
 from .misc import (
+    AllowedMentions,
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,

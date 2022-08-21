@@ -7,7 +7,7 @@
 
 import datetime
 from base64 import b64encode
-from enum import IntEnum
+from enum import Enum, IntEnum
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
@@ -16,7 +16,7 @@ from typing import List, Optional, Union
 
 from ...base import get_logger
 from ..error import LibraryException
-from .attrs_utils import MISSING, DictSerializerMixin, define, field
+from .attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 
 __all__ = (
     "AutoModKeywordPresetTypes",
@@ -24,6 +24,8 @@ __all__ = (
     "AutoModMetaData",
     "AutoModAction",
     "AutoModTriggerMetadata",
+    "AllowedMentionType",
+    "AllowedMentions",
     "Snowflake",
     "Color",
     "ClientStatus",
@@ -370,3 +372,32 @@ class Image:
         Returns the name of the file.
         """
         return self._name.split("/")[-1].split(".")[0]
+
+
+class AllowedMentionType(str, Enum):
+    """
+    An enumerable object representing the allowed mention types
+    """
+
+    EVERYONE = "everyone"
+    USERS = "users"
+    ROLES = "roles"
+
+
+@define()
+class AllowedMentions(DictSerializerMixin):
+    """
+    A class object representing the allowed mentions object
+
+    :ivar parse?: Optional[List[AllowedMentionType]]: An array of allowed mention types to parse from the content.
+    :ivar users?: Optional[List[int]]: An array of user ids to mention.
+    :ivar roles?: Optional[List[int]]: An array of role ids to mention.
+    :ivar replied_user?: Optional[bool]: For replies, whether to mention the author of the message being replied to.
+    """
+
+    parse: Optional[List[AllowedMentionType]] = field(
+        converter=convert_list(AllowedMentionType), default=None
+    )
+    users: Optional[List[int]] = field(default=None)
+    roles: Optional[List[int]] = field(default=None)
+    replied_user: Optional[bool] = field(default=None)
