@@ -229,7 +229,6 @@ class WebSocketClient:
         if isinstance(self._http, str):
             self._http = HTTPClient(self._http)
 
-
         url = await self._http.get_gateway()
         self.ws_url = url
         self._client = await self._http._req._session.ws_connect(url, **self._options)

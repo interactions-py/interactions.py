@@ -89,7 +89,6 @@ class Client:
         self.__global_commands = {}
         self.__guild_commands = {}
 
-
         self.me: Application = None
         self.__id_autocomplete = {}
         if self._default_scope:
