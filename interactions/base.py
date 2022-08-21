@@ -14,7 +14,7 @@ __authors__ = {
         {"name": "EdVraz<@EdVraz>", "status": "Developer"},
         {"name": "Astrea<@Astrea49>", "status": "Developer"},
         {"name": "Toricane<@Toricane>", "status": "Developer"},
-        {"name": "Toricane<@Catalyst4222>", "status": "Developer"},
+        {"name": "Catalyst<@Catalyst4222>", "status": "Developer"},
     ],
     "old": [
         {"name": "James Walston<@jameswalston>"},
