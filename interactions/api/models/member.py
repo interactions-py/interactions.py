@@ -73,6 +73,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if hasattr(self, "_guild_id"):
             return self._guild_id
+
         elif _id := self._extras.get("guild_id"):
             return Snowflake(_id)
 
@@ -90,8 +91,8 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if self.nick:
 
-            def check(member: Member):
-                return member.nick == self.nick and member.id == self.id
+            def check(_member: Member):
+                return _member.nick == self.nick and _member.id == self.id
 
             for guild in self._client.cache[Guild].values.values():
                 if len(search_iterable(guild.members, check=check)) > 0:

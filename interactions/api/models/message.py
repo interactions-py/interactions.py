@@ -800,6 +800,11 @@ class Message(ClientSerializerMixin, IDMixin):
     )  # deprecated
     position: Optional[int] = field(default=None)
 
+    def __attrs_post_init__(self):
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.

@@ -8,7 +8,6 @@ from .guild import EventMetadata
 from .member import Member
 from .message import Sticker
 from .misc import (
-    AllowedMentions,
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,
@@ -487,6 +486,11 @@ class MessageReaction(ClientSerializerMixin):
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
+
+    def __attrs_post_init__(self):
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
 
 
 class MessageReactionRemove(MessageReaction):
