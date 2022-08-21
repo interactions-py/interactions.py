@@ -2,15 +2,15 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
-from ..error import LibraryException
-from .attrs_utils import (
-    MISSING,
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
     define,
     field,
 )
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
 from .emoji import Emoji

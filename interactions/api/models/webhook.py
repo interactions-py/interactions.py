@@ -1,8 +1,9 @@
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
+from ...utils.attrs_utils import ClientSerializerMixin, define, field
+from ...utils.missing import MISSING
 from ..error import LibraryException
-from .attrs_utils import MISSING, ClientSerializerMixin, define, field
 from .misc import AllowedMentions, File, IDMixin, Image, Snowflake
 from .user import User
 

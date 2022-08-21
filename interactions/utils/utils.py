@@ -1,12 +1,12 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
-from typing import TYPE_CHECKING, Awaitable, Callable, Iterable, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Coroutine, Iterable, List, Optional, TypeVar, Union
 
-from ...api.error import LibraryException
-from .component import ActionRow, Button, Component, SelectMenu
+from ..api.error import LibraryException
+from ..client.models.component import ActionRow, Button, Component, SelectMenu
 
 if TYPE_CHECKING:
-    from ..context import CommandContext
+    from ..client.context import CommandContext
 
 __all__ = ("autodefer", "spread_to_rows", "search_iterable", "disable_components")
 
@@ -17,7 +17,7 @@ def autodefer(
     delay: Union[float, int] = 2,
     ephemeral: bool = False,
     edit_origin: bool = False,
-) -> Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]:
+) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
     """
     A decorator that automatically defers a command if it did not respond within ``delay`` seconds.
 
@@ -41,8 +41,8 @@ def autodefer(
     :rtype:
     """
 
-    def decorator(coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
-        from ..context import ComponentContext
+    def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
+        from ..client.context import ComponentContext
 
         @wraps(coro)
         async def deferring_func(ctx: Union["CommandContext", "ComponentContext"], *args, **kwargs):

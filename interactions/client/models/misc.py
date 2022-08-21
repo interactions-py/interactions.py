@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional
 
-from ...api.models.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
 from ...api.models.channel import Channel
 from ...api.models.member import Member
 from ...api.models.message import Attachment, Message
 from ...api.models.misc import Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
+from ...utils.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
 from ..enums import ApplicationCommandType, ComponentType, InteractionType, PermissionType
 from ..models.command import Option
 from .component import ActionRow

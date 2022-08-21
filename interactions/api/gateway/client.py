@@ -25,11 +25,11 @@ from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 from ...base import get_logger
 from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
+from ...utils.missing import MISSING
 from ..dispatch import Listener
 from ..enums import OpCodeType
 from ..error import LibraryException
 from ..http.client import HTTPClient
-from ..models.attrs_utils import MISSING
 from ..models.flags import Intents
 from ..models.guild import Guild
 from ..models.member import Member

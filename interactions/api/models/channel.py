@@ -2,15 +2,15 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
-from ..error import LibraryException
-from .attrs_utils import (
-    MISSING,
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
     define,
     field,
 )
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .flags import Permissions
 from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
 from .user import User
@@ -1241,7 +1241,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             return Permissions.ALL
 
         # @everyone role overwrites
-        from ...client.models.utils import search_iterable
+        from interactions.utils.utils import search_iterable
 
         overwrite_everyone = search_iterable(
             self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(self.guild_id)

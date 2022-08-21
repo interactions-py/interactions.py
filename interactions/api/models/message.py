@@ -5,9 +5,7 @@ from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu
-from ..error import LibraryException
-from .attrs_utils import (
-    MISSING,
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
@@ -16,6 +14,8 @@ from .attrs_utils import (
     define,
     field,
 )
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .channel import Channel
 from .emoji import Emoji
 from .member import Member
