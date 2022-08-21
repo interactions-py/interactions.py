@@ -57,7 +57,7 @@ class Member(ClientSerializerMixin, IDMixin):
     hoisted_role: Optional[Any] = field(
         default=None, repr=False
     )  # TODO: Investigate what this is for when documented by Discord.
-    flags: int = field(, repr=False)  # TODO: Investigate what this is for when documented by Discord.
+    flags: int = field(repr=False)  # TODO: Investigate what this is for when documented by Discord.
 
     def __str__(self) -> str:
         return self.name or ""
