@@ -45,12 +45,16 @@ class Member(ClientSerializerMixin, IDMixin):
     _avatar: Optional[str] = field(default=None, discord_name="avatar", repr=False)
     roles: List[int] = field(converter=convert_list(int))
     joined_at: datetime = field(converter=datetime.fromisoformat, repr=False)
-    premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None, repr=False)
+    premium_since: Optional[datetime] = field(
+        converter=datetime.fromisoformat, default=None, repr=False
+    )
     deaf: bool = field()
     mute: bool = field()
     is_pending: Optional[bool] = field(default=None, repr=False)
     pending: Optional[bool] = field(default=None, repr=False)
-    permissions: Optional[Permissions] = field(converter=convert_int(Permissions), default=None, repr=False)
+    permissions: Optional[Permissions] = field(
+        converter=convert_int(Permissions), default=None, repr=False
+    )
     communication_disabled_until: Optional[datetime.isoformat] = field(
         converter=datetime.fromisoformat, default=None
     )
