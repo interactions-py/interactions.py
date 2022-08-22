@@ -490,7 +490,7 @@ class Member(ClientSerializerMixin, IDMixin):
         :return: URL of the members's avatar (None will be returned if no avatar is set)
         :rtype: str
         """
-        if not self.avatar:
+        if not self.avatar or self.avatar == self.user.avatar:
             return None
 
         if guild_id is MISSING:
