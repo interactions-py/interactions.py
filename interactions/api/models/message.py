@@ -512,7 +512,9 @@ class Embed(DictSerializerMixin):
         """
 
         try:
-            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
+            fields = self.fields
+            fields[index] = EmbedField(name=name, value=value, inline=inline)
+            self.fields = fields
 
         except AttributeError as e:
             raise AttributeError("No fields found in Embed") from e
