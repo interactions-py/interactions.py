@@ -12,14 +12,14 @@ from typing import (
     Union,
 )
 
-from ...api.error import LibraryException
-from .component import ActionRow, Button, SelectMenu
+from ..api.error import LibraryException
+from ..client.models.component import ActionRow, Button, Component, SelectMenu
 
 if TYPE_CHECKING:
-    from ..context import CommandContext
-    from ..bot import Extension
+    from ..client.bot import Extension
+    from ..client.context import CommandContext
 
-__all__ = ("autodefer", "spread_to_rows", "search_iterable")
+__all__ = ("autodefer", "spread_to_rows", "search_iterable", "disable_components")
 
 _T = TypeVar("_T")
 
@@ -28,7 +28,7 @@ def autodefer(
     delay: Union[float, int] = 2,
     ephemeral: bool = False,
     edit_origin: bool = False,
-) -> Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]:
+) -> Callable[[Callable[..., Union[Awaitable, Coroutine]]], Callable[..., Awaitable]]:
     """
     A decorator that automatically defers a command if it did not respond within ``delay`` seconds.
 
@@ -53,10 +53,12 @@ def autodefer(
     """
 
     def decorator(coro: Callable[..., Union[Awaitable, Coroutine]]) -> Callable[..., Awaitable]:
-        from ..context import ComponentContext
+        from ..client.context import ComponentContext
 
         @wraps(coro)
-        async def deferring_func(ctx: Union["CommandContext", "ComponentContext", "Extension"], *args, **kwargs):
+        async def deferring_func(
+            ctx: Union["CommandContext", "ComponentContext", "Extension"], *args, **kwargs
+        ):
             try:
                 loop = get_running_loop()
             except RuntimeError as e:
@@ -187,3 +189,45 @@ def search_iterable(
         )
 
     return list(iterable)
+
+
+def disable_components(
+    components: Union[
+        List[Component],
+        List[ActionRow],
+        List[Button],
+        List[SelectMenu],
+        ActionRow,
+        Component,
+        Button,
+        SelectMenu,
+    ]
+) -> None:
+    """
+    Disables the given components.
+
+    :param components: The components to disable
+    :type components: Union[List[Component], List[ActionRow], List[Button], List[SelectMenu], ActionRow, Component, Button, SelectMenu]
+    """
+    if isinstance(components, (Component, ActionRow)):
+        for component in components.components:
+            component.disabled = True
+    elif isinstance(components, (Button, SelectMenu)):
+        components.disabled = True
+    elif isinstance(components, list):
+        if not all(
+            isinstance(component, (Button, SelectMenu)) for component in components
+        ) or not all(isinstance(component, (ActionRow, Component)) for component in components):
+            raise LibraryException(
+                12,
+                "You must only specify lists of 'Buttons' and 'SelectMenus' or 'ActionRow' and 'Component'",
+            )
+        if isinstance(components[0], (Button, SelectMenu)):
+            for component in components:
+                component.disabled = True
+
+        elif isinstance(components[0], (ActionRow, Component)):
+            components: List[ActionRow, Component]
+            for _components in components:
+                for component in _components.components:
+                    component.disabled = True

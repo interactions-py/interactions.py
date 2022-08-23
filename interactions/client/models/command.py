@@ -4,7 +4,6 @@ from inspect import getdoc, signature
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
 
 from ...api.error import LibraryException
-from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import Channel, ChannelType
 from ...api.models.guild import Guild
 from ...api.models.member import Member
@@ -12,6 +11,8 @@ from ...api.models.message import Attachment
 from ...api.models.misc import Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:

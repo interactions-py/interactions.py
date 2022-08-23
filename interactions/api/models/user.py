@@ -1,8 +1,11 @@
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, define, field
+from ...utils.attrs_utils import ClientSerializerMixin, define, field
 from .flags import UserFlags
 from .misc import IDMixin, Snowflake
+
+if TYPE_CHECKING:
+    from .gw import Presence
 
 __all__ = ("User",)
 
@@ -96,3 +99,15 @@ class User(ClientSerializerMixin, IDMixin):
         url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
         url += ".gif" if self.banner.startswith("a_") else ".png"
         return url
+
+    @property
+    def presence(self) -> Optional["Presence"]:
+        """
+        Returns the presence of the user.
+
+        :return: Presence of the user (None will be returned if not cached)
+        :rtype: Optional[Presence]
+        """
+        from .gw import Presence
+
+        return self._client.cache[Presence].get(self.id)
