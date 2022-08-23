@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional
 
-from ...api.models.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
 from ...api.models.channel import Channel
 from ...api.models.member import Member
 from ...api.models.message import Attachment, Message
 from ...api.models.misc import Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
+from ...utils.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
 from ..enums import ApplicationCommandType, ComponentType, InteractionType, PermissionType
 from ..models.command import Option
 from .component import ActionRow
@@ -102,6 +102,11 @@ class Interaction(DictSerializerMixin):
     token: str = field()
     version: int = field()
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
+
+    def __attrs_post_init__(self):
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
 
 
 @define()

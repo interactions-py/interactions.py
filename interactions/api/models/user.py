@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, define, field
+from ...utils.attrs_utils import ClientSerializerMixin, define, field
 from .flags import UserFlags
 from .misc import IDMixin, Snowflake
 

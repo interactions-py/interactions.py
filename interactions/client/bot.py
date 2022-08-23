@@ -13,7 +13,6 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING, convert_list
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
 from ..api.models.misc import Image, Snowflake
@@ -21,6 +20,8 @@ from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
+from ..utils.attrs_utils import convert_list
+from ..utils.missing import MISSING
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
@@ -388,10 +389,42 @@ class Client:
                 log.debug("Client is now ready.")
                 await self._login()
 
+    async def _stop(self) -> None:
+        """Stops the websocket connection gracefully."""
+
+        log.debug("Shutting down the client....")
+        self._websocket.ready.clear()  # Clears ready state.
+        self._websocket._closing_lock.set()  # Toggles the "ready-to-shutdown" state for the bot.
+        # And subsequently, the processes will close itself.
+
+        await self._http._req._session.close()  # Closes the HTTP session associated with the client.
+
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
-        while not self._websocket._closed:
-            await self._websocket._establish_connection(self._shards, self._presence)
+
+        try:
+            await self._websocket.run()
+        except Exception:
+            log.exception("Websocket have raised an exception, closing.")
+
+            if self._websocket._closing_lock.is_set():
+                # signal for closing.
+
+                try:
+                    if self._websocket._task is not None:
+                        self._websocket.__heartbeat_event.set()
+                        try:
+                            # Wait for the keep-alive handler to finish so we can discard it gracefully
+                            await self._websocket._task
+                        finally:
+                            self._websocket._task = None
+                finally:  # then the overall WS client
+                    if self._websocket._client is not None:
+                        # This needs to be properly closed
+                        try:
+                            await self._websocket._client.close(code=1000)
+                        finally:
+                            self._websocket._client = None
 
     async def wait_until_ready(self) -> None:
         """Helper method that waits until the websocket is ready."""
@@ -1433,7 +1466,11 @@ class Client:
         :return: The modified User object
         :rtype: User
         """
-        payload: dict = {"username": username, "avatar": avatar.data}
+        payload: dict = {}
+        if avatar is not MISSING:
+            payload["avatar"] = avatar.data
+        if username is not MISSING:
+            payload["username"] = username
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)

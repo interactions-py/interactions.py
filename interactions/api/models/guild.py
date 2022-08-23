@@ -2,15 +2,15 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
-from ..error import LibraryException
-from .attrs_utils import (
-    MISSING,
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
     define,
     field,
 )
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
 from .emoji import Emoji
@@ -363,6 +363,11 @@ class Guild(ClientSerializerMixin, IDMixin):
                 if not self.presences:
                     self.presences = guild.presences
 
+        if self.members:
+            for member in self.members:
+                if not member._extras.get("guild_id"):
+                    member._extras["guild_id"] = self.id
+
     def __repr__(self) -> str:
         return self.name
 
@@ -580,7 +585,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             guild_id=int(self.id),
             member_id=int(member_id),
         )
-        member = Member(**res, _client=self._client)
+        member = Member(**res, _client=self._client, guild_id=self.id)
         if self.members is None:
             self.members = []
         for index, _member in enumerate(self.members):
@@ -1100,7 +1105,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             reason=reason,
         )
 
-        _member = Member(**res, _client=self._client)
+        _member = Member(**res, _client=self._client, guild_id=self.id)
         if self.members is None:
             self.members = []
         for index, member in enumerate(self.members):
@@ -2040,7 +2045,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         res = await self._client.get_list_of_members(
             guild_id=int(self.id), limit=limit, after=_after
         )
-        _members = [Member(**member, _client=self._client) for member in res]
+        _members = [Member(**member, _client=self._client, guild_id=self.id) for member in res]
         if self.members is None:
             self.members = []
         for member in _members:
@@ -2064,7 +2069,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         res = await self._client.search_guild_members(
             guild_id=int(self.id), query=query, limit=limit
         )
-        return [Member(**member, _client=self._client) for member in res]
+        return [Member(**member, _client=self._client, guild_id=self.id) for member in res]
 
     async def get_all_members(self) -> List[Member]:
         """
@@ -2091,7 +2096,7 @@ class Guild(ClientSerializerMixin, IDMixin):
                     guild_id=int(self.id), limit=100, after=int(_last_member.id)
                 )
         _all_members.extend(_members)
-        self.members = [Member(**_, _client=self._client) for _ in _all_members]
+        self.members = [Member(**_, _client=self._client, guild_id=self.id) for _ in _all_members]
         return self.members
 
     async def get_webhooks(self) -> List[Webhook]:
