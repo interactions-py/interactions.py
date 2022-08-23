@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union, overload
 
 import attrs
 
@@ -7,22 +7,6 @@ from interactions.api.http.client import HTTPClient
 
 _T = TypeVar("_T")
 _P = TypeVar("_P")
-
-
-class _Missing:
-    """A sentinel object for places where None is a valid value"""
-    _instance: ClassVar["_Missing"] = None
-
-    def __eq__(self, other): ...
-
-    def __repr__(self): ...
-
-    def __hash__(self): ...
-
-    def __bool__(self): ...
-
-
-MISSING = _Missing()
 
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)

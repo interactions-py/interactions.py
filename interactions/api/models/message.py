@@ -5,9 +5,7 @@ from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...client.models.component import ActionRow, Button, SelectMenu
-from ..error import LibraryException
-from .attrs_utils import (
-    MISSING,
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
@@ -16,10 +14,12 @@ from .attrs_utils import (
     define,
     field,
 )
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .channel import Channel
 from .emoji import Emoji
 from .member import Member
-from .misc import File, IDMixin, Snowflake
+from .misc import AllowedMentions, File, IDMixin, Snowflake
 from .team import Application
 from .user import User
 
@@ -512,7 +512,9 @@ class Embed(DictSerializerMixin):
         """
 
         try:
-            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
+            fields = self.fields
+            fields[index] = EmbedField(name=name, value=value, inline=inline)
+            self.fields = fields
 
         except AttributeError as e:
             raise AttributeError("No fields found in Embed") from e
@@ -744,7 +746,6 @@ class Message(ClientSerializerMixin, IDMixin):
     :ivar Optional[MessageActivity] activity?: Message activity object that's sent by Rich Presence
     :ivar Optional[Application] application?: Application object that's sent by Rich Presence
     :ivar Optional[MessageReference] message_reference?: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
-    :ivar Optional[Any] allowed_mentions: The allowed mentions of roles attached in the message.
     :ivar int flags: Message flags
     :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread?: The thread that started from this message, if any, with a thread member object embedded.
@@ -801,6 +802,11 @@ class Message(ClientSerializerMixin, IDMixin):
     )  # deprecated
     position: Optional[int] = field(default=None)
 
+    def __attrs_post_init__(self):
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
@@ -846,7 +852,7 @@ class Message(ClientSerializerMixin, IDMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         suppress_embeds: Optional[bool] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
@@ -873,8 +879,8 @@ class Message(ClientSerializerMixin, IDMixin):
         :type embeds?: Optional[Union[Embed, List[Embed]]]
         :param suppress_embeds?: Whether to suppress embeds in the message.
         :type suppress_embeds?: Optional[bool]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
         :type attachments?: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
@@ -922,7 +928,13 @@ class Message(ClientSerializerMixin, IDMixin):
             else []
         )
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
             _components = []
@@ -961,7 +973,7 @@ class Message(ClientSerializerMixin, IDMixin):
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
@@ -987,8 +999,8 @@ class Message(ClientSerializerMixin, IDMixin):
         :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components?: A component, or list of components for the message.
         :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
@@ -1009,7 +1021,13 @@ class Message(ClientSerializerMixin, IDMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference = MessageReference(message_id=int(self.id))._json
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         if not components or components is MISSING:

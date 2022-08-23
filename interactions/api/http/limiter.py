@@ -1,7 +1,7 @@
 from asyncio import Lock
 from typing import Optional
 
-from ..models.attrs_utils import MISSING
+from ...utils.missing import MISSING
 
 __all__ = ("Limiter",)
 

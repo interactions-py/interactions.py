@@ -2,17 +2,17 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 
-from ..error import LibraryException
-from .attrs_utils import (
-    MISSING,
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
     define,
     field,
 )
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .flags import Permissions
-from .misc import File, IDMixin, Overwrite, Snowflake
+from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from .guild import Invite, InviteTargetType
     from .member import Member
-    from .message import Attachment, Embed, Message, MessageInteraction, Sticker
+    from .message import Attachment, Embed, Message, Sticker
 
 __all__ = (
     "ChannelType",
@@ -198,7 +198,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
@@ -224,8 +224,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
         :type stickers?: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
@@ -241,7 +241,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _sticker_ids: list = (
             [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
         )
@@ -1235,7 +1241,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             return Permissions.ALL
 
         # @everyone role overwrites
-        from ...client.models.utils import search_iterable
+        from interactions.utils.utils import search_iterable
 
         overwrite_everyone = search_iterable(
             self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(self.guild_id)
