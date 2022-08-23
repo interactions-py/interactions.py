@@ -21,4 +21,3 @@ This is:
   - [ ] A breaking change
 
   <!--- Expand this when more comes up--->
-
