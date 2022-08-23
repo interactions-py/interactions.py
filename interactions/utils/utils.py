@@ -1,11 +1,22 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
-from typing import TYPE_CHECKING, Callable, Coroutine, Iterable, List, Optional, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Iterable,
+    List,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 from ..api.error import LibraryException
 from ..client.models.component import ActionRow, Button, Component, SelectMenu
 
 if TYPE_CHECKING:
+    from ..client.bot import Extension
     from ..client.context import CommandContext
 
 __all__ = ("autodefer", "spread_to_rows", "search_iterable", "disable_components")
@@ -17,7 +28,7 @@ def autodefer(
     delay: Union[float, int] = 2,
     ephemeral: bool = False,
     edit_origin: bool = False,
-) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
+) -> Callable[[Callable[..., Union[Awaitable, Coroutine]]], Callable[..., Awaitable]]:
     """
     A decorator that automatically defers a command if it did not respond within ``delay`` seconds.
 
@@ -41,16 +52,26 @@ def autodefer(
     :rtype:
     """
 
-    def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
+    def decorator(coro: Callable[..., Union[Awaitable, Coroutine]]) -> Callable[..., Awaitable]:
         from ..client.context import ComponentContext
 
         @wraps(coro)
-        async def deferring_func(ctx: Union["CommandContext", "ComponentContext"], *args, **kwargs):
+        async def deferring_func(
+            ctx: Union["CommandContext", "ComponentContext", "Extension"], *args, **kwargs
+        ):
             try:
                 loop = get_running_loop()
             except RuntimeError as e:
                 raise RuntimeError("No running event loop detected!") from e
-            task: Task = loop.create_task(coro(ctx, *args, **kwargs))
+
+            if isinstance(args[0], (ComponentContext, CommandContext)):
+                self = ctx
+                ctx = list(args).pop(0)
+
+                task: Task = loop.create_task(coro(self, ctx, *args, **kwargs))
+
+            else:
+                task: Task = loop.create_task(coro(ctx, *args, **kwargs))
 
             await sleep(delay)
 
