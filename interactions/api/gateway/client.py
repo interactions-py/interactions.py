@@ -32,10 +32,11 @@ from ..error import LibraryException
 from ..http.client import HTTPClient
 from ..models.flags import Intents
 from ..models.guild import Guild
+from ..models.gw import GuildMember
 from ..models.member import Member
+from ..models.message import Message
 from ..models.misc import Snowflake
 from ..models.presence import ClientPresence
-from ..models.gw import GuildMember
 from .heartbeat import _Heartbeat
 from .ratelimit import WSRateLimit
 
@@ -453,9 +454,8 @@ class WebSocketClient:
                         and not isinstance(obj, Guild)
                         and "message" not in name
                         and (id is not None or ids is not None)
+                        and (guild := self._http.cache[Guild].get(Snowflake(guild_id)))
                     ):
-                        return
-                    if (guild := self._http.cache[Guild].get(Snowflake(guild_id))) is None:
                         return
 
                     model_name: str = model.__name__.lower()
@@ -526,8 +526,6 @@ class WebSocketClient:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
                     elif "_delete_bulk" in name:
-                        from ..models.message import Message
-
                         _message_cache: "Storage" = self._http.cache[Message]
                         for message_id in ids:
                             _message_cache.pop(message_id)
@@ -540,7 +538,9 @@ class WebSocketClient:
             except AttributeError as error:
                 log.warning(f"An error occurred dispatching {name}: {error}")
 
-    def __get_object_id(self, data: dict, obj: Any, model: Any) -> Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]:
+    def __get_object_id(
+        self, data: dict, obj: Any, model: Any
+    ) -> Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]:
         """
         Gets an ID from object.
 
@@ -570,11 +570,7 @@ class WebSocketClient:
         elif model.__name__.startswith("Guild"):
             model_name = model.__name__[5:].lower()
             if (_data := getattr(obj, model_name, None)) and not isinstance(_data, list):
-                id = (
-                    getattr(_data, "id")
-                    if not isinstance(_data, dict)
-                    else Snowflake(_data["id"])
-                )
+                id = getattr(_data, "id") if not isinstance(_data, dict) else Snowflake(_data["id"])
             elif hasattr(obj, f"{model_name}_id"):
                 id = getattr(obj, f"{model_name}_id", None)
 
@@ -597,9 +593,7 @@ class WebSocketClient:
             model_name = model.__name__[5:].lower()
             if _data := getattr(obj, model_name, None):
                 ids = [
-                    getattr(_obj, "id")
-                    if not isinstance(_obj, dict)
-                    else Snowflake(_obj["id"])
+                    getattr(_obj, "id") if not isinstance(_obj, dict) else Snowflake(_obj["id"])
                     for _obj in _data
                 ]
         return ids
