@@ -35,6 +35,7 @@ from ..models.guild import Guild
 from ..models.member import Member
 from ..models.misc import Snowflake
 from ..models.presence import ClientPresence
+from ..models.gw import GuildMember
 from .heartbeat import _Heartbeat
 from .ratelimit import WSRateLimit
 
@@ -441,55 +442,36 @@ class WebSocketClient:
 
                 _cache: "Storage" = self._http.cache[model]
 
-                if isinstance(obj, Member):
-                    id = (Snowflake(data["guild_id"]), obj.id)
-                else:
-                    id = getattr(obj, "id", None)
-
+                id = ids = None
+                id = self.__get_object_id(data, obj, model)
                 if id is None:
-                    if model.__name__ == "GuildScheduledEventUser":
-                        id = model.guild_scheduled_event_id
-                    elif model.__name__ == "Presence":
-                        id = obj.user.id
-                    elif model.__name__ in [
-                        "Invite",
-                        "GuildBan",
-                        "ChannelPins",
-                        "MessageReaction",
-                        "MessageReactionRemove",
-                        "MessageDelete",
-                        # Extend this for everything that should not be cached
-                    ]:
-                        id = None
-                    elif model.__name__.startswith("Guild"):
-                        model_name = model.__name__[5:]
-                        if _data := getattr(obj, model_name, None):
-                            id = (
-                                getattr(_data, "id")
-                                if not isinstance(_data, dict)
-                                else Snowflake(_data["id"])
-                            )
-                        elif hasattr(obj, f"{model_name}_id"):
-                            id = getattr(obj, f"{model_name}_id", None)
+                    ids = self.__get_object_ids(obj, model)
 
                 def __modify_guild_cache():
                     if not (
                         (guild_id := data.get("guild_id"))
                         and not isinstance(obj, Guild)
                         and "message" not in name
-                        and id is not None
+                        and (id is not None or ids is not None)
                     ):
                         return
-                    if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
-                        model_name: str = model.__name__
-                        if "guild" in model_name:
-                            model_name = model_name[5:]
-                        elif model_name == "threadmembers":
-                            return
-                        _obj = getattr(guild, f"{model_name.lower()}s", None)
-                        if _obj is not None and isinstance(_obj, list):
-                            if "_create" in name or "_add" in name:
-                                _obj.append(obj)
+                    if (guild := self._http.cache[Guild].get(Snowflake(guild_id))) is None:
+                        return
+
+                    model_name: str = model.__name__.lower()
+
+                    if "guild" in model_name:
+                        model_name = model_name[5:]
+                    elif model_name == "threadmembers":
+                        return
+                    if not model_name.endswith("s"):
+                        model_name = f"{model_name}s"
+
+                    _obj = getattr(guild, model_name, None)
+                    if _obj is not None and isinstance(_obj, list):
+                        if "_create" in name or "_add" in name:
+                            _obj.append(obj)
+                        if id:
                             for index, __obj in enumerate(_obj):
                                 if __obj.id == id:
                                     if "_remove" in name or "_delete" in name:
@@ -498,19 +480,32 @@ class WebSocketClient:
                                     elif "_update" in name and hasattr(obj, "id"):
                                         _obj[index] = obj
                                     break
-                            setattr(guild, f"{model_name}s", _obj)
-                        self._http.cache[Guild].add(guild)
+                        elif ids:
+                            if "_update" in name:
+                                objs = getattr(obj, model_name, None)
+                                if objs is not None:
+                                    _obj.clear()
+                                    _obj.extend(objs)
+
+                        setattr(guild, model_name, _obj)
+                    self._http.cache[Guild].add(guild)
 
                 if "_create" in name or "_add" in name:
+                    self._dispatch.dispatch(f"on_{name}", obj)
                     if id:
                         _cache.merge(obj, id)
-                    self._dispatch.dispatch(f"on_{name}", obj)
                     __modify_guild_cache()
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-                    if not id:
+                    if not id and not ids:
                         return
+
+                    __modify_guild_cache()
+
+                    if id is None:
+                        return
+
                     old_obj = self._http.cache[model].get(id)
                     if old_obj:
                         before = model(**old_obj._json)
@@ -520,8 +515,6 @@ class WebSocketClient:
                         old_obj = obj
 
                     _cache.add(old_obj, id)
-                    __modify_guild_cache()
-
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
@@ -533,6 +526,12 @@ class WebSocketClient:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
                     elif "_delete_bulk" in name:
+                        from ..models.message import Message
+
+                        _message_cache: "Storage" = self._http.cache[Message]
+                        for message_id in ids:
+                            _message_cache.pop(message_id)
+
                         self._dispatch.dispatch(f"on_{name}", obj)
 
                 else:
@@ -540,6 +539,70 @@ class WebSocketClient:
 
             except AttributeError as error:
                 log.warning(f"An error occurred dispatching {name}: {error}")
+
+    def __get_object_id(self, data: dict, obj: Any, model: Any) -> Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]:
+        """
+        Gets an ID from object.
+
+        :param data: The data for the event.
+        :type data: dict
+        :param obj: The object of the event.
+        :param model: The model of the event.
+        :return: object ID
+        :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        """
+        if isinstance(obj, (Member, GuildMember)):
+            id = (Snowflake(data["guild_id"]), obj.id)
+        else:
+            id = getattr(obj, "id", None)
+        if id is not None:
+            return id
+
+        if model.__name__ == "GuildScheduledEventUser":
+            id = model.guild_scheduled_event_id
+        elif model.__name__ == "Presence":
+            id = obj.user.id
+        elif model.__name__ in [
+            "GuildBan",
+            # Extend this for everything that startswith `Guild` and should not be cached
+        ]:
+            id = None
+        elif model.__name__.startswith("Guild"):
+            model_name = model.__name__[5:].lower()
+            if (_data := getattr(obj, model_name, None)) and not isinstance(_data, list):
+                id = (
+                    getattr(_data, "id")
+                    if not isinstance(_data, dict)
+                    else Snowflake(_data["id"])
+                )
+            elif hasattr(obj, f"{model_name}_id"):
+                id = getattr(obj, f"{model_name}_id", None)
+
+        return id
+
+    def __get_object_ids(self, obj: Any, model: Any) -> Optional[List[Snowflake]]:
+        """
+        Gets a list of ids of object.
+
+        :param obj: The object of the event.
+        :param model: The model of the event.
+        :return: object IDs
+        :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        """
+        ids = getattr(obj, "ids", None)
+        if ids is not None:
+            return ids
+
+        if model.__name__.startswith("Guild"):
+            model_name = model.__name__[5:].lower()
+            if _data := getattr(obj, model_name, None):
+                ids = [
+                    getattr(_obj, "id")
+                    if not isinstance(_obj, dict)
+                    else Snowflake(_obj["id"])
+                    for _obj in _data
+                ]
+        return ids
 
     def __contextualize(self, data: dict) -> "_Context":
         """
