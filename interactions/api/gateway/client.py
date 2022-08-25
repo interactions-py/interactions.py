@@ -480,12 +480,11 @@ class WebSocketClient:
                                     elif "_update" in name and hasattr(obj, "id"):
                                         _obj[index] = obj
                                     break
-                        elif ids:
-                            if "_update" in name:
-                                objs = getattr(obj, model_name, None)
-                                if objs is not None:
-                                    _obj.clear()
-                                    _obj.extend(objs)
+                        elif ids and "_update" in name:
+                            objs = getattr(obj, model_name, None)
+                            if objs is not None:
+                                _obj.clear()
+                                _obj.extend(objs)
 
                         setattr(guild, model_name, _obj)
                     self._http.cache[Guild].add(guild)
