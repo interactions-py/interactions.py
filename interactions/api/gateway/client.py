@@ -524,10 +524,12 @@ class WebSocketClient:
                     if id:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
-                    elif "_delete_bulk" in name:
-                        _message_cache: "Storage" = self._http.cache[Message]
-                        for message_id in ids:
-                            _message_cache.pop(message_id)
+
+                        if "message" in name:
+                            self.__delete_message_cache(id)
+                    elif ids and "message_delete_bulk" in name:
+                        # currently only message has '_delete_bulk' event but ig better keep this condition for future.
+                        self.__delete_message_cache(ids)
 
                         self._dispatch.dispatch(f"on_{name}", obj)
 
@@ -563,7 +565,7 @@ class WebSocketClient:
             id = obj.user.id
         elif model.__name__ in [
             "GuildBan",
-            # Extend this for everything that startswith `Guild` and should not be cached
+            # Extend this for everything that starts with `Guild` and should not be cached
         ]:
             id = None
         elif model.__name__.startswith("Guild"):
@@ -595,7 +597,23 @@ class WebSocketClient:
                     getattr(_obj, "id") if not isinstance(_obj, dict) else Snowflake(_obj["id"])
                     for _obj in _data
                 ]
+
         return ids
+
+    def __delete_message_cache(self, ids: Union[Snowflake, List[Snowflake]]):
+        """
+        Deletes messages from cache.
+
+        :param ids: The ID or IDs of message(s).
+        :type ids: Union[Snowflake, List[Snowflake]]
+        """
+        if isinstance(ids, Snowflake):
+            ids = [ids]
+
+        _message_cache: "Storage" = self._http.cache[Message]
+        for message_id in ids:
+            _message_cache.pop(message_id)
+
 
     def __contextualize(self, data: dict) -> "_Context":
         """
