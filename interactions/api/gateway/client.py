@@ -549,7 +549,7 @@ class WebSocketClient:
         :type data: dict
         :param obj: The object of the event.
         :param model: The model of the event.
-        :return: object ID
+        :return: Object ID
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
         if isinstance(obj, (Member, GuildMember)):
@@ -565,7 +565,7 @@ class WebSocketClient:
             id = obj.user.id
         elif model.__name__ in [
             "GuildBan",
-            # Extend this for everything that starts with `Guild` and should not be cached
+            # Extend this for everything that starts with 'Guild' and should not be cached
         ]:
             id = None
         elif model.__name__.startswith("Guild"):
@@ -583,7 +583,7 @@ class WebSocketClient:
 
         :param obj: The object of the event.
         :param model: The model of the event.
-        :return: object IDs
+        :return: Object IDs
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
         ids = getattr(obj, "ids", None)
