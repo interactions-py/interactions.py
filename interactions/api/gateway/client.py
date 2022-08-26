@@ -560,7 +560,7 @@ class WebSocketClient:
             return id
 
         if model.__name__ == "GuildScheduledEventUser":
-            id = model.guild_scheduled_event_id
+            id = obj.guild_scheduled_event_id
         elif model.__name__ == "Presence":
             id = obj.user.id
         elif model.__name__ in [
