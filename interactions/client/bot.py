@@ -497,17 +497,18 @@ class Client:
                 )
 
             data: Union[dict, List[dict]] = cmd.full_data
-            coro = cmd.dispatcher
+            dispatcher = cmd.dispatcher
 
             self.__check_command(
                 command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
-                coro=coro,
+                coro=dispatcher,
             )
 
             if cmd.autocompletions:
                 self.__id_autocomplete.update(cmd.autocompletions)
 
-            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+            # weird interaction with methods, where they're a read-only version of their function
+            coro = dispatcher.__func__ if hasattr(dispatcher, "__func__") else dispatcher
 
             coro._command_data = data
             coro._name = cmd.name
@@ -529,7 +530,7 @@ class Client:
                 else:
                     self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
 
-            self.event(coro, name=f"command_{cmd.name}")
+            self.event(dispatcher, name=f"command_{cmd.name}")
             cmd.resolved = True
 
     async def __sync(self) -> None:  # sourcery no-metrics
@@ -1584,7 +1585,6 @@ class Extension:
 
             commands = self._commands.get(cmd.name, [])
             coro = cmd.dispatcher
-            coro = coro.__func__ if hasattr(coro, "__func__") else coro
             commands.append(coro)
             self._commands[f"command_{cmd.name}"] = commands
 

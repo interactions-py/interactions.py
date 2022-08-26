@@ -702,8 +702,14 @@ class Command(DictSerializerMixin):
 
         return decorator
 
-    @property
-    def dispatcher(self) -> Callable[..., Awaitable]:
+    async def dispatcher(
+        self,
+        ctx: "CommandContext",
+        *args,
+        sub_command_group: Optional[str] = None,
+        sub_command: Optional[str] = None,
+        **kwargs,
+    ) -> Optional[BaseResult]:
         """
         Returns a coroutine that calls the command along with the subcommands, if any.
 
@@ -713,47 +719,33 @@ class Command(DictSerializerMixin):
         :return: A coroutine that calls the command along with the subcommands, if any.
         :rtype: Callable[..., Awaitable]
         """
-        if not self.has_subcommands:
-            return self.__wrap_coro(self.coro)
-
-        @wraps(self.coro)
-        async def dispatch(
-            ctx: "CommandContext",
-            *args,
-            sub_command_group: Optional[str] = None,
-            sub_command: Optional[str] = None,
-            **kwargs,
-        ) -> Optional[Any]:
-            """Dispatches all of the subcommands of the command."""
-            base_coro = self.coro
-            base_res = BaseResult(
-                result=await self.__call(base_coro, ctx, *args, _name=self.name, **kwargs)
+        base_coro = self.coro
+        base_res = BaseResult(
+            result=await self.__call(base_coro, ctx, *args, _name=self.name, **kwargs)
+        )
+        if base_res() is StopCommand or isinstance(base_res(), StopCommand):
+            return
+        if sub_command_group:
+            group_coro = self.coroutines[sub_command_group]
+            name = f"{sub_command_group} {sub_command}"
+            subcommand_coro = self.coroutines[name]
+            group_res = GroupResult(
+                result=await self.__call(
+                    group_coro, ctx, *args, _res=base_res, _name=sub_command_group, **kwargs
+                ),
+                parent=base_res,
             )
-            if base_res() is StopCommand or isinstance(base_res(), StopCommand):
+            if group_res() is StopCommand or isinstance(group_res(), StopCommand):
                 return
-            if sub_command_group:
-                group_coro = self.coroutines[sub_command_group]
-                name = f"{sub_command_group} {sub_command}"
-                subcommand_coro = self.coroutines[name]
-                group_res = GroupResult(
-                    result=await self.__call(
-                        group_coro, ctx, *args, _res=base_res, _name=sub_command_group, **kwargs
-                    ),
-                    parent=base_res,
-                )
-                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
-                    return
-                return await self.__call(
-                    subcommand_coro, ctx, *args, _res=group_res, _name=name, **kwargs
-                )
-            elif sub_command:
-                subcommand_coro = self.coroutines[sub_command]
-                return await self.__call(
-                    subcommand_coro, ctx, *args, _res=base_res, _name=sub_command, **kwargs
-                )
-            return base_res
-
-        return dispatch
+            return await self.__call(
+                subcommand_coro, ctx, *args, _res=group_res, _name=name, **kwargs
+            )
+        elif sub_command:
+            subcommand_coro = self.coroutines[sub_command]
+            return await self.__call(
+                subcommand_coro, ctx, *args, _res=base_res, _name=sub_command, **kwargs
+            )
+        return base_res
 
     def autocomplete(
         self, name: Optional[str] = MISSING
