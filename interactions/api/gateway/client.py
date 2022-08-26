@@ -614,7 +614,6 @@ class WebSocketClient:
         for message_id in ids:
             _message_cache.pop(message_id)
 
-
     def __contextualize(self, data: dict) -> "_Context":
         """
         Takes raw data given back from the Gateway
