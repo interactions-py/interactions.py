@@ -711,13 +711,17 @@ class Command(DictSerializerMixin):
         **kwargs,
     ) -> Optional[BaseResult]:
         """
-        Returns a coroutine that calls the command along with the subcommands, if any.
+        Call the command along with any subcommands
 
-        .. note::
-            The coroutine returned is never the same object.
-
-        :return: A coroutine that calls the command along with the subcommands, if any.
-        :rtype: Callable[..., Awaitable]
+        :param ctx: The context for the interaction
+        :type ctx: CommandContext
+        :param args: The args to be passed to the command
+        :param sub_command_group: The subcommand group being invoked, if any
+        :type sub_command_group: Optional[str]
+        :param sub_command: The subcommand being invoked, if any
+        :type sub_command: Optional[str]
+        :param kwargs: The kwargs to pass to the command
+        :return:
         """
         base_coro = self.coro
         base_res = BaseResult(
