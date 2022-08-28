@@ -617,7 +617,7 @@ class WebSocketClient:
             return getattr(__import__(path), model.__name__[5:])
 
         return model
-    
+
     def __modify_guild_cache(
         self,
         name: str,
