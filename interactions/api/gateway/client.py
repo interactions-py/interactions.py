@@ -573,7 +573,15 @@ class WebSocketClient:
         for message_id in ids:
             _message_cache.pop(message_id)
 
-    def __modify_guild_cache(self, name: str, data: dict, model: Any, obj: Any, id: Optional[Snowflake] = None, ids: Optional[List[Snowflake]] = None):
+    def __modify_guild_cache(
+        self,
+        name: str,
+        data: dict,
+        model: Any,
+        obj: Any,
+        id: Optional[Snowflake] = None,
+        ids: Optional[List[Snowflake]] = None,
+    ):
         if not (
             (guild_id := data.get("guild_id"))
             and not isinstance(obj, Guild)
