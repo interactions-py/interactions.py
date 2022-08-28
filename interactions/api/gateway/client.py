@@ -448,59 +448,18 @@ class WebSocketClient:
                 if id is None:
                     ids = self.__get_object_ids(obj, model)
 
-                def __modify_guild_cache():
-                    if not (
-                        (guild_id := data.get("guild_id"))
-                        and not isinstance(obj, Guild)
-                        and "message" not in name
-                        and (id is not None or ids is not None)
-                        and (guild := self._http.cache[Guild].get(Snowflake(guild_id)))
-                    ):
-                        return
-
-                    model_name: str = model.__name__.lower()
-
-                    if "guild" in model_name:
-                        model_name = model_name[5:]
-                    elif model_name == "threadmembers":
-                        return
-                    if not model_name.endswith("s"):
-                        model_name = f"{model_name}s"
-
-                    _obj = getattr(guild, model_name, None)
-                    if _obj is not None and isinstance(_obj, list):
-                        if "_create" in name or "_add" in name:
-                            _obj.append(obj)
-                        if id:
-                            for index, __obj in enumerate(_obj):
-                                if __obj.id == id:
-                                    if "_remove" in name or "_delete" in name:
-                                        _obj.remove(__obj)
-
-                                    elif "_update" in name and hasattr(obj, "id"):
-                                        _obj[index] = obj
-                                    break
-                        elif ids and "_update" in name:
-                            objs = getattr(obj, model_name, None)
-                            if objs is not None:
-                                _obj.clear()
-                                _obj.extend(objs)
-
-                        setattr(guild, model_name, _obj)
-                    self._http.cache[Guild].add(guild)
-
                 if "_create" in name or "_add" in name:
                     self._dispatch.dispatch(f"on_{name}", obj)
                     if id:
                         _cache.merge(obj, id)
-                    __modify_guild_cache()
+                    self.__modify_guild_cache(name, data, model, obj, id, ids)
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
                     if not id and not ids:
                         return
 
-                    __modify_guild_cache()
+                    self.__modify_guild_cache(name, data, model, obj, id, ids)
 
                     if id is None:
                         return
@@ -520,7 +479,7 @@ class WebSocketClient:
 
                 elif "_remove" in name or "_delete" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-                    __modify_guild_cache()
+                    self.__modify_guild_cache(name, data, model, obj, id, ids)
                     if id:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
@@ -613,6 +572,48 @@ class WebSocketClient:
         _message_cache: "Storage" = self._http.cache[Message]
         for message_id in ids:
             _message_cache.pop(message_id)
+
+    def __modify_guild_cache(self, name: str, data: dict, model: Any, obj: Any, id: Optional[Snowflake] = None, ids: Optional[List[Snowflake]] = None):
+        if not (
+            (guild_id := data.get("guild_id"))
+            and not isinstance(obj, Guild)
+            and "message" not in name
+            and (id is not None or ids is not None)
+            and (guild := self._http.cache[Guild].get(Snowflake(guild_id)))
+        ):
+            return
+
+        model_name: str = model.__name__.lower()
+
+        if "guild" in model_name:
+            model_name = model_name[5:]
+        elif model_name == "threadmembers":
+            return
+        if not model_name.endswith("s"):
+            model_name = f"{model_name}s"
+
+        _obj = getattr(guild, model_name, None)
+        if _obj is not None and isinstance(_obj, list):
+            if "_create" in name or "_add" in name:
+                _obj.append(obj)
+            if id:
+                for index, __obj in enumerate(_obj):
+                    if __obj.id == id:
+                        if "_remove" in name or "_delete" in name:
+                            _obj.remove(__obj)
+
+                        elif "_update" in name and hasattr(obj, "id"):
+                            _obj[index] = obj
+                        break
+            elif ids and "_update" in name:
+                objs = getattr(obj, model_name, None)
+                if objs is not None:
+                    _obj.clear()
+                    _obj.extend(objs)
+
+            setattr(guild, model_name, _obj)
+
+        self._http.cache[Guild].add(guild)
 
     def __contextualize(self, data: dict) -> "_Context":
         """
