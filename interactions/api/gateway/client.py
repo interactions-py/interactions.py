@@ -132,13 +132,15 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+
         self._ratelimiter = (
             WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
         )
         self.__heartbeater: _Heartbeat = _Heartbeat(
             loop=self._loop if version_info < (3, 10) else None
         )
-        self._http: HTTPClient = HTTPClient(token)
+        self._http: HTTPClient = token
+
         self._client: Optional["ClientWebSocketResponse"] = None
 
         self.__closed: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
@@ -224,7 +226,8 @@ class WebSocketClient:
         Handles the client's connection with the Gateway.
         """
 
-        # Credit to NAFF for inspiration for the Gateway logic.
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
 
         url = await self._http.get_gateway()
         self.ws_url = url
@@ -892,3 +895,11 @@ class WebSocketClient:
         await self._send_packet(payload)
         log.debug(f"UPDATE_PRESENCE: {presence._json}")
         self.__presence = presence
+
+    async def close(self) -> None:
+        """
+        Closes the current connection.
+        """
+        if self._client:
+            await self._client.close()
+        self._closed = True

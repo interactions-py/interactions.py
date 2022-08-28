@@ -67,7 +67,7 @@ class Client:
     :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar Application me: The application representation of the client.
+    :ivar Application me?: The application representation of the client.
     """
 
     def __init__(
@@ -76,7 +76,7 @@ class Client:
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = HTTPClient(token=token)
+        self._http: HTTPClient = token
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
@@ -89,9 +89,9 @@ class Client:
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
-        self.__id_autocomplete = {}
-        self.me = None
 
+        self.me: Optional[Application] = None
+        self.__id_autocomplete = {}
         if self._default_scope:
             if not isinstance(self._default_scope, list):
                 self._default_scope = [self._default_scope]
@@ -110,9 +110,6 @@ class Client:
         else:
             self._automate_sync = True
 
-        data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data, _client=self._http)
-
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
@@ -127,12 +124,22 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
+
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
+
+        data = self._loop.run_until_complete(self._http.get_current_bot_information())
+        self.me = Application(**data, _client=self._http)
+
         try:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
+            self._loop.run_until_complete(self._logout())
             raise e from e
         except KeyboardInterrupt:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
+        finally:
+            self._loop.run_until_complete(self._logout())
 
     async def __register_id_autocomplete(self) -> None:  # TODO: make this use ID and not name
         for key in self.__id_autocomplete.keys():
@@ -1474,6 +1481,10 @@ class Client:
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)
+
+    async def _logout(self) -> None:
+        await self._websocket.close()
+        await self._http._req.close()
 
 
 # TODO: Implement the rest of cog behaviour when possible.
