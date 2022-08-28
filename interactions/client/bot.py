@@ -66,7 +66,7 @@ class Client:
     :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar Application me: The application representation of the client.
+    :ivar Application me?: The application representation of the client.
     """
 
     def __init__(
@@ -89,7 +89,7 @@ class Client:
         self.__global_commands = {}
         self.__guild_commands = {}
 
-        self.me: Application = None
+        self.me: Optional[Application] = None
         self.__id_autocomplete = {}
         if self._default_scope:
             if not isinstance(self._default_scope, list):
