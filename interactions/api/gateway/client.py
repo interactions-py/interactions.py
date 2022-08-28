@@ -507,7 +507,9 @@ class WebSocketClient:
         :param data: The data for the event.
         :type data: dict
         :param obj: The object of the event.
+        :type obj: Any
         :param model: The model of the event.
+        :type model: Any
         :return: Object ID
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
@@ -541,7 +543,9 @@ class WebSocketClient:
         Gets a list of ids of object.
 
         :param obj: The object of the event.
+        :type obj: Any
         :param model: The model of the event.
+        :type model: Any
         :return: Object IDs
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
@@ -582,6 +586,18 @@ class WebSocketClient:
         id: Optional[Snowflake] = None,
         ids: Optional[List[Snowflake]] = None,
     ):
+        """
+        Modifies guild cache.
+
+        :param event: The name of the event.
+        :type event: str
+        :param data: The data for the event.
+        :type data: dict
+        :param obj: The object of the event.
+        :type obj: Any
+        :param model: The model of the event.
+        :type model: Any
+        """
         if not (
             (guild_id := data.get("guild_id"))
             and not isinstance(obj, Guild)
