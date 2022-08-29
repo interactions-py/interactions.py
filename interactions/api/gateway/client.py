@@ -444,7 +444,7 @@ class WebSocketClient:
                 # I don't like this but idk what i should do then
                 guild_obj = guild_model = None
                 if model is GuildRole:
-                    guild_obj = Role(**data["role"]) if "role" in data else None
+                    guild_obj = Role(**role_data) if (role_data := data.get("role")) else None
                     guild_model = Role
                 elif model is GuildMember:
                     guild_obj = Member(**data)
