@@ -451,6 +451,7 @@ class WebSocketClient:
                     ids = self.__get_object_ids(obj, model)
 
                 # I don't like this but idk what i should do then
+                guild_obj = None
                 if guild_model is Role:
                     guild_obj = Role(**data["role"]) if "role" in data else None
                 elif guild_model is not None:
