@@ -520,7 +520,6 @@ class WebSocketClient:
                     elif ids and "message" in name:
                         # currently only message has '_delete_bulk' event but ig better keep this condition for future.
                         self.__delete_message_cache(ids)
-                        self._dispatch.dispatch(f"on_{name}", obj)
 
                     self._dispatch.dispatch(f"on_{name}", old_obj or obj)
 
