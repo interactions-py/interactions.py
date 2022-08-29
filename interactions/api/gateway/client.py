@@ -32,7 +32,7 @@ from ..error import LibraryException
 from ..http.client import HTTPClient
 from ..models.flags import Intents
 from ..models.guild import Guild
-from ..models.gw import GuildMember
+from ..models.gw import GuildMember, GuildRole
 from ..models.member import Member
 from ..models.message import Message
 from ..models.misc import Snowflake
@@ -439,25 +439,25 @@ class WebSocketClient:
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
                 model = getattr(__import__(path), _name)
-                guild_model = self.__convert_to_guild_model(model)
                 obj = model(**data)
 
+                # I don't like this but idk what i should do then
+                guild_obj = guild_model = None
+                if model is GuildRole:
+                    guild_obj = Role(**data["role"]) if "role" in data else None
+                    guild_model = Role
+                elif model is GuildMember:
+                    guild_obj = Member(**data)
+                    guild_model = Member
+
                 _cache: "Storage" = self._http.cache[model]
-                _guild_cache: "Storage" = self._http.cache[
-                    guild_model
-                ]  # There are stores 'Role' and 'Member' objects
+                _guild_cache: "Storage" = self._http.cache[guild_model]
+                # in _guild_cache stores 'Role' and 'Member' objects
 
                 ids = None
                 id = self.__get_object_id(data, obj, model)
                 if id is None:
                     ids = self.__get_object_ids(obj, model)
-
-                # I don't like this but idk what i should do then
-                guild_obj = None
-                if guild_model is Role:
-                    guild_obj = Role(**data["role"]) if "role" in data else None
-                elif guild_model is not None:
-                    guild_obj = guild_model(**data)
 
                 if "_create" in name or "_add" in name:
                     self._dispatch.dispatch(f"on_{name}", obj)
@@ -608,23 +608,6 @@ class WebSocketClient:
         _message_cache: "Storage" = self._http.cache[Message]
         for message_id in ids:
             _message_cache.pop(message_id)
-
-    def __convert_to_guild_model(self, model: Any) -> Optional[Any]:
-        """
-        Converts model with 'Guild' in name to model without.
-        Like `GuildMember` to `Member`, `GuildRole` to `Role`.
-
-        :param model: The original model of the event.
-        :type model: Any
-        :return: Converted model.
-        :rtype: Any
-        """
-        if model is Guild:
-            return
-
-        path = "interactions.api.models"
-        if model.__name__.startswith("Guild"):
-            return getattr(__import__(path), model.__name__[5:])
 
     def __modify_guild_cache(
         self,
