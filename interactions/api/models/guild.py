@@ -1632,8 +1632,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
         res = await self._client.get_scheduled_events(
-            guild_id=self.id,
-            with_user_count=with_user_count
+            guild_id=self.id, with_user_count=with_user_count
         )
         return [ScheduledEvents(**scheduled_event) for scheduled_event in res]
 
