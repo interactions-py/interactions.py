@@ -522,7 +522,7 @@ class WebSocketClient:
                         self.__delete_message_cache(ids)
                         self._dispatch.dispatch(f"on_{name}", obj)
 
-                    self._dispatch.dispatch(f"on_{name}", old_obj)
+                    self._dispatch.dispatch(f"on_{name}", old_obj or obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
