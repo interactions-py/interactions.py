@@ -434,27 +434,26 @@ class WebSocketClient:
         elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
             name: str = event.lower()
             try:
+                data["_client"] = self._http
 
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
                 model = getattr(__import__(path), _name)
                 guild_model = self.__convert_to_guild_model(model)
-                data["_client"] = self._http
                 obj = model(**data)
 
                 _cache: "Storage" = self._http.cache[model]
-                _guild_cache: "Storage" = self._http.cache[guild_model]
+                _guild_cache: "Storage" = self._http.cache[guild_model]  # There are stores 'Role' and 'Member' objects
 
                 ids = None
                 id = self.__get_object_id(data, obj, model)
                 if id is None:
                     ids = self.__get_object_ids(obj, model)
 
-                # TODO: Move to own method?
-                guild_obj = None
+                # I don't like this but idk what i should do then
                 if guild_model is Role:
-                    guild_obj = Role(**data["role"]) if "role" in data else _guild_cache.get(id)
-                elif guild_model is not None and guild_model is not model:
+                    guild_obj = Role(**data["role"]) if "role" in data else None
+                elif guild_model is not None:
                     guild_obj = guild_model(**data)
 
                 if "_create" in name or "_add" in name:
@@ -465,14 +464,14 @@ class WebSocketClient:
                         if guild_obj:
                             _guild_cache.add(guild_obj, id)
 
-                    self.__modify_guild_cache(name, data, guild_model, guild_obj, id, ids)
+                    self.__modify_guild_cache(name, data, guild_model or model, guild_obj or obj, id, ids)
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
                     if not id and not ids:
                         return
 
-                    self.__modify_guild_cache(name, data, guild_model, guild_obj, id, ids)
+                    self.__modify_guild_cache(name, data, guild_model or model, guild_obj or obj, id, ids)
                     if id is None:
                         return
                     if guild_obj:
@@ -496,23 +495,23 @@ class WebSocketClient:
                     )  # give previously stored and new one
 
                 elif "_remove" in name or "_delete" in name:
-                    self._dispatch.dispatch(f"on_raw_{name}", obj)
+                    self._dispatch.dispatch(f"on_raw_{name}", obj)  # Deprecated. Remove this in the future.
 
+                    old_obj = None
                     if id:
-                        if guild_obj:
-                            _guild_cache.pop(id)
-
+                        _guild_cache.pop(id)
+                        self.__modify_guild_cache(name, data, guild_model or model, guild_obj or obj, id, ids)
                         old_obj = _cache.pop(id)
-                        self._dispatch.dispatch(f"on_{name}", old_obj)
-
-                        self.__modify_guild_cache(name, data, guild_model, guild_obj, id, ids)
 
                         if "message" in name:
                             self.__delete_message_cache(id)
+
                     elif ids and "message" in name:
                         # currently only message has '_delete_bulk' event but ig better keep this condition for future.
                         self.__delete_message_cache(ids)
                         self._dispatch.dispatch(f"on_{name}", obj)
+
+                    self._dispatch.dispatch(f"on_{name}", old_obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
@@ -599,7 +598,7 @@ class WebSocketClient:
         for message_id in ids:
             _message_cache.pop(message_id)
 
-    def __convert_to_guild_model(self, model: Any) -> Any:
+    def __convert_to_guild_model(self, model: Any) -> Optional[Any]:
         """
         Converts model with 'Guild' in name to model without.
         Like `GuildMember` to `Member`, `GuildRole` to `Role`.
@@ -610,13 +609,12 @@ class WebSocketClient:
         :rtype: Any
         """
         if model is Guild:
-            return Guild
-        path = "interactions.api.models"
+            return
 
+        path = "interactions.api.models"
         if model.__name__.startswith("Guild"):
             return getattr(__import__(path), model.__name__[5:])
 
-        return model
 
     def __modify_guild_cache(
         self,
