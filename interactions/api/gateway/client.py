@@ -516,7 +516,9 @@ class WebSocketClient:
 
                     elif ids and "message" in name:
                         # currently only message has '_delete_bulk' event but ig better keep this condition for future.
-                        self.__delete_message_cache(ids)
+                        _message_cache: "Storage" = self._http.cache[Message]
+                        for message_id in ids:
+                            _message_cache.pop(message_id)
 
                     self._dispatch.dispatch(f"on_{name}", old_obj or obj)
 
@@ -590,20 +592,6 @@ class WebSocketClient:
                 ]
 
         return ids
-
-    def __delete_message_cache(self, ids: Union[Snowflake, List[Snowflake]]):
-        """
-        Deletes messages from cache.
-
-        :param ids: The ID or IDs of message(s).
-        :type ids: Union[Snowflake, List[Snowflake]]
-        """
-        if isinstance(ids, Snowflake):
-            ids = [ids]
-
-        _message_cache: "Storage" = self._http.cache[Message]
-        for message_id in ids:
-            _message_cache.pop(message_id)
 
     def __modify_guild_cache(
         self,
