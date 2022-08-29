@@ -514,9 +514,6 @@ class WebSocketClient:
                         )
                         old_obj = _cache.pop(id)
 
-                        if "message" in name:
-                            self.__delete_message_cache(id)
-
                     elif ids and "message" in name:
                         # currently only message has '_delete_bulk' event but ig better keep this condition for future.
                         self.__delete_message_cache(ids)
