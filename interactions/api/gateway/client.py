@@ -443,7 +443,9 @@ class WebSocketClient:
                 obj = model(**data)
 
                 _cache: "Storage" = self._http.cache[model]
-                _guild_cache: "Storage" = self._http.cache[guild_model]  # There are stores 'Role' and 'Member' objects
+                _guild_cache: "Storage" = self._http.cache[
+                    guild_model
+                ]  # There are stores 'Role' and 'Member' objects
 
                 ids = None
                 id = self.__get_object_id(data, obj, model)
@@ -465,14 +467,18 @@ class WebSocketClient:
                         if guild_obj:
                             _guild_cache.add(guild_obj, id)
 
-                    self.__modify_guild_cache(name, data, guild_model or model, guild_obj or obj, id, ids)
+                    self.__modify_guild_cache(
+                        name, data, guild_model or model, guild_obj or obj, id, ids
+                    )
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
                     if not id and not ids:
                         return
 
-                    self.__modify_guild_cache(name, data, guild_model or model, guild_obj or obj, id, ids)
+                    self.__modify_guild_cache(
+                        name, data, guild_model or model, guild_obj or obj, id, ids
+                    )
                     if id is None:
                         return
                     if guild_obj:
@@ -496,12 +502,16 @@ class WebSocketClient:
                     )  # give previously stored and new one
 
                 elif "_remove" in name or "_delete" in name:
-                    self._dispatch.dispatch(f"on_raw_{name}", obj)  # Deprecated. Remove this in the future.
+                    self._dispatch.dispatch(
+                        f"on_raw_{name}", obj
+                    )  # Deprecated. Remove this in the future.
 
                     old_obj = None
                     if id:
                         _guild_cache.pop(id)
-                        self.__modify_guild_cache(name, data, guild_model or model, guild_obj or obj, id, ids)
+                        self.__modify_guild_cache(
+                            name, data, guild_model or model, guild_obj or obj, id, ids
+                        )
                         old_obj = _cache.pop(id)
 
                         if "message" in name:
@@ -615,7 +625,6 @@ class WebSocketClient:
         path = "interactions.api.models"
         if model.__name__.startswith("Guild"):
             return getattr(__import__(path), model.__name__[5:])
-
 
     def __modify_guild_cache(
         self,
