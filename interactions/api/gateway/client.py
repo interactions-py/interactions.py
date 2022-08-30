@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
-from ...base import get_logger
+from ...base import __version__, get_logger
 from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
@@ -149,7 +149,7 @@ class WebSocketClient:
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
-            "headers": {"User-Agent": token},
+            "headers": {"User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "},
         }
 
         self._intents: Intents = intents
