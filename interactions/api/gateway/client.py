@@ -149,7 +149,7 @@ class WebSocketClient:
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
-            "headers": {"User-Agent": self._http._req._headers["User-Agent"]},
+            "headers": {"User-Agent": token},
         }
 
         self._intents: Intents = intents
