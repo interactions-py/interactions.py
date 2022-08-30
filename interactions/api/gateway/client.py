@@ -473,13 +473,13 @@ class WebSocketClient:
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-                    if not id and not ids:
+                    if not id and ids is None:
                         return
 
                     self.__modify_guild_cache(
                         name, data, guild_model or model, guild_obj or obj, id, ids
                     )
-                    if ids:
+                    if ids is not None:
                         # Not cached but it needed for events guild_emojis_update and guild_stickers_update
                         self._dispatch.dispatch(
                             f"on_{name}", obj
@@ -520,7 +520,7 @@ class WebSocketClient:
                         )
                         old_obj = _cache.pop(id)
 
-                    elif ids and "message" in name:
+                    elif ids is not None and "message" in name:
                         # currently only message has '_delete_bulk' event but ig better keep this condition for future.
                         _message_cache: "Storage" = self._http.cache[Message]
                         for message_id in ids:
@@ -651,7 +651,7 @@ class WebSocketClient:
                         elif "_update" in name and hasattr(obj, "id"):
                             iterable[index] = obj
                         break
-            elif ids and "_update" in name:
+            elif ids is not None and "_update" in name:
                 objs = getattr(obj, attr, None)
                 if objs is not None:
                     iterable.clear()
