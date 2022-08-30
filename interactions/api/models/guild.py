@@ -15,11 +15,12 @@ from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
 from .emoji import Emoji
 from .member import Member
-from .message import Sticker
+from .message import Sticker, StickerPack
 from .misc import (
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,
+    File,
     IDMixin,
     Image,
     Overwrite,
@@ -2018,6 +2019,150 @@ class Guild(ClientSerializerMixin, IDMixin):
         for item in self.emojis:
             if int(item.id) == int(emoji_id):
                 return self.emojis.remove(item)
+
+    async def get_stickers(self) -> List[Sticker]:
+        """
+        Get the stickers for a guild.
+
+        :return: List of stickers of the guild.
+        :rtype: List[Sticker]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = await self._client.list_guild_stickers(guild_id=int(self.id))
+
+        stickers = [Sticker(**sticker) for sticker in res]
+
+        self.stickers = stickers
+
+    async def get_nitro_sticker_packs(self) -> List[StickerPack]:
+        """
+        Gets the list of sticker packs available to Nitro subscribers.
+
+        :return: List of sticker packs.
+        :rtype: List[StickerPack]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = await self._client.list_nitro_sticker_packs()
+
+        return [StickerPack(**sticker_pack) for sticker_pack in res]
+
+    async def create_sticker(
+        self,
+        file: File,
+        tags: str,
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Sticker:
+        """
+        Creates a new sticker for the guild.
+
+        :param file: The file of the sticker.
+        :type file: File
+        :param tags: The tags of the sticker.
+        :type tags: Optional[str]
+        :param name: The name of the sticker.
+        :type name: Optional[str]
+        :param description: The description of the sticker.
+        :type description: Optional[str]
+        :param reason: The reason of the creation.
+        :type reason: Optional[str]
+        :return: Created sticker for the guild.
+        :rtype: Sticker
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _name = name if name is not MISSING else file._filename
+
+        payload: dict = {
+            "name": _name,
+            "tags": tags,
+        }
+        if description is not MISSING:
+            payload["description"] = description
+
+        res = await self._client.create_guild_sticker(
+            payload=payload, file=file, guild_id=int(self.id), reason=reason
+        )
+
+        if self.stickers is None:
+            self.stickers = []
+
+        _sticker = Sticker(**res)
+        self.stickers.append(_sticker)
+        return _sticker
+
+    async def modify_sticker(
+        self,
+        sticker_id: Union[Sticker, Snowflake, int],
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Sticker:
+        """
+        Modifies the sticker of the guild.
+
+        :param sticker_id: The sticker or ID of the sticker.
+        :type sticker_id: Union[Sticker, Snowflake, int]
+        :param name: The name of the sticker.
+        :type name: Optional[str]
+        :param description: The description of the sticker.
+        :type description: Optional[str]
+        :param reason: The reason of the modification.
+        :type reason: Optional[str]
+        :return: Modified sticker.
+        :rtype: Sticker
+        """
+        _id = (
+            sticker_id.id
+            if isinstance(sticker_id, Sticker)
+            else int(sticker_id)
+            if isinstance(sticker_id, Snowflake)
+            else sticker_id
+        )
+
+        payload: dict = {}
+
+        if name is not MISSING:
+            payload["name"] = name
+        if description is not MISSING:
+            payload["description"] = description
+
+        res = await self._client.modify_guild_sticker(
+            payload=payload, guild_id=int(self.id), sticker_id=_id, reason=reason
+        )
+        _sticker = Sticker(**res)
+        for sticker in self.stickers:
+            if sticker.id == _sticker.id:
+                sticker.update(res)
+                return sticker
+
+    async def delete_sticker(
+        self, sticker_id: Union[Sticker, Snowflake, int], reason: Optional[str] = None
+    ):
+        """Deletes the sticker of the guild.
+
+        :param sticker_id: The sticker or ID of the sticker.
+        :type sticker_id: Union[Sticker, Snowflake, int]
+        :param reason: The reason of the deletion.
+        :type reason: Optional[str]
+        """
+        _id = (
+            sticker_id.id
+            if isinstance(sticker_id, Sticker)
+            else int(sticker_id)
+            if isinstance(sticker_id, Snowflake)
+            else sticker_id
+        )
+
+        await self._client.delete_guild_sticker(
+            guild_id=int(self.id), sticker_id=_id, reason=reason
+        )
 
     async def get_list_of_members(
         self,

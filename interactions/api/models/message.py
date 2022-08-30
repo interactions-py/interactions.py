@@ -705,6 +705,29 @@ class Sticker(PartialSticker, IDMixin):
 
 
 @define()
+class StickerPack(DictSerializerMixin, IDMixin):
+    """
+    A class objects representing a pack of stickers.
+
+    :ivar Snowflake id: ID of the sticker pack.
+    :ivar List[Sticker] stickers: The stickers in the pack.
+    :ivar str name: The name of sticker pack.
+    :ivar Snowflake sku_id: ID of the pack's SKU.
+    :ivar Optional[Snowflake] cover_sticker_id?: ID of a sticker in the pack which is shown as the pack's icon.
+    :ivar str description: The description of sticker pack.
+    :ivar Optional[Snowflake] banned_asset_id?: ID of the sticker pack's banner image.
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    stickers: List[Sticker] = field(converter=convert_list(Sticker))
+    name: str = field()
+    sku_id: Snowflake = field(converter=Snowflake)
+    cover_sticker_id: Optional[Snowflake] = field(default=None)
+    description: str = field()
+    banned_asset_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+
+@define()
 class ReactionObject(DictSerializerMixin):
     """The reaction object.
 
