@@ -479,6 +479,12 @@ class WebSocketClient:
                     self.__modify_guild_cache(
                         name, data, guild_model or model, guild_obj or obj, id, ids
                     )
+                    if ids:
+                        # Not cached but it needed for events guild_emojis_update and guild_stickers_update
+                        self._dispatch.dispatch(
+                            f"on_{name}", obj
+                        )
+                        return
                     if id is None:
                         return
                     if guild_obj:
