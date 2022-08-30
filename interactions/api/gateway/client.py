@@ -481,9 +481,7 @@ class WebSocketClient:
                     )
                     if ids:
                         # Not cached but it needed for events guild_emojis_update and guild_stickers_update
-                        self._dispatch.dispatch(
-                            f"on_{name}", obj
-                        )
+                        self._dispatch.dispatch(f"on_{name}", obj)
                         return
                     if id is None:
                         return
