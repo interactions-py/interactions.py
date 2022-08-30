@@ -2119,6 +2119,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         :return: Modified sticker.
         :rtype: Sticker
         """
+        if not self._client:
+            raise LibraryException(code=13)
+
         _id = (
             sticker_id.id
             if isinstance(sticker_id, Sticker)
@@ -2153,6 +2156,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param reason: The reason of the deletion.
         :type reason: Optional[str]
         """
+        if not self._client:
+            raise LibraryException(code=13)
+
         _id = (
             sticker_id.id
             if isinstance(sticker_id, Sticker)
