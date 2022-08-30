@@ -2033,8 +2033,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         res = await self._client.list_guild_stickers(guild_id=int(self.id))
 
         stickers = [Sticker(**sticker) for sticker in res]
-
         self.stickers = stickers
+
+        return self.stickers
 
     async def get_nitro_sticker_packs(self) -> List[StickerPack]:
         """
