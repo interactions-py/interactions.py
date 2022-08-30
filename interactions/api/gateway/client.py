@@ -149,7 +149,9 @@ class WebSocketClient:
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
-            "headers": {"User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "},
+            "headers": {
+                "User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "
+            },
         }
 
         self._intents: Intents = intents
