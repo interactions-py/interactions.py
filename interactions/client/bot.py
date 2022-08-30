@@ -272,6 +272,7 @@ class Client:
                 ),
                 True,
             )
+
         for command in pool:
             if command["name"] == data["name"]:
                 _command = command
