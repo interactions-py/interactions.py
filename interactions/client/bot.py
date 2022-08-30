@@ -301,6 +301,7 @@ class Client:
                         elif command.get("options") and data.get("options"):
 
                             clean = __check_options(command, data)
+
                         if not clean:
                             return clean, _command
 
