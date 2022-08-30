@@ -194,7 +194,7 @@ class Client:
             if any(option not in _command_option_names for option in _data_option_names) or len(
                 _data_option_names
             ) != len(_command_option_names):
-                return False, command
+                return False
 
             for option in command.get("options"):
                 for _option in data.get("options"):
@@ -206,7 +206,7 @@ class Client:
                                 or not option.get(option_attr)
                                 and _option.get(option_attr)
                             ):
-                                return False, command
+                                return False
                             elif option_attr == "choices":
                                 if not option.get("choices") or not _option.get("choices"):
                                     continue
@@ -221,7 +221,7 @@ class Client:
                                 if any(
                                     _ not in _option_choice_names for _ in _data_choice_names
                                 ) or len(_data_choice_names) != len(_option_choice_names):
-                                    return False, command
+                                    return False
 
                                 for choice in option.get("choices"):
                                     for _choice in _option.get("choices"):
@@ -233,17 +233,17 @@ class Client:
                                                     or not choice.get(choice_attr)
                                                     and _choice.get(choice_attr)
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 elif choice.get(choice_attr) != _choice.get(
                                                     choice_attr
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 else:
                                                     continue
 
                                 for i, __name in enumerate(_option_choice_names):
                                     if _data_choice_names[i] != __name:
-                                        return False, command
+                                        return False
 
                             elif option_attr == "required":
                                 if (
@@ -256,24 +256,22 @@ class Client:
                             elif option_attr == "options":
                                 if not option.get(option_attr) and not _option.get("options"):
                                     continue
-                                _clean, _command = __check_options(option, _option)
+                                _clean = __check_options(option, _option)
                                 if not _clean:
-                                    return _clean, _command
+                                    return _clean
 
                             elif option.get(option_attr) != _option.get(option_attr):
-                                return False, command
+                                return False
                             else:
                                 continue
-
             return next(
                 (
-                    (False, command)
+                    False
                     for i, __name in enumerate(_command_option_names)
                     if _data_option_names[i] != __name
                 ),
-                (True, command),
+                True,
             )
-
         for command in pool:
             if command["name"] == data["name"]:
                 _command = command
@@ -301,8 +299,7 @@ class Client:
 
                         elif command.get("options") and data.get("options"):
 
-                            clean, _command = __check_options(command, data)
-
+                            clean = __check_options(command, data)
                         if not clean:
                             return clean, _command
 
