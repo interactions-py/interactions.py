@@ -72,7 +72,7 @@ class Client:
 
     def __init__(
         self,
-        token: str,
+        token: str = None,
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
@@ -122,8 +122,17 @@ class Client:
 
         return self._websocket.latency * 1000
 
-    def start(self) -> None:
+    def start(self, token: str = None) -> None:
         """Starts the client session."""
+
+        if self._http and token:
+            raise RuntimeError("You cannot pass a token to the bot twice")
+        elif not (self._http or token):
+            raise RuntimeError("No token was passed to the bot")
+        
+        if token:
+            self._http = token
+            self._websocket._http = token  # Update the websockets token if it wasn't set before
 
         if isinstance(self._http, str):
             self._http = HTTPClient(self._http)
