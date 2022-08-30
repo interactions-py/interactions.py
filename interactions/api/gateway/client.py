@@ -589,7 +589,7 @@ class WebSocketClient:
 
         if model.__name__.startswith("Guild"):
             model_name = model.__name__[5:].lower()
-            if _data := getattr(obj, model_name, None):
+            if (_data := getattr(obj, model_name, None)) is not None:
                 ids = [
                     getattr(_obj, "id") if not isinstance(_obj, dict) else Snowflake(_obj["id"])
                     for _obj in _data
