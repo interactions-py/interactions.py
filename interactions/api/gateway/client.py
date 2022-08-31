@@ -711,6 +711,13 @@ class WebSocketClient:
 
             self._client = None
 
+            # We need to check about existing heartbeater tasks for edge cases.
+
+            if self._task:
+                self._task.cancel()
+                if self.__heartbeat_event.is_set():
+                    self.__heartbeat_event.clear()  # Because we're hardresetting the process
+
             if not to_resume:
                 url = self.ws_url if self.ws_url else await self._http.get_gateway()
             else:
@@ -722,12 +729,7 @@ class WebSocketClient:
 
             self.__heartbeater.delay = data["d"]["heartbeat_interval"]
 
-            if self._task:
-                self._task.cancel()
-                if self.__heartbeat_event.is_set():
-                    self.__heartbeat_event.clear()  # Because we're hardresetting the process
-
-                self._task = create_task(self.run_heartbeat())
+            self._task = create_task(self.run_heartbeat())
 
             if not to_resume:
                 await self.__identify(self.__shard, self.__presence)
