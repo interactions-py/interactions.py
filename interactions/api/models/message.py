@@ -722,7 +722,7 @@ class StickerPack(DictSerializerMixin, IDMixin):
     stickers: List[Sticker] = field(converter=convert_list(Sticker))
     name: str = field()
     sku_id: Snowflake = field(converter=Snowflake)
-    cover_sticker_id: Optional[Snowflake] = field(default=None)
+    cover_sticker_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     description: str = field()
     banned_asset_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
 
