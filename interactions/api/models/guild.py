@@ -2154,11 +2154,9 @@ class Guild(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         _id = (
-            sticker_id.id
+            int(sticker_id.id)
             if isinstance(sticker_id, Sticker)
             else int(sticker_id)
-            if isinstance(sticker_id, Snowflake)
-            else sticker_id
         )
 
         await self._client.delete_guild_sticker(
