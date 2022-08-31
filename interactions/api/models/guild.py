@@ -2153,11 +2153,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
 
-        _id = (
-            int(sticker_id.id)
-            if isinstance(sticker_id, Sticker)
-            else int(sticker_id)
-        )
+        _id = int(sticker_id.id) if isinstance(sticker_id, Sticker) else int(sticker_id)
 
         await self._client.delete_guild_sticker(
             guild_id=int(self.id), sticker_id=_id, reason=reason
