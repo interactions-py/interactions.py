@@ -807,8 +807,10 @@ class WebSocketClient:
                 msg = loads(packet.data)
             except Exception as e:
                 import traceback
+
                 log.debug(
-                    f'Error serialising message: {"".join(traceback.format_exception(type(e), e, e.__traceback__))}.')
+                    f'Error serialising message: {"".join(traceback.format_exception(type(e), e, e.__traceback__))}.'
+                )
                 # There's an edge case when the packet's None... or some other deserialisation error.
                 # Instead of raising an exception, we just log it to debug, so it doesn't annoy end user's console logs.
                 msg = None
