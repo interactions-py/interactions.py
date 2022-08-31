@@ -262,7 +262,8 @@ class WebSocketClient:
                 _receive.cancel()
                 return
 
-            await self._handle_stream(msg)
+            if msg is not None:  # this can happen
+                await self._handle_stream(msg)
 
     async def _handle_stream(self, stream: Dict[str, Any]):
         """
@@ -800,7 +801,17 @@ class WebSocketClient:
             if packet.data is None:
                 continue  # We just loop it over because it could just be processing something.
 
-            return loads(packet.data) if isinstance(packet.data, str) else None
+            try:
+                msg = loads(packet.data)
+            except Exception as e:
+                import traceback
+                log.debug(
+                    f'Error serialising message: {"".join(traceback.format_exception(type(e), e, e.__traceback__))}.')
+                # There's an edge case when the packet's None... or some other deserialisation error.
+                # Instead of raising an exception, we just log it to debug, so it doesn't annoy end user's console logs.
+                msg = None
+
+            return msg
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
