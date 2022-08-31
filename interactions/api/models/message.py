@@ -477,7 +477,7 @@ class Embed(DictSerializerMixin):
         """
         Inserts a field in the embed at the specified index
 
-        :param index: The new field's index
+        :param index: The field's index to insert
         :type index: int
         :param name: The name of the field
         :type name: str
@@ -501,7 +501,7 @@ class Embed(DictSerializerMixin):
         """
         Overwrites the field in the embed at the specified index
 
-        :param index: The new field's index
+        :param index: The field's index to overwrite
         :type index: int
         :param name: The name of the field
         :type name: str
@@ -526,7 +526,7 @@ class Embed(DictSerializerMixin):
         """
         Remove field at the specified index
 
-        :param index: The new field's index
+        :param index: The field's index to remove
         :type index: int
         """
 
