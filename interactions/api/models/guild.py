@@ -2025,7 +2025,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         Get the stickers for a guild.
 
         :return: List of stickers of the guild.
-        :rtype: List[Sticker]
+        :rtype: Optional[List[Sticker]] 
         """
         if not self._client:
             raise LibraryException(code=13)
