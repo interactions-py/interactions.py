@@ -2141,7 +2141,9 @@ class Guild(ClientSerializerMixin, IDMixin):
                 return sticker
 
     async def delete_sticker(
-        self, sticker_id: Union[Sticker, Snowflake, int, str], reason: Optional[str] = None, 
+        self,
+        sticker_id: Union[Sticker, Snowflake, int, str],
+        reason: Optional[str] = None,
     ):
         """Deletes the sticker of the guild.
 
