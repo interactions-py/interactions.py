@@ -2147,8 +2147,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         :param sticker_id: The sticker or ID of the sticker.
         :type sticker_id: Union[Sticker, Snowflake, int]
-        :param reason: The reason of the deletion.
-        :type reason: Optional[str]
+        :param reason?: The reason of the deletion.
+        :type reason?: Optional[str]
         """
         if not self._client:
             raise LibraryException(code=13)
