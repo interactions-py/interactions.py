@@ -2083,9 +2083,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         payload: dict = {
             "name": _name,
             "tags": tags,
+            "description": description if description is not MISSING else ""
         }
-        if description is not MISSING:
-            payload["description"] = description
 
         res = await self._client.create_guild_sticker(
             payload=payload, file=file, guild_id=int(self.id), reason=reason
