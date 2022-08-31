@@ -2134,6 +2134,11 @@ class Guild(ClientSerializerMixin, IDMixin):
             payload=payload, guild_id=int(self.id), sticker_id=_id, reason=reason
         )
         _sticker = Sticker(**res)
+
+        if not self.stickers:
+            self.stickers = [_sticker]
+            return _sticker
+
         for sticker in self.stickers:
             if sticker.id == _sticker.id:
                 sticker.update(res)
@@ -2159,6 +2164,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         await self._client.delete_guild_sticker(
             guild_id=int(self.id), sticker_id=_id, reason=reason
         )
+
+        if not self.stickers:
+            return
+        for sticker in self.stickers:
+            if int(sticker.id) == _id:
+                self.stickers.remove(sticker)
+                break
 
     async def get_list_of_members(
         self,
