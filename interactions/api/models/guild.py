@@ -2122,11 +2122,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
 
-        _id = (
-            int(sticker_id.id) 
-            if isinstance(sticker_id, Sticker)
-            else int(sticker_id)
-        )
+        _id = int(sticker_id.id) if isinstance(sticker_id, Sticker) else int(sticker_id)
 
         payload: dict = {}
 
