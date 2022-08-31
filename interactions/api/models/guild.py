@@ -2020,7 +2020,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             if int(item.id) == int(emoji_id):
                 return self.emojis.remove(item)
 
-    async def get_stickers(self) -> List[Sticker]:
+    async def get_stickers(self) -> Optional[List[Sticker]]:
         """
         Get the stickers for a guild.
 
