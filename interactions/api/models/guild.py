@@ -2100,7 +2100,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def modify_sticker(
         self,
-        sticker_id: Union[Sticker, Snowflake, int],
+        sticker_id: Union[Sticker, Snowflake, int, str],
         name: Optional[str] = MISSING,
         description: Optional[str] = MISSING,
         reason: Optional[str] = None,
