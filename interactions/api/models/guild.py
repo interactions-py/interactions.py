@@ -2065,13 +2065,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param file: The file of the sticker.
         :type file: File
         :param tags: The tags of the sticker.
-        :type tags: Optional[str]
-        :param name: The name of the sticker.
-        :type name: Optional[str]
-        :param description: The description of the sticker.
-        :type description: Optional[str]
-        :param reason: The reason of the creation.
-        :type reason: Optional[str]
+        :type tags: str
+        :param name?: The name of the sticker.
+        :type name?: Optional[str]
+        :param description?: The description of the sticker.
+        :type description?: Optional[str]
+        :param reason?: The reason of the creation.
+        :type reason?: Optional[str]
         :return: Created sticker for the guild.
         :rtype: Sticker
         """
