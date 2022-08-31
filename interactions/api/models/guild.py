@@ -2110,12 +2110,12 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         :param sticker_id: The sticker or ID of the sticker.
         :type sticker_id: Union[Sticker, Snowflake, int]
-        :param name: The name of the sticker.
-        :type name: Optional[str]
-        :param description: The description of the sticker.
-        :type description: Optional[str]
-        :param reason: The reason of the modification.
-        :type reason: Optional[str]
+        :param name?: The name of the sticker.
+        :type name?: Optional[str]
+        :param description?: The description of the sticker.
+        :type description?: Optional[str]
+        :param reason?: The reason of the modification.
+        :type reason?: Optional[str]
         :return: Modified sticker.
         :rtype: Sticker
         """
