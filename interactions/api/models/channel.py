@@ -176,6 +176,9 @@ class AsyncHistoryIterator(BaseAsyncIterator):
 
         self.objects = [Message(**msg, _client=self._client) for msg in msgs]
 
+    def flatten(self):
+        return NotImplemented
+
     async def get_objects(self) -> None:
         from .message import Message
 
