@@ -199,7 +199,7 @@ class AsyncHistoryIterator(BaseAsyncIterator):
 
         self.objects.extend([Message(**msg, _client=self._client) for msg in msgs])
 
-    async def __anext__(self) -> Message:
+    async def __anext__(self) -> "Message":
         if self.objects is None:
             await self.get_first_objects()
 
