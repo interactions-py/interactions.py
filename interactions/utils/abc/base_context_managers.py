@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, TypeVar
+from typing import TypeVar
 
 _T = TypeVar("_T")
 
-__all__ = ("BaseAsyncContextManager", "BaseContextManager")
+__all__ = ("BaseAsyncContextManager", "BaseContextManager") 
 
 
 class BaseAsyncContextManager(metaclass=ABCMeta):
