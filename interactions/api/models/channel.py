@@ -1,4 +1,4 @@
-from asyncio import create_task, sleep, Task
+from asyncio import Task, create_task, sleep
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from math import inf
@@ -252,7 +252,7 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
         obj: Union[int, str, "Snowflake", "Channel"],
         _client: "HTTPClient",
     ):
-        
+
         try:
             self.loop = get_running_loop()
         except RuntimeError as e:
