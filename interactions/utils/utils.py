@@ -253,7 +253,7 @@ def get_channel_history(
     channel: Union[int, str, "Snowflake", "Channel"],
     start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
     reverse: Optional[bool] = False,
-    check: Optional[Callable[[Message], bool]] = None,
+    check: Optional[Callable[["Message"], bool]] = None,
     maximum: Optional[int] = inf,
 ) -> AsyncHistoryIterator:
     """
@@ -286,7 +286,7 @@ def get_guild_members(
     start_at: Optional[Union[int, str, "Snowflake", "Member"]] = MISSING,
     check: Optional[Callable[["Member"], bool]] = None,
     maximum: Optional[int] = inf,
-) -> AsyncMembersIterator:
+) -> "AsyncMembersIterator":
     """
     Gets the members of a guild
 
