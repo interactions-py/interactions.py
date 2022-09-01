@@ -525,17 +525,13 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         from .guild import Guild
 
-        if isinstance(guild_id, Guild):
-            guild = guild_id
+        if guild_id is MISSING:
+            _guild_id = self.guild_id
+            if isinstance(_guild_id, LibraryException):
+                raise _guild_id
 
         else:
-            if guild_id is MISSING:
-                _guild_id = self.guild_id
-                if isinstance(_guild_id, LibraryException):
-                    raise _guild_id
-
-            else:
-                _guild_id = int(guild_id)
+            _guild_id = int(guild_id) if not isinstance(guild_id, Guild) else int(guild_id.id)
 
             guild = Guild(**await self._client.get_guild(int(_guild_id)), _client=self._client)
 
