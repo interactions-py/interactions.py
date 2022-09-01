@@ -282,8 +282,8 @@ class AsyncMembersIterator(BaseAsyncIterator):
         self.objects.extend([Member(**member, _client=self._client) for member in members])
 
     async def flatten(self) -> List[Member]:
-        """returns all remaining items as list""" 
-        return [item async for item in self] 
+        """returns all remaining items as list"""
+        return [item async for item in self]
 
     async def __anext__(self) -> Member:
         if self.objects is None:
