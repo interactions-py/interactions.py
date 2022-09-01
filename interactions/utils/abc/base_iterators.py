@@ -48,7 +48,7 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         return self
 
     @abstractmethod
-    def flatten(self):
+    async def flatten(self):
         raise NotImplementedError
 
     @abstractmethod
