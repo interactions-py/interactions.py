@@ -44,15 +44,12 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         self.__stop: bool = False
         self.objects: Optional[List[_O]] = None
 
-    async def get_first_objects(self) -> None:
-        return NotImplemented
-
-    @abstractmethod
-    async def get_objects(self) -> None:
-        raise NotImplementedError
-
     def __aiter__(self):
         return self
+
+    @abstractmethod
+    def flatten(self):
+        raise NotImplementedError
 
     @abstractmethod
     async def __anext__(self) -> _O:
@@ -88,7 +85,7 @@ class BaseIterator(metaclass=ABCMeta):
         return self
 
     @abstractmethod
-    def get_objects(self) -> None:
+    def flatten(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
