@@ -247,8 +247,8 @@ def disable_components(
 
 def get_channel_history(
     http: "HTTPClient",
-    channel: Union[int, str, Snowflake, "Channel"],
-    start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+    channel: Union[int, str, "Snowflake", "Channel"],
+    start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
     reverse: Optional[bool] = False,
 ) -> AsyncHistoryIterator:
     """

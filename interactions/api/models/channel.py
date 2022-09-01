@@ -110,6 +110,8 @@ class AsyncHistoryIterator:
     :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
     :param reverse?: Whether to only get newer message. Default False
     :type reverse?: Optional[bool]
+    :param maximum?: A set maximum of messages to get before stopping the iteration
+    :type maximum?: Optional[int]
     """
 
     def __init__(
@@ -118,11 +120,14 @@ class AsyncHistoryIterator:
         channel: Union[int, str, Snowflake, "Channel"],
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         reverse: Optional[bool] = False,
+        maximum: Optional[int] = None,
     ):
 
         from .message import Message
 
+        self.maximum = maximum
         self._client = _client
+        self.message_count: int = 0
         self.channel_id = int(channel) if not isinstance(channel, Channel) else int(channel.id)
 
         if reverse and start_at is MISSING:
@@ -156,15 +161,20 @@ class AsyncHistoryIterator:
     async def get_first_messages(self) -> None:
         from .message import Message
 
+        limit = min(self.maximum, 100)
+
+        if self.maximum == limit:
+            self.__stop = True
+
         if self.after is not MISSING:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, after=self.after, limit=100
+                channel_id=self.channel_id, after=self.after, limit=limit
             )
             msgs.reverse()
             self.after = int(msgs[-1]["id"])
         else:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, before=self.before, limit=100
+                channel_id=self.channel_id, before=self.before, limit=limit
             )
             self.before = int(msgs[-1]["id"])
 
@@ -172,26 +182,32 @@ class AsyncHistoryIterator:
             # already all messages resolved with one operation
             self.__stop = True
 
+        self.message_count += min(self.maximum, 100)
+
         self.messages = [Message(**msg, _client=self._client) for msg in msgs]
 
     async def get_messages(self):
         from .message import Message
 
+        limit = min(50, self.maximum - self.message_count)
+
         if self.after is not MISSING:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, after=self.after, limit=50
+                channel_id=self.channel_id, after=self.after, limit=limit
             )
             msgs.reverse()
             self.after = int(msgs[-1]["id"])
         else:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, before=self.before, limit=50
+                channel_id=self.channel_id, before=self.before, limit=limit
             )
             self.before = int(msgs[-1]["id"])
 
-        if len(msgs) < 50:
+        if len(msgs) < limit or limit == self.maximum - self.message_count:
             # end of messages reached again
             self.__stop = True
+
+        self.message_count += limit
 
         self.messages.extend([Message(**msg, _client=self._client) for msg in msgs])
 
@@ -205,7 +221,7 @@ class AsyncHistoryIterator:
         try:
             msg = self.messages.pop(0)
 
-            if not self.__stop and len(self.messages) < 5:
+            if not self.__stop and len(self.messages) < 5 and self.message_count >= self.maximum:
                 await self.get_messages()
         except IndexError:
             raise StopAsyncIteration
@@ -312,12 +328,15 @@ class Channel(ClientSerializerMixin, IDMixin):
         self,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         reverse: Optional[bool] = False,
+        maximum: Optional[int] = None,
     ) -> AsyncHistoryIterator:
         """
         :param start_at?: The message to begin getting the history from
         :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
         :param reverse?: Whether to only get newer message. Default False
         :type reverse?: Optional[bool]
+        :param maximum?: A set maximum of messages to get before stopping the iteration
+        :type maximum?: Optional[int]
 
         :return: An asynchronous iterator over the history of the channel
         :rtype: AsyncHistoryIterator
@@ -325,7 +344,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
 
-        return AsyncHistoryIterator(self._client, self, start_at, reverse)
+        return AsyncHistoryIterator(self._client, self, start_at, reverse, maximum=maximum)
 
     async def send(
         self,
