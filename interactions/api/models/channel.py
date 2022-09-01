@@ -319,7 +319,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param reverse?: Whether to only get newer message. Default False
         :type reverse?: Optional[bool]
 
-        :return: An asynchronous iterator
+        :return: An asynchronous iterator over the history of the channel
         :rtype: AsyncHistoryIterator
         """
         return AsyncHistoryIterator(self._client, self, start_at, reverse)
