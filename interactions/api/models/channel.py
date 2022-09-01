@@ -1,4 +1,4 @@
-from asyncio import create_task, sleep
+from asyncio import create_task, sleep, Task
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from math import inf
@@ -252,7 +252,15 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
         obj: Union[int, str, "Snowflake", "Channel"],
         _client: "HTTPClient",
     ):
-        super().__init__(obj, _client)
+        
+        try:
+            self.loop = get_running_loop()
+        except RuntimeError as e:
+            raise RuntimeError("No running event loop detected!") from e
+
+        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self._client = _client
+        self.__task: Optional[Task] = None
 
     def __await__(self):
         return self._client.trigger_typing(self.object_id).__await__()
