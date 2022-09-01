@@ -106,14 +106,14 @@ class AsyncHistoryIterator(BaseAsyncIterator):
 
     :param _client: The HTTPClient of the bot
     :type _client: HTTPClient
-    :param channel: The channel to get the history from
-    :type channel: Union[int, str, Snowflake, "Channel"]
+    :param obj: The channel to get the history from
+    :type obj: Union[int, str, Snowflake, Channel]
     :param start_at?: The message to begin getting the history from
-    :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
+    :type start_at?: Optional[Union[int, str, Snowflake, Message]]
     :param reverse?: Whether to only get newer message. Default False
     :type reverse?: Optional[bool]
     :param check?: A check to ignore certain messages
-    :type check?: Optional[Callable[..., bool]]
+    :type check?: Optional[Callable[[Member], bool]]
     :param maximum?: A set maximum of messages to get before stopping the iteration
     :type maximum?: Optional[int]
     """
