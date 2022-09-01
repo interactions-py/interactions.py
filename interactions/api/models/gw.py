@@ -12,9 +12,10 @@ from .attrs_utils import (
     field,
 )
 from .channel import Channel, ThreadMember
+from .emoji import Emoji
 from .guild import EventMetadata
 from .member import Member
-from .message import Embed, Emoji, Message, MessageInteraction, Sticker
+from .message import Embed, Message, MessageInteraction, Sticker
 from .misc import (
     AutoModAction,
     AutoModTriggerMetadata,
@@ -38,6 +39,7 @@ __all__ = (
     "ChannelPins",
     "ThreadMembers",
     "ThreadList",
+    "MessageDelete",
     "MessageReactionRemove",
     "MessageReaction",
     "GuildIntegrations",
@@ -341,7 +343,7 @@ class GuildMember(ClientSerializerMixin):
     async def add_role(
         self,
         role: Union[Role, int],
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method adds a role to a member.
@@ -371,7 +373,7 @@ class GuildMember(ClientSerializerMixin):
     async def remove_role(
         self,
         role: Union[Role, int],
-        reason: Optional[str],
+        reason: Optional[str] = None,
     ) -> None:
         """
         This method removes a role from a member.
@@ -760,7 +762,22 @@ class Presence(ClientSerializerMixin):
 
 
 @define()
-class MessageReaction(DictSerializerMixin):
+class MessageDelete(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``MESSAGE_DELETE_BULK``.
+
+    :ivar List[Snowflake] ids: The message IDs of the event.
+    :ivar Snowflake channel_id: The channel ID of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    """
+
+    ids: List[Snowflake] = field(converter=convert_list(Snowflake))
+    channel_id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+
+@define()
+class MessageReaction(ClientSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD`` and ``MESSAGE_REACTION_REMOVE``.
 
@@ -776,7 +793,7 @@ class MessageReaction(DictSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     message_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    member: Optional[Member] = field(converter=Member, default=None)
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
 

@@ -372,13 +372,9 @@ class WebSocketClient:
                 elif data["type"] == InteractionType.MODAL_SUBMIT:
                     _name = f"modal_{_context.data.custom_id}"
 
-                    if _context.data._json.get("components"):
+                    if _context.data.components:
                         for component in _context.data.components:
-                            if component.get("components"):
-                                __args.append(
-                                    [_value["value"] for _value in component["components"]][0]
-                                )
-                            else:
+                            if component.components:
                                 __args.append([_value.value for _value in component.components][0])
 
                     self._dispatch.dispatch("on_modal", _context)
@@ -417,6 +413,7 @@ class WebSocketClient:
                         "ChannelPins",
                         "MessageReaction",
                         "MessageReactionRemove",
+                        "MessageDelete",
                         # Extend this for everything that should not be cached
                     ]:
                         id = None
@@ -466,7 +463,10 @@ class WebSocketClient:
                     self._dispatch.dispatch(f"on_{name}", obj)
                     __modify_guild_cache()
 
-                elif "_update" in name and hasattr(obj, "id"):
+                elif "_update" in name:
+                    self._dispatch.dispatch(f"on_raw_{name}", obj)
+                    if not id:
+                        return
                     old_obj = self._http.cache[model].get(id)
                     if old_obj:
                         before = model(**old_obj._json)
@@ -481,7 +481,6 @@ class WebSocketClient:
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
-                    return
 
                 elif "_remove" in name or "_delete" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
@@ -489,6 +488,8 @@ class WebSocketClient:
                     if id:
                         old_obj = _cache.pop(id)
                         self._dispatch.dispatch(f"on_{name}", old_obj)
+                    elif "_delete_bulk" in name:
+                        self._dispatch.dispatch(f"on_{name}", obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
