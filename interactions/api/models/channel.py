@@ -331,14 +331,17 @@ class Channel(ClientSerializerMixin, IDMixin):
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         reverse: Optional[bool] = False,
         maximum: Optional[int] = None,
+        check: Optional[Callable[["Message"], bool]] = None,
     ) -> AsyncHistoryIterator:
         """
         :param start_at?: The message to begin getting the history from
-        :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
+        :type start_at?: Optional[Union[int, str, Snowflake, Message]]
         :param reverse?: Whether to only get newer message. Default False
         :type reverse?: Optional[bool]
         :param maximum?: A set maximum of messages to get before stopping the iteration
         :type maximum?: Optional[int]
+        :param check?: A custom check to ignore certain messages
+        :type check?: Optional[Callable[[Message], bool]]
 
         :return: An asynchronous iterator over the history of the channel
         :rtype: AsyncHistoryIterator
