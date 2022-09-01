@@ -311,9 +311,7 @@ class _Context(ClientSerializerMixin):
         return payload
 
     async def has_permissions(
-        self,
-        *permissions: Union[int, Permissions],
-        operator: str = "and"
+        self, *permissions: Union[int, Permissions], operator: str = "and"
     ) -> bool:
         """
         Returns whether the author of the interaction has the permissions in the given context.

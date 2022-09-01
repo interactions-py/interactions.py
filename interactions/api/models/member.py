@@ -507,7 +507,9 @@ class Member(ClientSerializerMixin, IDMixin):
         url += ".gif" if self.avatar.startswith("a_") else ".png"
         return url
 
-    async def get_guild_permissions(self, guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING) -> Permissions:
+    async def get_guild_permissions(
+        self, guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING
+    ) -> Permissions:
         """
         Returns the permissions of the member for the specified guild.
 
@@ -557,7 +559,7 @@ class Member(ClientSerializerMixin, IDMixin):
         *permissions: Union[int, Permissions],
         channel: Optional[Channel] = MISSING,
         guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
-        operator: str = "and"
+        operator: str = "and",
     ) -> bool:
         """
         Returns whether the member has the permissions passed.
@@ -577,7 +579,11 @@ class Member(ClientSerializerMixin, IDMixin):
         :return: Whether the member has the permissions
         :rtype: bool
         """
-        perms = await self.get_guild_permissions(guild_id) if channel is MISSING else await channel.get_permissions_for(self)
+        perms = (
+            await self.get_guild_permissions(guild_id)
+            if channel is MISSING
+            else await channel.get_permissions_for(self)
+        )
 
         if operator == "and":
             for perm in permissions:
