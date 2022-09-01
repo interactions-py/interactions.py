@@ -1,7 +1,10 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from math import inf
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from warnings import warn
 
+from ...utils.abc.base_iterators import BaseAsyncIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -32,6 +35,7 @@ from .user import User
 from .webhook import Webhook
 
 if TYPE_CHECKING:
+    from ..http.client import HTTPClient
     from .gw import AutoModerationRule
     from .message import Message
 
@@ -53,6 +57,7 @@ __all__ = (
     "Guild",
     "GuildPreview",
     "Invite",
+    "AsyncMembersIterator",
 )
 
 
@@ -208,6 +213,104 @@ class UnavailableGuild(DictSerializerMixin, IDMixin):
 
     id: Snowflake = field(converter=Snowflake)
     unavailable: bool = field()
+
+
+class AsyncMembersIterator(BaseAsyncIterator):
+    """
+    A class object that allows iterating through a channel's history.
+
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    :param obj: The guild to get the members from
+    :type obj: Union[int, str, Snowflake, Guild]
+    :param start_at?: The member ID to start getting members from (gets all members after that member)
+    :type start_at?: Optional[Union[int, str, Snowflake, Member]]
+    :param check?: A check to ignore certain members
+    :type check?: Optional[Callable[[Member], bool]]
+    :param maximum?: A set maximum of members to get before stopping the iteration
+    :type maximum?: Optional[int]
+    """
+
+    def __init__(
+        self,
+        _client: "HTTPClient",
+        obj: Union[int, str, Snowflake, "Guild"],
+        maximum: Optional[int] = inf,
+        start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
+        check: Optional[Callable[[Member], bool]] = None,
+    ):
+        super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
+
+        self.after = self.start_at
+
+        self.objects: Optional[List[Member]]
+
+    async def get_first_objects(self) -> None:
+
+        limit = min(self.maximum, 1000)
+
+        if self.maximum == limit:
+            self.__stop = True
+
+        members = await self._client.get_list_of_members(
+            guild_id=self.object_id, after=self.after, limit=limit
+        )
+        self.after = int(members[-1]["id"])
+
+        if len(members) < 1000:
+            # already all messages resolved with one operation
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects = [Member(**member, _client=self._client) for member in members]
+
+    async def get_objects(self) -> None:
+
+        limit = min(500, self.maximum - self.object_count)
+        members = await self._client.get_list_of_members(
+            guild_id=self.object_id, after=self.after, limit=limit
+        )
+        self.after = int(members[-1]["id"])
+
+        if len(members) < limit or limit == self.maximum - self.object_count:
+            # end of messages reached again
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects.extend([Member(**member, _client=self._client) for member in members])
+
+    async def __anext__(self) -> Member:
+        if self.objects is None:
+            await self.get_first_objects()
+
+        try:
+            obj = self.objects.pop(0)
+
+            if self.check:
+
+                _res = self.check(obj)
+
+                while not _res:
+                    if (
+                        not self.__stop
+                        and len(self.objects) < 5
+                        and self.object_count >= self.maximum
+                    ):
+                        await self.get_objects()
+
+                    self.object_count -= 1
+                    obj = self.objects.pop(0)
+
+                    _res = self.check(obj)
+
+            if not self.__stop and len(self.objects) < 5 and self.object_count >= self.maximum:
+                await self.get_objects()
+        except IndexError:
+            raise StopAsyncIteration
+        else:
+            return obj
 
 
 @define()
@@ -2078,6 +2181,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         :return: Returns a list of all members of the guild
         :rtype: List[Member]
         """
+        warn(
+            "This method has been deprecated in favour of the 'get_members' method.",
+            DeprecationWarning,
+        )
+
         if not self._client:
             raise LibraryException(code=13)
 
@@ -2096,6 +2204,30 @@ class Guild(ClientSerializerMixin, IDMixin):
         _all_members.extend(_members)
         self.members = [Member(**_, _client=self._client, guild_id=self.id) for _ in _all_members]
         return self.members
+
+    def get_members(
+        self,
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        maximum: Optional[int] = None,
+        check: Optional[Callable[[Member], bool]] = None,
+    ) -> AsyncMembersIterator:
+        """
+        :param start_at?: The message to begin getting the history from
+        :type start_at?: Optional[Union[int, str, Snowflake, Member]]
+        :param maximum?: A set maximum of members to get before stopping the iteration
+        :type maximum?: Optional[int]
+        :param check?: A custom check to ignore certain members
+        :type check?: Optional[Callable[[Message], bool]]
+
+        :return: An asynchronous iterator over the members of the guild
+        :rtype: AsyncMembersIterator
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        return AsyncMembersIterator(
+            self._client, self, maximum=maximum, start_at=start_at, check=check
+        )
 
     async def get_webhooks(self) -> List[Webhook]:
         if not self._client:
