@@ -1,14 +1,9 @@
 from abc import ABCMeta, abstractmethod
-from asyncio import get_running_loop
-from typing import TYPE_CHECKING, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, TypeVar
 
 _T = TypeVar("_T")
 
-__all__ = ("BaseAsyncContextManager", "BaseContextManager")
-
-if TYPE_CHECKING:
-    from ...api.http.client import HTTPClient
-    from ...api.models.misc import Snowflake
+__all__ = ("BaseAsyncContextManager", "BaseContextManager"
 
 
 class BaseAsyncContextManager(metaclass=ABCMeta):
