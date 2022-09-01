@@ -176,7 +176,7 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
 
         self.objects = [Message(**msg, _client=self._client) for msg in msgs]
 
-    async def flatten(self) -> List[Member]:
+    async def flatten(self) -> List["Message"]:
         """returns all remaining items as list"""
         return [item async for item in self]
 
