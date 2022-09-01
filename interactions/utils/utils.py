@@ -15,7 +15,6 @@ from typing import (
 
 from ..api.error import LibraryException
 from ..api.models.channel import AsyncHistoryIterator
-from ..api.models.guild import AsyncMembersIterator
 from ..client.models.component import ActionRow, Button, Component, SelectMenu
 from .missing import MISSING
 
@@ -28,6 +27,7 @@ if TYPE_CHECKING:
     from ..api.models.misc import Snowflake
     from ..client.bot import Extension
     from ..client.context import CommandContext
+    from ..api.models.guild import AsyncMembersIterator 
 
 __all__ = (
     "autodefer",
@@ -305,5 +305,6 @@ def get_guild_members(
     :return: An asynchronous iterator over the history of the channel
     :rtype: AsyncMembersIterator
     """
+    from ..api.models.guild import AsyncMembersIterator
 
     return AsyncMembersIterator(http, guild, start_at=start_at, maximum=maximum, check=check)
