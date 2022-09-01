@@ -19,8 +19,7 @@ class BaseAsyncContextManager(metaclass=ABCMeta):
     @abstractmethod
     def __init__(
         self,
-        obj: Union[int, str, "Snowflake", _T] = None 
-,
+        obj: Union[int, str, "Snowflake", _T] = None,
         _client: Optional["HTTPClient"] = None,
     ):
 
