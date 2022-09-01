@@ -22,14 +22,14 @@ class BaseAsyncIterator(metaclass=ABCMeta):
     @abstractmethod
     def __init__(
         self,
-        obj: Union[int, str, "Snowflake", _T],
+        obj: Union[int, str, "Snowflake", _T] = None,
         _client: Optional["HTTPClient"] = None,
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, "Snowflake", _O]] = MISSING,
         check: Optional[Callable[[_O], bool]] = None,
     ):
 
-        self.object_id = int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
         self.maximum = maximum
         self.check = check
         self._client = _client
@@ -44,9 +44,9 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         self.__stop: bool = False
         self.objects: Optional[List[_O]] = None
 
-    @abstractmethod
+  
     async def get_first_objects(self) -> None:
-        raise NotImplementedError
+        return NotImplemented
 
     @abstractmethod
     async def get_objects(self) -> None:
@@ -66,12 +66,12 @@ class BaseIterator(metaclass=ABCMeta):
     @abstractmethod
     def __init__(
         self,
-        obj: Union[int, str, "Snowflake", _T],
+        obj: Union[int, str, "Snowflake", _T] = None,
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, "Snowflake", _O]] = MISSING,
         check: Optional[Callable[[_O], bool]] = None,
     ):
-        self.object_id = int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
         self.maximum = maximum
         self.check = check
         self.object_count: int = 0
