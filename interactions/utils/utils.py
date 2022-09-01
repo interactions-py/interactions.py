@@ -13,13 +13,25 @@ from typing import (
 )
 
 from ..api.error import LibraryException
+from ..api.models.channel import AsyncHistoryIterator
 from ..client.models.component import ActionRow, Button, Component, SelectMenu
+from .missing import MISSING
 
 if TYPE_CHECKING:
+    from ..api.http.client import HTTPClient
+    from ..api.models.channel import Channel
+    from ..api.models.message import Message
+    from ..api.models.misc import Snowflake
     from ..client.bot import Extension
     from ..client.context import CommandContext
 
-__all__ = ("autodefer", "spread_to_rows", "search_iterable", "disable_components")
+__all__ = (
+    "autodefer",
+    "spread_to_rows",
+    "search_iterable",
+    "disable_components",
+    "get_channel_history",
+)
 
 _T = TypeVar("_T")
 
@@ -231,3 +243,27 @@ def disable_components(
             for _components in components:
                 for component in _components.components:
                     component.disabled = True
+
+
+def get_channel_history(
+    http: "HTTPClient",
+    channel: Union[int, str, Snowflake, "Channel"],
+    start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+    reverse: Optional[bool] = False,
+) -> AsyncHistoryIterator:
+    """
+    Gets the history of a channel.
+
+    :param http: The HTTPClient of the bot
+    :type http: HTTPClient
+    :param channel: The channel to get the history from
+    :type channel: Union[int, str, Snowflake, "Channel"]
+    :param start_at?: The message to begin getting the history from
+    :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
+    :param reverse?: Whether to only get newer message. Default False
+    :type reverse?: Optional[bool]
+
+    :return: An asynchronous iterator over the history of the channel
+    :rtype: AsyncHistoryIterator
+    """
+    return AsyncHistoryIterator(http, channel, start_at, reverse)
