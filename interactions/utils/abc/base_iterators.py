@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from math import inf
 from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
 
-from ..utils.missing import MISSING
+from ..missing import MISSING
 
 _T = TypeVar("_T")
 _O = TypeVar("_O")
