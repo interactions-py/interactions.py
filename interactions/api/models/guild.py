@@ -281,6 +281,9 @@ class AsyncMembersIterator(BaseAsyncIterator):
 
         self.objects.extend([Member(**member, _client=self._client) for member in members])
 
+    def flatten(self):
+        return NotImplemented
+
     async def __anext__(self) -> Member:
         if self.objects is None:
             await self.get_first_objects()
