@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
+from math import inf
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 from warnings import warn
 
@@ -10,6 +11,7 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
+from ...utils.base_async_iterator import BaseAsyncIterator
 from ...utils.missing import MISSING
 from ..error import LibraryException
 from .flags import Permissions
@@ -98,7 +100,7 @@ class ThreadMember(ClientSerializerMixin):
     mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
 
 
-class AsyncHistoryIterator:
+class AsyncHistoryIterator(BaseAsyncIterator):
     """
     A class object that allows iterating through a channel's history.
 
@@ -117,18 +119,14 @@ class AsyncHistoryIterator:
     def __init__(
         self,
         _client: "HTTPClient",
-        channel: Union[int, str, Snowflake, "Channel"],
+        obj: Union[int, str, Snowflake, "Channel"],
+        maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         reverse: Optional[bool] = False,
-        maximum: Optional[int] = None,
     ):
+        super().__init__(_client, obj, maximum=maximum, start_at=start_at)
 
         from .message import Message
-
-        self.maximum = maximum
-        self._client = _client
-        self.message_count: int = 0
-        self.channel_id = int(channel) if not isinstance(channel, Channel) else int(channel.id)
 
         if reverse and start_at is MISSING:
             raise LibraryException(
@@ -138,27 +136,14 @@ class AsyncHistoryIterator:
 
         if reverse:
             self.before = MISSING
-            self.after = (
-                None
-                if start_at is MISSING
-                else int(start_at)
-                if not isinstance(start_at, Message)
-                else int(start_at.id)
-            )
+            self.after = self.start_at
         else:
-            self.before = (
-                None
-                if start_at is MISSING
-                else int(start_at)
-                if not isinstance(start_at, Message)
-                else int(start_at.id)
-            )
+            self.before = self.start_at
             self.after = MISSING
 
-        self.__stop: bool = False
-        self.messages: Optional[List[Message]] = None
+        self.objects: Optional[List[Message]]
 
-    async def get_first_messages(self) -> None:
+    async def get_first_objects(self) -> None:
         from .message import Message
 
         limit = min(self.maximum, 100)
@@ -168,13 +153,13 @@ class AsyncHistoryIterator:
 
         if self.after is not MISSING:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, after=self.after, limit=limit
+                channel_id=self.object_id, after=self.after, limit=limit
             )
             msgs.reverse()
             self.after = int(msgs[-1]["id"])
         else:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, before=self.before, limit=limit
+                channel_id=self.object_id, before=self.before, limit=limit
             )
             self.before = int(msgs[-1]["id"])
 
@@ -182,51 +167,46 @@ class AsyncHistoryIterator:
             # already all messages resolved with one operation
             self.__stop = True
 
-        self.message_count += min(self.maximum, 100)
+        self.object_count += limit
 
-        self.messages = [Message(**msg, _client=self._client) for msg in msgs]
+        self.objects = [Message(**msg, _client=self._client) for msg in msgs]
 
-    async def get_messages(self):
+    async def get_objects(self) -> None:
         from .message import Message
 
-        limit = min(50, self.maximum - self.message_count)
-
+        limit = min(50, self.maximum - self.object_count)
+        print(limit)
         if self.after is not MISSING:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, after=self.after, limit=limit
+                channel_id=self.object_id, after=self.after, limit=limit
             )
             msgs.reverse()
             self.after = int(msgs[-1]["id"])
         else:
             msgs = await self._client.get_channel_messages(
-                channel_id=self.channel_id, before=self.before, limit=limit
+                channel_id=self.object_id, before=self.before, limit=limit
             )
             self.before = int(msgs[-1]["id"])
 
-        if len(msgs) < limit or limit == self.maximum - self.message_count:
+        if len(msgs) < limit or limit == self.maximum - self.object_count:
             # end of messages reached again
             self.__stop = True
 
-        self.message_count += limit
+        self.object_count += limit
 
-        self.messages.extend([Message(**msg, _client=self._client) for msg in msgs])
-
-    def __aiter__(self):
-        return self
+        self.objects.extend([Message(**msg, _client=self._client) for msg in msgs])
 
     async def __anext__(self):
-        if self.messages is None:
-            await self.get_first_messages()
+        await super().__anext__()
 
         try:
-            msg = self.messages.pop(0)
-
-            if not self.__stop and len(self.messages) < 5 and self.message_count >= self.maximum:
-                await self.get_messages()
+            obj = self.objects.pop(0)
+            if not self.__stop and len(self.objects) < 5 and self.object_count >= self.maximum:
+                await self.get_objects()
         except IndexError:
             raise StopAsyncIteration
         else:
-            return msg
+            return obj
 
 
 @define()
@@ -344,7 +324,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
 
-        return AsyncHistoryIterator(self._client, self, start_at, reverse, maximum=maximum)
+        return AsyncHistoryIterator(
+            self._client, self, start_at=start_at, reverse=reverse, maximum=maximum
+        )
 
     async def send(
         self,
