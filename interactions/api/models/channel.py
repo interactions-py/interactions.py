@@ -1,9 +1,11 @@
+from asyncio import create_task, sleep
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from math import inf
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, ContextManager, List, Optional, Union
 from warnings import warn
 
+from ...utils.abc.base_context_managers import BaseAsyncContextManager
 from ...utils.abc.base_iterators import BaseAsyncIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
@@ -231,6 +233,38 @@ class AsyncHistoryIterator(BaseAsyncIterator):
             return obj
 
 
+class AsyncTypingContextManager(BaseAsyncContextManager):
+    """
+    An async context manager for triggering typing.
+
+    :param obj: The channel to trigger typing in.
+    :type obj: Union[int, str, Snowflake, Channel]
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    """
+
+    def __init__(
+        self,
+        obj: Union[int, str, "Snowflake", "Channel"],
+        _client: "HTTPClient",
+    ):
+        super().__init__(obj, _client)
+
+    def __await__(self):
+        return self._client.trigger_typing(self.object_id).__await__()
+
+    async def do_action(self):
+        while True:
+            await self._client.trigger_typing(self.object_id)
+            await sleep(8)
+
+    async def __aenter__(self):
+        self.__task = create_task(self.do_action())
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.__task.cancel()
+
+
 @define()
 class Channel(ClientSerializerMixin, IDMixin):
     """
@@ -315,6 +349,16 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     def __repr__(self) -> str:
         return self.name
+
+    @property
+    def typing(self) -> Union[Awaitable, ContextManager]:
+        """
+        Manages the typing of the channel. Use with `await` or `async with`
+
+        :return: A manager for typing
+        :rtype: AsyncTypingContextManager
+        """
+        return AsyncTypingContextManager(self, self._client)
 
     @property
     def mention(self) -> str:
