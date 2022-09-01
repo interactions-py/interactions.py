@@ -255,7 +255,7 @@ class AsyncMembersIterator(BaseAsyncIterator):
         members = await self._client.get_list_of_members(
             guild_id=self.object_id, after=self.after, limit=limit
         )
-        self.after = int(members[-1]["id"])
+        self.after = int(members[-1]["user"]["id"])
 
         if len(members) < 1000:
             # already all messages resolved with one operation
@@ -271,7 +271,7 @@ class AsyncMembersIterator(BaseAsyncIterator):
         members = await self._client.get_list_of_members(
             guild_id=self.object_id, after=self.after, limit=limit
         )
-        self.after = int(members[-1]["id"])
+        self.after = int(members[-1]["user"]["id"])
 
         if len(members) < limit or limit == self.maximum - self.object_count:
             # end of messages reached again
