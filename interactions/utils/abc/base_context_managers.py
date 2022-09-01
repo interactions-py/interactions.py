@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, TypeVar, Union
 
 _T = TypeVar("_T")
 
-__all__ = ("BaseAsyncContextManager", "BaseContextManeger")
+__all__ = ("BaseAsyncContextManager", "BaseContextManager")
 
 if TYPE_CHECKING:
     from ...api.http.client import HTTPClient
@@ -49,7 +49,7 @@ class BaseAsyncContextManager(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class BaseContextManeger(metaclass=ABCMeta):
+class BaseContextManager(metaclass=ABCMeta):
     @abstractmethod
     def __init__(self):
         raise NotImplementedError
