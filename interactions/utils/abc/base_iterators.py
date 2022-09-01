@@ -34,7 +34,8 @@ class BaseAsyncIterator(metaclass=ABCMeta):
     async def __anext__(self) -> _O:
         raise NotImplementedError
 
-class DiscordPaginationIterator(BaseAsyncIterator, metaclass= ABCMeta):
+
+class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
     def __init__(
         self,
         obj: Union[int, str, "Snowflake", _T] = None,
