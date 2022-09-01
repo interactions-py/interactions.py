@@ -7,7 +7,7 @@ from ..missing import MISSING
 _T = TypeVar("_T")
 _O = TypeVar("_O")
 
-__all__ = ("BaseAsyncIterator", "BaseIterator")
+__all__ = ("BaseAsyncIterator", "BaseIterator", "DiscordPaginationIterator")
 
 if TYPE_CHECKING:
     from ...api.http.client import HTTPClient
@@ -20,6 +20,21 @@ class BaseAsyncIterator(metaclass=ABCMeta):
     # I don't want to make it subclass the BaseIterator since it forces implementation of __next__ and __iter__
 
     @abstractmethod
+    def __init__(self):
+        raise NotInplementedError
+
+    def __aiter__(self):
+        return self
+
+    @abstractmethod
+    async def flatten(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    async def __anext__(self) -> _O:
+        raise NotImplementedError
+
+class DiscordPaginationIterator(BaseAsyncIterator, metaclass= ABCMeta):
     def __init__(
         self,
         obj: Union[int, str, "Snowflake", _T] = None,
@@ -43,17 +58,6 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         )
         self.__stop: bool = False
         self.objects: Optional[List[_O]] = None
-
-    def __aiter__(self):
-        return self
-
-    @abstractmethod
-    async def flatten(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    async def __anext__(self) -> _O:
-        raise NotImplementedError
 
 
 class BaseIterator(metaclass=ABCMeta):
