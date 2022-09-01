@@ -350,7 +350,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         return AsyncHistoryIterator(
-            self._client, self, start_at=start_at, reverse=reverse, maximum=maximum
+            self._client, self, start_at=start_at, reverse=reverse, maximum=maximum, check=check
         )
 
     async def send(
