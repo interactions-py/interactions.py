@@ -1,5 +1,6 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
+from math import inf
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -14,12 +15,15 @@ from typing import (
 
 from ..api.error import LibraryException
 from ..api.models.channel import AsyncHistoryIterator
+from ..api.models.guild import AsyncMembersIterator
 from ..client.models.component import ActionRow, Button, Component, SelectMenu
 from .missing import MISSING
 
 if TYPE_CHECKING:
     from ..api.http.client import HTTPClient
     from ..api.models.channel import Channel
+    from ..api.models.guild import Guild
+    from ..api.models.member import Member
     from ..api.models.message import Message
     from ..api.models.misc import Snowflake
     from ..client.bot import Extension
@@ -250,6 +254,8 @@ def get_channel_history(
     channel: Union[int, str, "Snowflake", "Channel"],
     start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
     reverse: Optional[bool] = False,
+    check: Optional[Callable[[Message], bool]] = None,
+    maximum: Optional[int] = inf,
 ) -> AsyncHistoryIterator:
     """
     Gets the history of a channel.
@@ -257,13 +263,47 @@ def get_channel_history(
     :param http: The HTTPClient of the bot
     :type http: HTTPClient
     :param channel: The channel to get the history from
-    :type channel: Union[int, str, Snowflake, "Channel"]
+    :type channel: Union[int, str, Snowflake, Channel]
     :param start_at?: The message to begin getting the history from
-    :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
+    :type start_at?: Optional[Union[int, str, Snowflake, Message]]
     :param reverse?: Whether to only get newer message. Default False
     :type reverse?: Optional[bool]
+    :param check?: A check to ignore specific messages
+    :type check?: Optional[Callable[[Message], bool]]
+    :param maximum?: A set maximum of messages to get before stopping the iteration
+    :type maximum?: Optional[int]
 
     :return: An asynchronous iterator over the history of the channel
     :rtype: AsyncHistoryIterator
     """
-    return AsyncHistoryIterator(http, channel, start_at, reverse)
+    return AsyncHistoryIterator(
+        http, channel, start_at=start_at, reverse=reverse, check=check, maximum=maximum
+    )
+
+
+def get_guild_members(
+    http: "HTTPClient",
+    guild: Union[int, str, "Snowflake", "Guild"],
+    start_at: Optional[Union[int, str, "Snowflake", "Member"]] = MISSING,
+    check: Optional[Callable[["Member"], bool]] = None,
+    maximum: Optional[int] = inf,
+) -> AsyncMembersIterator:
+    """
+    Gets the members of a guild
+
+    :param http: The HTTPClient of the bot
+    :type http: HTTPClient
+    :param guild: The channel to get the history from
+    :type guild: Union[int, str, Snowflake, Guild]
+    :param start_at?: The message to begin getting the history from
+    :type start_at?: Optional[Union[int, str, Snowflake, Member]]
+    :param check?: A check to ignore specific messages
+    :type check?: Optional[Callable[[Member], bool]]
+    :param maximum?: A set maximum of members to get before stopping the iteration
+    :type maximum?: Optional[int]
+
+    :return: An asynchronous iterator over the history of the channel
+    :rtype: AsyncMembersIterator
+    """
+
+    return AsyncMembersIterator(http, guild, start_at=start_at, maximum=maximum, check=check)
