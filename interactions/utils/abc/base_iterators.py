@@ -21,7 +21,7 @@ class BaseAsyncIterator(metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self):
-        raise NotInplementedError
+        raise NotImplementedError
 
     def __aiter__(self):
         return self
