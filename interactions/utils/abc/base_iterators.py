@@ -44,7 +44,6 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         self.__stop: bool = False
         self.objects: Optional[List[_O]] = None
 
-  
     async def get_first_objects(self) -> None:
         return NotImplemented
 
