@@ -310,6 +310,32 @@ class _Context(ClientSerializerMixin):
 
         return payload
 
+    async def has_permissions(
+        self,
+        *permissions: Union[int, Permissions],
+        operator: str = "and"
+    ) -> bool:
+        """
+        Returns whether the author of the interaction has the permissions in the given context.
+
+        :param *permissions: The list of permissions
+        :type *permissions: Union[int, Permissions]
+        :param operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
+        :type operator: str
+        :return: Whether the author has the permissions
+        :rtype: bool
+        """
+        if operator == "and":
+            for perm in permissions:
+                if perm not in self.author.permissions:
+                    return False
+            return True
+        else:
+            for perm in permissions:
+                if perm in self.author.permissions:
+                    return True
+            return False
+
 
 @define()
 class CommandContext(_Context):

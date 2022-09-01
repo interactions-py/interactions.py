@@ -507,7 +507,7 @@ class Member(ClientSerializerMixin, IDMixin):
         url += ".gif" if self.avatar.startswith("a_") else ".png"
         return url
 
-    async def get_guild_permissions(self, guild: "Guild") -> Permissions:
+    async def get_guild_permissions(self, guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING) -> Permissions:
         """
         Returns the permissions of the member for the specified guild.
 
@@ -521,6 +521,22 @@ class Member(ClientSerializerMixin, IDMixin):
         :return: Base permissions of the member in the specified guild
         :rtype: Permissions
         """
+        from .guild import Guild
+
+        if isinstance(guild_id, Guild):
+            guild = guild_id
+
+        else:
+            if guild_id is MISSING:
+                _guild_id = self.guild_id
+                if isinstance(_guild_id, LibraryException):
+                    raise _guild_id
+
+            else:
+                _guild_id = int(guild_id)
+
+            guild = Guild(**await self._client.get_guild(int(_guild_id)), _client=self._client)
+
         if int(guild.owner_id) == int(self.id):
             return Permissions.ALL
 
@@ -531,7 +547,45 @@ class Member(ClientSerializerMixin, IDMixin):
             role = await guild.get_role(role_id)
             permissions |= int(role.permissions)
 
-        if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
+        if Permissions.ADMINISTRATOR in Permissions(permissions):
             return Permissions.ALL
 
         return Permissions(permissions)
+
+    async def has_permissions(
+        self,
+        *permissions: Union[int, Permissions],
+        channel: Optional[Channel] = MISSING,
+        guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
+        operator: str = "and"
+    ) -> bool:
+        """
+        Returns whether the member has the permissions passed.
+
+        .. note::
+            If the channel argument is present, the function will look if the member has the permissions in the specified channel.
+            If the argument is missing, then it will only consider the member's guild permissions.
+
+        :param *permissions: The list of permissions
+        :type *permissions: Union[int, Permissions]
+        :param channel: The channel where to check for permissions
+        :type channel: Channel
+        :param guild_id: The id of the guild
+        :type guild_id: Optional[Union[int, Snowflake, Guild]]
+        :param operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
+        :type operator: str
+        :return: Whether the member has the permissions
+        :rtype: bool
+        """
+        perms = await self.get_guild_permissions(guild_id) if channel is MISSING else await channel.get_permissions_for(self)
+
+        if operator == "and":
+            for perm in permissions:
+                if perm not in perms:
+                    return False
+            return True
+        else:
+            for perm in permissions:
+                if perm in perms:
+                    return True
+            return False
