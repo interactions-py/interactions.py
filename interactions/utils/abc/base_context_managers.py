@@ -19,7 +19,8 @@ class BaseAsyncContextManager(metaclass=ABCMeta):
     @abstractmethod
     def __init__(
         self,
-        obj: Union[int, str, "Snowflake", _T],
+        obj: Union[int, str, "Snowflake", _T] = None 
+,
         _client: Optional["HTTPClient"] = None,
     ):
 
@@ -28,7 +29,7 @@ class BaseAsyncContextManager(metaclass=ABCMeta):
         except RuntimeError as e:
             raise RuntimeError("No running event loop detected!") from e
 
-        self.object_id = int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
         self._client = _client
         self.__task: Optional[Task] = None
 
