@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from asyncio import Task, get_running_loop
+from asyncio import get_running_loop
 from typing import TYPE_CHECKING, Optional, TypeVar, Union
 
 _T = TypeVar("_T")
