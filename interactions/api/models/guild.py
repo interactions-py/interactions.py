@@ -4,7 +4,7 @@ from math import inf
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 from warnings import warn
 
-from ...utils.abc.base_iterators import BaseAsyncIterator
+from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -215,7 +215,7 @@ class UnavailableGuild(DictSerializerMixin, IDMixin):
     unavailable: bool = field()
 
 
-class AsyncMembersIterator(BaseAsyncIterator):
+class AsyncMembersIterator(DiscordPaginationIterator):
     """
     A class object that allows iterating through a channel's history.
 
