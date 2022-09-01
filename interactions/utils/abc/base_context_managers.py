@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, TypeVar
 
 _T = TypeVar("_T")
 
-__all__ = ("BaseAsyncContextManager", "BaseContextManager") 
+__all__ = ("BaseAsyncContextManager", "BaseContextManager")
 
 
 class BaseAsyncContextManager(metaclass=ABCMeta):
