@@ -177,7 +177,7 @@ class AsyncHistoryIterator(BaseAsyncIterator):
         self.objects = [Message(**msg, _client=self._client) for msg in msgs]
 
     async def flatten(self) -> List[Member]:
-        """returns all remaining items as list""" 
+        """returns all remaining items as list"""
         return [item async for item in self]
 
     async def get_objects(self) -> None:
