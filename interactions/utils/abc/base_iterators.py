@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 class BaseAsyncIterator(metaclass=ABCMeta):
     """A base class for async iterators."""
 
+    # I don't want to make it subclass the BaseIterator since it forces implementation of __next__ and __iter__
+
     @abstractmethod
     def __init__(
         self,
