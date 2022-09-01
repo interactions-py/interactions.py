@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from math import inf
 from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
 
-from interactions.utils.missing import MISSING
+from ..utils.missing import MISSING
 
 _T = TypeVar("_T")
 _O = TypeVar("_O")
@@ -10,8 +10,8 @@ _O = TypeVar("_O")
 __all__ = ("BaseAsyncIterator", "BaseIterator")
 
 if TYPE_CHECKING:
-    from interactions.api.http.client import HTTPClient
-    from interactions.api.models.misc import Snowflake
+    from ...api.http.client import HTTPClient
+    from ...api.models.misc import Snowflake
 
 
 class BaseAsyncIterator(metaclass=ABCMeta):
