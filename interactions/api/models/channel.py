@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from warnings import warn
 
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
@@ -18,6 +19,7 @@ from .webhook import Webhook
 
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
+    from ..http.client import HTTPClient
     from .guild import Invite, InviteTargetType
     from .member import Member
     from .message import Attachment, Embed, Message, Sticker
@@ -28,6 +30,7 @@ __all__ = (
     "Channel",
     "ThreadMember",
     "ThreadMetadata",
+    "AsyncHistoryIterator",
 )
 
 
@@ -93,6 +96,121 @@ class ThreadMember(ClientSerializerMixin):
     flags: int = field()
     muted: bool = field()
     mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
+
+
+class AsyncHistoryIterator:
+    """
+    A class object that allows iterating through a channel's history.
+
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    :param channel: The channel to get the history from
+    :type channel: Union[int, str, Snowflake, "Channel"]
+    :param start_at?: The message to begin getting the history from
+    :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
+    :param reverse?: Whether to only get newer message. Default False
+    :type reverse?: Optional[bool]
+    """
+
+    def __init__(
+        self,
+        _client: "HTTPClient",
+        channel: Union[int, str, Snowflake, "Channel"],
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        reverse: Optional[bool] = False,
+    ):
+
+        from .message import Message
+
+        self._client = _client
+        self.channel_id = int(channel) if not isinstance(channel, Channel) else int(channel.id)
+
+        if reverse and start_at is MISSING:
+            raise LibraryException(
+                code=12,
+                message="A message to start from is required to go through the channel in reverse.",
+            )
+
+        if reverse:
+            self.before = MISSING
+            self.after = (
+                None
+                if start_at is MISSING
+                else int(start_at)
+                if not isinstance(start_at, Message)
+                else int(start_at.id)
+            )
+        else:
+            self.before = (
+                None
+                if start_at is MISSING
+                else int(start_at)
+                if not isinstance(start_at, Message)
+                else int(start_at.id)
+            )
+            self.after = MISSING
+
+        self.__stop: bool = False
+        self.messages: Optional[List[Message]] = None
+
+    async def get_first_messages(self) -> None:
+        from .message import Message
+
+        if self.after is not MISSING:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.channel_id, after=self.after, limit=100
+            )
+            msgs.reverse()
+            self.after = int(msgs[-1]["id"])
+        else:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.channel_id, before=self.before, limit=100
+            )
+            self.before = int(msgs[-1]["id"])
+
+        if len(msgs) < 100:
+            # already all messages resolved with one operation
+            self.__stop = True
+
+        self.messages = [Message(**msg, _client=self._client) for msg in msgs]
+
+    async def get_messages(self):
+        from .message import Message
+
+        if self.after is not MISSING:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.channel_id, after=self.after, limit=50
+            )
+            msgs.reverse()
+            self.after = int(msgs[-1]["id"])
+        else:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.channel_id, before=self.before, limit=50
+            )
+            self.before = int(msgs[-1]["id"])
+
+        if len(msgs) < 50:
+            # end of messages reached again
+            self.__stop = True
+
+        self.messages.extend([Message(**msg, _client=self._client) for msg in msgs])
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if self.messages is None:
+            await self.get_first_messages()
+
+        try:
+            msg = self.messages.pop(0)
+
+            if not self.__stop and len(self.messages) < 5:
+                await self.get_messages()
+        except IndexError:
+            raise StopAsyncIteration
+        else:
+            return msg
 
 
 @define()
@@ -189,6 +307,22 @@ class Channel(ClientSerializerMixin, IDMixin):
         :rtype: str
         """
         return f"<#{self.id}>"
+
+    def history(
+        self,
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        reverse: Optional[bool] = False,
+    ) -> AsyncHistoryIterator:
+        """
+        :param start_at?: The message to begin getting the history from
+        :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
+        :param reverse?: Whether to only get newer message. Default False
+        :type reverse?: Optional[bool]
+
+        :return: An asynchronous iterator
+        :rtype: AsyncHistoryIterator
+        """
+        return AsyncHistoryIterator(self._client, self, start_at, reverse)
 
     async def send(
         self,
@@ -1121,6 +1255,10 @@ class Channel(ClientSerializerMixin, IDMixin):
         :return: A list of messages
         :rtype: List[Message]
         """
+
+        warn(
+            "This method has been deprecated in favour of the 'history' method.", DeprecationWarning
+        )
 
         if not self._client:
             raise LibraryException(code=13)
