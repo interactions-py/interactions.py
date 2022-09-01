@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable, ContextManager, List
 from warnings import warn
 
 from ...utils.abc.base_context_managers import BaseAsyncContextManager
-from ...utils.abc.base_iterators import BaseAsyncIterator
+from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -102,7 +102,7 @@ class ThreadMember(ClientSerializerMixin):
     mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
 
 
-class AsyncHistoryIterator(BaseAsyncIterator):
+class AsyncHistoryIterator(DiscordPaginationIterator):
     """
     A class object that allows iterating through a channel's history.
 
