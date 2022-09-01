@@ -178,7 +178,7 @@ class AsyncHistoryIterator(BaseAsyncIterator):
         from .message import Message
 
         limit = min(50, self.maximum - self.object_count)
-        print(limit)
+
         if self.after is not MISSING:
             msgs = await self._client.get_channel_messages(
                 channel_id=self.object_id, after=self.after, limit=limit
