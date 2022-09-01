@@ -330,7 +330,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         self,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         reverse: Optional[bool] = False,
-        maximum: Optional[int] = None,
+        maximum: Optional[int] = inf,
         check: Optional[Callable[["Message"], bool]] = None,
     ) -> AsyncHistoryIterator:
         """

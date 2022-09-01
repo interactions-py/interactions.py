@@ -2208,7 +2208,7 @@ class Guild(ClientSerializerMixin, IDMixin):
     def get_members(
         self,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
-        maximum: Optional[int] = None,
+        maximum: Optional[int] = inf,
         check: Optional[Callable[[Member], bool]] = None,
     ) -> AsyncMembersIterator:
         """
