@@ -4,6 +4,7 @@ from math import inf
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
 from warnings import warn
 
+from ...utils.abc.base_iterators import BaseAsyncIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -11,7 +12,6 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
-from ...utils.base_async_iterator import BaseAsyncIterator
 from ...utils.missing import MISSING
 from ..error import LibraryException
 from .flags import Permissions
@@ -112,6 +112,8 @@ class AsyncHistoryIterator(BaseAsyncIterator):
     :type start_at?: Optional[Union[int, str, Snowflake, "Message"]]
     :param reverse?: Whether to only get newer message. Default False
     :type reverse?: Optional[bool]
+    :param check?: A check to ignore certain messages
+    :type check?: Optional[Callable[..., bool]]
     :param maximum?: A set maximum of messages to get before stopping the iteration
     :type maximum?: Optional[int]
     """
@@ -122,9 +124,10 @@ class AsyncHistoryIterator(BaseAsyncIterator):
         obj: Union[int, str, Snowflake, "Channel"],
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        check: Optional[Callable[["Message"], bool]] = None,
         reverse: Optional[bool] = False,
     ):
-        super().__init__(_client, obj, maximum=maximum, start_at=start_at)
+        super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
 
         from .message import Message
 
@@ -196,11 +199,30 @@ class AsyncHistoryIterator(BaseAsyncIterator):
 
         self.objects.extend([Message(**msg, _client=self._client) for msg in msgs])
 
-    async def __anext__(self):
-        await super().__anext__()
+    async def __anext__(self) -> Message:
+        if self.objects is None:
+            await self.get_first_objects()
 
         try:
             obj = self.objects.pop(0)
+
+            if self.check:
+
+                _res = self.check(obj)
+
+                while not _res:
+                    if (
+                        not self.__stop
+                        and len(self.objects) < 5
+                        and self.object_count >= self.maximum
+                    ):
+                        await self.get_objects()
+
+                    self.object_count -= 1
+                    obj = self.objects.pop(0)
+
+                    _res = self.check(obj)
+
             if not self.__stop and len(self.objects) < 5 and self.object_count >= self.maximum:
                 await self.get_objects()
         except IndexError:

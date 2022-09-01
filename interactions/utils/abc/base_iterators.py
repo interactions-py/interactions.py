@@ -1,15 +1,17 @@
 from abc import ABCMeta, abstractmethod
 from math import inf
-from typing import TYPE_CHECKING, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
 
-from .missing import MISSING
+from interactions.utils.missing import MISSING
 
 _T = TypeVar("_T")
 _O = TypeVar("_O")
 
+__all__ = "BaseAsyncIterator"
+
 if TYPE_CHECKING:
-    from ..api.http.client import HTTPClient
-    from ..api.models.misc import Snowflake
+    from interactions.api.http.client import HTTPClient
+    from interactions.api.models.misc import Snowflake
 
 
 class BaseAsyncIterator(metaclass=ABCMeta):
@@ -18,14 +20,16 @@ class BaseAsyncIterator(metaclass=ABCMeta):
     @abstractmethod
     def __init__(
         self,
-        _client: "HTTPClient",
         obj: Union[int, str, "Snowflake", _T],
+        _client: Optional["HTTPClient"] = None,
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, "Snowflake", _O]] = MISSING,
+        check: Optional[Callable[[_O], bool]] = None,
     ):
 
         self.object_id = int(obj) if not hasattr(obj, "id") else int(obj.id)
         self.maximum = maximum
+        self.check = check
         self._client = _client
         self.object_count: int = 0
         self.start_at = (
@@ -50,6 +54,5 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         return self
 
     @abstractmethod
-    async def __anext__(self):
-        if self.objects is None:
-            await self.get_first_objects()
+    async def __anext__(self) -> _O:
+        raise NotImplementedError
