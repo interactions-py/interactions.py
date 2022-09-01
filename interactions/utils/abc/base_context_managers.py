@@ -17,27 +17,11 @@ class BaseAsyncContextManager(metaclass=ABCMeta):
     # I don't want to make it subclass the BaseContextManager since it forces implementation of __enter__ and __exit__
 
     @abstractmethod
-    def __init__(
-        self,
-        obj: Union[int, str, "Snowflake", _T] = None,
-        _client: Optional["HTTPClient"] = None,
-    ):
-
-        try:
-            self.loop = get_running_loop()
-        except RuntimeError as e:
-            raise RuntimeError("No running event loop detected!") from e
-
-        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
-        self._client = _client
-        self.__task: Optional[Task] = None
-
-    @abstractmethod
-    def __await__(self) -> None:
+    def __init__(self):
         raise NotImplementedError
 
     @abstractmethod
-    async def do_action(self):
+    def __await__(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
