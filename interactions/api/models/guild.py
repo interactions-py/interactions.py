@@ -305,7 +305,7 @@ class AsyncMembersIterator(BaseAsyncIterator):
 
                     _res = self.check(obj)
 
-            if not self.__stop and len(self.objects) < 5 and self.object_count >= self.maximum:
+            if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
                 await self.get_objects()
         except IndexError:
             raise StopAsyncIteration
