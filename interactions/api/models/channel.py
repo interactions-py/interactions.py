@@ -322,6 +322,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         :return: An asynchronous iterator over the history of the channel
         :rtype: AsyncHistoryIterator
         """
+        if not self._client:
+            raise LibraryException(code=13)
+
         return AsyncHistoryIterator(self._client, self, start_at, reverse)
 
     async def send(
