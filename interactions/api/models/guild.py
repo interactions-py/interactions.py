@@ -1909,7 +1909,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         self,
         days: int = 7,
         compute_prune_count: bool = True,
-        include_roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        include_roles: Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] = MISSING,
     ) -> Optional[int]:
         """
         Begins a prune operation.
@@ -1924,7 +1924,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         if include_roles is not MISSING:
-            _roles = [role.id if isinstance(role, Role) else role for role in include_roles]
+            _roles = [int(role.id) if isinstance(role, Role) else int(role) for role in include_roles]
         else:
             _roles = None
 
@@ -1938,7 +1938,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         return res.get("pruned")
 
     async def get_prune_count(
-        self, days: int = 7, include_roles: Optional[Union[List[Role], List[int]]] = MISSING
+            self,
+            days: int = 7,
+            include_roles: Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] = MISSING
     ) -> int:
         """
         Returns the number of members that would be removed in a prune operation.
@@ -1952,7 +1954,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         if include_roles is not MISSING:
-            _roles = [role.id if isinstance(role, Role) else role for role in include_roles]
+            _roles = [int(role.id) if isinstance(role, Role) else int(role) for role in include_roles]
         else:
             _roles = None
 
