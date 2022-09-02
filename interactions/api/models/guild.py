@@ -3,6 +3,7 @@ from enum import Enum, IntEnum
 from math import inf
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 from warnings import warn
+from inspect import isawaitable 
 
 from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
