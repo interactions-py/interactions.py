@@ -4,7 +4,7 @@ from enum import IntEnum
 from math import inf
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, ContextManager, List, Optional, Union
 from warnings import warn
-
+from inspect import isawaitable
 from ...utils.abc.base_context_managers import BaseAsyncContextManager
 from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
@@ -214,8 +214,8 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
 
             if self.check:
 
-                _res = self.check(obj)
-
+                res = self.check(obj)
+                _res = await res if isawaitable(res) else res
                 while not _res:
                     if (
                         not self.__stop
