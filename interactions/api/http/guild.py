@@ -612,7 +612,7 @@ class GuildRequest:
         Begins a prune operation.
 
         :param guild_id: Guild ID snowflake
-        :param days: Number of days to count. Defaults to ``7``.
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
         :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
         :param include_roles: Role IDs to include, if given.
         :return: A dict containing `{"pruned": int}` or `{"pruned": None}`
@@ -636,7 +636,7 @@ class GuildRequest:
         Retrieves a dict from an API that results in how many members would be pruned given the amount of days.
 
         :param guild_id: Guild ID snowflake.
-        :param days: Number of days to count. Defaults to 7.
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
         :param include_roles: Role IDs to include, if given.
         :return: A dict denoting `{"pruned": int}`
         """
