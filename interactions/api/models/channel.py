@@ -1,10 +1,11 @@
 from asyncio import Task, create_task, get_running_loop, sleep
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
+from inspect import isawaitable
 from math import inf
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, ContextManager, List, Optional, Union
 from warnings import warn
-from inspect import isawaitable
+
 from ...utils.abc.base_context_managers import BaseAsyncContextManager
 from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
