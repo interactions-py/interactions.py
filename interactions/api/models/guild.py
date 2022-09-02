@@ -1621,6 +1621,22 @@ class Guild(ClientSerializerMixin, IDMixin):
         )
         return ScheduledEvents(**res)
 
+    async def get_scheduled_events(self, with_user_count: bool) -> List["ScheduledEvents"]:
+        """
+        Gets all scheduled events of the guild.
+
+        :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
+        :type with_user_count: bool
+        :return: The sheduled events of the guild.
+        :rtype: List[ScheduledEvents]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        res = await self._client.get_scheduled_events(
+            guild_id=self.id, with_user_count=with_user_count
+        )
+        return [ScheduledEvents(**scheduled_event) for scheduled_event in res] if res else []
+
     async def modify_scheduled_event(
         self,
         event_id: Union[int, "ScheduledEvents", Snowflake],
@@ -2784,7 +2800,7 @@ class ScheduledEvents(DictSerializerMixin, IDMixin):
     creator_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     name: str = field()
     description: str = field()
-    scheduled_start_time: Optional[datetime] = field(converter=datetime.isoformat, default=None)
+    scheduled_start_time: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     scheduled_end_time: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     privacy_level: int = field()
     entity_type: int = field()
