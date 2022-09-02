@@ -262,7 +262,8 @@ class WebSocketClient:
                 _receive.cancel()
                 return
 
-            await self._handle_stream(msg)
+            if msg is not None:  # this can happen
+                await self._handle_stream(msg)
 
     async def _handle_stream(self, stream: Dict[str, Any]):
         """
@@ -700,7 +701,7 @@ class WebSocketClient:
         Restarts the client's connection and heartbeat with the Gateway.
         """
 
-        self._ready.clear()
+        self.ready.clear()
 
         async with self.reconnect_lock:
             self.__closed.clear()
@@ -709,6 +710,13 @@ class WebSocketClient:
                 await self._client.close(code=code)
 
             self._client = None
+
+            # We need to check about existing heartbeater tasks for edge cases.
+
+            if self._task:
+                self._task.cancel()
+                if self.__heartbeat_event.is_set():
+                    self.__heartbeat_event.clear()  # Because we're hardresetting the process
 
             if not to_resume:
                 url = self.ws_url if self.ws_url else await self._http.get_gateway()
@@ -721,12 +729,7 @@ class WebSocketClient:
 
             self.__heartbeater.delay = data["d"]["heartbeat_interval"]
 
-            if self._task:
-                self._task.cancel()
-                if self.__heartbeat_event.is_set():
-                    self.__heartbeat_event.clear()  # Because we're hardresetting the process
-
-                self._task = create_task(self.run_heartbeat())
+            self._task = create_task(self.run_heartbeat())
 
             if not to_resume:
                 await self.__identify(self.__shard, self.__presence)
@@ -800,7 +803,19 @@ class WebSocketClient:
             if packet.data is None:
                 continue  # We just loop it over because it could just be processing something.
 
-            return loads(packet.data) if isinstance(packet.data, str) else None
+            try:
+                msg = loads(packet.data)
+            except Exception as e:
+                import traceback
+
+                log.debug(
+                    f'Error serialising message: {"".join(traceback.format_exception(type(e), e, e.__traceback__))}.'
+                )
+                # There's an edge case when the packet's None... or some other deserialisation error.
+                # Instead of raising an exception, we just log it to debug, so it doesn't annoy end user's console logs.
+                msg = None
+
+            return msg
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
@@ -816,9 +831,11 @@ class WebSocketClient:
             # This is because the ratelimiter limits already accounts for this.
             await self._ratelimiter.block()
 
-        self._last_send = perf_counter()
-        log.debug(packet)
-        await self._client.send_str(packet)
+        if self._client is not None:  # this mitigates against another edge case.
+            self._last_send = perf_counter()
+            log.debug(packet)
+
+            await self._client.send_str(packet)
 
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
@@ -904,5 +921,5 @@ class WebSocketClient:
         """
         if self._client:
             await self._client.close()
-        self.ready.clear()  # Clears ready state.
-        self._closing_lock.set()
+
+        self.__closed.set()

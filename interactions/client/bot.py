@@ -125,12 +125,6 @@ class Client:
     def start(self) -> None:
         """Starts the client session."""
 
-        if isinstance(self._http, str):
-            self._http = HTTPClient(self._http)
-
-        data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data, _client=self._http)
-
         try:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
@@ -357,6 +351,12 @@ class Client:
             LOOP
         """
         ready: bool = False
+
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
+
+        data = await self._http.get_current_bot_information()
+        self.me = Application(**data, _client=self._http)
 
         try:
             if self.me.flags is not None:
