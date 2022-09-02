@@ -43,7 +43,7 @@ __all__ = (
     "ReactionObject",
     "PartialSticker",
     "Sticker",
-    "StickerPack"
+    "StickerPack",
 )
 
 
