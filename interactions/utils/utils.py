@@ -19,14 +19,13 @@ from .missing import MISSING
 
 if TYPE_CHECKING:
     from ..api.http.client import HTTPClient
-    from ..api.models.channel import Channel
+    from ..api.models.channel import AsyncHistoryIterator, Channel
     from ..api.models.guild import AsyncMembersIterator, Guild
     from ..api.models.member import Member
     from ..api.models.message import Message
     from ..api.models.misc import Snowflake
     from ..client.bot import Extension
     from ..client.context import CommandContext
-    from ..api.models.channel import AsyncHistoryIterator 
 
 __all__ = (
     "autodefer",
