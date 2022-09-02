@@ -247,55 +247,28 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     presets: Optional[List[str]] = field(default=None)
 
 
-class Color:
+class Color(IntEnum):
     """
-    An object representing Discord branding colors.
+    An enum representing Discord branding colors.
 
     .. note::
-        This object only intends to cover the branding colors
+        This enum only intends to cover the branding colors
         and no others. The main reason behind this is due to
         the current accepted standard of using hex codes or other
         custom-defined colors.
     """
-
-    @staticmethod
-    def blurple() -> int:
-        """Returns a hexadecimal value of the blurple color."""
-        return 0x5865F2
-
-    @staticmethod
-    def green() -> int:
-        """Returns a hexadecimal value of the green color."""
-        return 0x57F287
-
-    @staticmethod
-    def yellow() -> int:
-        """Returns a hexadecimal value of the yellow color."""
-        return 0xFEE75C
-
-    @staticmethod
-    def fuchsia() -> int:
-        """Returns a hexadecimal value of the fuchsia color."""
-        return 0xEB459E
-
-    @staticmethod
-    def red() -> int:
-        """Returns a hexadecimal value of the red color."""
-        return 0xED4245
+    blurple = 0x5865F2
+    green = 0x57F287
+    yellow = 0xFEE75C
+    fuchsia = 0xEB459E
+    red = 0xED4245
 
     # I can't imagine any bot developers actually using these.
     # If they don't know white is ff and black is 00, something's seriously
     # wrong.
 
-    @staticmethod
-    def white() -> int:
-        """Returns a hexadecimal value of the white color."""
-        return 0xFFFFFF
-
-    @staticmethod
-    def black() -> int:
-        """Returns a hexadecimal value of the black color."""
-        return 0x000000
+    white = 0xFFFFFF
+    black = 0x000000
 
 
 class File:
