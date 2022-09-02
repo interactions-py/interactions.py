@@ -14,7 +14,6 @@ from typing import (
 )
 
 from ..api.error import LibraryException
-from ..api.models.channel import AsyncHistoryIterator
 from ..client.models.component import ActionRow, Button, Component, SelectMenu
 from .missing import MISSING
 
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     from ..api.models.misc import Snowflake
     from ..client.bot import Extension
     from ..client.context import CommandContext
+    from ..api.models.channel import AsyncHistoryIterator 
 
 __all__ = (
     "autodefer",
@@ -255,7 +255,7 @@ def get_channel_history(
     reverse: Optional[bool] = False,
     check: Optional[Callable[["Message"], bool]] = None,
     maximum: Optional[int] = inf,
-) -> AsyncHistoryIterator:
+) -> "AsyncHistoryIterator":
     """
     Gets the history of a channel.
 
@@ -275,6 +275,8 @@ def get_channel_history(
     :return: An asynchronous iterator over the history of the channel
     :rtype: AsyncHistoryIterator
     """
+    from ..api.models.channel import AsyncHistoryIterator
+
     return AsyncHistoryIterator(
         http, channel, start_at=start_at, reverse=reverse, check=check, maximum=maximum
     )
