@@ -16,10 +16,6 @@ class BaseAsyncContextManager(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def __await__(self) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
     async def __aenter__(self):
         raise NotImplementedError
 
