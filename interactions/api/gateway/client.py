@@ -701,7 +701,7 @@ class WebSocketClient:
         Restarts the client's connection and heartbeat with the Gateway.
         """
 
-        self._ready.clear()
+        self.ready.clear()
 
         async with self.reconnect_lock:
             self.__closed.clear()
@@ -831,9 +831,11 @@ class WebSocketClient:
             # This is because the ratelimiter limits already accounts for this.
             await self._ratelimiter.block()
 
-        self._last_send = perf_counter()
-        log.debug(packet)
-        await self._client.send_str(packet)
+        if self._client is not None:  # this mitigates against another edge case.
+            self._last_send = perf_counter()
+            log.debug(packet)
+
+            await self._client.send_str(packet)
 
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
@@ -919,4 +921,4 @@ class WebSocketClient:
         """
         if self._client:
             await self._client.close()
-        self._closed = True
+        self.__closed.set()
