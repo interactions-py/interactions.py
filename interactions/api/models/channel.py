@@ -1231,13 +1231,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         if not self.guild_id:
             return Permissions.DEFAULT
 
-        from .guild import Guild
+        permissions = await member.get_guild_permissions(self.guild_id)
 
-        guild = Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
-
-        permissions = await member.get_guild_permissions(guild)
-
-        if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
+        if Permissions.ADMINISTRATOR in permissions:
             return Permissions.ALL
 
         # @everyone role overwrites
