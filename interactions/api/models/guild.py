@@ -294,8 +294,8 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
             if self.check:
 
-                _res = self.check(obj)
-
+                res = self.check(obj)
+                _res = await res if isawaitable(res) else res
                 while not _res:
                     if (
                         not self.__stop
