@@ -1914,7 +1914,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
         Begins a prune operation.
 
-        :param days: Number of days to count. Defaults to 7.
+        :param days: Number of days to count, minimum 1, maximum 3. Defaults to 7.
         :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
         :param include_roles: Role IDs to include, if given.
         :return: The number of pruned members, if compute_prune_count is not false. Otherwise returns None.
@@ -1945,7 +1945,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
         Returns the number of members that would be removed in a prune operation.
 
-        :param days: Number of days to count. Defaults to 7.
+        :param days: Number of days to count, minimum 1, maximum 3. Defaults to 7.
         :param include_roles: Role IDs to include, if given.
         :return: The number of members that would be pruned.
         :rtype: int
