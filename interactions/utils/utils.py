@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ..api.models.member import Member
     from ..api.models.message import Message
     from ..api.models.misc import Snowflake
-    from ..client.bot import Extension
+    from ..client.bot import Extension, Client
     from ..client.context import CommandContext
 
 __all__ = (
@@ -248,7 +248,7 @@ def disable_components(
 
 
 def get_channel_history(
-    http: "HTTPClient",
+    http: Union["HTTPClient", "Client"],
     channel: Union[int, str, "Snowflake", "Channel"],
     start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
     reverse: Optional[bool] = False,
@@ -258,8 +258,8 @@ def get_channel_history(
     """
     Gets the history of a channel.
 
-    :param http: The HTTPClient of the bot
-    :type http: HTTPClient
+    :param http: The HTTPClient of the bot or your bot instance
+    :type http: Union[HTTPClient, Client] 
     :param channel: The channel to get the history from
     :type channel: Union[int, str, Snowflake, Channel]
     :param start_at?: The message to begin getting the history from
@@ -277,12 +277,12 @@ def get_channel_history(
     from ..api.models.channel import AsyncHistoryIterator
 
     return AsyncHistoryIterator(
-        http, channel, start_at=start_at, reverse=reverse, check=check, maximum=maximum
+        http if not hasattr(http, "_http") else http._http, channel, start_at=start_at, reverse=reverse, check=check, maximum=maximum
     )
 
 
 def get_guild_members(
-    http: "HTTPClient",
+    http: Union["HTTPClient", "Client"],
     guild: Union[int, str, "Snowflake", "Guild"],
     start_at: Optional[Union[int, str, "Snowflake", "Member"]] = MISSING,
     check: Optional[Callable[["Member"], bool]] = None,
@@ -291,8 +291,8 @@ def get_guild_members(
     """
     Gets the members of a guild
 
-    :param http: The HTTPClient of the bot
-    :type http: HTTPClient
+    :param http: The HTTPClient of the bot or your bot instance
+    :type http: Union[HTTPClient, Client]
     :param guild: The channel to get the history from
     :type guild: Union[int, str, Snowflake, Guild]
     :param start_at?: The message to begin getting the history from
@@ -307,4 +307,4 @@ def get_guild_members(
     """
     from ..api.models.guild import AsyncMembersIterator
 
-    return AsyncMembersIterator(http, guild, start_at=start_at, maximum=maximum, check=check)
+    return AsyncMembersIterator(http if not hasattr(http, "_http") else http._http, guild, start_at=start_at, maximum=maximum, check=check)
