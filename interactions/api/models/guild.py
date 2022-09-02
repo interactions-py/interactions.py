@@ -1905,6 +1905,38 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         return res
 
+    async def prune(
+            self,
+            days: int = 7,
+            compute_prune_count: bool = True,
+            include_roles: Optional[Union[List[Role], List[int]]] = MISSING,
+    ) -> Optional[int]:
+        """
+        Begins a prune operation.
+
+        :param days: Number of days to count. Defaults to 7.
+        :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
+        :param include_roles: Role IDs to include, if given.
+        :return: The number of pruned members, if compute_prune_count is not false. Otherwise returns None.
+        :rtype: Optional[int]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if include_roles is not MISSING:
+            _roles = [role.id if isinstance(role, Role) else role for role in include_roles]
+        else:
+            _roles = None
+
+        res: dict = await self._client.begin_guild_prune(
+            guild_id=int(self.id),
+            days=days,
+            compute_prune_count=compute_prune_count,
+            include_roles=_roles
+        )
+
+        return res.get("pruned")
+
     async def get_emoji(
         self,
         emoji_id: int,
