@@ -1932,7 +1932,36 @@ class Guild(ClientSerializerMixin, IDMixin):
             guild_id=int(self.id),
             days=days,
             compute_prune_count=compute_prune_count,
-            include_roles=_roles
+            include_roles=_roles,
+        )
+
+        return res.get("pruned")
+
+    async def get_prune_count(
+            self,
+            days: int = 7,
+            include_roles: Optional[Union[List[Role], List[int]]] = MISSING
+    ) -> int:
+        """
+        Returns the number of members that would be removed in a prune operation.
+
+        :param days: Number of days to count. Defaults to 7.
+        :param include_roles: Role IDs to include, if given.
+        :return: The number of members that would be pruned.
+        :rtype: int
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if include_roles is not MISSING:
+            _roles = [role.id if isinstance(role, Role) else role for role in include_roles]
+        else:
+            _roles = None
+
+        res: dict = await self._client.get_guild_prune_count(
+            guild_id=int(self.id),
+            days=days,
+            include_roles=_roles,
         )
 
         return res.get("pruned")
