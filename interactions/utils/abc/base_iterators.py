@@ -27,7 +27,7 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         return self
 
     async def flatten(self):
-        return [item async for item in self] 
+        return [item async for item in self]
 
     @abstractmethod
     async def __anext__(self) -> _O:
@@ -89,7 +89,7 @@ class BaseIterator(metaclass=ABCMeta):
         return self
 
     def flatten(self):
-        return [item for item in self] 
+        return [item for item in self]
 
     @abstractmethod
     def __next__(self) -> _O:
