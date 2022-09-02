@@ -248,27 +248,13 @@ class AutoModTriggerMetadata(DictSerializerMixin):
 
 
 class Color(IntEnum):
-    """
-    An enum representing Discord branding colors.
-
-    .. note::
-        This enum only intends to cover the branding colors
-        and no others. The main reason behind this is due to
-        the current accepted standard of using hex codes or other
-        custom-defined colors.
-    """
-    blurple = 0x5865F2
-    green = 0x57F287
-    yellow = 0xFEE75C
-    fuchsia = 0xEB459E
-    red = 0xED4245
-
-    # I can't imagine any bot developers actually using these.
-    # If they don't know white is ff and black is 00, something's seriously
-    # wrong.
-
-    white = 0xFFFFFF
-    black = 0x000000
+    BLURPLE = 0x5865F2
+    GREEN = 0x57F287
+    YELLOW = 0xFEE75C
+    FUCHSIA = 0xEB459E
+    RED = 0xED4245
+    WHITE = 0xFFFFFF
+    BLACK = 0x000000
 
 
 class File:
