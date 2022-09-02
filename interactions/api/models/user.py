@@ -33,22 +33,22 @@ class User(ClientSerializerMixin, IDMixin):
     :ivar Optional[UserFlags] public_flags?: The user's public flags
     """
 
-    id: Snowflake = field(converter=Snowflake, repr=True)
+    id: Snowflake = field(converter=Snowflake)
     username: str = field(repr=True)
     discriminator: str = field(repr=True)
-    avatar: Optional[str] = field(default=None)
-    bot: Optional[bool] = field(default=None, repr=True)
-    system: Optional[bool] = field(default=None)
+    avatar: Optional[str] = field(default=None, repr=False)
+    bot: Optional[bool] = field(default=None)
+    system: Optional[bool] = field(default=None, repr=False)
     mfa_enabled: Optional[bool] = field(default=None)
-    banner: Optional[str] = field(default=None)
-    accent_color: Optional[int] = field(default=None)
-    banner_color: Optional[str] = field(default=None)
+    banner: Optional[str] = field(default=None, repr=False)
+    accent_color: Optional[int] = field(default=None, repr=False)
+    banner_color: Optional[str] = field(default=None, repr=False)
     locale: Optional[str] = field(default=None)
     verified: Optional[bool] = field(default=None)
     email: Optional[str] = field(default=None)
-    flags: Optional[UserFlags] = field(converter=UserFlags, default=None)
-    premium_type: Optional[int] = field(default=None)
-    public_flags: Optional[UserFlags] = field(converter=UserFlags, default=None)
+    flags: Optional[UserFlags] = field(converter=UserFlags, default=None, repr=False)
+    premium_type: Optional[int] = field(default=None, repr=False)
+    public_flags: Optional[UserFlags] = field(converter=UserFlags, default=None, repr=False)
     bio: Optional[str] = field(default=None)
 
     def __str__(self) -> str:

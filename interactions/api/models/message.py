@@ -802,7 +802,7 @@ class Message(ClientSerializerMixin, IDMixin):
     reactions: Optional[List[ReactionObject]] = field(
         converter=convert_list(ReactionObject), default=None
     )
-    nonce: Optional[Union[int, str]] = field(default=None)
+    nonce: Optional[Union[int, str]] = field(default=None, repr=False)
     pinned: bool = field(default=None)
     webhook_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     type: MessageType = field(converter=MessageType, default=None)
@@ -813,7 +813,7 @@ class Message(ClientSerializerMixin, IDMixin):
     flags: int = field(default=None)
     referenced_message: Optional[MessageReference] = field(converter=MessageReference, default=None)
     interaction: Optional[MessageInteraction] = field(
-        converter=MessageInteraction, default=None, add_client=True
+        converter=MessageInteraction, default=None, add_client=True, repr=False
     )
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
@@ -824,7 +824,7 @@ class Message(ClientSerializerMixin, IDMixin):
     stickers: Optional[List[Sticker]] = field(
         converter=convert_list(Sticker), default=None
     )  # deprecated
-    position: Optional[int] = field(default=None)
+    position: Optional[int] = field(default=None, repr=False)
 
     def __attrs_post_init__(self):
         if self.member:

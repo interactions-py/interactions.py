@@ -382,24 +382,24 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     id: Snowflake = field(converter=Snowflake)
     name: str = field()
-    icon: Optional[str] = field(default=None)
-    icon_hash: Optional[str] = field(default=None)
-    splash: Optional[str] = field(default=None)
-    discovery_splash: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
+    icon_hash: Optional[str] = field(default=None, repr=False)
+    splash: Optional[str] = field(default=None, repr=False)
+    discovery_splash: Optional[str] = field(default=None, repr=False)
     owner: Optional[bool] = field(default=None)
     owner_id: Snowflake = field(converter=Snowflake, default=None)
-    permissions: Optional[str] = field(default=None)
-    region: Optional[str] = field(default=None)  # None, we don't do Voices.
+    permissions: Optional[str] = field(default=None, repr=False)
+    region: Optional[str] = field(default=None, repr=False)  # None, we don't do Voices.
     afk_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     afk_timeout: Optional[int] = field(default=None)
-    widget_enabled: Optional[bool] = field(default=None)
-    widget_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    verification_level: int = 0
-    default_message_notifications: int = 0
-    explicit_content_filter: int = 0
+    widget_enabled: Optional[bool] = field(default=None, repr=False)
+    widget_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
+    verification_level: int = field(default=0)
+    default_message_notifications: int = field(default=0)
+    explicit_content_filter: int = field(default=0)
     roles: List[Role] = field(converter=convert_list(Role), factory=list, add_client=True)
     emojis: List[Emoji] = field(converter=convert_list(Emoji), factory=list, add_client=True)
-    mfa_level: int = 0
+    mfa_level: int = field(default=0)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     system_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     system_channel_flags: int = field(default=None)
@@ -424,16 +424,18 @@ class Guild(ClientSerializerMixin, IDMixin):
     max_members: Optional[int] = field(default=None)
     vanity_url_code: Optional[str] = field(default=None)
     description: Optional[str] = field(default=None)
-    banner: Optional[str] = field(default=None)
-    premium_tier: int = 0
-    premium_subscription_count: Optional[int] = field(default=None)
+    banner: Optional[str] = field(default=None, repr=False)
+    premium_tier: int = field(default=0)
+    premium_subscription_count: Optional[int] = field(default=None, repr=False)
     preferred_locale: str = field(default=None)
     public_updates_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    max_video_channel_users: Optional[int] = field(default=None)
+    max_video_channel_users: Optional[int] = field(default=None, repr=False)
     approximate_member_count: Optional[int] = field(default=None)
     approximate_presence_count: Optional[int] = field(default=None)
-    welcome_screen: Optional[WelcomeScreen] = field(converter=WelcomeScreen, default=None)
-    nsfw_level: int = 0
+    welcome_screen: Optional[WelcomeScreen] = field(
+        converter=WelcomeScreen, default=None, repr=False
+    )
+    nsfw_level: int = field(default=0)
     stage_instances: Optional[List[StageInstance]] = field(
         converter=convert_list(StageInstance), default=None
     )

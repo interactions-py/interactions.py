@@ -74,7 +74,7 @@ class ThreadMetadata(DictSerializerMixin):
 
     archived: bool = field()
     auto_archive_duration: int = field()
-    archive_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
+    archive_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
     locked: bool = field()
     invitable: Optional[bool] = field(default=None)
 
@@ -95,12 +95,14 @@ class ThreadMember(ClientSerializerMixin):
     :ivar bool muted: Whether the member is muted or not.
     """
 
-    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    join_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
-    flags: int = field()
+    join_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
+    flags: int = field(repr=False)
     muted: bool = field()
-    mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
+    mute_config: Optional[Any] = field(
+        default=None, repr=False
+    )  # todo explore this, it isn't in the ddev docs
 
 
 class AsyncHistoryIterator(DiscordPaginationIterator):
@@ -333,26 +335,30 @@ class Channel(ClientSerializerMixin, IDMixin):
     name: str = field(factory=str)
     topic: Optional[str] = field(default=None)
     nsfw: Optional[bool] = field(default=None)
-    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    bitrate: Optional[int] = field(default=None)
+    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
+    bitrate: Optional[int] = field(default=None, repr=False)
     user_limit: Optional[int] = field(default=None)
     rate_limit_per_user: Optional[int] = field(default=None)
-    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None)
-    icon: Optional[str] = field(default=None)
+    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None, repr=False)
+    icon: Optional[str] = field(default=None, repr=False)
     owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     parent_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    last_pin_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
-    rtc_region: Optional[str] = field(default=None)
-    video_quality_mode: Optional[int] = field(default=None)
-    message_count: Optional[int] = field(default=None)
-    member_count: Optional[int] = field(default=None)
+    last_pin_timestamp: Optional[datetime] = field(
+        converter=datetime.fromisoformat, default=None, repr=False
+    )
+    rtc_region: Optional[str] = field(default=None, repr=False)
+    video_quality_mode: Optional[int] = field(default=None, repr=False)
+    message_count: Optional[int] = field(default=None, repr=False)
+    member_count: Optional[int] = field(default=None, repr=False)
     thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
-    member: Optional[ThreadMember] = field(converter=ThreadMember, default=None, add_client=True)
+    member: Optional[ThreadMember] = field(
+        converter=ThreadMember, default=None, add_client=True, repr=False
+    )
     default_auto_archive_duration: Optional[int] = field(default=None)
-    permissions: Optional[str] = field(default=None)
-    flags: Optional[int] = field(default=None)
-    total_message_sent: Optional[int] = field(default=None)
+    permissions: Optional[str] = field(default=None, repr=False)
+    flags: Optional[int] = field(default=None, repr=False)
+    total_message_sent: Optional[int] = field(default=None, repr=False)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
         if self._client:
