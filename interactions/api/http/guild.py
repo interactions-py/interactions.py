@@ -602,11 +602,11 @@ class GuildRequest:
         )
 
     async def begin_guild_prune(
-            self,
-            guild_id: int,
-            days: int = 7,
-            compute_prune_count: bool = True,
-            include_roles: Optional[List[int]] = None,
+        self,
+        guild_id: int,
+        days: int = 7,
+        compute_prune_count: bool = True,
+        include_roles: Optional[List[int]] = None,
     ) -> dict:
         """
         Begins a prune operation.
@@ -623,9 +623,7 @@ class GuildRequest:
             "compute_prune_count": compute_prune_count,
         }
         if include_roles:
-            payload["include_roles"] = ", ".join(
-                str(x) for x in include_roles
-            )
+            payload["include_roles"] = ", ".join(str(x) for x in include_roles)
 
         return await self._req.request(Route("POST", f"/guilds/{guild_id}/prune"), json=payload)
 
