@@ -1,5 +1,6 @@
 from asyncio import Task, get_running_loop, sleep
 from functools import wraps
+from math import inf
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -14,12 +15,25 @@ from typing import (
 
 from ..api.error import LibraryException
 from ..client.models.component import ActionRow, Button, Component, SelectMenu
+from .missing import MISSING
 
 if TYPE_CHECKING:
-    from ..client.bot import Extension
+    from ..api.http.client import HTTPClient
+    from ..api.models.channel import AsyncHistoryIterator, Channel
+    from ..api.models.guild import AsyncMembersIterator, Guild
+    from ..api.models.member import Member
+    from ..api.models.message import Message
+    from ..api.models.misc import Snowflake
+    from ..client.bot import Client, Extension
     from ..client.context import CommandContext
 
-__all__ = ("autodefer", "spread_to_rows", "search_iterable", "disable_components")
+__all__ = (
+    "autodefer",
+    "spread_to_rows",
+    "search_iterable",
+    "disable_components",
+    "get_channel_history",
+)
 
 _T = TypeVar("_T")
 
@@ -231,3 +245,77 @@ def disable_components(
             for _components in components:
                 for component in _components.components:
                     component.disabled = True
+
+
+def get_channel_history(
+    http: Union["HTTPClient", "Client"],
+    channel: Union[int, str, "Snowflake", "Channel"],
+    start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
+    reverse: Optional[bool] = False,
+    check: Optional[Callable[["Message"], bool]] = None,
+    maximum: Optional[int] = inf,
+) -> "AsyncHistoryIterator":
+    """
+    Gets the history of a channel.
+
+    :param http: The HTTPClient of the bot or your bot instance
+    :type http: Union[HTTPClient, Client]
+    :param channel: The channel to get the history from
+    :type channel: Union[int, str, Snowflake, Channel]
+    :param start_at?: The message to begin getting the history from
+    :type start_at?: Optional[Union[int, str, Snowflake, Message]]
+    :param reverse?: Whether to only get newer message. Default False
+    :type reverse?: Optional[bool]
+    :param check?: A check to ignore specific messages
+    :type check?: Optional[Callable[[Message], bool]]
+    :param maximum?: A set maximum of messages to get before stopping the iteration
+    :type maximum?: Optional[int]
+
+    :return: An asynchronous iterator over the history of the channel
+    :rtype: AsyncHistoryIterator
+    """
+    from ..api.models.channel import AsyncHistoryIterator
+
+    return AsyncHistoryIterator(
+        http if not hasattr(http, "_http") else http._http,
+        channel,
+        start_at=start_at,
+        reverse=reverse,
+        check=check,
+        maximum=maximum,
+    )
+
+
+def get_guild_members(
+    http: Union["HTTPClient", "Client"],
+    guild: Union[int, str, "Snowflake", "Guild"],
+    start_at: Optional[Union[int, str, "Snowflake", "Member"]] = MISSING,
+    check: Optional[Callable[["Member"], bool]] = None,
+    maximum: Optional[int] = inf,
+) -> "AsyncMembersIterator":
+    """
+    Gets the members of a guild
+
+    :param http: The HTTPClient of the bot or your bot instance
+    :type http: Union[HTTPClient, Client]
+    :param guild: The channel to get the history from
+    :type guild: Union[int, str, Snowflake, Guild]
+    :param start_at?: The message to begin getting the history from
+    :type start_at?: Optional[Union[int, str, Snowflake, Member]]
+    :param check?: A check to ignore specific messages
+    :type check?: Optional[Callable[[Member], bool]]
+    :param maximum?: A set maximum of members to get before stopping the iteration
+    :type maximum?: Optional[int]
+
+    :return: An asynchronous iterator over the history of the channel
+    :rtype: AsyncMembersIterator
+    """
+    from ..api.models.guild import AsyncMembersIterator
+
+    return AsyncMembersIterator(
+        http if not hasattr(http, "_http") else http._http,
+        guild,
+        start_at=start_at,
+        maximum=maximum,
+        check=check,
+    )

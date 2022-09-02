@@ -921,4 +921,5 @@ class WebSocketClient:
         """
         if self._client:
             await self._client.close()
+
         self.__closed.set()
