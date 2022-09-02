@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ..api.models.member import Member
     from ..api.models.message import Message
     from ..api.models.misc import Snowflake
-    from ..client.bot import Extension, Client
+    from ..client.bot import Client, Extension
     from ..client.context import CommandContext
 
 __all__ = (
@@ -259,7 +259,7 @@ def get_channel_history(
     Gets the history of a channel.
 
     :param http: The HTTPClient of the bot or your bot instance
-    :type http: Union[HTTPClient, Client] 
+    :type http: Union[HTTPClient, Client]
     :param channel: The channel to get the history from
     :type channel: Union[int, str, Snowflake, Channel]
     :param start_at?: The message to begin getting the history from
@@ -277,7 +277,12 @@ def get_channel_history(
     from ..api.models.channel import AsyncHistoryIterator
 
     return AsyncHistoryIterator(
-        http if not hasattr(http, "_http") else http._http, channel, start_at=start_at, reverse=reverse, check=check, maximum=maximum
+        http if not hasattr(http, "_http") else http._http,
+        channel,
+        start_at=start_at,
+        reverse=reverse,
+        check=check,
+        maximum=maximum,
     )
 
 
@@ -307,4 +312,10 @@ def get_guild_members(
     """
     from ..api.models.guild import AsyncMembersIterator
 
-    return AsyncMembersIterator(http if not hasattr(http, "_http") else http._http, guild, start_at=start_at, maximum=maximum, check=check)
+    return AsyncMembersIterator(
+        http if not hasattr(http, "_http") else http._http,
+        guild,
+        start_at=start_at,
+        maximum=maximum,
+        check=check,
+    )
