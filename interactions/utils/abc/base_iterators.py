@@ -26,9 +26,8 @@ class BaseAsyncIterator(metaclass=ABCMeta):
     def __aiter__(self):
         return self
 
-    @abstractmethod
     async def flatten(self):
-        raise NotImplementedError
+        return [item async for item in self] 
 
     @abstractmethod
     async def __anext__(self) -> _O:
@@ -89,9 +88,8 @@ class BaseIterator(metaclass=ABCMeta):
     def __iter__(self):
         return self
 
-    @abstractmethod
-    def flatten(self) -> None:
-        raise NotImplementedError
+    def flatten(self):
+        return [item for item in self] 
 
     @abstractmethod
     def __next__(self) -> _O:
