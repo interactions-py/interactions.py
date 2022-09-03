@@ -686,6 +686,6 @@ Usage of ``@autodefer()``:
         await asyncio.sleep(5)
         await ctx.send("I'm awake now!")
 
-.. _Client: https://interactionspy.rtfd.io/en/stable/client.html
-.. _find these component types: https://interactionspy.readthedocs.io/en/stable/models.component.html
+.. _Client: https://interactionspy.rtfd.io/en/latest/client.html
+.. _find these component types: https://interactionspy.readthedocs.io/en/latest/models.component.html
 .. _discord applications page: https://discord.com/developers/applications
