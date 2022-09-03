@@ -459,7 +459,7 @@ class WebSocketClient:
                 if id is None:
                     ids = self.__get_object_ids(obj, model)
 
-                if "_create" in name or "_add" in name:
+                if "_create" in name or "_add" in name or "_execution" in name:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
                     if id:
