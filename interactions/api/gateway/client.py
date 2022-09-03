@@ -441,7 +441,6 @@ class WebSocketClient:
                 model = getattr(__import__(path), _name)
                 obj = model(**data)
 
-                # I don't like this but idk what i should do then
                 guild_obj = guild_model = None
                 if model is GuildRole:
                     guild_obj = Role(**role_data) if (role_data := data.get("role")) else None
@@ -452,7 +451,6 @@ class WebSocketClient:
 
                 _cache: "Storage" = self._http.cache[model]
                 _guild_cache: "Storage" = self._http.cache[guild_model]
-                # in _guild_cache stores 'Role' and 'Member' objects
 
                 ids = None
                 id = self.__get_object_id(data, obj, model)
@@ -473,6 +471,7 @@ class WebSocketClient:
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
+
                     if not id and ids is None:
                         return self._dispatch.dispatch(f"on_{name}", obj)
 
@@ -480,11 +479,11 @@ class WebSocketClient:
                         name, data, guild_model or model, guild_obj or obj, id, ids
                     )
                     if ids is not None:
-                        # Not cached but it needed for events guild_emojis_update and guild_stickers_update
-                        self._dispatch.dispatch(f"on_{name}", obj)
-                        return
+                        # Not cached but it needed for guild_emojis_update and guild_stickers_update events
+                        return self._dispatch.dispatch(f"on_{name}", obj)
                     if id is None:
                         return
+
                     if guild_obj:
                         old_guild_obj = _guild_cache.get(id)
                         if old_guild_obj:
