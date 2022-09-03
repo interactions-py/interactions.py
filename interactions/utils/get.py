@@ -194,8 +194,9 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
         _objects: List[Union[_obj, Coroutine]] = []
         kwarg_name += "s"
 
-        force_cache = kwargs.pop("force", None) == "cache"
-        force_http = kwargs.pop("force", None) == "http"
+        force_arg = kwargs.pop("force", None)
+        force_cache = force_arg == "cache"
+        force_http = force_arg == "http"
 
         if not force_http:
             _objects = _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
@@ -230,8 +231,10 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
 
     _obj: Optional[_T] = None
 
-    force_cache = kwargs.pop("force", None) == "cache"
-    force_http = kwargs.pop("force", None) == "http"
+    force_arg = kwargs.pop("force", None)
+    force_cache = force_arg == "cache"
+    force_http = force_arg == "http"
+    
     if not force_http:
         _obj = _get_cache(obj, client, kwarg_name, **kwargs)
 
