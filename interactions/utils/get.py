@@ -234,7 +234,7 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     force_arg = kwargs.pop("force", None)
     force_cache = force_arg == "cache"
     force_http = force_arg == "http"
-    
+
     if not force_http:
         _obj = _get_cache(obj, client, kwarg_name, **kwargs)
 
