@@ -474,7 +474,7 @@ class WebSocketClient:
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
                     if not id and ids is None:
-                        return
+                        return self._dispatch.dispatch(f"on_{name}", obj)
 
                     self.__modify_guild_cache(
                         name, data, guild_model or model, guild_obj or obj, id, ids
