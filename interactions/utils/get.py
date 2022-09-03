@@ -194,8 +194,7 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     if isinstance(obj, _GenericAlias) or _check():
         _obj: Type[_T] = get_args(obj)[0]
         http_name = f"get_{_obj.__name__.lower()}"
-        kwarg_name = f"{_obj.__name__.lower()}_id"
-        kwarg_names = kwarg_name + "s"
+        kwarg_name = f"{_obj.__name__.lower()}_ids"
         _objects: List[Union[_obj, Coroutine]] = []
 
         if not force_http:
