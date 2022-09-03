@@ -154,21 +154,22 @@ A list of all official extensions can be found `on our github page`_
 
 Those are (at the moment):
 
-- A `voice client`_ - which is still WIP, but it is able to listen for the ``VOICE_STATE_UPDATE`` event.
-- An `autosharder`_ for automatic sharding
+- `voice client`_ - which is still WIP, but it is able to listen for the ``VOICE_STATE_UPDATE`` event.
+- `autosharder`_ for automatic sharding
 - `wait_for`_ allows listening and waiting for a specific event or a component inside a function
 - `files`_ for file sending with ctx
 - `Molter`_ for message commands
 - `enhanced`_ which enhances the DX in general
-- A `paginator`_ for paginating embeds on messages using components
-- `persistence`_ - for storing data inside your custom IDs (as an alternative to ``wait_for``)
+- `paginator`_ for paginating embeds on messages using components
+- `persistence`_ for storing data inside your custom IDs (as an alternative to ``wait_for``)
+- `lavalink`_ for voice sending and listening ``VOICE_STATE_UPDATE`` event
+- `fastapi`_ for building own API
 - And a `boilerplate`_
 
 Below are a few unofficial exts (for the time being) which implement some functionality similar to what d.py had:
 
 - `checks and cooldowns`_
 - `tasks`_
-- `get`_ for getting objects from the discord API (will be implemented into the core library at a later time)
 
 Usage examples can usually be found at the linked page
 
@@ -318,4 +319,5 @@ Please join our `Discord Server`_ for any further support regarding our library 
 .. _persistence: https://github.com/interactions-py/persistence
 .. _Molter: https://github.com/interactions-py/molter
 .. _boilerplate: https://github.com/interactions-py/boilerplate
-.. _get: https://github.com/EdVraz/interactions-get
+.. _lavalink: https://github.com/interactions-py/interactions-lavalink
+.. _fastapi: https://github.com/interactions-py/interactions-fastapi
