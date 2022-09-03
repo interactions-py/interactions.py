@@ -221,10 +221,10 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
             _func = getattr(client._http, http_name)
             for _index, __obj in enumerate(_objects):
                 if __obj is None:
-                    _id = kwargs.get(kwarg_names)[_index]
+                    _id = kwargs.get(kwarg_name)[_index]
                     _kwargs = kwargs.copy()
-                    _kwargs.pop(kwarg_names)
-                    _kwargs[kwarg_name] = _id
+                    _kwargs.pop(kwarg_name)
+                    _kwargs[kwarg_name[:-1]] = _id
                     _request = _func(**_kwargs)
                     _objects[_index] = _request
             return _http_request(_obj, http=client._http, request=_objects)
