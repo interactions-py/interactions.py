@@ -210,10 +210,10 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
         elif force_http:
             _objects.clear()
             _func = getattr(client._http, http_name)
-            for _id in kwargs.get(kwarg_names):
+            for _id in kwargs.get(kwarg_name):
                 _kwargs = kwargs.copy()
-                _kwargs.pop(kwarg_names)
-                _kwargs[kwarg_name] = _id
+                _kwargs.pop(kwarg_name)
+                _kwargs[kwarg_name[:-1]] = _id
                 _objects.append(_func(**_kwargs))
             return _http_request(_obj, http=client._http, request=_objects)
 
