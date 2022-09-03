@@ -2,7 +2,7 @@ import time
 from enum import IntEnum
 from typing import Any, List, Optional
 
-from .attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from .emoji import Emoji
 from .flags import StatusType
 from .misc import Snowflake
@@ -181,3 +181,7 @@ class ClientPresence(DictSerializerMixin):
             # If since is not provided by the developer...
             self.since = int(time.time() * 1000) if self.status == "idle" else 0
             self._json["since"] = self.since
+        if not self._json.get("afk"):
+            self.afk = self._json["afk"] = False
+        if not self._json.get("activities"):
+            self.activities = self._json["activities"] = []

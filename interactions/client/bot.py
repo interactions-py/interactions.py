@@ -13,7 +13,6 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING, convert_list
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
 from ..api.models.misc import Image, Snowflake
@@ -21,6 +20,8 @@ from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
+from ..utils.attrs_utils import convert_list
+from ..utils.missing import MISSING
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
@@ -66,7 +67,7 @@ class Client:
     :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar Application me: The application representation of the client.
+    :ivar Application me?: The application representation of the client.
     """
 
     def __init__(
@@ -75,7 +76,7 @@ class Client:
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = HTTPClient(token=token)
+        self._http: HTTPClient = token
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
@@ -88,9 +89,9 @@ class Client:
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
-        self.__name_autocomplete = {}
-        self.me = None
 
+        self.me: Optional[Application] = None
+        self.__id_autocomplete = {}
         if self._default_scope:
             if not isinstance(self._default_scope, list):
                 self._default_scope = [self._default_scope]
@@ -109,9 +110,6 @@ class Client:
         else:
             self._automate_sync = True
 
-        data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data, _client=self._http)
-
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
@@ -126,23 +124,35 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
+
         try:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
+            self._loop.run_until_complete(self._logout())
             raise e from e
         except KeyboardInterrupt:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
+        finally:
+            self._loop.run_until_complete(self._logout())
 
-    async def __register_name_autocomplete(self) -> None:
-        for key in self.__name_autocomplete.keys():
-            _command_obj = self._find_command(key)
-            _command: Union[Snowflake, int] = int(_command_obj.id)
-            for _ in self.__name_autocomplete[key]:
-                # _ contains {"coro" : coro, "name": <name_as_string>}
-                self.event(
-                    _["coro"],
-                    name=f"autocomplete_{_command}_{_['name']}",
-                )
+    async def __register_id_autocomplete(self) -> None:  # TODO: make this use ID and not name
+        for key in self.__id_autocomplete.keys():
+            if isinstance(key, str):  # compatibility with the decorator from the Command obj
+                for _ in self.__id_autocomplete[key]:
+                    # _ contains {"coro" : coro, "name": <name_as_string>}
+                    self.event(
+                        _["coro"],
+                        name=f"autocomplete_{key}_{_['name']}",
+                    )
+            else:
+                _command_obj = self._find_command(key)
+                _command: str = _command_obj.name
+                for _ in self.__id_autocomplete[key]:
+                    # _ contains {"coro" : coro, "name": <name_as_string>}
+                    self.event(
+                        _["coro"],
+                        name=f"autocomplete_{_command}_{_['name']}",
+                    )
 
     @staticmethod
     async def __compare_sync(
@@ -185,7 +195,7 @@ class Client:
             if any(option not in _command_option_names for option in _data_option_names) or len(
                 _data_option_names
             ) != len(_command_option_names):
-                return False, command
+                return False
 
             for option in command.get("options"):
                 for _option in data.get("options"):
@@ -197,7 +207,7 @@ class Client:
                                 or not option.get(option_attr)
                                 and _option.get(option_attr)
                             ):
-                                return False, command
+                                return False
                             elif option_attr == "choices":
                                 if not option.get("choices") or not _option.get("choices"):
                                     continue
@@ -212,7 +222,7 @@ class Client:
                                 if any(
                                     _ not in _option_choice_names for _ in _data_choice_names
                                 ) or len(_data_choice_names) != len(_option_choice_names):
-                                    return False, command
+                                    return False
 
                                 for choice in option.get("choices"):
                                     for _choice in _option.get("choices"):
@@ -224,17 +234,17 @@ class Client:
                                                     or not choice.get(choice_attr)
                                                     and _choice.get(choice_attr)
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 elif choice.get(choice_attr) != _choice.get(
                                                     choice_attr
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 else:
                                                     continue
 
                                 for i, __name in enumerate(_option_choice_names):
                                     if _data_choice_names[i] != __name:
-                                        return False, command
+                                        return False
 
                             elif option_attr == "required":
                                 if (
@@ -247,22 +257,21 @@ class Client:
                             elif option_attr == "options":
                                 if not option.get(option_attr) and not _option.get("options"):
                                     continue
-                                _clean, _command = __check_options(option, _option)
+                                _clean = __check_options(option, _option)
                                 if not _clean:
-                                    return _clean, _command
+                                    return _clean
 
                             elif option.get(option_attr) != _option.get(option_attr):
-                                return False, command
+                                return False
                             else:
                                 continue
-
             return next(
                 (
-                    (False, command)
+                    False
                     for i, __name in enumerate(_command_option_names)
                     if _data_option_names[i] != __name
                 ),
-                (True, command),
+                True,
             )
 
         for command in pool:
@@ -292,7 +301,7 @@ class Client:
 
                         elif command.get("options") and data.get("options"):
 
-                            clean, _command = __check_options(command, data)
+                            clean = __check_options(command, data)
 
                         if not clean:
                             return clean, _command
@@ -343,6 +352,12 @@ class Client:
         """
         ready: bool = False
 
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
+
+        data = await self._http.get_current_bot_information()
+        self.me = Application(**data, _client=self._http)
+
         try:
             if self.me.flags is not None:
                 # This can be None.
@@ -370,7 +385,7 @@ class Client:
                 await self.__sync()
             else:
                 await self.__get_all_commands()
-            await self.__register_name_autocomplete()
+            await self.__register_id_autocomplete()
 
             ready = True
         except Exception:
@@ -380,10 +395,42 @@ class Client:
                 log.debug("Client is now ready.")
                 await self._login()
 
+    async def _stop(self) -> None:
+        """Stops the websocket connection gracefully."""
+
+        log.debug("Shutting down the client....")
+        self._websocket.ready.clear()  # Clears ready state.
+        self._websocket._closing_lock.set()  # Toggles the "ready-to-shutdown" state for the bot.
+        # And subsequently, the processes will close itself.
+
+        await self._http._req._session.close()  # Closes the HTTP session associated with the client.
+
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
-        while not self._websocket._closed:
-            await self._websocket._establish_connection(self._shards, self._presence)
+
+        try:
+            await self._websocket.run()
+        except Exception:
+            log.exception("Websocket have raised an exception, closing.")
+
+            if self._websocket._closing_lock.is_set():
+                # signal for closing.
+
+                try:
+                    if self._websocket._task is not None:
+                        self._websocket.__heartbeat_event.set()
+                        try:
+                            # Wait for the keep-alive handler to finish so we can discard it gracefully
+                            await self._websocket._task
+                        finally:
+                            self._websocket._task = None
+                finally:  # then the overall WS client
+                    if self._websocket._client is not None:
+                        # This needs to be properly closed
+                        try:
+                            await self._websocket._client.close(code=1000)
+                        finally:
+                            self._websocket._client = None
 
     async def wait_until_ready(self) -> None:
         """Helper method that waits until the websocket is ready."""
@@ -464,7 +511,7 @@ class Client:
             )
 
             if cmd.autocompletions:
-                self.__name_autocomplete.update(cmd.autocompletions)
+                self.__id_autocomplete.update(cmd.autocompletions)
 
             coro = coro.__func__ if hasattr(coro, "__func__") else coro
 
@@ -854,7 +901,8 @@ class Client:
             and command.type == ApplicationCommandType.CHAT_INPUT
         ):
             raise LibraryException(
-                11, message=f"Your command name ('{command.name}') does not match the regex for valid names ('{regex}')."
+                11,
+                message=f"Your command name ('{command.name}') does not match the regex for valid names ('{regex}').",
             )
         elif command.type == ApplicationCommandType.CHAT_INPUT and (
             command.description is MISSING or not command.description
@@ -1153,21 +1201,22 @@ class Client:
 
         return decorator
 
-    def _find_command(self, command: str) -> ApplicationCommand:
+    def _find_command(self, command: Union[str, int]) -> ApplicationCommand:
         """
         Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
 
-        :param command: The name of the command to match
-        :type command: str
+        :param command: The name or ID of the command to match
+        :type command: Union[str, int]
         :return: An ApplicationCommand model
         :rtype: ApplicationCommand
         """
+        key = "name" if isinstance(command, str) else "id"
         _command: Dict
         _command_obj = next(
             (
                 ApplicationCommand(**_command)
                 for _command in self.__global_commands["commands"]
-                if _command["name"] == command
+                if str(_command[key]) == str(command)
             ),
             None,
         )
@@ -1178,7 +1227,7 @@ class Client:
                     (
                         ApplicationCommand(**_command)
                         for _command in self.__guild_commands[scope]["commands"]
-                        if _command["name"] == command
+                        if str(_command[key]) == str(command)
                     ),
                     None,
                 )
@@ -1222,10 +1271,10 @@ class Client:
         """
 
         if isinstance(command, ApplicationCommand):
-            _command: Union[Snowflake, int] = command.id
+            _command: str = command.name
         elif isinstance(command, str):
             _command: str = command
-        elif isinstance(command, int) or isinstance(command, Snowflake):
+        elif isinstance(command, (int, Snowflake)):
             _command: Union[Snowflake, int] = int(command)
         else:
             raise LibraryException(
@@ -1234,10 +1283,10 @@ class Client:
             )
 
         def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            if isinstance(_command, str):
-                curr_autocomplete = self.__name_autocomplete.get(_command, [])
+            if isinstance(_command, (int, Snowflake)):
+                curr_autocomplete = self.__id_autocomplete.get(_command, [])
                 curr_autocomplete.append({"coro": coro, "name": name})
-                self.__name_autocomplete[_command] = curr_autocomplete
+                self.__id_autocomplete[_command] = curr_autocomplete
                 return coro
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
@@ -1423,10 +1472,18 @@ class Client:
         :return: The modified User object
         :rtype: User
         """
-        payload: dict = {"username": username, "avatar": avatar.data}
+        payload: dict = {}
+        if avatar is not MISSING:
+            payload["avatar"] = avatar.data
+        if username is not MISSING:
+            payload["username"] = username
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)
+
+    async def _logout(self) -> None:
+        await self._websocket.close()
+        await self._http._req.close()
 
 
 # TODO: Implement the rest of cog behaviour when possible.

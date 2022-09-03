@@ -3,6 +3,7 @@ from typing import List, Optional
 from aiohttp import FormData
 
 from ...api.cache import Cache
+from ..models.misc import File
 from .request import _Request
 from .route import Route
 
@@ -54,18 +55,24 @@ class StickerRequest:
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/stickers/{sticker_id}"))
 
     async def create_guild_sticker(
-        self, payload: FormData, guild_id: int, reason: Optional[str] = None
+        self, payload: dict, file: File, guild_id: int, reason: Optional[str] = None
     ) -> dict:
         """
         Create a new sticker for the guild. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
 
-        :param payload: the payload to send.
+        :param payload: The payload to send.
+        :param file: The file to send.
         :param guild_id: The guild to create sticker at.
         :param reason: The reason for this action.
         :return: The new sticker data on success.
         """
+        data = FormData()
+        data.add_field("file", file._fp, filename=file._filename)
+        for key, value in payload.items():
+            data.add_field(key, value)
+
         return await self._req.request(
-            Route("POST", f"/guilds/{guild_id}/stickers"), json=payload, reason=reason
+            Route("POST", f"/guilds/{guild_id}/stickers"), data=data, reason=reason
         )
 
     async def modify_guild_sticker(
