@@ -19,6 +19,7 @@ from asyncio import (
 from sys import platform, version_info
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
+from zlib import decompressobj
 
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
@@ -98,6 +99,7 @@ class WebSocketClient:
         "__heartbeater",
         "__shard",
         "__presence",
+        "_zlib",
         "_task",
         "__heartbeat_event",
         "__started",
@@ -148,7 +150,7 @@ class WebSocketClient:
 
         self.__closed: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
         self._options: dict = {
-            "max_msg_size": 1024**2,
+            "max_msg_size": 0,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
@@ -179,6 +181,8 @@ class WebSocketClient:
         self._closing_lock = Event(loop=self._loop) if version_info < (3, 10) else Event()
 
         self.__stopping: Optional[Task] = None
+
+        self._zlib = decompressobj()
 
     @property
     def latency(self) -> float:
@@ -827,6 +831,8 @@ class WebSocketClient:
 
             self._client = None
 
+            self._zlib = decompressobj()
+
             # We need to check about existing heartbeater tasks for edge cases.
 
             if self._task:
@@ -863,6 +869,8 @@ class WebSocketClient:
         :rtype: Optional[Dict[str, Any]]
         """
 
+        buffer = bytearray()
+
         while True:
 
             if not ignore_lock:
@@ -874,11 +882,8 @@ class WebSocketClient:
             if packet.type == WSMsgType.CLOSE:
                 log.debug(f"Disconnecting from gateway = {packet.data}::{packet.extra}")
 
-                if packet.data >= 4000:  # suppress 4001 because of weird presence errors
+                if packet.data >= 4000:
                     # This means that the error code is 4000+, which may signify Discord-provided error codes.
-
-                    # However, we suppress 4001 because of weird presence errors with change_presence
-                    # The payload is correct, and the presence object persists. /shrug
 
                     raise LibraryException(packet.data)
 
@@ -919,8 +924,20 @@ class WebSocketClient:
             if packet.data is None:
                 continue  # We just loop it over because it could just be processing something.
 
+            if isinstance(packet.data, bytes):
+                buffer.extend(packet.data)
+
+                if len(packet.data) < 4 or packet.data[-4:] != b"\x00\x00\xff\xff":
+                    # buffer isn't done we need to wait
+                    continue
+
+                msg = self._zlib.decompress(buffer)
+                msg = msg.decode("utf-8")
+            else:
+                msg = packet.data
+
             try:
-                msg = loads(packet.data)
+                _msg = loads(msg)
             except Exception as e:
                 import traceback
 
@@ -929,9 +946,9 @@ class WebSocketClient:
                 )
                 # There's an edge case when the packet's None... or some other deserialisation error.
                 # Instead of raising an exception, we just log it to debug, so it doesn't annoy end user's console logs.
-                msg = None
+                _msg = None
 
-            return msg
+            return _msg
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
@@ -976,6 +993,7 @@ class WebSocketClient:
                     "$browser": "interactions.py",
                     "$device": "interactions.py",
                 },
+                "compress": True,
             },
         }
 
