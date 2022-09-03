@@ -10,7 +10,7 @@ import interactions
 # When you make a bot, we refer to it as the "client."
 # The client is the main object that interacts with the Gateway, what talks to Discord.
 # The client is also the main object that interacts with the API, what makes requests with Discord.
-client = interactions.Client("your bot token will go here.")
+client = interactions.Client("your bot token will go here.", intents=interactions.Intents.DEFAULT)
 
 
 # With our client established, let's have the library inform us when the client is ready.
