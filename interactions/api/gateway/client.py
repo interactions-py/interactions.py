@@ -461,7 +461,7 @@ class WebSocketClient:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
                     if id:
-                        _cache.add(obj, id)
+                        _cache.merge(obj, id)
                         if guild_obj:
                             _guild_cache.add(guild_obj, id)
 
