@@ -71,7 +71,7 @@ class ScheduledEventRequest:
         """
         return await self._req.request(
             Route("GET", "/guilds/{guild_id}/scheduled-events", guild_id=guild_id),
-            params={"with_user_count": str(with_user_count).lower()}
+            params={"with_user_count": str(with_user_count).lower()},
         )
 
     async def modify_scheduled_event(
@@ -106,9 +106,7 @@ class ScheduledEventRequest:
             json=data,
         )
 
-    async def delete_scheduled_event(
-        self, guild_id: int, guild_scheduled_event_id: int
-    ) -> None:
+    async def delete_scheduled_event(self, guild_id: int, guild_scheduled_event_id: int) -> None:
         """
         Deletes a guild scheduled event.
 
