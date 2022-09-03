@@ -989,9 +989,9 @@ class WebSocketClient:
                 "token": self._http.token,
                 "intents": self._intents.value,
                 "properties": {
-                    "$os": platform,
-                    "$browser": "interactions.py",
-                    "$device": "interactions.py",
+                    "os": platform,
+                    "browser": "interactions.py",
+                    "device": "interactions.py",
                 },
                 "compress": True,
             },
@@ -1055,5 +1055,4 @@ class WebSocketClient:
         """
         if self._client:
             await self._client.close()
-
         self.__closed.set()
