@@ -331,7 +331,7 @@ class WebSocketClient:
         elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
             self._dispatch_discord_event(event, data)
 
-    def _dispatch_interaction_event(self, data: dict):
+    def _dispatch_interaction_event(self, data: dict) -> None:
         """
         Dispatches interaction event from the Gateway.
 
