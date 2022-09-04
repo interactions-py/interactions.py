@@ -843,7 +843,7 @@ class WebSocketClient:
             if not to_resume:
                 url = self.ws_url if self.ws_url else await self._http.get_gateway()
             else:
-                url = f"{self.resume_url}?v=10&encoding=json'"
+                url = f"{self.resume_url}?v=10&encoding=json"
 
             self._client = await self._http._req._session.ws_connect(url, **self._options)
 
