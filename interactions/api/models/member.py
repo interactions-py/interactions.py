@@ -143,7 +143,7 @@ class Member(ClientSerializerMixin, IDMixin):
         :return: The string of the mentioned member.
         :rtype: str
         """
-        return f"<@!{self.user.id}>" if self.nick else f"<@{self.user.id}>"
+        return f"<@{'!' if self.nick else ''}{self.id}>"
 
     @property
     def name(self) -> str:
