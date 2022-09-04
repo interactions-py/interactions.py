@@ -47,7 +47,7 @@ class ScheduledEventRequest:
 
         :param guild_id: Guild ID snowflake.
         :param guild_scheduled_event_id: Guild Scheduled Event ID snowflake.
-        :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
+        :param with_user_count: Whether the number of users subscribed to the events is returned.
         :return: A dictionary containing the guild scheduled event object on success.
         """
 
@@ -66,7 +66,7 @@ class ScheduledEventRequest:
         Gets all guild scheduled events in a guild.
 
         :param guild_id: Guild ID snowflake.
-        :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
+        :param with_user_count: Whether the number of users subscribed to the associated event is returned.
         :return: A List of a dictionary containing the guild scheduled event objects on success.
         """
         return await self._req.request(
