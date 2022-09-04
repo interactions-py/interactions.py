@@ -4,13 +4,12 @@ from typing import Dict, Mapping, Optional, Tuple
 
 import attrs
 
-__all__ = ("MISSING", "DictSerializerMixin", "ClientSerializerMixin")
+from .missing import MISSING
 
-
-class MISSING:
-    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
-
-    ...
+__all__ = (
+    "DictSerializerMixin",
+    "ClientSerializerMixin",
+)
 
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
@@ -74,7 +73,7 @@ class DictSerializerMixin:
 
                     passed_kwargs[attrib_name] = value
 
-                elif attrib.default:
+                elif attrib.default is not attrs.NOTHING:
                     # handle defaults like attrs does
                     default = attrib.default
                     if isinstance(default, attrs.Factory):  # type: ignore
@@ -223,7 +222,7 @@ def define(**kwargs):
 def field(
     converter=None,
     default=attrs.NOTHING,
-    repr=False,
+    repr=True,
     add_client: bool = False,
     discord_name: str = None,
     **kwargs,

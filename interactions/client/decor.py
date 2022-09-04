@@ -1,8 +1,8 @@
 from typing import Any, Dict, List, Optional, Union
 
-from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
+from ..utils.missing import MISSING
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu

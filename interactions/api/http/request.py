@@ -18,7 +18,6 @@ from .route import Route
 
 __all__ = ("_Request",)
 log: Logger = get_logger("http")
-_session: ClientSession = ClientSession()
 
 
 class _Request:
@@ -48,7 +47,6 @@ class _Request:
     ratelimits: Dict[str, Limiter]  # bucket: Limiter
     buckets: Dict[str, str]  # endpoint: shared_bucket
     _headers: dict
-    _session: ClientSession
     _global_lock: Limiter
 
     def __init__(self, token: str) -> None:
@@ -69,7 +67,7 @@ class _Request:
             f"Python/{version_info[0]}.{version_info[1]} "
             f"aiohttp/{http_version}",
         }
-        self._session = _session
+        self._session = ClientSession()
         self._global_lock = (
             Limiter(lock=Lock(loop=self._loop)) if version_info < (3, 10) else Limiter(lock=Lock())
         )

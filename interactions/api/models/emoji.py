@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ...utils.attrs_utils import ClientSerializerMixin, convert_list, define, field
 from ..error import LibraryException
-from .attrs_utils import ClientSerializerMixin, convert_list, define, field
 from .misc import Snowflake
 from .user import User
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 __all__ = ("Emoji",)
 
 
-@define()
+@define(repr=False)
 class Emoji(ClientSerializerMixin):
     """
     A class objecting representing an emoji.
@@ -36,7 +36,7 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = field(default=None)
     available: Optional[bool] = field(default=None)
 
-    def __str__(self):
+    def __repr__(self):
         return (
             f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
             if self.id is not None

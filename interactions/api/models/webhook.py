@@ -1,9 +1,10 @@
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
+from ...utils.attrs_utils import ClientSerializerMixin, define, field
+from ...utils.missing import MISSING
 from ..error import LibraryException
-from .attrs_utils import MISSING, ClientSerializerMixin, define, field
-from .misc import File, IDMixin, Image, Snowflake
+from .misc import AllowedMentions, File, IDMixin, Image, Snowflake
 from .user import User
 
 if TYPE_CHECKING:
@@ -48,7 +49,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
     channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     user: Optional[User] = field(converter=User, default=None, add_client=True)
     name: str = field()
-    avatar: str = field()
+    avatar: str = field(repr=False)
     token: Optional[str] = field(default=None)
     application_id: Snowflake = field(converter=Snowflake)
     source_guild: Optional[Any] = field(default=None)
@@ -180,7 +181,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         avatar_url: Optional[str] = MISSING,
         tts: Optional[bool] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Any = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
@@ -213,8 +214,8 @@ class Webhook(ClientSerializerMixin, IDMixin):
         :type attachments?: Optional[List[Attachment]]
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]
-        :param allowed_mentions: allowed mentions for the message
-        :type allowed_mentions: dict
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components: the components to include with the message
         :type components: Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         :param files: The files to attach to the message
@@ -240,7 +241,13 @@ class Webhook(ClientSerializerMixin, IDMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
 
         if not components or components is MISSING:
             _components = []

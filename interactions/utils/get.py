@@ -2,7 +2,7 @@ from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable
 from logging import getLogger
-from typing import Coroutine, List, Optional, Type, TypeVar, Union, get_args
+from typing import TYPE_CHECKING, Coroutine, List, Optional, Type, TypeVar, Union, get_args
 
 try:
     from typing import _GenericAlias
@@ -13,18 +13,19 @@ except ImportError:
 from sys import version_info
 
 from ..api.error import LibraryException
-from ..api.http.client import HTTPClient
 from ..api.models.emoji import Emoji
-from ..api.models.guild import Guild
 from ..api.models.member import Member
 from ..api.models.message import Message
 from ..api.models.misc import Snowflake
 from ..api.models.role import Role
-from .bot import Client
 
 log = getLogger("get")
 
 _T = TypeVar("_T")
+
+if TYPE_CHECKING:
+    from ..api.http.client import HTTPClient
+    from ..client.bot import Client
 
 __all__ = (
     "get",
@@ -44,7 +45,7 @@ class Force(str, Enum):
     HTTP = "http"
 
 
-def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
+def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     """
     Helper method to get an object.
 
@@ -163,8 +164,6 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
         If you enforce cache when getting a list of objects, found objets will be placed into the list and not found
         objects will be placed as ``None`` into the list.
 
-
-
     """
 
     if version_info >= (3, 9):
@@ -182,20 +181,21 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
             return False
 
     if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
-        client: Client
-        obj: Union[Type[_T], Type[List[_T]]]
         raise LibraryException(message="The object must not be an instance of a class!", code=12)
 
+    client: "Client"
+    obj: Union[Type[_T], Type[List[_T]]]
     kwargs = _resolve_kwargs(obj, **kwargs)
-    http_name = f"get_{obj.__name__.lower()}"
-    kwarg_name = f"{obj.__name__.lower()}_id"
+
+    force_arg = kwargs.pop("force", None)
+    force_cache = force_arg == "cache"
+    force_http = force_arg == "http"
+
     if isinstance(obj, _GenericAlias) or _check():
         _obj: Type[_T] = get_args(obj)[0]
+        http_name = f"get_{_obj.__name__.lower()}"
+        kwarg_name = f"{_obj.__name__.lower()}_ids"
         _objects: List[Union[_obj, Coroutine]] = []
-        kwarg_name += "s"
-
-        force_cache = kwargs.pop("force", None) == "cache"
-        force_http = kwargs.pop("force", None) == "http"
 
         if not force_http:
             _objects = _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
@@ -210,7 +210,7 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
             _objects.clear()
             _func = getattr(client._http, http_name)
             for _id in kwargs.get(kwarg_name):
-                _kwargs = kwargs
+                _kwargs = kwargs.copy()
                 _kwargs.pop(kwarg_name)
                 _kwargs[kwarg_name[:-1]] = _id
                 _objects.append(_func(**_kwargs))
@@ -221,17 +221,18 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
             for _index, __obj in enumerate(_objects):
                 if __obj is None:
                     _id = kwargs.get(kwarg_name)[_index]
-                    _kwargs = kwargs
+                    _kwargs = kwargs.copy()
                     _kwargs.pop(kwarg_name)
                     _kwargs[kwarg_name[:-1]] = _id
                     _request = _func(**_kwargs)
                     _objects[_index] = _request
             return _http_request(_obj, http=client._http, request=_objects)
 
+    http_name = f"get_{obj.__name__.lower()}"
+    kwarg_name = f"{obj.__name__.lower()}_id"
+
     _obj: Optional[_T] = None
 
-    force_cache = kwargs.pop("force", None) == "cache"
-    force_http = kwargs.pop("force", None) == "http"
     if not force_http:
         _obj = _get_cache(obj, client, kwarg_name, **kwargs)
 
@@ -247,13 +248,15 @@ def get(client: Client, obj: Type[_T], **kwargs) -> Optional[_T]:
 
 async def _http_request(
     obj: Type[_T],
-    http: HTTPClient,
+    http: "HTTPClient",
     request: Union[Coroutine, List[Union[_T, Coroutine]], List[Coroutine]] = None,
     _name: str = None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
     if not request:
         if obj in (Role, Emoji):
+            from ..api.models.guild import Guild
+
             _guild = Guild(**await http.get_guild(kwargs.pop("guild_id")), _client=http)
             _func = getattr(_guild, _name)
             return await _func(**kwargs)
@@ -276,7 +279,7 @@ async def _return_cache(
 
 
 def _get_cache(
-    _object: Type[_T], client: Client, kwarg_name: str, _list: bool = False, **kwargs
+    _object: Type[_T], client: "Client", kwarg_name: str, _list: bool = False, **kwargs
 ) -> Union[Optional[_T], List[Optional[_T]]]:
     if _list:
         _obj = []

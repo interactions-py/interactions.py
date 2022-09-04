@@ -2,8 +2,9 @@ import contextlib
 from typing import List, Optional, Union
 
 from ...api.error import LibraryException
-from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.emoji import Emoji
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 __all__ = (
@@ -242,7 +243,7 @@ class Modal(ComponentMixin):
     """
 
     custom_id: str = field()
-    title: str = field
+    title: str = field()
     components: List[Component] = field(converter=convert_list(Component))
 
     def __attrs_post_init__(self):
