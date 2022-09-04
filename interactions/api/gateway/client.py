@@ -571,7 +571,7 @@ class WebSocketClient:
 
         except AttributeError as error:
             log.warning(f"An error occurred dispatching {name}: {error}")
-    
+
     def __get_object_id(
         self, data: dict, obj: Any, model: type
     ) -> Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]:
