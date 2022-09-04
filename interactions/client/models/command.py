@@ -710,18 +710,21 @@ class Command(DictSerializerMixin):
         sub_command: Optional[str] = None,
         **kwargs,
     ) -> Optional[BaseResult]:
-        """
+        r"""
         Call the command along with any subcommands
 
         :param ctx: The context for the interaction
         :type ctx: CommandContext
         :param args: The args to be passed to the command
+        :type args: tuple
         :param sub_command_group: The subcommand group being invoked, if any
         :type sub_command_group: Optional[str]
         :param sub_command: The subcommand being invoked, if any
         :type sub_command: Optional[str]
         :param kwargs: The kwargs to pass to the command
-        :return:
+        :type kwargs: Dict
+        :return: The result of the base command if no StopCommand is returned anywhere, else None
+        :rtype: Optional[BaseResult]
         """
         base_coro = self.coro
         base_res = BaseResult(
