@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from ..api.models.message import Message
     from ..api.models.misc import Snowflake
     from ..client.bot import Client, Extension
-    from ..client.context import CommandContext
+    from ..client.context import CommandContext  # noqa F401
 
 __all__ = (
     "autodefer",
@@ -67,7 +67,7 @@ def autodefer(
     """
 
     def decorator(coro: Callable[..., Union[Awaitable, Coroutine]]) -> Callable[..., Awaitable]:
-        from ..client.context import ComponentContext
+        from ..client.context import CommandContext, ComponentContext  # noqa F811
 
         @wraps(coro)
         async def deferring_func(
@@ -80,7 +80,8 @@ def autodefer(
 
             if isinstance(args[0], (ComponentContext, CommandContext)):
                 self = ctx
-                ctx = list(args).pop(0)
+                args = list(args)
+                ctx = args.pop(0)
 
                 task: Task = loop.create_task(coro(self, ctx, *args, **kwargs))
 
