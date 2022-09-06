@@ -1,7 +1,11 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from inspect import isawaitable
+from math import inf
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from warnings import warn
 
+from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -15,11 +19,12 @@ from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
 from .emoji import Emoji
 from .member import Member
-from .message import Sticker
+from .message import Sticker, StickerPack
 from .misc import (
     AutoModAction,
     AutoModTriggerMetadata,
     AutoModTriggerType,
+    File,
     IDMixin,
     Image,
     Overwrite,
@@ -32,6 +37,7 @@ from .user import User
 from .webhook import Webhook
 
 if TYPE_CHECKING:
+    from ..http.client import HTTPClient
     from .gw import AutoModerationRule
     from .message import Message
 
@@ -53,6 +59,7 @@ __all__ = (
     "Guild",
     "GuildPreview",
     "Invite",
+    "AsyncMembersIterator",
 )
 
 
@@ -210,6 +217,108 @@ class UnavailableGuild(DictSerializerMixin, IDMixin):
     unavailable: bool = field()
 
 
+class AsyncMembersIterator(DiscordPaginationIterator):
+    """
+    A class object that allows iterating through a channel's history.
+
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    :param obj: The guild to get the members from
+    :type obj: Union[int, str, Snowflake, Guild]
+    :param start_at?: The member ID to start getting members from (gets all members after that member)
+    :type start_at?: Optional[Union[int, str, Snowflake, Member]]
+    :param check?: A check to ignore certain members
+    :type check?: Optional[Callable[[Member], bool]]
+    :param maximum?: A set maximum of members to get before stopping the iteration
+    :type maximum?: Optional[int]
+    """
+
+    def __init__(
+        self,
+        _client: "HTTPClient",
+        obj: Union[int, str, Snowflake, "Guild"],
+        maximum: Optional[int] = inf,
+        start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
+        check: Optional[Callable[[Member], bool]] = None,
+    ):
+        super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
+
+        self.after = self.start_at
+
+        self.objects: Optional[List[Member]]
+
+    async def get_first_objects(self) -> None:
+
+        limit = min(self.maximum, 1000)
+
+        if self.maximum == limit:
+            self.__stop = True
+
+        members = await self._client.get_list_of_members(
+            guild_id=self.object_id, after=self.after, limit=limit
+        )
+        self.after = int(members[-1]["user"]["id"])
+
+        if len(members) < 1000:
+            # already all messages resolved with one operation
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects = [Member(**member, _client=self._client) for member in members]
+
+    async def get_objects(self) -> None:
+
+        limit = min(500, self.maximum - self.object_count)
+        members = await self._client.get_list_of_members(
+            guild_id=self.object_id, after=self.after, limit=limit
+        )
+        self.after = int(members[-1]["user"]["id"])
+
+        if len(members) < limit or limit == self.maximum - self.object_count:
+            # end of messages reached again
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects.extend([Member(**member, _client=self._client) for member in members])
+
+    async def flatten(self) -> List[Member]:
+        """returns all remaining items as list"""
+        return [item async for item in self]
+
+    async def __anext__(self) -> Member:
+        if self.objects is None:
+            await self.get_first_objects()
+
+        try:
+            obj = self.objects.pop(0)
+
+            if self.check:
+
+                res = self.check(obj)
+                _res = await res if isawaitable(res) else res
+                while not _res:
+                    if (
+                        not self.__stop
+                        and len(self.objects) < 5
+                        and self.object_count >= self.maximum
+                    ):
+                        await self.get_objects()
+
+                    self.object_count -= 1
+                    obj = self.objects.pop(0)
+
+                    _res = self.check(obj)
+
+            if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
+                await self.get_objects()
+        except IndexError:
+            raise StopAsyncIteration
+        else:
+            return obj
+
+
 @define()
 class Guild(ClientSerializerMixin, IDMixin):
     """
@@ -273,24 +382,24 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     id: Snowflake = field(converter=Snowflake)
     name: str = field()
-    icon: Optional[str] = field(default=None)
-    icon_hash: Optional[str] = field(default=None)
-    splash: Optional[str] = field(default=None)
-    discovery_splash: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
+    icon_hash: Optional[str] = field(default=None, repr=False)
+    splash: Optional[str] = field(default=None, repr=False)
+    discovery_splash: Optional[str] = field(default=None, repr=False)
     owner: Optional[bool] = field(default=None)
     owner_id: Snowflake = field(converter=Snowflake, default=None)
-    permissions: Optional[str] = field(default=None)
-    region: Optional[str] = field(default=None)  # None, we don't do Voices.
+    permissions: Optional[str] = field(default=None, repr=False)
+    region: Optional[str] = field(default=None, repr=False)  # None, we don't do Voices.
     afk_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     afk_timeout: Optional[int] = field(default=None)
-    widget_enabled: Optional[bool] = field(default=None)
-    widget_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    verification_level: int = 0
-    default_message_notifications: int = 0
-    explicit_content_filter: int = 0
+    widget_enabled: Optional[bool] = field(default=None, repr=False)
+    widget_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
+    verification_level: int = field(default=0)
+    default_message_notifications: int = field(default=0)
+    explicit_content_filter: int = field(default=0)
     roles: List[Role] = field(converter=convert_list(Role), factory=list, add_client=True)
     emojis: List[Emoji] = field(converter=convert_list(Emoji), factory=list, add_client=True)
-    mfa_level: int = 0
+    mfa_level: int = field(default=0)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     system_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     system_channel_flags: int = field(default=None)
@@ -315,16 +424,18 @@ class Guild(ClientSerializerMixin, IDMixin):
     max_members: Optional[int] = field(default=None)
     vanity_url_code: Optional[str] = field(default=None)
     description: Optional[str] = field(default=None)
-    banner: Optional[str] = field(default=None)
-    premium_tier: int = 0
-    premium_subscription_count: Optional[int] = field(default=None)
+    banner: Optional[str] = field(default=None, repr=False)
+    premium_tier: int = field(default=0)
+    premium_subscription_count: Optional[int] = field(default=None, repr=False)
     preferred_locale: str = field(default=None)
     public_updates_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    max_video_channel_users: Optional[int] = field(default=None)
+    max_video_channel_users: Optional[int] = field(default=None, repr=False)
     approximate_member_count: Optional[int] = field(default=None)
     approximate_presence_count: Optional[int] = field(default=None)
-    welcome_screen: Optional[WelcomeScreen] = field(converter=WelcomeScreen, default=None)
-    nsfw_level: int = 0
+    welcome_screen: Optional[WelcomeScreen] = field(
+        converter=WelcomeScreen, default=None, repr=False
+    )
+    nsfw_level: int = field(default=0)
     stage_instances: Optional[List[StageInstance]] = field(
         converter=convert_list(StageInstance), default=None
     )
@@ -360,6 +471,8 @@ class Guild(ClientSerializerMixin, IDMixin):
                     self.member_count = guild.member_count
                 if not self.presences:
                     self.presences = guild.presences
+                if not self.emojis:
+                    self.emojis = guild.emojis
 
         if self.members:
             for member in self.members:
@@ -1620,6 +1733,22 @@ class Guild(ClientSerializerMixin, IDMixin):
         )
         return ScheduledEvents(**res)
 
+    async def get_scheduled_events(self, with_user_count: bool) -> List["ScheduledEvents"]:
+        """
+        Gets all scheduled events of the guild.
+
+        :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
+        :type with_user_count: bool
+        :return: The sheduled events of the guild.
+        :rtype: List[ScheduledEvents]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        res = await self._client.get_scheduled_events(
+            guild_id=self.id, with_user_count=with_user_count
+        )
+        return [ScheduledEvents(**scheduled_event) for scheduled_event in res] if res else []
+
     async def modify_scheduled_event(
         self,
         event_id: Union[int, "ScheduledEvents", Snowflake],
@@ -1905,6 +2034,71 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         return res
 
+    async def prune(
+        self,
+        days: int = 7,
+        compute_prune_count: bool = True,
+        include_roles: Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] = MISSING,
+    ) -> Optional[int]:
+        """
+        Begins a prune operation.
+
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
+        :param include_roles: Role IDs to include, if given.
+        :return: The number of pruned members, if compute_prune_count is not false. Otherwise returns None.
+        :rtype: Optional[int]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if include_roles is not MISSING:
+            _roles = [
+                int(role.id) if isinstance(role, Role) else int(role) for role in include_roles
+            ]
+        else:
+            _roles = None
+
+        res: dict = await self._client.begin_guild_prune(
+            guild_id=int(self.id),
+            days=days,
+            compute_prune_count=compute_prune_count,
+            include_roles=_roles,
+        )
+
+        return res.get("pruned")
+
+    async def get_prune_count(
+        self,
+        days: int = 7,
+        include_roles: Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] = MISSING,
+    ) -> int:
+        """
+        Returns the number of members that would be removed in a prune operation.
+
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param include_roles: Role IDs to include, if given.
+        :return: The number of members that would be pruned.
+        :rtype: int
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if include_roles is not MISSING:
+            _roles = [
+                int(role.id) if isinstance(role, Role) else int(role) for role in include_roles
+            ]
+        else:
+            _roles = None
+
+        res: dict = await self._client.get_guild_prune_count(
+            guild_id=int(self.id),
+            days=days,
+            include_roles=_roles,
+        )
+
+        return res.get("pruned")
+
     async def get_emoji(
         self,
         emoji_id: int,
@@ -2019,6 +2213,158 @@ class Guild(ClientSerializerMixin, IDMixin):
             if int(item.id) == int(emoji_id):
                 return self.emojis.remove(item)
 
+    async def get_stickers(self) -> Optional[List[Sticker]]:
+        """
+        Get the stickers for a guild.
+
+        :return: List of stickers of the guild.
+        :rtype: Optional[List[Sticker]]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = await self._client.list_guild_stickers(guild_id=int(self.id))
+
+        stickers = [Sticker(**sticker) for sticker in res]
+        self.stickers = stickers
+
+        return self.stickers
+
+    async def get_nitro_sticker_packs(self) -> List[StickerPack]:
+        """
+        Gets the list of sticker packs available to Nitro subscribers.
+
+        :return: List of sticker packs.
+        :rtype: List[StickerPack]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = await self._client.list_nitro_sticker_packs()
+
+        return [StickerPack(**sticker_pack) for sticker_pack in res["sticker_packs"]]
+
+    async def create_sticker(
+        self,
+        file: File,
+        tags: str,
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Sticker:
+        """
+        Creates a new sticker for the guild.
+
+        :param file: The file of the sticker.
+        :type file: File
+        :param tags: The tags of the sticker.
+        :type tags: str
+        :param name?: The name of the sticker.
+        :type name?: Optional[str]
+        :param description?: The description of the sticker.
+        :type description?: Optional[str]
+        :param reason?: The reason of the creation.
+        :type reason?: Optional[str]
+        :return: Created sticker for the guild.
+        :rtype: Sticker
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _name = name if name is not MISSING else file._filename
+
+        payload: dict = {
+            "name": _name,
+            "tags": tags,
+            "description": description if description is not MISSING else None,
+        }
+
+        res = await self._client.create_guild_sticker(
+            payload=payload, file=file, guild_id=int(self.id), reason=reason
+        )
+
+        if self.stickers is None:
+            self.stickers = []
+
+        _sticker = Sticker(**res)
+        self.stickers.append(_sticker)
+        return _sticker
+
+    async def modify_sticker(
+        self,
+        sticker_id: Union[Sticker, Snowflake, int, str],
+        name: Optional[str] = MISSING,
+        description: Optional[str] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Sticker:
+        """
+        Modifies the sticker of the guild.
+
+        :param sticker_id: The sticker or ID of the sticker.
+        :type sticker_id: Union[Sticker, Snowflake, int]
+        :param name?: The name of the sticker.
+        :type name?: Optional[str]
+        :param description?: The description of the sticker.
+        :type description?: Optional[str]
+        :param reason?: The reason of the modification.
+        :type reason?: Optional[str]
+        :return: Modified sticker.
+        :rtype: Sticker
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _id = int(sticker_id.id) if isinstance(sticker_id, Sticker) else int(sticker_id)
+
+        payload: dict = {}
+
+        if name is not MISSING:
+            payload["name"] = name
+        if description is not MISSING:
+            payload["description"] = description
+
+        res = await self._client.modify_guild_sticker(
+            payload=payload, guild_id=int(self.id), sticker_id=_id, reason=reason
+        )
+        _sticker = Sticker(**res)
+
+        if not self.stickers:
+            self.stickers = [_sticker]
+            return _sticker
+
+        for sticker in self.stickers:
+            if sticker.id == _sticker.id:
+                sticker.update(res)
+                return sticker
+
+    async def delete_sticker(
+        self,
+        sticker_id: Union[Sticker, Snowflake, int, str],
+        reason: Optional[str] = None,
+    ):
+        """Deletes the sticker of the guild.
+
+        :param sticker_id: The sticker or ID of the sticker.
+        :type sticker_id: Union[Sticker, Snowflake, int]
+        :param reason?: The reason of the deletion.
+        :type reason?: Optional[str]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _id = int(sticker_id.id) if isinstance(sticker_id, Sticker) else int(sticker_id)
+
+        await self._client.delete_guild_sticker(
+            guild_id=int(self.id), sticker_id=_id, reason=reason
+        )
+
+        if not self.stickers:
+            return
+        for sticker in self.stickers:
+            if int(sticker.id) == _id:
+                self.stickers.remove(sticker)
+                break
+
     async def get_list_of_members(
         self,
         limit: Optional[int] = 1,
@@ -2078,6 +2424,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         :return: Returns a list of all members of the guild
         :rtype: List[Member]
         """
+        warn(
+            "This method has been deprecated in favour of the 'get_members' method.",
+            DeprecationWarning,
+        )
+
         if not self._client:
             raise LibraryException(code=13)
 
@@ -2096,6 +2447,30 @@ class Guild(ClientSerializerMixin, IDMixin):
         _all_members.extend(_members)
         self.members = [Member(**_, _client=self._client, guild_id=self.id) for _ in _all_members]
         return self.members
+
+    def get_members(
+        self,
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        maximum: Optional[int] = inf,
+        check: Optional[Callable[[Member], bool]] = None,
+    ) -> AsyncMembersIterator:
+        """
+        :param start_at?: The message to begin getting the history from
+        :type start_at?: Optional[Union[int, str, Snowflake, Member]]
+        :param maximum?: A set maximum of members to get before stopping the iteration
+        :type maximum?: Optional[int]
+        :param check?: A custom check to ignore certain members
+        :type check?: Optional[Callable[[Message], bool]]
+
+        :return: An asynchronous iterator over the members of the guild
+        :rtype: AsyncMembersIterator
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        return AsyncMembersIterator(
+            self._client, self, maximum=maximum, start_at=start_at, check=check
+        )
 
     async def get_webhooks(self) -> List[Webhook]:
         if not self._client:
@@ -2631,7 +3006,7 @@ class ScheduledEvents(DictSerializerMixin, IDMixin):
     creator_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     name: str = field()
     description: str = field()
-    scheduled_start_time: Optional[datetime] = field(converter=datetime.isoformat, default=None)
+    scheduled_start_time: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     scheduled_end_time: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
     privacy_level: int = field()
     entity_type: int = field()

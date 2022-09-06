@@ -243,7 +243,7 @@ class Modal(ComponentMixin):
     """
 
     custom_id: str = field()
-    title: str = field
+    title: str = field()
     components: List[Component] = field(converter=convert_list(Component))
 
     def __attrs_post_init__(self):

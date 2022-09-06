@@ -1,7 +1,13 @@
+from asyncio import Task, create_task, get_running_loop, sleep
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from inspect import isawaitable
+from math import inf
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, ContextManager, List, Optional, Union
+from warnings import warn
 
+from ...utils.abc.base_context_managers import BaseAsyncContextManager
+from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -18,6 +24,7 @@ from .webhook import Webhook
 
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
+    from ..http.client import HTTPClient
     from .guild import Invite, InviteTargetType
     from .member import Member
     from .message import Attachment, Embed, Message, Sticker
@@ -28,6 +35,7 @@ __all__ = (
     "Channel",
     "ThreadMember",
     "ThreadMetadata",
+    "AsyncHistoryIterator",
 )
 
 
@@ -66,7 +74,7 @@ class ThreadMetadata(DictSerializerMixin):
 
     archived: bool = field()
     auto_archive_duration: int = field()
-    archive_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
+    archive_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
     locked: bool = field()
     invitable: Optional[bool] = field(default=None)
 
@@ -87,12 +95,189 @@ class ThreadMember(ClientSerializerMixin):
     :ivar bool muted: Whether the member is muted or not.
     """
 
-    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    join_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
-    flags: int = field()
+    join_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
+    flags: int = field(repr=False)
     muted: bool = field()
-    mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
+    mute_config: Optional[Any] = field(
+        default=None, repr=False
+    )  # todo explore this, it isn't in the ddev docs
+
+
+class AsyncHistoryIterator(DiscordPaginationIterator):
+    """
+    A class object that allows iterating through a channel's history.
+
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    :param obj: The channel to get the history from
+    :type obj: Union[int, str, Snowflake, Channel]
+    :param start_at?: The message to begin getting the history from
+    :type start_at?: Optional[Union[int, str, Snowflake, Message]]
+    :param reverse?: Whether to only get newer message. Default False
+    :type reverse?: Optional[bool]
+    :param check?: A check to ignore certain messages
+    :type check?: Optional[Callable[[Member], bool]]
+    :param maximum?: A set maximum of messages to get before stopping the iteration
+    :type maximum?: Optional[int]
+    """
+
+    def __init__(
+        self,
+        _client: "HTTPClient",
+        obj: Union[int, str, Snowflake, "Channel"],
+        maximum: Optional[int] = inf,
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        check: Optional[Callable[["Message"], bool]] = None,
+        reverse: Optional[bool] = False,
+    ):
+        super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
+
+        from .message import Message
+
+        if reverse and start_at is MISSING:
+            raise LibraryException(
+                code=12,
+                message="A message to start from is required to go through the channel in reverse.",
+            )
+
+        if reverse:
+            self.before = MISSING
+            self.after = self.start_at
+        else:
+            self.before = self.start_at
+            self.after = MISSING
+
+        self.objects: Optional[List[Message]]
+
+    async def get_first_objects(self) -> None:
+        from .message import Message
+
+        limit = min(self.maximum, 100)
+
+        if self.maximum == limit:
+            self.__stop = True
+
+        if self.after is not MISSING:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, after=self.after, limit=limit
+            )
+            msgs.reverse()
+            self.after = int(msgs[-1]["id"])
+        else:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, before=self.before, limit=limit
+            )
+            self.before = int(msgs[-1]["id"])
+
+        if len(msgs) < 100:
+            # already all messages resolved with one operation
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects = [Message(**msg, _client=self._client) for msg in msgs]
+
+    async def flatten(self) -> List["Message"]:
+        """returns all remaining items as list"""
+        return [item async for item in self]
+
+    async def get_objects(self) -> None:
+        from .message import Message
+
+        limit = min(50, self.maximum - self.object_count)
+
+        if self.after is not MISSING:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, after=self.after, limit=limit
+            )
+            msgs.reverse()
+            self.after = int(msgs[-1]["id"])
+        else:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, before=self.before, limit=limit
+            )
+            self.before = int(msgs[-1]["id"])
+
+        if len(msgs) < limit or limit == self.maximum - self.object_count:
+            # end of messages reached again
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects.extend([Message(**msg, _client=self._client) for msg in msgs])
+
+    async def __anext__(self) -> "Message":
+        if self.objects is None:
+            await self.get_first_objects()
+
+        try:
+            obj = self.objects.pop(0)
+
+            if self.check:
+
+                res = self.check(obj)
+                _res = await res if isawaitable(res) else res
+                while not _res:
+                    if (
+                        not self.__stop
+                        and len(self.objects) < 5
+                        and self.object_count >= self.maximum
+                    ):
+                        await self.get_objects()
+
+                    self.object_count -= 1
+                    obj = self.objects.pop(0)
+
+                    _res = self.check(obj)
+
+            if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
+                await self.get_objects()
+        except IndexError:
+            raise StopAsyncIteration
+        else:
+            return obj
+
+
+class AsyncTypingContextManager(BaseAsyncContextManager):
+    """
+    An async context manager for triggering typing.
+
+    :param obj: The channel to trigger typing in.
+    :type obj: Union[int, str, Snowflake, Channel]
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    """
+
+    def __init__(
+        self,
+        obj: Union[int, str, "Snowflake", "Channel"],
+        _client: "HTTPClient",
+    ):
+
+        try:
+            self.loop = get_running_loop()
+        except RuntimeError as e:
+            raise RuntimeError("No running event loop detected!") from e
+
+        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self._client = _client
+        self.__task: Optional[Task] = None
+
+    def __await__(self):
+        return self._client.trigger_typing(self.object_id).__await__()
+
+    async def do_action(self):
+        while True:
+            await self._client.trigger_typing(self.object_id)
+            await sleep(8)
+
+    async def __aenter__(self):
+        self.__task = create_task(self.do_action())
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.__task.cancel()
 
 
 @define()
@@ -150,26 +335,30 @@ class Channel(ClientSerializerMixin, IDMixin):
     name: str = field(factory=str)
     topic: Optional[str] = field(default=None)
     nsfw: Optional[bool] = field(default=None)
-    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    bitrate: Optional[int] = field(default=None)
+    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
+    bitrate: Optional[int] = field(default=None, repr=False)
     user_limit: Optional[int] = field(default=None)
     rate_limit_per_user: Optional[int] = field(default=None)
-    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None)
-    icon: Optional[str] = field(default=None)
+    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None, repr=False)
+    icon: Optional[str] = field(default=None, repr=False)
     owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     parent_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    last_pin_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
-    rtc_region: Optional[str] = field(default=None)
-    video_quality_mode: Optional[int] = field(default=None)
-    message_count: Optional[int] = field(default=None)
-    member_count: Optional[int] = field(default=None)
+    last_pin_timestamp: Optional[datetime] = field(
+        converter=datetime.fromisoformat, default=None, repr=False
+    )
+    rtc_region: Optional[str] = field(default=None, repr=False)
+    video_quality_mode: Optional[int] = field(default=None, repr=False)
+    message_count: Optional[int] = field(default=None, repr=False)
+    member_count: Optional[int] = field(default=None, repr=False)
     thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
-    member: Optional[ThreadMember] = field(converter=ThreadMember, default=None, add_client=True)
+    member: Optional[ThreadMember] = field(
+        converter=ThreadMember, default=None, add_client=True, repr=False
+    )
     default_auto_archive_duration: Optional[int] = field(default=None)
-    permissions: Optional[str] = field(default=None)
-    flags: Optional[int] = field(default=None)
-    total_message_sent: Optional[int] = field(default=None)
+    permissions: Optional[str] = field(default=None, repr=False)
+    flags: Optional[int] = field(default=None, repr=False)
+    total_message_sent: Optional[int] = field(default=None, repr=False)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
         if self._client:
@@ -181,6 +370,16 @@ class Channel(ClientSerializerMixin, IDMixin):
         return self.name
 
     @property
+    def typing(self) -> Union[Awaitable, ContextManager]:
+        """
+        Manages the typing of the channel. Use with `await` or `async with`
+
+        :return: A manager for typing
+        :rtype: AsyncTypingContextManager
+        """
+        return AsyncTypingContextManager(self, self._client)
+
+    @property
     def mention(self) -> str:
         """
         Returns a string that allows you to mention the given channel.
@@ -189,6 +388,33 @@ class Channel(ClientSerializerMixin, IDMixin):
         :rtype: str
         """
         return f"<#{self.id}>"
+
+    def history(
+        self,
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        reverse: Optional[bool] = False,
+        maximum: Optional[int] = inf,
+        check: Optional[Callable[["Message"], bool]] = None,
+    ) -> AsyncHistoryIterator:
+        """
+        :param start_at?: The message to begin getting the history from
+        :type start_at?: Optional[Union[int, str, Snowflake, Message]]
+        :param reverse?: Whether to only get newer message. Default False
+        :type reverse?: Optional[bool]
+        :param maximum?: A set maximum of messages to get before stopping the iteration
+        :type maximum?: Optional[int]
+        :param check?: A custom check to ignore certain messages
+        :type check?: Optional[Callable[[Message], bool]]
+
+        :return: An asynchronous iterator over the history of the channel
+        :rtype: AsyncHistoryIterator
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        return AsyncHistoryIterator(
+            self._client, self, start_at=start_at, reverse=reverse, maximum=maximum, check=check
+        )
 
     async def send(
         self,
@@ -1122,6 +1348,10 @@ class Channel(ClientSerializerMixin, IDMixin):
         :rtype: List[Message]
         """
 
+        warn(
+            "This method has been deprecated in favour of the 'history' method.", DeprecationWarning
+        )
+
         if not self._client:
             raise LibraryException(code=13)
 
@@ -1231,13 +1461,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         if not self.guild_id:
             return Permissions.DEFAULT
 
-        from .guild import Guild
+        permissions = await member.get_guild_permissions(self.guild_id)
 
-        guild = Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
-
-        permissions = await member.get_guild_permissions(guild)
-
-        if permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
+        if Permissions.ADMINISTRATOR in permissions:
             return Permissions.ALL
 
         # @everyone role overwrites

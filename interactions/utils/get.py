@@ -186,16 +186,16 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     client: "Client"
     obj: Union[Type[_T], Type[List[_T]]]
     kwargs = _resolve_kwargs(obj, **kwargs)
-    http_name = f"get_{obj.__name__.lower()}"
-    kwarg_name = f"{obj.__name__.lower()}_id"
+
+    force_arg = kwargs.pop("force", None)
+    force_cache = force_arg == "cache"
+    force_http = force_arg == "http"
 
     if isinstance(obj, _GenericAlias) or _check():
         _obj: Type[_T] = get_args(obj)[0]
+        http_name = f"get_{_obj.__name__.lower()}"
+        kwarg_name = f"{_obj.__name__.lower()}_ids"
         _objects: List[Union[_obj, Coroutine]] = []
-        kwarg_name += "s"
-
-        force_cache = kwargs.pop("force", None) == "cache"
-        force_http = kwargs.pop("force", None) == "http"
 
         if not force_http:
             _objects = _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
@@ -210,7 +210,7 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
             _objects.clear()
             _func = getattr(client._http, http_name)
             for _id in kwargs.get(kwarg_name):
-                _kwargs = kwargs
+                _kwargs = kwargs.copy()
                 _kwargs.pop(kwarg_name)
                 _kwargs[kwarg_name[:-1]] = _id
                 _objects.append(_func(**_kwargs))
@@ -221,17 +221,18 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
             for _index, __obj in enumerate(_objects):
                 if __obj is None:
                     _id = kwargs.get(kwarg_name)[_index]
-                    _kwargs = kwargs
+                    _kwargs = kwargs.copy()
                     _kwargs.pop(kwarg_name)
                     _kwargs[kwarg_name[:-1]] = _id
                     _request = _func(**_kwargs)
                     _objects[_index] = _request
             return _http_request(_obj, http=client._http, request=_objects)
 
+    http_name = f"get_{obj.__name__.lower()}"
+    kwarg_name = f"{obj.__name__.lower()}_id"
+
     _obj: Optional[_T] = None
 
-    force_cache = kwargs.pop("force", None) == "cache"
-    force_http = kwargs.pop("force", None) == "http"
     if not force_http:
         _obj = _get_cache(obj, client, kwarg_name, **kwargs)
 

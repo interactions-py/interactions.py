@@ -43,6 +43,7 @@ __all__ = (
     "ReactionObject",
     "PartialSticker",
     "Sticker",
+    "StickerPack",
 )
 
 
@@ -477,7 +478,7 @@ class Embed(DictSerializerMixin):
         """
         Inserts a field in the embed at the specified index
 
-        :param index: The new field's index
+        :param index: The field's index to insert
         :type index: int
         :param name: The name of the field
         :type name: str
@@ -501,7 +502,7 @@ class Embed(DictSerializerMixin):
         """
         Overwrites the field in the embed at the specified index
 
-        :param index: The new field's index
+        :param index: The field's index to overwrite
         :type index: int
         :param name: The name of the field
         :type name: str
@@ -526,7 +527,7 @@ class Embed(DictSerializerMixin):
         """
         Remove field at the specified index
 
-        :param index: The new field's index
+        :param index: The field's index to remove
         :type index: int
         """
 
@@ -705,6 +706,29 @@ class Sticker(PartialSticker, IDMixin):
 
 
 @define()
+class StickerPack(DictSerializerMixin, IDMixin):
+    """
+    A class objects representing a pack of stickers.
+
+    :ivar Snowflake id: ID of the sticker pack.
+    :ivar List[Sticker] stickers: The stickers in the pack.
+    :ivar str name: The name of sticker pack.
+    :ivar Snowflake sku_id: ID of the pack's SKU.
+    :ivar Optional[Snowflake] cover_sticker_id?: ID of a sticker in the pack which is shown as the pack's icon.
+    :ivar str description: The description of sticker pack.
+    :ivar Optional[Snowflake] banned_asset_id?: ID of the sticker pack's banner image.
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    stickers: List[Sticker] = field(converter=convert_list(Sticker))
+    name: str = field()
+    sku_id: Snowflake = field(converter=Snowflake)
+    cover_sticker_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    description: str = field()
+    banned_asset_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+
+@define()
 class ReactionObject(DictSerializerMixin):
     """The reaction object.
 
@@ -778,7 +802,7 @@ class Message(ClientSerializerMixin, IDMixin):
     reactions: Optional[List[ReactionObject]] = field(
         converter=convert_list(ReactionObject), default=None
     )
-    nonce: Optional[Union[int, str]] = field(default=None)
+    nonce: Optional[Union[int, str]] = field(default=None, repr=False)
     pinned: bool = field(default=None)
     webhook_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     type: MessageType = field(converter=MessageType, default=None)
@@ -789,7 +813,7 @@ class Message(ClientSerializerMixin, IDMixin):
     flags: int = field(default=None)
     referenced_message: Optional[MessageReference] = field(converter=MessageReference, default=None)
     interaction: Optional[MessageInteraction] = field(
-        converter=MessageInteraction, default=None, add_client=True
+        converter=MessageInteraction, default=None, add_client=True, repr=False
     )
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
@@ -800,7 +824,7 @@ class Message(ClientSerializerMixin, IDMixin):
     stickers: Optional[List[Sticker]] = field(
         converter=convert_list(Sticker), default=None
     )  # deprecated
-    position: Optional[int] = field(default=None)
+    position: Optional[int] = field(default=None, repr=False)
 
     def __attrs_post_init__(self):
         if self.member:

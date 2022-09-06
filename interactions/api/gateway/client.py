@@ -19,10 +19,11 @@ from asyncio import (
 from sys import platform, version_info
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
+from zlib import decompressobj
 
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
-from ...base import get_logger
+from ...base import __version__, get_logger
 from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
@@ -32,9 +33,12 @@ from ..error import LibraryException
 from ..http.client import HTTPClient
 from ..models.flags import Intents
 from ..models.guild import Guild
+from ..models.gw import GuildMember, GuildRole
 from ..models.member import Member
+from ..models.message import Message
 from ..models.misc import Snowflake
 from ..models.presence import ClientPresence
+from ..models.role import Role
 from .heartbeat import _Heartbeat
 from .ratelimit import WSRateLimit
 
@@ -95,6 +99,7 @@ class WebSocketClient:
         "__heartbeater",
         "__shard",
         "__presence",
+        "_zlib",
         "_task",
         "__heartbeat_event",
         "__started",
@@ -132,22 +137,26 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+
         self._ratelimiter = (
             WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
         )
         self.__heartbeater: _Heartbeat = _Heartbeat(
             loop=self._loop if version_info < (3, 10) else None
         )
-        self._http: HTTPClient = HTTPClient(token)
+        self._http: HTTPClient = token
+
         self._client: Optional["ClientWebSocketResponse"] = None
 
         self.__closed: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
         self._options: dict = {
-            "max_msg_size": 1024**2,
+            "max_msg_size": 0,
             "timeout": 60,
             "autoclose": False,
             "compress": 0,
-            "headers": {"User-Agent": self._http._req._headers["User-Agent"]},
+            "headers": {
+                "User-Agent": f"DiscordBot (https://github.com/interactions-py/library {__version__}) "
+            },
         }
 
         self._intents: Intents = intents
@@ -172,6 +181,8 @@ class WebSocketClient:
         self._closing_lock = Event(loop=self._loop) if version_info < (3, 10) else Event()
 
         self.__stopping: Optional[Task] = None
+
+        self._zlib = decompressobj()
 
     @property
     def latency(self) -> float:
@@ -224,7 +235,8 @@ class WebSocketClient:
         Handles the client's connection with the Gateway.
         """
 
-        # Credit to NAFF for inspiration for the Gateway logic.
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
 
         url = await self._http.get_gateway()
         self.ws_url = url
@@ -257,7 +269,8 @@ class WebSocketClient:
                 _receive.cancel()
                 return
 
-            await self._handle_stream(msg)
+            if msg is not None:  # this can happen
+                await self._handle_stream(msg)
 
     async def _handle_stream(self, stream: Dict[str, Any]):
         """
@@ -431,87 +444,64 @@ class WebSocketClient:
         elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
             name: str = event.lower()
             try:
+                data["_client"] = self._http
 
                 _event_path: list = [section.capitalize() for section in name.split("_")]
                 _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
                 model = getattr(__import__(path), _name)
-
-                data["_client"] = self._http
                 obj = model(**data)
 
+                guild_obj = guild_model = None
+                if model is GuildRole:
+                    guild_obj = Role(**role_data) if (role_data := data.get("role")) else None
+                    guild_model = Role
+                elif model is GuildMember:
+                    guild_obj = Member(**data)
+                    guild_model = Member
+
                 _cache: "Storage" = self._http.cache[model]
+                _guild_cache: "Storage" = self._http.cache[guild_model]
 
-                if isinstance(obj, Member):
-                    id = (Snowflake(data["guild_id"]), obj.id)
-                else:
-                    id = getattr(obj, "id", None)
-
+                ids = None
+                id = self.__get_object_id(data, obj, model)
                 if id is None:
-                    if model.__name__ == "GuildScheduledEventUser":
-                        id = model.guild_scheduled_event_id
-                    elif model.__name__ == "Presence":
-                        id = obj.user.id
-                    elif model.__name__ in [
-                        "Invite",
-                        "GuildBan",
-                        "ChannelPins",
-                        "MessageReaction",
-                        "MessageReactionRemove",
-                        "MessageDelete",
-                        # Extend this for everything that should not be cached
-                    ]:
-                        id = None
-                    elif model.__name__.startswith("Guild"):
-                        model_name = model.__name__[5:]
-                        if _data := getattr(obj, model_name, None):
-                            id = (
-                                getattr(_data, "id")
-                                if not isinstance(_data, dict)
-                                else Snowflake(_data["id"])
-                            )
-                        elif hasattr(obj, f"{model_name}_id"):
-                            id = getattr(obj, f"{model_name}_id", None)
-
-                def __modify_guild_cache():
-                    if not (
-                        (guild_id := data.get("guild_id"))
-                        and not isinstance(obj, Guild)
-                        and "message" not in name
-                        and id is not None
-                    ):
-                        return
-                    if guild := self._http.cache[Guild].get(Snowflake(guild_id)):
-                        model_name: str = model.__name__
-                        if "guild" in model_name:
-                            model_name = model_name[5:]
-                        elif model_name == "threadmembers":
-                            return
-                        _obj = getattr(guild, f"{model_name.lower()}s", None)
-                        if _obj is not None and isinstance(_obj, list):
-                            if "_create" in name or "_add" in name:
-                                _obj.append(obj)
-                            for index, __obj in enumerate(_obj):
-                                if __obj.id == id:
-                                    if "_remove" in name or "_delete" in name:
-                                        _obj.remove(__obj)
-
-                                    elif "_update" in name and hasattr(obj, "id"):
-                                        _obj[index] = obj
-                                    break
-                            setattr(guild, f"{model_name}s", _obj)
-                        self._http.cache[Guild].add(guild)
+                    ids = self.__get_object_ids(obj, model)
 
                 if "_create" in name or "_add" in name:
+                    self._dispatch.dispatch(f"on_{name}", obj)
+
                     if id:
                         _cache.merge(obj, id)
-                    self._dispatch.dispatch(f"on_{name}", obj)
-                    __modify_guild_cache()
+                        if guild_obj:
+                            _guild_cache.add(guild_obj, id)
+
+                    self.__modify_guild_cache(
+                        name, data, guild_model or model, guild_obj or obj, id, ids
+                    )
 
                 elif "_update" in name:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
-                    if not id:
+
+                    if not id and ids is None:
+                        return self._dispatch.dispatch(f"on_{name}", obj)
+
+                    self.__modify_guild_cache(
+                        name, data, guild_model or model, guild_obj or obj, id, ids
+                    )
+                    if ids is not None:
+                        # Not cached but it needed for guild_emojis_update and guild_stickers_update events
+                        return self._dispatch.dispatch(f"on_{name}", obj)
+                    if id is None:
                         return
-                    old_obj = self._http.cache[model].get(id)
+
+                    if guild_obj:
+                        old_guild_obj = _guild_cache.get(id)
+                        if old_guild_obj:
+                            old_guild_obj.update(**guild_obj._json)
+                        else:
+                            _guild_cache.add(guild_obj, id)
+
+                    old_obj = _cache.get(id)
                     if old_obj:
                         before = model(**old_obj._json)
                         old_obj.update(**obj._json)
@@ -520,26 +510,162 @@ class WebSocketClient:
                         old_obj = obj
 
                     _cache.add(old_obj, id)
-                    __modify_guild_cache()
-
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
 
                 elif "_remove" in name or "_delete" in name:
-                    self._dispatch.dispatch(f"on_raw_{name}", obj)
-                    __modify_guild_cache()
+                    self._dispatch.dispatch(
+                        f"on_raw_{name}", obj
+                    )  # Deprecated. Remove this in the future.
+
+                    old_obj = None
                     if id:
+                        _guild_cache.pop(id)
+                        self.__modify_guild_cache(
+                            name, data, guild_model or model, guild_obj or obj, id, ids
+                        )
                         old_obj = _cache.pop(id)
-                        self._dispatch.dispatch(f"on_{name}", old_obj)
-                    elif "_delete_bulk" in name:
-                        self._dispatch.dispatch(f"on_{name}", obj)
+
+                    elif ids is not None and "message" in name:
+                        # currently only message has '_delete_bulk' event but ig better keep this condition for future.
+                        _message_cache: "Storage" = self._http.cache[Message]
+                        for message_id in ids:
+                            _message_cache.pop(message_id)
+
+                    self._dispatch.dispatch(f"on_{name}", old_obj or obj)
 
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
             except AttributeError as error:
                 log.warning(f"An error occurred dispatching {name}: {error}")
+
+    def __get_object_id(
+        self, data: dict, obj: Any, model: Any
+    ) -> Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]:
+        """
+        Gets an ID from object.
+
+        :param data: The data for the event.
+        :type data: dict
+        :param obj: The object of the event.
+        :type obj: Any
+        :param model: The model of the event.
+        :type model: Any
+        :return: Object ID
+        :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        """
+        if isinstance(obj, (Member, GuildMember)):
+            id = (Snowflake(data["guild_id"]), obj.id)
+        else:
+            id = getattr(obj, "id", None)
+        if id is not None:
+            return id
+
+        if model.__name__ == "GuildScheduledEventUser":
+            id = obj.guild_scheduled_event_id
+        elif model.__name__ == "Presence":
+            id = obj.user.id
+        elif model.__name__ in [
+            "GuildBan",
+            # Extend this for everything that starts with 'Guild' and should not be cached
+        ]:
+            id = None
+        elif model.__name__.startswith("Guild"):
+            model_name = model.__name__[5:].lower()
+            if (_data := getattr(obj, model_name, None)) and not isinstance(_data, list):
+                id = getattr(_data, "id") if not isinstance(_data, dict) else Snowflake(_data["id"])
+            elif hasattr(obj, f"{model_name}_id"):
+                id = getattr(obj, f"{model_name}_id", None)
+
+        return id
+
+    def __get_object_ids(self, obj: Any, model: Any) -> Optional[List[Snowflake]]:
+        """
+        Gets a list of ids of object.
+
+        :param obj: The object of the event.
+        :type obj: Any
+        :param model: The model of the event.
+        :type model: Any
+        :return: Object IDs
+        :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        """
+        ids = getattr(obj, "ids", None)
+        if ids is not None:
+            return ids
+
+        if model.__name__.startswith("Guild"):
+            model_name = model.__name__[5:].lower()
+            if (_data := getattr(obj, model_name, None)) is not None:
+                ids = [
+                    getattr(_obj, "id") if not isinstance(_obj, dict) else Snowflake(_obj["id"])
+                    for _obj in _data
+                ]
+
+        return ids
+
+    def __modify_guild_cache(
+        self,
+        name: str,
+        data: dict,
+        model: Any,
+        obj: Any,
+        id: Optional[Snowflake] = None,
+        ids: Optional[List[Snowflake]] = None,
+    ):
+        """
+        Modifies guild cache.
+
+        :param event: The name of the event.
+        :type event: str
+        :param data: The data for the event.
+        :type data: dict
+        :param obj: The object of the event.
+        :type obj: Any
+        :param model: The model of the event.
+        :type model: Any
+        """
+        if not (
+            (guild_id := data.get("guild_id"))
+            and not isinstance(obj, Guild)
+            and "message" not in name
+            and (id is not None or ids is not None)
+            and (guild := self._http.cache[Guild].get(Snowflake(guild_id)))
+        ):
+            return
+
+        attr: str = model.__name__.lower()
+
+        if attr.startswith("guild"):
+            attr = attr[5:]
+        if attr == "threadmembers":  # TODO: Figure out why this here
+            return
+        if not attr.endswith("s"):
+            attr = f"{attr}s"
+        iterable = getattr(guild, attr, None)
+        if iterable is not None and isinstance(iterable, list):
+            if "_create" in name or "_add" in name:
+                iterable.append(obj)
+            if id:
+                _id = id[1] if isinstance(id, tuple) else id
+                for index, __obj in enumerate(iterable):
+                    if __obj.id == _id:
+                        if "_remove" in name or "_delete" in name:
+                            iterable.remove(__obj)
+
+                        elif "_update" in name and hasattr(obj, "id"):
+                            iterable[index] = obj
+                        break
+            elif ids is not None and "_update" in name:
+                objs = getattr(obj, attr, None)
+                if objs is not None:
+                    iterable.clear()
+                    iterable.extend(objs)
+            setattr(guild, attr, iterable)
+
+        self._http.cache[Guild].add(guild)
 
     def __contextualize(self, data: dict) -> "_Context":
         """
@@ -695,7 +821,7 @@ class WebSocketClient:
         Restarts the client's connection and heartbeat with the Gateway.
         """
 
-        self._ready.clear()
+        self.ready.clear()
 
         async with self.reconnect_lock:
             self.__closed.clear()
@@ -705,10 +831,19 @@ class WebSocketClient:
 
             self._client = None
 
+            self._zlib = decompressobj()
+
+            # We need to check about existing heartbeater tasks for edge cases.
+
+            if self._task:
+                self._task.cancel()
+                if self.__heartbeat_event.is_set():
+                    self.__heartbeat_event.clear()  # Because we're hardresetting the process
+
             if not to_resume:
                 url = self.ws_url if self.ws_url else await self._http.get_gateway()
             else:
-                url = self.resume_url
+                url = f"{self.resume_url}?v=10&encoding=json&compress=zlib-stream"
 
             self._client = await self._http._req._session.ws_connect(url, **self._options)
 
@@ -716,12 +851,7 @@ class WebSocketClient:
 
             self.__heartbeater.delay = data["d"]["heartbeat_interval"]
 
-            if self._task:
-                self._task.cancel()
-                if self.__heartbeat_event.is_set():
-                    self.__heartbeat_event.clear()  # Because we're hardresetting the process
-
-                self._task = create_task(self.run_heartbeat())
+            self._task = create_task(self.run_heartbeat())
 
             if not to_resume:
                 await self.__identify(self.__shard, self.__presence)
@@ -739,6 +869,8 @@ class WebSocketClient:
         :rtype: Optional[Dict[str, Any]]
         """
 
+        buffer = bytearray()
+
         while True:
 
             if not ignore_lock:
@@ -750,11 +882,8 @@ class WebSocketClient:
             if packet.type == WSMsgType.CLOSE:
                 log.debug(f"Disconnecting from gateway = {packet.data}::{packet.extra}")
 
-                if packet.data >= 4000:  # suppress 4001 because of weird presence errors
+                if packet.data >= 4000:
                     # This means that the error code is 4000+, which may signify Discord-provided error codes.
-
-                    # However, we suppress 4001 because of weird presence errors with change_presence
-                    # The payload is correct, and the presence object persists. /shrug
 
                     raise LibraryException(packet.data)
 
@@ -795,7 +924,31 @@ class WebSocketClient:
             if packet.data is None:
                 continue  # We just loop it over because it could just be processing something.
 
-            return loads(packet.data) if isinstance(packet.data, str) else None
+            if isinstance(packet.data, bytes):
+                buffer.extend(packet.data)
+
+                if len(packet.data) < 4 or packet.data[-4:] != b"\x00\x00\xff\xff":
+                    # buffer isn't done we need to wait
+                    continue
+
+                msg = self._zlib.decompress(buffer)
+                msg = msg.decode("utf-8")
+            else:
+                msg = packet.data
+
+            try:
+                _msg = loads(msg)
+            except Exception as e:
+                import traceback
+
+                log.debug(
+                    f'Error serialising message: {"".join(traceback.format_exception(type(e), e, e.__traceback__))}.'
+                )
+                # There's an edge case when the packet's None... or some other deserialisation error.
+                # Instead of raising an exception, we just log it to debug, so it doesn't annoy end user's console logs.
+                _msg = None
+
+            return _msg
 
     async def _send_packet(self, data: Dict[str, Any]) -> None:
         """
@@ -811,9 +964,11 @@ class WebSocketClient:
             # This is because the ratelimiter limits already accounts for this.
             await self._ratelimiter.block()
 
-        self._last_send = perf_counter()
-        log.debug(packet)
-        await self._client.send_str(packet)
+        if self._client is not None:  # this mitigates against another edge case.
+            self._last_send = perf_counter()
+            log.debug(packet)
+
+            await self._client.send_str(packet)
 
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
@@ -834,10 +989,11 @@ class WebSocketClient:
                 "token": self._http.token,
                 "intents": self._intents.value,
                 "properties": {
-                    "$os": platform,
-                    "$browser": "interactions.py",
-                    "$device": "interactions.py",
+                    "os": platform,
+                    "browser": "interactions.py",
+                    "device": "interactions.py",
                 },
+                "compress": True,
             },
         }
 
@@ -892,3 +1048,11 @@ class WebSocketClient:
         await self._send_packet(payload)
         log.debug(f"UPDATE_PRESENCE: {presence._json}")
         self.__presence = presence
+
+    async def close(self) -> None:
+        """
+        Closes the current connection.
+        """
+        if self._client:
+            await self._client.close()
+        self.__closed.set()

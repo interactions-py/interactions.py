@@ -601,6 +601,32 @@ class GuildRequest:
             Route("DELETE", f"/guilds/{guild_id}/members/{user_id}"), reason=reason
         )
 
+    async def begin_guild_prune(
+        self,
+        guild_id: int,
+        days: int = 7,
+        compute_prune_count: bool = True,
+        include_roles: Optional[List[int]] = None,
+    ) -> dict:
+        """
+        Begins a prune operation.
+
+        :param guild_id: Guild ID snowflake
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
+        :param include_roles: Role IDs to include, if given.
+        :return: A dict containing `{"pruned": int}` or `{"pruned": None}`
+        """
+
+        payload = {
+            "days": days,
+            "compute_prune_count": compute_prune_count,
+        }
+        if include_roles:
+            payload["include_roles"] = ", ".join(str(x) for x in include_roles)
+
+        return await self._req.request(Route("POST", f"/guilds/{guild_id}/prune"), json=payload)
+
     async def get_guild_prune_count(
         self, guild_id: int, days: int = 7, include_roles: Optional[List[int]] = None
     ) -> dict:
@@ -608,7 +634,7 @@ class GuildRequest:
         Retrieves a dict from an API that results in how many members would be pruned given the amount of days.
 
         :param guild_id: Guild ID snowflake.
-        :param days:  Number of days to count. Defaults to ``7``.
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
         :param include_roles: Role IDs to include, if given.
         :return: A dict denoting `{"pruned": int}`
         """

@@ -67,7 +67,7 @@ class Client:
     :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar Application me: The application representation of the client.
+    :ivar Application me?: The application representation of the client.
     """
 
     def __init__(
@@ -76,7 +76,7 @@ class Client:
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = HTTPClient(token=token)
+        self._http: HTTPClient = token
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
@@ -89,9 +89,9 @@ class Client:
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
-        self.__id_autocomplete = {}
-        self.me = None
 
+        self.me: Optional[Application] = None
+        self.__id_autocomplete = {}
         if self._default_scope:
             if not isinstance(self._default_scope, list):
                 self._default_scope = [self._default_scope]
@@ -110,9 +110,6 @@ class Client:
         else:
             self._automate_sync = True
 
-        data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data, _client=self._http)
-
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
@@ -127,12 +124,16 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
+
         try:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
+            self._loop.run_until_complete(self._logout())
             raise e from e
         except KeyboardInterrupt:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
+        finally:
+            self._loop.run_until_complete(self._logout())
 
     async def __register_id_autocomplete(self) -> None:  # TODO: make this use ID and not name
         for key in self.__id_autocomplete.keys():
@@ -194,7 +195,7 @@ class Client:
             if any(option not in _command_option_names for option in _data_option_names) or len(
                 _data_option_names
             ) != len(_command_option_names):
-                return False, command
+                return False
 
             for option in command.get("options"):
                 for _option in data.get("options"):
@@ -206,7 +207,7 @@ class Client:
                                 or not option.get(option_attr)
                                 and _option.get(option_attr)
                             ):
-                                return False, command
+                                return False
                             elif option_attr == "choices":
                                 if not option.get("choices") or not _option.get("choices"):
                                     continue
@@ -221,7 +222,7 @@ class Client:
                                 if any(
                                     _ not in _option_choice_names for _ in _data_choice_names
                                 ) or len(_data_choice_names) != len(_option_choice_names):
-                                    return False, command
+                                    return False
 
                                 for choice in option.get("choices"):
                                     for _choice in _option.get("choices"):
@@ -233,17 +234,17 @@ class Client:
                                                     or not choice.get(choice_attr)
                                                     and _choice.get(choice_attr)
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 elif choice.get(choice_attr) != _choice.get(
                                                     choice_attr
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 else:
                                                     continue
 
                                 for i, __name in enumerate(_option_choice_names):
                                     if _data_choice_names[i] != __name:
-                                        return False, command
+                                        return False
 
                             elif option_attr == "required":
                                 if (
@@ -256,22 +257,21 @@ class Client:
                             elif option_attr == "options":
                                 if not option.get(option_attr) and not _option.get("options"):
                                     continue
-                                _clean, _command = __check_options(option, _option)
+                                _clean = __check_options(option, _option)
                                 if not _clean:
-                                    return _clean, _command
+                                    return _clean
 
                             elif option.get(option_attr) != _option.get(option_attr):
-                                return False, command
+                                return False
                             else:
                                 continue
-
             return next(
                 (
-                    (False, command)
+                    False
                     for i, __name in enumerate(_command_option_names)
                     if _data_option_names[i] != __name
                 ),
-                (True, command),
+                True,
             )
 
         for command in pool:
@@ -301,7 +301,7 @@ class Client:
 
                         elif command.get("options") and data.get("options"):
 
-                            clean, _command = __check_options(command, data)
+                            clean = __check_options(command, data)
 
                         if not clean:
                             return clean, _command
@@ -351,6 +351,12 @@ class Client:
             LOOP
         """
         ready: bool = False
+
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
+
+        data = await self._http.get_current_bot_information()
+        self.me = Application(**data, _client=self._http)
 
         try:
             if self.me.flags is not None:
@@ -497,17 +503,18 @@ class Client:
                 )
 
             data: Union[dict, List[dict]] = cmd.full_data
-            coro = cmd.dispatcher
+            dispatcher = cmd.dispatcher
 
             self.__check_command(
                 command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
-                coro=coro,
+                coro=dispatcher,
             )
 
             if cmd.autocompletions:
                 self.__id_autocomplete.update(cmd.autocompletions)
 
-            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+            # weird interaction with methods, where they're a read-only version of their function
+            coro = dispatcher.__func__ if hasattr(dispatcher, "__func__") else dispatcher
 
             coro._command_data = data
             coro._name = cmd.name
@@ -529,7 +536,7 @@ class Client:
                 else:
                     self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
 
-            self.event(coro, name=f"command_{cmd.name}")
+            self.event(dispatcher, name=f"command_{cmd.name}")
             cmd.resolved = True
 
     async def __sync(self) -> None:  # sourcery no-metrics
@@ -1475,6 +1482,10 @@ class Client:
 
         return User(**data)
 
+    async def _logout(self) -> None:
+        await self._websocket.close()
+        await self._http._req.close()
+
 
 # TODO: Implement the rest of cog behaviour when possible.
 class Extension:
@@ -1584,7 +1595,6 @@ class Extension:
 
             commands = self._commands.get(cmd.name, [])
             coro = cmd.dispatcher
-            coro = coro.__func__ if hasattr(coro, "__func__") else coro
             commands.append(coro)
             self._commands[f"command_{cmd.name}"] = commands
 
