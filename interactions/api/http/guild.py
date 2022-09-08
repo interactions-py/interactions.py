@@ -473,7 +473,7 @@ class GuildRequest:
         self,
         guild_id: int,
         user_id: int,
-        delete_message_days: Optional[int] = 0,
+        delete_message_seconds: Optional[int] = 0,
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -481,13 +481,13 @@ class GuildRequest:
 
         :param guild_id: Guild ID snowflake
         :param user_id: User ID snowflake
-        :param delete_message_days: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :param delete_message_seconds: Number of seconds to delete messages for, between 0 and 604800. Default to 0
         :param reason: Optional reason to ban.
         """
 
         return await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/bans/{user_id}"),
-            json={"delete_message_days": delete_message_days},
+            json={"delete_message_seconds": delete_message_seconds},
             reason=reason,
         )
 
