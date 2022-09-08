@@ -518,7 +518,10 @@ class Guild(ClientSerializerMixin, IDMixin):
             seconds += minutes * 60
 
         if seconds > 604800:
-            raise LibraryException(code=12, message="The amount of total seconds to delete messages exceeds the limit Discord provides (604800)")
+            raise LibraryException(
+                code=12,
+                message="The amount of total seconds to delete messages exceeds the limit Discord provides (604800)",
+            )
 
         _member_id = int(member_id.id) if isinstance(member_id, Member) else int(member_id)
         await self._client.create_guild_ban(
