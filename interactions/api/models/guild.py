@@ -471,6 +471,8 @@ class Guild(ClientSerializerMixin, IDMixin):
                     self.member_count = guild.member_count
                 if not self.presences:
                     self.presences = guild.presences
+                if not self.emojis:
+                    self.emojis = guild.emojis
 
         if self.members:
             for member in self.members:
