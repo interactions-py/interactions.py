@@ -241,8 +241,7 @@ class LibraryException(Exception):
             50028: "Invalid role",
             50033: "Invalid Recipient(s)",
             50034: "A message provided was too old to bulk delete",
-            50035: "Invalid form body (returned for both application/json and multipart/form-data bodies),"
-            " or invalid Content-Type provided",
+            50035: "Invalid form body or invalid Content-Type provided",
             50036: "An invite was accepted to a guild the application's bot is not in",
             50041: "Invalid API version provided",
             50045: "File uploaded exceeds the maximum size",
@@ -309,12 +308,30 @@ class LibraryException(Exception):
         self.log(self.message)
 
         if _fmt_error:
+            print(self.message)
+
+            _flag: bool = (
+                self.message.lower() in self.lookup(self.code).lower()
+            )  # creativity is hard
+
+            _fmt = "\n".join(
+                [
+                    f"Error at {e[2]}: {e[0]} - {e[1] if e[1].endswith('.') else f'{e[1]}.'}"
+                    for e in _fmt_error
+                ]
+            )
+
             super().__init__(
-                f"{self.message} (code: {self.code}, severity {self.severity})\n"
-                + "\n".join([f"Error at {e[2]}: {e[0]} - {e[1]}" for e in _fmt_error])
+                "\n"
+                f"  Error {self.code} | {self.message if _flag else self.lookup(self.code)}\n"
+                f"  {_fmt if _flag else self.message}\n"
+                f"  {f'Severity {self.severity}.' if _flag else _fmt}\n"
+                f"  {'' if _flag else f'Severity {self.severity}.'}"
             )
         else:
             super().__init__(
-                f"An error occurred:\n"
-                f"{self.message}, with code '{self.code}' and severity '{self.severity}'"
+                "\n"
+                f"  Error {self.code} | {self.lookup(self.code)}:\n"
+                f"  {self.message}{'' if self.message.endswith('.') else '.'}\n"
+                f"  Severity {self.severity}."
             )
