@@ -308,7 +308,6 @@ class LibraryException(Exception):
         self.log(self.message)
 
         if _fmt_error:
-            print(self.message)
 
             _flag: bool = (
                 self.message.lower() in self.lookup(self.code).lower()
