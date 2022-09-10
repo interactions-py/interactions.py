@@ -68,6 +68,13 @@ class Member(ClientSerializerMixin, IDMixin):
     def __str__(self) -> str:
         return self.name or ""
 
+    def __getattr__(self, name):
+        # Forward any attributes the user has to make it easier for devs
+        try:
+            return getattr(self.user, name)
+        except AttributeError as e:
+            raise AttributeError(f"Neither `User` nor `Member` have attribute {name}") from e
+
     @property
     def guild_id(self) -> Optional[Union[Snowflake, LibraryException]]:
         """
