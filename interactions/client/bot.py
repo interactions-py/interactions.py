@@ -109,6 +109,8 @@ class Client:
         if not kwargs.get("override_logging"):
             level = kwargs.get("logging_level", logging.INFO)
 
+            # thx i0 for posting this on the retux Discord
+
             if level == logging.DEBUG:
                 _format = "%(asctime)s [%(levelname)s] - .%(funcName)s(): %(message)s"
             else:
