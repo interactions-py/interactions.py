@@ -63,7 +63,7 @@ class VersionAuthor:
         return f'{self.name}{f" <{self.email}>" if self.email else ""}'
 
     @property
-    def is_co_author(self) -> bool:
+    def is_co_author(self) -> Optional[bool]:
         """Returns whether the author is a co-author or not."""
         return self._co_author
 
@@ -107,7 +107,7 @@ class Version:
         self._patch = int(kwargs.get("patch") or kwargs.get("version", "0.0.0").split(".")[2])
         self._authors = kwargs.get("authors", []) or kwargs.get("author", [])
         self.__version = f"{self._major}.{self._minor}.{self._patch}"
-        self.__alphanum = None
+        self.__alphanum: Optional[dict] = None
 
     def __repr__(self) -> str:
         return self.__version
@@ -131,7 +131,7 @@ class Version:
         return self._patch
 
     @property
-    def author(self) -> Optional[Union[Exception, VersionAuthor]]:
+    def author(self) -> Optional[VersionAuthor]:
         """
         Returns the author of the version.
         If multiple authors exist, it will choose the only one that is not a co-author.
@@ -140,7 +140,7 @@ class Version:
         :rtype: Optional[VersionAuthor]
         :raises TooManyAuthors: Too many main authors were found.
         """
-        _author: str = ""
+        _author: Optional[VersionAuthor] = None
         if len(self._authors) == 1:
             return self._authors
         elif len(self._authors) > 1:
@@ -165,10 +165,7 @@ class Version:
         :return: The authors of the version, if any exist.
         :rtype: Optional[List[VersionAuthor]]
         """
-        if len(self._authors) > 1:
-            return self._authors
-        elif not len(self._authors):
-            return None
+        return self._authors if len(self._authors) > 1 else None
 
     @property
     def is_alphanumeric(self) -> bool:
@@ -193,7 +190,7 @@ class Version:
                 VersionAlphanumericType.RELEASE_CANDIDATE,
             )
             amount: int = 0
-            for key, value in kwargs:
+            for key, value in kwargs.items():
                 if key in identifiers and len(value) == 1:
                     amount += 1
                     cls.__version = f"{cls.__version}-{key}.{value}"

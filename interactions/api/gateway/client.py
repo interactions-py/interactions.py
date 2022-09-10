@@ -16,6 +16,7 @@ from asyncio import (
     wait,
     wait_for,
 )
+from logging import getLogger
 from sys import platform, version_info
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
@@ -23,7 +24,7 @@ from zlib import decompressobj
 
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
-from ...base import __version__, get_logger
+from ...base import __version__
 from ...client.enums import InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
     from ...client.context import _Context
     from ..cache import Storage
 
-log = get_logger("gateway")
+log = getLogger("gateway")
 
 __all__ = ("WebSocketClient",)
 

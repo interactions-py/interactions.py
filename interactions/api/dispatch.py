@@ -1,12 +1,10 @@
 from asyncio import AbstractEventLoop, get_event_loop
-from logging import Logger
-from typing import Callable, Coroutine, Dict, List, Optional
-
-from ..base import get_logger
+from logging import Logger, getLogger
+from typing import Any, Callable, Coroutine, Dict, List, Optional
 
 __all__ = ("Listener",)
 
-log: Logger = get_logger("dispatch")
+log: Logger = getLogger("dispatch")
 
 
 class Listener:
@@ -35,7 +33,7 @@ class Listener:
         :type **kwargs: dict
         """
         for event in self.events.get(__name, []):
-            converters: dict
+            converters: Optional[Dict[Any, Any]]
             if converters := getattr(event, "_converters", None):
                 _kwargs = kwargs.copy()
                 for key, value in _kwargs.items():

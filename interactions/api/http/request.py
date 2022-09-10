@@ -3,7 +3,7 @@ import traceback
 from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
 from contextlib import suppress
 from json import dumps
-from logging import Logger
+from logging import Logger, getLogger
 from sys import version_info
 from typing import Any, Dict, Optional
 from urllib.parse import quote
@@ -11,13 +11,14 @@ from urllib.parse import quote
 from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
 
-from ...api.error import LibraryException
-from ...base import __version__, get_logger
+from ...base import __version__
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .limiter import Limiter
 from .route import Route
 
 __all__ = ("_Request",)
-log: Logger = get_logger("http")
+log: Logger = getLogger("http")
 
 
 class _Request:
@@ -115,24 +116,26 @@ class _Request:
         # This implementation is based on JDA's bucket implementation, which we heavily use in favour of allowing routes
         # and other resources to be exhausted first on a separate lock call before hitting global limits.
 
-        if self.ratelimits.get(bucket):
-            _limiter: Limiter = self.ratelimits.get(bucket)
-            if _limiter.lock.locked():
+        if _limiter := self.ratelimits.get(bucket):
+            if _limiter.lock.locked() and _limiter.reset_after:
                 if (
                     _limiter.reset_after != 0
                 ):  # Just saying 0 seconds isn't helpful, so this is suppressed.
                     log.warning(
                         f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
                     )
-                self._loop.call_later(_limiter.reset_after, _limiter.release_lock)
+                self._loop.call_later(
+                    0.0 if _limiter.reset_after is MISSING else _limiter.reset_after,
+                    _limiter.release_lock,
+                )
             _limiter.reset_after = 0
         else:
-            self.ratelimits[bucket] = (
+            _limiter = (
                 Limiter(lock=Lock(loop=self._loop))
                 if version_info < (3, 10)
                 else Limiter(lock=Lock())
             )
-            _limiter: Limiter = self.ratelimits.get(bucket)
+            self.ratelimits[bucket] = _limiter
 
         await _limiter.lock.acquire()  # _limiter is the per shared bucket/route endpoint
 
@@ -151,9 +154,9 @@ class _Request:
                     reset_after: float = float(
                         response.headers.get("X-RateLimit-Reset-After", "0.0")
                     )
-                    remaining: str = response.headers.get("X-RateLimit-Remaining")
-                    _bucket: str = response.headers.get("X-RateLimit-Bucket")
-                    is_global: bool = response.headers.get("X-RateLimit-Global", False)
+                    remaining: Optional[str] = response.headers.get("X-RateLimit-Remaining")
+                    _bucket: Optional[str] = response.headers.get("X-RateLimit-Bucket")
+                    is_global: bool = bool(response.headers.get("X-RateLimit-Global", False))
 
                     log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
 
@@ -227,6 +230,8 @@ class _Request:
                     raise
                 log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
                 break
+
+        return None
 
     async def close(self) -> None:
         """Closes the current session."""

@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 __all__ = ("Converter",)
 
@@ -41,7 +41,7 @@ class Converter:
 
         return self.__dict__
 
-    def get_attr(self, attr: str) -> str:
+    def get_attr(self, attr: str) -> Optional[str]:
         """
         Gets a mapped attribute.
 
@@ -52,12 +52,12 @@ class Converter:
         """
         return self.__dict__.get(attr)
 
-    def get_attrs(self) -> List[str]:  # Not typehinted correctly, unsure what is supposed to happen
+    def get_attrs(self) -> dict[str, Any]:
         """
-        Gets a list of mapped attributes.
+        Gets a dict of mapped attributes.
 
-        :return: The list of mapped attributes.
-        :rtype: list
+        :return: The dict of mapped attributes.
+        :rtype: dict
         """
         return self.__dict__
 

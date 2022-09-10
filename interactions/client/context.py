@@ -1,4 +1,4 @@
-from logging import Logger
+from logging import Logger, getLogger
 from typing import List, Optional, Union
 
 from ..api.error import LibraryException
@@ -10,7 +10,6 @@ from ..api.models.member import Member
 from ..api.models.message import Attachment, Embed, Message, MessageReference
 from ..api.models.misc import AllowedMentions, Snowflake
 from ..api.models.user import User
-from ..base import get_logger
 from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
 from ..utils.missing import MISSING
 from .enums import InteractionCallbackType, InteractionType
@@ -18,7 +17,7 @@ from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
 
-log: Logger = get_logger("context")
+log: Logger = getLogger("context")
 
 __all__ = (
     "_Context",

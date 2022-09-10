@@ -1,7 +1,6 @@
 from asyncio import Lock
-from typing import Optional
 
-from ...utils.missing import MISSING
+from ...utils.missing import MISSING, DefaultMissing
 
 __all__ = ("Limiter",)
 
@@ -17,9 +16,9 @@ class Limiter:
     __slots__ = ("lock", "reset_after")
 
     lock: Lock
-    reset_after: float
+    reset_after: DefaultMissing[float]
 
-    def __init__(self, *, lock: Lock, reset_after: Optional[float] = MISSING) -> None:
+    def __init__(self, *, lock: Lock, reset_after: DefaultMissing[float] = MISSING) -> None:
         """
         :param lock: The asynchronous lock to control limits for.
         :type lock: Lock

@@ -1,6 +1,7 @@
-from typing import ClassVar
+from typing import ClassVar, TypeVar, Union
 
-__all__ = ("MISSING",)
+__all__ = ("MISSING", "DefaultMissing")
+_T = TypeVar("_T")
 
 
 class _Missing:
@@ -27,3 +28,5 @@ class _Missing:
 
 
 MISSING = _Missing()
+
+DefaultMissing = Union[_T, _Missing]

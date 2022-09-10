@@ -304,7 +304,7 @@ class LibraryException(Exception):
             and isinstance(self.data, dict)
             and isinstance(self.data.get("errors", None), dict)
         ):
-            _fmt_error: List[tuple] = self._parse(self.data["errors"])
+            _fmt_error = self._parse(self.data["errors"])
 
         self.log(self.message)
 

@@ -2,10 +2,11 @@ from abc import ABCMeta, abstractmethod
 from math import inf
 from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
 
-from ..missing import MISSING
+from ...api.models.misc import IDMixin
+from ..missing import MISSING, DefaultMissing
 
-_T = TypeVar("_T")
-_O = TypeVar("_O")
+_T = TypeVar("_T", bound=IDMixin)
+_O = TypeVar("_O", bound=IDMixin)
 
 __all__ = ("BaseAsyncIterator", "BaseIterator", "DiscordPaginationIterator")
 
@@ -39,12 +40,13 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         self,
         obj: Union[int, str, "Snowflake", _T] = None,
         _client: Optional["HTTPClient"] = None,
-        maximum: Optional[int] = inf,
-        start_at: Optional[Union[int, str, "Snowflake", _O]] = MISSING,
+        maximum: Union[int, float] = inf,
+        start_at: DefaultMissing[Union[int, str, "Snowflake", _O]] = MISSING,
         check: Optional[Callable[[_O], bool]] = None,
     ):
 
-        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = (int(obj.id) if hasattr(obj, "id") else int(obj)) if obj else None
+
         self.maximum = maximum
         self.check = check
         self._client = _client
@@ -52,10 +54,11 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         self.start_at = (
             None
             if start_at is MISSING
-            else int(start_at)
-            if not hasattr(start_at, "id")
             else int(start_at.id)
+            if hasattr(start_at, "id")
+            else int(start_at)
         )
+
         self.__stop: bool = False
         self.objects: Optional[List[_O]] = None
 

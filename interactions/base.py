@@ -1,7 +1,4 @@
-import logging
-
 __all__ = (
-    "get_logger",
     "__version__",
     "__authors__",
 )
@@ -22,6 +19,3 @@ __authors__ = {
         {"name": "eunwoo1104<@eunwoo1104>"},
     ],
 }
-
-
-get_logger = logging.getLogger

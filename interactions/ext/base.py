@@ -68,7 +68,7 @@ class Base:
         self.name: str = name
         self.link: str = link
         self.description: str = description
-        self.long_description: str = long_description
+        self.long_description: Optional[str] = long_description
         self._packages: Optional[List[str]] = packages
         self._requirements: Optional[List[str]] = requirements
         self._kwargs: dict = kwargs
@@ -140,7 +140,7 @@ def build(base: Base) -> None:
         version=str(base.version),
         description=base.description,
         long_description="" if base.long_description is None else base.long_description,
-        author=base.version.author,
+        author=str(base.version.author),
         author_email=base.version.author.email,
         url=base.link,
         packages=[] if base._packages is None else base._packages,

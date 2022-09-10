@@ -6,7 +6,7 @@ from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
 from inspect import getmembers
-from logging import Logger
+from logging import Logger, getLogger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
@@ -19,7 +19,6 @@ from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
-from ..base import get_logger
 from ..utils.attrs_utils import convert_list
 from ..utils.missing import MISSING
 from .decor import component as _component
@@ -27,7 +26,7 @@ from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
 from .models.component import Button, Modal, SelectMenu
 
-log: Logger = get_logger("client")
+log: Logger = getLogger("client")
 
 __all__ = (
     "Client",

@@ -9,12 +9,11 @@ import datetime
 from base64 import b64encode
 from enum import Enum, IntEnum
 from io import FileIO, IOBase
-from logging import Logger
+from logging import Logger, getLogger
 from math import floor
 from os.path import basename
 from typing import List, Optional, Union
 
-from ...base import get_logger
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from ...utils.missing import MISSING
 from ..error import LibraryException
@@ -36,7 +35,7 @@ __all__ = (
     "Overwrite",
 )
 
-log: Logger = get_logger("mixin")
+log: Logger = getLogger("mixin")
 
 
 @define()

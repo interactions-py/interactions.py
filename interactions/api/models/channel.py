@@ -15,7 +15,7 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
-from ...utils.missing import MISSING
+from ...utils.missing import MISSING, DefaultMissing
 from ..error import LibraryException
 from .flags import Permissions
 from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
@@ -128,7 +128,7 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
         _client: "HTTPClient",
         obj: Union[int, str, Snowflake, "Channel"],
         maximum: Optional[int] = inf,
-        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        start_at: DefaultMissing[Union[int, str, Snowflake, "Message"]] = MISSING,
         check: Optional[Callable[["Message"], bool]] = None,
         reverse: Optional[bool] = False,
     ):
@@ -391,7 +391,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     def history(
         self,
-        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        start_at: DefaultMissing[Union[int, str, Snowflake, "Message"]] = MISSING,
         reverse: Optional[bool] = False,
         maximum: Optional[int] = inf,
         check: Optional[Callable[["Message"], bool]] = None,
@@ -418,15 +418,15 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def send(
         self,
-        content: Optional[str] = MISSING,
+        content: DefaultMissing[str] = MISSING,
         *,
-        tts: Optional[bool] = MISSING,
-        attachments: Optional[List["Attachment"]] = MISSING,
-        files: Optional[Union[File, List[File]]] = MISSING,
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
-        stickers: Optional[List["Sticker"]] = MISSING,
-        components: Optional[
+        tts: DefaultMissing[bool] = MISSING,
+        attachments: DefaultMissing[List["Attachment"]] = MISSING,
+        files: DefaultMissing[Union[File, List[File]]] = MISSING,
+        embeds: DefaultMissing[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: DefaultMissing[Union[AllowedMentions, dict]] = MISSING,
+        stickers: DefaultMissing[List["Sticker"]] = MISSING,
+        components: DefaultMissing[
             Union[
                 "ActionRow",
                 "Button",
@@ -530,18 +530,18 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def modify(
         self,
-        name: Optional[str] = MISSING,
-        topic: Optional[str] = MISSING,
-        bitrate: Optional[int] = MISSING,
-        user_limit: Optional[int] = MISSING,
-        rate_limit_per_user: Optional[int] = MISSING,
-        position: Optional[int] = MISSING,
-        permission_overwrites: Optional[List[Overwrite]] = MISSING,
-        parent_id: Optional[int] = MISSING,
-        nsfw: Optional[bool] = MISSING,
-        archived: Optional[bool] = MISSING,
-        auto_archive_duration: Optional[int] = MISSING,
-        locked: Optional[bool] = MISSING,
+        name: DefaultMissing[str] = MISSING,
+        topic: DefaultMissing[str] = MISSING,
+        bitrate: DefaultMissing[int] = MISSING,
+        user_limit: DefaultMissing[int] = MISSING,
+        rate_limit_per_user: DefaultMissing[int] = MISSING,
+        position: DefaultMissing[int] = MISSING,
+        permission_overwrites: DefaultMissing[List[Overwrite]] = MISSING,
+        parent_id: DefaultMissing[int] = MISSING,
+        nsfw: DefaultMissing[bool] = MISSING,
+        archived: DefaultMissing[bool] = MISSING,
+        auto_archive_duration: DefaultMissing[int] = MISSING,
+        locked: DefaultMissing[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> "Channel":
         """
@@ -996,8 +996,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable[[Any], bool] = MISSING,
-        before: Optional[int] = MISSING,
+        check: DefaultMissing[Callable[[Any], bool]] = MISSING,
+        before: DefaultMissing[Optional[int]] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
     ) -> List["Message"]:  # noqa  # sourcery skip: low-code-quality
@@ -1199,9 +1199,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         self,
         name: str,
         type: Optional[ChannelType] = ChannelType.PUBLIC_THREAD,
-        auto_archive_duration: Optional[int] = MISSING,
-        invitable: Optional[bool] = MISSING,
-        message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
+        auto_archive_duration: DefaultMissing[int] = MISSING,
+        invitable: DefaultMissing[bool] = MISSING,
+        message_id: DefaultMissing[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
         reason: Optional[str] = None,
     ) -> "Channel":
         """
@@ -1264,9 +1264,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         max_uses: Optional[int] = 0,
         temporary: Optional[bool] = False,
         unique: Optional[bool] = False,
-        target_type: Optional["InviteTargetType"] = MISSING,
-        target_user_id: Optional[int] = MISSING,
-        target_application_id: Optional[int] = MISSING,
+        target_type: DefaultMissing["InviteTargetType"] = MISSING,
+        target_user_id: DefaultMissing[int] = MISSING,
+        target_application_id: DefaultMissing[int] = MISSING,
         reason: Optional[str] = None,
     ) -> "Invite":
         """
