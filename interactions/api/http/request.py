@@ -12,7 +12,6 @@ from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
 
 from ...base import __version__
-from ...utils.missing import MISSING
 from ..error import LibraryException
 from .limiter import Limiter
 from .route import Route
@@ -125,7 +124,7 @@ class _Request:
                         f"The current bucket is still under a rate limit. Calling later in {_limiter.reset_after} seconds."
                     )
                 self._loop.call_later(
-                    0.0 if _limiter.reset_after is MISSING else _limiter.reset_after,
+                    _limiter.reset_after,
                     _limiter.release_lock,
                 )
             _limiter.reset_after = 0

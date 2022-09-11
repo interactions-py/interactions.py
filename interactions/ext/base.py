@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 
-from setuptools import setup
+from setuptools import setup  # type: ignore
 
 from .error import UnknownService
 from .version import Version
@@ -141,7 +141,7 @@ def build(base: Base) -> None:
         description=base.description,
         long_description="" if base.long_description is None else base.long_description,
         author=str(base.version.author),
-        author_email=base.version.author.email,
+        author_email=base.version.author.email,  # type: ignore
         url=base.link,
         packages=[] if base._packages is None else base._packages,
         install_requires=[] if base._requirements is None else base._requirements,

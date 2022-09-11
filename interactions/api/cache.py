@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import (
     TYPE_CHECKING,
+    DefaultDict,
     Dict,
     Generic,
     List,
@@ -15,7 +16,7 @@ from typing import (
 if TYPE_CHECKING:
     from .models import Snowflake
 
-    Key = TypeVar("Key", Snowflake, Tuple[Snowflake, Snowflake])
+    Key = Union[Snowflake, Tuple[Snowflake, Snowflake]]
 
 __all__ = (
     "Storage",
@@ -50,13 +51,13 @@ class Storage(Generic[_T]):
         :param id: The unique id of the item.
         :type id: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
-        if not self.values.get(id or item.id):
+        if not self.values.get(id or item.id):  # type: ignore
             return self.add(item, id)
 
-        _id = id or item.id
+        _id = id or item.id  # type: ignore
         old_item = self.values[_id]
 
-        for attrib in item.__slots__:
+        for attrib in item.__slots__:  # type: ignore
             if getattr(old_item, attrib) and not getattr(item, attrib):
                 continue
                 # we can only assume that discord did not provide it, falsely deleting is worse than not deleting
@@ -87,7 +88,7 @@ class Storage(Generic[_T]):
         :param id: The unique id of the item.
         :type id: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
-        self.values[id or item.id] = item
+        self.values[id or item.id] = item  # type: ignore
 
     @overload
     def get(self, id: "Key") -> Optional[_T]:
@@ -137,7 +138,7 @@ class Storage(Generic[_T]):
         :return: The items stored.
         :rtype: List[dict]
         """
-        return [v._json for v in self.values.values()]
+        return [v._json for v in self.values.values()]  # type: ignore
 
     def __getitem__(self, item: "Key") -> _T:
         return self.values.__getitem__(item)
@@ -155,16 +156,17 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
-    :ivar defaultdict[Type, Storage] storages: A dictionary denoting the Type and the objects that correspond to the Type.
+    :ivar DefaultDict[Type, Storage] storages: A dictionary denoting the Type and the objects that correspond to the Type.
     """
 
     __slots__ = "storages"
 
     def __init__(self) -> None:
-        self.storages: defaultdict[Type[_T], Storage[_T]] = defaultdict(Storage)
+        self.storages: DefaultDict[Type, Storage] = defaultdict(Storage)
 
     def __getitem__(self, item: Type[_T]) -> Storage[_T]:
         return self.storages[item]
 
 
 ref_cache = Cache()  # noqa
+storage: Storage[int] = Storage()

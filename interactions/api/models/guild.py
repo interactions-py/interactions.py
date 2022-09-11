@@ -13,7 +13,7 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
-from ...utils.missing import MISSING
+from ...utils.missing import MISSING, DefaultMissing
 from ..error import LibraryException
 from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
@@ -237,8 +237,8 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         self,
         _client: "HTTPClient",
         obj: Union[int, str, Snowflake, "Guild"],
-        maximum: Optional[int] = inf,
-        start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
+        maximum: Optional[Union[int, float]] = inf,
+        start_at: DefaultMissing[Union[int, str, Snowflake, Member]] = MISSING,
         check: Optional[Callable[[Member], bool]] = None,
     ):
         super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)

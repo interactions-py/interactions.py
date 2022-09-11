@@ -15,7 +15,7 @@ from typing import (
 
 from ..api.error import LibraryException
 from ..client.models.component import ActionRow, Button, Component, SelectMenu
-from .missing import MISSING
+from .missing import MISSING, DefaultMissing
 
 if TYPE_CHECKING:
     from ..api.http.client import HTTPClient
@@ -80,23 +80,27 @@ def autodefer(
 
             if isinstance(args[0], (ComponentContext, CommandContext)):
                 self = ctx
-                args = list(args)
-                ctx = args.pop(0)
+                _args = list(args)
+                ctx = _args.pop(0)
 
-                task: Task = loop.create_task(coro(self, ctx, *args, **kwargs))
+                task: Task = loop.create_task(coro(self, ctx, *_args, **kwargs))  # type: ignore
 
             else:
-                task: Task = loop.create_task(coro(ctx, *args, **kwargs))
+                task: Task = loop.create_task(coro(ctx, *args, **kwargs))  # type: ignore
 
             await sleep(delay)
 
             if task.done():
                 return task.result()
 
-            if not (ctx.deferred or ctx.responded):
+            if (
+                isinstance(ctx, (CommandContext, ComponentContext))
+                and not ctx.deferred
+                and not ctx.responded
+            ):
                 if isinstance(ctx, ComponentContext):
                     await ctx.defer(ephemeral=ephemeral, edit_origin=edit_origin)
-                else:
+                elif isinstance(ctx, CommandContext):
                     await ctx.defer(ephemeral=ephemeral)
 
             return await task
@@ -225,7 +229,10 @@ def disable_components(
     :type components: Union[List[Component], List[ActionRow], List[Button], List[SelectMenu], ActionRow, Component, Button, SelectMenu]
     """
     if isinstance(components, (Component, ActionRow)):
-        for component in components.components:
+        if not components.components:
+            return
+
+        for component in components.components:  # type: ignore
             component.disabled = True
     elif isinstance(components, (Button, SelectMenu)):
         components.disabled = True
@@ -238,23 +245,29 @@ def disable_components(
                 "You must only specify lists of 'Buttons' and 'SelectMenus' or 'ActionRow' and 'Component'",
             )
         if isinstance(components[0], (Button, SelectMenu)):
-            for component in components:
+            for component in components:  # type: ignore
                 component.disabled = True
 
         elif isinstance(components[0], (ActionRow, Component)):
-            components: List[ActionRow, Component]
             for _components in components:
-                for component in _components.components:
+                if not hasattr(components, "components") and not getattr(
+                    components, "components", None
+                ):
+                    continue
+
+                __components: list = getattr(components, "components")  # stfu mypy
+
+                for component in __components:
                     component.disabled = True
 
 
 def get_channel_history(
     http: Union["HTTPClient", "Client"],
     channel: Union[int, str, "Snowflake", "Channel"],
-    start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
+    start_at: DefaultMissing[Union[int, str, "Snowflake", "Message"]] = MISSING,
     reverse: Optional[bool] = False,
     check: Optional[Callable[["Message"], bool]] = None,
-    maximum: Optional[int] = inf,
+    maximum: Union[int, float] = inf,
 ) -> "AsyncHistoryIterator":
     """
     Gets the history of a channel.
@@ -276,23 +289,26 @@ def get_channel_history(
     :rtype: AsyncHistoryIterator
     """
     from ..api.models.channel import AsyncHistoryIterator
+    from ..client.bot import Client
+
+    _http: "HTTPClient" = http._http if isinstance(http, Client) else http
 
     return AsyncHistoryIterator(
-        http if not hasattr(http, "_http") else http._http,
+        _http,
         channel,
         start_at=start_at,
         reverse=reverse,
         check=check,
-        maximum=maximum,
+        maximum=int(round(maximum)) if maximum is not inf else maximum,
     )
 
 
 def get_guild_members(
     http: Union["HTTPClient", "Client"],
     guild: Union[int, str, "Snowflake", "Guild"],
-    start_at: Optional[Union[int, str, "Snowflake", "Member"]] = MISSING,
+    start_at: DefaultMissing[Union[int, str, "Snowflake", "Member"]] = MISSING,
     check: Optional[Callable[["Member"], bool]] = None,
-    maximum: Optional[int] = inf,
+    maximum: Union[int, float] = inf,
 ) -> "AsyncMembersIterator":
     """
     Gets the members of a guild
@@ -313,10 +329,12 @@ def get_guild_members(
     """
     from ..api.models.guild import AsyncMembersIterator
 
+    _http: "HTTPClient" = http._http if isinstance(http, Client) else http
+
     return AsyncMembersIterator(
-        http if not hasattr(http, "_http") else http._http,
+        _http,
         guild,
         start_at=start_at,
-        maximum=maximum,
+        maximum=int(round(maximum)) if maximum is not inf else maximum,
         check=check,
     )

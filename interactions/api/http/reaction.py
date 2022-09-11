@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from ...api.cache import Cache
 from .request import _Request
@@ -23,7 +23,7 @@ class ReactionRequest:
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to use (format: `name:id`)
         """
-        return await self._req.request(
+        await self._req.request(
             Route(
                 "PUT",
                 "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me",
@@ -41,7 +41,7 @@ class ReactionRequest:
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to remove (format: `name:id`)
         """
-        return await self._req.request(
+        await self._req.request(
             Route(
                 "DELETE",
                 "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me",
@@ -62,7 +62,7 @@ class ReactionRequest:
         :param emoji: The emoji to remove. (format: `name:id`)
         :param user_id: The user to remove reaction of.
         """
-        return await self._req.request(
+        await self._req.request(
             Route(
                 "DELETE",
                 "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}",
@@ -80,7 +80,7 @@ class ReactionRequest:
         :param channel_id: The channel this is taking place in.
         :param message_id: The message to clear reactions from.
         """
-        return await self._req.request(
+        await self._req.request(
             Route(
                 "DELETE",
                 "/channels/{channel_id}/messages/{message_id}/reactions",
@@ -99,7 +99,7 @@ class ReactionRequest:
         :param message_id: Message snowflake ID.
         :param emoji: The emoji to remove (format: `name:id`)
         """
-        return await self._req.request(
+        await self._req.request(
             Route(
                 "DELETE",
                 "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
@@ -116,7 +116,7 @@ class ReactionRequest:
         emoji: str,
         limit: int = 25,
         after: int = None,
-    ) -> List[dict]:
+    ) -> Optional[List[dict]]:
         """
         Gets the users who reacted to the emoji.
 

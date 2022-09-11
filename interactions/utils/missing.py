@@ -7,7 +7,7 @@ _T = TypeVar("_T")
 class _Missing:
     """A sentinel object for places where None is a valid value"""
 
-    _instance: ClassVar["_Missing"] = None
+    _instance: ClassVar["_Missing"] = None  # type: ignore
 
     def __new__(cls):
         if not isinstance(cls._instance, cls):

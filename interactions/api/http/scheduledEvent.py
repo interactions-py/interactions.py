@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from ...api.cache import Cache
 from .request import _Request
@@ -15,7 +15,7 @@ class ScheduledEventRequest:
     def __init__(self) -> None:
         pass
 
-    async def create_scheduled_event(self, guild_id: int, payload: dict) -> dict:
+    async def create_scheduled_event(self, guild_id: int, payload: dict) -> Optional[dict]:
         """
         Creates a scheduled event.
 
@@ -41,7 +41,7 @@ class ScheduledEventRequest:
 
     async def get_scheduled_event(
         self, guild_id: int, guild_scheduled_event_id: int, with_user_count: bool
-    ) -> dict:
+    ) -> Optional[dict]:
         """
         Gets a guild scheduled event.
 
@@ -61,7 +61,9 @@ class ScheduledEventRequest:
             params={"with_user_count": str(with_user_count).lower()},
         )
 
-    async def get_scheduled_events(self, guild_id: int, with_user_count: bool) -> List[dict]:
+    async def get_scheduled_events(
+        self, guild_id: int, with_user_count: bool
+    ) -> Optional[List[dict]]:
         """
         Gets all guild scheduled events in a guild.
 
@@ -76,7 +78,7 @@ class ScheduledEventRequest:
 
     async def modify_scheduled_event(
         self, guild_id: int, guild_scheduled_event_id: int, payload: dict
-    ) -> dict:
+    ) -> Optional[dict]:
         """
         Modifies a scheduled event.
 
@@ -115,7 +117,7 @@ class ScheduledEventRequest:
         :return: Nothing on success.
         """
 
-        return await self._req.request(
+        await self._req.request(
             Route(
                 "DELETE",
                 "/guilds/{guild_id}/scheduled-events/{event_id}",
@@ -132,7 +134,7 @@ class ScheduledEventRequest:
         with_member: bool = False,
         before: int = None,
         after: int = None,
-    ) -> dict:
+    ) -> Optional[dict]:
         """
         Get the registered users of a scheduled event.
 

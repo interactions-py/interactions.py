@@ -127,7 +127,7 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
         self,
         _client: "HTTPClient",
         obj: Union[int, str, Snowflake, "Channel"],
-        maximum: Optional[int] = inf,
+        maximum: Optional[Union[int, float]] = inf,
         start_at: DefaultMissing[Union[int, str, Snowflake, "Message"]] = MISSING,
         check: Optional[Callable[["Message"], bool]] = None,
         reverse: Optional[bool] = False,

@@ -8,7 +8,7 @@ __all__ = ("InviteRequest",)
 
 
 class InviteRequest:
-    _req = _Request
+    _req: _Request
     cache: Cache
 
     def __init__(self) -> None:
@@ -20,7 +20,7 @@ class InviteRequest:
         with_counts: bool = None,
         with_expiration: bool = None,
         guild_scheduled_event_id: int = None,
-    ) -> dict:
+    ) -> Optional[dict]:
         """
         Gets a Discord invite using its code.
 
@@ -45,7 +45,7 @@ class InviteRequest:
             Route("GET", f"/invites/{invite_code}{f'?{final}' if final is not None else ''}")
         )
 
-    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> dict:
+    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> Optional[dict]:
         """
         Delete an invite.
 

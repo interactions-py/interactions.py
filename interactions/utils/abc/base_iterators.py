@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from math import inf
 from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
 
-from ...api.models.misc import IDMixin
+from ...api.models.misc import IDMixin, Snowflake
 from ..missing import MISSING, DefaultMissing
 
 _T = TypeVar("_T", bound=IDMixin)
@@ -12,7 +12,6 @@ __all__ = ("BaseAsyncIterator", "BaseIterator", "DiscordPaginationIterator")
 
 if TYPE_CHECKING:
     from ...api.http.client import HTTPClient
-    from ...api.models.misc import Snowflake
 
 
 class BaseAsyncIterator(metaclass=ABCMeta):
@@ -38,14 +37,14 @@ class BaseAsyncIterator(metaclass=ABCMeta):
 class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
     def __init__(
         self,
-        obj: Union[int, str, "Snowflake", _T] = None,
+        obj: Union[int, str, Snowflake, _T] = None,
         _client: Optional["HTTPClient"] = None,
         maximum: Union[int, float] = inf,
-        start_at: DefaultMissing[Union[int, str, "Snowflake", _O]] = MISSING,
+        start_at: DefaultMissing[Union[int, str, Snowflake, _O]] = MISSING,
         check: Optional[Callable[[_O], bool]] = None,
     ):
 
-        self.object_id = (int(obj.id) if hasattr(obj, "id") else int(obj)) if obj else None
+        self.object_id = (int(obj.id) if isinstance(obj, IDMixin) else int(obj)) if obj else None  # type: ignore
 
         self.maximum = maximum
         self.check = check
@@ -54,9 +53,9 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         self.start_at = (
             None
             if start_at is MISSING
-            else int(start_at.id)
-            if hasattr(start_at, "id")
-            else int(start_at)
+            else int(start_at.id)  # type: ignore
+            if isinstance(start_at, IDMixin)
+            else int(start_at)  # type: ignore
         )
 
         self.__stop: bool = False
