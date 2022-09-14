@@ -417,7 +417,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     flags: Optional[int] = field(default=None, repr=False)
     total_message_sent: Optional[int] = field(default=None, repr=False)
     default_thread_slowmode_delay: Optional[int] = field(default=None, repr=False)
-    tags: Optional[List[Tags]] = field(convert=convert_list(Tags), default=None, repr=False)
+    tags: Optional[List[Tags]] = field(converter=convert_list(Tags), default=None, repr=False)
     default_reaction_emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
