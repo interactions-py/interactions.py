@@ -213,20 +213,19 @@ class ThreadRequest:
         :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
         :param message_payload: The payload/dictionary contents of the first message in the forum thread.
+        :param applied_tags: List of tags that can be applied to the forum, if any.
         :param files: An optional list of files to send attached to the message.
         :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
         :param reason: An optional reason for the audit log
         :return: Returns a Thread in a Forum object with a starting Message.
         """
-        query = {"has_message": "True"}  # TODO: Switch query after new feature breaking release.
+        query = {"use_nested_fields": 1}
 
         payload = {"name": name, "auto_archive_duration": auto_archive_duration}
         if rate_limit_per_user:
             payload["rate_limit_per_user"] = rate_limit_per_user
         if applied_tags:
             payload["applied_tags"] = applied_tags
-
-        # payload.update(**{'use_nested_fields': 1})
 
         data = None
         if files is not MISSING and len(files) > 0:
