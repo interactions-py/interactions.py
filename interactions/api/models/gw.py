@@ -517,8 +517,8 @@ class MessageReactionRemove(MessageReaction):
     # todo see if the missing member attribute affects anything
 
 
-# TODO: (temp) Add Thread object for a THREAD_UPDATE event.
-# More prevalent on forums for some odd reason.
+# Thread object typically used for ``THREAD_X`` is found in the channel models instead, as its identical.
+# and all attributes of Thread are in Channel.
 
 
 @define()

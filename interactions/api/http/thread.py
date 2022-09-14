@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
-from ..models.attrs_utils import MISSING
+from ...utils.missing import MISSING
 from ..models.channel import Channel
 from ..models.misc import File
 from .request import _Request
@@ -213,7 +213,7 @@ class ThreadRequest:
         :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
         :param message_payload: The payload/dictionary contents of the first message in the forum thread.
-        :param applied_tags: List of tags that can be applied to the forum, if any.
+        :param applied_tags: List of tag ids that can be applied to the forum, if any.
         :param files: An optional list of files to send attached to the message.
         :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
         :param reason: An optional reason for the audit log
