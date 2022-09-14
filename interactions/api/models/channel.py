@@ -99,22 +99,6 @@ class ThreadMember(ClientSerializerMixin):
     :ivar bool muted: Whether the member is muted or not.
     """
 
-    # __slots__ = (
-    #     "_json",
-    #     "id",
-    #     "user_id",
-    #     "join_timestamp",
-    #     "flags",
-    #     # TODO: Document below attributes.
-    #     "muted",  # ??
-    #     "user",
-    #     "team_id",
-    #     "membership_state",
-    #     "permissions",
-    #     "member",
-    #     "presence",
-    # )
-
     id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     join_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
@@ -123,12 +107,6 @@ class ThreadMember(ClientSerializerMixin):
     mute_config: Optional[Any] = field(
         default=None, repr=False
     )  # todo explore this, it isn't in the ddev docs
-
-    # Take these conversions with a grain of salt.
-
-    # Commented out for circular import reasons, but schema says they do work.
-    # self.member = Member(**self._json.get("member")) if self._json.get("member") else None
-    # self.presence = Presence(**self._json.get("presence")) if self._json.get("presence") else None
 
 
 class AsyncHistoryIterator(DiscordPaginationIterator):
