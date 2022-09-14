@@ -17,6 +17,7 @@ from ...utils.attrs_utils import (
 )
 from ...utils.missing import MISSING
 from ..error import LibraryException
+from .emoji import Emoji
 from .flags import Permissions
 from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
 from .user import User
@@ -36,6 +37,8 @@ __all__ = (
     "ThreadMember",
     "ThreadMetadata",
     "AsyncHistoryIterator",
+    "AsyncTypingContextManager",
+    "Tags",
 )
 
 
@@ -53,6 +56,7 @@ class ChannelType(IntEnum):
     PUBLIC_THREAD = 11
     PRIVATE_THREAD = 12
     GUILD_STAGE_VOICE = 13
+    GUILD_DIRECTORY = 14
     GUILD_FORUM = 15
 
 
@@ -281,6 +285,30 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
 
 
 @define()
+class Tags(DictSerializerMixin):
+    """
+    An object denoting a tag object within a forum channel.
+
+    .. note::
+        If the emoji is custom, it won't have name information.
+
+    :ivar str name: Name of the tag. The limit is up to 20 characters.
+    :ivar int id: ID of the tag. Can also be 0 if manually created.
+    :ivar bool moderated: A boolean denoting whether this tag can be removed/added by moderators with ``manage_threads`` permissions.
+    :ivar Optional[Emoji] emoji?: The emoji to represent the tag, if any.
+
+    """
+
+    # TODO: Rename these to discord-docs
+    name: str = field()
+    id: int = field()
+    moderated: bool = field()
+    emoji: Optional[Emoji] = field(converter=Emoji, default=None)
+
+    # Maybe on post_attrs_init replace emoji object with one from cache for name population?
+
+
+@define()
 class Channel(ClientSerializerMixin, IDMixin):
     """
     A class object representing all types of channels.
@@ -311,13 +339,19 @@ class Channel(ClientSerializerMixin, IDMixin):
     :ivar Optional[int] video_quality_mode?: The set quality mode for video streaming in the channel.
     :ivar int message_count: The amount of messages in the channel.
     :ivar Optional[int] member_count?: The amount of members in the channel.
+    :ivar Optional[bool] newly_created?: Boolean representing if a thread is created.
     :ivar Optional[ThreadMetadata] thread_metadata?: The thread metadata of the channel.
     :ivar Optional[ThreadMember] member?: The member of the thread in the channel.
     :ivar Optional[int] default_auto_archive_duration?: The set auto-archive time for all threads to naturally follow in the channel.
     :ivar Optional[str] permissions?: The permissions of the channel.
     :ivar Optional[int] flags?: The flags of the channel.
     :ivar Optional[int] total_message_sent?: Number of messages ever sent in a thread.
+    :ivar Optional[int] default_thread_slowmode_delay?: The default slowmode delay in seconds for threads, if this channel is a forum.
+    :ivar Optional[List[Tags]] available_tags: Tags in a forum channel, if any.
+    :ivar Optional[Emoji] default_reaction_emoji: Default reaction emoji for threads created in a forum, if any.
     """
+
+    # Template attribute isn't live/documented, this line exists as a placeholder 'TODO' of sorts
 
     __slots__ = (
         # TODO: Document banner when Discord officially documents them.
@@ -351,6 +385,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     video_quality_mode: Optional[int] = field(default=None, repr=False)
     message_count: Optional[int] = field(default=None, repr=False)
     member_count: Optional[int] = field(default=None, repr=False)
+    newly_created: Optional[int] = field(default=None, repr=False)
     thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
     member: Optional[ThreadMember] = field(
         converter=ThreadMember, default=None, add_client=True, repr=False
@@ -359,6 +394,9 @@ class Channel(ClientSerializerMixin, IDMixin):
     permissions: Optional[str] = field(default=None, repr=False)
     flags: Optional[int] = field(default=None, repr=False)
     total_message_sent: Optional[int] = field(default=None, repr=False)
+    default_thread_slowmode_delay: Optional[int] = field(default=None, repr=False)
+    tags: Optional[List[Tags]] = field(converter=convert_list(Tags), default=None, repr=False)
+    default_reaction_emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
         if self._client:
@@ -1505,7 +1543,6 @@ class Channel(ClientSerializerMixin, IDMixin):
 @define()
 class Thread(Channel):
     """An object representing a thread.
-
     .. note::
         This is a derivation of the base Channel, since a
         thread can be its own event.
