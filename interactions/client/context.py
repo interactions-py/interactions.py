@@ -3,15 +3,16 @@ from typing import List, Optional, Union
 
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Attachment, Embed, Message, MessageInteraction, MessageReference
-from ..api.models.misc import Snowflake
+from ..api.models.message import Attachment, Embed, Message, MessageReference
+from ..api.models.misc import AllowedMentions, Snowflake
 from ..api.models.user import User
 from ..base import get_logger
+from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
+from ..utils.missing import MISSING
 from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
@@ -67,6 +68,11 @@ class _Context(ClientSerializerMixin):
     def __attrs_post_init__(self) -> None:
         # backwards compatibility
         self.client = self._client
+
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
+
         self.author = self.member
 
         if self.user is None:
@@ -109,7 +115,7 @@ class _Context(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
@@ -120,19 +126,19 @@ class _Context(ClientSerializerMixin):
         to send an interaction response.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
-        :type ephemeral: Optional[bool]
+        :type ephemeral?: Optional[bool]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -157,7 +163,13 @@ class _Context(ClientSerializerMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
 
         if components is not MISSING and components:
             # components could be not missing but an empty list
@@ -198,7 +210,7 @@ class _Context(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
@@ -247,7 +259,13 @@ class _Context(ClientSerializerMixin):
 
             payload["attachments"] = _attachments
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
         payload["allowed_mentions"] = _allowed_mentions
@@ -255,7 +273,7 @@ class _Context(ClientSerializerMixin):
 
         if self.message.components is not None or components is not MISSING:
             if components is MISSING:
-                _components = self.message.components
+                _components = _build_components(components=self.message.components)
             elif not components:
                 _components = []
             else:
@@ -265,7 +283,7 @@ class _Context(ClientSerializerMixin):
 
         return payload
 
-    async def popup(self, modal: Modal) -> None:
+    async def popup(self, modal: Modal) -> dict:
         """
         This "pops up" a modal to present information back to the
         user.
@@ -291,6 +309,30 @@ class _Context(ClientSerializerMixin):
         self.responded = True
 
         return payload
+
+    async def has_permissions(
+        self, *permissions: Union[int, Permissions], operator: str = "and"
+    ) -> bool:
+        """
+        Returns whether the author of the interaction has the permissions in the given context.
+
+        :param *permissions: The list of permissions
+        :type *permissions: Union[int, Permissions]
+        :param operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
+        :type operator: str
+        :return: Whether the author has the permissions
+        :rtype: bool
+        """
+        if operator == "and":
+            for perm in permissions:
+                if perm not in self.author.permissions:
+                    return False
+            return True
+        else:
+            for perm in permissions:
+                if perm in self.author.permissions:
+                    return True
+            return False
 
 
 @define()
@@ -411,7 +453,7 @@ class CommandContext(_Context):
         to a 15-minute delay between invocation and responding.
 
         :param ephemeral?: Whether the deferred state is hidden or not.
-        :type ephemeral: Optional[bool]
+        :type ephemeral?: Optional[bool]
         """
         if not self.responded:
             self.deferred = True
@@ -631,9 +673,9 @@ class ComponentContext(_Context):
         to a 15-minute delay between invocation and responding.
 
         :param ephemeral?: Whether the deferred state is hidden or not.
-        :type ephemeral: Optional[bool]
+        :type ephemeral?: Optional[bool]
         :param edit_origin?: Whether you want to edit the original message or send a followup message
-        :type edit_origin: Optional[bool]
+        :type edit_origin?: Optional[bool]
         """
         if not self.responded:
 
@@ -653,6 +695,37 @@ class ComponentContext(_Context):
             )
 
             self.responded = True
+
+    async def disable_all_components(
+        self, respond_to_interaction: Optional[bool] = True, **other_kwargs: Optional[dict]
+    ) -> Message:
+        r"""
+        Disables all components of the message.
+
+        :param respond_to_interaction?: Whether the components should be disabled in an interaction response, default True
+        :type respond_to_interaction?: Optional[bool]
+        :param \**other_kwargs?: Additional keyword-arguments to pass to the edit method. This only works when this method is used as interaction response and takes the same arguments as :meth:`interactions.client.context._Context:edit()`
+        :type \**other_kwargs?: Optional[dict]
+
+        :return: The modified Message
+        :rtype: Message
+        """
+
+        if not respond_to_interaction:
+            return await self.message.disable_all_components()
+
+        else:
+            for components in self.message.components:
+                for component in components.components:
+                    component.disabled = True
+
+            if other_kwargs.get("components"):
+                raise LibraryException(
+                    12, "You must not specify the `components` argument in this method."
+                )
+
+            other_kwargs["components"] = self.message.components
+            return await self.edit(**other_kwargs)
 
     @property
     def custom_id(self) -> Optional[str]:

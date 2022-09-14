@@ -1,25 +1,33 @@
+from asyncio import Task, create_task, get_running_loop, sleep
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Union
+from inspect import isawaitable
+from math import inf
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, ContextManager, List, Optional, Union
+from warnings import warn
 
-from ..error import LibraryException
-from .attrs_utils import (
-    MISSING,
+from ...utils.abc.base_context_managers import BaseAsyncContextManager
+from ...utils.abc.base_iterators import DiscordPaginationIterator
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
     define,
     field,
 )
-from .misc import File, IDMixin, Overwrite, Snowflake
+from ...utils.missing import MISSING
+from ..error import LibraryException
+from .flags import Permissions
+from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
 from .user import User
 from .webhook import Webhook
 
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
+    from ..http.client import HTTPClient
     from .guild import Invite, InviteTargetType
     from .member import Member
-    from .message import Attachment, Embed, Message, MessageInteraction, Sticker
+    from .message import Attachment, Embed, Message, Sticker
 
 __all__ = (
     "ChannelType",
@@ -27,6 +35,7 @@ __all__ = (
     "Channel",
     "ThreadMember",
     "ThreadMetadata",
+    "AsyncHistoryIterator",
 )
 
 
@@ -38,11 +47,11 @@ class ChannelType(IntEnum):
     GUILD_VOICE = 2
     GROUP_DM = 3
     GUILD_CATEGORY = 4
-    GUILD_NEWS = 5
+    GUILD_ANNOUNCEMENT = 5
     GUILD_STORE = 6
-    GUILD_NEWS_THREAD = 10
-    GUILD_PUBLIC_THREAD = 11
-    GUILD_PRIVATE_THREAD = 12
+    ANNOUNCEMENT_THREAD = 10
+    PUBLIC_THREAD = 11
+    PRIVATE_THREAD = 12
     GUILD_STAGE_VOICE = 13
     GUILD_DIRECTORY = 14
     GUILD_FORUM = 15
@@ -66,7 +75,7 @@ class ThreadMetadata(DictSerializerMixin):
 
     archived: bool = field()
     auto_archive_duration: int = field()
-    archive_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
+    archive_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
     locked: bool = field()
     invitable: Optional[bool] = field(default=None)
 
@@ -103,18 +112,195 @@ class ThreadMember(ClientSerializerMixin):
     #     "presence",
     # )
 
-    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    join_timestamp: datetime.timestamp = field(converter=datetime.fromisoformat)
-    flags: int = field()
+    join_timestamp: datetime = field(converter=datetime.fromisoformat, repr=False)
+    flags: int = field(repr=False)
     muted: bool = field()
-    mute_config: Optional[Any] = field(default=None)  # todo explore this, it isn't in the ddev docs
+    mute_config: Optional[Any] = field(
+        default=None, repr=False
+    )  # todo explore this, it isn't in the ddev docs
 
     # Take these conversions with a grain of salt.
 
     # Commented out for circular import reasons, but schema says they do work.
     # self.member = Member(**self._json.get("member")) if self._json.get("member") else None
     # self.presence = Presence(**self._json.get("presence")) if self._json.get("presence") else None
+
+
+class AsyncHistoryIterator(DiscordPaginationIterator):
+    """
+    A class object that allows iterating through a channel's history.
+
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    :param obj: The channel to get the history from
+    :type obj: Union[int, str, Snowflake, Channel]
+    :param start_at?: The message to begin getting the history from
+    :type start_at?: Optional[Union[int, str, Snowflake, Message]]
+    :param reverse?: Whether to only get newer message. Default False
+    :type reverse?: Optional[bool]
+    :param check?: A check to ignore certain messages
+    :type check?: Optional[Callable[[Member], bool]]
+    :param maximum?: A set maximum of messages to get before stopping the iteration
+    :type maximum?: Optional[int]
+    """
+
+    def __init__(
+        self,
+        _client: "HTTPClient",
+        obj: Union[int, str, Snowflake, "Channel"],
+        maximum: Optional[int] = inf,
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        check: Optional[Callable[["Message"], bool]] = None,
+        reverse: Optional[bool] = False,
+    ):
+        super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
+
+        from .message import Message
+
+        if reverse and start_at is MISSING:
+            raise LibraryException(
+                code=12,
+                message="A message to start from is required to go through the channel in reverse.",
+            )
+
+        if reverse:
+            self.before = MISSING
+            self.after = self.start_at
+        else:
+            self.before = self.start_at
+            self.after = MISSING
+
+        self.objects: Optional[List[Message]]
+
+    async def get_first_objects(self) -> None:
+        from .message import Message
+
+        limit = min(self.maximum, 100)
+
+        if self.maximum == limit:
+            self.__stop = True
+
+        if self.after is not MISSING:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, after=self.after, limit=limit
+            )
+            msgs.reverse()
+            self.after = int(msgs[-1]["id"])
+        else:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, before=self.before, limit=limit
+            )
+            self.before = int(msgs[-1]["id"])
+
+        if len(msgs) < 100:
+            # already all messages resolved with one operation
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects = [Message(**msg, _client=self._client) for msg in msgs]
+
+    async def flatten(self) -> List["Message"]:
+        """returns all remaining items as list"""
+        return [item async for item in self]
+
+    async def get_objects(self) -> None:
+        from .message import Message
+
+        limit = min(50, self.maximum - self.object_count)
+
+        if self.after is not MISSING:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, after=self.after, limit=limit
+            )
+            msgs.reverse()
+            self.after = int(msgs[-1]["id"])
+        else:
+            msgs = await self._client.get_channel_messages(
+                channel_id=self.object_id, before=self.before, limit=limit
+            )
+            self.before = int(msgs[-1]["id"])
+
+        if len(msgs) < limit or limit == self.maximum - self.object_count:
+            # end of messages reached again
+            self.__stop = True
+
+        self.object_count += limit
+
+        self.objects.extend([Message(**msg, _client=self._client) for msg in msgs])
+
+    async def __anext__(self) -> "Message":
+        if self.objects is None:
+            await self.get_first_objects()
+
+        try:
+            obj = self.objects.pop(0)
+
+            if self.check:
+
+                res = self.check(obj)
+                _res = await res if isawaitable(res) else res
+                while not _res:
+                    if (
+                        not self.__stop
+                        and len(self.objects) < 5
+                        and self.object_count >= self.maximum
+                    ):
+                        await self.get_objects()
+
+                    self.object_count -= 1
+                    obj = self.objects.pop(0)
+
+                    _res = self.check(obj)
+
+            if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
+                await self.get_objects()
+        except IndexError:
+            raise StopAsyncIteration
+        else:
+            return obj
+
+
+class AsyncTypingContextManager(BaseAsyncContextManager):
+    """
+    An async context manager for triggering typing.
+
+    :param obj: The channel to trigger typing in.
+    :type obj: Union[int, str, Snowflake, Channel]
+    :param _client: The HTTPClient of the bot
+    :type _client: HTTPClient
+    """
+
+    def __init__(
+        self,
+        obj: Union[int, str, "Snowflake", "Channel"],
+        _client: "HTTPClient",
+    ):
+
+        try:
+            self.loop = get_running_loop()
+        except RuntimeError as e:
+            raise RuntimeError("No running event loop detected!") from e
+
+        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self._client = _client
+        self.__task: Optional[Task] = None
+
+    def __await__(self):
+        return self._client.trigger_typing(self.object_id).__await__()
+
+    async def do_action(self):
+        while True:
+            await self._client.trigger_typing(self.object_id)
+            await sleep(8)
+
+    async def __aenter__(self):
+        self.__task = create_task(self.do_action())
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.__task.cancel()
 
 
 @define()
@@ -152,6 +338,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     :ivar Optional[ThreadMember] member?: The member of the thread in the channel.
     :ivar Optional[int] default_auto_archive_duration?: The set auto-archive time for all threads to naturally follow in the channel.
     :ivar Optional[str] permissions?: The permissions of the channel.
+    :ivar Optional[int] flags?: The flags of the channel.
+    :ivar Optional[int] total_message_sent?: Number of messages ever sent in a thread.
     """
 
     # __slots__ = (
@@ -163,6 +351,12 @@ class Channel(ClientSerializerMixin, IDMixin):
     #     "available_tags",
     # )
 
+    __slots__ = (
+        # TODO: Document banner when Discord officially documents them.
+        "banner",
+        "guild_hashes",
+    )
+
     type: ChannelType = field(converter=ChannelType)
     id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -173,28 +367,49 @@ class Channel(ClientSerializerMixin, IDMixin):
     name: str = field(factory=str)
     topic: Optional[str] = field(default=None)
     nsfw: Optional[bool] = field(default=None)
-    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    bitrate: Optional[int] = field(default=None)
+    last_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
+    bitrate: Optional[int] = field(default=None, repr=False)
     user_limit: Optional[int] = field(default=None)
     rate_limit_per_user: Optional[int] = field(default=None)
-    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None)
-    icon: Optional[str] = field(default=None)
+    recipients: Optional[List[User]] = field(converter=convert_list(User), default=None, repr=False)
+    icon: Optional[str] = field(default=None, repr=False)
     owner_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    application_id: Optional[Snowflake] = field(converter=Snowflake, default=None, repr=False)
     parent_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    last_pin_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
-    rtc_region: Optional[str] = field(default=None)
-    video_quality_mode: Optional[int] = field(default=None)
-    message_count: Optional[int] = field(default=None)
-    member_count: Optional[int] = field(default=None)
+    last_pin_timestamp: Optional[datetime] = field(
+        converter=datetime.fromisoformat, default=None, repr=False
+    )
+    rtc_region: Optional[str] = field(default=None, repr=False)
+    video_quality_mode: Optional[int] = field(default=None, repr=False)
+    message_count: Optional[int] = field(default=None, repr=False)
+    member_count: Optional[int] = field(default=None, repr=False)
     thread_metadata: Optional[ThreadMetadata] = field(converter=ThreadMetadata, default=None)
-    member: Optional[ThreadMember] = field(converter=ThreadMember, default=None, add_client=True)
+    member: Optional[ThreadMember] = field(
+        converter=ThreadMember, default=None, add_client=True, repr=False
+    )
     default_auto_archive_duration: Optional[int] = field(default=None)
-    permissions: Optional[str] = field(default=None)
-    flags: Optional[int] = field(default=None)
+    permissions: Optional[str] = field(default=None, repr=False)
+    flags: Optional[int] = field(default=None, repr=False)
+    total_message_sent: Optional[int] = field(default=None, repr=False)
+
+    def __attrs_post_init__(self):  # sourcery skip: last-if-guard
+        if self._client:
+            if channel := self._client.cache[Channel].get(self.id):
+                if not self.recipients:
+                    self.recipients = channel.recipients
 
     def __repr__(self) -> str:
         return self.name
+
+    @property
+    def typing(self) -> Union[Awaitable, ContextManager]:
+        """
+        Manages the typing of the channel. Use with `await` or `async with`
+
+        :return: A manager for typing
+        :rtype: AsyncTypingContextManager
+        """
+        return AsyncTypingContextManager(self, self._client)
 
     @property
     def mention(self) -> str:
@@ -206,6 +421,33 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         return f"<#{self.id}>"
 
+    def history(
+        self,
+        start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
+        reverse: Optional[bool] = False,
+        maximum: Optional[int] = inf,
+        check: Optional[Callable[["Message"], bool]] = None,
+    ) -> AsyncHistoryIterator:
+        """
+        :param start_at?: The message to begin getting the history from
+        :type start_at?: Optional[Union[int, str, Snowflake, Message]]
+        :param reverse?: Whether to only get newer message. Default False
+        :type reverse?: Optional[bool]
+        :param maximum?: A set maximum of messages to get before stopping the iteration
+        :type maximum?: Optional[int]
+        :param check?: A custom check to ignore certain messages
+        :type check?: Optional[Callable[[Message], bool]]
+
+        :return: An asynchronous iterator over the history of the channel
+        :rtype: AsyncHistoryIterator
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        return AsyncHistoryIterator(
+            self._client, self, start_at=start_at, reverse=reverse, maximum=maximum, check=check
+        )
+
     async def send(
         self,
         content: Optional[str] = MISSING,
@@ -214,7 +456,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         attachments: Optional[List["Attachment"]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
@@ -231,21 +473,21 @@ class Channel(ClientSerializerMixin, IDMixin):
         Sends a message in the channel.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments: Optional[List[Attachment]]
+        :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
-        :type stickers: Optional[List[Sticker]]
+        :type stickers?: Optional[List[Sticker]]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -257,7 +499,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _sticker_ids: list = (
             [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
         )
@@ -335,31 +583,31 @@ class Channel(ClientSerializerMixin, IDMixin):
             The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
 
         :param name?: The name of the channel, defaults to the current value of the channel
-        :type name: str
+        :type name?: str
         :param topic?: The topic of that channel, defaults to the current value of the channel
-        :type topic: Optional[str]
+        :type topic?: Optional[str]
         :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate: Optional[int]
+        :type bitrate?: Optional[int]
         :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
-        :type user_limit: Optional[int]
+        :type user_limit?: Optional[int]
         :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
         :type rate_limit_per_user: Optional[int]
         :param position?: Sorting position of the channel, defaults to the current value of the channel
-        :type position: Optional[int]
+        :type position?: Optional[int]
         :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
-        :type parent_id: Optional[int]
+        :type parent_id?: Optional[int]
         :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
-        :type nsfw: Optional[bool]
+        :type nsfw?: Optional[bool]
         :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites: Optional[List[Overwrite]]
+        :type permission_overwrites?: Optional[List[Overwrite]]
         :param archived?: Whether the thread is archived
-        :type archived: Optional[bool]
+        :type archived?: Optional[bool]
         :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param locked?: Whether the thread is locked
-        :type locked: Optional[bool]
+        :type locked?: Optional[bool]
         :param reason?: The reason for the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified channel as new object
         :rtype: Channel
         """
@@ -380,11 +628,11 @@ class Channel(ClientSerializerMixin, IDMixin):
         )
         _nsfw = self.nsfw if nsfw is MISSING else nsfw
         _permission_overwrites = (
-            [overwrite._json for overwrite in self.permission_overwrites]
+            [overwrite._json for overwrite in permission_overwrites]
+            if permission_overwrites is not MISSING
+            else [overwrite._json for overwrite in self.permission_overwrites]
             if self.permission_overwrites
             else None
-            if permission_overwrites is MISSING
-            else [overwrite._json for overwrite in permission_overwrites]
         )
         _type = self.type
 
@@ -435,7 +683,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param name: The new name of the channel
         :type name: str
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -454,7 +702,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param topic: The new topic of the channel
         :type topic: str
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -473,7 +721,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param bitrate: The new bitrate of the channel
         :type bitrate: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -495,7 +743,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param user_limit: The new user limit of the channel
         :type user_limit: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -519,7 +767,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
         :type rate_limit_per_user: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -538,7 +786,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param position: The new position of the channel
         :type position: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -557,7 +805,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param parent_id: The new parent_id of the channel
         :type parent_id: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -576,7 +824,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param nsfw: The new nsfw-flag of the channel
         :type nsfw: bool
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -595,7 +843,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param archived: Whether the Thread is archived, defaults to True
         :type archived: bool
         :param reason?: The reason of the archiving
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -614,7 +862,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
         :type auto_archive_duration: int
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -633,7 +881,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param locked: Whether the Thread is locked, defaults to True
         :type locked: bool
         :param reason?: The reason of the edit
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The edited channel
         :rtype: Channel
         """
@@ -799,13 +1047,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param amount: The amount of messages to delete
         :type amount: int
         :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
-        :type check: Callable[[Message], bool]
+        :type check?: Callable[[Message], bool]
         :param before?: An id of a message to purge only messages before that message
-        :type before: Optional[int]
+        :type before?: Optional[int]
         :param bulk?: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
         :param bulk: Optional[bool]
         :param reason?: The reason of the deletes
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
@@ -982,7 +1230,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     async def create_thread(
         self,
         name: str,
-        type: Optional[ChannelType] = ChannelType.GUILD_PUBLIC_THREAD,
+        type: Optional[ChannelType] = ChannelType.PUBLIC_THREAD,
         auto_archive_duration: Optional[int] = MISSING,
         invitable: Optional[bool] = MISSING,
         message_id: Optional[Union[int, Snowflake, "Message"]] = MISSING,  # noqa
@@ -995,24 +1243,24 @@ class Channel(ClientSerializerMixin, IDMixin):
         :type name: str
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param type?: The type of thread, defaults to public. ignored if creating thread from a message
-        :type type: Optional[ChannelType]
+        :type type?: Optional[ChannelType]
         :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable: Optional[bool]
+        :type invitable?: Optional[bool]
         :param message_id?: An optional message to create a thread from.
-        :type message_id: Optional[Union[int, Snowflake, "Message"]]
+        :type message_id?: Optional[Union[int, Snowflake, "Message"]]
         :param reason?: An optional reason for the audit log
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The created thread
         :rtype: Channel
         """
         if not self._client:
             raise LibraryException(code=13)
         if type not in [
-            ChannelType.GUILD_NEWS_THREAD,
-            ChannelType.GUILD_PUBLIC_THREAD,
-            ChannelType.GUILD_PRIVATE_THREAD,
+            ChannelType.ANNOUNCEMENT_THREAD,
+            ChannelType.PUBLIC_THREAD,
+            ChannelType.PRIVATE_THREAD,
         ]:
             raise LibraryException(message="type must be a thread type!", code=12)
 
@@ -1057,21 +1305,21 @@ class Channel(ClientSerializerMixin, IDMixin):
         Creates an invite for the channel
 
         :param max_age?: Duration of invite in seconds before expiry, or 0 for never. between 0 and 604800 (7 days). Default 86400 (24h)
-        :type max_age: Optional[int]
+        :type max_age?: Optional[int]
         :param max_uses?: Max number of uses or 0 for unlimited. between 0 and 100. Default 0
-        :type max_uses: Optional[int]
+        :type max_uses?: Optional[int]
         :param temporary?: Whether this invite only grants temporary membership. Default False
-        :type temporary: Optional[bool]
+        :type temporary?: Optional[bool]
         :param unique?: If true, don't try to reuse a similar invite (useful for creating many unique one time use invites). Default False
-        :type unique: Optional[bool]
+        :type unique?: Optional[bool]
         :param target_type?: The type of target for this voice channel invite
-        :type target_type: Optional["InviteTargetType"]
+        :type target_type?: Optional["InviteTargetType"]
         :param target_user_id?: The id of the user whose stream to display for this invite, required if target_type is STREAM, the user must be streaming in the channel
-        :type target_user_id: Optional[int]
+        :type target_user_id?: Optional[int]
         :param target_application_id?: The id of the embedded application to open for this invite, required if target_type is EMBEDDED_APPLICATION, the application must have the EMBEDDED flag
-        :type target_application_id: Optional[int]
+        :type target_application_id?: Optional[int]
         :param reason?: The reason for the creation of the invite
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         """
 
         if not self._client:
@@ -1131,6 +1379,10 @@ class Channel(ClientSerializerMixin, IDMixin):
         :return: A list of messages
         :rtype: List[Message]
         """
+
+        warn(
+            "This method has been deprecated in favour of the 'history' method.", DeprecationWarning
+        )
 
         if not self._client:
             raise LibraryException(code=13)
@@ -1223,6 +1475,63 @@ class Channel(ClientSerializerMixin, IDMixin):
             raise LibraryException(message="The Channel you specified is not a thread!", code=12)
 
         await self._client.join_thread(int(self.id))
+
+    async def get_permissions_for(self, member: "Member") -> Permissions:
+        """
+        Returns the permissions of the member in this specific channel.
+
+        .. note::
+            The permissions returned by this function take into account role and
+            user overwrites that can be assigned to channels or categories. If you
+            don't need these overwrites, look into :meth:`.Member.get_guild_permissions`.
+
+        :param member: The member to get the permissions from
+        :type member: Member
+        :return: Permissions of the member in this channel
+        :rtype: Permissions
+        """
+        if not self.guild_id:
+            return Permissions.DEFAULT
+
+        permissions = await member.get_guild_permissions(self.guild_id)
+
+        if Permissions.ADMINISTRATOR in permissions:
+            return Permissions.ALL
+
+        # @everyone role overwrites
+        from interactions.utils.utils import search_iterable
+
+        overwrite_everyone = search_iterable(
+            self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(self.guild_id)
+        )
+        if overwrite_everyone:
+            permissions &= ~int(overwrite_everyone[0].deny)
+            permissions |= int(overwrite_everyone[0].allow)
+
+        # Apply role specific overwrites
+        allow, deny = 0, 0
+        for role_id in member.roles:
+            overwrite_role = search_iterable(
+                self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(role_id)
+            )
+            if overwrite_role:
+                allow |= int(overwrite_role[0].allow)
+                deny |= int(overwrite_role[0].deny)
+
+        if deny:
+            permissions &= ~deny
+        if allow:
+            permissions |= allow
+
+        # Apply member specific overwrites
+        overwrite_member = search_iterable(
+            self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(member.id)
+        )
+        if overwrite_member:
+            permissions &= ~int(overwrite_member[0].deny)
+            permissions |= int(overwrite_member[0].allow)
+
+        return Permissions(permissions)
 
 
 @define()

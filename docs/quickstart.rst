@@ -200,15 +200,16 @@ The :ref:`@option() <models.command:Application Command Models>` decorator creat
     bot = interactions.Client(token="your_secret_bot_token")
 
     @bot.command(scope=the_id_of_your_guild)
-    @interactions.option(str, name="text", description="What you want to say", required=True)
+    @interactions.option()
     async def say_something(ctx: interactions.CommandContext, text: str):
         """say something!"""
         await ctx.send(f"You said '{text}'!")
 
-* The first field in the ``@option()`` decorator is the type of the option. This is positional only and required. You can use integers, the default Python types, the ``OptionType`` enum, or supported objects such as ``interactions.Channel``.
-* All other arguments in the decorator are keyword arguments only.
-* The ``name`` field is required.
+* All arguments in the decorator are keyword arguments only.
+* The ``type`` and ``name`` fields default to the typehint and the name of the parameter.
 * The ``description`` field is optional and defaults to ``"No description set``.
+* The ``required`` field defaults to whether the default for the parameter is empty.
+* For typehinting or inputting the ``type`` field, you can use integers, the default Python types, the ``OptionType`` enum, or supported objects such as ``interactions.Channel``.
 * Any parameters from ``Option`` can be passed into the ``@option()`` decorator.
 
 .. note::
@@ -258,9 +259,9 @@ Here is the structure of a subcommand:
     )
     async def cmd(ctx: interactions.CommandContext, sub_command: str, second_option: str = "", option: int = None):
         if sub_command == "command_name":
-          await ctx.send(f"You selected the command_name sub command and put in {option}")
+            await ctx.send(f"You selected the command_name sub command and put in {option}")
         elif sub_command == "second_command":
-          await ctx.send(f"You selected the second_command sub command and put in {second_option}")
+            await ctx.send(f"You selected the second_command sub command and put in {second_option}")
 
 You can also create subcommands using the command system:
 
@@ -276,13 +277,13 @@ You can also create subcommands using the command system:
         pass
 
     @base_command.subcommand()
-    @interactions.option(str, name="option", description="A descriptive description", required=False)
+    @interactions.option(description="A descriptive description")
     async def command_name(ctx: interactions.CommandContext, option: int = None):
         """A descriptive description"""
         await ctx.send(f"You selected the command_name sub command and put in {option}")
 
     @base_command.subcommand()
-    @interactions.option(str, name="second_option", description="A descriptive description", required=True)
+    @interactions.option(description="A descriptive description")
     async def second_command(ctx: interactions.CommandContext, second_option: str):
         """A descriptive description"""
         await ctx.send(f"You selected the second_command sub command and put in {second_option}")
@@ -685,6 +686,6 @@ Usage of ``@autodefer()``:
         await asyncio.sleep(5)
         await ctx.send("I'm awake now!")
 
-.. _Client: https://interactionspy.rtfd.io/en/stable/client.html
-.. _find these component types: https://interactionspy.readthedocs.io/en/stable/models.component.html
+.. _Client: https://interactionspy.rtfd.io/en/latest/client.html
+.. _find these component types: https://interactionspy.readthedocs.io/en/latest/models.component.html
 .. _discord applications page: https://discord.com/developers/applications

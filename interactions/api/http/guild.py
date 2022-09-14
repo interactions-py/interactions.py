@@ -4,7 +4,6 @@ from urllib.parse import quote
 from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.guild import Guild
-from ..models.member import Member
 from ..models.role import Role
 from .request import _Request
 from .route import Route
@@ -30,7 +29,7 @@ class GuildRequest:
 
         for guild in request:
             if guild.get("id"):
-                self.cache[Guild].add(Guild(**guild, _client=self))
+                self.cache[Guild].merge(Guild(**guild, _client=self))
 
         return request
 
@@ -45,7 +44,7 @@ class GuildRequest:
         request = await self._req.request(
             Route("GET", f"/guilds/{guild_id}{f'?{with_counts=}' if with_counts else ''}")
         )
-        self.cache[Guild].add(Guild(**request, _client=self))
+        self.cache[Guild].merge(Guild(**request, _client=self))
 
         return request
 
@@ -369,7 +368,7 @@ class GuildRequest:
 
         for channel in request:
             if channel.get("id"):
-                self.cache[Channel].add(Channel(**channel, _client=self))
+                self.cache[Channel].merge(Channel(**channel, _client=self))
 
         return request
 
@@ -386,7 +385,7 @@ class GuildRequest:
 
         for role in request:
             if role.get("id"):
-                self.cache[Role].add(Role(**role))
+                self.cache[Role].merge(Role(**role))
 
         return request
 
@@ -404,8 +403,6 @@ class GuildRequest:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=payload, reason=reason
         )
-        if request.get("id"):
-            self.cache[Role].add(Role(**request))
 
         return request
 
@@ -476,7 +473,7 @@ class GuildRequest:
         self,
         guild_id: int,
         user_id: int,
-        delete_message_days: Optional[int] = 0,
+        delete_message_seconds: Optional[int] = 0,
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -484,13 +481,13 @@ class GuildRequest:
 
         :param guild_id: Guild ID snowflake
         :param user_id: User ID snowflake
-        :param delete_message_days: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :param delete_message_seconds: Number of seconds to delete messages for, between 0 and 604800. Default to 0
         :param reason: Optional reason to ban.
         """
 
         return await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/bans/{user_id}"),
-            json={"delete_message_days": delete_message_days},
+            json={"delete_message_seconds": delete_message_seconds},
             reason=reason,
         )
 
@@ -588,8 +585,6 @@ class GuildRequest:
             },
         )
 
-        self.cache[Member].add(Member(**request))
-
         return request
 
     async def remove_guild_member(
@@ -606,6 +601,32 @@ class GuildRequest:
             Route("DELETE", f"/guilds/{guild_id}/members/{user_id}"), reason=reason
         )
 
+    async def begin_guild_prune(
+        self,
+        guild_id: int,
+        days: int = 7,
+        compute_prune_count: bool = True,
+        include_roles: Optional[List[int]] = None,
+    ) -> dict:
+        """
+        Begins a prune operation.
+
+        :param guild_id: Guild ID snowflake
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
+        :param include_roles: Role IDs to include, if given.
+        :return: A dict containing `{"pruned": int}` or `{"pruned": None}`
+        """
+
+        payload = {
+            "days": days,
+            "compute_prune_count": compute_prune_count,
+        }
+        if include_roles:
+            payload["include_roles"] = ", ".join(str(x) for x in include_roles)
+
+        return await self._req.request(Route("POST", f"/guilds/{guild_id}/prune"), json=payload)
+
     async def get_guild_prune_count(
         self, guild_id: int, days: int = 7, include_roles: Optional[List[int]] = None
     ) -> dict:
@@ -613,7 +634,7 @@ class GuildRequest:
         Retrieves a dict from an API that results in how many members would be pruned given the amount of days.
 
         :param guild_id: Guild ID snowflake.
-        :param days:  Number of days to count. Defaults to ``7``.
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
         :param include_roles: Role IDs to include, if given.
         :return: A dict denoting `{"pruned": int}`
         """

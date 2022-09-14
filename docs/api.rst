@@ -20,6 +20,7 @@ Interactions
 
     ext.rst
     context.rst
+    get.rst
 
 .. toctree::
     :maxdepth: 2

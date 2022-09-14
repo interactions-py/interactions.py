@@ -3,9 +3,9 @@ from typing import List, Optional, Union
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
-from ..models.attrs_utils import MISSING
-from ..models.message import Embed, Message, MessageInteraction, Sticker
-from ..models.misc import File, Snowflake
+from ...utils.missing import MISSING
+from ..models.message import Embed, Message, Sticker
+from ..models.misc import AllowedMentions, File, Snowflake
 from .request import _Request
 from .route import Route
 
@@ -26,7 +26,7 @@ class MessageRequest:
         tts: bool = False,
         embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
-        allowed_mentions: Optional[MessageInteraction] = None,  # don't know type
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = None,
         message_reference: Optional[Message] = None,
         stickers: Optional[List[Sticker]] = None,
     ) -> dict:
@@ -49,7 +49,11 @@ class MessageRequest:
             payload["nonce"] = nonce
 
         if allowed_mentions:
-            payload["allowed_mentions"] = allowed_mentions
+            payload["allowed_mentions"] = (
+                allowed_mentions._json
+                if isinstance(allowed_mentions, AllowedMentions)
+                else allowed_mentions
+            )
 
         if message_reference:
             payload["message_reference"] = message_reference
@@ -110,9 +114,11 @@ class MessageRequest:
         :param message_id: the id of the message
         :return: message if it exists.
         """
-        return await self._req.request(
-            Route("GET", f"/channels/{channel_id}/messages/{message_id}")
-        )
+        res = await self._req.request(Route("GET", f"/channels/{channel_id}/messages/{message_id}"))
+
+        self.cache[Message].merge(Message(**res, _client=self))
+
+        return res
 
     async def delete_message(
         self, channel_id: int, message_id: int, reason: Optional[str] = None

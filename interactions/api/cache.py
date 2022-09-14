@@ -41,6 +41,43 @@ class Storage(Generic[_T]):
     def __init__(self) -> None:
         self.values: Dict["Key", _T] = {}
 
+    def merge(self, item: _T, id: Optional["Key"] = None) -> None:
+        """
+        Merges new data of an item into an already present item of the cache
+
+        :param item: The item to merge.
+        :type item: Any
+        :param id: The unique id of the item.
+        :type id: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        """
+        if not self.values.get(id or item.id):
+            return self.add(item, id)
+
+        _id = id or item.id
+        old_item = self.values[_id]
+
+        for attrib in item.__slots__:
+            if getattr(old_item, attrib) and not getattr(item, attrib):
+                continue
+                # we can only assume that discord did not provide it, falsely deleting is worse than not deleting
+            if getattr(old_item, attrib) != getattr(item, attrib):
+
+                if isinstance(getattr(item, attrib), list) and not isinstance(
+                    getattr(old_item, attrib), list
+                ):  # could be None
+                    setattr(old_item, attrib, [])
+                if isinstance(getattr(old_item, attrib), list):
+                    if _attrib := getattr(item, attrib):
+                        for value in _attrib:
+                            old_item_attrib = getattr(old_item, attrib)
+                            if value not in old_item_attrib:
+                                old_item_attrib.append(value)
+                            setattr(old_item, attrib, old_item_attrib)
+                else:
+                    setattr(old_item, attrib, getattr(item, attrib))
+
+        self.values[_id] = old_item
+
     def add(self, item: _T, id: Optional["Key"] = None) -> None:
         """
         Adds a new item to the storage.
@@ -91,16 +128,13 @@ class Storage(Generic[_T]):
         ...
 
     def pop(self, key: "Key", default: Optional[_P] = None) -> Union[_T, _P, None]:
-        try:
-            return self.values.pop(key)
-        except KeyError:
-            return default
+        return self.values.pop(key, default)
 
     @property
     def view(self) -> List[dict]:
         """Views all items from storage.
 
-        :return The items stored.
+        :return: The items stored.
         :rtype: List[dict]
         """
         return [v._json for v in self.values.values()]
@@ -121,7 +155,7 @@ class Cache:
     This cache collects all of the HTTP requests made for
     the represented instances of the class.
 
-    :ivar defaultdict[Type, Storage] storages:
+    :ivar defaultdict[Type, Storage] storages: A dictionary denoting the Type and the objects that correspond to the Type.
     """
 
     __slots__ = "storages"

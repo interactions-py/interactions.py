@@ -4,13 +4,12 @@ from typing import Dict, Mapping, Optional, Tuple
 
 import attrs
 
-__all__ = ("MISSING", "DictSerializerMixin", "ClientSerializerMixin")
+from .missing import MISSING
 
-
-class MISSING:
-    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
-
-    ...
+__all__ = (
+    "DictSerializerMixin",
+    "ClientSerializerMixin",
+)
 
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
@@ -47,24 +46,34 @@ class DictSerializerMixin:
                     discord_name = attrib_name
 
                 if (value := kwargs.pop(discord_name, MISSING)) is not MISSING:
-                    if value is not None and attrib.metadata.get("add_client"):
+                    if (
+                        value is not None
+                        and attrib.metadata.get("add_client")
+                        and client is not None
+                    ):
                         if isinstance(value, list):
                             for item in value:
-                                item["_client"] = client
+                                if isinstance(item, dict):
+                                    item["_client"] = client
+                                elif isinstance(item, DictSerializerMixin):
+                                    item._client = client
                         else:
-                            value["_client"] = client
+                            if isinstance(value, dict):
+                                value["_client"] = client
+                            elif isinstance(value, DictSerializerMixin):
+                                value._client = client
 
                     # make sure json is recursively handled
                     if isinstance(value, list):
                         self._json[attrib_name] = [
-                            i._json if hasattr(i, "_json") else i for i in value
+                            i._json if isinstance(i, DictSerializerMixin) else i for i in value
                         ]
-                    elif hasattr(value, "_json"):
+                    elif isinstance(value, DictSerializerMixin):
                         self._json[attrib_name] = value._json  # type: ignore
 
                     passed_kwargs[attrib_name] = value
 
-                elif attrib.default:
+                elif attrib.default is not attrs.NOTHING:
                     # handle defaults like attrs does
                     default = attrib.default
                     if isinstance(default, attrs.Factory):  # type: ignore
@@ -103,11 +112,10 @@ class DictSerializerMixin:
             if value is None:
                 continue
 
-            if converter := attribs[name].converter:
-                value = converter(value)
-
             self._json[name] = value
-            setattr(self, name, value)
+            setattr(
+                self, name, converter(value) if (converter := attribs[name].converter) else value
+            )
 
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
@@ -214,7 +222,7 @@ def define(**kwargs):
 def field(
     converter=None,
     default=attrs.NOTHING,
-    repr=False,
+    repr=True,
     add_client: bool = False,
     discord_name: str = None,
     **kwargs,

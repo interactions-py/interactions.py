@@ -4,17 +4,19 @@ from inspect import getdoc, signature
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
 
 from ...api.error import LibraryException
-from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import Channel, ChannelType
 from ...api.models.guild import Guild
 from ...api.models.member import Member
 from ...api.models.message import Attachment
-from ...api.models.misc import File, Image, Snowflake
+from ...api.models.misc import Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
+    from ...api.dispatch import Listener
     from ..bot import Extension
     from ..context import CommandContext
 
@@ -25,6 +27,8 @@ __all__ = (
     "ApplicationCommand",
     "option",
     "StopCommand",
+    "BaseResult",
+    "GroupResult",
     "Command",
 )
 
@@ -103,9 +107,12 @@ class Option(DictSerializerMixin):
     :ivar Optional[List[ChannelType]] channel_types?: Restrictive shown channel types, if given.
     :ivar Optional[int] min_value?: The minimum value supported by the option.
     :ivar Optional[int] max_value?: The maximum value supported by the option.
+    :ivar Optional[int] min_length?: The minimum length supported by the option.
+    :ivar Optional[int] max_length?: The maximum length supported by the option.
     :ivar Optional[bool] autocomplete?: A status denoting whether this option is an autocomplete option.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+    :ivar Optional[str] converter: How the option value is passed to the function, if different than ``name``
     """
 
     type: OptionType = field(converter=OptionType)
@@ -121,6 +128,8 @@ class Option(DictSerializerMixin):
     )
     min_value: Optional[int] = field(default=None)
     max_value: Optional[int] = field(default=None)
+    min_length: Optional[int] = field(default=None)
+    max_length: Optional[int] = field(default=None)
     autocomplete: Optional[bool] = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(
         default=None
@@ -128,14 +137,22 @@ class Option(DictSerializerMixin):
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(
         default=None
     )  # so can this
+    converter: Optional[str] = field(default=None)
 
     def __attrs_post_init__(self):
+        self._json.pop("converter", None)
+
         # needed for nested classes
-        self.options = (
-            [Option(**option) if isinstance(option, dict) else option for option in self.options]
-            if self.options is not None
-            else None
-        )
+        if self.options is not None:
+            self.options = [
+                Option(**option) if isinstance(option, dict) else option for option in self.options
+            ]
+            self._json["options"] = [option._json for option in self.options]
+        if self.choices is not None:
+            self.choices = [
+                Choice(**choice) if isinstance(choice, dict) else choice for choice in self.choices
+            ]
+            self._json["choices"] = [choice._json for choice in self.choices]
 
 
 @define()
@@ -206,66 +223,73 @@ class ApplicationCommand(DictSerializerMixin):
 
 
 def option(
-    option_type: OptionType,
+    description: str = "No description set",
     /,
-    name: str,
-    description: Optional[str] = "No description set",
     **kwargs,
 ) -> Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]:
     r"""
     A decorator for adding options to a command.
+
+    The ``type`` and ``name`` of the option are defaulted to the parameter's typehint and name.
+
+    When the ``name`` of the option differs from the parameter name,
+    the ``converter`` field will default to the name of the parameter.
 
     The structure of an option:
 
     .. code-block:: python
 
         @client.command()
-        @interactions.option(str, name="opt", ...)
+        @interactions.option("description (optional)")  # kwargs are optional, same as Option
         async def my_command(ctx, opt: str):
             ...
 
-    :param option_type: The type of the option.
-    :type option_type: OptionType
-    :param name: The name of the option.
-    :type name: str
-    :param description?: The description of the option. Defaults to ``"No description set"``.
-    :type description: str
-    :param \**kwargs: The keyword arguments of the option, same as :class:`Option`.
-    :type \**kwargs: dict
+    :param description?: The description of the option. Defaults to "No description set".
+    :type description?: str
+    :param \**kwargs?: The keyword arguments of the option, same as :class:`Option`.
+    :type \**kwargs?: dict
     """
-    if option_type in (str, int, float, bool):
-        if option_type is str:
-            option_type = OptionType.STRING
-        elif option_type is int:
-            option_type = OptionType.INTEGER
-        elif option_type is float:
-            option_type = OptionType.NUMBER
-        elif option_type is bool:
-            option_type = OptionType.BOOLEAN
-    elif option_type in (Member, User):
-        option_type = OptionType.USER
-    elif option_type is Channel:
-        option_type = OptionType.CHANNEL
-    elif option_type is Role:
-        option_type = OptionType.ROLE
-    elif option_type in (Attachment, File, Image):
-        option_type = OptionType.ATTACHMENT
-
-    option: Option = Option(
-        type=option_type,
-        name=name,
-        description=description,
-        **kwargs,
-    )
 
     def decorator(coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
-        nonlocal option
+        parameters = list(signature(coro).parameters.values())
 
-        if hasattr(coro, "_options") and isinstance(coro._options, list):
-            coro._options.insert(0, option)
-        else:
-            coro._options = [option]
+        if not hasattr(coro, "_options") or not isinstance(coro._options, list):
+            coro._options = []
 
+        param = parameters[-1 - len(coro._options)]
+
+        option_type = kwargs.pop("type", param.annotation)
+        name = kwargs.pop("name", param.name)
+        if name != param.name:
+            kwargs["converter"] = param.name
+
+        if option_type is param.empty:
+            raise LibraryException(
+                code=12,
+                message=f"No type specified for option '{name}'.",
+            )
+
+        option_types = {
+            str: OptionType.STRING,
+            int: OptionType.INTEGER,
+            bool: OptionType.BOOLEAN,
+            User: OptionType.USER,
+            Member: OptionType.USER,
+            Channel: OptionType.CHANNEL,
+            Role: OptionType.ROLE,
+            float: OptionType.NUMBER,
+            Attachment: OptionType.ATTACHMENT,
+        }
+        option_type = option_types.get(option_type, option_type)
+
+        _option = Option(
+            type=option_type,
+            name=name,
+            description=kwargs.pop("description", description),
+            required=kwargs.pop("required", param.default is param.empty),
+            **kwargs,
+        )
+        coro._options.insert(0, _option)
         return coro
 
     return decorator
@@ -388,7 +412,8 @@ class Command(DictSerializerMixin):
     :ivar Dict[str, Union[Callable[..., Awaitable], str]] autocompletions: The dictionary of autocompletions for the command.
     :ivar Optional[str] recent_group: The name of the group most recently utilized.
     :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
-    :ivar Extension extension: The extension that the command belongs to, if any.
+    :ivar Optional[Extension] extension: The extension that the command belongs to, if any.
+    :ivar Optional[Listener] listener: The listener, used for dispatching command errors.
     """
 
     coro: Callable[..., Awaitable] = field()
@@ -411,7 +436,8 @@ class Command(DictSerializerMixin):
     recent_group: Optional[str] = field(default=None, init=False)
     error_callback: Optional[Callable[..., Awaitable]] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
-    extension: "Extension" = field(default=None, init=False)
+    extension: Optional["Extension"] = field(default=None, init=False)
+    listener: Optional["Listener"] = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         if self.name is MISSING:
@@ -444,6 +470,13 @@ class Command(DictSerializerMixin):
         :rtype: Awaitable
         """
         return self.dispatcher(*args, **kwargs)
+
+    @property
+    def converters(self) -> dict:
+        """
+        Returns a dictionary with all converters added to the options of the command
+        """
+        return {_option.name: _option.converter for _option in self.options if _option.converter}
 
     @property
     def full_data(self) -> Union[dict, List[dict]]:
@@ -513,17 +546,17 @@ class Command(DictSerializerMixin):
             first create the subcommands without groups, then create the subcommands with groups.
 
         :param group?: The name of the group the subcommand belongs to. Defaults to the most recently used group.
-        :type group: Optional[str]
+        :type group?: Optional[str]
         :param name?: The name of the subcommand. Defaults to the name of the coroutine.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param description?: The description of the subcommand. Defaults to the docstring of the coroutine.
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param options?: The options of the subcommand.
-        :type options: Optional[List[Option]]
+        :type options?: Optional[List[Option]]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type description_localizations?: Optional[Dict[Union[str, Locale], str]]
         :return: The :class:`interactions.client.models.command.Command` object.
         :rtype: Command
         """
@@ -620,13 +653,13 @@ class Command(DictSerializerMixin):
             first create the subcommands without groups, then create the subcommands with groups.
 
         :param name?: The name of the group. Defaults to the name of the coroutine.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param description?: The description of the group. Defaults to the docstring of the coroutine.
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type description_localizations?: Optional[Dict[Union[str, Locale], str]]
         :return: The :class:`interactions.client.models.command.Command` object.
         :rtype: Command
         """
@@ -669,58 +702,57 @@ class Command(DictSerializerMixin):
 
         return decorator
 
-    @property
-    def dispatcher(self) -> Callable[..., Awaitable]:
+    async def dispatcher(
+        self,
+        ctx: "CommandContext",
+        *args,
+        sub_command_group: Optional[str] = None,
+        sub_command: Optional[str] = None,
+        **kwargs,
+    ) -> Optional[BaseResult]:
+        r"""
+        Call the command along with any subcommands
+
+        :param ctx: The context for the interaction
+        :type ctx: CommandContext
+        :param args: The args to be passed to the command
+        :type args: tuple
+        :param sub_command_group: The subcommand group being invoked, if any
+        :type sub_command_group: Optional[str]
+        :param sub_command: The subcommand being invoked, if any
+        :type sub_command: Optional[str]
+        :param kwargs: The kwargs to pass to the command
+        :type kwargs: Dict
+        :return: The result of the base command if no StopCommand is returned anywhere, else None
+        :rtype: Optional[BaseResult]
         """
-        Returns a coroutine that calls the command along with the subcommands, if any.
-
-        .. note::
-            The coroutine returned is never the same object.
-
-        :return: A coroutine that calls the command along with the subcommands, if any.
-        :rtype: Callable[..., Awaitable]
-        """
-        if not self.has_subcommands:
-            return self.__wrap_coro(self.coro)
-
-        @wraps(self.coro)
-        async def dispatch(
-            ctx: "CommandContext",
-            *args,
-            sub_command_group: Optional[str] = None,
-            sub_command: Optional[str] = None,
-            **kwargs,
-        ) -> Optional[Any]:
-            """Dispatches all of the subcommands of the command."""
-            base_coro = self.coro
-            base_res = BaseResult(
-                result=await self.__call(base_coro, ctx, *args, _name=self.name, **kwargs)
+        base_coro = self.coro
+        base_res = BaseResult(
+            result=await self.__call(base_coro, ctx, *args, _name=self.name, **kwargs)
+        )
+        if base_res() is StopCommand or isinstance(base_res(), StopCommand):
+            return
+        if sub_command_group:
+            group_coro = self.coroutines[sub_command_group]
+            name = f"{sub_command_group} {sub_command}"
+            subcommand_coro = self.coroutines[name]
+            group_res = GroupResult(
+                result=await self.__call(
+                    group_coro, ctx, *args, _res=base_res, _name=sub_command_group, **kwargs
+                ),
+                parent=base_res,
             )
-            if base_res() is StopCommand or isinstance(base_res(), StopCommand):
+            if group_res() is StopCommand or isinstance(group_res(), StopCommand):
                 return
-            if sub_command_group:
-                group_coro = self.coroutines[sub_command_group]
-                name = f"{sub_command_group} {sub_command}"
-                subcommand_coro = self.coroutines[name]
-                group_res = GroupResult(
-                    result=await self.__call(
-                        group_coro, ctx, *args, _res=base_res, _name=sub_command_group, **kwargs
-                    ),
-                    parent=base_res,
-                )
-                if group_res() is StopCommand or isinstance(group_res(), StopCommand):
-                    return
-                return await self.__call(
-                    subcommand_coro, ctx, *args, _res=group_res, _name=name, **kwargs
-                )
-            elif sub_command:
-                subcommand_coro = self.coroutines[sub_command]
-                return await self.__call(
-                    subcommand_coro, ctx, *args, _res=base_res, _name=sub_command, **kwargs
-                )
-            return base_res
-
-        return dispatch
+            return await self.__call(
+                subcommand_coro, ctx, *args, _res=group_res, _name=name, **kwargs
+            )
+        elif sub_command:
+            subcommand_coro = self.coroutines[sub_command]
+            return await self.__call(
+                subcommand_coro, ctx, *args, _res=base_res, _name=sub_command, **kwargs
+            )
+        return base_res
 
     def autocomplete(
         self, name: Optional[str] = MISSING
@@ -729,7 +761,7 @@ class Command(DictSerializerMixin):
         Decorator for creating an autocomplete for the command.
 
         :param name?: The name of the option to autocomplete. Defaults to the name of the coroutine.
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :return: The coroutine
         :rtype: Callable[..., Coroutine]
         """
@@ -784,57 +816,83 @@ class Command(DictSerializerMixin):
                 message=f"Your command needs at least {'three parameters to return self, context, and the' if self.extension else 'two parameter to return context and'} error.",
             )
 
-        self.error_callback = self.__wrap_coro(coro)
+        self.error_callback = self.__wrap_coro(coro, error_callback=True)
         return coro
 
     async def __call(
         self,
         coro: Callable[..., Awaitable],
         ctx: "CommandContext",
-        *args,
+        *args,  # empty for now since all parameters are dispatched as kwargs
         _name: Optional[str] = None,
         _res: Optional[Union[BaseResult, GroupResult]] = None,
         **kwargs,
     ) -> Optional[Any]:
         """Handles calling the coroutine based on parameter count."""
-        param_len = len(signature(coro).parameters)
-        opt_len = self.num_options.get(_name, len(args) + len(kwargs))
+        params = signature(coro).parameters
+        param_len = len(params)
+        opt_len = self.num_options.get(_name, len(args) + len(kwargs))  # options of slash command
+        last = params[list(params)[-1]]  # last parameter
+        has_args = any(param.kind == param.VAR_POSITIONAL for param in params.values())  # any *args
+        index_of_var_pos = next(
+            (i for i, param in enumerate(params.values()) if param.kind == param.VAR_POSITIONAL),
+            param_len,
+        )  # index of *args
+        par_opts = list(params.keys())[
+            (num := 2 if self.extension else 1) : (
+                -1 if last.kind in (last.VAR_POSITIONAL, last.VAR_KEYWORD) else index_of_var_pos
+            )
+        ]  # parameters that are before *args and **kwargs
+        keyword_only_args = list(params.keys())[index_of_var_pos:]  # parameters after *args
 
         try:
             _coro = coro if hasattr(coro, "_wrapped") else self.__wrap_coro(coro)
 
-            if param_len < (2 if self.extension else 1):
-                raise LibraryException(
-                    code=11,
-                    message=f"Your command needs at least {'two parameters to return self and' if self.extension else 'one parameter to return'} context.",
+            if last.kind == last.VAR_KEYWORD:  # foo(ctx, ..., **kwargs)
+                return await _coro(ctx, *args, **kwargs)
+            if last.kind == last.VAR_POSITIONAL:  # foo(ctx, ..., *args)
+                return await _coro(
+                    ctx,
+                    *(kwargs[opt] for opt in par_opts if opt in kwargs),
+                    *args,
+                )
+            if has_args:  # foo(ctx, ..., *args, ..., **kwargs) OR foo(ctx, *args, ...)
+                return await _coro(
+                    ctx,
+                    *(kwargs[opt] for opt in par_opts if opt in kwargs),  # pos before *args
+                    *args,
+                    *(
+                        kwargs[opt]
+                        for opt in kwargs
+                        if opt not in par_opts and opt not in keyword_only_args
+                    ),  # additional args
+                    **{
+                        opt: kwargs[opt]
+                        for opt in kwargs
+                        if opt not in par_opts and opt in keyword_only_args
+                    },  # kwargs after *args
                 )
 
-            if param_len == (2 if self.extension else 1):
+            if param_len < num:
+                inner_msg: str = f"{num} parameter{'s' if num > 1 else ''} to return" + (
+                    " self and" if self.extension else ""
+                )
+                raise LibraryException(
+                    code=11, message=f"Your command needs at least {inner_msg} context."
+                )
+
+            if param_len == num:
                 return await _coro(ctx)
 
             if _res:
-                if param_len - opt_len == (2 if self.extension else 1):
+                if param_len - opt_len == num:
                     return await _coro(ctx, *args, **kwargs)
-                elif param_len - opt_len == (3 if self.extension else 2):
+                elif param_len - opt_len == num + 1:
                     return await _coro(ctx, _res, *args, **kwargs)
 
             return await _coro(ctx, *args, **kwargs)
         except CancelledError:
             pass
-        except Exception as e:
-            if not self.error_callback:
-                raise e
-
-            num_params = len(signature(self.error_callback).parameters)
-
-            if num_params == (3 if self.extension else 2):
-                await self.error_callback(ctx, e)
-            elif num_params == (4 if self.extension else 3):
-                await self.error_callback(ctx, e, _res)
-            else:
-                await self.error_callback(ctx, e, _res, *args, **kwargs)
-
-            return StopCommand
 
     def __check_command(self, command_type: str) -> None:
         """Checks if subcommands, groups, or autocompletions are created on context menus."""
@@ -861,7 +919,9 @@ class Command(DictSerializerMixin):
         """This is the coroutine used when no group coroutine is provided."""
         pass
 
-    def __wrap_coro(self, coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
+    def __wrap_coro(
+        self, coro: Callable[..., Awaitable], /, *, error_callback: bool = False
+    ) -> Callable[..., Awaitable]:
         """Wraps a coroutine to make sure the :class:`interactions.client.bot.Extension` is passed to the coroutine, if any."""
 
         @wraps(coro)
@@ -873,15 +933,34 @@ class Command(DictSerializerMixin):
             except CancelledError:
                 pass
             except Exception as e:
-                if self.has_subcommands or not self.error_callback:
+                if error_callback:
                     raise e
+                if self.error_callback:
+                    params = signature(self.error_callback).parameters
+                    num_params = len(params)
+                    last = params[list(params)[-1]]
+                    num = 2 if self.extension else 1
 
-                num_params = len(signature(self.error_callback).parameters)
-
-                if num_params == (3 if self.extension else 2):
-                    await self.error_callback(ctx, e)
+                    if num_params == num:
+                        await self.error_callback(ctx)
+                    elif num_params == num + 1:
+                        await self.error_callback(ctx, e)
+                    elif last.kind == last.VAR_KEYWORD:
+                        if num_params == num + 2:
+                            await self.error_callback(ctx, e, **kwargs)
+                        elif num_params >= num + 3:
+                            await self.error_callback(ctx, e, *args, **kwargs)
+                    elif last.kind == last.VAR_POSITIONAL:
+                        if num_params == num + 2:
+                            await self.error_callback(ctx, e, *args)
+                        elif num_params >= num + 3:
+                            await self.error_callback(ctx, e, *args, **kwargs)
+                    else:
+                        await self.error_callback(ctx, e, *args, **kwargs)
+                elif self.listener and "on_command_error" in self.listener.events:
+                    self.listener.dispatch("on_command_error", ctx, e)
                 else:
-                    await self.error_callback(ctx, e, *args, **kwargs)
+                    raise e
 
                 return StopCommand
 

@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
+from ...utils.attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, field
+from ...utils.missing import MISSING
 from ..error import LibraryException
-from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
 from .misc import IDMixin, Image, Snowflake
 
 if TYPE_CHECKING:
@@ -52,7 +53,7 @@ class Role(ClientSerializerMixin, IDMixin):
     name: str = field()
     color: int = field()
     hoist: bool = field()
-    icon: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
     unicode_emoji: Optional[str] = field(default=None)
     position: int = field()
     permissions: str = field()
@@ -90,7 +91,7 @@ class Role(ClientSerializerMixin, IDMixin):
 
         await self._client.delete_guild_role(
             guild_id=_guild_id, role_id=int(self.id), reason=reason
-        ),
+        )
 
     async def modify(
         self,
@@ -110,21 +111,21 @@ class Role(ClientSerializerMixin, IDMixin):
         :param guild_id: The id of the guild to edit the role on
         :type guild_id: int
         :param name?: The name of the role, defaults to the current value of the role
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
-        :type color: Optional[int]
-         :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
-        :type permissions: Optional[int]
+        :type color?: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :type permissions?: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
-        :type hoist: Optional[bool]
+        :type hoist?: Optional[bool]
         :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type icon: Optional[Image]
+        :type icon?: Optional[Image]
         :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type unicode_emoji: Optional[str]
+        :type unicode_emoji?: Optional[str]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
-        :type mentionable: Optional[bool]
+        :type mentionable?: Optional[bool]
         :param reason?: The reason why the role is edited, default ``None``
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified role object
         :rtype: Role
         """
@@ -174,7 +175,7 @@ class Role(ClientSerializerMixin, IDMixin):
         :param position: The new position of the role
         :type position: int
         :param reason?: The reason for the modifying
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """

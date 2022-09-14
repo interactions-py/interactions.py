@@ -2,9 +2,9 @@ import time
 from enum import IntEnum
 from typing import Any, List, Optional
 
-from ..models import StatusType
-from ..models.message import Emoji
-from .attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from .emoji import Emoji
+from .flags import StatusType
 from .misc import Snowflake
 
 __all__ = (
@@ -14,7 +14,6 @@ __all__ = (
     "PresenceTimestamp",
     "PresenceActivity",
     "PresenceActivityType",
-    "PresenceButtons",
     "ClientPresence",
 )
 
@@ -65,19 +64,6 @@ class PresenceSecrets(DictSerializerMixin):
 
 
 @define()
-class PresenceButtons(DictSerializerMixin):
-    """
-    A class object representing the buttons of a presence.
-
-    :ivar str label: Text of the button
-    :ivar str url: URL of the button
-    """
-
-    label: str = field()
-    url: str = field()
-
-
-@define()
 class PresenceTimestamp(DictSerializerMixin):
     """
     A class object representing the timestamp data of a presence.
@@ -109,8 +95,11 @@ class PresenceActivity(DictSerializerMixin):
     A class object representing the current activity data of a presence.
 
     .. note::
-        When using this model to instantiate alongside the client, if you provide a type 1 ( or PresenceActivityType.STREAMING ), then
-        the ``url`` attribute is necessary.
+        When using this model to instantiate alongside the client, if you provide a type 1 ( or PresenceActivityType.STREAMING ),
+        then the ``url`` attribute is necessary.
+
+        The ``button`` attribute technically contains an object denoting Presence buttons. However, the gateway dispatches these
+        as strings (of button labels) as bots don't read the button URLs.
 
     :ivar str name: The activity name
     :ivar Union[int, PresenceActivityType] type: The activity type
@@ -126,7 +115,7 @@ class PresenceActivity(DictSerializerMixin):
     :ivar Optional[PresenceSecrets] secrets?: for RPC join/spectate
     :ivar Optional[bool] instance?: A status denoting if the activity is a game session
     :ivar Optional[int] flags?: activity flags
-    :ivar Optional[List[PresenceButtons]] buttons?: Custom buttons shown in the RPC.
+    :ivar Optional[List[str]] buttons?: Custom button labels shown in the status, if any.
     """
 
     name: str = field()
@@ -143,9 +132,7 @@ class PresenceActivity(DictSerializerMixin):
     secrets: Optional[PresenceSecrets] = field(converter=PresenceSecrets, default=None)
     instance: Optional[bool] = field(default=None)
     flags: Optional[int] = field(default=None)
-    buttons: Optional[List[PresenceButtons]] = field(
-        converter=convert_list(PresenceButtons), default=None
-    )
+    buttons: Optional[List[str]] = field(default=None)
     # TODO: document/investigate what these do.
     user: Optional[Any] = field(default=None)
     users: Optional[Any] = field(default=None)
@@ -194,3 +181,7 @@ class ClientPresence(DictSerializerMixin):
             # If since is not provided by the developer...
             self.since = int(time.time() * 1000) if self.status == "idle" else 0
             self._json["since"] = self.since
+        if not self._json.get("afk"):
+            self.afk = self._json["afk"] = False
+        if not self._json.get("activities"):
+            self.activities = self._json["activities"] = []

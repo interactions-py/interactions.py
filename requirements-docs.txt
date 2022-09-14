@@ -1,4 +1,5 @@
-karma_sphinx_theme
-readthedocs-sphinx-search
+enum-tools[sphinx]
+furo
 Sphinx
+sphinx-copybutton
 sphinx-hoverxref

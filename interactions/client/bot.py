@@ -13,16 +13,15 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING, convert_list
-from ..api.models.channel import Channel
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
-from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
+from ..utils.attrs_utils import convert_list
+from ..utils.missing import MISSING
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
@@ -50,15 +49,15 @@ class Client:
     :param token: The token of the application for authentication and connection.
     :type token: str
     :param intents?: Allows specific control of permissions the application has when connected. In order to use multiple intents, the | operator is recommended. Defaults to ``Intents.DEFAULT``.
-    :type intents: Optional[Intents]
+    :type intents?: Optional[Intents]
     :param shards?: Dictates and controls the shards that the application connects under.
-    :type shards: Optional[List[Tuple[int]]]
+    :type shards?: Optional[List[Tuple[int]]]
     :param presence?: Sets an RPC-like presence on the application when connected to the Gateway.
-    :type presence: Optional[ClientPresence]
+    :type presence?: Optional[ClientPresence]
     :param default_scope?: Sets the default scope of all commands.
-    :type default_scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+    :type default_scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
     :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
-    :type disable_sync: Optional[bool]
+    :type disable_sync?: Optional[bool]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
@@ -68,7 +67,7 @@ class Client:
     :ivar Optional[ClientPresence] _presence: The RPC-like presence shown on an application once connected.
     :ivar str _token: The token of the application used for authentication when connecting.
     :ivar Optional[Dict[str, ModuleType]] _extensions: The "extensions" or cog equivalence registered to the main client.
-    :ivar Application me: The application representation of the client.
+    :ivar Application me?: The application representation of the client.
     """
 
     def __init__(
@@ -77,7 +76,7 @@ class Client:
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = HTTPClient(token=token)
+        self._http: HTTPClient = token
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
         self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
@@ -90,9 +89,9 @@ class Client:
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
-        self.__name_autocomplete = {}
-        self.me = None
 
+        self.me: Optional[Application] = None
+        self.__id_autocomplete = {}
         if self._default_scope:
             if not isinstance(self._default_scope, list):
                 self._default_scope = [self._default_scope]
@@ -111,9 +110,6 @@ class Client:
         else:
             self._automate_sync = True
 
-        data = self._loop.run_until_complete(self._http.get_current_bot_information())
-        self.me = Application(**data, _client=self._http)
-
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
@@ -128,30 +124,35 @@ class Client:
 
     def start(self) -> None:
         """Starts the client session."""
+
         try:
             self._loop.run_until_complete(self._ready())
         except (CancelledError, Exception) as e:
+            self._loop.run_until_complete(self._logout())
             raise e from e
         except KeyboardInterrupt:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
+        finally:
+            self._loop.run_until_complete(self._logout())
 
-    def __register_events(self) -> None:
-        """Registers all raw gateway events to the known events."""
-        self._websocket._dispatch.register(self.__raw_socket_create)
-        self._websocket._dispatch.register(self.__raw_channel_create, "on_channel_create")
-        self._websocket._dispatch.register(self.__raw_message_create, "on_message_create")
-        self._websocket._dispatch.register(self.__raw_guild_create, "on_guild_create")
-
-    async def __register_name_autocomplete(self) -> None:
-        for key in self.__name_autocomplete.keys():
-            _command_obj = self._find_command(key)
-            _command: Union[Snowflake, int] = int(_command_obj.id)
-            for _ in self.__name_autocomplete[key]:
-                # _ contains {"coro" : coro, "name": <name_as_string>}
-                self.event(
-                    _["coro"],
-                    name=f"autocomplete_{_command}_{_['name']}",
-                )
+    async def __register_id_autocomplete(self) -> None:  # TODO: make this use ID and not name
+        for key in self.__id_autocomplete.keys():
+            if isinstance(key, str):  # compatibility with the decorator from the Command obj
+                for _ in self.__id_autocomplete[key]:
+                    # _ contains {"coro" : coro, "name": <name_as_string>}
+                    self.event(
+                        _["coro"],
+                        name=f"autocomplete_{key}_{_['name']}",
+                    )
+            else:
+                _command_obj = self._find_command(key)
+                _command: str = _command_obj.name
+                for _ in self.__id_autocomplete[key]:
+                    # _ contains {"coro" : coro, "name": <name_as_string>}
+                    self.event(
+                        _["coro"],
+                        name=f"autocomplete_{_command}_{_['name']}",
+                    )
 
     @staticmethod
     async def __compare_sync(
@@ -194,7 +195,7 @@ class Client:
             if any(option not in _command_option_names for option in _data_option_names) or len(
                 _data_option_names
             ) != len(_command_option_names):
-                return False, command
+                return False
 
             for option in command.get("options"):
                 for _option in data.get("options"):
@@ -206,7 +207,7 @@ class Client:
                                 or not option.get(option_attr)
                                 and _option.get(option_attr)
                             ):
-                                return False, command
+                                return False
                             elif option_attr == "choices":
                                 if not option.get("choices") or not _option.get("choices"):
                                     continue
@@ -221,7 +222,7 @@ class Client:
                                 if any(
                                     _ not in _option_choice_names for _ in _data_choice_names
                                 ) or len(_data_choice_names) != len(_option_choice_names):
-                                    return False, command
+                                    return False
 
                                 for choice in option.get("choices"):
                                     for _choice in _option.get("choices"):
@@ -233,17 +234,17 @@ class Client:
                                                     or not choice.get(choice_attr)
                                                     and _choice.get(choice_attr)
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 elif choice.get(choice_attr) != _choice.get(
                                                     choice_attr
                                                 ):
-                                                    return False, command
+                                                    return False
                                                 else:
                                                     continue
 
                                 for i, __name in enumerate(_option_choice_names):
                                     if _data_choice_names[i] != __name:
-                                        return False, command
+                                        return False
 
                             elif option_attr == "required":
                                 if (
@@ -256,22 +257,21 @@ class Client:
                             elif option_attr == "options":
                                 if not option.get(option_attr) and not _option.get("options"):
                                     continue
-                                _clean, _command = __check_options(option, _option)
+                                _clean = __check_options(option, _option)
                                 if not _clean:
-                                    return _clean, _command
+                                    return _clean
 
                             elif option.get(option_attr) != _option.get(option_attr):
-                                return False, command
+                                return False
                             else:
                                 continue
-
             return next(
                 (
-                    (False, command)
+                    False
                     for i, __name in enumerate(_command_option_names)
                     if _data_option_names[i] != __name
                 ),
-                (True, command),
+                True,
             )
 
         for command in pool:
@@ -301,7 +301,7 @@ class Client:
 
                         elif command.get("options") and data.get("options"):
 
-                            clean, _command = __check_options(command, data)
+                            clean = __check_options(command, data)
 
                         if not clean:
                             return clean, _command
@@ -352,6 +352,12 @@ class Client:
         """
         ready: bool = False
 
+        if isinstance(self._http, str):
+            self._http = HTTPClient(self._http)
+
+        data = await self._http.get_current_bot_information()
+        self.me = Application(**data, _client=self._http)
+
         try:
             if self.me.flags is not None:
                 # This can be None.
@@ -373,14 +379,13 @@ class Client:
             elif self._intents.value != Intents.DEFAULT.value:
                 raise RuntimeError("Client not authorised for any privileged intents.")
 
-            self.__register_events()
             self.__resolve_commands()
 
             if self._automate_sync:
                 await self.__sync()
             else:
                 await self.__get_all_commands()
-            await self.__register_name_autocomplete()
+            await self.__register_id_autocomplete()
 
             ready = True
         except Exception:
@@ -390,10 +395,42 @@ class Client:
                 log.debug("Client is now ready.")
                 await self._login()
 
+    async def _stop(self) -> None:
+        """Stops the websocket connection gracefully."""
+
+        log.debug("Shutting down the client....")
+        self._websocket.ready.clear()  # Clears ready state.
+        self._websocket._closing_lock.set()  # Toggles the "ready-to-shutdown" state for the bot.
+        # And subsequently, the processes will close itself.
+
+        await self._http._req._session.close()  # Closes the HTTP session associated with the client.
+
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
-        while not self._websocket._closed:
-            await self._websocket._establish_connection(self._shards, self._presence)
+
+        try:
+            await self._websocket.run()
+        except Exception:
+            log.exception("Websocket have raised an exception, closing.")
+
+            if self._websocket._closing_lock.is_set():
+                # signal for closing.
+
+                try:
+                    if self._websocket._task is not None:
+                        self._websocket.__heartbeat_event.set()
+                        try:
+                            # Wait for the keep-alive handler to finish so we can discard it gracefully
+                            await self._websocket._task
+                        finally:
+                            self._websocket._task = None
+                finally:  # then the overall WS client
+                    if self._websocket._client is not None:
+                        # This needs to be properly closed
+                        try:
+                            await self._websocket._client.close(code=1000)
+                        finally:
+                            self._websocket._client = None
 
     async def wait_until_ready(self) -> None:
         """Helper method that waits until the websocket is ready."""
@@ -423,13 +460,13 @@ class Client:
         # responsible for checking if a command is in the cache but not a coro -> allowing removal
 
         for _id in _guild_ids:
-            _cmds = await self._http.get_application_commands(
-                application_id=self.me.id, guild_id=_id, with_localizations=True
-            )
-
-            if isinstance(_cmds, dict) and _cmds.get("code"):
-                if int(_cmds.get("code")) != 50001:
-                    raise LibraryException(_cmds["code"], message=f'{_cmds["message"]} |')
+            try:
+                _cmds = await self._http.get_application_commands(
+                    application_id=self.me.id, guild_id=_id, with_localizations=True
+                )
+            except LibraryException as e:
+                if int(e.code) != 50001:
+                    raise LibraryException(code=e.code, message=e.message)
 
                 log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
@@ -456,26 +493,32 @@ class Client:
             if cmd.resolved:
                 continue
 
+            cmd.listener = self._websocket._dispatch
+
             if cmd.default_scope and self._default_scope:
                 cmd.scope = (
-                    cmd.scope.extend(cmd.default_scope) if cmd.scope else self._default_scope
+                    cmd.scope.extend(self._default_scope)
+                    if isinstance(cmd.scope, list)
+                    else self._default_scope
                 )
 
             data: Union[dict, List[dict]] = cmd.full_data
-            coro = cmd.dispatcher
+            dispatcher = cmd.dispatcher
 
             self.__check_command(
                 command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
-                coro=coro,
+                coro=dispatcher,
             )
 
             if cmd.autocompletions:
-                self.__name_autocomplete.update(cmd.autocompletions)
+                self.__id_autocomplete.update(cmd.autocompletions)
 
-            coro = coro.__func__ if hasattr(coro, "__func__") else coro
+            # weird interaction with methods, where they're a read-only version of their function
+            coro = dispatcher.__func__ if hasattr(dispatcher, "__func__") else dispatcher
 
             coro._command_data = data
             coro._name = cmd.name
+            coro._converters = cmd.converters
 
             if (data["name"] if isinstance(data, dict) else data[0]["name"]) not in (
                 (
@@ -493,7 +536,7 @@ class Client:
                 else:
                     self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
 
-            self.event(coro, name=f"command_{cmd.name}")
+            self.event(dispatcher, name=f"command_{cmd.name}")
             cmd.resolved = True
 
     async def __sync(self) -> None:  # sourcery no-metrics
@@ -797,7 +840,7 @@ class Client:
             if not re.fullmatch(reg, _option.name):
                 raise LibraryException(
                     11,
-                    message=f"The option name does not match the regex for valid names ('{regex}')",
+                    message=f"The option name ('{_option.name}') does not match the regex for valid names ('{regex}').",
                 )
             if _option.description is MISSING or not _option.description:
                 raise LibraryException(
@@ -859,7 +902,8 @@ class Client:
             and command.type == ApplicationCommandType.CHAT_INPUT
         ):
             raise LibraryException(
-                11, message=f"Your command does not match the regex for valid names ('{regex}')"
+                11,
+                message=f"Your command name ('{command.name}') does not match the regex for valid names ('{regex}').",
             )
         elif command.type == ApplicationCommandType.CHAT_INPUT and (
             command.description is MISSING or not command.description
@@ -958,25 +1002,25 @@ class Client:
             If ``default_member_permissions`` is not given, this will default to anyone that is able to use the command.
 
         :param type?: The type of application command. Defaults to :meth:`interactions.enums.ApplicationCommandType.CHAT_INPUT` or ``1``.
-        :type type: Optional[Union[str, int, ApplicationCommandType]]
+        :type type?: Optional[Union[str, int, ApplicationCommandType]]
         :param name: The name of the application command. This *is* required but kept optional to follow kwarg rules.
         :type name: Optional[str]
         :param description?: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type description: Optional[str]
+        :type description?: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param options?: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :type options: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
+        :type options?: Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param description_localizations?: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
-        :type description_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type description_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :type default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions?: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :type dm_permission: Optional[bool]
+        :type dm_permission?: Optional[bool]
         :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
-        :type default_scope: bool
+        :type default_scope?: bool
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1029,17 +1073,17 @@ class Client:
         :param name: The name of the application command.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
+        :type default_permission?: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :type default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions?: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :type dm_permission: Optional[bool]
+        :type dm_permission?: Optional[bool]
         :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
-        :type default_scope: bool
+        :type default_scope?: bool
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1086,17 +1130,17 @@ class Client:
         :param name: The name of the application command.
         :type name: Optional[str]
         :param scope?: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :type scope: Optional[Union[int, Guild, List[int], List[Guild]]]
+        :type scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
         :param default_permission?: The default permission of accessibility for the application command. Defaults to ``True``.
-        :type default_permission: Optional[bool]
+        :type default_permission?: Optional[bool]
         :param name_localizations?: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :type name_localizations: Optional[Dict[Union[str, Locale], str]]
+        :type name_localizations?: Optional[Dict[Union[str, Locale], str]]
         :param default_member_permissions?: The permissions bit value of ``interactions.api.model.flags.Permissions``. If not given, defaults to :meth:`interactions.api.model.flags.Permissions.USE_APPLICATION_COMMANDS` or ``2147483648``
-        :type default_member_permissions: Optional[Union[int, Permissions]]
+        :type default_member_permissions?: Optional[Union[int, Permissions]]
         :param dm_permission?: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :type dm_permission: Optional[bool]
+        :type dm_permission?: Optional[bool]
         :param default_scope?: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
-        :type default_scope: bool
+        :type default_scope?: bool
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1158,21 +1202,22 @@ class Client:
 
         return decorator
 
-    def _find_command(self, command: str) -> ApplicationCommand:
+    def _find_command(self, command: Union[str, int]) -> ApplicationCommand:
         """
         Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
 
-        :param command: The name of the command to match
-        :type command: str
+        :param command: The name or ID of the command to match
+        :type command: Union[str, int]
         :return: An ApplicationCommand model
         :rtype: ApplicationCommand
         """
+        key = "name" if isinstance(command, str) else "id"
         _command: Dict
         _command_obj = next(
             (
                 ApplicationCommand(**_command)
                 for _command in self.__global_commands["commands"]
-                if _command["name"] == command
+                if str(_command[key]) == str(command)
             ),
             None,
         )
@@ -1183,7 +1228,7 @@ class Client:
                     (
                         ApplicationCommand(**_command)
                         for _command in self.__guild_commands[scope]["commands"]
-                        if _command["name"] == command
+                        if str(_command[key]) == str(command)
                     ),
                     None,
                 )
@@ -1227,10 +1272,10 @@ class Client:
         """
 
         if isinstance(command, ApplicationCommand):
-            _command: Union[Snowflake, int] = command.id
+            _command: str = command.name
         elif isinstance(command, str):
             _command: str = command
-        elif isinstance(command, int) or isinstance(command, Snowflake):
+        elif isinstance(command, (int, Snowflake)):
             _command: Union[Snowflake, int] = int(command)
         else:
             raise LibraryException(
@@ -1239,10 +1284,10 @@ class Client:
             )
 
         def decorator(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            if isinstance(_command, str):
-                curr_autocomplete = self.__name_autocomplete.get(_command, [])
+            if isinstance(_command, (int, Snowflake)):
+                curr_autocomplete = self.__id_autocomplete.get(_command, [])
                 curr_autocomplete.append({"coro": coro, "name": name})
-                self.__name_autocomplete[_command] = curr_autocomplete
+                self.__id_autocomplete[_command] = curr_autocomplete
                 return coro
             return self.event(coro, name=f"autocomplete_{_command}_{name}")
 
@@ -1295,11 +1340,11 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param package?: The package of the extension.
-        :type package: Optional[str]
+        :type package?: Optional[str]
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
-        :type \**kwargs: dict
+        :type \**kwargs?: dict
         :return: The loaded extension.
         :rtype: Optional[Extension]
         """
@@ -1334,9 +1379,9 @@ class Client:
         :param name: The name of the extension.
         :type name: str
         :param remove_commands?: Whether to remove commands before reloading. Defaults to True.
-        :type remove_commands: bool
+        :type remove_commands?: bool
         :param package?: The package of the extension.
-        :type package: Optional[str]
+        :type package?: Optional[str]
         """
         try:
             _name: str = resolve_name(name, package)
@@ -1390,13 +1435,13 @@ class Client:
         :param name: The name of the extension
         :type name: str
         :param package?: The package of the extension
-        :type package: Optional[str]
+        :type package?: Optional[str]
         :param remove_commands?: Whether to remove commands before reloading. Defaults to True
-        :type remove_commands: bool
+        :type remove_commands?: bool
         :param \*args?: Optional arguments to pass to the extension
         :type \**args: tuple
         :param \**kwargs?: Optional keyword-only arguments to pass to the extension.
-        :type \**kwargs: dict
+        :type \**kwargs?: dict
         :return: The reloaded extension.
         :rtype: Optional[Extension]
         """
@@ -1428,63 +1473,18 @@ class Client:
         :return: The modified User object
         :rtype: User
         """
-        payload: dict = {"username": username, "avatar": avatar.data}
+        payload: dict = {}
+        if avatar is not MISSING:
+            payload["avatar"] = avatar.data
+        if username is not MISSING:
+            payload["username"] = username
         data: dict = await self._http.modify_self(payload=payload)
 
         return User(**data)
 
-    async def __raw_socket_create(self, data: Dict[Any, Any]) -> Dict[Any, Any]:
-        """
-        This is an internal function that takes any gateway socket event
-        and then returns the data purely based off of what it does in
-        the client instantiation class.
-
-        :param data: The data that is returned
-        :type data: Dict[Any, Any]
-        :return: A dictionary of raw data.
-        :rtype: Dict[Any, Any]
-        """
-
-        return data
-
-    async def __raw_channel_create(self, channel) -> dict:
-        """
-        This is an internal function that caches the channel creates when dispatched.
-
-        :param channel: The channel object data in question.
-        :type channel: Channel
-        :return: The channel as a dictionary of raw data.
-        :rtype: dict
-        """
-        self._http.cache[Channel].add(channel)
-
-        return channel._json
-
-    async def __raw_message_create(self, message) -> dict:
-        """
-        This is an internal function that caches the message creates when dispatched.
-
-        :param message: The message object data in question.
-        :type message: Message
-        :return: The message as a dictionary of raw data.
-        :rtype: dict
-        """
-        self._http.cache[Message].add(message)
-
-        return message._json
-
-    async def __raw_guild_create(self, guild) -> dict:
-        """
-        This is an internal function that caches the guild creates on ready.
-
-        :param guild: The guild object data in question.
-        :type guild: Guild
-        :return: The guild as a dictionary of raw data.
-        :rtype: dict
-        """
-        self._http.cache[Guild].add(guild)
-
-        return guild._json
+    async def _logout(self) -> None:
+        await self._websocket.close()
+        await self._http._req.close()
 
 
 # TODO: Implement the rest of cog behaviour when possible.
@@ -1595,7 +1595,6 @@ class Extension:
 
             commands = self._commands.get(cmd.name, [])
             coro = cmd.dispatcher
-            coro = coro.__func__ if hasattr(coro, "__func__") else coro
             commands.append(coro)
             self._commands[f"command_{cmd.name}"] = commands
 
@@ -1690,20 +1689,18 @@ def extension_modal(*args, **kwargs):
 
 
 @wraps(Client.message_command)
-def extension_message_command(*args, **kwargs):
-    def decorator(func):
+def extension_message_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]:
+    def decorator(func) -> Command:
         kwargs["type"] = ApplicationCommandType.MESSAGE
-        func.__command_data__ = (args, kwargs)
-        return func
+        return extension_command(**kwargs)(func)
 
     return decorator
 
 
 @wraps(Client.user_command)
-def extension_user_command(*args, **kwargs):
-    def decorator(func):
+def extension_user_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]:
+    def decorator(func) -> Command:
         kwargs["type"] = ApplicationCommandType.USER
-        func.__command_data__ = (args, kwargs)
-        return func
+        return extension_command(**kwargs)(func)
 
     return decorator
