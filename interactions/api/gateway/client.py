@@ -959,16 +959,18 @@ class WebSocketClient:
         """
         _data = dumps(data) if isinstance(data, dict) else data
         packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
+        log.debug(packet)
 
-        if data["op"] != OpCodeType.HEARTBEAT.value:
-            # This is because the ratelimiter limits already accounts for this.
-            await self._ratelimiter.block()
+        async with self.reconnect_lock:  # needs to lock while it reconnects.
 
-        if self._client is not None:  # this mitigates against another edge case.
-            self._last_send = perf_counter()
-            log.debug(packet)
+            if data["op"] != OpCodeType.HEARTBEAT.value:
+                # This is because the ratelimiter limits already accounts for this.
+                await self._ratelimiter.block()
 
-            await self._client.send_str(packet)
+            if self._client is not None:  # this mitigates against another edge case.
+                self._last_send = perf_counter()
+
+                await self._client.send_str(packet)
 
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None

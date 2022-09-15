@@ -158,18 +158,27 @@ class Member(ClientSerializerMixin, IDMixin):
     async def ban(
         self,
         guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
+        seconds: Optional[int] = 0,
+        minutes: Optional[int] = MISSING,
+        hours: Optional[int] = MISSING,
+        days: Optional[int] = MISSING,
         reason: Optional[str] = None,
-        delete_message_days: Optional[int] = 0,
     ) -> None:
         """
         Bans the member from a guild.
 
         :param guild_id: The id of the guild to ban the member from
         :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :param seconds?: Number of seconds to delete messages, from 0 to 604800. Defaults to 0
+        :type seconds?: Optional[int]
+        :param minutes?: Number of minutes to delete messages, from 0 to 10080
+        :type minutes?: Optional[int]
+        :param hours?: Number of hours to delete messages, from 0 to 168
+        :type hours?: Optional[int]
+        :param days?: Number of days to delete messages, from 0 to 7
+        :type days?: Optional[int]
         :param reason?: The reason of the ban
         :type reason?: Optional[str]
-        :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
-        :type delete_message_days?: Optional[int]
         """
 
         if guild_id is MISSING:
@@ -182,11 +191,24 @@ class Member(ClientSerializerMixin, IDMixin):
                 int(guild_id) if isinstance(guild_id, (Snowflake, int)) else int(guild_id.id)
             )
 
+        if days is not MISSING:
+            seconds += days * 24 * 3600
+        if hours is not MISSING:
+            seconds += hours * 3600
+        if minutes is not MISSING:
+            seconds += minutes * 60
+
+        if seconds > 604800:
+            raise LibraryException(
+                code=12,
+                message="The amount of total seconds to delete messages exceeds the limit Discord provides (604800)",
+            )
+
         await self._client.create_guild_ban(
             guild_id=_guild_id,
             user_id=int(self.user.id),
             reason=reason,
-            delete_message_days=delete_message_days,
+            delete_message_seconds=seconds,
         )
 
     async def kick(
