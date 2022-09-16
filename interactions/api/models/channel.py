@@ -1679,6 +1679,21 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Creates a new post inside a forum channel
 
+        :param name: The name of the thread
+        :type name: str
+        :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param content: The content to send as first message.
+        :type content: Union[dict, "Message", str, "Attachment", List["Attachment"]]
+        :param applied_tags: Tags to give to the created thread
+        :type applied_tags: Union[List[str], List[int], List[Tags], int, str, Tags]
+        :param files: An optional list of files to send attached to the message.
+        :type files: Optional[List[File]]
+        :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
+        :type rate_limit_per_user: Optional[int]
+        :param reason: An optional reason for the audit log
+        :type reason: Optional[str]
         :returns: A channel of ChannelType 11 (THREAD)
         :rtype: Channel
         """
