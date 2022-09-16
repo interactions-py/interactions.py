@@ -91,6 +91,7 @@ class LibraryException(Exception):
             11: "Error creating your command.",
             12: "Invalid set of arguments specified.",
             13: "No HTTPClient set!",
+            14: "Fatal conflict between object and attempted action (cannot run this action on current object).",
             # HTTP errors
             400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
             401: "Not authorized. Double check your token to see if it's valid.",
