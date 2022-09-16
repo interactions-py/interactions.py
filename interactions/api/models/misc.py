@@ -18,6 +18,7 @@ from ...base import get_logger
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from ...utils.missing import MISSING
 from ..error import LibraryException
+from .flags import Permissions
 
 __all__ = (
     "AutoModKeywordPresetTypes",
@@ -46,14 +47,14 @@ class Overwrite(DictSerializerMixin):
 
     :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
-    :ivar str allow: Permission bit set.
-    :ivar str deny: Permission bit set.
+    :ivar Union[Permissions, int, str] allow: Permission bit set.
+    :ivar Union[Permissions, int, str] deny: Permission bit set.
     """
 
     id: int = field()
     type: int = field()
-    allow: str = field()
-    deny: str = field()
+    allow: Union[Permissions, int, str] = field()
+    deny: Union[Permissions, int, str] = field()
 
 
 @define()
