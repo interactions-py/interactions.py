@@ -58,10 +58,8 @@ class Client:
     :type default_scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
     :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
     :type disable_sync?: Optional[bool]
-    :param override_logging?: Whether you want to override the internal logging level
-    :type override_logging?: Optional[bool]
-    :param logging_level?: The default logging level you want to use
-    :type logging_level?: Union[logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG, logging.NOTSET, logging.CRITICAL, int]
+    :param debug?: Whether debug logging should be enabled
+    :type debug?: Optional[bool]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
@@ -106,17 +104,13 @@ class Client:
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
 
-        if not kwargs.get("override_logging"):
-            level = kwargs.get("logging_level", logging.INFO)
+        if kwargs.get("debug"):
 
             # thx i0 for posting this on the retux Discord
 
-            if level == logging.DEBUG:
-                _format = "%(asctime)s [%(levelname)s] - .%(funcName)s(): %(message)s"
-            else:
-                _format = "%(asctime)s [%(levelname)s] - %(message)s"
+            _format = "%(asctime)s [%(levelname)s] - .%(funcName)s(): %(message)s"
 
-            logging.basicConfig(format=_format, level=level)
+            logging.basicConfig(format=_format, level=logging.DEBUG)
 
         if kwargs.get("disable_sync"):
             self._automate_sync = False
