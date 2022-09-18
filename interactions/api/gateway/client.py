@@ -554,7 +554,7 @@ class WebSocketClient:
                 log.warning(f"An error occurred dispatching {name}: {error}")
 
     def __get_object_id(
-        self, data: dict, obj: Any, model: Any
+        self, data: dict, obj: Any, model: type
     ) -> Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]:
         """
         Gets an ID from object.
@@ -564,7 +564,7 @@ class WebSocketClient:
         :param obj: The object of the event.
         :type obj: Any
         :param model: The model of the event.
-        :type model: Any
+        :type model: type
         :return: Object ID
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
@@ -593,14 +593,14 @@ class WebSocketClient:
 
         return id
 
-    def __get_object_ids(self, obj: Any, model: Any) -> Optional[List[Snowflake]]:
+    def __get_object_ids(self, obj: Any, model: type) -> Optional[List[Snowflake]]:
         """
         Gets a list of ids of object.
 
         :param obj: The object of the event.
         :type obj: Any
         :param model: The model of the event.
-        :type model: Any
+        :type model: type
         :return: Object IDs
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
