@@ -517,6 +517,10 @@ class MessageReactionRemove(MessageReaction):
     # todo see if the missing member attribute affects anything
 
 
+# Thread object typically used for ``THREAD_X`` is found in the channel models instead, as its identical.
+# and all attributes of Thread are in Channel.
+
+
 @define()
 class ThreadList(DictSerializerMixin):
     """
