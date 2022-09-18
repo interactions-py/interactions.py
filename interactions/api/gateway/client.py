@@ -45,6 +45,7 @@ from .ratelimit import WSRateLimit
 if TYPE_CHECKING:
     from ...client.context import _Context
     from ..cache import Storage
+    from ..models.gw import GuildMembers
 
 log = get_logger("gateway")
 
@@ -535,6 +536,17 @@ class WebSocketClient:
 
                     self._dispatch.dispatch(f"on_{name}", old_obj or obj)
 
+                elif "guild_members_chunk" in name:
+                    self.__modify_guild_cache(name, data, model, obj, ids=ids)
+
+                    _member_cache: "Storage" = self._http.cache[Member]
+                    obj: GuildMembers
+                    for member in obj.members:
+                        member.guild_id = obj.guild_id
+                        _member_cache.add(member, (obj.guild_id, member.id))
+
+                    self._dispatch.dispatch(f"on_{name}", obj)
+
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
@@ -658,11 +670,23 @@ class WebSocketClient:
                         elif "_update" in name and hasattr(obj, "id"):
                             iterable[index] = obj
                         break
-            elif ids is not None and "_update" in name:
-                objs = getattr(obj, attr, None)
-                if objs is not None:
-                    iterable.clear()
-                    iterable.extend(objs)
+            elif ids is not None:
+                if "_update" in name:
+                    objs = getattr(obj, attr, None)
+                    if objs is not None:
+                        iterable.clear()
+                        iterable.extend(objs)
+                elif "_chunk" in name:
+                    _objs = getattr(obj, attr, None)
+                    if _objs:
+                        for _obj in _objs:
+                            for index, __obj in enumerate(iterable):
+                                if __obj.id == _obj.id:
+                                    iterable[index] = _obj
+                                    break
+                            else:
+                                iterable.append(_obj)
+
             setattr(guild, attr, iterable)
 
         self._http.cache[Guild].add(guild)
@@ -1050,6 +1074,42 @@ class WebSocketClient:
         await self._send_packet(payload)
         log.debug(f"UPDATE_PRESENCE: {presence._json}")
         self.__presence = presence
+
+    async def request_guild_members(
+        self,
+        guild_id: int,
+        limit: int,
+        query: Optional[str] = None,
+        presences: Optional[bool] = None,
+        user_ids: Optional[Union[int, List[int]]] = None,
+        nonce: Optional[str] = None,
+    ) -> None:
+        """Sends an ``REQUEST_MEMBERS`` packet to the gateway.
+
+        :param guild_id: ID of the guild to get members for.
+        :type guild_id: int
+        :param limit: Maximum number of members to send matching the 'query' parameter. Required when specifying 'query'.
+        :type limit: int
+        :param query: String that username starts with.
+        :type query: Optional[str]
+        :param presences: Used to specify if we want the presences of the matched members.
+        :type presences: Optional[bool]
+        :param user_ids: Used to specify which users you wish to fetch.
+        :type user_ids: Optional[Union[int, List[int]]]
+        :param nonce: Nonce to identify the Guild Members Chunk response.
+        :type nonce: Optional[str]
+        """
+        _data: dict = {"guild_id": guild_id, "query": query or "", "limit": limit}
+        if presences is not None:
+            _data["presences"] = presences
+        if user_ids is not None:
+            _data["user_ids"] = user_ids
+        if nonce is not None:
+            _data["nonce"] = nonce
+        payload: dict = {"op": OpCodeType.REQUEST_MEMBERS.value, "d": _data}
+
+        await self._send_packet(payload)
+        log.debug(f"REQUEST_MEMBERS: {payload}")
 
     async def close(self) -> None:
         """
