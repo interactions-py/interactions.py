@@ -542,7 +542,7 @@ class WebSocketClient:
                     _member_cache: "Storage" = self._http.cache[Member]
                     obj: GuildMembers
                     for member in obj.members:
-                        member.guild_id = obj.guild_id
+                        member._guild_id = obj.guild_id
                         _member_cache.add(member, (obj.guild_id, member.id))
 
                     self._dispatch.dispatch(f"on_{name}", obj)
