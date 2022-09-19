@@ -961,16 +961,25 @@ class WebSocketClient:
         packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
         log.debug(packet)
 
-        async with self.reconnect_lock:  # needs to lock while it reconnects.
+        if data["op"] in {OpCodeType.IDENTIFY.value, OpCodeType.RESUME.value}:
+            # This can't use the reconnect lock *because* its already referenced in
+            # self._reconnect(), hence an infinite hang.
 
-            if data["op"] != OpCodeType.HEARTBEAT.value:
-                # This is because the ratelimiter limits already accounts for this.
-                await self._ratelimiter.block()
-
-            if self._client is not None:  # this mitigates against another edge case.
+            if self._client is not None:
                 self._last_send = perf_counter()
 
                 await self._client.send_str(packet)
+        else:
+            async with self.reconnect_lock:  # needs to lock while it reconnects.
+
+                if data["op"] != OpCodeType.HEARTBEAT.value:
+                    # This is because the ratelimiter limits already accounts for this.
+                    await self._ratelimiter.block()
+
+                if self._client is not None:  # this mitigates against another edge case.
+                    self._last_send = perf_counter()
+
+                    await self._client.send_str(packet)
 
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
