@@ -66,9 +66,10 @@ Event: ``raw_socket_create``
 This event fires on any event sent by Discord, including ``Typing Start``  and ``Voice State Update``.
 ``Hello``, ``Resumed``, ``Reconnect`` and ``Invalid Session`` still will not be dispatched.
 
-The function handling the event should take in one argument, the type of this argument is a ``dict``.
+A function handling an event should take two arguments,
+the first argument is the name of the event, the second is the data of that event with type ``dict``.
 
-The value of the argument will be the *raw* data sent from Discord, so it is not recommended to use that event
+The value of the second argument will be the *raw* data sent from Discord, so it is not recommended to use that event
 as long as you don't absolutely need it.
 
 
