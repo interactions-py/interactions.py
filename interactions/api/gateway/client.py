@@ -671,15 +671,14 @@ class WebSocketClient:
                             iterable[index] = obj
                         break
             elif ids is not None:
+                objs = getattr(obj, attr, None)
                 if "_update" in name:
-                    objs = getattr(obj, attr, None)
                     if objs is not None:
                         iterable.clear()
                         iterable.extend(objs)
                 elif "_chunk" in name:
-                    _objs = getattr(obj, attr, None)
-                    if _objs:
-                        for _obj in _objs:
+                    if objs is not None:
+                        for _obj in objs:
                             for index, __obj in enumerate(iterable):
                                 if __obj.id == _obj.id:
                                     iterable[index] = _obj
