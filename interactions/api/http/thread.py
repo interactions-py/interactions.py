@@ -228,7 +228,7 @@ class ThreadRequest:
             payload["applied_tags"] = applied_tags
 
         data = None
-        if files is not MISSING and len(files) > 0:
+        if files is not MISSING and files and len(files) > 0:  # edge case `None`
 
             data = MultipartWriter("form-data")
             part = data.append_json(payload)

@@ -368,7 +368,7 @@ class ChannelRequest:
             Route("PUT", f"/channels/{channel_id}/tags/{tag_id}"), json=_dct
         )
 
-    async def delete_tag(self, channel_id: int, tag_id: int) -> dict:
+    async def delete_tag(self, channel_id: int, tag_id: int) -> None:  # wha?
         """
         Delete a forum tag.
 
