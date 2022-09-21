@@ -660,7 +660,7 @@ class WebSocketClient:
         if iterable is not None and isinstance(iterable, list):
             if "_create" in name or "_add" in name:
                 iterable.append(obj)
-            if id:
+            elif id:
                 _id = id[1] if isinstance(id, tuple) else id
                 for index, __obj in enumerate(iterable):
                     if __obj.id == _id:
