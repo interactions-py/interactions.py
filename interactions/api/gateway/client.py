@@ -672,12 +672,11 @@ class WebSocketClient:
                         break
             elif ids is not None:
                 objs = getattr(obj, attr, None)
-                if "_update" in name:
-                    if objs is not None:
+                if objs is not None:
+                    if "_update" in name:
                         iterable.clear()
                         iterable.extend(objs)
-                elif "_chunk" in name:
-                    if objs is not None:
+                    elif "_chunk" in name:
                         for _obj in objs:
                             for index, __obj in enumerate(iterable):
                                 if __obj.id == _obj.id:
