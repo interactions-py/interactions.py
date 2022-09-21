@@ -670,20 +670,18 @@ class WebSocketClient:
                         elif "_update" in name and hasattr(obj, "id"):
                             iterable[index] = obj
                         break
-            elif ids is not None:
-                objs = getattr(obj, attr, None)
-                if objs is not None:
-                    if "_update" in name:
-                        iterable.clear()
-                        iterable.extend(objs)
-                    elif "_chunk" in name:
-                        for _obj in objs:
-                            for index, __obj in enumerate(iterable):
-                                if __obj.id == _obj.id:
-                                    iterable[index] = _obj
-                                    break
-                            else:
-                                iterable.append(_obj)
+            elif ids is not None and (objs := getattr(obj, attr, None)) is not None:
+                if "_update" in name:
+                    iterable.clear()
+                    iterable.extend(objs)
+                elif "_chunk" in name:
+                    for _obj in objs:
+                        for index, __obj in enumerate(iterable):
+                            if __obj.id == _obj.id:
+                                iterable[index] = _obj
+                                break
+                        else:
+                            iterable.append(_obj)
 
             setattr(guild, attr, iterable)
 
