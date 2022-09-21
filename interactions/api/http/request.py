@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import traceback
 from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
 from contextlib import suppress
@@ -11,7 +12,10 @@ from urllib.parse import quote
 from aiohttp import ClientSession
 from aiohttp import __version__ as http_version
 
-from ...api.error import LibraryException
+if sys.version_info < (3, 11):
+    from ..error import LibraryException
+else:
+    from ..error import LibraryException, LibraryExceptions, _parse_error
 from ...base import __version__, get_logger
 from .limiter import Limiter
 from .route import Route
@@ -169,9 +173,34 @@ class _Request:
                         )
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
-                        raise LibraryException(
-                            message=data["message"], code=data["code"], severity=40, data=data
-                        )
+                        if sys.version_info >= (3, 11) and data.get("errors"):
+                            _errors = _parse_error(data.get("errors"))
+
+                            if len(_errors) > 1:
+                                __errors: list = []
+
+                                for error in _errors:
+                                    _fmt = f"Error at {error[2]}: {error[0]} - {error[1] if error[1].endswith('.') else f'{error[1]}.'}"
+
+                                    __errors.append(
+                                        LibraryException(
+                                            message=_fmt, code=data["code"], severity=40
+                                        )
+                                    )
+
+                                raise LibraryExceptions(*__errors)
+
+                            else:
+                                _error = _errors[0]
+                                _fmt = f"Error at {_error[2]}: {_error[0]} - {_error[1] if _error[1].endswith('.') else f'{_error[1]}.'}"
+
+                                raise LibraryException(message=_fmt, code=data["code"], severity=40)
+
+                        else:
+                            raise LibraryException(
+                                message=data["message"], code=data["code"], severity=40, data=data
+                            )
+
                     elif isinstance(data, dict) and data.get("code") == 0 and data.get("message"):
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
