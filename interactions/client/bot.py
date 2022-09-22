@@ -1481,6 +1481,40 @@ class Client:
 
         return User(**data)
 
+    async def request_guild_members(
+        self,
+        guild_id: Union[Guild, Snowflake, int, str],
+        limit: Optional[int] = MISSING,
+        query: Optional[str] = MISSING,
+        presences: Optional[bool] = MISSING,
+        user_ids: Optional[Union[Snowflake, List[Snowflake]]] = MISSING,
+        nonce: Optional[str] = MISSING,
+    ) -> None:
+        """
+        Requests guild members via websocket.
+
+        :param guild_id: ID of the guild to get members for.
+        :type guild_id: Union[Guild, Snowflake, int, str]
+        :param limit: Maximum number of members to send matching the 'query' parameter. Required when specifying 'query'.
+        :type limit: Optional[int]
+        :param query: String that username starts with.
+        :type query: Optional[str]
+        :param presences: Used to specify if we want the presences of the matched members.
+        :type presences: Optional[bool]
+        :param user_ids: Used to specify which users you wish to fetch.
+        :type user_ids: Optional[Union[Snowflake, List[Snowflake]]]
+        :param nonce: Nonce to identify the Guild Members Chunk response.
+        :type nonce: Optional[str]
+        """
+        await self._websocket.request_guild_members(
+            guild_id=int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id),
+            limit=limit if limit is not MISSING else 0,
+            query=query if query is not MISSING else None,
+            presences=presences if presences is not MISSING else None,
+            user_ids=user_ids if user_ids is not MISSING else None,
+            nonce=nonce if nonce is not MISSING else None,
+        )
+
     async def _logout(self) -> None:
         await self._websocket.close()
         await self._http._req.close()
