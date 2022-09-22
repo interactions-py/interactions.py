@@ -1038,6 +1038,7 @@ class Client:
                 description_localizations=description_localizations,
                 default_scope=default_scope,
             )
+            cmd.client = self
             self._commands.append(cmd)
             return cmd
 
@@ -1590,6 +1591,7 @@ class Extension:
                 continue
 
             cmd.extension = self
+            cmd.client = self.client
             self.client._commands.append(cmd)
 
             commands = self._commands.get(cmd.name, [])
