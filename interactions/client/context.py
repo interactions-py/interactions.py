@@ -120,6 +120,7 @@ class _Context(ClientSerializerMixin):
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         ephemeral: Optional[bool] = False,
+        suppress_embeds: bool = False,
     ) -> dict:
         """
         This allows the invocation state described in the "context"
@@ -139,6 +140,8 @@ class _Context(ClientSerializerMixin):
         :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
         :type ephemeral?: Optional[bool]
+        :param suppress_embeds: Whether embeds are not shown in the message.
+        :type suppress_embeds: bool
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -189,7 +192,9 @@ class _Context(ClientSerializerMixin):
         else:
             _components = []
 
-        _ephemeral: int = (1 << 6) if ephemeral else 0
+        _flags: int = (1 << 6) if ephemeral else 0
+        if suppress_embeds:
+            _flags += 1 << 2
 
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
 
@@ -200,7 +205,7 @@ class _Context(ClientSerializerMixin):
             allowed_mentions=_allowed_mentions,
             components=_components,
             attachments=_attachments,
-            flags=_ephemeral,
+            flags=_flags,
         )
 
     async def edit(
