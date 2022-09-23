@@ -1,4 +1,5 @@
 import contextlib
+import logging
 import re
 import sys
 from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction
@@ -6,7 +7,6 @@ from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
 from inspect import getmembers
-from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
@@ -27,7 +27,7 @@ from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
 from .models.component import Button, Modal, SelectMenu
 
-log: Logger = get_logger("client")
+log: logging.Logger = get_logger("client")
 
 __all__ = (
     "Client",
@@ -58,6 +58,8 @@ class Client:
     :type default_scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
     :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
     :type disable_sync?: Optional[bool]
+    :param logging?: Set to ``True`` to enable debug logging or set to a log level to use a specific level
+    :type logging?: Optional[Union[bool, logging.DEBUG, logging.INFO, logging.NOTSET, logging.WARNING, logging.ERROR, logging.CRITICAL]]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
@@ -101,6 +103,21 @@ class Client:
                     for scope in self._default_scope
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
+
+        if _logging := kwargs.get("logging"):
+
+            # thx i0 for posting this on the retux Discord
+
+            if _logging is True:
+                _logging = logging.DEBUG
+
+            _format = (
+                "%(asctime)s [%(levelname)s] - .%(funcName)s(): %(message)s"
+                if _logging == logging.DEBUG
+                else "%(asctime)s [%(levelname)s] - %(message)s"
+            )
+
+            logging.basicConfig(format=_format, level=_logging)
 
         if kwargs.get("disable_sync"):
             self._automate_sync = False
