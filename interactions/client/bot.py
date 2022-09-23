@@ -58,8 +58,8 @@ class Client:
     :type default_scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
     :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
     :type disable_sync?: Optional[bool]
-    :param debug?: Whether debug logging should be enabled
-    :type debug?: Optional[bool]
+    :param logging?: Set to ``True`` to enable debug logging or set to a log level to use a specific level
+    :type logging?: Optional[Union[bool, logging.DEBUG, logging.INFO, logging.NOTSET, logging.WARNING, logging.ERROR, logging.CRITICAL]]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
@@ -104,13 +104,20 @@ class Client:
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
 
-        if kwargs.get("debug"):
+        if _logging := kwargs.get("logging"):
 
             # thx i0 for posting this on the retux Discord
 
-            _format = "%(asctime)s [%(levelname)s] - .%(funcName)s(): %(message)s"
+            if _logging is True:
+                _logging = logging.DEBUG
 
-            logging.basicConfig(format=_format, level=logging.DEBUG)
+            _format = (
+                "%(asctime)s [%(levelname)s] - .%(funcName)s(): %(message)s"
+                if _logging == logging.DEBUG
+                else "%(asctime)s [%(levelname)s] - %(message)s"
+            )
+
+            logging.basicConfig(format=_format, level=_logging)
 
         if kwargs.get("disable_sync"):
             self._automate_sync = False
