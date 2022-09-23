@@ -140,7 +140,7 @@ class _Context(ClientSerializerMixin):
         :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
         :type ephemeral?: Optional[bool]
-        :param suppress_embeds: If embeds should be hidden on the message
+        :param suppress_embeds: Whether embeds are shown in the message.
         :type suppress_embeds: bool
         :return: The sent message as an object.
         :rtype: Message
