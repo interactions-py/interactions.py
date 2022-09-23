@@ -622,6 +622,6 @@ class ComponentContext(_Context):
     @property
     def label(self) -> Optional[str]:
         for action_row in self.message.components:
-            for component in action_row["components"]:
+            for component in action_row._json["components"]:
                 if component["custom_id"] == self.custom_id and component["type"] == 2:
                     return component.get("label")
