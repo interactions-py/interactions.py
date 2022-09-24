@@ -739,18 +739,16 @@ class ComponentContext(_Context):
     @property
     def label(self) -> Optional[str]:
         """
-        Gives the label of button
+        The label of the interacted component.
         :rtype: Optional[str]
         """
         if not self.data.component_type == ComponentType.BUTTON:
-            return None
+            return
         if self.message is None:
-            return None
+            return
         if self.message.components is None:
-            return None
+            return
         for action_row in self.message.components:
             for component in action_row.components:
                 if component.custom_id == self.custom_id:
                     return component.label
-        else:
-            return None
