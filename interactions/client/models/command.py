@@ -413,6 +413,7 @@ class Command(DictSerializerMixin):
     :ivar Optional[str] recent_group: The name of the group most recently utilized.
     :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
     :ivar Optional[Extension] extension: The extension that the command belongs to, if any.
+    :ivar Client client: The client that the command belongs to.
     :ivar Optional[Listener] listener: The listener, used for dispatching command errors.
     """
 

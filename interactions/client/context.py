@@ -366,6 +366,9 @@ class CommandContext(_Context):
     :ivar str locale?: The selected language of the user invoking the interaction.
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Client client: The client instance that the command belongs to.
+    :ivar Command command: The command object that is being invoked.
+    :ivar Extension extension: The extension the command belongs to.
     """
 
     target: Optional[Union[Message, Member, User]] = field(default=None)
