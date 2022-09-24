@@ -399,6 +399,8 @@ class CommandContext(_Context):
             elif self.data.type == 3:
                 self.target = self.data.resolved.messages[target]
 
+            self.target._client = self._client
+
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
         payload = await super().edit(content, **kwargs)
