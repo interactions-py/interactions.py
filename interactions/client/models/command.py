@@ -17,7 +17,7 @@ from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
     from ...api.dispatch import Listener
-    from ..bot import Extension
+    from ..bot import Client, Extension
     from ..context import CommandContext
 
 __all__ = (
@@ -413,6 +413,7 @@ class Command(DictSerializerMixin):
     :ivar Optional[str] recent_group: The name of the group most recently utilized.
     :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
     :ivar Optional[Extension] extension: The extension that the command belongs to, if any.
+    :ivar Client client: The client that the command belongs to.
     :ivar Optional[Listener] listener: The listener, used for dispatching command errors.
     """
 
@@ -437,6 +438,7 @@ class Command(DictSerializerMixin):
     error_callback: Optional[Callable[..., Awaitable]] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
     extension: Optional["Extension"] = field(default=None, init=False)
+    client: "Client" = field(default=None, init=False)
     listener: Optional["Listener"] = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
@@ -927,6 +929,10 @@ class Command(DictSerializerMixin):
 
         @wraps(coro)
         async def wrapper(ctx: "CommandContext", *args, **kwargs):
+            ctx.client = self.client
+            ctx.command = self
+            ctx.extension = self.extension
+
             try:
                 if self.extension:
                     return await coro(self.extension, ctx, *args, **kwargs)

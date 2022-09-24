@@ -1,8 +1,7 @@
 from logging import Logger
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..api.error import LibraryException
-from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
@@ -17,6 +16,10 @@ from .enums import InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
+
+if TYPE_CHECKING:
+    from .bot import Client, Extension
+    from .models.command import Command
 
 log: Logger = get_logger("context")
 
@@ -43,7 +46,6 @@ class _Context(ClientSerializerMixin):
     :ivar Optional[Guild] guild: The guild data model.
     """
 
-    client: HTTPClient = field(default=None)
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
     author: Member = field(converter=Member, default=None, add_client=True)
     member: Member = field(converter=Member, add_client=True)
@@ -66,9 +68,6 @@ class _Context(ClientSerializerMixin):
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
 
     def __attrs_post_init__(self) -> None:
-        # backwards compatibility
-        self.client = self._client
-
         if self.member:
             if self.guild_id:
                 self.member._extras["guild_id"] = self.guild_id
@@ -372,9 +371,16 @@ class CommandContext(_Context):
     :ivar str locale?: The selected language of the user invoking the interaction.
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Client client: The client instance that the command belongs to.
+    :ivar Command command: The command object that is being invoked.
+    :ivar Extension extension: The extension the command belongs to.
     """
 
     target: Optional[Union[Message, Member, User]] = field(default=None)
+
+    client: "Client" = field(default=None, init=False)
+    command: "Command" = field(default=None, init=False)
+    extension: "Extension" = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         super().__attrs_post_init__()
