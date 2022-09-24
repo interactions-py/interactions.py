@@ -2858,13 +2858,15 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         _with_counts = with_counts if with_counts is not MISSING else None
         _with_expiration = with_expiration if with_expiration is not MISSING else None
-        _guild_scheduled_event_id = guild_scheduled_event_id if guild_scheduled_event_id is not MISSING else None
+        _guild_scheduled_event_id = (
+            guild_scheduled_event_id if guild_scheduled_event_id is not MISSING else None
+        )
 
         res = await self._client.get_invite(
             invite_code=invite_code,
             with_counts=_with_counts,
             with_expiration=_with_expiration,
-            guild_scheduled_event_id=_guild_scheduled_event_id
+            guild_scheduled_event_id=_guild_scheduled_event_id,
         )
 
         return Invite(**res, _client=self._client)
