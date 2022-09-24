@@ -9,7 +9,7 @@ from ..api.models.message import Embed, Message, MessageInteraction, MessageRefe
 from ..api.models.misc import MISSING, DictSerializerMixin, Snowflake, define, field
 from ..api.models.user import User
 from ..base import get_logger
-from .enums import InteractionCallbackType, InteractionType
+from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
@@ -621,7 +621,19 @@ class ComponentContext(_Context):
 
     @property
     def label(self) -> Optional[str]:
+        """
+        Gives the label of button
+        :rtype: Optional[str]
+        """
+        if not self.data.component_type == ComponentType.BUTTON:
+            return None
+        if self.message is None:
+            return None
+        if self.message.components is None:
+            return None
         for action_row in self.message.components:
-            for component in action_row._json["components"]:
-                if component["custom_id"] == self.custom_id and component["type"] == 2:
-                    return component.get("label")
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component.label
+        else:
+            return None
