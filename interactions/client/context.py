@@ -12,7 +12,7 @@ from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
 from ..utils.missing import MISSING
-from .enums import InteractionCallbackType, InteractionType
+from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
@@ -744,7 +744,17 @@ class ComponentContext(_Context):
 
     @property
     def label(self) -> Optional[str]:
+        """
+        The label of the interacted button.
+        :rtype: Optional[str]
+        """
+        if not self.data.component_type == ComponentType.BUTTON:
+            return
+        if self.message is None:
+            return
+        if self.message.components is None:
+            return
         for action_row in self.message.components:
-            for component in action_row["components"]:
-                if component["custom_id"] == self.custom_id and component["type"] == 2:
-                    return component.get("label")
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component.label
