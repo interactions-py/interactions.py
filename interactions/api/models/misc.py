@@ -5,9 +5,7 @@
 # also, it should be serialiser* but idk, fl0w'd say something if I left it like that. /shrug
 # pycharm says serializer for me /shrug
 
-import colorsys
 import datetime
-import random
 from base64 import b64encode
 from enum import Enum, IntEnum
 from io import FileIO, IOBase
@@ -46,7 +44,6 @@ log: Logger = get_logger("mixin")
 class Overwrite(DictSerializerMixin):
     """
     This is used for the PermissionOverride object.
-
     :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
     :ivar Union[Permissions, int, str] allow: Permission bit set.
@@ -63,7 +60,6 @@ class Overwrite(DictSerializerMixin):
 class ClientStatus(DictSerializerMixin):
     """
     An object that symbolizes the status per client device per session.
-
     :ivar Optional[str] desktop?: User's status set for an active desktop application session
     :ivar Optional[str] mobile?: User's status set for an active mobile application session
     :ivar Optional[str] web?: User's status set for an active web application session
@@ -77,14 +73,10 @@ class ClientStatus(DictSerializerMixin):
 class Snowflake:
     """
     The Snowflake object.
-
     This snowflake object will have features closely related to the
     API schema. In turn, compared to regular d.py's treated snowflakes,
     these will be treated as strings.
-
-
     (Basically, snowflakes will be treated as if they were from d.py 0.16.12)
-
     .. note::
         You can still provide integers to them, to ensure ease of use of transition and/or
         if discord API for some odd reason will switch to integer.
@@ -111,7 +103,6 @@ class Snowflake:
         """
         This is the 'Increment' portion of the snowflake.
         This is incremented for every ID generated on that process.
-
         :return: An integer denoting the increment.
         """
         return int(self._snowflake) & 0xFFF
@@ -136,7 +127,6 @@ class Snowflake:
     def epoch(self) -> float:
         """
         This is the Timestamp field of the snowflake.
-
         :return: A float containing the seconds since Discord Epoch.
         """
         return floor(((int(self._snowflake) >> 22) + 1420070400000) / 1000)
@@ -145,7 +135,6 @@ class Snowflake:
     def timestamp(self) -> datetime.datetime:
         """
         The Datetime object variation of the Timestamp field of the snowflake.
-
         :return: The converted Datetime object from the Epoch. This respects UTC.
         """
         return datetime.datetime.utcfromtimestamp(self.epoch)
@@ -193,10 +182,8 @@ class AutoModMetaData(DictSerializerMixin):
     A class object used to represent the AutoMod Action Metadata.
     .. note::
         This is not meant to be instantiated outside the Gateway.
-
     .. note::
         The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
-
     :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
     :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
     """
@@ -228,21 +215,18 @@ class AutoModAction(DictSerializerMixin):
         ``AutoModerationAction``
     .. note::
         The metadata can be omitted depending on the action type.
-
     :ivar int type: Action type.
     :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
     """
 
     type: int = field()
-    metadata: Optional[AutoModMetaData] = field(
-        converter=AutoModMetaData, default=None)
+    metadata: Optional[AutoModMetaData] = field(converter=AutoModMetaData, default=None)
 
 
 @define()
 class AutoModTriggerMetadata(DictSerializerMixin):
     """
     A class object used to represent the trigger metadata from the AutoMod rule object.
-
     :ivar Optional[List[str]] keyword_filter: Words to match against content.
     :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
     """
@@ -253,58 +237,13 @@ class AutoModTriggerMetadata(DictSerializerMixin):
 
 class Color:
     """
-    A class object used to represent the AutoMod Action Metadata.
+    An object representing Discord branding colors.
     .. note::
-        This is not meant to be instantiated outside the Gateway.
-
-    .. note::
-        The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
-
-    :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
-    :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
+        This object only intends to cover the branding colors
+        and no others. The main reason behind this is due to
+        the current accepted standard of using hex codes or other
+        custom-defined colors.
     """
-
-    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    duration_seconds: Optional[int] = field(default=None)
-
-
-class AutoModTriggerType(IntEnum):
-    KEYWORD = 1
-    HARMFUL_LINK = 2
-    SPAM = 3
-    KEYWORD_PRESET = 4
-
-
-class AutoModKeywordPresetTypes(IntEnum):
-    PROFANITY = 1
-    SEXUAL_CONTENT = 2
-    SLURS = 3
-
-
-@define()
-class AutoModAction(DictSerializerMixin):
-    """
-    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
-    .. note::
-        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
-        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
-        ``AutoModerationAction``
-    .. note::
-        The metadata can be omitted depending on the action type.
-
-    :ivar int type: Action type.
-    :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
-    """
-
-    type: int = field()
-    metadata: Optional[AutoModMetaData] = field(
-        converter=AutoModMetaData, default=None)
-
-
-@define()
-class AutoModTriggerMetadata(DictSerializerMixin):
-    """
-    A class object used to represent the trigger metadata from the AutoMod rule object.
 
     @staticmethod
     def blurple() -> int:
@@ -338,22 +277,20 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     @staticmethod
     def white() -> int:
         """Returns a hexadecimal value of the white color."""
-        return cls(0xFFFFFF)
+        return 0xFFFFFF
 
     @staticmethod
     def black() -> int:
         """Returns a hexadecimal value of the black color."""
-        return cls(0x000000)
+        return 0x000000
 
 
 class File:
     """
     A File object to be sent as an attachment along with a message.
-
     If a fp is not given, this will try to open & send a local file at the location
     specified in the 'filename' parameter.
-
-    .. note: :
+    .. note::
         If a description is not given the file's basename is used instead.
     """
 
@@ -382,7 +319,6 @@ class File:
 class Image:
     """
     This class object allows you to upload Images to the Discord API.
-
     If a fp is not given, this will try to open & send a local file at the location
     specified in the 'file' parameter.
     """
@@ -437,11 +373,10 @@ class AllowedMentionType(str, Enum):
 class AllowedMentions(DictSerializerMixin):
     """
     A class object representing the allowed mentions object
-
-    : ivar parse?: Optional[List[AllowedMentionType]]: An array of allowed mention types to parse from the content.
-    : ivar users?: Optional[List[int]]: An array of user ids to mention.
-    : ivar roles?: Optional[List[int]]: An array of role ids to mention.
-    : ivar replied_user?: Optional[bool]: For replies, whether to mention the author of the message being replied to.
+    :ivar parse?: Optional[List[AllowedMentionType]]: An array of allowed mention types to parse from the content.
+    :ivar users?: Optional[List[int]]: An array of user ids to mention.
+    :ivar roles?: Optional[List[int]]: An array of role ids to mention.
+    :ivar replied_user?: Optional[bool]: For replies, whether to mention the author of the message being replied to.
     """
 
     parse: Optional[List[AllowedMentionType]] = field(
