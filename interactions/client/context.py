@@ -44,12 +44,15 @@ class _Context(ClientSerializerMixin):
     """
 
     client: HTTPClient = field(default=None)
-    message: Optional[Message] = field(converter=Message, default=None, add_client=True)
+    message: Optional[Message] = field(
+        converter=Message, default=None, add_client=True)
     author: Member = field(converter=Member, default=None, add_client=True)
     member: Member = field(converter=Member, add_client=True)
     user: User = field(converter=User, default=None, add_client=True)
-    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
-    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
+    channel: Optional[Channel] = field(
+        converter=Channel, default=None, add_client=True)
+    guild: Optional[Guild] = field(
+        converter=Guild, default=None, add_client=True)
     id: Snowflake = field(converter=Snowflake)
     application_id: Snowflake = field(converter=Snowflake)
     type: InteractionType = field(converter=InteractionType)
@@ -63,7 +66,8 @@ class _Context(ClientSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     responded: bool = field(default=False)
     deferred: bool = field(default=False)
-    app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
+    app_permissions: Permissions = field(
+        converter=convert_int(Permissions), default=None)
 
     def __attrs_post_init__(self) -> None:
         # backwards compatibility
@@ -82,7 +86,8 @@ class _Context(ClientSerializerMixin):
             self.guild = self._client.cache[Guild].get(self.guild_id, MISSING)
 
         if self.channel is None:
-            self.channel = self._client.cache[Channel].get(self.channel_id, MISSING)
+            self.channel = self._client.cache[Channel].get(
+                self.channel_id, MISSING)
 
     async def get_channel(self) -> Channel:
         """
@@ -117,7 +122,8 @@ class _Context(ClientSerializerMixin):
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+            Union[ActionRow, Button, SelectMenu,
+                  List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         ephemeral: Optional[bool] = False,
         suppress_embeds: bool = False,
@@ -218,7 +224,8 @@ class _Context(ClientSerializerMixin):
         allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
-            Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
+            Union[ActionRow, Button, SelectMenu,
+                  List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
     ) -> dict:
         """
@@ -242,27 +249,13 @@ class _Context(ClientSerializerMixin):
             if embeds is MISSING:
                 embeds = self.message.embeds
             _embeds: list = (
-                ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
+                ([embed._json for embed in embeds] if isinstance(
+                    embeds, list) else [embeds._json])
                 if embeds
                 else []
             )
 
             payload["embeds"] = _embeds
-
-        if self.message.attachments is not None or attachments is not MISSING:
-            if attachments is MISSING:
-                attachments = self.message.attachments
-            _attachments: list = (
-                (
-                    [attachment._json for attachment in attachments]
-                    if isinstance(attachments, list)
-                    else [attachments._json]
-                )
-                if attachments
-                else []
-            )
-
-            payload["attachments"] = _attachments
 
         if self.message.attachments is not None or attachments is not MISSING:
             if attachments is MISSING:
@@ -293,7 +286,8 @@ class _Context(ClientSerializerMixin):
 
         if self.message.components is not None or components is not MISSING:
             if components is MISSING:
-                _components = _build_components(components=self.message.components)
+                _components = _build_components(
+                    components=self.message.components)
             elif not components:
                 _components = []
             else:
@@ -425,7 +419,8 @@ class CommandContext(_Context):
                     )
                 except LibraryException as e:
                     if e.code in {10015, 10018}:
-                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                        log.warning(
+                            f"You can't edit hidden messages." f"({e.message}).")
                     else:
                         # if its not ephemeral or some other thing.
                         raise e from e
@@ -443,7 +438,8 @@ class CommandContext(_Context):
                     )
                 except LibraryException as e:
                     if e.code in {10015, 10018}:
-                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                        log.warning(
+                            f"You can't edit hidden messages." f"({e.message}).")
                     else:
                         # if its not ephemeral or some other thing.
                         raise e from e
@@ -456,7 +452,8 @@ class CommandContext(_Context):
                 )
             except LibraryException as e:
                 if e.code in {10015, 10018}:
-                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
+                    log.warning(
+                        f"You can't edit hidden messages." f"({e.message}).")
                 else:
                     # if its not ephemeral or some other thing.
                     raise e from e
@@ -483,7 +480,8 @@ class CommandContext(_Context):
             await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
-                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+                data={"type": self.callback.value,
+                      "data": {"flags": _ephemeral}},
             )
 
             self.responded = True
@@ -527,7 +525,8 @@ class CommandContext(_Context):
         return Message(
             **payload,
             _client=self._client,
-            author={"_client": self._client, "id": None, "username": None, "discriminator": None},
+            author={"_client": self._client, "id": None,
+                    "username": None, "discriminator": None},
         )
 
     async def delete(self) -> None:
@@ -574,7 +573,8 @@ class CommandContext(_Context):
             ):
                 _choices = [choice._json for choice in choices]
             elif all(
-                isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
+                isinstance(choice, dict) and all(isinstance(x, str)
+                                                 for x in choice)
                 for choice in choices
             ):
                 _choices = list(choices)
@@ -711,7 +711,8 @@ class ComponentContext(_Context):
             await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
-                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
+                data={"type": self.callback.value,
+                      "data": {"flags": _ephemeral}},
             )
 
             self.responded = True
