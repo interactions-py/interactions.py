@@ -2840,13 +2840,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
         Gets the invite using its code.
 
-        .. note:: with_expiration is currently broken, the API will always return expiration_date.
-
         :param invite_code: A string representing the invite code.
         :type invite_code: str
         :param with_counts?: Whether approximate_member_count and approximate_presence_count are returned.
         :type with_counts?: bool
-        :param with_expiration?: Whether the invite's expiration is returned.
+        :param with_expiration?: Whether the invite's expiration date is returned.
         :type with_expiration?: bool
         :param guild_scheduled_event_id?: A guild scheduled event's ID.
         :type guild_scheduled_event_id?: int
