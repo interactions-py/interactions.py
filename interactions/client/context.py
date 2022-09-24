@@ -739,7 +739,7 @@ class ComponentContext(_Context):
     @property
     def label(self) -> Optional[str]:
         """
-        The label of the interacted component.
+        The label of the interacted button.
         :rtype: Optional[str]
         """
         if not self.data.component_type == ComponentType.BUTTON:
