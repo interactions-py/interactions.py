@@ -1,0 +1,150 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../ext.base.rst:4
+msgid "Core Model"
+msgstr ""
+
+#: interactions.ext.base.Base:1 of
+msgid "A class representing the base structure of a 3rd party."
+msgstr ""
+
+#: interactions.ext.base.Base of
+msgid "Variables"
+msgstr ""
+
+#: interactions.ext.base.Base:3 of
+msgid "The version of the library."
+msgstr ""
+
+#: interactions.ext.base.Base:4 of
+msgid "The name of the library."
+msgstr ""
+
+#: interactions.ext.base.Base:5 of
+msgid "The description of the library."
+msgstr ""
+
+#: interactions.ext.base.Base:6 of
+msgid "The long description of the library."
+msgstr ""
+
+#: interactions.ext.base.Base:7 of
+msgid "The repository link or the library."
+msgstr ""
+
+#: interactions.ext.base.Base:8 of
+msgid "The packages of the library."
+msgstr ""
+
+#: interactions.ext.base.Base:9 of
+msgid "The modules in the library required."
+msgstr ""
+
+#: interactions.ext.base.Base:10 of
+msgid "The objects running under the service."
+msgstr ""
+
+#: interactions.ext.base.Base interactions.ext.base.Base._check_service
+#: interactions.ext.base.Base.add_service
+#: interactions.ext.base.Base.remove_service interactions.ext.base.build of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.ext.base.Base interactions.ext.base.Base._check_service
+#: interactions.ext.base.Base.add_service
+#: interactions.ext.base.Base.remove_service
+#: interactions.ext.base.Base.services interactions.ext.base.build of
+msgid "Return type"
+msgstr ""
+
+#: interactions.ext.base.Base._check_service:1 of
+msgid "Checks whether the service already exists within the list or not."
+msgstr ""
+
+#: interactions.ext.base.Base._check_service:3 of
+msgid "The name of the service to check."
+msgstr ""
+
+#: interactions.ext.base.Base._check_service
+#: interactions.ext.base.Base.add_service
+#: interactions.ext.base.Base.remove_service
+#: interactions.ext.base.Base.services of
+msgid "Returns"
+msgstr ""
+
+#: interactions.ext.base.Base._check_service:5 of
+msgid "Whether the service exists or not."
+msgstr ""
+
+#: interactions.ext.base.Base.add_service:1 of
+msgid ""
+"Adds a service to the 3rd party for ease of accessibility in calling. The"
+" code theory behind this is to simplify the way you handle and manage the"
+" calling of other objects, as well as accessing their information."
+msgstr ""
+
+#: interactions.ext.base.Base.add_service:5 of
+msgid "The object to add as a service."
+msgstr ""
+
+#: interactions.ext.base.Base.add_service:7 of
+msgid "The name of the object to map under."
+msgstr ""
+
+#: interactions.ext.base.Base.add_service:9 of
+msgid "The mapped relation between the object and name."
+msgstr ""
+
+#: interactions.ext.base.Base.remove_service:1 of
+msgid ""
+"Removes a service from the 3rd party in the event that it is no longer "
+"needed to be referred to for data."
+msgstr ""
+
+#: interactions.ext.base.Base.remove_service:4 of
+msgid "The name of the service to remove."
+msgstr ""
+
+#: interactions.ext.base.Base.remove_service:6 of
+msgid "If the service has been removed or not."
+msgstr ""
+
+#: interactions.ext.base.Base.remove_service of
+msgid "Raises"
+msgstr ""
+
+#: interactions.ext.base.Base.remove_service:8 of
+msgid "An unknown service in the base."
+msgstr ""
+
+#: interactions.ext.base.Base.services:1 of
+msgid ""
+"Returns a view on all of the services currently stored under the 3rd "
+"party."
+msgstr ""
+
+#: interactions.ext.base.Base.services:3 of
+msgid "A dictionary of objects sorted by their name."
+msgstr ""
+
+#: interactions.ext.base.build:1 of
+msgid "Builds the base 3rd party the same way as ``setup`` from ``setuptools``."
+msgstr ""

@@ -1,9 +1,16 @@
 from enum import IntEnum
-from typing import Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from .attrs_utils import MISSING, ClientSerializerMixin, define, field
-from .misc import File, Image, Snowflake
+from ...utils.attrs_utils import ClientSerializerMixin, define, field
+from ...utils.missing import MISSING
+from ..error import LibraryException
+from .misc import AllowedMentions, File, IDMixin, Image, Snowflake
 from .user import User
+
+if TYPE_CHECKING:
+    from ...client.models.component import ActionRow, Button, SelectMenu
+    from ..http import HTTPClient
+    from .message import Attachment, Embed, Message
 
 __all__ = (
     "Webhook",
@@ -18,7 +25,7 @@ class WebhookType(IntEnum):
 
 
 @define()
-class Webhook(ClientSerializerMixin):
+class Webhook(ClientSerializerMixin, IDMixin):
     """
     A class object representing a Webhook.
 
@@ -42,7 +49,7 @@ class Webhook(ClientSerializerMixin):
     channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     user: Optional[User] = field(converter=User, default=None, add_client=True)
     name: str = field()
-    avatar: str = field()
+    avatar: str = field(repr=False)
     token: Optional[str] = field(default=None)
     application_id: Snowflake = field(converter=Snowflake)
     source_guild: Optional[Any] = field(default=None)
@@ -68,7 +75,7 @@ class Webhook(ClientSerializerMixin):
     @classmethod
     async def create(
         cls,
-        client: "HTTPClient",  # noqa
+        client: "HTTPClient",
         channel_id: int,
         name: str,
         avatar: Optional[Image] = MISSING,
@@ -97,9 +104,9 @@ class Webhook(ClientSerializerMixin):
     @classmethod
     async def get(
         cls,
-        client: "HTTPClient",  # noqa
+        client: "HTTPClient",
         webhook_id: int,
-        webhook_token: Optional[str] = MISSING,  # noqa
+        webhook_token: Optional[str] = MISSING,
     ) -> "Webhook":
         """
         Gets an existing webhook.
@@ -125,7 +132,7 @@ class Webhook(ClientSerializerMixin):
         name: Optional[str] = MISSING,
         channel_id: int = MISSING,
         avatar: Optional[Image] = MISSING,
-    ) -> "Webhook":
+    ) -> "Webhook":  # sourcery skip: compare-via-equals
         """
         Modifies the current webhook.
 
@@ -140,10 +147,12 @@ class Webhook(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         if channel_id in (None, MISSING) and not self.token:
-            raise ValueError("no token was found, please specify a channel id!")
+            raise LibraryException(
+                message="no token was found, please specify a channel id!", code=12
+            )
 
         payload = {}
 
@@ -171,21 +180,22 @@ class Webhook(ClientSerializerMixin):
         username: Optional[str] = MISSING,
         avatar_url: Optional[str] = MISSING,
         tts: Optional[bool] = MISSING,
-        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,  # noqa
-        allowed_mentions: Any = MISSING,
+        embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
-    ) -> Optional["Message"]:  # noqa
+    ) -> Optional["Message"]:
         """
         Executes the webhook. All parameters to this function are optional.
 
@@ -200,10 +210,12 @@ class Webhook(ClientSerializerMixin):
         :type avatar_url: str
         :param tts: true if this is a TTS message
         :type tts: bool
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments?: Optional[List[Attachment]]
         :param embeds: embedded ``rich`` content
         :type embeds: Union[Embed, List[Embed]]
-        :param allowed_mentions: allowed mentions for the message
-        :type allowed_mentions: dict
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components: the components to include with the message
         :type components: Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         :param files: The files to attach to the message
@@ -215,20 +227,27 @@ class Webhook(ClientSerializerMixin):
         """
 
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         from ...client.models.component import _build_components
         from .message import Message
 
         _content: str = "" if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
-        # _attachments = [] if attachments else None
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
+
         _embeds: list = (
             []
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
 
         if not components or components is MISSING:
             _components = []
@@ -243,7 +262,9 @@ class Webhook(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        msg = Message(
+        _files.extend(_attachments)
+
+        payload: dict = dict(
             content=_content,
             tts=_tts,
             attachments=_files,
@@ -251,8 +272,6 @@ class Webhook(ClientSerializerMixin):
             components=_components,
             allowed_mentions=_allowed_mentions,
         )
-
-        payload = msg._json
 
         if username is not MISSING:
             payload["username"] = username
@@ -278,7 +297,7 @@ class Webhook(ClientSerializerMixin):
         Deletes the webhook.
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         await self._client.delete_webhook(webhook_id=int(self.id), webhook_token=self.token)
 

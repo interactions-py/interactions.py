@@ -3,6 +3,6 @@
 Event Context
 =============
 
-.. automodule:: interactions.context
+.. automodule:: interactions.client.context
     :members:
-    :noindex:
+    :inherited-members:

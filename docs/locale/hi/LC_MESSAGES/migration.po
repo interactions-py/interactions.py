@@ -1,0 +1,150 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../migration.rst:2
+msgid "Migration"
+msgstr ""
+
+#: ../../migration.rst:4
+msgid ""
+"This page aims to serve as a guide towards helping users understand any "
+"breaking or otherwise important design choices made between versions to "
+"guide towards easy migration between one another."
+msgstr ""
+
+#: ../../migration.rst:8
+msgid "4.0.1 → 4.0.2"
+msgstr ""
+
+#: ../../migration.rst:10
+msgid ""
+"The biggest major change between these two versions is the way "
+"``HTTPClient`` and modelled API schema objects are used. In ``4.0.2``, a "
+"new ``_client`` attribute is added in model objects in order to use "
+"helper methods. This will not be needed if you're working with dispatched"
+" events from the Gateway, however, manually generating your own model "
+"object for use will need it appended as a key-word argument. The example "
+"below shows this change:"
+msgstr ""
+
+#: ../../migration.rst:25
+msgid ""
+"This change was added in favor for being able to use endpoints in an "
+"abstracted state."
+msgstr ""
+
+#: ../../migration.rst:28
+msgid "4.0.2 → 4.1.0"
+msgstr ""
+
+#: ../../migration.rst:30
+msgid ""
+"``4.1.0`` introduces numerous breaking changes that affect the bot "
+"developers' ability to work with mainly modifying the way our Gateway "
+"processes information, as well as supplying a ``reason`` argument to "
+"``HTTPClient``-based methods."
+msgstr ""
+
+#: ../../migration.rst:33
+msgid ""
+"In this version, you are no longer required to give a ``reason`` for "
+"every HTTP request. You can instead send it as an optional, which will "
+"work to keep any existing modifications of our codebase from breaking."
+msgstr ""
+
+#: ../../migration.rst:36
+msgid ""
+"Additionally, modifying the way information is dispatched from the "
+"Gateway must be done like this now:"
+msgstr ""
+
+#: ../../migration.rst:49
+msgid ""
+"We recommend that working in correspondence with this, you should be "
+"making use of our ``interactions.ext`` SDK framework."
+msgstr ""
+
+#: ../../migration.rst:51
+msgid ""
+"A slight, yet another breaking change we made was dundering numerous "
+"attributes in our internal models. You will now need to refer to the "
+"client's HTTP object as ``_http`` instead of ``http``. In order to view "
+"the full list of these, we highly encourage you to view the documentation"
+" readily available."
+msgstr ""
+
+#: ../../migration.rst:55
+msgid ""
+"The last, and most major change is the introduction of the "
+"``MESSAGE_CONTENT`` privileged intent in the library. Because of "
+"``4.1.0`` using version 10 of the Discord API, this intent is now "
+"required for reading all message content. In order to make sure your bot "
+"works still, you will need to enable this intent in your bot's developer "
+"portal and add the intent to your current intents when connecting:"
+msgstr ""
+
+#: ../../migration.rst:67
+msgid "4.1.0 → 4.3.0"
+msgstr ""
+
+#: ../../migration.rst:69
+msgid ""
+"A new feature was added; an event called ``on_start``. Unlike "
+"``on_ready``, this event is only dispatched when the bot is first "
+"started."
+msgstr ""
+
+#: ../../migration.rst:72
+msgid "Instead of using the ``on_ready`` event and a check to only run code once:"
+msgstr ""
+
+#: ../../migration.rst:86
+msgid "You can now utilize the ``on_start`` event to achieve the same goal:"
+msgstr ""
+
+#: ../../migration.rst:96
+msgid ""
+"Another big change in this release is the implementation of the ``get`` "
+"utility method. It allows you to no longer use ``**await bot._http...``."
+msgstr ""
+
+#: ../../migration.rst:99
+msgid "You can get more information by reading the `get-documentation`_."
+msgstr ""
+
+#: ../../migration.rst:102
+msgid ""
+"``4.3.0`` also introduces a new method of creating commands, subcommands,"
+" and options. There are also numerous new features, such as a default "
+"scope and utilities."
+msgstr ""
+
+#: ../../migration.rst:105
+msgid ""
+"The following example shows and explains how to create commands "
+"effortlessly and use new features mentioned above:"
+msgstr ""
+
+#: ../../migration.rst:213
+msgid ""
+"Another change in ``4.3.0``: We added converters! These allow you name "
+"your argument in your function differently than your option name! "
+"Example:"
+msgstr ""

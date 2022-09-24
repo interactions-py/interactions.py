@@ -5,4 +5,3 @@ Core Model
 
 .. automodule:: interactions.ext.base
     :members:
-    :noindex:

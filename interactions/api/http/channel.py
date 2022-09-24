@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Union
 
-from ...api.cache import Cache, Item
+from ...api.cache import Cache
+from ..error import LibraryException
 from ..models.channel import Channel
 from ..models.message import Message
 from .request import _Request
@@ -10,7 +11,6 @@ __all__ = ("ChannelRequest",)
 
 
 class ChannelRequest:
-
     _req: _Request
     cache: Cache
 
@@ -25,7 +25,7 @@ class ChannelRequest:
         :return: Dictionary of the channel object.
         """
         request = await self._req.request(Route("GET", f"/channels/{channel_id}"))
-        self.cache.channels.add(Item(id=str(channel_id), value=Channel(**request, _client=self)))
+        self.cache[Channel].merge(Channel(**request, _client=self))
 
         return request
 
@@ -75,8 +75,9 @@ class ChannelRequest:
             params["around"] = around
 
         if params_used > 1:
-            raise ValueError(
-                "`before`, `after` and `around` are mutually exclusive. Please pass only one of them."
+            raise LibraryException(
+                message="`before`, `after` and `around` are mutually exclusive. Please pass only one of them.",
+                code=12,
             )
 
         request = await self._req.request(
@@ -86,7 +87,7 @@ class ChannelRequest:
         if isinstance(request, list):
             for message in request:
                 if message.get("id"):
-                    self.cache.messages.add(Item(id=message["id"], value=Message(**message)))
+                    self.cache[Message].merge(Message(**message, _client=self))
 
         return request
 
@@ -107,8 +108,6 @@ class ChannelRequest:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/channels"), json=payload, reason=reason
         )
-        if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=Channel(**request)))
 
         return request
 
@@ -308,3 +307,72 @@ class ChannelRequest:
         return await self._req.request(
             Route("DELETE", f"/stage-instances/{channel_id}"), reason=reason
         )
+
+    async def create_tag(
+        self,
+        channel_id: int,
+        name: str,
+        emoji_id: Optional[int] = None,
+        emoji_name: Optional[str] = None,
+    ) -> dict:
+        """
+        Create a new tag.
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param channel_id: Channel ID snowflake.
+        :param name: The name of the tag
+        :param emoji_id: The ID of the emoji to use for the tag
+        :param emoji_name: The name of the emoji to use for the tag
+        """
+
+        _dct = {"name": name}
+        if emoji_id:
+            _dct["emoji_id"] = emoji_id
+        if emoji_name:
+            _dct["emoji_name"] = emoji_name
+
+        return await self._req.request(Route("POST", f"/channels/{channel_id}/tags"), json=_dct)
+
+    async def edit_tag(
+        self,
+        channel_id: int,
+        tag_id: int,
+        name: str,
+        emoji_id: Optional[int] = None,
+        emoji_name: Optional[str] = None,
+    ) -> dict:
+        """
+        Update a tag.
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param channel_id: Channel ID snowflake.
+        :param tag_id: The ID of the tag to update.
+        :param name: The new name of the tag
+        :param emoji_id: The ID of the emoji to use for the tag
+        :param emoji_name: The name of the emoji to use for the tag
+        """
+
+        _dct = {"name": name}
+        if emoji_id:
+            _dct["emoji_id"] = emoji_id
+        if emoji_name:
+            _dct["emoji_name"] = emoji_name
+
+        return await self._req.request(
+            Route("PUT", f"/channels/{channel_id}/tags/{tag_id}"), json=_dct
+        )
+
+    async def delete_tag(self, channel_id: int, tag_id: int) -> None:  # wha?
+        """
+        Delete a forum tag.
+
+        :param channel_id: Channel ID snowflake.
+        :param tag_id: The ID of the tag to delete
+        """
+        return await self._req.request(Route("DELETE", f"/channels/{channel_id}/tags/{tag_id}"))

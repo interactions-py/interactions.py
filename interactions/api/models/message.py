@@ -1,24 +1,50 @@
+import contextlib
 from datetime import datetime
 from enum import IntEnum
-from typing import List, Optional, Union
+from io import BytesIO
+from typing import TYPE_CHECKING, List, Optional, Union
 
-from attrs import converters
-
-from ..error import JSONException
-from .attrs_utils import (
-    MISSING,
+from ...client.models.component import ActionRow, Button, SelectMenu
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
+    convert_type,
+    deepcopy_kwargs,
     define,
     field,
 )
+from ...utils.missing import MISSING
+from ..error import LibraryException
 from .channel import Channel
+from .emoji import Emoji
 from .member import Member
-from .misc import File, Snowflake
-from .role import Role
+from .misc import AllowedMentions, File, IDMixin, Snowflake
 from .team import Application
 from .user import User
+
+if TYPE_CHECKING:
+    from ..http import HTTPClient
+
+__all__ = (
+    "MessageType",
+    "Message",
+    "MessageReference",
+    "MessageActivity",
+    "MessageInteraction",
+    "ChannelMention",
+    "Embed",
+    "EmbedAuthor",
+    "EmbedProvider",
+    "EmbedImageStruct",
+    "EmbedField",
+    "Attachment",
+    "EmbedFooter",
+    "ReactionObject",
+    "PartialSticker",
+    "Sticker",
+    "StickerPack",
+)
 
 
 class MessageType(IntEnum):
@@ -47,6 +73,7 @@ class MessageType(IntEnum):
     THREAD_STARTER_MESSAGE = 21
     GUILD_INVITE_REMINDER = 22
     CONTEXT_MENU_COMMAND = 23
+    AUTO_MODERATION_ACTION = 24
 
 
 @define()
@@ -89,7 +116,7 @@ class MessageReference(DictSerializerMixin):
 
 
 @define()
-class Attachment(DictSerializerMixin):
+class Attachment(ClientSerializerMixin, IDMixin):
     """
     A class object representing an attachment in a message.
 
@@ -123,9 +150,25 @@ class Attachment(DictSerializerMixin):
     width: Optional[int] = field(default=None)
     ephemeral: Optional[bool] = field(default=None)
 
+    async def download(self) -> BytesIO:
+        """
+        Downloads the attachment.
+
+        :returns: The attachment's bytes as BytesIO object
+        :rtype: BytesIO
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        async with self._client._req._session.get(self.url) as response:
+            _bytes: bytes = await response.content.read()
+
+        return BytesIO(_bytes)
+
 
 @define()
-class MessageInteraction(ClientSerializerMixin):
+class MessageInteraction(ClientSerializerMixin, IDMixin):
     """
     A class object that resembles the interaction used to generate
     the associated message.
@@ -144,7 +187,7 @@ class MessageInteraction(ClientSerializerMixin):
 
 
 @define()
-class ChannelMention(DictSerializerMixin):
+class ChannelMention(DictSerializerMixin, IDMixin):
     """
     A class object that resembles the mention of a channel
     in a guild.
@@ -159,103 +202,6 @@ class ChannelMention(DictSerializerMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     type: int = field()  # Replace with enum from Channel Type, another PR
     name: str = field()
-
-
-@define()
-class Emoji(ClientSerializerMixin):
-    """
-    A class objecting representing an emoji.
-
-    :ivar Optional[Snowflake] id?: Emoji id
-    :ivar Optional[str] name?: Emoji name.
-    :ivar Optional[List[Role]] roles?: Roles allowed to use this emoji
-    :ivar Optional[User] user?: User that created this emoji
-    :ivar Optional[bool] require_colons?: Status denoting of this emoji must be wrapped in colons
-    :ivar Optional[bool] managed?: Status denoting if this emoji is managed (by an integration)
-    :ivar Optional[bool] animated?: Status denoting if this emoji is animated
-    :ivar Optional[bool] available?: Status denoting if this emoji can be used. (Can be false via server boosting)
-    """
-
-    id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    name: Optional[str] = field(default=None)
-    roles: Optional[List[Role]] = field(converter=convert_list(Role), default=None)
-    user: Optional[User] = field(converter=User, default=None)
-    require_colons: Optional[bool] = field(default=None)
-    managed: Optional[bool] = field(default=None)
-    animated: Optional[bool] = field(default=None)
-    available: Optional[bool] = field(default=None)
-
-    @classmethod
-    async def get(
-        cls,
-        guild_id: int,
-        emoji_id: int,
-        client: "HTTPClient",  # noqa
-    ) -> "Emoji":
-        """
-        Gets an emoji.
-
-        :param guild_id: The id of the guild of the emoji
-        :type guild_id: int
-        :param emoji_id: The id of the emoji
-        :type emoji_id: int
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
-        :return: The Emoji as object
-        :rtype: Emoji
-        """
-        res = await client.get_guild_emoji(guild_id=guild_id, emoji_id=emoji_id)
-        return cls(**res, _client=client)
-
-    @classmethod
-    async def get_all_of_guild(
-        cls,
-        guild_id: int,
-        client: "HTTPClient",  # noqa
-    ) -> List["Emoji"]:
-        """
-        Gets all emoji of a guild.
-
-        :param guild_id: The id of the guild to get the emojis of
-        :type guild_id: int
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
-        :return: The Emoji as list
-        :rtype: List[Emoji]
-        """
-        res = await client.get_all_emoji(guild_id=guild_id)
-        return [cls(**emoji, _client=client) for emoji in res]
-
-    async def delete(
-        self,
-        guild_id: int,
-        reason: Optional[str] = None,
-    ) -> None:
-        """
-        Deletes the emoji.
-
-        :param guild_id: The guild id to delete the emoji from
-        :type guild_id: int
-        :param reason?: The reason of the deletion
-        :type reason?: Optional[str]
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        return await self._client.delete_guild_emoji(
-            guild_id=guild_id, emoji_id=int(self.id), reason=reason
-        )
-
-    @property
-    def url(self) -> str:
-        """
-        Returns the emoji's URL.
-
-        :return: URL of the emoji
-        :rtype: str
-        """
-        url = f"https://cdn.discordapp.com/emojis/{self.id}"
-        url += ".gif" if self.animated else ".png"
-        return url
 
 
 @define()
@@ -279,9 +225,16 @@ class EmbedImageStruct(DictSerializerMixin):
     :ivar Optional[int] width?: Width of the object.
     """
 
+    url: str = field()
+    proxy_url: Optional[str] = field(default=None)
+    height: Optional[int] = field(default=None)
+    width: Optional[int] = field(default=None)
+
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -303,7 +256,9 @@ class EmbedProvider(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -337,7 +292,9 @@ class EmbedAuthor(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -369,7 +326,9 @@ class EmbedFooter(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -403,7 +362,9 @@ class EmbedField(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
                 self._json.update({key: value})
 
@@ -412,6 +373,7 @@ class EmbedField(DictSerializerMixin):
 
 
 @define()
+@deepcopy_kwargs()
 class Embed(DictSerializerMixin):
     """
     A class object representing an embed.
@@ -449,7 +411,9 @@ class Embed(DictSerializerMixin):
     type: Optional[str] = field(default=None)
     description: Optional[str] = field(default=None)
     url: Optional[str] = field(default=None)
-    timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
+    timestamp: Optional[datetime] = field(
+        converter=convert_type(datetime, classmethod="fromisoformat"), default=None
+    )
     color: Optional[int] = field(default=None)
     footer: Optional[EmbedFooter] = field(converter=EmbedFooter, default=None)
     image: Optional[EmbedImageStruct] = field(converter=EmbedImageStruct, default=None)
@@ -461,7 +425,8 @@ class Embed(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (
+
+        if key not in {"_json", "_extras"} and (
             key not in self._json
             or (
                 value != self._json.get(key)
@@ -508,28 +473,12 @@ class Embed(DictSerializerMixin):
         self.fields = []
 
     def insert_field_at(
-        self, index: int, name: str = None, value: str = None, inline: Optional[bool] = False
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
         """
         Inserts a field in the embed at the specified index
 
-        :param index: The new field's index
-        :type index: int
-        :param name: The name of the field
-        :type name: str
-        :param value: The value of the field
-        :type value: str
-        :param inline?: if the field is in the same line as the previous one
-        :type inline?: Optional[bool]
-        """
-
-    def set_field_at(
-        self, index: int, name: str, value: str, inline: Optional[bool] = False
-    ) -> None:
-        """
-        Overwrites the field in the embed at the specified index
-
-        :param index: The new field's index
+        :param index: The field's index to insert
         :type index: int
         :param name: The name of the field
         :type name: str
@@ -540,7 +489,33 @@ class Embed(DictSerializerMixin):
         """
 
         try:
-            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
+            fields = self.fields
+            fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+            self.fields = fields
+
+        except AttributeError as e:
+            raise AttributeError("No fields found in Embed") from e
+
+    def set_field_at(
+        self, index: int, name: str, value: str, inline: Optional[bool] = False
+    ) -> None:
+        """
+        Overwrites the field in the embed at the specified index
+
+        :param index: The field's index to overwrite
+        :type index: int
+        :param name: The name of the field
+        :type name: str
+        :param value: The value of the field
+        :type value: str
+        :param inline?: if the field is in the same line as the previous one
+        :type inline?: Optional[bool]
+        """
+
+        try:
+            fields = self.fields
+            fields[index] = EmbedField(name=name, value=value, inline=inline)
+            self.fields = fields
 
         except AttributeError as e:
             raise AttributeError("No fields found in Embed") from e
@@ -552,7 +527,7 @@ class Embed(DictSerializerMixin):
         """
         Remove field at the specified index
 
-        :param index: The new field's index
+        :param index: The field's index to remove
         :type index: int
         """
 
@@ -572,10 +547,8 @@ class Embed(DictSerializerMixin):
         Removes the embed's author
         """
 
-        try:
+        with contextlib.suppress(AttributeError):
             del self.author
-        except AttributeError:
-            pass
 
     def set_author(
         self,
@@ -685,7 +658,7 @@ class Embed(DictSerializerMixin):
 
 
 @define()
-class PartialSticker(DictSerializerMixin):
+class PartialSticker(DictSerializerMixin, IDMixin):
     """
     Partial object for a Sticker.
 
@@ -700,7 +673,7 @@ class PartialSticker(DictSerializerMixin):
 
 
 @define()
-class Sticker(PartialSticker):
+class Sticker(PartialSticker, IDMixin):
     """
     A class object representing a full sticker apart from a partial.
 
@@ -733,6 +706,29 @@ class Sticker(PartialSticker):
 
 
 @define()
+class StickerPack(DictSerializerMixin, IDMixin):
+    """
+    A class objects representing a pack of stickers.
+
+    :ivar Snowflake id: ID of the sticker pack.
+    :ivar List[Sticker] stickers: The stickers in the pack.
+    :ivar str name: The name of sticker pack.
+    :ivar Snowflake sku_id: ID of the pack's SKU.
+    :ivar Optional[Snowflake] cover_sticker_id?: ID of a sticker in the pack which is shown as the pack's icon.
+    :ivar str description: The description of sticker pack.
+    :ivar Optional[Snowflake] banned_asset_id?: ID of the sticker pack's banner image.
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    stickers: List[Sticker] = field(converter=convert_list(Sticker))
+    name: str = field()
+    sku_id: Snowflake = field(converter=Snowflake)
+    cover_sticker_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    description: str = field()
+    banned_asset_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+
+@define()
 class ReactionObject(DictSerializerMixin):
     """The reaction object.
 
@@ -747,7 +743,7 @@ class ReactionObject(DictSerializerMixin):
 
 
 @define()
-class Message(ClientSerializerMixin):
+class Message(ClientSerializerMixin, IDMixin):
     """
     A class object representing a message.
 
@@ -770,26 +766,24 @@ class Message(ClientSerializerMixin):
     :ivar Union[int, str] nonce: Used for message validation
     :ivar bool pinned: Whether this message is pinned.
     :ivar Optional[Snowflake] webhook_id?: Webhook ID if the message is generated by a webhook.
-    :ivar int type: Type of message
+    :ivar MessageType type: Type of message
     :ivar Optional[MessageActivity] activity?: Message activity object that's sent by Rich Presence
     :ivar Optional[Application] application?: Application object that's sent by Rich Presence
     :ivar Optional[MessageReference] message_reference?: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
-    :ivar Optional[Any] allowed_mentions: The allowed mentions of roles attached in the message.
     :ivar int flags: Message flags
     :ivar Optional[MessageInteraction] interaction?: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread?: The thread that started from this message, if any, with a thread member object embedded.
-    :ivar Optional[Union[Component, List[Component]]] components?: Components associated with this message, if any.
+    :ivar Optional[List[ActionRow]] components?: Array of Action Rows associated with this message, if any.
     :ivar Optional[List[PartialSticker]] sticker_items?: An array of message sticker item objects, if sent with them.
     :ivar Optional[List[Sticker]] stickers?: Array of sticker objects sent with the message if any. Deprecated.
+    :ivar Optional[int] position?: The approximate position of the message in a thread.
     """
 
     id: Snowflake = field(converter=Snowflake)
     channel_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     author: User = field(converter=User, add_client=True, default=None)
-    member: Optional[Member] = field(
-        converter=converters.optional(Member), default=None, add_client=True
-    )
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     content: str = field(default=None)
     timestamp: datetime = field(converter=datetime.fromisoformat, default=None)
     edited_timestamp: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
@@ -808,10 +802,10 @@ class Message(ClientSerializerMixin):
     reactions: Optional[List[ReactionObject]] = field(
         converter=convert_list(ReactionObject), default=None
     )
-    nonce: Optional[Union[int, str]] = field(default=None)
+    nonce: Optional[Union[int, str]] = field(default=None, repr=False)
     pinned: bool = field(default=None)
     webhook_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    type: int = field(default=None)
+    type: MessageType = field(converter=MessageType, default=None)
     activity: Optional[MessageActivity] = field(converter=MessageActivity, default=None)
     application: Optional[Application] = field(converter=Application, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -819,15 +813,23 @@ class Message(ClientSerializerMixin):
     flags: int = field(default=None)
     referenced_message: Optional[MessageReference] = field(converter=MessageReference, default=None)
     interaction: Optional[MessageInteraction] = field(
-        converter=MessageInteraction, default=None, add_client=True
+        converter=MessageInteraction, default=None, add_client=True, repr=False
     )
     thread: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
 
-    components: Optional[Union["Component", List["Component"]]] = field(default=None)  # noqa: F821
-    sticker_items: Optional[List[PartialSticker]] = field(converter=convert_list, default=None)
+    components: Optional[List["ActionRow"]] = field(converter=convert_list(ActionRow), default=None)
+    sticker_items: Optional[List[PartialSticker]] = field(
+        converter=convert_list(PartialSticker), default=None
+    )
     stickers: Optional[List[Sticker]] = field(
         converter=convert_list(Sticker), default=None
     )  # deprecated
+    position: Optional[int] = field(default=None, repr=False)
+
+    def __attrs_post_init__(self):
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
 
     async def get_channel(self) -> Channel:
         """
@@ -836,7 +838,7 @@ class Message(ClientSerializerMixin):
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.get_channel(channel_id=int(self.channel_id))
         return Channel(**res, _client=self._client)
 
@@ -847,7 +849,7 @@ class Message(ClientSerializerMixin):
         :rtype: Guild
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from .guild import Guild
 
         res = await self._client.get_guild(guild_id=int(self.guild_id))
@@ -861,7 +863,7 @@ class Message(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.delete_message(
             message_id=int(self.id), channel_id=int(self.channel_id), reason=reason
         )
@@ -874,16 +876,17 @@ class Message(ClientSerializerMixin):
         files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         suppress_embeds: Optional[bool] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
     ) -> "Message":
@@ -891,24 +894,28 @@ class Message(ClientSerializerMixin):
         This method edits a message. Only available for messages sent by the bot.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
+        :param suppress_embeds?: Whether to suppress embeds in the message.
+        :type suppress_embeds?: Optional[bool]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments?: Optional[List[Attachment]]
         :param components?: A component, or list of components for the message. If `[]` the components will be removed
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
         :return: The edited message as an object.
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         if self.flags == 64:
-            raise TypeError("You cannot edit a hidden message!")
+            raise LibraryException(message="You cannot edit a hidden message!", code=12)
         _flags = self.flags
         if suppress_embeds is not MISSING and suppress_embeds:
             _flags |= 1 << 2
@@ -920,13 +927,22 @@ class Message(ClientSerializerMixin):
         _content: str = self.content if content is MISSING else content
         _tts: bool = False if tts is MISSING else tts
 
+        if attachments is MISSING:
+            _attachments = [a._json for a in self.attachments]
+        elif not attachments:
+            _attachments = []
+        else:
+            _attachments = [a._json for a in attachments]
+
         if not files or files is MISSING:
-            _files = self.attachments
+            _files = []
         elif isinstance(files, list):
             _files = [file._json_payload(id) for id, file in enumerate(files)]
         else:
             _files = [files._json_payload(0)]
             files = [files]
+
+        _files.extend(_attachments)
 
         if embeds is MISSING:
             embeds = self.embeds
@@ -936,12 +952,18 @@ class Message(ClientSerializerMixin):
             else []
         )
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
         if not components:
             _components = []
         elif components is MISSING:
-            _components = self.components
+            _components = _build_components(components=self.components)
         else:
             _components = _build_components(components=components)
 
@@ -963,9 +985,6 @@ class Message(ClientSerializerMixin):
             files=files,
         )
 
-        if code := _dct.get("code"):
-            raise JSONException(code, message=_dct.get("message"))
-
         self.update(_dct)
 
         return self
@@ -977,38 +996,44 @@ class Message(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         embeds: Optional[Union["Embed", List["Embed"]]] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
-        allowed_mentions: Optional["MessageInteraction"] = MISSING,
+        attachments: Optional[List["Attachment"]] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
+        stickers: Optional[List["Sticker"]] = MISSING,
         components: Optional[
             Union[
-                "ActionRow",  # noqa
-                "Button",  # noqa
-                "SelectMenu",  # noqa
-                List["ActionRow"],  # noqa
-                List["Button"],  # noqa
-                List["SelectMenu"],  # noqa
+                "ActionRow",
+                "Button",
+                "SelectMenu",
+                List["ActionRow"],
+                List["Button"],
+                List["SelectMenu"],
             ]
         ] = MISSING,
-    ) -> "Message":
+    ) -> "Message":  # sourcery skip: dict-assign-update-to-union
         """
         Sends a new message replying to the old.
 
         :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
+        :type content?: Optional[str]
         :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
+        :type tts?: Optional[bool]
+        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :type attachments?: Optional[List[Attachment]]
         :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
+        :type files?: Optional[Union[File, List[File]]]
         :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
+        :type embeds?: Optional[Union[Embed, List[Embed]]]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
+        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :type stickers?: Optional[List[Sticker]]
         :return: The sent message as an object.
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         from ...client.models.component import _build_components
 
         _content: str = "" if content is MISSING else content
@@ -1020,9 +1045,15 @@ class Message(ClientSerializerMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference = MessageReference(message_id=int(self.id))._json
-
+        _attachments = [] if attachments is MISSING else [a._json for a in attachments]
         if not components or components is MISSING:
             _components = []
         else:
@@ -1036,7 +1067,11 @@ class Message(ClientSerializerMixin):
             _files = [files._json_payload(0)]
             files = [files]
 
-        # TODO: post-v4: Add attachments into Message obj.
+        _files.extend(_attachments)
+        _sticker_ids: list = (
+            [] if stickers is MISSING else [str(sticker.id) for sticker in stickers]
+        )
+
         payload = dict(
             content=_content,
             tts=_tts,
@@ -1045,6 +1080,7 @@ class Message(ClientSerializerMixin):
             message_reference=_message_reference,
             allowed_mentions=_allowed_mentions,
             components=_components,
+            sticker_ids=_sticker_ids,
         )
 
         res = await self._client.create_message(
@@ -1060,13 +1096,13 @@ class Message(ClientSerializerMixin):
     async def pin(self) -> None:
         """Pins the message to its channel"""
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.pin_message(channel_id=int(self.channel_id), message_id=int(self.id))
 
     async def unpin(self) -> None:
         """Unpins the message from its channel"""
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         await self._client.unpin_message(channel_id=int(self.channel_id), message_id=int(self.id))
 
     async def publish(self) -> "Message":
@@ -1076,7 +1112,7 @@ class Message(ClientSerializerMixin):
         :rtype: Message
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         res = await self._client.publish_message(
             channel_id=int(self.channel_id), message_id=int(self.id)
         )
@@ -1096,16 +1132,16 @@ class Message(ClientSerializerMixin):
         :type name: str
         :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
+        :type auto_archive_duration?: Optional[int]
         :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable: Optional[bool]
+        :type invitable?: Optional[bool]
         :param reason?: An optional reason for the audit log
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The created thread
         :rtype: Channel
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _auto_archive_duration = None if auto_archive_duration is MISSING else auto_archive_duration
         _invitable = None if invitable is MISSING else invitable
         res = await self._client.create_thread(
@@ -1129,10 +1165,10 @@ class Message(ClientSerializerMixin):
         :type emoji: Union[str, Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1146,7 +1182,7 @@ class Message(ClientSerializerMixin):
         Removes all reactions of the message.
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         return await self._client.remove_all_reactions(
             channel_id=int(self.channel_id), message_id=int(self.id)
@@ -1163,10 +1199,10 @@ class Message(ClientSerializerMixin):
         :type emoji: Union[str, Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1186,10 +1222,10 @@ class Message(ClientSerializerMixin):
         :type emoji: Union[str, Emoji]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
 
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
@@ -1210,18 +1246,65 @@ class Message(ClientSerializerMixin):
         :type user: Union[Member, user, int]
         """
         _emoji = (
-            f":{emoji.name.replace(':', '')}:{emoji.id or ''}"
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
+            if isinstance(emoji, Emoji)
+            else emoji
+        )
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _user_id = user if isinstance(user, (int, Snowflake)) else user.id
+        return await self._client.remove_user_reaction(
+            channel_id=int(self.channel_id),
+            message_id=int(self.id),
+            user_id=int(_user_id),
+            emoji=_emoji,
+        )
+
+    async def get_users_from_reaction(
+        self,
+        emoji: Union[str, "Emoji"],
+    ) -> List[User]:
+        """
+        Retrieves all users that reacted to the message with the given emoji
+
+        :param emoji: The Emoji as object or formatted as `name:id`
+        :type emoji: Union[str, Emoji]
+        :return: A list of user objects
+        :rtype: List[User]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _all_users: List[User] = []
+
+        _emoji = (
+            (f":{emoji.name.replace(':', '')}:{emoji.id or ''}" if emoji.id else emoji.name)
             if isinstance(emoji, Emoji)
             else emoji
         )
 
-        _user_id = user if isinstance(user, int) else user.id
-        return await self._client.remove_user_reaction(
-            channel_id=int(self.channel_id), message_id=int(self.id), user_id=_user_id, emoji=_emoji
+        res: List[dict] = await self._client.get_reactions_of_emoji(
+            channel_id=int(self.channel_id), message_id=int(self.id), emoji=_emoji, limit=100
         )
 
+        while len(res) == 100:
+            _after = int(res[-1]["id"])
+            _all_users.extend(User(**_) for _ in res)
+            res: List[dict] = await self._client.get_reactions_of_emoji(
+                channel_id=int(self.channel_id),
+                message_id=int(self.id),
+                emoji=_emoji,
+                limit=100,
+                after=_after,
+            )
+
+        _all_users.extend(User(**_) for _ in res)
+
+        return _all_users
+
     @classmethod
-    async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":  # noqa,
+    async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":
         """
         Gets a Message based from its url.
 
@@ -1234,7 +1317,7 @@ class Message(ClientSerializerMixin):
         """
 
         if "channels/" not in url:
-            raise ValueError("You provided an invalid URL!")  # TODO: custom error formatter
+            raise LibraryException(message="You provided an invalid URL!", code=12)
         _, _channel_id, _message_id = url.split("channels/")[1].split("/")
         _message = await client.get_message(
             channel_id=_channel_id,
@@ -1252,3 +1335,29 @@ class Message(ClientSerializerMixin):
         """
         guild = self.guild_id or "@me"
         return f"https://discord.com/channels/{guild}/{self.channel_id}/{self.id}"
+
+    async def disable_all_components(self) -> "Message":
+        """
+        Sets all components to disabled on this message.
+
+        :return: The modified message.
+        :rtype: Message
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if not self.components:
+            return self
+
+        for components in self.components:
+            for component in components.components:
+                component.disabled = True
+
+        return Message(
+            **await self._client.edit_message(
+                int(self.channel_id),
+                int(self.id),
+                payload={"components": [component._json for component in self.components]},
+            ),
+            _client=self._client,
+        )

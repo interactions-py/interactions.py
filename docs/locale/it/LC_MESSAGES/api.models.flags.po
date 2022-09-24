@@ -1,0 +1,94 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.models.flags.rst:4
+msgid "Flag Bitshift Models"
+msgstr ""
+
+#: interactions.api.models.flags.Intents:1 of
+msgid ""
+"An integer flag bitshift object representing flags respective for each "
+"gateway intent type."
+msgstr ""
+
+#: interactions.api.models.flags.AppFlags interactions.api.models.flags.Intents
+#: interactions.api.models.flags.Permissions
+#: interactions.api.models.flags.StatusType
+#: interactions.api.models.flags.UserFlags of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.flags.AppFlags:1
+#: interactions.api.models.flags.Intents:1
+#: interactions.api.models.flags.Permissions:1
+#: interactions.api.models.flags.UserFlags:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.flags.AppFlags:1
+#: interactions.api.models.flags.Intents:1
+#: interactions.api.models.flags.Permissions:1
+#: interactions.api.models.flags.StatusType:1
+#: interactions.api.models.flags.UserFlags:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.api.models.flags.AppFlags:1 of
+msgid ""
+"An integer flag bitshift object representing the different application "
+"flags given by Discord."
+msgstr ""
+
+#: interactions.api.models.flags.StatusType:1 of
+msgid ""
+"An enumerable object representing Discord status icons that a user may "
+"have."
+msgstr ""
+
+#: interactions.api.models.flags.StatusType:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.api.models.flags.StatusType:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
+msgstr ""
+
+#: enum.Enum._generate_next_value_:1 of
+msgid "Generate the next value when not given."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:3 of
+msgid ""
+"name: the name of the member start: the initial start value or None "
+"count: the number of existing members last_value: the last value assigned"
+" or None"
+msgstr ""
+
+#: interactions.api.models.flags.UserFlags:1 of
+msgid ""
+"An integer flag bitshift object representing the different user flags "
+"given by Discord."
+msgstr ""
+
+#: interactions.api.models.flags.Permissions:1 of
+msgid ""
+"An integer flag bitshift object representing the different member "
+"permissions given by Discord."
+msgstr ""

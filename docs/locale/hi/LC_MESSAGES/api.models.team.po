@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2021, goverfl0w
-# This file is distributed under the same license as the
-# discord-interactions package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: discord-interactions 4.0\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-25 12:17-0400\n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,4 +20,166 @@ msgstr ""
 
 #: ../../api.models.team.rst:4
 msgid "Team Models"
+msgstr ""
+
+#: interactions.api.models.team.Team:1 of
+msgid "A class object representing a team."
+msgstr ""
+
+#: interactions.api.models.team.Application interactions.api.models.team.Team
+#: interactions.api.models.team.TeamMember of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.team.Team:3 of
+msgid "The hash of the team's icon"
+msgstr ""
+
+#: interactions.api.models.team.Team:4 of
+msgid "The team's unique ID"
+msgstr ""
+
+#: interactions.api.models.team.Team:5 of
+msgid "The members of the team"
+msgstr ""
+
+#: interactions.api.models.team.Team:6 of
+msgid "The team name"
+msgstr ""
+
+#: interactions.api.models.team.Team:7 of
+msgid "The User ID of the current team owner"
+msgstr ""
+
+#: interactions.api.models.team.Application interactions.api.models.team.Team
+#: interactions.api.models.team.TeamMember of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:1 of
+msgid "A class object representing the member of a team."
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:4 of
+msgid ""
+"The membership state is either a 1 for invited, or 2 for accepted. At the"
+" moment, permissions will always be [\"*\"]."
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:7 of
+msgid "The user's membership state on the team"
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:8 of
+msgid "Team Member permissions"
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:9 of
+msgid "ID of the team that they're a member of."
+msgstr ""
+
+#: interactions.api.models.team.TeamMember:10 of
+msgid "The user object."
+msgstr ""
+
+#: interactions.api.models.team.Application:1 of
+msgid "A class object representing an application."
+msgstr ""
+
+#: interactions.api.models.team.Application:4 of
+msgid "``type`` and ``hook`` are currently undocumented in the API."
+msgstr ""
+
+#: interactions.api.models.team.Application:6 of
+msgid "Application ID"
+msgstr ""
+
+#: interactions.api.models.team.Application:7 of
+msgid "Application Name"
+msgstr ""
+
+#: interactions.api.models.team.Application:8 of
+msgid "Icon hash of the application"
+msgstr ""
+
+#: interactions.api.models.team.Application:9 of
+msgid "Application Description"
+msgstr ""
+
+#: interactions.api.models.team.Application:10 of
+msgid "An array of rpc origin urls, if RPC is used."
+msgstr ""
+
+#: interactions.api.models.team.Application:11 of
+msgid "A status denoting if anyone can invite the bot to guilds"
+msgstr ""
+
+#: interactions.api.models.team.Application:12 of
+msgid ""
+"A status denoting whether full Oauth2 is required for the app's bot to "
+"join a guild"
+msgstr ""
+
+#: interactions.api.models.team.Application:13 of
+msgid "URL of the app's Terms of Service"
+msgstr ""
+
+#: interactions.api.models.team.Application:14 of
+msgid "URL of the app's Privacy Policy"
+msgstr ""
+
+#: interactions.api.models.team.Application:15 of
+msgid "User object of the owner"
+msgstr ""
+
+#: interactions.api.models.team.Application:16 of
+msgid "Summary of the store page, if this application is a game sold on Discord"
+msgstr ""
+
+#: interactions.api.models.team.Application:17 of
+msgid ""
+"Hex encoded key for verification in interactions and/or the GameSDK's "
+"GetTicket"
+msgstr ""
+
+#: interactions.api.models.team.Application:18 of
+msgid "A list of team members, if this app belongs to a team."
+msgstr ""
+
+#: interactions.api.models.team.Application:19 of
+msgid "Guild ID linked, if this app is a game sold on Discord"
+msgstr ""
+
+#: interactions.api.models.team.Application:20 of
+msgid "Game SKU ID, if this app is a game sold on Discord"
+msgstr ""
+
+#: interactions.api.models.team.Application:21 of
+msgid ""
+"URL slug that links to the store page, if this app is a game sold on "
+"Discord"
+msgstr ""
+
+#: interactions.api.models.team.Application:22 of
+msgid "The app's default rich presence invite cover image"
+msgstr ""
+
+#: interactions.api.models.team.Application:23 of
+msgid "The application's public flags"
+msgstr ""
+
+#: interactions.api.models.team.Application.icon_url:1 of
+msgid "Returns the URL of the application's icon"
+msgstr ""
+
+#: interactions.api.models.team.Application.icon_url of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.models.team.Application.icon_url:3 of
+msgid "URL of the application's icon."
+msgstr ""
+
+#: interactions.api.models.team.Application.icon_url of
+msgid "Return type"
 msgstr ""

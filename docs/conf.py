@@ -33,12 +33,18 @@ version = ".".join(__version__.split(".", 2)[:2])
 autosectionlabel_prefix_document = True
 hoverxref_auto_ref = True
 hoverxref_sphinxtabs = True
+
+
+# descriptions of the relevant function/method.
+autodoc_typehints = "description"
+
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
     "hoverxref.extension",
-    "karma_sphinx_theme",
+    "sphinx_copybutton",
+    "enum_tools.autoenum",
 ]
 
 # Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
@@ -57,7 +63,11 @@ templates_path = ["_templates"]
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = "de"
+
+# Language is commented out because of PR reviews. In a RTD-hosted case,
+# the variable seems to be skipped.
+# language = "de"
+
 locale_dirs = ["locale/"]
 gettext_compact = True
 
@@ -66,15 +76,16 @@ gettext_compact = True
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build"]
 
-# This should fix wrong sort
-autodoc_member_order = "bysource"
+# This autodocs private attrs and also fixes wrong sort
+autodoc_default_options = {"member-order": "bysource", "private-members": True}
+
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "karma_sphinx_theme"
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

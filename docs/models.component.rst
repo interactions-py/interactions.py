@@ -3,6 +3,5 @@
 Component Models
 ================
 
-.. automodule:: interactions.models.component
+.. automodule:: interactions.client.models.component
     :members:
-    :noindex:

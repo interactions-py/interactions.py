@@ -1,0 +1,200 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../ext.version.rst:4
+msgid "Versioning Models"
+msgstr ""
+
+#: interactions.ext.version.VersionAuthor:1 of
+msgid "A class representing the author involved in a version."
+msgstr ""
+
+#: interactions.ext.version.Version interactions.ext.version.VersionAuthor of
+msgid "Variables"
+msgstr ""
+
+#: interactions.ext.version.VersionAuthor:3 of
+msgid "The hashed representation of the class."
+msgstr ""
+
+#: interactions.ext.version.VersionAuthor:4 of
+msgid "Whether this is a co-author or not."
+msgstr ""
+
+#: interactions.ext.version.VersionAuthor:5 of
+msgid "Whether the author is active or not."
+msgstr ""
+
+#: interactions.ext.version.VersionAuthor:6 of
+msgid "The email of the author."
+msgstr ""
+
+#: interactions.ext.version.VersionAuthor:7 of
+msgid "The name of the author."
+msgstr ""
+
+#: interactions.ext.version.Version.extend_version
+#: interactions.ext.version.VersionAuthor of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.ext.version.Version interactions.ext.version.Version.author
+#: interactions.ext.version.Version.authors
+#: interactions.ext.version.Version.extend_version
+#: interactions.ext.version.VersionAuthor of
+msgid "Return type"
+msgstr ""
+
+#: interactions.ext.version.VersionAuthor.is_co_author:1 of
+msgid "Returns whether the author is a co-author or not."
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid "An enumeration."
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.ext.version.VersionAlphanumericType:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
+msgstr ""
+
+#: enum.Enum._generate_next_value_:1 of
+msgid "Generate the next value when not given."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:3 of
+msgid ""
+"name: the name of the member start: the initial start value or None "
+"count: the number of existing members last_value: the last value assigned"
+" or None"
+msgstr ""
+
+#: interactions.ext.version.Version:1 of
+msgid "A class representing how a version is structured for a 3rd party library."
+msgstr ""
+
+#: interactions.ext.version.Version:4 of
+msgid ""
+"This class respects the design and application of Semantic Versioning "
+"2.0.0, (SemVer) a widely accepted standardisation of version control for "
+"modules and projects."
+msgstr ""
+
+#: interactions.ext.version.Version:8 of
+msgid "The major version."
+msgstr ""
+
+#: interactions.ext.version.Version:9 of
+msgid "The minor version."
+msgstr ""
+
+#: interactions.ext.version.Version:10 of
+msgid "The patch version."
+msgstr ""
+
+#: interactions.ext.version.Version:11 of
+msgid "The authors tied to the version release."
+msgstr ""
+
+#: interactions.ext.version.Version:12 of
+msgid "The representation of the version."
+msgstr ""
+
+#: interactions.ext.version.Version:13 of
+msgid "The alphanumeric typing of the version."
+msgstr ""
+
+#: interactions.ext.version.Version.major:1 of
+msgid "Returns the major version."
+msgstr ""
+
+#: interactions.ext.version.Version.minor:1 of
+msgid "Returns the minor version."
+msgstr ""
+
+#: interactions.ext.version.Version.patch:1 of
+msgid "Returns the patch version."
+msgstr ""
+
+#: interactions.ext.version.Version.author:1 of
+msgid ""
+"Returns the author of the version. If multiple authors exist, it will "
+"choose the only one that is not a co-author."
+msgstr ""
+
+#: interactions.ext.version.Version.author
+#: interactions.ext.version.Version.authors
+#: interactions.ext.version.Version.extend_version of
+msgid "Returns"
+msgstr ""
+
+#: interactions.ext.version.Version.author:4 of
+msgid "The author of the version, if one exists."
+msgstr ""
+
+#: interactions.ext.version.Version.author
+#: interactions.ext.version.Version.extend_version of
+msgid "Raises"
+msgstr ""
+
+#: interactions.ext.version.Version.author:6 of
+msgid "Too many main authors were found."
+msgstr ""
+
+#: interactions.ext.version.Version.authors:1 of
+msgid "Returns the list of authors under the version."
+msgstr ""
+
+#: interactions.ext.version.Version.authors:3 of
+msgid "The authors of the version, if any exist."
+msgstr ""
+
+#: interactions.ext.version.Version.is_alphanumeric:1 of
+msgid "Returns whether the version is alphanumeric or not."
+msgstr ""
+
+#: interactions.ext.version.Version.extend_version:1 of
+msgid "Allows the version to be extended upon with an alphanumeric format."
+msgstr ""
+
+#: interactions.ext.version.Version.extend_version:3 of
+msgid ""
+"Key-word arguments to be supplied as ``alpha``, ``beta`` or ``rc`` "
+"respectively."
+msgstr ""
+
+#: interactions.ext.version.Version.extend_version:5 of
+msgid "The new version with the alphanumeric."
+msgstr ""
+
+#: interactions.ext.version.Version.extend_version:7 of
+msgid "The alphanumeric version was incorrectly formatted."
+msgstr ""

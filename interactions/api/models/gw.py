@@ -1,9 +1,7 @@
 from datetime import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
-from ...client.models.component import ActionRow, Button, SelectMenu, _build_components
-from .attrs_utils import (
-    MISSING,
+from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
     convert_list,
@@ -11,23 +9,34 @@ from .attrs_utils import (
     field,
 )
 from .channel import Channel, ThreadMember
+from .emoji import Emoji
 from .guild import EventMetadata
 from .member import Member
-from .message import Embed, Emoji, Message, MessageInteraction, Sticker
-from .misc import ClientStatus, File, Snowflake
+from .message import Sticker
+from .misc import (
+    AutoModAction,
+    AutoModTriggerMetadata,
+    AutoModTriggerType,
+    ClientStatus,
+    IDMixin,
+    Snowflake,
+)
 from .presence import PresenceActivity
 from .role import Role
 from .team import Application
 from .user import User
 
 __all__ = (
+    "AutoModerationAction",
+    "AutoModerationRule",
     "ApplicationCommandPermissions",
     "EmbeddedActivity",
     "Integration",
     "ChannelPins",
     "ThreadMembers",
     "ThreadList",
-    "ReactionRemove",
+    "MessageDelete",
+    "MessageReactionRemove",
     "MessageReaction",
     "GuildIntegrations",
     "GuildBan",
@@ -45,7 +54,73 @@ __all__ = (
 
 
 @define()
-class ApplicationCommandPermissions(ClientSerializerMixin):
+class AutoModerationAction(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``AUTO_MODERATION_ACTION_EXECUTION``.
+
+    :ivar Snowflake guild_id: The ID of the guild in which the action was executed.
+    :ivar AutoModAction action: The action which was executed.
+    :ivar Snowflake rule_id: The rule ID that the action belongs to.
+    :ivar int rule_trigger_type: The trigger rule type.
+    :ivar Optional[Snowflake] channel_id: The id of the channel in which user content was posted.
+    :ivar Optional[Snowflake] message_id: The id of any user message which content belongs to.
+    :ivar Optional[Snowflake] alert_system_message_id: The id of any system automoderation messages posted as a result of this action.
+    :ivar str content: The user-generated text content in question.
+    :ivar Optional[str] matched_keyword: The word/phrase configured in rule that triggered rule.
+    :ivar Optional[str] matched_content: The substring in content that triggered rule.
+    """
+
+    guild_id: Snowflake = field(converter=Snowflake)
+    action: AutoModAction = field(converter=AutoModAction)
+    rule_id: Snowflake = field(converter=Snowflake)
+    rule_trigger_type: int = field()
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    alert_system_message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    content: str = field()
+    matched_keyword: Optional[str] = field(default=None)
+    matched_content: Optional[str] = field(default=None)
+
+
+@define()
+class AutoModerationRule(DictSerializerMixin, IDMixin):
+    """
+    A class object representing the gateway events ``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and ``AUTO_MODERATION_RULE_DELETE``
+
+    .. note::
+        This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
+
+    .. note::
+        ``event_type`` at the moment is only ``1``, which represents message sending.
+
+    :ivar Snowflake id: The ID of the rule.
+    :ivar Snowflake guild_id: The guild ID associated with the rule.
+    :ivar str name: The rule name.
+    :ivar Snowflake creator_id: The user ID that first created this rule.
+    :ivar int event_type: The rule type in which automod checks.
+    :ivar int trigger_type: The automod type. It characterises what type of information that is checked.
+    :ivar Dict[str, List[str]] trigger_metadata: Additional data needed to figure out whether this rule should be triggered.
+    :ivar List[AutoModerationAction] actions: The actions that will be executed when the rule is triggered.
+    :ivar bool enabled: Whether the rule is enabled.
+    :ivar List[Snowflake] exempt_roles: The role IDs that should not be affected by this rule. (Max 20)
+    :ivar List[Snowflake] exempt_channels: The channel IDs that should not be affected by this rule. (Max 20)
+    """
+
+    id: Snowflake = field(converter=Snowflake)
+    guild_id: Snowflake = field(converter=Snowflake)
+    name: str = field()
+    creator_id: Snowflake = field(converter=Snowflake)
+    event_type: int = field()
+    trigger_type: int = field(converter=AutoModTriggerType)
+    trigger_metadata: AutoModTriggerMetadata = field(converter=AutoModTriggerMetadata)
+    actions: List[AutoModAction] = field(converter=convert_list(AutoModAction))
+    enabled: bool = field()
+    exempt_roles: List[Snowflake] = field(converter=convert_list(Snowflake))
+    exempt_channels: List[Snowflake] = field(converter=convert_list(Snowflake))
+
+
+@define()
+class ApplicationCommandPermissions(ClientSerializerMixin, IDMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
 
@@ -60,7 +135,9 @@ class ApplicationCommandPermissions(ClientSerializerMixin):
     application_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
     id: Snowflake = field(converter=Snowflake)
-    # permissions: List[Permission] = field(converter=convert_list(Permission))  # TODO fix circular import
+    # from ...client.models.command import Permission
+
+    # permissions: List[Permission] = field(converter=convert_list(Permission))
     permissions = field()
 
 
@@ -153,308 +230,30 @@ class GuildJoinRequest(DictSerializerMixin):
 
 
 @define()
-class GuildMember(ClientSerializerMixin):
+class GuildMember(Member):
     """
     A class object representing the gateway events ``GUILD_MEMBER_ADD``, ``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``.
 
-    :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Optional[List[Role]] roles?: The roles of the event.
-    :ivar Optional[User] user?: The user of the event.
-    :ivar Optional[str] nick?: The nickname of the user of the event.
-    :ivar Optional[str] avatar?: The avatar URL of the user of the event.
-    :ivar Optional[datetime] joined_at?: The time that the user of the event joined at.
-    :ivar Optional[datetime] premium_since?: The time that the user of the event has since had "premium."
-    :ivar Optional[bool] deaf?: Whether the member of the event is deafened or not.
-    :ivar Optional[bool] mute?: Whether the member of the event is muted or not.
-    :ivar Optional[bool] pending?: Whether the member of the event is still pending -- pass membership screening -- or not.
+    .. note::
+        ``pending`` and ``permissions`` only apply for members retroactively
+        requiring to verify rules via. membership screening or lack permissions
+        to speak.
+
+    :ivar Snowflake guild_id: The guild ID.
+    :ivar User user: The user of the guild.
+    :ivar str nick: The nickname of the member.
+    :ivar Optional[str] avatar?: The hash containing the user's guild avatar, if applicable.
+    :ivar List[int] roles: The list of roles of the member.
+    :ivar datetime joined_at: The timestamp the member joined the guild at.
+    :ivar datetime premium_since: The timestamp the member has been a server booster since.
+    :ivar bool deaf: Whether the member is deafened.
+    :ivar bool mute: Whether the member is muted.
+    :ivar Optional[bool] pending?: Whether the member is pending to pass membership screening.
+    :ivar Optional[Permissions] permissions?: Whether the member has permissions.
+    :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
     """
 
-    guild_id: Snowflake = field(converter=Snowflake)
-    roles: Optional[List[str]] = field(default=None)
-    user: Optional[User] = field(converter=User, default=None, add_client=True)
-    nick: Optional[str] = field(default=None)
-    avatar: Optional[str] = field(default=None)
-    joined_at: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
-    premium_since: Optional[datetime] = field(converter=datetime.fromisoformat, default=None)
-    deaf: Optional[bool] = field(default=None)
-    mute: Optional[bool] = field(default=None)
-    pending: Optional[bool] = field(default=None)
-
-    @property
-    def id(self) -> Snowflake:
-        """
-        Returns the ID of the user.
-
-        :return: The ID of the user
-        :rtype: Snowflake
-        """
-        return self.user.id if self.user else None
-
-    @property
-    def mention(self) -> str:
-        """
-        Returns a string that allows you to mention the given member.
-
-        :return: The string of the mentioned member.
-        :rtype: str
-        """
-        return f"<@!{self.user.id}>" if self.nick else f"<@{self.user.id}>"
-
-    async def ban(
-        self,
-        reason: Optional[str] = None,
-        delete_message_days: Optional[int] = 0,
-    ) -> None:
-        """
-        Bans the member from a guild.
-
-        :param reason?: The reason of the ban
-        :type reason: Optional[str]
-        :param delete_message_days?: Number of days to delete messages, from 0 to 7. Defaults to 0
-        :type delete_message_days: Optional[int]
-        """
-        await self._client.create_guild_ban(
-            guild_id=int(self.guild_id),
-            user_id=int(self.user.id),
-            reason=reason,
-            delete_message_days=delete_message_days,
-        )
-
-    async def kick(
-        self,
-        reason: Optional[str] = None,
-    ) -> None:
-        """
-        Kicks the member from a guild.
-
-        :param reason?: The reason for the kick
-        :type reason: Optional[str]
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        await self._client.create_guild_kick(
-            guild_id=int(self.guild_id),
-            user_id=int(self.user.id),
-            reason=reason,
-        )
-
-    async def add_role(
-        self,
-        role: Union[Role, int],
-        reason: Optional[str],
-    ) -> None:
-        """
-        This method adds a role to a member.
-
-        :param role: The role to add. Either ``Role`` object or role_id
-        :type role: Union[Role, int]
-        :param reason?: The reason why the roles are added
-        :type reason: Optional[str]
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        if isinstance(role, Role):
-            await self._client.add_member_role(
-                guild_id=int(self.guild_id),
-                user_id=int(self.user.id),
-                role_id=int(role.id),
-                reason=reason,
-            )
-        else:
-            await self._client.add_member_role(
-                guild_id=int(self.guild_id),
-                user_id=int(self.user.id),
-                role_id=role,
-                reason=reason,
-            )
-
-    async def remove_role(
-        self,
-        role: Union[Role, int],
-        reason: Optional[str],
-    ) -> None:
-        """
-        This method removes a role from a member.
-
-        :param role: The role to remove. Either ``Role`` object or role_id
-        :type role: Union[Role, int]
-        :param reason?: The reason why the roles are removed
-        :type reason: Optional[str]
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        if isinstance(role, Role):
-            await self._client.remove_member_role(
-                guild_id=int(self.guild_id),
-                user_id=int(self.user.id),
-                role_id=int(role.id),
-                reason=reason,
-            )
-        else:
-            await self._client.remove_member_role(
-                guild_id=int(self.guild_id),
-                user_id=int(self.user.id),
-                role_id=role,
-                reason=reason,
-            )
-
-    async def send(
-        self,
-        content: Optional[str] = MISSING,
-        *,
-        components: Optional[
-            Union[
-                ActionRow,
-                Button,
-                SelectMenu,
-                List[ActionRow],
-                List[Button],
-                List[SelectMenu],
-            ]
-        ] = MISSING,
-        tts: Optional[bool] = MISSING,
-        files: Optional[Union[File, List[File]]] = MISSING,
-        embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
-    ) -> Message:
-        """
-        Sends a DM to the member.
-
-        :param content?: The contents of the message as a string or string-converted value.
-        :type content: Optional[str]
-        :param components?: A component, or list of components for the message.
-        :type components: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
-        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts: Optional[bool]
-        :param files?: A file or list of files to be attached to the message.
-        :type files: Optional[Union[File, List[File]]]
-        :param embeds?: An embed, or list of embeds for the message.
-        :type embeds: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions: Optional[MessageInteraction]
-        :return: The sent message as an object.
-        :rtype: Message
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-
-        _content: str = "" if content is MISSING else content
-        _tts: bool = False if tts is MISSING else tts
-        # _file = None if file is None else file
-        # _attachments = [] if attachments else None
-        _embeds: list = (
-            []
-            if not embeds or embeds is MISSING
-            else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
-        )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
-
-        if not components or components is MISSING:
-            _components = []
-        else:
-            _components = _build_components(components=components)
-
-        if not files or files is MISSING:
-            _files = []
-        elif isinstance(files, list):
-            _files = [file._json_payload(id) for id, file in enumerate(files)]
-        else:
-            _files = [files._json_payload(0)]
-            files = [files]
-
-        payload = dict(
-            content=_content,
-            tts=_tts,
-            attachments=_files,
-            embeds=_embeds,
-            components=_components,
-            allowed_mentions=_allowed_mentions,
-        )
-
-        channel = Channel(
-            **await self._client.create_dm(recipient_id=int(self.user.id)), _client=self._client
-        )
-        res = await self._client.create_message(
-            channel_id=int(channel.id), payload=payload, files=files
-        )
-
-        return Message(**res, _client=self._client)
-
-    async def modify(
-        self,
-        nick: Optional[str] = MISSING,
-        roles: Optional[List[int]] = MISSING,
-        mute: Optional[bool] = MISSING,
-        deaf: Optional[bool] = MISSING,
-        channel_id: Optional[int] = MISSING,
-        communication_disabled_until: Optional[datetime.isoformat] = MISSING,
-        reason: Optional[str] = None,
-    ) -> "GuildMember":
-        """
-        Modifies the member of a guild.
-
-        :param nick?: The nickname of the member
-        :type nick: Optional[str]
-        :param roles?: A list of all role ids the member has
-        :type roles: Optional[List[int]]
-        :param mute?: whether the user is muted in voice channels
-        :type mute: Optional[bool]
-        :param deaf?: whether the user is deafened in voice channels
-        :type deaf: Optional[bool]
-        :param channel_id?: id of channel to move user to (if they are connected to voice)
-        :type channel_id: Optional[int]
-        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
-        :type communication_disabled_until: Optional[datetime.isoformat]
-        :param reason?: The reason of the modifying
-        :type reason: Optional[str]
-        :return: The modified member object
-        :rtype: Member
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        payload = {}
-        if nick is not MISSING:
-            payload["nick"] = nick
-
-        if roles is not MISSING:
-            payload["roles"] = roles
-
-        if channel_id is not MISSING:
-            payload["channel_id"] = channel_id
-
-        if mute is not MISSING:
-            payload["mute"] = mute
-
-        if deaf is not MISSING:
-            payload["deaf"] = deaf
-
-        if communication_disabled_until is not MISSING:
-            payload["communication_disabled_until"] = communication_disabled_until
-
-        res = await self._client.modify_member(
-            user_id=int(self.user.id),
-            guild_id=int(self.guild_id),
-            payload=payload,
-            reason=reason,
-        )
-        return GuildMember(**res, _client=self._client, guild_id=self.guild_id)
-
-    async def add_to_thread(
-        self,
-        thread_id: int,
-    ) -> None:
-        """
-        Adds the member to a thread.
-
-        :param thread_id: The id of the thread to add the member to
-        :type thread_id: int
-        """
-        if not self._client:
-            raise AttributeError("HTTPClient not found!")
-        await self._client.add_member_to_thread(
-            user_id=int(self.user.id),
-            thread_id=thread_id,
-        )
+    _guild_id: Snowflake = field(converter=Snowflake, discord_name="guild_id")
 
 
 @define()
@@ -463,7 +262,7 @@ class GuildMembers(DictSerializerMixin):
     A class object representing the gateway event ``GUILD_MEMBERS_CHUNK``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar List[GuildMember] members: The members of the event.
+    :ivar List[Member] members: The members of the event.
     :ivar int chunk_index: The current chunk index of the event.
     :ivar int chunk_count: The total chunk count of the event.
     :ivar list not_found: A list of not found members in the event if an invalid request was made.
@@ -472,7 +271,7 @@ class GuildMembers(DictSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    members: List[GuildMember] = field(converter=convert_list(GuildMember))
+    members: List[Member] = field(converter=convert_list(Member), add_client=True)
     chunk_index: int = field()
     chunk_count: int = field()
     not_found: Optional[list] = field(default=None)
@@ -512,7 +311,7 @@ class GuildStickers(DictSerializerMixin):
 
 
 @define()
-class GuildScheduledEvent(ClientSerializerMixin):
+class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
     """
     A class object representing gateway events ``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, ``GUILD_SCHEDULED_EVENT_DELETE``.
 
@@ -572,7 +371,7 @@ class GuildScheduledEventUser(DictSerializerMixin):
 
 
 @define()
-class Integration(DictSerializerMixin):
+class Integration(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway events ``INTEGRATION_CREATE``, ``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``.
 
@@ -660,9 +459,24 @@ class Presence(ClientSerializerMixin):
 
 
 @define()
-class MessageReaction(DictSerializerMixin):
+class MessageDelete(DictSerializerMixin):
     """
-    A class object representing the gateway event ``MESSAGE_REACTION_ADD``.
+    A class object representing the gateway event ``MESSAGE_DELETE_BULK``.
+
+    :ivar List[Snowflake] ids: The message IDs of the event.
+    :ivar Snowflake channel_id: The channel ID of the event.
+    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    """
+
+    ids: List[Snowflake] = field(converter=convert_list(Snowflake))
+    channel_id: Snowflake = field(converter=Snowflake)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+
+@define()
+class MessageReaction(ClientSerializerMixin):
+    """
+    A class object representing the gateway event ``MESSAGE_REACTION_ADD`` and ``MESSAGE_REACTION_REMOVE``.
 
     :ivar Optional[Snowflake] user_id?: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
@@ -676,13 +490,18 @@ class MessageReaction(DictSerializerMixin):
     channel_id: Snowflake = field(converter=Snowflake)
     message_id: Snowflake = field(converter=Snowflake)
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    member: Optional[Member] = field(converter=Member, default=None)
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
+    def __attrs_post_init__(self):
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
 
-class ReactionRemove(MessageReaction):
+
+class MessageReactionRemove(MessageReaction):
     """
-    A class object representing the gateway events ``MESSAGE_REACTION_REMOVE``, ``MESSAGE_REACTION_REMOVE_ALL`` and ``MESSAGE_REACTION_REMOVE_EMOJI``.
+    A class object representing the gateway events ``MESSAGE_REACTION_REMOVE_ALL`` and ``MESSAGE_REACTION_REMOVE_EMOJI``.
 
     .. note::
         This class inherits the already existing attributes of :class:`interactions.api.models.gw.Reaction`.
@@ -696,6 +515,10 @@ class ReactionRemove(MessageReaction):
     """
 
     # todo see if the missing member attribute affects anything
+
+
+# Thread object typically used for ``THREAD_X`` is found in the channel models instead, as its identical.
+# and all attributes of Thread are in Channel.
 
 
 @define()
@@ -716,7 +539,7 @@ class ThreadList(DictSerializerMixin):
 
 
 @define()
-class ThreadMembers(DictSerializerMixin):
+class ThreadMembers(DictSerializerMixin, IDMixin):
     """
     A class object representing the gateway event ``THREAD_MEMBERS_UPDATE``.
 

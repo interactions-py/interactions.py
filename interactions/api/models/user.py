@@ -1,14 +1,17 @@
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-from .attrs_utils import ClientSerializerMixin, define, field
+from ...utils.attrs_utils import ClientSerializerMixin, define, field
 from .flags import UserFlags
-from .misc import Snowflake
+from .misc import IDMixin, Snowflake
+
+if TYPE_CHECKING:
+    from .gw import Presence
 
 __all__ = ("User",)
 
 
 @define()
-class User(ClientSerializerMixin):
+class User(ClientSerializerMixin, IDMixin):
     """
     A class object representing a user.
 
@@ -20,7 +23,6 @@ class User(ClientSerializerMixin):
     :ivar Optional[bool] system?: A status denoting if the user is an Official Discord System user
     :ivar Optional[bool] mfa_enabled?: A status denoting if the user has 2fa on their account
     :ivar Optional[str] banner?: The user's banner hash, if any
-    # TODO: change banner_color to discord's description when documented
     :ivar Optional[str] banner_color?: The user's banner color as a hex, if any
     :ivar Optional[int] accent_color?: The user's banner color as an integer represented of hex color codes
     :ivar Optional[str] locale?: The user's chosen language option
@@ -32,24 +34,24 @@ class User(ClientSerializerMixin):
     """
 
     id: Snowflake = field(converter=Snowflake)
-    username: str = field()
-    discriminator: str = field()
-    avatar: Optional[str] = field(default=None)
+    username: str = field(repr=True)
+    discriminator: str = field(repr=True)
+    avatar: Optional[str] = field(default=None, repr=False)
     bot: Optional[bool] = field(default=None)
-    system: Optional[bool] = field(default=None)
+    system: Optional[bool] = field(default=None, repr=False)
     mfa_enabled: Optional[bool] = field(default=None)
-    banner: Optional[str] = field(default=None)
-    accent_color: Optional[int] = field(default=None)
-    banner_color: Optional[str] = field(default=None)
+    banner: Optional[str] = field(default=None, repr=False)
+    accent_color: Optional[int] = field(default=None, repr=False)
+    banner_color: Optional[str] = field(default=None, repr=False)
     locale: Optional[str] = field(default=None)
     verified: Optional[bool] = field(default=None)
     email: Optional[str] = field(default=None)
-    flags: Optional[UserFlags] = field(converter=UserFlags, default=None)
-    premium_type: Optional[int] = field(default=None)
-    public_flags: Optional[UserFlags] = field(converter=UserFlags, default=None)
+    flags: Optional[UserFlags] = field(converter=UserFlags, default=None, repr=False)
+    premium_type: Optional[int] = field(default=None, repr=False)
+    public_flags: Optional[UserFlags] = field(converter=UserFlags, default=None, repr=False)
     bio: Optional[str] = field(default=None)
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return self.username
 
     def has_public_flag(self, flag: Union[UserFlags, int]) -> bool:
@@ -87,6 +89,7 @@ class User(ClientSerializerMixin):
     def banner_url(self) -> Optional[str]:
         """
         Returns the URL of the user's banner.
+
         :return: URL of the user's banner (None will be returned if no banner is set)
         :rtype: str
         """
@@ -96,3 +99,15 @@ class User(ClientSerializerMixin):
         url = f"https://cdn.discordapp.com/banners/{int(self.id)}/{self.banner}"
         url += ".gif" if self.banner.startswith("a_") else ".png"
         return url
+
+    @property
+    def presence(self) -> Optional["Presence"]:
+        """
+        Returns the presence of the user.
+
+        :return: Presence of the user (None will be returned if not cached)
+        :rtype: Optional[Presence]
+        """
+        from .gw import Presence
+
+        return self._client.cache[Presence].get(self.id)

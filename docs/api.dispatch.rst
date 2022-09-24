@@ -5,4 +5,3 @@ Dispatching
 
 .. automodule:: interactions.api.dispatch
     :members:
-    :noindex:

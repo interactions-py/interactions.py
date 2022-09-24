@@ -1,8 +1,8 @@
 from typing import Any, List, Optional
 
-from .attrs_utils import ClientSerializerMixin, convert_list, define, field
+from ...utils.attrs_utils import ClientSerializerMixin, convert_list, define, field
 from .flags import AppFlags
-from .misc import Snowflake
+from .misc import IDMixin, Snowflake
 from .user import User
 
 __all__ = (
@@ -34,7 +34,7 @@ class TeamMember(ClientSerializerMixin):
 
 
 @define()
-class Team(ClientSerializerMixin):
+class Team(ClientSerializerMixin, IDMixin):
     """
     A class object representing a team.
 
@@ -53,7 +53,7 @@ class Team(ClientSerializerMixin):
 
 
 @define()
-class Application(ClientSerializerMixin):
+class Application(ClientSerializerMixin, IDMixin):
     """
     A class object representing an application.
 
@@ -82,7 +82,7 @@ class Application(ClientSerializerMixin):
 
     id: Snowflake = field(converter=Snowflake)
     name: str = field()
-    icon: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
     description: str = field()
     rpc_origins: Optional[List[str]] = field(default=None)
     bot_public: bool = field()
@@ -96,13 +96,13 @@ class Application(ClientSerializerMixin):
     guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     primary_sku_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     slug: Optional[str] = field(default=None)
-    cover_image: Optional[str] = field(default=None)
+    cover_image: Optional[str] = field(default=None, repr=False)
     flags: Optional[AppFlags] = field(converter=AppFlags, default=None)
     type: Optional[Any] = field(default=None)
     hook: Optional[Any] = field(default=None)
 
     @property
-    def icon_url(self) -> str:
+    def icon_url(self) -> Optional[str]:
         """
         Returns the URL of the application's icon
 

@@ -1,8 +1,10 @@
-from typing import List, Optional
+import contextlib
+from typing import List, Optional, Union
 
-from ...api.error import InteractionException
-from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
-from ...api.models.message import Emoji
+from ...api.error import LibraryException
+from ...api.models.emoji import Emoji
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 __all__ = (
@@ -26,12 +28,12 @@ class ComponentMixin(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
-                try:
+                with contextlib.suppress(AttributeError):
                     value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    pass
                 self._json.update({key: value})
             elif value is None and key in self._json.keys():
                 del self._json[key]
@@ -41,8 +43,7 @@ class ComponentMixin(DictSerializerMixin):
 class SelectOption(ComponentMixin):
     """
     A class object representing the select option of a select menu.
-    The structure for a select option:
-    .. code-block:: python
+    The structure for a select option: ::
         interactions.SelectOption(
             label="I'm a cool option. :)",
             value="internal_option_value",
@@ -70,8 +71,7 @@ class SelectOption(ComponentMixin):
 class SelectMenu(ComponentMixin):
     """
     A class object representing the select menu of a component.
-    The structure for a select menu:
-    .. code-block:: python
+    The structure for a select menu: ::
         interactions.SelectMenu(
             options=[interactions.SelectOption(...)],
             placeholder="Check out my options. :)",
@@ -86,7 +86,7 @@ class SelectMenu(ComponentMixin):
     :ivar Optional[bool] disabled?: Whether the select menu is unable to be used.
     """
 
-    type: ComponentType = field(converter=ComponentType)
+    type: ComponentType = field(converter=ComponentType, default=ComponentType.SELECT)
     custom_id: str = field()
     options: List[SelectOption] = field(converter=convert_list(SelectOption))
     placeholder: Optional[str] = field(default=None)
@@ -103,8 +103,7 @@ class SelectMenu(ComponentMixin):
 class Button(ComponentMixin):
     """
     A class object representing the button of a component.
-    The structure for a button:
-    .. code-block:: python
+    The structure for a button: ::
         interactions.Button(
             style=interactions.ButtonStyle.DANGER,
             label="Delete",
@@ -137,12 +136,14 @@ class Button(ComponentMixin):
 class Component(ComponentMixin):
     """
     A class object representing the component in an interaction response/followup.
+
     .. note::
         ``components`` is only applicable if an ActionRow is supported, otherwise
         ActionRow-less will be opted. ``list`` is in reference to the class.
     .. warning::
-        This object object class is only inferred upon when the gateway is processing
+        This object class is only inferred upon when the gateway is processing
         back information involving a component. Do not use this object for sending.
+
     :ivar ComponentType type: The type of component.
     :ivar Optional[str] custom_id?: The customized "ID" of the component.
     :ivar Optional[bool] disabled?: Whether the component is unable to be used.
@@ -192,8 +193,7 @@ class Component(ComponentMixin):
 class TextInput(ComponentMixin):
     """
     A class object representing the text input of a modal.
-    The structure for a text input:
-    .. code-block:: python
+    The structure for a text input: ::
         interactions.TextInput(
             style=interactions.TextStyleType.SHORT,
             label="Let's get straight to it: what's 1 + 1?",
@@ -230,20 +230,20 @@ class TextInput(ComponentMixin):
 class Modal(ComponentMixin):
     """
     A class object representing a modal.
-    The structure for a modal:
-    .. code-block:: python
+    The structure for a modal: ::
         interactions.Modal(
             title="Application Form",
             custom_id="mod_app_form",
             components=[interactions.TextInput(...)],
         )
+
     :ivar str custom_id: The custom ID of the modal.
     :ivar str title: The title of the modal.
     :ivar List[Component] components: The components of the modal.
     """
 
     custom_id: str = field()
-    title: str = field
+    title: str = field()
     components: List[Component] = field(converter=convert_list(Component))
 
     def __attrs_post_init__(self):
@@ -260,17 +260,20 @@ class Modal(ComponentMixin):
 class ActionRow(ComponentMixin):
     """
     A class object representing the action row for interaction responses holding components.
+
     .. note::
         A message cannot have more than 5 ActionRow's supported.
         An ActionRow may also support only 1 text input component
         only.
+
     The structure for an action row:
-    .. code-block:: python
+    ..code-block:: python
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
         # Method 2:
         interactions.ActionRow(components=[...])
+
     :ivar int type: The type of component. Always defaults to ``1``.
     :ivar Optional[List[Component]] components?: A list of components the ActionRow has, if any.
     """
@@ -293,6 +296,18 @@ class ActionRow(ComponentMixin):
         self._json.update({"type": self.type.value})
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]
+
+    @classmethod
+    def new(cls, *components: Union[Button, SelectMenu, TextInput]) -> "ActionRow":
+        r"""
+        A class method for creating a new ``ActionRow``.
+
+        :param \*components: The components to add to the ``ActionRow``.
+        :type \*components: Union[Button, SelectMenu, TextInput]
+        :return: A new ``ActionRow``.
+        :rtype: ActionRow
+        """
+        return cls(components=list(components))
 
 
 def _build_components(components) -> List[dict]:
@@ -394,9 +409,12 @@ def _build_components(components) -> List[dict]:
             )
             return _components
         else:
-            raise InteractionException(
+            raise LibraryException(
                 11, message="The specified components are invalid and could not be created!"
             )
+
+    if not components:
+        return components
 
     _components = __check_action_row()
 

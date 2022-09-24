@@ -1,6 +1,11 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
-from ...api.cache import Cache, Item
+from aiohttp import MultipartWriter
+
+from ...api.cache import Cache
+from ...utils.missing import MISSING
+from ..models.channel import Channel
+from ..models.misc import File
 from .request import _Request
 from .route import Route
 
@@ -8,7 +13,6 @@ __all__ = ("ThreadRequest",)
 
 
 class ThreadRequest:
-
     _req: _Request
     cache: Cache
 
@@ -135,7 +139,7 @@ class ThreadRequest:
             Route("GET", f"/channels/{channel_id}/users/@me/threads/archived/private"), json=payload
         )
 
-    async def list_active_threads(self, guild_id: int) -> List[dict]:
+    async def list_active_threads(self, guild_id: int) -> Dict[str, List[dict]]:
         """
         List active threads within a guild.
 
@@ -177,8 +181,8 @@ class ThreadRequest:
                 reason=reason,
             )
             if request.get("id"):
-                self.cache.channels.add(Item(id=request["id"], value=request))
-            return request
+                self.cache[Channel].add(Channel(**request))
+                return request
 
         payload["type"] = thread_type
         payload["invitable"] = invitable
@@ -186,6 +190,65 @@ class ThreadRequest:
             Route("POST", f"/channels/{channel_id}/threads"), json=payload, reason=reason
         )
         if request.get("id"):
-            self.cache.channels.add(Item(id=request["id"], value=request))
+            self.cache[Channel].add(Channel(**request))
 
         return request
+
+    async def create_thread_in_forum(
+        self,
+        channel_id: int,
+        name: str,
+        auto_archive_duration: int,
+        message_payload: dict,
+        applied_tags: List[str] = None,
+        files: Optional[List[File]] = MISSING,
+        rate_limit_per_user: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        From a given Forum channel, create a Thread with a message to start with.
+
+        :param channel_id: The ID of the channel to create this thread in
+        :param name: The name of the thread
+        :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :param message_payload: The payload/dictionary contents of the first message in the forum thread.
+        :param applied_tags: List of tag ids that can be applied to the forum, if any.
+        :param files: An optional list of files to send attached to the message.
+        :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
+        :param reason: An optional reason for the audit log
+        :return: Returns a Thread in a Forum object with a starting Message.
+        """
+        query = {"use_nested_fields": 1}
+
+        payload = {"name": name, "auto_archive_duration": auto_archive_duration}
+        if rate_limit_per_user:
+            payload["rate_limit_per_user"] = rate_limit_per_user
+        if applied_tags:
+            payload["applied_tags"] = applied_tags
+
+        data = None
+        if files is not MISSING and files and len(files) > 0:  # edge case `None`
+
+            data = MultipartWriter("form-data")
+            part = data.append_json(payload)
+            part.set_content_disposition("form-data", name="payload_json")
+            payload = None
+
+            for id, file in enumerate(files):
+                part = data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
+                )
+        else:
+            payload.update(message_payload)
+
+        return await self._req.request(
+            Route("POST", f"/channels/{channel_id}/threads"),
+            json=payload,
+            data=data,
+            params=query,
+            reason=reason,
+        )

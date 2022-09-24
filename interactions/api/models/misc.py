@@ -9,24 +9,34 @@ import colorsys
 import datetime
 import random
 from base64 import b64encode
+from enum import Enum, IntEnum
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
 from os.path import basename
-from typing import Optional, Union
+from typing import List, Optional, Union
 
-from interactions.api.models.attrs_utils import MISSING, DictSerializerMixin, define, field
-from interactions.base import get_logger
+from ...base import get_logger
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
+from ..error import LibraryException
+from .flags import Permissions
 
 __all__ = (
-    "DictSerializerMixin",
+    "AutoModKeywordPresetTypes",
+    "AutoModTriggerType",
+    "AutoModMetaData",
+    "AutoModAction",
+    "AutoModTriggerMetadata",
+    "AllowedMentionType",
+    "AllowedMentions",
     "Snowflake",
     "Color",
     "ClientStatus",
+    "IDMixin",
     "Image",
     "File",
     "Overwrite",
-    "MISSING",
 )
 
 log: Logger = get_logger("mixin")
@@ -39,14 +49,14 @@ class Overwrite(DictSerializerMixin):
 
     :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
-    :ivar str allow: Permission bit set.
-    :ivar str deny: Permission bit set.
+    :ivar Union[Permissions, int, str] allow: Permission bit set.
+    :ivar Union[Permissions, int, str] deny: Permission bit set.
     """
 
     id: int = field()
     type: int = field()
-    allow: str = field()
-    deny: str = field()
+    allow: Union[Permissions, int, str] = field()
+    deny: Union[Permissions, int, str] = field()
 
 
 @define()
@@ -59,12 +69,12 @@ class ClientStatus(DictSerializerMixin):
     :ivar Optional[str] web?: User's status set for an active web application session
     """
 
-    dektop: Optional[str] = field(default=None)
+    desktop: Optional[str] = field(default=None)
     mobile: Optional[str] = field(default=None)
     web: Optional[str] = field(default=None)
 
 
-class Snowflake(object):
+class Snowflake:
     """
     The Snowflake object.
 
@@ -88,11 +98,11 @@ class Snowflake(object):
     def __init__(self, snowflake: Union[int, str, "Snowflake"]) -> None:
         self._snowflake = str(snowflake)
 
-    def __str__(self):
+    def __str__(self) -> str:
         # This is overridden for model comparison between IDs.
         return self._snowflake
 
-    def __int__(self):
+    def __int__(self) -> int:
         # Easier to use for HTTP calling instead of int(str(obj)).
         return int(self._snowflake)
 
@@ -142,10 +152,10 @@ class Snowflake(object):
 
     # ---- Extra stuff that might be helpful.
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self._snowflake)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Snowflake):
             return str(self) == str(other)
         elif isinstance(other, int):
@@ -155,239 +165,195 @@ class Snowflake(object):
 
         return NotImplemented
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._snowflake})"
 
 
-class Color(object):
+class IDMixin:
+    """A mixin to implement equality and hashing for models that have an id."""
+
+    id: Snowflake
+
+    def __eq__(self, other) -> bool:
+        return (
+            self.id is not None
+            and isinstance(
+                other, IDMixin
+            )  # different classes can't share ids, covers cases like Member/User
+            and self.id == other.id
+        )
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+
+@define()
+class AutoModMetaData(DictSerializerMixin):
     """
-    An object representing colors.
+    A class object used to represent the AutoMod Action Metadata.
+    .. note::
+        This is not meant to be instantiated outside the Gateway.
+
+    .. note::
+        The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
+
+    :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
+    :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
     """
 
-    __slots__ = ("value",)
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    duration_seconds: Optional[int] = field(default=None)
 
-    def __init__(self, value):
-        if not isinstance(value, int):
-            raise TypeError(
-                "Expected int parameter, received %s instead." % value.__class__.__name__
-            )
 
-        self.value = value
+class AutoModTriggerType(IntEnum):
+    KEYWORD = 1
+    HARMFUL_LINK = 2
+    SPAM = 3
+    KEYWORD_PRESET = 4
 
-    def _get_byte(self, byte):
-        return (self.value >> (8 * byte)) & 0xFF
 
-    def __eq__(self, other):
-        if not isinstance(other, Color):
-            return NotImplementedError()
-        return self.value == other.value
+class AutoModKeywordPresetTypes(IntEnum):
+    PROFANITY = 1
+    SEXUAL_CONTENT = 2
+    SLURS = 3
 
-    def __str__(self):
-        return "#{:0>6x}".format(self.value)
 
-    def __repr__(self):
-        return "<Colour value=%s>" % self.value
+@define()
+class AutoModAction(DictSerializerMixin):
+    """
+    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+    .. note::
+        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
+        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
+        ``AutoModerationAction``
+    .. note::
+        The metadata can be omitted depending on the action type.
 
-    def __hash__(self):
-        return hash(self.value)
+    :ivar int type: Action type.
+    :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
+    """
 
-    @property
-    def r(self):
-        """:class:`int`: Returns the red component of the colour."""
-        return self._get_byte(2)
+    type: int = field()
+    metadata: Optional[AutoModMetaData] = field(
+        converter=AutoModMetaData, default=None)
 
-    @property
-    def g(self):
-        """:class:`int`: Returns the green component of the colour."""
-        return self._get_byte(1)
 
-    @property
-    def b(self):
-        """:class:`int`: Returns the blue component of the colour."""
-        return self._get_byte(0)
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    """
+    A class object used to represent the trigger metadata from the AutoMod rule object.
 
-    def to_rgb(self):
-        """Tuple[:class:`int`, :class:`int`, :class:`int`]: Returns an (r, g, b) tuple representing the colour."""
-        return (self.r, self.g, self.b)
+    :ivar Optional[List[str]] keyword_filter: Words to match against content.
+    :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
+    """
 
-    @classmethod
-    def from_rgb(cls, r, g, b):
-        """Constructs a :class:`Colour` from an RGB tuple."""
-        return cls((r << 16) + (g << 8) + b)
+    keyword_filter: Optional[List[str]] = field(default=None)
+    presets: Optional[List[str]] = field(default=None)
 
-    @classmethod
-    def from_hsv(cls, h, s, v):
-        """Constructs a :class:`Colour` from an HSV tuple."""
-        rgb = colorsys.hsv_to_rgb(h, s, v)
-        return cls.from_rgb(*(int(x * 255) for x in rgb))
 
-    @classmethod
-    def default(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0``."""
-        return cls(0)
+class Color:
+    """
+    A class object used to represent the AutoMod Action Metadata.
+    .. note::
+        This is not meant to be instantiated outside the Gateway.
 
-    @classmethod
-    def random(cls, *, seed=None):
-        """A class method that returns a :class:`Colour` with a random hue.
+    .. note::
+        The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks.
 
-        .. note::
+    :ivar Optional[Snowflake] channel_id: Channel to which user content should be logged, if set.
+    :ivar Optional[int] duration_seconds: Timeout duration in seconds, if timed out.
+    """
 
-            The random algorithm works by choosing a colour with a random hue but
-            with maxed out saturation and value.
-        Parameters
-        ------------
-        seed: Optional[Union[:class:`int`, :class:`str`, :class:`float`, :class:`bytes`, :class:`bytearray`]]
-            The seed to initialize the RNG with. If ``None`` is passed the default RNG is used.
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    duration_seconds: Optional[int] = field(default=None)
 
-        """
-        rand = random if seed is None else random.Random(seed)
-        return cls.from_hsv(rand.random(), 1, 1)
 
-    @classmethod
-    def teal(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x1abc9c``."""
-        return cls(0x1ABC9C)
+class AutoModTriggerType(IntEnum):
+    KEYWORD = 1
+    HARMFUL_LINK = 2
+    SPAM = 3
+    KEYWORD_PRESET = 4
 
-    @classmethod
-    def dark_teal(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x11806a``."""
-        return cls(0x11806A)
 
-    @classmethod
-    def green(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x2ecc71``."""
-        return cls(0x2ECC71)
+class AutoModKeywordPresetTypes(IntEnum):
+    PROFANITY = 1
+    SEXUAL_CONTENT = 2
+    SLURS = 3
 
-    @classmethod
-    def dark_green(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x1f8b4c``."""
-        return cls(0x1F8B4C)
 
-    @classmethod
-    def blue(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x3498db``."""
-        return cls(0x3498DB)
+@define()
+class AutoModAction(DictSerializerMixin):
+    """
+    A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+    .. note::
+        This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
+        This object is not the same as that dispatched object. Moreover, that dispatched object name will be
+        ``AutoModerationAction``
+    .. note::
+        The metadata can be omitted depending on the action type.
 
-    @classmethod
-    def dark_blue(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x206694``."""
-        return cls(0x206694)
+    :ivar int type: Action type.
+    :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
+    """
 
-    @classmethod
-    def purple(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x9b59b6``."""
-        return cls(0x9B59B6)
+    type: int = field()
+    metadata: Optional[AutoModMetaData] = field(
+        converter=AutoModMetaData, default=None)
 
-    @classmethod
-    def dark_purple(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x71368a``."""
-        return cls(0x71368A)
 
-    @classmethod
-    def magenta(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0xe91e63``."""
-        return cls(0xE91E63)
+@define()
+class AutoModTriggerMetadata(DictSerializerMixin):
+    """
+    A class object used to represent the trigger metadata from the AutoMod rule object.
 
-    @classmethod
-    def dark_magenta(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0xad1457``."""
-        return cls(0xAD1457)
+    @staticmethod
+    def blurple() -> int:
+        """Returns a hexadecimal value of the blurple color."""
+        return 0x5865F2
 
-    @classmethod
-    def gold(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0xf1c40f``."""
-        return cls(0xF1C40F)
+    @staticmethod
+    def green() -> int:
+        """Returns a hexadecimal value of the green color."""
+        return 0x57F287
 
-    @classmethod
-    def dark_gold(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0xc27c0e``."""
-        return cls(0xC27C0E)
+    @staticmethod
+    def yellow() -> int:
+        """Returns a hexadecimal value of the yellow color."""
+        return 0xFEE75C
 
-    @classmethod
-    def orange(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0xe67e22``."""
-        return cls(0xE67E22)
-
-    @classmethod
-    def dark_orange(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0xa84300``."""
-        return cls(0xA84300)
-
-    @classmethod
-    def red(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0xed4245``."""
-        return cls(0xED4245)
-
-    @classmethod
-    def dark_red(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x992d22``."""
-        return cls(0x992D22)
-
-    @classmethod
-    def lighter_grey(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x95a5a6``."""
-        return cls(0x95A5A6)
-
-    @classmethod
-    def dark_grey(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x607d8b``."""
-        return cls(0x607D8B)
-
-    @classmethod
-    def light_grey(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x979c9f``."""
-        return cls(0x979C9F)
-
-    @classmethod
-    def darker_grey(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x546e7a``."""
-        return cls(0x546E7A)
-
-    @classmethod
-    def blurple(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x5865f2``."""
-        return cls(0x5865F2)
-
-    @classmethod
-    def greyple(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x99aab5``."""
-        return cls(0x99AAB5)
-
-    @classmethod
-    def dark_theme(cls):
-        """A class method that returns a :class:`Colour` with a value of ``0x36393F``.
-        This will appear transparent on Discord's dark theme.
-        """
-        return cls(0x36393F)
-
-    @classmethod
-    def fuchsia(cls):
+    @staticmethod
+    def fuchsia() -> int:
         """Returns a hexadecimal value of the fuchsia color."""
-        return cls(0xEB459E)
+        return 0xEB459E
+
+    @staticmethod
+    def red() -> int:
+        """Returns a hexadecimal value of the red color."""
+        return 0xED4245
 
     # I can't imagine any bot developers actually using these.
     # If they don't know white is ff and black is 00, something's seriously
     # wrong.
 
-    @classmethod
-    def white(cls):
+    @staticmethod
+    def white() -> int:
         """Returns a hexadecimal value of the white color."""
         return cls(0xFFFFFF)
 
-    @classmethod
-    def black(cls):
+    @staticmethod
+    def black() -> int:
         """Returns a hexadecimal value of the black color."""
         return cls(0x000000)
 
 
-class File(object):
+class File:
     """
     A File object to be sent as an attachment along with a message.
 
     If a fp is not given, this will try to open & send a local file at the location
     specified in the 'filename' parameter.
 
-    .. note::
+    .. note: :
         If a description is not given the file's basename is used instead.
     """
 
@@ -396,8 +362,9 @@ class File(object):
     ):
 
         if not isinstance(filename, str):
-            raise TypeError(
-                "File's first parameter 'filename' must be a string, not " + str(type(filename))
+            raise LibraryException(
+                message=f"File's first parameter 'filename' must be a string, not {str(type(filename))}",
+                code=12,
             )
 
         self._fp = open(filename, "rb") if not fp or fp is MISSING else fp
@@ -408,11 +375,11 @@ class File(object):
         else:
             self._description = description
 
-    def _json_payload(self, id):
+    def _json_payload(self, id: int) -> dict:
         return {"id": id, "description": self._description, "filename": self._filename}
 
 
-class Image(object):
+class Image:
     """
     This class object allows you to upload Images to the Discord API.
 
@@ -425,7 +392,7 @@ class Image(object):
         self._URI = "data:image/"
 
         if fp is MISSING or isinstance(file, FileIO):
-            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)
+            file: FileIO = file if isinstance(file, FileIO) else FileIO(file)  # noqa
 
             self._name = file.name
             _file = file.read()
@@ -439,7 +406,7 @@ class Image(object):
             and not self._name.endswith(".png")
             and not self._name.endswith(".gif")
         ):
-            raise ValueError("File type must be jpeg, png or gif!")
+            raise LibraryException(message="File type must be jpeg, png or gif!", code=12)
 
         self._URI += f"{'jpeg' if self._name.endswith('jpeg') else self._name[-3:]};"
         self._URI += f"base64,{b64encode(_file).decode('utf-8')}"
@@ -454,3 +421,32 @@ class Image(object):
         Returns the name of the file.
         """
         return self._name.split("/")[-1].split(".")[0]
+
+
+class AllowedMentionType(str, Enum):
+    """
+    An enumerable object representing the allowed mention types
+    """
+
+    EVERYONE = "everyone"
+    USERS = "users"
+    ROLES = "roles"
+
+
+@define()
+class AllowedMentions(DictSerializerMixin):
+    """
+    A class object representing the allowed mentions object
+
+    : ivar parse?: Optional[List[AllowedMentionType]]: An array of allowed mention types to parse from the content.
+    : ivar users?: Optional[List[int]]: An array of user ids to mention.
+    : ivar roles?: Optional[List[int]]: An array of role ids to mention.
+    : ivar replied_user?: Optional[bool]: For replies, whether to mention the author of the message being replied to.
+    """
+
+    parse: Optional[List[AllowedMentionType]] = field(
+        converter=convert_list(AllowedMentionType), default=None
+    )
+    users: Optional[List[int]] = field(default=None)
+    roles: Optional[List[int]] = field(default=None)
+    replied_user: Optional[bool] = field(default=None)

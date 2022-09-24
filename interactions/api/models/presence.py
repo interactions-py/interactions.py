@@ -1,9 +1,10 @@
+import time
 from enum import IntEnum
 from typing import Any, List, Optional
 
-from ..models import StatusType
-from ..models.message import Emoji
-from .attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from .emoji import Emoji
+from .flags import StatusType
 from .misc import Snowflake
 
 __all__ = (
@@ -13,7 +14,6 @@ __all__ = (
     "PresenceTimestamp",
     "PresenceActivity",
     "PresenceActivityType",
-    "PresenceButtons",
     "ClientPresence",
 )
 
@@ -64,19 +64,6 @@ class PresenceSecrets(DictSerializerMixin):
 
 
 @define()
-class PresenceButtons(DictSerializerMixin):
-    """
-    A class object representing the buttons of a presence.
-
-    :ivar str label: Text of the button
-    :ivar str url: URL of the button
-    """
-
-    label: str = field()
-    url: str = field()
-
-
-@define()
 class PresenceTimestamp(DictSerializerMixin):
     """
     A class object representing the timestamp data of a presence.
@@ -108,13 +95,16 @@ class PresenceActivity(DictSerializerMixin):
     A class object representing the current activity data of a presence.
 
     .. note::
-        When using this model to instantiate alongside the client, if you provide a type 1 ( or PresenceActivityType.STREAMING ), then
-        the ``url`` attribute is necessary.
+        When using this model to instantiate alongside the client, if you provide a type 1 ( or PresenceActivityType.STREAMING ),
+        then the ``url`` attribute is necessary.
+
+        The ``button`` attribute technically contains an object denoting Presence buttons. However, the gateway dispatches these
+        as strings (of button labels) as bots don't read the button URLs.
 
     :ivar str name: The activity name
     :ivar Union[int, PresenceActivityType] type: The activity type
     :ivar Optional[str] url?: stream url (if type is 1)
-    :ivar Snowflake created_at: Unix timestamp of when the activity was created to the User's session
+    :ivar int created_at: Unix timestamp (in milliseconds) of when the activity was added to the user's session
     :ivar Optional[PresenceTimestamp] timestamps?: Unix timestamps for start and/or end of the game
     :ivar Optional[Snowflake] application_id?: Application ID for the game
     :ivar Optional[str] details?: What the player is currently doing
@@ -125,13 +115,13 @@ class PresenceActivity(DictSerializerMixin):
     :ivar Optional[PresenceSecrets] secrets?: for RPC join/spectate
     :ivar Optional[bool] instance?: A status denoting if the activity is a game session
     :ivar Optional[int] flags?: activity flags
-    :ivar Optional[List[PresenceButtons]] buttons?: Custom buttons shown in the RPC.
+    :ivar Optional[List[str]] buttons?: Custom button labels shown in the status, if any.
     """
 
     name: str = field()
     type: PresenceActivityType = field(converter=PresenceActivityType)
     url: Optional[str] = field(default=None)
-    created_at: Snowflake = field(converter=Snowflake)
+    created_at: int = field(default=0)  # for manually initializing
     timestamps: Optional[PresenceTimestamp] = field(converter=PresenceTimestamp, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     details: Optional[str] = field(default=None)
@@ -142,9 +132,7 @@ class PresenceActivity(DictSerializerMixin):
     secrets: Optional[PresenceSecrets] = field(converter=PresenceSecrets, default=None)
     instance: Optional[bool] = field(default=None)
     flags: Optional[int] = field(default=None)
-    buttons: Optional[List[PresenceButtons]] = field(
-        converter=convert_list(PresenceButtons), default=None
-    )
+    buttons: Optional[List[str]] = field(default=None)
     # TODO: document/investigate what these do.
     user: Optional[Any] = field(default=None)
     users: Optional[Any] = field(default=None)
@@ -186,4 +174,14 @@ class ClientPresence(DictSerializerMixin):
         converter=convert_list(PresenceActivity), default=None
     )
     status: StatusType = field(converter=StatusType)
-    afk: bool = field()
+    afk: bool = field(default=False)
+
+    def __attrs_post_init__(self):
+        if not self._json.get("since"):
+            # If since is not provided by the developer...
+            self.since = int(time.time() * 1000) if self.status == "idle" else 0
+            self._json["since"] = self.since
+        if not self._json.get("afk"):
+            self.afk = self._json["afk"] = False
+        if not self._json.get("activities"):
+            self.activities = self._json["activities"] = []
