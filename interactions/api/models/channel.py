@@ -1664,7 +1664,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         return await self._client.delete_tag(int(self.id), _tag_id)
 
-    async def create_post_in_forum(
+    async def create_forum_post(
         self,
         name: str,
         content: Union[
