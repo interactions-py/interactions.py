@@ -1664,7 +1664,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         return await self._client.delete_tag(int(self.id), _tag_id)
 
-    async def create_post_in_forum(
+    async def create_forum_post(
         self,
         name: str,
         content: Union[
@@ -1703,6 +1703,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         if not self._client:
             raise LibraryException(code=13)
+
+        from .message import Attachment
 
         _top_payload: dict = {
             "name": name,
