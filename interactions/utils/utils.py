@@ -78,13 +78,12 @@ def autodefer(
             except RuntimeError as e:
                 raise RuntimeError("No running event loop detected!") from e
 
-            if isinstance(args[0], (ComponentContext, CommandContext)):
+            if args and isinstance(args[0], (ComponentContext, CommandContext)):
                 self = ctx
                 args = list(args)
                 ctx = args.pop(0)
 
                 task: Task = loop.create_task(coro(self, ctx, *args, **kwargs))
-
             else:
                 task: Task = loop.create_task(coro(ctx, *args, **kwargs))
 
