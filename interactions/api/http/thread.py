@@ -199,7 +199,7 @@ class ThreadRequest:
         channel_id: int,
         name: str,
         auto_archive_duration: int,
-        message_payload: dict,
+        message: dict,
         applied_tags: List[str] = None,
         files: Optional[List[File]] = MISSING,
         rate_limit_per_user: Optional[int] = None,
@@ -224,7 +224,7 @@ class ThreadRequest:
         payload = {
             "name": name,
             "auto_archive_duration": auto_archive_duration,
-            "message": message_payload
+            "message": message
         }
         if rate_limit_per_user:
             payload["rate_limit_per_user"] = rate_limit_per_user
@@ -247,7 +247,7 @@ class ThreadRequest:
                     "form-data", name=f"files[{str(id)}]", filename=file._filename
                 )
         else:
-            payload.update(message_payload)
+            payload.update(message)
 
         return await self._req.request(
             Route("POST", f"/channels/{channel_id}/threads"),
