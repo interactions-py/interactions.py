@@ -1704,6 +1704,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
 
+        from .message import Attachment
+
         _top_payload: dict = {
             "name": name,
             "reason": reason,
