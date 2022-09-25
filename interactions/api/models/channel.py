@@ -1793,7 +1793,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             _content: dict = {"content": content}
 
         _top_payload["files"] = __files
-        _top_payload["message_payload"] = _content
+        _top_payload["message"] = _content
 
         if applied_tags is not MISSING:
             _tags = []
