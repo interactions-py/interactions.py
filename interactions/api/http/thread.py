@@ -221,7 +221,9 @@ class ThreadRequest:
         """
         query = {"use_nested_fields": 1}
 
-        payload = {"name": name, "auto_archive_duration": auto_archive_duration}
+        payload = {"name": name,
+                   "auto_archive_duration": auto_archive_duration,
+                   "message_payload": message_payload}
         if rate_limit_per_user:
             payload["rate_limit_per_user"] = rate_limit_per_user
         if applied_tags:
