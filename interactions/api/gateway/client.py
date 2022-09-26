@@ -319,6 +319,7 @@ class WebSocketClient:
             self.session_id = data["session_id"]
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
+                self.__start_guild = [i["id"] for i in data["guilds"]]
                 self.__started = True
                 self._dispatch.dispatch("on_start")
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
@@ -469,7 +470,10 @@ class WebSocketClient:
                     ids = self.__get_object_ids(obj, model)
 
                 if "_create" in name or "_add" in name:
-                    self._dispatch.dispatch(f"on_{name}", obj)
+                    if id and str(id) in self.__start_guild:
+                        self.__start_guild.remove(str(id))
+                    else:
+                        self._dispatch.dispatch(f"on_{name}", obj)
 
                     if id:
                         _cache.merge(obj, id)
