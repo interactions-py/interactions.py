@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../client.rst:4
 msgid "Bot Client"
@@ -31,10 +31,6 @@ msgstr ""
 #: interactions.client.bot.Client
 #: interactions.client.bot.Client.__check_command
 #: interactions.client.bot.Client.__compare_sync
-#: interactions.client.bot.Client.__raw_channel_create
-#: interactions.client.bot.Client.__raw_guild_create
-#: interactions.client.bot.Client.__raw_message_create
-#: interactions.client.bot.Client.__raw_socket_create
 #: interactions.client.bot.Client._find_command
 #: interactions.client.bot.Client.autocomplete
 #: interactions.client.bot.Client.change_presence
@@ -44,6 +40,7 @@ msgstr ""
 #: interactions.client.bot.Client.message_command
 #: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
 #: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
+#: interactions.client.bot.Client.request_guild_members
 #: interactions.client.bot.Client.user_command
 #: interactions.client.bot.Extension of
 msgid "Parameters"
@@ -80,73 +77,52 @@ msgid ""
 "automatic or not."
 msgstr ""
 
+#: interactions.client.bot.Client:15 of
+msgid ""
+"Set to ``True`` to enable debug logging or set to a log level to use a "
+"specific level"
+msgstr ""
+
 #: interactions.client.bot.Client of
 msgid "Variables"
 msgstr ""
 
-#: interactions.client.bot.Client:16 of
+#: interactions.client.bot.Client:18 of
 msgid "The asynchronous event loop of the client."
 msgstr ""
 
-#: interactions.client.bot.Client:17 of
+#: interactions.client.bot.Client:19 of
 msgid ""
 "The user-facing HTTP connection to the Web API, as its own separate "
 "client."
 msgstr ""
 
-#: interactions.client.bot.Client:18 of
+#: interactions.client.bot.Client:20 of
 msgid "An object-orientation of a websocket server connection to the Gateway."
 msgstr ""
 
-#: interactions.client.bot.Client:19 of
+#: interactions.client.bot.Client:21 of
 msgid "The Gateway intents of the application. Defaults to ``Intents.DEFAULT``."
 msgstr ""
 
-#: interactions.client.bot.Client:20 of
+#: interactions.client.bot.Client:22 of
 msgid "The list of bucketed shards for the application's connection."
 msgstr ""
 
-#: interactions.client.bot.Client:21 of
+#: interactions.client.bot.Client:23 of
 msgid "The RPC-like presence shown on an application once connected."
 msgstr ""
 
-#: interactions.client.bot.Client:22 of
+#: interactions.client.bot.Client:24 of
 msgid "The token of the application used for authentication when connecting."
 msgstr ""
 
-#: interactions.client.bot.Client:23 of
+#: interactions.client.bot.Client:25 of
 msgid "The \"extensions\" or cog equivalence registered to the main client."
 msgstr ""
 
-#: interactions.client.bot.Client:24 of
+#: interactions.client.bot.Client:26 of
 msgid "The application representation of the client."
-msgstr ""
-
-#: interactions.client.bot.Client
-#: interactions.client.bot.Client.__check_command
-#: interactions.client.bot.Client.__compare_sync
-#: interactions.client.bot.Client.__raw_channel_create
-#: interactions.client.bot.Client.__raw_guild_create
-#: interactions.client.bot.Client.__raw_message_create
-#: interactions.client.bot.Client.__raw_socket_create
-#: interactions.client.bot.Client.__register_events
-#: interactions.client.bot.Client.__resolve_commands
-#: interactions.client.bot.Client.__sync
-#: interactions.client.bot.Client._find_command
-#: interactions.client.bot.Client._login interactions.client.bot.Client._ready
-#: interactions.client.bot.Client.autocomplete
-#: interactions.client.bot.Client.change_presence
-#: interactions.client.bot.Client.command
-#: interactions.client.bot.Client.component
-#: interactions.client.bot.Client.event interactions.client.bot.Client.load
-#: interactions.client.bot.Client.message_command
-#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
-#: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
-#: interactions.client.bot.Client.start
-#: interactions.client.bot.Client.user_command
-#: interactions.client.bot.Client.wait_until_ready
-#: interactions.client.bot.Extension of
-msgid "Return type"
 msgstr ""
 
 #: interactions.client.bot.Client.guilds:1 of
@@ -161,8 +137,27 @@ msgstr ""
 msgid "Starts the client session."
 msgstr ""
 
-#: interactions.client.bot.Client.__register_events:1 of
-msgid "Registers all raw gateway events to the known events."
+#: interactions.client.bot.Client.__check_command
+#: interactions.client.bot.Client.__compare_sync
+#: interactions.client.bot.Client.__resolve_commands
+#: interactions.client.bot.Client.__sync
+#: interactions.client.bot.Client._find_command
+#: interactions.client.bot.Client._login interactions.client.bot.Client._ready
+#: interactions.client.bot.Client._stop
+#: interactions.client.bot.Client.autocomplete
+#: interactions.client.bot.Client.change_presence
+#: interactions.client.bot.Client.command
+#: interactions.client.bot.Client.component
+#: interactions.client.bot.Client.event interactions.client.bot.Client.load
+#: interactions.client.bot.Client.message_command
+#: interactions.client.bot.Client.modal interactions.client.bot.Client.modify
+#: interactions.client.bot.Client.reload interactions.client.bot.Client.remove
+#: interactions.client.bot.Client.request_guild_members
+#: interactions.client.bot.Client.start
+#: interactions.client.bot.Client.user_command
+#: interactions.client.bot.Client.wait_until_ready
+#: interactions.client.bot.Extension of
+msgid "Return type"
 msgstr ""
 
 #: interactions.client.bot.Client.__compare_sync:1 of
@@ -178,10 +173,6 @@ msgid "The \"pool\" or list of commands to compare from."
 msgstr ""
 
 #: interactions.client.bot.Client.__compare_sync
-#: interactions.client.bot.Client.__raw_channel_create
-#: interactions.client.bot.Client.__raw_guild_create
-#: interactions.client.bot.Client.__raw_message_create
-#: interactions.client.bot.Client.__raw_socket_create
 #: interactions.client.bot.Client._find_command
 #: interactions.client.bot.Client.autocomplete
 #: interactions.client.bot.Client.command
@@ -202,6 +193,10 @@ msgstr ""
 msgid ""
 "Prepares the client with an internal \"ready\" check to ensure that all "
 "conditions have been met in a chronological order:"
+msgstr ""
+
+#: interactions.client.bot.Client._stop:1 of
+msgid "Stops the websocket connection gracefully."
 msgstr ""
 
 #: interactions.client.bot.Client._login:1 of
@@ -448,7 +443,7 @@ msgid ""
 msgstr ""
 
 #: interactions.client.bot.Client._find_command:3 of
-msgid "The name of the command to match"
+msgid "The name or ID of the command to match"
 msgstr ""
 
 #: interactions.client.bot.Client._find_command:5 of
@@ -574,59 +569,34 @@ msgstr ""
 msgid "The modified User object"
 msgstr ""
 
-#: interactions.client.bot.Client.__raw_socket_create:1 of
+#: interactions.client.bot.Client.request_guild_members:1 of
+msgid "Requests guild members via websocket."
+msgstr ""
+
+#: interactions.client.bot.Client.request_guild_members:3 of
+msgid "ID of the guild to get members for."
+msgstr ""
+
+#: interactions.client.bot.Client.request_guild_members:5 of
 msgid ""
-"This is an internal function that takes any gateway socket event and then"
-" returns the data purely based off of what it does in the client "
-"instantiation class."
+"Maximum number of members to send matching the 'query' parameter. "
+"Required when specifying 'query'."
 msgstr ""
 
-#: interactions.client.bot.Client.__raw_socket_create:5 of
-msgid "The data that is returned"
+#: interactions.client.bot.Client.request_guild_members:7 of
+msgid "String that username starts with."
 msgstr ""
 
-#: interactions.client.bot.Client.__raw_socket_create:7 of
-msgid "A dictionary of raw data."
+#: interactions.client.bot.Client.request_guild_members:9 of
+msgid "Used to specify if we want the presences of the matched members."
 msgstr ""
 
-#: interactions.client.bot.Client.__raw_channel_create:1 of
-msgid ""
-"This is an internal function that caches the channel creates when "
-"dispatched."
+#: interactions.client.bot.Client.request_guild_members:11 of
+msgid "Used to specify which users you wish to fetch."
 msgstr ""
 
-#: interactions.client.bot.Client.__raw_channel_create:3 of
-msgid "The channel object data in question."
-msgstr ""
-
-#: interactions.client.bot.Client.__raw_channel_create:5 of
-msgid "The channel as a dictionary of raw data."
-msgstr ""
-
-#: interactions.client.bot.Client.__raw_message_create:1 of
-msgid ""
-"This is an internal function that caches the message creates when "
-"dispatched."
-msgstr ""
-
-#: interactions.client.bot.Client.__raw_message_create:3 of
-msgid "The message object data in question."
-msgstr ""
-
-#: interactions.client.bot.Client.__raw_message_create:5 of
-msgid "The message as a dictionary of raw data."
-msgstr ""
-
-#: interactions.client.bot.Client.__raw_guild_create:1 of
-msgid "This is an internal function that caches the guild creates on ready."
-msgstr ""
-
-#: interactions.client.bot.Client.__raw_guild_create:3 of
-msgid "The guild object data in question."
-msgstr ""
-
-#: interactions.client.bot.Client.__raw_guild_create:5 of
-msgid "The guild as a dictionary of raw data."
+#: interactions.client.bot.Client.request_guild_members:13 of
+msgid "Nonce to identify the Guild Members Chunk response."
 msgstr ""
 
 #: interactions.client.bot.Extension:1 of
@@ -639,3 +609,56 @@ msgstr ""
 #: interactions.client.bot.Extension:5 of
 msgid "The structure of an extension:"
 msgstr ""
+
+#~ msgid "Registers all raw gateway events to the known events."
+#~ msgstr ""
+
+#~ msgid "The name of the command to match"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This is an internal function that "
+#~ "takes any gateway socket event and "
+#~ "then returns the data purely based "
+#~ "off of what it does in the "
+#~ "client instantiation class."
+#~ msgstr ""
+
+#~ msgid "The data that is returned"
+#~ msgstr ""
+
+#~ msgid "A dictionary of raw data."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This is an internal function that "
+#~ "caches the channel creates when "
+#~ "dispatched."
+#~ msgstr ""
+
+#~ msgid "The channel object data in question."
+#~ msgstr ""
+
+#~ msgid "The channel as a dictionary of raw data."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This is an internal function that "
+#~ "caches the message creates when "
+#~ "dispatched."
+#~ msgstr ""
+
+#~ msgid "The message object data in question."
+#~ msgstr ""
+
+#~ msgid "The message as a dictionary of raw data."
+#~ msgstr ""
+
+#~ msgid "This is an internal function that caches the guild creates on ready."
+#~ msgstr ""
+
+#~ msgid "The guild object data in question."
+#~ msgstr ""
+
+#~ msgid "The guild as a dictionary of raw data."
+#~ msgstr ""

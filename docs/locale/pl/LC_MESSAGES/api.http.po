@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../api.http.rst:4
 msgid "HTTP"
@@ -55,10 +55,13 @@ msgstr ""
 #: interactions.api.http.channel.ChannelRequest.create_channel
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance
+#: interactions.api.http.channel.ChannelRequest.create_tag
 #: interactions.api.http.channel.ChannelRequest.delete_channel
 #: interactions.api.http.channel.ChannelRequest.delete_channel_permission
 #: interactions.api.http.channel.ChannelRequest.delete_stage_instance
+#: interactions.api.http.channel.ChannelRequest.delete_tag
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission
+#: interactions.api.http.channel.ChannelRequest.edit_tag
 #: interactions.api.http.channel.ChannelRequest.get_channel
 #: interactions.api.http.channel.ChannelRequest.get_channel_invites
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages
@@ -75,6 +78,7 @@ msgstr ""
 #: interactions.api.http.emoji.EmojiRequest.get_guild_emoji
 #: interactions.api.http.emoji.EmojiRequest.modify_guild_emoji
 #: interactions.api.http.guild.GuildRequest.add_guild_member
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune
 #: interactions.api.http.guild.GuildRequest.create_auto_moderation_rule
 #: interactions.api.http.guild.GuildRequest.create_guild_ban
 #: interactions.api.http.guild.GuildRequest.create_guild_from_guild_template
@@ -169,6 +173,7 @@ msgstr ""
 #: interactions.api.http.sticker.StickerRequest.modify_guild_sticker
 #: interactions.api.http.thread.ThreadRequest.add_member_to_thread
 #: interactions.api.http.thread.ThreadRequest.create_thread
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum
 #: interactions.api.http.thread.ThreadRequest.get_member_from_thread
 #: interactions.api.http.thread.ThreadRequest.join_thread
 #: interactions.api.http.thread.ThreadRequest.leave_thread
@@ -198,174 +203,6 @@ msgstr ""
 msgid "Parameters"
 msgstr ""
 
-#: interactions.api.http.channel.ChannelRequest
-#: interactions.api.http.channel.ChannelRequest.create_channel
-#: interactions.api.http.channel.ChannelRequest.create_channel_invite
-#: interactions.api.http.channel.ChannelRequest.create_stage_instance
-#: interactions.api.http.channel.ChannelRequest.delete_channel
-#: interactions.api.http.channel.ChannelRequest.delete_channel_permission
-#: interactions.api.http.channel.ChannelRequest.delete_stage_instance
-#: interactions.api.http.channel.ChannelRequest.edit_channel_permission
-#: interactions.api.http.channel.ChannelRequest.get_channel
-#: interactions.api.http.channel.ChannelRequest.get_channel_invites
-#: interactions.api.http.channel.ChannelRequest.get_channel_messages
-#: interactions.api.http.channel.ChannelRequest.get_pinned_messages
-#: interactions.api.http.channel.ChannelRequest.get_stage_instance
-#: interactions.api.http.channel.ChannelRequest.modify_channel
-#: interactions.api.http.channel.ChannelRequest.modify_stage_instance
-#: interactions.api.http.channel.ChannelRequest.move_channel
-#: interactions.api.http.channel.ChannelRequest.trigger_typing
-#: interactions.api.http.client.HTTPClient.get_bot_gateway
-#: interactions.api.http.client.HTTPClient.get_current_authorisation_information
-#: interactions.api.http.client.HTTPClient.get_current_bot_information
-#: interactions.api.http.client.HTTPClient.get_gateway
-#: interactions.api.http.client.HTTPClient.login
-#: interactions.api.http.client.HTTPClient.logout
-#: interactions.api.http.emoji.EmojiRequest
-#: interactions.api.http.emoji.EmojiRequest.create_guild_emoji
-#: interactions.api.http.emoji.EmojiRequest.delete_guild_emoji
-#: interactions.api.http.emoji.EmojiRequest.get_all_emoji
-#: interactions.api.http.emoji.EmojiRequest.get_guild_emoji
-#: interactions.api.http.emoji.EmojiRequest.modify_guild_emoji
-#: interactions.api.http.guild.GuildRequest
-#: interactions.api.http.guild.GuildRequest.add_guild_member
-#: interactions.api.http.guild.GuildRequest.create_auto_moderation_rule
-#: interactions.api.http.guild.GuildRequest.create_guild_ban
-#: interactions.api.http.guild.GuildRequest.create_guild_from_guild_template
-#: interactions.api.http.guild.GuildRequest.create_guild_kick
-#: interactions.api.http.guild.GuildRequest.create_guild_role
-#: interactions.api.http.guild.GuildRequest.create_guild_template
-#: interactions.api.http.guild.GuildRequest.delete_auto_moderation_rule
-#: interactions.api.http.guild.GuildRequest.delete_guild
-#: interactions.api.http.guild.GuildRequest.delete_guild_integration
-#: interactions.api.http.guild.GuildRequest.delete_guild_role
-#: interactions.api.http.guild.GuildRequest.delete_guild_template
-#: interactions.api.http.guild.GuildRequest.get_all_channels
-#: interactions.api.http.guild.GuildRequest.get_all_roles
-#: interactions.api.http.guild.GuildRequest.get_auto_moderation_rule
-#: interactions.api.http.guild.GuildRequest.get_guild
-#: interactions.api.http.guild.GuildRequest.get_guild_auditlog
-#: interactions.api.http.guild.GuildRequest.get_guild_bans
-#: interactions.api.http.guild.GuildRequest.get_guild_integrations
-#: interactions.api.http.guild.GuildRequest.get_guild_invites
-#: interactions.api.http.guild.GuildRequest.get_guild_preview
-#: interactions.api.http.guild.GuildRequest.get_guild_prune_count
-#: interactions.api.http.guild.GuildRequest.get_guild_templates
-#: interactions.api.http.guild.GuildRequest.get_guild_welcome_screen
-#: interactions.api.http.guild.GuildRequest.get_guild_widget
-#: interactions.api.http.guild.GuildRequest.get_guild_widget_image
-#: interactions.api.http.guild.GuildRequest.get_guild_widget_settings
-#: interactions.api.http.guild.GuildRequest.get_self_guilds
-#: interactions.api.http.guild.GuildRequest.get_user_ban
-#: interactions.api.http.guild.GuildRequest.leave_guild
-#: interactions.api.http.guild.GuildRequest.list_auto_moderation_rules
-#: interactions.api.http.guild.GuildRequest.modify_auto_moderation_rule
-#: interactions.api.http.guild.GuildRequest.modify_current_user_voice_state
-#: interactions.api.http.guild.GuildRequest.modify_guild
-#: interactions.api.http.guild.GuildRequest.modify_guild_role
-#: interactions.api.http.guild.GuildRequest.modify_guild_role_positions
-#: interactions.api.http.guild.GuildRequest.modify_guild_template
-#: interactions.api.http.guild.GuildRequest.modify_guild_welcome_screen
-#: interactions.api.http.guild.GuildRequest.modify_guild_widget
-#: interactions.api.http.guild.GuildRequest.modify_user_voice_state
-#: interactions.api.http.guild.GuildRequest.remove_guild_ban
-#: interactions.api.http.guild.GuildRequest.remove_guild_member
-#: interactions.api.http.guild.GuildRequest.sync_guild_template
-#: interactions.api.http.interaction.InteractionRequest
-#: interactions.api.http.interaction.InteractionRequest._post_followup
-#: interactions.api.http.interaction.InteractionRequest.create_application_command
-#: interactions.api.http.interaction.InteractionRequest.create_interaction_response
-#: interactions.api.http.interaction.InteractionRequest.delete_application_command
-#: interactions.api.http.interaction.InteractionRequest.delete_interaction_response
-#: interactions.api.http.interaction.InteractionRequest.edit_application_command
-#: interactions.api.http.interaction.InteractionRequest.edit_application_command_permissions
-#: interactions.api.http.interaction.InteractionRequest.edit_interaction_response
-#: interactions.api.http.interaction.InteractionRequest.get_all_application_command_permissions
-#: interactions.api.http.interaction.InteractionRequest.get_application_command_permissions
-#: interactions.api.http.interaction.InteractionRequest.get_application_commands
-#: interactions.api.http.interaction.InteractionRequest.get_original_interaction_response
-#: interactions.api.http.interaction.InteractionRequest.overwrite_application_command
-#: interactions.api.http.limiter.Limiter
-#: interactions.api.http.member.MemberRequest
-#: interactions.api.http.member.MemberRequest.add_member_role
-#: interactions.api.http.member.MemberRequest.get_list_of_members
-#: interactions.api.http.member.MemberRequest.get_member
-#: interactions.api.http.member.MemberRequest.modify_member
-#: interactions.api.http.member.MemberRequest.remove_member_role
-#: interactions.api.http.member.MemberRequest.search_guild_members
-#: interactions.api.http.message.MessageRequest
-#: interactions.api.http.message.MessageRequest.create_message
-#: interactions.api.http.message.MessageRequest.delete_message
-#: interactions.api.http.message.MessageRequest.delete_messages
-#: interactions.api.http.message.MessageRequest.edit_message
-#: interactions.api.http.message.MessageRequest.get_message
-#: interactions.api.http.message.MessageRequest.pin_message
-#: interactions.api.http.message.MessageRequest.publish_message
-#: interactions.api.http.message.MessageRequest.send_message
-#: interactions.api.http.message.MessageRequest.unpin_message
-#: interactions.api.http.reaction.ReactionRequest
-#: interactions.api.http.reaction.ReactionRequest.create_reaction
-#: interactions.api.http.reaction.ReactionRequest.get_reactions_of_emoji
-#: interactions.api.http.reaction.ReactionRequest.remove_all_reactions
-#: interactions.api.http.reaction.ReactionRequest.remove_all_reactions_of_emoji
-#: interactions.api.http.reaction.ReactionRequest.remove_self_reaction
-#: interactions.api.http.reaction.ReactionRequest.remove_user_reaction
-#: interactions.api.http.request._Request
-#: interactions.api.http.request._Request._check_lock
-#: interactions.api.http.request._Request._check_session
-#: interactions.api.http.request._Request.close
-#: interactions.api.http.request._Request.request
-#: interactions.api.http.route.Route interactions.api.http.route.Route.endpoint
-#: interactions.api.http.route.Route.get_bucket
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.create_scheduled_event
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.delete_scheduled_event
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event_users
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.modify_scheduled_event
-#: interactions.api.http.sticker.StickerRequest
-#: interactions.api.http.sticker.StickerRequest.create_guild_sticker
-#: interactions.api.http.sticker.StickerRequest.delete_guild_sticker
-#: interactions.api.http.sticker.StickerRequest.get_guild_sticker
-#: interactions.api.http.sticker.StickerRequest.get_sticker
-#: interactions.api.http.sticker.StickerRequest.list_guild_stickers
-#: interactions.api.http.sticker.StickerRequest.list_nitro_sticker_packs
-#: interactions.api.http.sticker.StickerRequest.modify_guild_sticker
-#: interactions.api.http.thread.ThreadRequest
-#: interactions.api.http.thread.ThreadRequest.add_member_to_thread
-#: interactions.api.http.thread.ThreadRequest.create_thread
-#: interactions.api.http.thread.ThreadRequest.get_member_from_thread
-#: interactions.api.http.thread.ThreadRequest.join_thread
-#: interactions.api.http.thread.ThreadRequest.leave_thread
-#: interactions.api.http.thread.ThreadRequest.list_active_threads
-#: interactions.api.http.thread.ThreadRequest.list_joined_private_archived_threads
-#: interactions.api.http.thread.ThreadRequest.list_private_archived_threads
-#: interactions.api.http.thread.ThreadRequest.list_public_archived_threads
-#: interactions.api.http.thread.ThreadRequest.list_thread_members
-#: interactions.api.http.thread.ThreadRequest.remove_member_from_thread
-#: interactions.api.http.user.UserRequest
-#: interactions.api.http.user.UserRequest.create_dm
-#: interactions.api.http.user.UserRequest.get_self
-#: interactions.api.http.user.UserRequest.get_user
-#: interactions.api.http.user.UserRequest.modify_self
-#: interactions.api.http.user.UserRequest.modify_self_nick_in_guild
-#: interactions.api.http.webhook.WebhookRequest
-#: interactions.api.http.webhook.WebhookRequest.create_webhook
-#: interactions.api.http.webhook.WebhookRequest.delete_original_webhook_message
-#: interactions.api.http.webhook.WebhookRequest.delete_webhook_message
-#: interactions.api.http.webhook.WebhookRequest.edit_webhook_message
-#: interactions.api.http.webhook.WebhookRequest.execute_github_webhook
-#: interactions.api.http.webhook.WebhookRequest.execute_slack_webhook
-#: interactions.api.http.webhook.WebhookRequest.execute_webhook
-#: interactions.api.http.webhook.WebhookRequest.get_channel_webhooks
-#: interactions.api.http.webhook.WebhookRequest.get_guild_webhooks
-#: interactions.api.http.webhook.WebhookRequest.get_webhook
-#: interactions.api.http.webhook.WebhookRequest.get_webhook_message
-#: interactions.api.http.webhook.WebhookRequest.modify_webhook of
-msgid "Return type"
-msgstr ""
-
 #: interactions.api.http.route.Route.get_bucket:1 of
 msgid ""
 "Returns the route's bucket. If shared_bucket is None, returns the path "
@@ -393,6 +230,7 @@ msgstr ""
 #: interactions.api.http.emoji.EmojiRequest.get_guild_emoji
 #: interactions.api.http.emoji.EmojiRequest.modify_guild_emoji
 #: interactions.api.http.guild.GuildRequest.add_guild_member
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune
 #: interactions.api.http.guild.GuildRequest.create_auto_moderation_rule
 #: interactions.api.http.guild.GuildRequest.create_guild_from_guild_template
 #: interactions.api.http.guild.GuildRequest.create_guild_role
@@ -454,6 +292,7 @@ msgstr ""
 #: interactions.api.http.sticker.StickerRequest.list_nitro_sticker_packs
 #: interactions.api.http.sticker.StickerRequest.modify_guild_sticker
 #: interactions.api.http.thread.ThreadRequest.create_thread
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum
 #: interactions.api.http.thread.ThreadRequest.get_member_from_thread
 #: interactions.api.http.thread.ThreadRequest.list_active_threads
 #: interactions.api.http.thread.ThreadRequest.list_joined_private_archived_threads
@@ -478,6 +317,165 @@ msgstr ""
 
 #: interactions.api.http.route.Route.get_bucket:7 of
 msgid "The route bucket."
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.create_channel
+#: interactions.api.http.channel.ChannelRequest.create_channel_invite
+#: interactions.api.http.channel.ChannelRequest.create_stage_instance
+#: interactions.api.http.channel.ChannelRequest.create_tag
+#: interactions.api.http.channel.ChannelRequest.delete_channel
+#: interactions.api.http.channel.ChannelRequest.delete_channel_permission
+#: interactions.api.http.channel.ChannelRequest.delete_stage_instance
+#: interactions.api.http.channel.ChannelRequest.delete_tag
+#: interactions.api.http.channel.ChannelRequest.edit_channel_permission
+#: interactions.api.http.channel.ChannelRequest.edit_tag
+#: interactions.api.http.channel.ChannelRequest.get_channel
+#: interactions.api.http.channel.ChannelRequest.get_channel_invites
+#: interactions.api.http.channel.ChannelRequest.get_channel_messages
+#: interactions.api.http.channel.ChannelRequest.get_pinned_messages
+#: interactions.api.http.channel.ChannelRequest.get_stage_instance
+#: interactions.api.http.channel.ChannelRequest.modify_channel
+#: interactions.api.http.channel.ChannelRequest.modify_stage_instance
+#: interactions.api.http.channel.ChannelRequest.move_channel
+#: interactions.api.http.channel.ChannelRequest.trigger_typing
+#: interactions.api.http.client.HTTPClient.get_bot_gateway
+#: interactions.api.http.client.HTTPClient.get_current_authorisation_information
+#: interactions.api.http.client.HTTPClient.get_current_bot_information
+#: interactions.api.http.client.HTTPClient.get_gateway
+#: interactions.api.http.client.HTTPClient.login
+#: interactions.api.http.client.HTTPClient.logout
+#: interactions.api.http.emoji.EmojiRequest.create_guild_emoji
+#: interactions.api.http.emoji.EmojiRequest.delete_guild_emoji
+#: interactions.api.http.emoji.EmojiRequest.get_all_emoji
+#: interactions.api.http.emoji.EmojiRequest.get_guild_emoji
+#: interactions.api.http.emoji.EmojiRequest.modify_guild_emoji
+#: interactions.api.http.guild.GuildRequest.add_guild_member
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune
+#: interactions.api.http.guild.GuildRequest.create_auto_moderation_rule
+#: interactions.api.http.guild.GuildRequest.create_guild_ban
+#: interactions.api.http.guild.GuildRequest.create_guild_from_guild_template
+#: interactions.api.http.guild.GuildRequest.create_guild_kick
+#: interactions.api.http.guild.GuildRequest.create_guild_role
+#: interactions.api.http.guild.GuildRequest.create_guild_template
+#: interactions.api.http.guild.GuildRequest.delete_auto_moderation_rule
+#: interactions.api.http.guild.GuildRequest.delete_guild
+#: interactions.api.http.guild.GuildRequest.delete_guild_integration
+#: interactions.api.http.guild.GuildRequest.delete_guild_role
+#: interactions.api.http.guild.GuildRequest.delete_guild_template
+#: interactions.api.http.guild.GuildRequest.get_all_channels
+#: interactions.api.http.guild.GuildRequest.get_all_roles
+#: interactions.api.http.guild.GuildRequest.get_auto_moderation_rule
+#: interactions.api.http.guild.GuildRequest.get_guild
+#: interactions.api.http.guild.GuildRequest.get_guild_auditlog
+#: interactions.api.http.guild.GuildRequest.get_guild_bans
+#: interactions.api.http.guild.GuildRequest.get_guild_integrations
+#: interactions.api.http.guild.GuildRequest.get_guild_invites
+#: interactions.api.http.guild.GuildRequest.get_guild_preview
+#: interactions.api.http.guild.GuildRequest.get_guild_prune_count
+#: interactions.api.http.guild.GuildRequest.get_guild_templates
+#: interactions.api.http.guild.GuildRequest.get_guild_welcome_screen
+#: interactions.api.http.guild.GuildRequest.get_guild_widget
+#: interactions.api.http.guild.GuildRequest.get_guild_widget_image
+#: interactions.api.http.guild.GuildRequest.get_guild_widget_settings
+#: interactions.api.http.guild.GuildRequest.get_self_guilds
+#: interactions.api.http.guild.GuildRequest.get_user_ban
+#: interactions.api.http.guild.GuildRequest.leave_guild
+#: interactions.api.http.guild.GuildRequest.list_auto_moderation_rules
+#: interactions.api.http.guild.GuildRequest.modify_auto_moderation_rule
+#: interactions.api.http.guild.GuildRequest.modify_current_user_voice_state
+#: interactions.api.http.guild.GuildRequest.modify_guild
+#: interactions.api.http.guild.GuildRequest.modify_guild_role
+#: interactions.api.http.guild.GuildRequest.modify_guild_role_positions
+#: interactions.api.http.guild.GuildRequest.modify_guild_template
+#: interactions.api.http.guild.GuildRequest.modify_guild_welcome_screen
+#: interactions.api.http.guild.GuildRequest.modify_guild_widget
+#: interactions.api.http.guild.GuildRequest.modify_user_voice_state
+#: interactions.api.http.guild.GuildRequest.remove_guild_ban
+#: interactions.api.http.guild.GuildRequest.remove_guild_member
+#: interactions.api.http.guild.GuildRequest.sync_guild_template
+#: interactions.api.http.interaction.InteractionRequest._post_followup
+#: interactions.api.http.interaction.InteractionRequest.create_application_command
+#: interactions.api.http.interaction.InteractionRequest.create_interaction_response
+#: interactions.api.http.interaction.InteractionRequest.delete_application_command
+#: interactions.api.http.interaction.InteractionRequest.delete_interaction_response
+#: interactions.api.http.interaction.InteractionRequest.edit_application_command
+#: interactions.api.http.interaction.InteractionRequest.edit_application_command_permissions
+#: interactions.api.http.interaction.InteractionRequest.edit_interaction_response
+#: interactions.api.http.interaction.InteractionRequest.get_all_application_command_permissions
+#: interactions.api.http.interaction.InteractionRequest.get_application_command_permissions
+#: interactions.api.http.interaction.InteractionRequest.get_application_commands
+#: interactions.api.http.interaction.InteractionRequest.get_original_interaction_response
+#: interactions.api.http.interaction.InteractionRequest.overwrite_application_command
+#: interactions.api.http.member.MemberRequest.add_member_role
+#: interactions.api.http.member.MemberRequest.get_list_of_members
+#: interactions.api.http.member.MemberRequest.get_member
+#: interactions.api.http.member.MemberRequest.modify_member
+#: interactions.api.http.member.MemberRequest.remove_member_role
+#: interactions.api.http.member.MemberRequest.search_guild_members
+#: interactions.api.http.message.MessageRequest.create_message
+#: interactions.api.http.message.MessageRequest.delete_message
+#: interactions.api.http.message.MessageRequest.delete_messages
+#: interactions.api.http.message.MessageRequest.edit_message
+#: interactions.api.http.message.MessageRequest.get_message
+#: interactions.api.http.message.MessageRequest.pin_message
+#: interactions.api.http.message.MessageRequest.publish_message
+#: interactions.api.http.message.MessageRequest.send_message
+#: interactions.api.http.message.MessageRequest.unpin_message
+#: interactions.api.http.reaction.ReactionRequest.create_reaction
+#: interactions.api.http.reaction.ReactionRequest.get_reactions_of_emoji
+#: interactions.api.http.reaction.ReactionRequest.remove_all_reactions
+#: interactions.api.http.reaction.ReactionRequest.remove_all_reactions_of_emoji
+#: interactions.api.http.reaction.ReactionRequest.remove_self_reaction
+#: interactions.api.http.reaction.ReactionRequest.remove_user_reaction
+#: interactions.api.http.request._Request._check_lock
+#: interactions.api.http.request._Request._check_session
+#: interactions.api.http.request._Request.close
+#: interactions.api.http.request._Request.request
+#: interactions.api.http.route.Route.endpoint
+#: interactions.api.http.route.Route.get_bucket
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.create_scheduled_event
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.delete_scheduled_event
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event_users
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.modify_scheduled_event
+#: interactions.api.http.sticker.StickerRequest.create_guild_sticker
+#: interactions.api.http.sticker.StickerRequest.delete_guild_sticker
+#: interactions.api.http.sticker.StickerRequest.get_guild_sticker
+#: interactions.api.http.sticker.StickerRequest.get_sticker
+#: interactions.api.http.sticker.StickerRequest.list_guild_stickers
+#: interactions.api.http.sticker.StickerRequest.list_nitro_sticker_packs
+#: interactions.api.http.sticker.StickerRequest.modify_guild_sticker
+#: interactions.api.http.thread.ThreadRequest.add_member_to_thread
+#: interactions.api.http.thread.ThreadRequest.create_thread
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum
+#: interactions.api.http.thread.ThreadRequest.get_member_from_thread
+#: interactions.api.http.thread.ThreadRequest.join_thread
+#: interactions.api.http.thread.ThreadRequest.leave_thread
+#: interactions.api.http.thread.ThreadRequest.list_active_threads
+#: interactions.api.http.thread.ThreadRequest.list_joined_private_archived_threads
+#: interactions.api.http.thread.ThreadRequest.list_private_archived_threads
+#: interactions.api.http.thread.ThreadRequest.list_public_archived_threads
+#: interactions.api.http.thread.ThreadRequest.list_thread_members
+#: interactions.api.http.thread.ThreadRequest.remove_member_from_thread
+#: interactions.api.http.user.UserRequest.create_dm
+#: interactions.api.http.user.UserRequest.get_self
+#: interactions.api.http.user.UserRequest.get_user
+#: interactions.api.http.user.UserRequest.modify_self
+#: interactions.api.http.user.UserRequest.modify_self_nick_in_guild
+#: interactions.api.http.webhook.WebhookRequest.create_webhook
+#: interactions.api.http.webhook.WebhookRequest.delete_original_webhook_message
+#: interactions.api.http.webhook.WebhookRequest.delete_webhook_message
+#: interactions.api.http.webhook.WebhookRequest.edit_webhook_message
+#: interactions.api.http.webhook.WebhookRequest.execute_github_webhook
+#: interactions.api.http.webhook.WebhookRequest.execute_slack_webhook
+#: interactions.api.http.webhook.WebhookRequest.execute_webhook
+#: interactions.api.http.webhook.WebhookRequest.get_channel_webhooks
+#: interactions.api.http.webhook.WebhookRequest.get_guild_webhooks
+#: interactions.api.http.webhook.WebhookRequest.get_webhook
+#: interactions.api.http.webhook.WebhookRequest.get_webhook_message
+#: interactions.api.http.webhook.WebhookRequest.modify_webhook of
+msgid "Return type"
 msgstr ""
 
 #: interactions.api.http.route.Route.endpoint:1 of
@@ -617,9 +615,12 @@ msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:6
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:3
+#: interactions.api.http.channel.ChannelRequest.create_tag:7
 #: interactions.api.http.channel.ChannelRequest.delete_channel_permission:3
 #: interactions.api.http.channel.ChannelRequest.delete_stage_instance:3
+#: interactions.api.http.channel.ChannelRequest.delete_tag:3
 #: interactions.api.http.channel.ChannelRequest.edit_channel_permission:3
+#: interactions.api.http.channel.ChannelRequest.edit_tag:7
 #: interactions.api.http.channel.ChannelRequest.get_channel:3
 #: interactions.api.http.channel.ChannelRequest.get_channel_invites:3
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:6
@@ -917,6 +918,51 @@ msgstr ""
 
 #: interactions.api.http.channel.ChannelRequest.delete_stage_instance:1 of
 msgid "Delete a stage instance."
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.create_tag:1 of
+msgid "Create a new tag."
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.create_tag:4
+#: interactions.api.http.channel.ChannelRequest.edit_tag:4 of
+msgid ""
+"Can either have an emoji_id or an emoji_name, but not both. emoji_id is "
+"meant for custom emojis, emoji_name is meant for unicode emojis."
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.create_tag:8 of
+msgid "The name of the tag"
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.create_tag:9
+#: interactions.api.http.channel.ChannelRequest.edit_tag:10 of
+msgid "The ID of the emoji to use for the tag"
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.create_tag:10
+#: interactions.api.http.channel.ChannelRequest.edit_tag:11 of
+msgid "The name of the emoji to use for the tag"
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.edit_tag:1 of
+msgid "Update a tag."
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.edit_tag:8 of
+msgid "The ID of the tag to update."
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.edit_tag:9 of
+msgid "The new name of the tag"
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.delete_tag:1 of
+msgid "Delete a forum tag."
+msgstr ""
+
+#: interactions.api.http.channel.ChannelRequest.delete_tag:4 of
+msgid "The ID of the tag to delete"
 msgstr ""
 
 #: interactions.api.http.emoji.EmojiRequest.get_all_emoji:1 of
@@ -1279,6 +1325,7 @@ msgstr ""
 msgid "Gets all roles from a Guild."
 msgstr ""
 
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune:3
 #: interactions.api.http.guild.GuildRequest.create_guild_ban:3
 #: interactions.api.http.guild.GuildRequest.create_guild_kick:3
 #: interactions.api.http.guild.GuildRequest.get_all_roles:3
@@ -1374,7 +1421,9 @@ msgid ""
 msgstr ""
 
 #: interactions.api.http.guild.GuildRequest.create_guild_ban:5 of
-msgid "Number of days to delete messages, from 0 to 7. Defaults to 0"
+msgid ""
+"Number of seconds to delete messages for, between 0 and 604800. Default "
+"to 0"
 msgstr ""
 
 #: interactions.api.http.guild.GuildRequest.create_guild_ban:6 of
@@ -1467,18 +1516,34 @@ msgstr ""
 msgid "Reason to send to audit log, if any."
 msgstr ""
 
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune:1 of
+msgid "Begins a prune operation."
+msgstr ""
+
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune:4
+#: interactions.api.http.guild.GuildRequest.get_guild_prune_count:4 of
+msgid "Number of days to count, minimum 1, maximum 30. Defaults to 7."
+msgstr ""
+
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune:5 of
+msgid ""
+"Whether the returned \"pruned\" dict contains the computed prune count or"
+" None."
+msgstr ""
+
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune:6
+#: interactions.api.http.guild.GuildRequest.get_guild_prune_count:5 of
+msgid "Role IDs to include, if given."
+msgstr ""
+
+#: interactions.api.http.guild.GuildRequest.begin_guild_prune:7 of
+msgid "A dict containing `{\"pruned\": int}` or `{\"pruned\": None}`"
+msgstr ""
+
 #: interactions.api.http.guild.GuildRequest.get_guild_prune_count:1 of
 msgid ""
 "Retrieves a dict from an API that results in how many members would be "
 "pruned given the amount of days."
-msgstr ""
-
-#: interactions.api.http.guild.GuildRequest.get_guild_prune_count:4 of
-msgid "Number of days to count. Defaults to ``7``."
-msgstr ""
-
-#: interactions.api.http.guild.GuildRequest.get_guild_prune_count:5 of
-msgid "Role IDs to include, if given."
 msgstr ""
 
 #: interactions.api.http.guild.GuildRequest.get_guild_prune_count:6 of
@@ -1974,7 +2039,8 @@ msgid "Channel snowflake ID."
 msgstr ""
 
 #: interactions.api.http.message.MessageRequest.create_message:5
-#: interactions.api.http.message.MessageRequest.edit_message:6 of
+#: interactions.api.http.message.MessageRequest.edit_message:6
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:9 of
 msgid "An optional list of files to send attached to the message."
 msgstr ""
 
@@ -2178,11 +2244,8 @@ msgid "Guild Scheduled Event ID snowflake."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event:5
-#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events:4
 #: of
-msgid ""
-"A boolean to include number of users subscribed to the associated event, "
-"if given."
+msgid "Whether the number of users subscribed to the events is returned."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_event:6
@@ -2193,6 +2256,13 @@ msgstr ""
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events:1
 #: of
 msgid "Gets all guild scheduled events in a guild."
+msgstr ""
+
+#: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events:4
+#: of
+msgid ""
+"Whether the number of users subscribed to the associated event is "
+"returned."
 msgstr ""
 
 #: interactions.api.http.scheduledEvent.ScheduledEventRequest.get_scheduled_events:5
@@ -2307,22 +2377,25 @@ msgid ""
 "MANAGE_EMOJIS_AND_STICKERS permission."
 msgstr ""
 
-#: interactions.api.http.sticker.StickerRequest.create_guild_sticker:3
-#: interactions.api.http.sticker.StickerRequest.modify_guild_sticker:3 of
-msgid "the payload to send."
+#: interactions.api.http.sticker.StickerRequest.create_guild_sticker:3 of
+msgid "The payload to send."
 msgstr ""
 
 #: interactions.api.http.sticker.StickerRequest.create_guild_sticker:4 of
+msgid "The file to send."
+msgstr ""
+
+#: interactions.api.http.sticker.StickerRequest.create_guild_sticker:5 of
 msgid "The guild to create sticker at."
 msgstr ""
 
-#: interactions.api.http.sticker.StickerRequest.create_guild_sticker:5
+#: interactions.api.http.sticker.StickerRequest.create_guild_sticker:6
 #: interactions.api.http.sticker.StickerRequest.delete_guild_sticker:5
 #: interactions.api.http.sticker.StickerRequest.modify_guild_sticker:6 of
 msgid "The reason for this action."
 msgstr ""
 
-#: interactions.api.http.sticker.StickerRequest.create_guild_sticker:6 of
+#: interactions.api.http.sticker.StickerRequest.create_guild_sticker:7 of
 msgid "The new sticker data on success."
 msgstr ""
 
@@ -2330,6 +2403,10 @@ msgstr ""
 msgid ""
 "Modify the given sticker. Requires the MANAGE_EMOJIS_AND_STICKERS "
 "permission."
+msgstr ""
+
+#: interactions.api.http.sticker.StickerRequest.modify_guild_sticker:3 of
+msgid "the payload to send."
 msgstr ""
 
 #: interactions.api.http.sticker.StickerRequest.delete_guild_sticker:3
@@ -2483,15 +2560,18 @@ msgid ""
 "with.."
 msgstr ""
 
-#: interactions.api.http.thread.ThreadRequest.create_thread:3 of
+#: interactions.api.http.thread.ThreadRequest.create_thread:3
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:3 of
 msgid "The ID of the channel to create this thread in"
 msgstr ""
 
-#: interactions.api.http.thread.ThreadRequest.create_thread:4 of
+#: interactions.api.http.thread.ThreadRequest.create_thread:4
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:4 of
 msgid "The name of the thread"
 msgstr ""
 
-#: interactions.api.http.thread.ThreadRequest.create_thread:5 of
+#: interactions.api.http.thread.ThreadRequest.create_thread:5
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:5 of
 msgid ""
 "duration in minutes to automatically archive the thread after recent "
 "activity, can be set to: 60, 1440, 4320, 10080"
@@ -2511,12 +2591,35 @@ msgstr ""
 msgid "An optional message to create a thread from."
 msgstr ""
 
-#: interactions.api.http.thread.ThreadRequest.create_thread:10 of
+#: interactions.api.http.thread.ThreadRequest.create_thread:10
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:11 of
 msgid "An optional reason for the audit log"
 msgstr ""
 
 #: interactions.api.http.thread.ThreadRequest.create_thread:11 of
 msgid "The created thread"
+msgstr ""
+
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:1 of
+msgid "From a given Forum channel, create a Thread with a message to start with."
+msgstr ""
+
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:7 of
+msgid "The payload/dictionary contents of the first message in the forum thread."
+msgstr ""
+
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:8 of
+msgid "List of tag ids that can be applied to the forum, if any."
+msgstr ""
+
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:10 of
+msgid ""
+"Seconds a user has to wait before sending another message (0 to 21600), "
+"if given."
+msgstr ""
+
+#: interactions.api.http.thread.ThreadRequest.create_thread_in_forum:12 of
+msgid "Returns a Thread in a Forum object with a starting Message."
 msgstr ""
 
 #: interactions.api.http.user.UserRequest.get_self:1 of
@@ -2743,3 +2846,15 @@ msgstr ""
 #: of
 msgid "Deletes the original message object sent."
 msgstr ""
+
+#~ msgid "Number of days to delete messages, from 0 to 7. Defaults to 0"
+#~ msgstr ""
+
+#~ msgid "Number of days to count. Defaults to ``7``."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "A boolean to include number of "
+#~ "users subscribed to the associated "
+#~ "event, if given."
+#~ msgstr ""

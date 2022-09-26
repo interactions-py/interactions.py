@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../api.models.misc.rst:4
 msgid "Miscellanous Models"
@@ -27,6 +27,7 @@ msgstr ""
 msgid "An enumeration."
 msgstr ""
 
+#: interactions.api.models.misc.AllowedMentionType
 #: interactions.api.models.misc.AutoModKeywordPresetTypes
 #: interactions.api.models.misc.AutoModTriggerType of
 msgid "Member Type"
@@ -37,6 +38,7 @@ msgstr ""
 msgid ":py:class:`int`"
 msgstr ""
 
+#: interactions.api.models.misc.AllowedMentionType:1
 #: interactions.api.models.misc.AutoModKeywordPresetTypes:1
 #: interactions.api.models.misc.AutoModTriggerType:1 of
 msgid "Valid values are as follows:"
@@ -50,6 +52,7 @@ msgstr ""
 msgid "The maximum duration for duration_seconds is 2419200 seconds, aka 4 weeks."
 msgstr ""
 
+#: interactions.api.models.misc.AllowedMentions
 #: interactions.api.models.misc.AutoModAction
 #: interactions.api.models.misc.AutoModMetaData
 #: interactions.api.models.misc.AutoModTriggerMetadata
@@ -66,6 +69,7 @@ msgstr ""
 msgid "Timeout duration in seconds, if timed out."
 msgstr ""
 
+#: interactions.api.models.misc.AllowedMentions
 #: interactions.api.models.misc.AutoModAction
 #: interactions.api.models.misc.AutoModMetaData
 #: interactions.api.models.misc.AutoModTriggerMetadata
@@ -107,6 +111,53 @@ msgstr ""
 msgid "The internally pre-defined wordsets which will be searched for in content."
 msgstr ""
 
+#: interactions.api.models.misc.AllowedMentionType:1 of
+msgid "An enumerable object representing the allowed mention types"
+msgstr ""
+
+#: interactions.api.models.misc.AllowedMentionType:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.api.models.misc.AllowedMentionType:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
+msgstr ""
+
+#: enum.Enum._generate_next_value_:1 of
+msgid "Generate the next value when not given."
+msgstr ""
+
+#: enum.Enum._generate_next_value_:3 of
+msgid ""
+"name: the name of the member start: the initial start value or None "
+"count: the number of existing members last_value: the last value assigned"
+" or None"
+msgstr ""
+
+#: interactions.api.models.misc.AllowedMentions:1 of
+msgid "A class object representing the allowed mentions object"
+msgstr ""
+
+#: interactions.api.models.misc.AllowedMentions:3 of
+msgid ""
+"Optional[List[AllowedMentionType]]: An array of allowed mention types to "
+"parse from the content."
+msgstr ""
+
+#: interactions.api.models.misc.AllowedMentions:4 of
+msgid "Optional[List[int]]: An array of user ids to mention."
+msgstr ""
+
+#: interactions.api.models.misc.AllowedMentions:5 of
+msgid "Optional[List[int]]: An array of role ids to mention."
+msgstr ""
+
+#: interactions.api.models.misc.AllowedMentions:6 of
+msgid ""
+"Optional[bool]: For replies, whether to mention the author of the message"
+" being replied to."
+msgstr ""
+
 #: interactions.api.models.misc.Snowflake:1 of
 msgid "The Snowflake object."
 msgstr ""
@@ -127,17 +178,6 @@ msgid ""
 "You can still provide integers to them, to ensure ease of use of "
 "transition and/or if discord API for some odd reason will switch to "
 "integer."
-msgstr ""
-
-#: interactions.api.models.misc.Color.black
-#: interactions.api.models.misc.Color.blurple
-#: interactions.api.models.misc.Color.fuchsia
-#: interactions.api.models.misc.Color.green
-#: interactions.api.models.misc.Color.red
-#: interactions.api.models.misc.Color.white
-#: interactions.api.models.misc.Color.yellow
-#: interactions.api.models.misc.Snowflake of
-msgid "Return type"
 msgstr ""
 
 #: interactions.api.models.misc.Snowflake.increment:1 of
@@ -197,6 +237,16 @@ msgstr ""
 
 #: interactions.api.models.misc.Color.blurple:1 of
 msgid "Returns a hexadecimal value of the blurple color."
+msgstr ""
+
+#: interactions.api.models.misc.Color.black
+#: interactions.api.models.misc.Color.blurple
+#: interactions.api.models.misc.Color.fuchsia
+#: interactions.api.models.misc.Color.green
+#: interactions.api.models.misc.Color.red
+#: interactions.api.models.misc.Color.white
+#: interactions.api.models.misc.Color.yellow of
+msgid "Return type"
 msgstr ""
 
 #: interactions.api.models.misc.Color.green:1 of
