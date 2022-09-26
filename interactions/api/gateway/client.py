@@ -470,10 +470,13 @@ class WebSocketClient:
                     ids = self.__get_object_ids(obj, model)
 
                 if "_create" in name or "_add" in name:
-                    if id and str(id) in self.__start_guild:
-                        self.__start_guild.remove(str(id))
-                    else:
-                        self._dispatch.dispatch(f"on_{name}", obj)
+                    if name == "guild_create":
+                        if id and str(id) in self.__start_guild:
+                            self.__start_guild.remove(str(id))
+                        else:
+                            self._dispatch.dispatch("on_join", obj)
+
+                    self._dispatch.dispatch(f"on_{name}", obj)
 
                     if id:
                         _cache.merge(obj, id)
