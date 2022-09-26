@@ -474,7 +474,7 @@ class WebSocketClient:
                         if id and str(id) in self.__start_guild:
                             self.__start_guild.remove(str(id))
                         else:
-                            self._dispatch.dispatch("on_join", obj)
+                            self._dispatch.dispatch("on_guild_join", obj)
 
                     self._dispatch.dispatch(f"on_{name}", obj)
 
