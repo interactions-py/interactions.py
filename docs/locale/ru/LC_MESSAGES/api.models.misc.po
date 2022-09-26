@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-26 11:03-0400\n"
+"POT-Creation-Date: 2022-09-26 12:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,16 +67,6 @@ msgstr ""
 
 #: interactions.api.models.misc.AutoModMetaData:9 of
 msgid "Timeout duration in seconds, if timed out."
-msgstr ""
-
-#: interactions.api.models.misc.AllowedMentions
-#: interactions.api.models.misc.AutoModAction
-#: interactions.api.models.misc.AutoModMetaData
-#: interactions.api.models.misc.AutoModTriggerMetadata
-#: interactions.api.models.misc.ClientStatus interactions.api.models.misc.File
-#: interactions.api.models.misc.Image interactions.api.models.misc.Overwrite
-#: interactions.api.models.misc.Snowflake of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.misc.AutoModAction:1 of
@@ -337,3 +327,6 @@ msgstr ""
 #: interactions.api.models.misc.Overwrite:6 of
 msgid "Permission bit set."
 msgstr ""
+
+#~ msgid "Parameters"
+#~ msgstr ""

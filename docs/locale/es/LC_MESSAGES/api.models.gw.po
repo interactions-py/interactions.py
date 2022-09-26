@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-26 11:03-0400\n"
+"POT-Creation-Date: 2022-09-26 12:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -91,29 +91,6 @@ msgstr ""
 
 #: interactions.api.models.gw.AutoModerationAction:12 of
 msgid "The substring in content that triggered rule."
-msgstr ""
-
-#: interactions.api.models.gw.ApplicationCommandPermissions
-#: interactions.api.models.gw.AutoModerationAction
-#: interactions.api.models.gw.AutoModerationRule
-#: interactions.api.models.gw.ChannelPins
-#: interactions.api.models.gw.EmbeddedActivity
-#: interactions.api.models.gw.GuildBan interactions.api.models.gw.GuildEmojis
-#: interactions.api.models.gw.GuildIntegrations
-#: interactions.api.models.gw.GuildJoinRequest
-#: interactions.api.models.gw.GuildMember
-#: interactions.api.models.gw.GuildMembers interactions.api.models.gw.GuildRole
-#: interactions.api.models.gw.GuildScheduledEvent
-#: interactions.api.models.gw.GuildScheduledEventUser
-#: interactions.api.models.gw.GuildStickers
-#: interactions.api.models.gw.Integration
-#: interactions.api.models.gw.MessageDelete
-#: interactions.api.models.gw.MessageReaction
-#: interactions.api.models.gw.MessageReactionRemove
-#: interactions.api.models.gw.Presence interactions.api.models.gw.ThreadList
-#: interactions.api.models.gw.ThreadMembers interactions.api.models.gw.Webhooks
-#: of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.gw.AutoModerationRule:1 of
@@ -836,4 +813,7 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "The id of the thread to add the member to"
+#~ msgstr ""
+
+#~ msgid "Parameters"
 #~ msgstr ""
