@@ -316,10 +316,10 @@ class WebSocketClient:
             self.ready.set()
             self._dispatch.dispatch("on_ready")
             self._ready = data
+            self.__unavailable_guilds = [i["id"] for i in data["guilds"]]
             self.session_id = data["session_id"]
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
-                self.__start_guild = [i["id"] for i in data["guilds"]]
                 self.__started = True
                 self._dispatch.dispatch("on_start")
             log.debug(f"READY (session_id: {self.session_id}, seq: {self.sequence})")
@@ -471,8 +471,8 @@ class WebSocketClient:
 
                 if "_create" in name or "_add" in name:
                     if name == "guild_create":
-                        if id and str(id) in self.__start_guild:
-                            self.__start_guild.remove(str(id))
+                        if id and str(id) in self.__unavailable_guilds:
+                            self.__unavailable_guilds.remove(str(id))
                         else:
                             self._dispatch.dispatch("on_guild_join", obj)
 
