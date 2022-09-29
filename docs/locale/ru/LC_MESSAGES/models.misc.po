@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-26 11:03-0400\n"
+"POT-Creation-Date: 2022-09-26 12:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,12 +54,6 @@ msgstr ""
 
 #: interactions.client.models.misc.InteractionResolvedData:8 of
 msgid "The resolved attachments data."
-msgstr ""
-
-#: interactions.client.models.misc.Interaction
-#: interactions.client.models.misc.InteractionData
-#: interactions.client.models.misc.InteractionResolvedData of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.client.models.misc.InteractionData:1 of
@@ -153,3 +147,6 @@ msgstr ""
 #: interactions.client.models.misc.Interaction:13 of
 msgid "The message of the interaction."
 msgstr ""
+
+#~ msgid "Parameters"
+#~ msgstr ""
