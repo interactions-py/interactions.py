@@ -1,6 +1,6 @@
 .. currentmodule:: interactions
 
-Audit-Log Models
+Emoji Models
 ================
 
 .. automodule:: interactions.api.models.emoji
