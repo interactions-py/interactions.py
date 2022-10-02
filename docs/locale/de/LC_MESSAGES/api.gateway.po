@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../api.gateway.rst:4
 msgid "Gateway"
@@ -36,121 +36,169 @@ msgid ""
 "WebSocket."
 msgstr ""
 
+#: interactions.api.gateway.client.WebSocketClient:4 of
+msgid ""
+"The ``__heartbeat_event`` Event object is different from the one built in"
+" to the Heartbeater object. The latter is used to trace heartbeat "
+"acknowledgement."
+msgstr ""
+
 #: interactions.api.gateway.client.WebSocketClient of
 msgid "Variables"
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient:3 of
+#: interactions.api.gateway.client.WebSocketClient:7 of
 msgid "The asynchronous event loop."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient:4 of
+#: interactions.api.gateway.client.WebSocketClient:8 of
 msgid "The built-in event dispatcher."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient:5 of
-msgid "The user-facing HTTP client."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient:6 of
-msgid "The WebSocket data of the connection."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient:7 of
-msgid "Whether the connection has been closed or not."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient:8 of
-msgid "The connection options made during connection."
-msgstr ""
-
 #: interactions.api.gateway.client.WebSocketClient:9 of
-msgid "The gateway intents used for connection."
+msgid "The websocket ratelimiter object."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:10 of
-msgid "The contents of the application returned when ready."
+msgid "The user-facing HTTP client."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:11 of
-msgid "The context state of a \"heartbeat\" made to the Gateway."
+msgid "The WebSocket data of the connection."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:12 of
-msgid "The shards used during connection."
+msgid "Whether the connection has been closed or not."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:13 of
-msgid "The presence used in connection."
+msgid "The connection options made during connection."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:14 of
-msgid "The ready state of the client as an ``asyncio.Event``."
+msgid "The gateway intents used for connection."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:15 of
-msgid "The closing task for ending connections."
+msgid "The contents of the application returned when ready."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:16 of
-msgid "Whether the client has started."
+msgid "The context state of a \"heartbeat\" made to the Gateway."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:17 of
-msgid "The ID of the ongoing session."
+msgid "The state of the overall heartbeat process."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:18 of
-msgid "The sequence identifier of the ongoing session."
+msgid "The shards used during connection."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient:19 of
+msgid "The presence used in connection."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:20 of
+msgid "The ready state of the client as an ``asyncio.Event``."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:21 of
+msgid "The task containing the heartbeat manager process."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:22 of
+msgid "Whether the client has started."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:23 of
+msgid "The ID of the ongoing session."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:24 of
+msgid "The sequence identifier of the ongoing session."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:25 of
 msgid ""
 "The latest time of the last send_packet function call since connection "
 "creation, in seconds."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient:20 of
+#: interactions.api.gateway.client.WebSocketClient:26 of
 msgid ""
 "The latest time of the last ``HEARTBEAT_ACK`` event since connection "
 "creation, in seconds."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient:21 of
-msgid "The latency of the connection, in seconds."
+#: interactions.api.gateway.client.WebSocketClient:27 of
+msgid "The Websocket ratelimit URL for resuming connections, if any."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:28 of
+msgid "The Websocket URL for instantiating connections without resuming."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:29 of
+msgid "The lock used for reconnecting the client."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:30 of
+msgid "The lock used for closing the client."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient:31 of
+msgid "The task containing stopping the client, if any."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient
 #: interactions.api.gateway.client.WebSocketClient.__contextualize
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id
+#: interactions.api.gateway.client.WebSocketClient.__get_object_ids
 #: interactions.api.gateway.client.WebSocketClient.__identify
+#: interactions.api.gateway.client.WebSocketClient.__modify_guild_cache
 #: interactions.api.gateway.client.WebSocketClient.__option_type_context
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet
 #: interactions.api.gateway.client.WebSocketClient.__sub_command_context
 #: interactions.api.gateway.client.WebSocketClient._dispatch_event
-#: interactions.api.gateway.client.WebSocketClient._establish_connection
-#: interactions.api.gateway.client.WebSocketClient._handle_connection
+#: interactions.api.gateway.client.WebSocketClient._handle_stream
+#: interactions.api.gateway.client.WebSocketClient._reconnect
 #: interactions.api.gateway.client.WebSocketClient._send_packet
 #: interactions.api.gateway.client.WebSocketClient._update_presence
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members
 #: interactions.api.gateway.heartbeat._Heartbeat of
 msgid "Parameters"
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient
+#: interactions.api.gateway.client.WebSocketClient.latency:1 of
+msgid "The latency of the connection, in seconds."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.run_heartbeat:1 of
+msgid ""
+"Controls the heartbeat manager. Do note that this shouldn't be executed "
+"by outside processes."
+msgstr ""
+
 #: interactions.api.gateway.client.WebSocketClient.__contextualize
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id
+#: interactions.api.gateway.client.WebSocketClient.__get_object_ids
 #: interactions.api.gateway.client.WebSocketClient.__heartbeat
 #: interactions.api.gateway.client.WebSocketClient.__identify
 #: interactions.api.gateway.client.WebSocketClient.__option_type_context
-#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream
-#: interactions.api.gateway.client.WebSocketClient.__restart
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet
 #: interactions.api.gateway.client.WebSocketClient.__resume
 #: interactions.api.gateway.client.WebSocketClient.__sub_command_context
 #: interactions.api.gateway.client.WebSocketClient._dispatch_event
-#: interactions.api.gateway.client.WebSocketClient._establish_connection
-#: interactions.api.gateway.client.WebSocketClient._handle_connection
 #: interactions.api.gateway.client.WebSocketClient._manage_heartbeat
+#: interactions.api.gateway.client.WebSocketClient._reconnect
 #: interactions.api.gateway.client.WebSocketClient._send_packet
 #: interactions.api.gateway.client.WebSocketClient._update_presence
-#: interactions.api.gateway.client.WebSocketClient.wait_until_ready
-#: interactions.api.gateway.heartbeat._Heartbeat of
+#: interactions.api.gateway.client.WebSocketClient.close
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members
+#: interactions.api.gateway.client.WebSocketClient.run
+#: interactions.api.gateway.client.WebSocketClient.run_heartbeat
+#: interactions.api.gateway.client.WebSocketClient.wait_until_ready of
 msgid "Return type"
 msgstr ""
 
@@ -158,29 +206,21 @@ msgstr ""
 msgid "Manages the heartbeat loop."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient.__restart:1 of
-msgid "Restart the client's connection and heartbeat with the Gateway."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient._establish_connection:1 of
-msgid "Establishes a client connection with the Gateway."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient._establish_connection:3
-#: interactions.api.gateway.client.WebSocketClient._handle_connection:5 of
-msgid "The shards to establish a connection with. Defaults to ``None``."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient._establish_connection:5
-#: interactions.api.gateway.client.WebSocketClient._handle_connection:7 of
-msgid "The presence to carry with. Defaults to ``None``."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient._handle_connection:1 of
+#: interactions.api.gateway.client.WebSocketClient.run:1 of
 msgid "Handles the client's connection with the Gateway."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient._handle_connection:3 of
+#: interactions.api.gateway.client.WebSocketClient._handle_stream:1 of
+msgid ""
+"Parses raw stream data recieved from the Gateway, including Gateway "
+"opcodes and events."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient._handle_stream:4 of
+msgid "This should never be called directly."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient._handle_stream:6 of
 msgid "The packet stream to handle."
 msgstr ""
 
@@ -192,12 +232,56 @@ msgstr ""
 msgid "Dispatches an event from the Gateway."
 msgstr ""
 
+#: interactions.api.gateway.client.WebSocketClient.__modify_guild_cache:3
 #: interactions.api.gateway.client.WebSocketClient._dispatch_event:3 of
 msgid "The name of the event."
 msgstr ""
 
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id:3
+#: interactions.api.gateway.client.WebSocketClient.__modify_guild_cache:5
 #: interactions.api.gateway.client.WebSocketClient._dispatch_event:5 of
 msgid "The data for the event."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id:1 of
+msgid "Gets an ID from object."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id:5
+#: interactions.api.gateway.client.WebSocketClient.__get_object_ids:3
+#: interactions.api.gateway.client.WebSocketClient.__modify_guild_cache:7 of
+msgid "The object of the event."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id:7
+#: interactions.api.gateway.client.WebSocketClient.__get_object_ids:5
+#: interactions.api.gateway.client.WebSocketClient.__modify_guild_cache:9 of
+msgid "The model of the event."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__contextualize
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id
+#: interactions.api.gateway.client.WebSocketClient.__get_object_ids
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__get_object_id:9 of
+msgid "Object ID"
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__get_object_ids:1 of
+msgid "Gets a list of ids of object."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__get_object_ids:7 of
+msgid "Object IDs"
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__modify_guild_cache:1 of
+msgid "Modifies guild cache."
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient.__contextualize:1 of
@@ -208,13 +292,6 @@ msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient.__contextualize:4 of
 msgid "The data from the Gateway."
-msgstr ""
-
-#: interactions.api.gateway.client.WebSocketClient.__contextualize
-#: interactions.api.gateway.client.WebSocketClient.__option_type_context
-#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream
-#: interactions.api.gateway.client.WebSocketClient.__sub_command_context of
-msgid "Returns"
 msgstr ""
 
 #: interactions.api.gateway.client.WebSocketClient.__contextualize:6 of
@@ -255,11 +332,15 @@ msgstr ""
 msgid "The option type context."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream:1 of
-msgid "Receives a stream of packets sent from the Gateway."
+#: interactions.api.gateway.client.WebSocketClient._reconnect:1 of
+msgid "Restarts the client's connection and heartbeat with the Gateway."
 msgstr ""
 
-#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream:3 of
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet:1 of
+msgid "Receives a stream of packets sent from the Gateway in an async process."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet:3 of
 msgid "The packet stream."
 msgstr ""
 
@@ -311,6 +392,58 @@ msgid ""
 "disconnect."
 msgstr ""
 
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members:1 of
+msgid "Sends an ``REQUEST_MEMBERS`` packet to the gateway."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members:3 of
+msgid "ID of the guild to get members for."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members:5 of
+msgid ""
+"Maximum number of members to send matching the 'query' parameter. "
+"Required when specifying 'query'."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members:7 of
+msgid "String that username starts with."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members:9 of
+msgid "Used to specify if we want the presences of the matched members."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members:11 of
+msgid "Used to specify which users you wish to fetch."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.request_guild_members:13 of
+msgid "Nonce to identify the Guild Members Chunk response."
+msgstr ""
+
+#: interactions.api.gateway.client.WebSocketClient.close:1 of
+msgid "Closes the current connection."
+msgstr ""
+
 #: interactions.api.gateway.heartbeat._Heartbeat:1 of
 msgid "An internal class representing the heartbeat in a WebSocket connection."
 msgstr ""
+
+#~ msgid "The closing task for ending connections."
+#~ msgstr ""
+
+#~ msgid "Restart the client's connection and heartbeat with the Gateway."
+#~ msgstr ""
+
+#~ msgid "Establishes a client connection with the Gateway."
+#~ msgstr ""
+
+#~ msgid "The shards to establish a connection with. Defaults to ``None``."
+#~ msgstr ""
+
+#~ msgid "The presence to carry with. Defaults to ``None``."
+#~ msgstr ""
+
+#~ msgid "Receives a stream of packets sent from the Gateway."
+#~ msgstr ""

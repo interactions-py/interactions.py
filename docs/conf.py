@@ -37,6 +37,7 @@ hoverxref_sphinxtabs = True
 
 # descriptions of the relevant function/method.
 autodoc_typehints = "description"
+autodoc_typehints_description_target = "documented_params"
 
 extensions = [
     "sphinx.ext.autodoc",

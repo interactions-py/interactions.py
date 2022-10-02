@@ -8,6 +8,7 @@ Model Objects
 
     api.models.audit_log.rst
     api.models.channel.rst
+    api.models.emoji.rst
     api.models.guild.rst
     api.models.gw.rst
     api.models.flags.rst

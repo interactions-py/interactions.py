@@ -4,7 +4,7 @@ Quickstart
 Installing
 **********
 
-**discord-interactions** is a :ref:`Python library <index:discord-interactions>` for the Discord Application Programming Interface. (API)
+**discord-interactions** is a :ref:`Python library <index:interactions.py>` for the Discord Application Programming Interface. (API)
 A library in Python has to be installed through the `pip` file. Run this in your terminal/command line
 in order to install our library:
 
@@ -633,7 +633,7 @@ You can use the following utilities to help you with your commands:
 * ``spread_to_rows()``: Spreads a list of components into a list of rows.
 * ``@autodefer()``: Automatically defers a command if it did not respond within the specified time.
 
-Look at their documentation :ref:`here <models.command:Utilities>` for more information.
+Look at their documentation :ref:`here <utils:Utilities>` for more information.
 
 Usage of ``ActionRow.new()``:
 
