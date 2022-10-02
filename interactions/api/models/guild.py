@@ -2722,14 +2722,14 @@ class Guild(ClientSerializerMixin, IDMixin):
             AuditLogEvents,
             int,
             Member,
-            Tuple[Union[User, Member, Snowflake, int], Union[AuditLogs, int]],
+            Tuple[Union[User, Member, Snowflake, int], Union[AuditLogEvents, int]],
         ],
     ) -> AuditLogs:
         """
         Gets the latest audit log action of either a user or an action type
 
         :param of: The user, user id or action type to look for
-        :type of: Union[User, Snowflake, AuditLogEvents, int, Tuple[Union[User, Snowflake, int], Union[AuditLogs, int]]]
+        :type of: Union[User, Snowflake, AuditLogEvents, int, Tuple[Union[User, Snowflake, int], Union[AuditLogEvents, int]]]
         :return: The latest AuditLog action that applies to the ``of`` parameter
         :rtype: AuditLogs
         """
