@@ -1,0 +1,795 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# ItsRqtl <itsrqtl@gmail>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: ItsRqtl <itsrqtl@gmail.com>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: ItsRqtl\n"
+
+#: ../../api.models.channel.rst:4
+msgid "Channel Models"
+msgstr "頻道模型"
+
+#: interactions.api.models.channel.ChannelType:1 of
+msgid "An enumerable object representing the type of channels."
+msgstr "一個可枚舉的物件，代表頻道的類型。"
+
+#: interactions.api.models.channel.ChannelType of
+msgid "Member Type"
+msgstr "成員類型"
+
+#: interactions.api.models.channel.ChannelType:1 of
+msgid ":py:class:`int`"
+msgstr ":py:class:`int`"
+
+#: interactions.api.models.channel.ChannelType:1 of
+msgid "Valid values are as follows:"
+msgstr "有效值如下："
+
+#: interactions.api.models.channel.Thread:1 of
+msgid "An object representing a thread."
+msgstr "一個代表討論串的物件。"
+
+#: interactions.api.models.channel.Thread:4 of
+msgid ""
+"This is a derivation of the base Channel, since a thread can be its own "
+"event."
+msgstr "這是基礎頻道的派生，因為討論串可以是自己的事件。"
+
+#: interactions.api.models.channel.Channel
+#: interactions.api.models.channel.Channel.add_member
+#: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_invite
+#: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_message
+#: interactions.api.models.channel.Channel.lock
+#: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.pin_message
+#: interactions.api.models.channel.Channel.publish_message
+#: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.remove_member
+#: interactions.api.models.channel.Channel.send
+#: interactions.api.models.channel.Channel.set_auto_archive_duration
+#: interactions.api.models.channel.Channel.set_bitrate
+#: interactions.api.models.channel.Channel.set_name
+#: interactions.api.models.channel.Channel.set_nsfw
+#: interactions.api.models.channel.Channel.set_parent_id
+#: interactions.api.models.channel.Channel.set_position
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user
+#: interactions.api.models.channel.Channel.set_topic
+#: interactions.api.models.channel.Channel.set_user_limit
+#: interactions.api.models.channel.Channel.unpin_message
+#: interactions.api.models.channel.Thread
+#: interactions.api.models.channel.ThreadMember
+#: interactions.api.models.channel.ThreadMetadata of
+msgid "Parameters"
+msgstr "參數"
+
+#: interactions.api.models.channel.Channel:1 of
+msgid "A class object representing all types of channels."
+msgstr "一個類別物件，代表所有類型的頻道。"
+
+#: interactions.api.models.channel.Channel:4 of
+msgid ""
+"The purpose of this model is to be used as a base class, and is never "
+"needed to be used directly."
+msgstr "此模型的目的是用作基礎類別，並且不會需要直接使用。"
+
+#: interactions.api.models.channel.Channel
+#: interactions.api.models.channel.ThreadMember
+#: interactions.api.models.channel.ThreadMetadata of
+msgid "Variables"
+msgstr "變數"
+
+#: interactions.api.models.channel.Channel:7 of
+msgid "The (snowflake) ID of the channel."
+msgstr "頻道的（snowflake）ID。"
+
+#: interactions.api.models.channel.Channel:8 of
+msgid "The type of channel."
+msgstr "頻道的類型。"
+
+#: interactions.api.models.channel.Channel:9 of
+msgid "The ID of the guild if it is not a DM channel."
+msgstr "如果不是 DM 頻道，則為伺服器的 ID。"
+
+#: interactions.api.models.channel.Channel:10 of
+msgid "The position of the channel."
+msgstr "頻道的位置。"
+
+#: interactions.api.models.channel.Channel:11 of
+msgid "The non-synced permissions of the channel."
+msgstr "頻道的非同步權限。"
+
+#: interactions.api.models.channel.Channel:12 of
+msgid "The name of the channel."
+msgstr "頻道的名稱。"
+
+#: interactions.api.models.channel.Channel:13 of
+msgid "The description of the channel."
+msgstr "頻道的描述。"
+
+#: interactions.api.models.channel.Channel:14 of
+msgid "Whether the channel is NSFW."
+msgstr "頻道是否為 NSFW。"
+
+#: interactions.api.models.channel.Channel:15 of
+msgid "The ID of the last message sent."
+msgstr "最後一則發送的訊息的 ID。"
+
+#: interactions.api.models.channel.Channel:16 of
+msgid "The audio bitrate of the channel."
+msgstr "頻道的音訊位元率。"
+
+#: interactions.api.models.channel.Channel:17 of
+msgid "The maximum amount of users allowed in the channel."
+msgstr "頻道允許的最大使用者數。"
+
+#: interactions.api.models.channel.Channel:18 of
+msgid "The concurrent ratelimit for users in the channel."
+msgstr "頻道中使用者的同時速率限制。"
+
+#: interactions.api.models.channel.Channel:19 of
+msgid "The recipients of the channel."
+msgstr "頻道的收件者。"
+
+#: interactions.api.models.channel.Channel:20 of
+msgid "The icon of the channel."
+msgstr "頻道的圖示。"
+
+#: interactions.api.models.channel.Channel:21 of
+msgid "The owner of the channel."
+msgstr "頻道的擁有者。"
+
+#: interactions.api.models.channel.Channel:22 of
+msgid "The application of the channel."
+msgstr "頻道的應用程式。"
+
+#: interactions.api.models.channel.Channel:23 of
+msgid "The ID of the \"parent\"/main channel."
+msgstr "「父」/主要頻道的 ID。"
+
+#: interactions.api.models.channel.Channel:24 of
+msgid "The timestamp of the last pinned message in the channel."
+msgstr "頻道中最後一則釘選訊息的時間戳記。"
+
+#: interactions.api.models.channel.Channel:25 of
+msgid "The region of the WebRTC connection for the channel."
+msgstr "頻道的 WebRTC 連線區域。"
+
+#: interactions.api.models.channel.Channel:26 of
+msgid "The set quality mode for video streaming in the channel."
+msgstr "頻道中視訊串流的設定品質模式。"
+
+#: interactions.api.models.channel.Channel:27 of
+msgid "The amount of messages in the channel."
+msgstr "頻道中的訊息數量。"
+
+#: interactions.api.models.channel.Channel:28 of
+msgid "The amount of members in the channel."
+msgstr "頻道中的成員數量。"
+
+#: interactions.api.models.channel.Channel:29 of
+msgid "The thread metadata of the channel."
+msgstr "頻道的主題元資料。"
+
+#: interactions.api.models.channel.Channel:30 of
+msgid "The member of the thread in the channel."
+msgstr "頻道中主題的成員。"
+
+#: interactions.api.models.channel.Channel:31 of
+msgid ""
+"The set auto-archive time for all threads to naturally follow in the "
+"channel."
+msgstr "頻道中所有主題自動歸檔的設定時間。"
+
+#: interactions.api.models.channel.Channel:32 of
+msgid "The permissions of the channel."
+msgstr "頻道的權限。"
+
+#: interactions.api.models.channel.Channel.mention:1 of
+msgid "Returns a string that allows you to mention the given channel."
+msgstr "回傳一個字串，讓你可以提及給定的頻道。"
+
+#: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_members
+#: interactions.api.models.channel.Channel.get_message
+#: interactions.api.models.channel.Channel.get_pinned_messages
+#: interactions.api.models.channel.Channel.lock
+#: interactions.api.models.channel.Channel.mention
+#: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.publish_message
+#: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.send
+#: interactions.api.models.channel.Channel.set_auto_archive_duration
+#: interactions.api.models.channel.Channel.set_bitrate
+#: interactions.api.models.channel.Channel.set_name
+#: interactions.api.models.channel.Channel.set_nsfw
+#: interactions.api.models.channel.Channel.set_parent_id
+#: interactions.api.models.channel.Channel.set_position
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user
+#: interactions.api.models.channel.Channel.set_topic
+#: interactions.api.models.channel.Channel.set_user_limit of
+msgid "Returns"
+msgstr "回傳"
+
+#: interactions.api.models.channel.Channel.mention:3 of
+msgid "The string of the mentioned channel."
+msgstr "被提及頻道的字串。"
+
+#: interactions.api.models.channel.Channel.add_member
+#: interactions.api.models.channel.Channel.archive
+#: interactions.api.models.channel.Channel.create_invite
+#: interactions.api.models.channel.Channel.create_thread
+#: interactions.api.models.channel.Channel.delete
+#: interactions.api.models.channel.Channel.get_history
+#: interactions.api.models.channel.Channel.get_members
+#: interactions.api.models.channel.Channel.get_message
+#: interactions.api.models.channel.Channel.get_pinned_messages
+#: interactions.api.models.channel.Channel.get_webhooks
+#: interactions.api.models.channel.Channel.join
+#: interactions.api.models.channel.Channel.leave
+#: interactions.api.models.channel.Channel.lock
+#: interactions.api.models.channel.Channel.mention
+#: interactions.api.models.channel.Channel.modify
+#: interactions.api.models.channel.Channel.pin_message
+#: interactions.api.models.channel.Channel.publish_message
+#: interactions.api.models.channel.Channel.purge
+#: interactions.api.models.channel.Channel.remove_member
+#: interactions.api.models.channel.Channel.send
+#: interactions.api.models.channel.Channel.set_auto_archive_duration
+#: interactions.api.models.channel.Channel.set_bitrate
+#: interactions.api.models.channel.Channel.set_name
+#: interactions.api.models.channel.Channel.set_nsfw
+#: interactions.api.models.channel.Channel.set_parent_id
+#: interactions.api.models.channel.Channel.set_position
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user
+#: interactions.api.models.channel.Channel.set_topic
+#: interactions.api.models.channel.Channel.set_user_limit
+#: interactions.api.models.channel.Channel.unpin_message of
+msgid "Return type"
+msgstr "回傳類型"
+
+#: interactions.api.models.channel.Channel.send:1 of
+msgid "Sends a message in the channel."
+msgstr "在頻道中發送訊息。"
+
+#: interactions.api.models.channel.Channel.send:3 of
+msgid "The contents of the message as a string or string-converted value."
+msgstr "訊息內容，為字串或字串轉換的值。"
+
+#: interactions.api.models.channel.Channel.send:5 of
+msgid "Whether the message utilizes the text-to-speech Discord programme or not."
+msgstr "訊息是否使用 Discord 的文字轉語音程式。"
+
+#: interactions.api.models.channel.Channel.send:7 of
+msgid "A file or list of files to be attached to the message."
+msgstr "要附加到訊息的檔案或檔案清單。"
+
+#: interactions.api.models.channel.Channel.send:9 of
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
+msgstr "要附加到訊息的附件。需要先上傳到 CDN"
+
+#: interactions.api.models.channel.Channel.send:11 of
+msgid "An embed, or list of embeds for the message."
+msgstr "訊息的嵌入，或嵌入清單。"
+
+#: interactions.api.models.channel.Channel.send:13 of
+msgid "The message interactions/mention limits that the message can refer to."
+msgstr "訊息可以提及的互動/提及限制。"
+
+#: interactions.api.models.channel.Channel.send:15 of
+msgid ""
+"A list of stickers to send with your message. You can send up to 3 "
+"stickers per message."
+msgstr "要與訊息一起發送的貼圖清單。每個訊息最多可以發送 3 個貼圖。"
+
+#: interactions.api.models.channel.Channel.send:17 of
+msgid "A component, or list of components for the message."
+msgstr "訊息的元件，或元件清單。"
+
+#: interactions.api.models.channel.Channel.send:19 of
+msgid "The sent message as an object."
+msgstr "發送的訊息物件。"
+
+#: interactions.api.models.channel.Channel.delete:1 of
+msgid "Deletes the channel."
+msgstr "刪除頻道。"
+
+#: interactions.api.models.channel.Channel.modify:1 of
+msgid "Edits the channel."
+msgstr "編輯頻道。"
+
+#: interactions.api.models.channel.Channel.modify:4 of
+msgid ""
+"The fields `archived`, `auto_archive_duration` and `locked` require the "
+"provided channel to be a thread."
+msgstr "欄位 `archived`、`auto_archive_duration` 和 `locked` 需要提供討論串頻道。"
+
+#: interactions.api.models.channel.Channel.modify:6 of
+msgid "The name of the channel, defaults to the current value of the channel"
+msgstr "頻道名稱，預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:8 of
+msgid "The topic of that channel, defaults to the current value of the channel"
+msgstr "頻道主題，預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:10 of
+msgid ""
+"(voice channel only) The bitrate (in bits) of the voice channel, defaults"
+" to the current value of the channel"
+msgstr "（僅語音頻道）語音頻道的位元率（以位元為單位），預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:12 of
+msgid ""
+"(voice channel only) Maximum amount of users in the channel, defaults to "
+"the current value of the channel"
+msgstr "（僅語音頻道）頻道中的最大使用者數，預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:14 of
+msgid ""
+"Amount of seconds a user has to wait before sending another message "
+"(0-21600), defaults to the current value of the channel"
+msgstr "使用者發送下一則訊息前必須等待的秒數（0-21600），預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:16 of
+msgid ""
+"Sorting position of the channel, defaults to the current value of the "
+"channel"
+msgstr "頻道的排序位置，預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:18 of
+msgid ""
+"The id of the parent category for a channel, defaults to the current "
+"value of the channel"
+msgstr "頻道的父類別 ID，預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:20 of
+msgid ""
+"Whether the channel is nsfw or not, defaults to the current value of the "
+"channel"
+msgstr "頻道是否為 NSFW，預設為頻道目前的值"
+
+#: interactions.api.models.channel.Channel.modify:22 of
+msgid "The permission overwrites, if any"
+msgstr "權限覆寫，如有"
+
+#: interactions.api.models.channel.Channel.modify:24 of
+msgid "Whether the thread is archived"
+msgstr "討論串是否已歸檔"
+
+#: interactions.api.models.channel.Channel.modify:26
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:3 of
+msgid ""
+"The time after the thread is automatically archived. One of 60, 1440, "
+"4320, 10080"
+msgstr "討論串自動歸檔後的時間。60、1440、4320 或 10080 其中之一"
+
+#: interactions.api.models.channel.Channel.modify:28 of
+msgid "Whether the thread is locked"
+msgstr "討論串是否已鎖定"
+
+#: interactions.api.models.channel.Channel.modify:30 of
+msgid "The reason for the edit"
+msgstr "編輯的原因"
+
+#: interactions.api.models.channel.Channel.modify:32 of
+msgid "The modified channel as new object"
+msgstr "編輯後的頻道物件"
+
+#: interactions.api.models.channel.Channel.set_name:1 of
+msgid "Sets the name of the channel."
+msgstr "設定頻道名稱。"
+
+#: interactions.api.models.channel.Channel.set_name:3 of
+msgid "The new name of the channel"
+msgstr "頻道的新名稱"
+
+#: interactions.api.models.channel.Channel.lock:5
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:5
+#: interactions.api.models.channel.Channel.set_bitrate:5
+#: interactions.api.models.channel.Channel.set_name:5
+#: interactions.api.models.channel.Channel.set_nsfw:5
+#: interactions.api.models.channel.Channel.set_parent_id:5
+#: interactions.api.models.channel.Channel.set_position:5
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:5
+#: interactions.api.models.channel.Channel.set_topic:5
+#: interactions.api.models.channel.Channel.set_user_limit:5 of
+msgid "The reason of the edit"
+msgstr "編輯的原因"
+
+#: interactions.api.models.channel.Channel.archive:7
+#: interactions.api.models.channel.Channel.lock:7
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:7
+#: interactions.api.models.channel.Channel.set_bitrate:7
+#: interactions.api.models.channel.Channel.set_name:7
+#: interactions.api.models.channel.Channel.set_nsfw:7
+#: interactions.api.models.channel.Channel.set_parent_id:7
+#: interactions.api.models.channel.Channel.set_position:7
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:7
+#: interactions.api.models.channel.Channel.set_topic:7
+#: interactions.api.models.channel.Channel.set_user_limit:7 of
+msgid "The edited channel"
+msgstr "編輯後的頻道"
+
+#: interactions.api.models.channel.Channel.set_topic:1 of
+msgid "Sets the topic of the channel."
+msgstr "設定頻道主題。"
+
+#: interactions.api.models.channel.Channel.set_topic:3 of
+msgid "The new topic of the channel"
+msgstr "頻道的新主題"
+
+#: interactions.api.models.channel.Channel.set_bitrate:1 of
+msgid "Sets the bitrate of the channel."
+msgstr "設定頻道的位元率。"
+
+#: interactions.api.models.channel.Channel.set_bitrate:3 of
+msgid "The new bitrate of the channel"
+msgstr "頻道的新位元率"
+
+#: interactions.api.models.channel.Channel.set_user_limit:1 of
+msgid "Sets the user_limit of the channel."
+msgstr "設定頻道的使用者限制。"
+
+#: interactions.api.models.channel.Channel.set_user_limit:3 of
+msgid "The new user limit of the channel"
+msgstr "頻道的新使用者限制"
+
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:1 of
+msgid ""
+"Sets the amount of seconds a user has to wait before sending another "
+"message."
+msgstr "設定使用者發送訊息前必須等待的秒數。"
+
+#: interactions.api.models.channel.Channel.set_rate_limit_per_user:3 of
+msgid "The new rate_limit_per_user of the channel (0-21600)"
+msgstr "頻道的新 rate_limit_per_user (0-21600)"
+
+#: interactions.api.models.channel.Channel.set_position:1 of
+msgid "Sets the position of the channel."
+msgstr "設定頻道的位置。"
+
+#: interactions.api.models.channel.Channel.set_position:3 of
+msgid "The new position of the channel"
+msgstr "頻道的新位置"
+
+#: interactions.api.models.channel.Channel.set_parent_id:1 of
+msgid "Sets the parent_id of the channel."
+msgstr "設定頻道的父頻道 ID。"
+
+#: interactions.api.models.channel.Channel.set_parent_id:3 of
+msgid "The new parent_id of the channel"
+msgstr "頻道的新父頻道 ID"
+
+#: interactions.api.models.channel.Channel.set_nsfw:1 of
+msgid "Sets the nsfw-flag of the channel."
+msgstr "設定頻道的 NSFW 標記。"
+
+#: interactions.api.models.channel.Channel.set_nsfw:3 of
+msgid "The new nsfw-flag of the channel"
+msgstr "頻道的新 NSFW 標記"
+
+#: interactions.api.models.channel.Channel.archive:1 of
+msgid "Sets the archived state of the thread."
+msgstr "設定討論串的封存狀態。"
+
+#: interactions.api.models.channel.Channel.archive:3 of
+msgid "Whether the Thread is archived, defaults to True"
+msgstr "討論串是否已封存，預設為 True"
+
+#: interactions.api.models.channel.Channel.archive:5 of
+msgid "The reason of the archiving"
+msgstr "封存的原因"
+
+#: interactions.api.models.channel.Channel.set_auto_archive_duration:1 of
+msgid "Sets the time after the thread is automatically archived."
+msgstr "設定討論串自動封存的時間。"
+
+#: interactions.api.models.channel.Channel.lock:1 of
+msgid "Sets the locked state of the thread."
+msgstr "設定討論串的鎖定狀態。"
+
+#: interactions.api.models.channel.Channel.lock:3 of
+msgid "Whether the Thread is locked, defaults to True"
+msgstr "討論串是否已鎖定，預設為 True"
+
+#: interactions.api.models.channel.Channel.add_member:1 of
+msgid "This adds a member to the channel, if the channel is a thread."
+msgstr "如果頻道是討論串，則將成員加入頻道。"
+
+#: interactions.api.models.channel.Channel.add_member:3 of
+msgid "The id of the member to add to the channel"
+msgstr "要加入頻道的成員 ID"
+
+#: interactions.api.models.channel.Channel.remove_member:1 of
+msgid "This removes a member of the channel, if the channel is a thread."
+msgstr "如果頻道是討論串，則將成員從頻道中移除。"
+
+#: interactions.api.models.channel.Channel.remove_member:3 of
+msgid "The id of the member to remove of the channel"
+msgstr "要從頻道中移除的成員 ID"
+
+#: interactions.api.models.channel.Channel.pin_message:1 of
+msgid "Pins a message to the channel."
+msgstr "將訊息釘選到頻道。"
+
+#: interactions.api.models.channel.Channel.pin_message:3 of
+msgid "The id of the message to pin"
+msgstr "要釘選的訊息 ID"
+
+#: interactions.api.models.channel.Channel.unpin_message:1 of
+msgid "Unpins a message from the channel."
+msgstr "從頻道中取消釘選訊息。"
+
+#: interactions.api.models.channel.Channel.unpin_message:3 of
+msgid "The id of the message to unpin"
+msgstr "要取消釘選的訊息 ID"
+
+#: interactions.api.models.channel.Channel.publish_message:1 of
+msgid ""
+"Publishes (API calls it crossposts) a message in the channel to any that "
+"is followed by."
+msgstr "將頻道中的訊息發布 (API將其稱為crossposts) 到任何已關注的頻道。"
+
+#: interactions.api.models.channel.Channel.publish_message:3 of
+msgid "The id of the message to publish"
+msgstr "要發布的訊息 ID"
+
+#: interactions.api.models.channel.Channel.publish_message:5 of
+msgid "The message published"
+msgstr "已發布的訊息"
+
+#: interactions.api.models.channel.Channel.get_pinned_messages:1 of
+msgid "Get all pinned messages from the channel."
+msgstr "從頻道中獲取所有已釘選的訊息。"
+
+#: interactions.api.models.channel.Channel.get_pinned_messages:3 of
+msgid "A list of pinned message objects."
+msgstr "已釘選訊息物件的列表。"
+
+#: interactions.api.models.channel.Channel.get_message:1 of
+msgid "Gets a message sent in that channel."
+msgstr "獲取在該頻道中發送的訊息。"
+
+#: interactions.api.models.channel.Channel.get_message:3 of
+msgid "The ID of the message to get"
+msgstr "要獲取的訊息 ID"
+
+#: interactions.api.models.channel.Channel.get_message:5 of
+msgid "The message as object"
+msgstr "訊息物件"
+
+#: interactions.api.models.channel.Channel.purge:1 of
+msgid ""
+"Purges a given amount of messages from a channel. You can specify a check"
+" function to exclude specific messages."
+msgstr "從頻道中清除給定數量的訊息。您可以指定檢查函數以排除特定訊息。"
+
+#: interactions.api.models.channel.Channel.purge:3 of
+msgid ""
+"Calling this method can lead to rate-limits when purging higher amounts "
+"of messages."
+msgstr "調用此方法可能會導致清除更多訊息時遭遇速率限制。"
+
+#: interactions.api.models.channel.Channel.purge:11 of
+msgid "The amount of messages to delete"
+msgstr "要刪除的訊息數量"
+
+#: interactions.api.models.channel.Channel.purge:13 of
+msgid ""
+"The function used to check if a message should be deleted. The message is"
+" only deleted if the check returns `True`"
+msgstr "用於檢查是否應刪除訊息的函數。只有在檢查返回 `True` 時才會刪除訊息"
+
+#: interactions.api.models.channel.Channel.purge:15 of
+msgid "An id of a message to purge only messages before that message"
+msgstr "要清除的訊息 ID，僅清除該訊息之前的訊息"
+
+#: interactions.api.models.channel.Channel.purge:17 of
+msgid ""
+"Whether to bulk delete the messages (you cannot delete messages older "
+"than 14 days, default) or to delete every message seperately"
+msgstr "是否批量刪除訊息 (您無法刪除超過14天的訊息，默認) 或單獨刪除每個訊息"
+
+#: interactions.api.models.channel.Channel.purge:18 of
+msgid "Optional[bool]"
+msgstr "Optional[bool]"
+
+#: interactions.api.models.channel.Channel.purge:19 of
+msgid "The reason of the deletes"
+msgstr "刪除的原因"
+
+#: interactions.api.models.channel.Channel.purge:21 of
+msgid "A list of the deleted messages"
+msgstr "已刪除的訊息列表"
+
+#: interactions.api.models.channel.Channel.create_thread:1 of
+msgid "Creates a thread in the Channel."
+msgstr "在頻道中創建一個討論串。"
+
+#: interactions.api.models.channel.Channel.create_thread:3 of
+msgid "The name of the thread"
+msgstr "討論串的名稱"
+
+#: interactions.api.models.channel.Channel.create_thread:5 of
+msgid ""
+"duration in minutes to automatically archive the thread after recent "
+"activity, can be set to: 60, 1440, 4320, 10080"
+msgstr "在最近的活動後自動將討論串存檔的持續時間（以分鐘為單位），可以設置為：60, 1440, 4320, 10080"
+
+#: interactions.api.models.channel.Channel.create_thread:8 of
+msgid ""
+"The type of thread, defaults to public. ignored if creating thread from a"
+" message"
+msgstr "討論串的類型，默認為公開。如果從訊息創建討論串，則忽略此選項"
+
+#: interactions.api.models.channel.Channel.create_thread:10 of
+msgid "Boolean to display if the Thread is open to join or private."
+msgstr "是否顯示討論串是否開放加入或私有。"
+
+#: interactions.api.models.channel.Channel.create_thread:12 of
+msgid "An optional message to create a thread from."
+msgstr "可選的訊息，用於從中創建討論串。"
+
+#: interactions.api.models.channel.Channel.create_thread:14 of
+msgid "An optional reason for the audit log"
+msgstr "可選的審核日誌原因"
+
+#: interactions.api.models.channel.Channel.create_thread:16 of
+msgid "The created thread"
+msgstr "已創建的討論串"
+
+#: interactions.api.models.channel.Channel.create_invite:1 of
+msgid "Creates an invite for the channel"
+msgstr "為頻道創建邀請"
+
+#: interactions.api.models.channel.Channel.create_invite:3 of
+msgid ""
+"Duration of invite in seconds before expiry, or 0 for never. between 0 "
+"and 604800 (7 days). Default 86400 (24h)"
+msgstr "邀請過期前的持續時間（以秒為單位），或為 0 表示永不過期。介於 0 和 604800（7 天）之間。默認為 86400（24 小時）"
+
+#: interactions.api.models.channel.Channel.create_invite:5 of
+msgid "Max number of uses or 0 for unlimited. between 0 and 100. Default 0"
+msgstr "最大使用次數，或為 0 表示無限制。介於 0 和 100 之間。默認為 0"
+
+#: interactions.api.models.channel.Channel.create_invite:7 of
+msgid "Whether this invite only grants temporary membership. Default False"
+msgstr "該邀請是否僅授予臨時成員資格。默認為 False"
+
+#: interactions.api.models.channel.Channel.create_invite:9 of
+msgid ""
+"If true, don't try to reuse a similar invite (useful for creating many "
+"unique one time use invites). Default False"
+msgstr "如果為 True，則不嘗試重用類似的邀請（有助於創建許多獨特的一次性邀請）。默認為 False"
+
+#: interactions.api.models.channel.Channel.create_invite:11 of
+msgid "The type of target for this voice channel invite"
+msgstr "此語音頻道邀請的目標類型"
+
+#: interactions.api.models.channel.Channel.create_invite:13 of
+msgid ""
+"The id of the user whose stream to display for this invite, required if "
+"target_type is STREAM, the user must be streaming in the channel"
+msgstr "要顯示此邀請的用戶的 ID，如果目標類型為 STREAM，則需要此 ID，並且該用戶必須在該頻道中流媒體"
+
+#: interactions.api.models.channel.Channel.create_invite:15 of
+msgid ""
+"The id of the embedded application to open for this invite, required if "
+"target_type is EMBEDDED_APPLICATION, the application must have the "
+"EMBEDDED flag"
+msgstr "要為此邀請打開的嵌入式應用程式的 ID，如果目標類型為 EMBEDDED_APPLICATION，則需要此 ID，並且該應用程式必須具有 EMBEDDED 標誌"
+
+#: interactions.api.models.channel.Channel.create_invite:17 of
+msgid "The reason for the creation of the invite"
+msgstr "創建邀請的原因"
+
+#: interactions.api.models.channel.Channel.get_history:1 of
+msgid "Gets messages from the channel's history."
+msgstr "從頻道的歷史記錄中獲取訊息。"
+
+#: interactions.api.models.channel.Channel.get_history:3 of
+msgid "The amount of messages to get. Default 100"
+msgstr "要獲取的訊息數量。默認為 100"
+
+#: interactions.api.models.channel.Channel.get_history:5 of
+msgid "A list of messages"
+msgstr "訊息列表"
+
+#: interactions.api.models.channel.Channel.get_webhooks:1 of
+msgid "Gets a list of webhooks of that channel"
+msgstr "獲取該頻道的 Webhook 列表"
+
+#: interactions.api.models.channel.Channel.get_members:1 of
+msgid "Gets the list of thread members"
+msgstr "獲取討論串成員列表"
+
+#: interactions.api.models.channel.Channel.get_members:3 of
+msgid "The members of the thread."
+msgstr "討論串的成員。"
+
+#: interactions.api.models.channel.Channel.leave:1 of
+msgid "Removes the bot from the thread"
+msgstr "從討論串中刪除機器人"
+
+#: interactions.api.models.channel.Channel.join:1 of
+msgid "Add the bot to the thread"
+msgstr "將機器人添加到討論串"
+
+#: interactions.api.models.channel.ThreadMember:1 of
+msgid "A class object representing a member in a thread."
+msgstr "一個表示討論串中成員的類對象。"
+
+#: interactions.api.models.channel.ThreadMember:4 of
+msgid ""
+"``id`` only shows if there are active intents involved with the member in"
+" the thread."
+msgstr "如果與討論串中的成員有關的活動意圖相關，則只顯示 ``id`` 。"
+
+#: interactions.api.models.channel.ThreadMember:7 of
+msgid "The \"ID\" or intents of the member."
+msgstr "成員的「ID」或意圖。"
+
+#: interactions.api.models.channel.ThreadMember:8 of
+msgid "The user ID of the member."
+msgstr "成員的用戶 ID。"
+
+#: interactions.api.models.channel.ThreadMember:9 of
+msgid "The timestamp of when the member joined the thread."
+msgstr "成員加入討論串的時間戳。"
+
+#: interactions.api.models.channel.ThreadMember:10 of
+msgid "The bitshift flags for the member in the thread."
+msgstr "討論串中成員的位移標誌。"
+
+#: interactions.api.models.channel.ThreadMember:11 of
+msgid "Whether the member is muted or not."
+msgstr "成員是否被靜音。"
+
+#: interactions.api.models.channel.ThreadMetadata:1 of
+msgid "A class object representing the metadata of a thread."
+msgstr "一個表示討論串元數據的類對象。"
+
+#: interactions.api.models.channel.ThreadMetadata:4 of
+msgid ""
+"``invitable`` will only show if the thread can have an invited created "
+"with the current cached permissions."
+msgstr "如果可以使用當前緩存的權限創建邀請，則只會顯示 ``invitable`` 。"
+
+#: interactions.api.models.channel.ThreadMetadata:7 of
+msgid "The current thread accessibility state."
+msgstr "當前討論串可訪問性狀態。"
+
+#: interactions.api.models.channel.ThreadMetadata:8 of
+msgid "The auto-archive time."
+msgstr "自動歸檔時間。"
+
+#: interactions.api.models.channel.ThreadMetadata:9 of
+msgid "The timestamp that the thread will be/has been closed at."
+msgstr "討論串將被/已被關閉的時間戳。"
+
+#: interactions.api.models.channel.ThreadMetadata:10 of
+msgid "The current message state of the thread."
+msgstr "討論串的當前訊息狀態。"
+
+#: interactions.api.models.channel.ThreadMetadata:11 of
+msgid "The ability to invite users to the thread."
+msgstr "邀請用戶加入討論串的能力。"
