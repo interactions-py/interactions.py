@@ -24,7 +24,7 @@ msgstr "客戶端"
 
 #: ../../api.rst:17
 msgid "Frameworks/Commands"
-msgstr "架構/指令"
+msgstr "框架/指令"
 
 #: ../../api.rst:25 ../../api.rst:42
 msgid "Model/Design"
