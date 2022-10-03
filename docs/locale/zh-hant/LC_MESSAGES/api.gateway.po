@@ -1,0 +1,316 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# ItsRqtl <itsrqtl@gmail>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: ItsRqtl <itsrqtl@gmail.com>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: ItsRqtl\n"
+
+#: ../../api.gateway.rst:4
+msgid "Gateway"
+msgstr "Gateway"
+
+#: interactions.api.gateway:1 of
+msgid "interactions.api.gateway"
+msgstr "interactions.api.gateway"
+
+#: interactions.api.gateway:3 of
+msgid "This section of the library maintains and handles all of the Gateway work."
+msgstr "這一部分管理和處理所有Gateway工作。"
+
+#: interactions.api.gateway.client.WebSocketClient:1 of
+msgid ""
+"A class representing the client's connection to the Gateway via. "
+"WebSocket."
+msgstr "表示客戶端通過WebSocket連接到Gateway的類別。"
+
+#: interactions.api.gateway.client.WebSocketClient of
+msgid "Variables"
+msgstr "變數"
+
+#: interactions.api.gateway.client.WebSocketClient:3 of
+msgid "The asynchronous event loop."
+msgstr "異步事件循環。"
+
+#: interactions.api.gateway.client.WebSocketClient:4 of
+msgid "The built-in event dispatcher."
+msgstr "內建的事件分發器。"
+
+#: interactions.api.gateway.client.WebSocketClient:5 of
+msgid "The user-facing HTTP client."
+msgstr "面向用戶的HTTP客戶端。"
+
+#: interactions.api.gateway.client.WebSocketClient:6 of
+msgid "The WebSocket data of the connection."
+msgstr "WebSocket的連接數據。"
+
+#: interactions.api.gateway.client.WebSocketClient:7 of
+msgid "Whether the connection has been closed or not."
+msgstr "連接是否已關閉。"
+
+#: interactions.api.gateway.client.WebSocketClient:8 of
+msgid "The connection options made during connection."
+msgstr "連接期間所選的連接選項。"
+
+#: interactions.api.gateway.client.WebSocketClient:9 of
+msgid "The gateway intents used for connection."
+msgstr "用於連接的Gateway意圖。"
+
+#: interactions.api.gateway.client.WebSocketClient:10 of
+msgid "The contents of the application returned when ready."
+msgstr "準備就緒時應用程序回傳的內容。"
+
+#: interactions.api.gateway.client.WebSocketClient:11 of
+msgid "The context state of a \"heartbeat\" made to the Gateway."
+msgstr "發送到Gateway的\"heartbeat\"的context狀態。"
+
+#: interactions.api.gateway.client.WebSocketClient:12 of
+msgid "The shards used during connection."
+msgstr "連接期間使用的分片。"
+
+#: interactions.api.gateway.client.WebSocketClient:13 of
+msgid "The presence used in connection."
+msgstr "連接中使用的狀態。"
+
+#: interactions.api.gateway.client.WebSocketClient:14 of
+msgid "The ready state of the client as an ``asyncio.Event``."
+msgstr "客戶端作為 ``asyncio.Event`` 的就緒狀態。"
+
+#: interactions.api.gateway.client.WebSocketClient:15 of
+msgid "The closing task for ending connections."
+msgstr "結束連接時的關閉任務。"
+
+#: interactions.api.gateway.client.WebSocketClient:16 of
+msgid "Whether the client has started."
+msgstr "客戶端是否已啟動。"
+
+#: interactions.api.gateway.client.WebSocketClient:17 of
+msgid "The ID of the ongoing session."
+msgstr "當前連線階段的 ID"
+
+#: interactions.api.gateway.client.WebSocketClient:18 of
+msgid "The sequence identifier of the ongoing session."
+msgstr "當前連線階段的序列標識符。"
+
+#: interactions.api.gateway.client.WebSocketClient:19 of
+msgid ""
+"The latest time of the last send_packet function call since connection "
+"creation, in seconds."
+msgstr "自連接創建以來最後一次調用 send_packet 函數的時間，以秒為單位"
+
+#: interactions.api.gateway.client.WebSocketClient:20 of
+msgid ""
+"The latest time of the last ``HEARTBEAT_ACK`` event since connection "
+"creation, in seconds."
+msgstr "自連接創建以來最後一次 ``HEARTBEAT_ACK`` 事件的時間，以秒為單位。"
+
+#: interactions.api.gateway.client.WebSocketClient:21 of
+msgid "The latency of the connection, in seconds."
+msgstr "連接的延遲，以秒為單位。"
+
+#: interactions.api.gateway.client.WebSocketClient
+#: interactions.api.gateway.client.WebSocketClient.__contextualize
+#: interactions.api.gateway.client.WebSocketClient.__identify
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context
+#: interactions.api.gateway.client.WebSocketClient._dispatch_event
+#: interactions.api.gateway.client.WebSocketClient._establish_connection
+#: interactions.api.gateway.client.WebSocketClient._handle_connection
+#: interactions.api.gateway.client.WebSocketClient._send_packet
+#: interactions.api.gateway.client.WebSocketClient._update_presence
+#: interactions.api.gateway.heartbeat._Heartbeat of
+msgid "Parameters"
+msgstr "參數"
+
+#: interactions.api.gateway.client.WebSocketClient
+#: interactions.api.gateway.client.WebSocketClient.__contextualize
+#: interactions.api.gateway.client.WebSocketClient.__heartbeat
+#: interactions.api.gateway.client.WebSocketClient.__identify
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream
+#: interactions.api.gateway.client.WebSocketClient.__restart
+#: interactions.api.gateway.client.WebSocketClient.__resume
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context
+#: interactions.api.gateway.client.WebSocketClient._dispatch_event
+#: interactions.api.gateway.client.WebSocketClient._establish_connection
+#: interactions.api.gateway.client.WebSocketClient._handle_connection
+#: interactions.api.gateway.client.WebSocketClient._manage_heartbeat
+#: interactions.api.gateway.client.WebSocketClient._send_packet
+#: interactions.api.gateway.client.WebSocketClient._update_presence
+#: interactions.api.gateway.client.WebSocketClient.wait_until_ready
+#: interactions.api.gateway.heartbeat._Heartbeat of
+msgid "Return type"
+msgstr "回傳類型"
+
+#: interactions.api.gateway.client.WebSocketClient._manage_heartbeat:1 of
+msgid "Manages the heartbeat loop."
+msgstr "管理heartbeat循環"
+
+#: interactions.api.gateway.client.WebSocketClient.__restart:1 of
+msgid "Restart the client's connection and heartbeat with the Gateway."
+msgstr "重啟客戶端與Gateway的連接和heartbeat"
+
+#: interactions.api.gateway.client.WebSocketClient._establish_connection:1 of
+msgid "Establishes a client connection with the Gateway."
+msgstr "與Gateway建立客戶端連接。"
+
+#: interactions.api.gateway.client.WebSocketClient._establish_connection:3
+#: interactions.api.gateway.client.WebSocketClient._handle_connection:5 of
+msgid "The shards to establish a connection with. Defaults to ``None``."
+msgstr "要與之建立連接的分片。預設為 ``None``。"
+
+#: interactions.api.gateway.client.WebSocketClient._establish_connection:5
+#: interactions.api.gateway.client.WebSocketClient._handle_connection:7 of
+msgid "The presence to carry with. Defaults to ``None``."
+msgstr "要帶有的狀態。預設為 ``None``。"
+
+#: interactions.api.gateway.client.WebSocketClient._handle_connection:1 of
+msgid "Handles the client's connection with the Gateway."
+msgstr "處理客戶端與Gateway的連接。"
+
+#: interactions.api.gateway.client.WebSocketClient._handle_connection:3 of
+msgid "The packet stream to handle."
+msgstr "要處理的數據包流。"
+
+#: interactions.api.gateway.client.WebSocketClient.wait_until_ready:1 of
+msgid "Waits for the client to become ready according to the Gateway."
+msgstr "根據Gateway等待客戶端就緒。"
+
+#: interactions.api.gateway.client.WebSocketClient._dispatch_event:1 of
+msgid "Dispatches an event from the Gateway."
+msgstr "從Gateway分發事件。"
+
+#: interactions.api.gateway.client.WebSocketClient._dispatch_event:3 of
+msgid "The name of the event."
+msgstr "事件的名稱。"
+
+#: interactions.api.gateway.client.WebSocketClient._dispatch_event:5 of
+msgid "The data for the event."
+msgstr "事件的數據。"
+
+#: interactions.api.gateway.client.WebSocketClient.__contextualize:1 of
+msgid ""
+"Takes raw data given back from the Gateway and gives \"context\" based "
+"off of what it is."
+msgstr "基於從Gateway回傳的原始數據中提取出\"context\"。"
+
+#: interactions.api.gateway.client.WebSocketClient.__contextualize:4 of
+msgid "The data from the Gateway."
+msgstr "從Gateway回傳的數據。"
+
+#: interactions.api.gateway.client.WebSocketClient.__contextualize
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context of
+msgid "Returns"
+msgstr "回傳"
+
+#: interactions.api.gateway.client.WebSocketClient.__contextualize:6 of
+msgid "The context object."
+msgstr "context物件。"
+
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context:1 of
+msgid ""
+"Checks if an application command schema has sub commands needed for "
+"argument collection."
+msgstr "檢查應用程序命令架構是否含有需要進行參數收集的子命令。"
+
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context:4 of
+msgid "The data structure of the option."
+msgstr "選項的數據結構。"
+
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context:6 of
+msgid "The context to refer subcommands from."
+msgstr "要從中引用子命令的context。"
+
+#: interactions.api.gateway.client.WebSocketClient.__sub_command_context:8 of
+msgid "A dictionary of the collected options, if any."
+msgstr "收集到的選項的字典，如有。"
+
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context:1 of
+msgid "Looks up the type of option respective to the existing option types."
+msgstr "查找與現有選項相對應的類型。"
+
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context:4 of
+msgid "The context to refer types from."
+msgstr "要從中引用類型的context。"
+
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context:6 of
+msgid "The option type."
+msgstr "選項的類型。"
+
+#: interactions.api.gateway.client.WebSocketClient.__option_type_context:8 of
+msgid "The option type context."
+msgstr "選項類型的context。"
+
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream:1 of
+msgid "Receives a stream of packets sent from the Gateway."
+msgstr "接收從Gateway發送的數據包流。"
+
+#: interactions.api.gateway.client.WebSocketClient.__receive_packet_stream:3 of
+msgid "The packet stream."
+msgstr "數據包流。"
+
+#: interactions.api.gateway.client.WebSocketClient._send_packet:1 of
+msgid "Sends a packet to the Gateway."
+msgstr "向Gateway發送數據包。"
+
+#: interactions.api.gateway.client.WebSocketClient._send_packet:3 of
+msgid "The data to send to the Gateway."
+msgstr "要發送到Gateway的數據。"
+
+#: interactions.api.gateway.client.WebSocketClient.__identify:1 of
+msgid "Sends an ``IDENTIFY`` packet to the gateway."
+msgstr "向Gateway發送``IDENTIFY``數據包。"
+
+#: interactions.api.gateway.client.WebSocketClient.__identify:3 of
+msgid "The shard ID to identify under."
+msgstr "要在其下識別的分片ID。"
+
+#: interactions.api.gateway.client.WebSocketClient.__identify:5
+#: interactions.api.gateway.client.WebSocketClient._update_presence:8 of
+msgid "The presence to change the bot to on identify."
+msgstr "在識別時更改機器人的狀態。"
+
+#: interactions.api.gateway.client.WebSocketClient.__resume:1 of
+msgid "Sends a ``RESUME`` packet to the gateway."
+msgstr "向Gateway發送``RESUME``數據包。"
+
+#: interactions.api.gateway.client.WebSocketClient.__heartbeat:1 of
+msgid "Sends a ``HEARTBEAT`` packet to the gateway."
+msgstr "向Gateway發送``HEARTBEAT``數據包。"
+
+#: interactions.api.gateway.client.WebSocketClient.shard:1 of
+msgid "Returns the current shard"
+msgstr "回傳當前分片"
+
+#: interactions.api.gateway.client.WebSocketClient.presence:1 of
+msgid "Returns the current presence."
+msgstr "回傳當前狀態。"
+
+#: interactions.api.gateway.client.WebSocketClient._update_presence:1 of
+msgid "Sends an ``UPDATE_PRESENCE`` packet to the gateway."
+msgstr "向Gateway發送``UPDATE_PRESENCE``數據包。"
+
+#: interactions.api.gateway.client.WebSocketClient._update_presence:4 of
+msgid ""
+"There is a ratelimit to using this method (5 per minute). As there's no "
+"gateway ratelimiter yet, breaking this ratelimit will force your bot to "
+"disconnect."
+msgstr "這個函數有速率限制（每分鐘5次）。由於Gateway還沒有速率限制器，因此打破此速率限制將迫使您的機器人斷開連接"
+
+#: interactions.api.gateway.heartbeat._Heartbeat:1 of
+msgid "An internal class representing the heartbeat in a WebSocket connection."
+msgstr "一個內部類別，表示WebSocket連接中的heartbeat。"
