@@ -1,0 +1,1899 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:25-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.models.guild.rst:4
+msgid "Guild Models"
+msgstr ""
+
+#: interactions.api.models.guild.VerificationLevel:1 of
+msgid "An enumerable object representing the verification level of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.DefaultMessageNotificationLevel
+#: interactions.api.models.guild.EntityType
+#: interactions.api.models.guild.EventStatus
+#: interactions.api.models.guild.ExplicitContentFilterLevel
+#: interactions.api.models.guild.InviteTargetType
+#: interactions.api.models.guild.VerificationLevel of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.guild.DefaultMessageNotificationLevel:1
+#: interactions.api.models.guild.EntityType:1
+#: interactions.api.models.guild.EventStatus:1
+#: interactions.api.models.guild.ExplicitContentFilterLevel:1
+#: interactions.api.models.guild.InviteTargetType:1
+#: interactions.api.models.guild.VerificationLevel:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.guild.DefaultMessageNotificationLevel:1
+#: interactions.api.models.guild.EntityType:1
+#: interactions.api.models.guild.EventStatus:1
+#: interactions.api.models.guild.ExplicitContentFilterLevel:1
+#: interactions.api.models.guild.InviteTargetType:1
+#: interactions.api.models.guild.VerificationLevel:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.api.models.guild.EntityType:1 of
+msgid "An enumerable object representing the type of event."
+msgstr ""
+
+#: interactions.api.models.guild.DefaultMessageNotificationLevel:1 of
+msgid ""
+"An enumerable object representing the default message notification level "
+"of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.EventMetadata:1 of
+msgid "A class object representing the metadata of an event entity."
+msgstr ""
+
+#: interactions.api.models.guild.EventMetadata
+#: interactions.api.models.guild.Guild
+#: interactions.api.models.guild.GuildPreview
+#: interactions.api.models.guild.GuildTemplate
+#: interactions.api.models.guild.Integration
+#: interactions.api.models.guild.Invite
+#: interactions.api.models.guild.ScheduledEvents
+#: interactions.api.models.guild.StageInstance
+#: interactions.api.models.guild.UnavailableGuild
+#: interactions.api.models.guild.WelcomeChannels
+#: interactions.api.models.guild.WelcomeScreen of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.guild.EventMetadata:3 of
+msgid "The location of the event, if any."
+msgstr ""
+
+#: interactions.api.models.guild.EventMetadata
+#: interactions.api.models.guild.Guild
+#: interactions.api.models.guild.Guild.add_member_role
+#: interactions.api.models.guild.Guild.ban
+#: interactions.api.models.guild.Guild.clone_channel
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule
+#: interactions.api.models.guild.Guild.create_channel
+#: interactions.api.models.guild.Guild.create_emoji
+#: interactions.api.models.guild.Guild.create_role
+#: interactions.api.models.guild.Guild.create_scheduled_event
+#: interactions.api.models.guild.Guild.create_thread
+#: interactions.api.models.guild.Guild.delete_channel
+#: interactions.api.models.guild.Guild.delete_emoji
+#: interactions.api.models.guild.Guild.delete_role
+#: interactions.api.models.guild.Guild.delete_scheduled_event
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule
+#: interactions.api.models.guild.Guild.get_bans
+#: interactions.api.models.guild.Guild.get_emoji
+#: interactions.api.models.guild.Guild.get_list_of_members
+#: interactions.api.models.guild.Guild.get_member
+#: interactions.api.models.guild.Guild.get_role
+#: interactions.api.models.guild.Guild.kick
+#: interactions.api.models.guild.Guild.modify
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
+#: interactions.api.models.guild.Guild.modify_channel
+#: interactions.api.models.guild.Guild.modify_member
+#: interactions.api.models.guild.Guild.modify_role
+#: interactions.api.models.guild.Guild.modify_role_position
+#: interactions.api.models.guild.Guild.modify_role_positions
+#: interactions.api.models.guild.Guild.modify_scheduled_event
+#: interactions.api.models.guild.Guild.remove_ban
+#: interactions.api.models.guild.Guild.remove_member_role
+#: interactions.api.models.guild.Guild.search_members
+#: interactions.api.models.guild.Guild.set_afk_channel
+#: interactions.api.models.guild.Guild.set_afk_timeout
+#: interactions.api.models.guild.Guild.set_banner
+#: interactions.api.models.guild.Guild.set_default_message_notifications
+#: interactions.api.models.guild.Guild.set_description
+#: interactions.api.models.guild.Guild.set_discovery_splash
+#: interactions.api.models.guild.Guild.set_explicit_content_filter
+#: interactions.api.models.guild.Guild.set_icon
+#: interactions.api.models.guild.Guild.set_name
+#: interactions.api.models.guild.Guild.set_preferred_locale
+#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled
+#: interactions.api.models.guild.Guild.set_public_updates_channel
+#: interactions.api.models.guild.Guild.set_rules_channel
+#: interactions.api.models.guild.Guild.set_splash
+#: interactions.api.models.guild.Guild.set_system_channel
+#: interactions.api.models.guild.Guild.set_verification_level
+#: interactions.api.models.guild.GuildPreview
+#: interactions.api.models.guild.GuildTemplate
+#: interactions.api.models.guild.Integration
+#: interactions.api.models.guild.Invite
+#: interactions.api.models.guild.ScheduledEvents
+#: interactions.api.models.guild.StageInstance
+#: interactions.api.models.guild.UnavailableGuild
+#: interactions.api.models.guild.WelcomeChannels
+#: interactions.api.models.guild.WelcomeScreen of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.guild.EventStatus:1 of
+msgid "An enumerable object representing the status of an event."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:1 of
+msgid "An object representing the snapshot of an existing guild."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:3 of
+msgid "The code of the guild template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:4 of
+msgid "The name of the guild template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:5 of
+msgid "The description of the guild template, if given."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:6 of
+msgid "The amount of uses on the template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:7 of
+msgid "User ID of the creator of this template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:8 of
+msgid "The User object of the creator of this template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:9 of
+msgid "The time when this template was created."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:10 of
+msgid "The time when this template was updated."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:11 of
+msgid "The Guild ID that the template sourced from."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:12 of
+msgid "A partial Guild object from the sourced template."
+msgstr ""
+
+#: interactions.api.models.guild.GuildTemplate:13 of
+msgid "A status that denotes if the changes are unsynced."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:1 of
+msgid "A class object representing an integration in a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:3 of
+msgid "The ID of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:4 of
+msgid "The name of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:5 of
+msgid "The type of integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:6 of
+msgid "Whether the integration is enabled or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:7 of
+msgid "Whether the integration is syncing or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:8 of
+msgid "The role ID that the integration uses for \"subscribed\" users."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:9 of
+msgid "Whether emoticons should be enabled or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:10 of
+msgid "The expiration behavior of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:11 of
+msgid ""
+"The \"grace period\" of the integration when expired -- how long it can "
+"still be used."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:12 of
+msgid "The user of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:13 of
+msgid "The account of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:14 of
+msgid "The time that the integration was last synced."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:15 of
+msgid "The current subscriber count of the integration."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:16 of
+msgid "Whether the integration was revoked for use or not."
+msgstr ""
+
+#: interactions.api.models.guild.Integration:17 of
+msgid "The application used for the integration."
+msgstr ""
+
+#: interactions.api.models.guild.InviteTargetType:1 of
+msgid "An enumerable object representing the different invite target types"
+msgstr ""
+
+#: interactions.api.models.guild.StageInstance:1 of
+msgid "A class object representing an instance of a stage channel in a guild."
+msgstr ""
+
+#: interactions.api.models.guild.StageInstance:3 of
+msgid "The ID of the stage."
+msgstr ""
+
+#: interactions.api.models.guild.StageInstance:4 of
+msgid "The guild ID the stage is in."
+msgstr ""
+
+#: interactions.api.models.guild.StageInstance:5 of
+msgid "The channel ID the stage is instantiated from."
+msgstr ""
+
+#: interactions.api.models.guild.StageInstance:6 of
+msgid "The topic of the stage."
+msgstr ""
+
+#: interactions.api.models.guild.StageInstance:7 of
+msgid "The \"privacy\"/inclusive accessibility level of the stage."
+msgstr ""
+
+#: interactions.api.models.guild.StageInstance:8 of
+msgid "Whether the stage can be seen from the stage discovery."
+msgstr ""
+
+#: interactions.api.models.guild.UnavailableGuild:1 of
+msgid "A class object representing how a guild that is unavailable."
+msgstr ""
+
+#: interactions.api.models.guild.UnavailableGuild:4 of
+msgid ""
+"This object only seems to show up during the connection process of the "
+"client to the Gateway when the ``READY`` event is dispatched. This event "
+"will pass fields with ``guilds`` where this becomes present."
+msgstr ""
+
+#: interactions.api.models.guild.UnavailableGuild:9 of
+msgid "The ID of the unavailable guild."
+msgstr ""
+
+#: interactions.api.models.guild.UnavailableGuild:10 of
+msgid "Whether the guild is unavailable or not."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:1 of
+msgid "A class object representing a welcome channel on the welcome screen."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:4 of
+msgid ""
+"``emoji_id`` and ``emoji_name`` are given values respectively if the "
+"welcome channel uses an emoji."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:7 of
+msgid "The ID of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:8 of
+msgid "The description of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:9 of
+msgid "The ID of the emoji of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeChannels:10 of
+msgid "The name of the emoji of the welcome channel."
+msgstr ""
+
+#: interactions.api.models.guild.ExplicitContentFilterLevel:1 of
+msgid ""
+"An enumerable object representing the explicit content filter level of a "
+"guild."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:1 of
+msgid "A class object representing the scheduled events of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:4 of
+msgid ""
+"Some attributes are optional via creator_id/creator implementation by the"
+" API: \"`creator_id` will be null and `creator` will not be included for "
+"events created before October 25th, 2021, when the concept of "
+"`creator_id` was introduced and tracked.\""
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:7 of
+msgid "The ID of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:8 of
+msgid "The ID of the guild that this scheduled event belongs to."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:9 of
+msgid "The channel ID in which the scheduled event belongs to, if any."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:10 of
+msgid "The ID of the user that created the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:11 of
+msgid "The name of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:12 of
+msgid "The description of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:13 of
+msgid "The scheduled event start time."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:14 of
+msgid "The scheduled event end time, if any."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:15 of
+msgid "The privacy level of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:16 of
+msgid "The type of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:17 of
+msgid "The ID of the entity associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:18 of
+msgid "Additional metadata associated with the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:19 of
+msgid "The user that created the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:20 of
+msgid "The number of users subscribed to the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_scheduled_event:19
+#: interactions.api.models.guild.ScheduledEvents:21 of
+msgid "The status of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.guild.ScheduledEvents:22 of
+msgid "The hash containing the image of an event, if applicable."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:1 of
+msgid "A class object representing the welcome screen shown for community guilds."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:4 of
+msgid "``description`` is ambiguous -- Discord poorly documented this. :)"
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:6 of
+msgid "We assume it's for the welcome screen topic."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:8 of
+msgid "The description of the welcome screen."
+msgstr ""
+
+#: interactions.api.models.guild.WelcomeScreen:9 of
+msgid "A list of welcome channels of the welcome screen."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:1 of
+msgid "A class object representing how a guild is registered."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:4 of
+msgid ""
+"Most of these optionals are actually declared with their value upon "
+"instantiation but are kept like this since this class object is meant to "
+"be more broad and generalized."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:8
+#: interactions.api.models.guild.GuildPreview:3 of
+msgid "The ID of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:9
+#: interactions.api.models.guild.GuildPreview:4 of
+msgid "The name of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:10
+#: interactions.api.models.guild.GuildPreview:5 of
+msgid "The icon of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:11 of
+msgid "The hashed version of the icon of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:12
+#: interactions.api.models.guild.GuildPreview:6 of
+msgid "The invite splash banner of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:13
+#: interactions.api.models.guild.GuildPreview:7 of
+msgid "The discovery splash banner of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:14 of
+msgid "Whether the guild is owned."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:15 of
+msgid "The ID of the owner of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:16 of
+msgid "The permissions of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:17 of
+msgid "The geographical region of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:18 of
+msgid "The AFK voice channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:19 of
+msgid "The timeout of the AFK voice channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:20 of
+msgid "Whether widgets are enabled in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:21 of
+msgid "The channel ID of the widget in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:22 of
+msgid "The level of user verification of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:23 of
+msgid "The default message notifications setting of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:24 of
+msgid "The explicit content filter setting level of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:25 of
+msgid "The list of roles in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:26
+#: interactions.api.models.guild.GuildPreview:8 of
+msgid "The list of emojis from the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:27
+#: interactions.api.models.guild.GuildPreview:9 of
+msgid "The list of features of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:28 of
+msgid "The MFA level of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:29 of
+msgid "The application ID of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:30 of
+msgid "The channel ID of the system of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:31 of
+msgid "The channel ID of Discord's defined \"rules\" channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:32 of
+msgid "The timestamp the member joined the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:33 of
+msgid "Whether the guild is considered \"large.\""
+msgstr ""
+
+#: interactions.api.models.guild.Guild:34 of
+msgid "Whether the guild is unavailable to access."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:35 of
+msgid "The amount of members in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:36 of
+msgid "The members in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:37 of
+msgid "The channels in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:38 of
+msgid "All known threads in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:39 of
+msgid "The list of presences in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:40 of
+msgid "The maximum amount of presences allowed in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:41 of
+msgid "The maximum amount of members allowed in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:42 of
+msgid "The vanity URL of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:43
+#: interactions.api.models.guild.GuildPreview:12 of
+msgid "The description of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:44 of
+msgid "The banner of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:45 of
+msgid "The server boost level of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:46 of
+msgid "The amount of server boosters in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:47 of
+msgid "The \"preferred\" local region of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:48 of
+msgid "The channel ID for community updates of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:49 of
+msgid ""
+"The maximum amount of video streaming members in a channel allowed in a "
+"guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:50
+#: interactions.api.models.guild.GuildPreview:10 of
+msgid "The approximate amount of members in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:51
+#: interactions.api.models.guild.GuildPreview:11 of
+msgid "The approximate amount of presences in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:52 of
+msgid "The welcome screen of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:53 of
+msgid "The NSFW safety filter level of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:54 of
+msgid "The stage instance of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:55 of
+msgid "The list of stickers from the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild:56 of
+msgid "Whether the guild has the boost progress bar enabled."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:1 of
+msgid "Bans a member from the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:3 of
+msgid "The id of the member to ban"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:5 of
+msgid "The reason of the ban"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:7 of
+msgid "Number of days to delete messages, from 0 to 7. Defaults to 0"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.add_member_role
+#: interactions.api.models.guild.Guild.ban
+#: interactions.api.models.guild.Guild.clone_channel
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule
+#: interactions.api.models.guild.Guild.create_channel
+#: interactions.api.models.guild.Guild.create_emoji
+#: interactions.api.models.guild.Guild.create_role
+#: interactions.api.models.guild.Guild.create_scheduled_event
+#: interactions.api.models.guild.Guild.create_thread
+#: interactions.api.models.guild.Guild.delete_channel
+#: interactions.api.models.guild.Guild.delete_emoji
+#: interactions.api.models.guild.Guild.delete_role
+#: interactions.api.models.guild.Guild.delete_scheduled_event
+#: interactions.api.models.guild.Guild.get_all_active_threads
+#: interactions.api.models.guild.Guild.get_all_bans
+#: interactions.api.models.guild.Guild.get_all_channels
+#: interactions.api.models.guild.Guild.get_all_emoji
+#: interactions.api.models.guild.Guild.get_all_members
+#: interactions.api.models.guild.Guild.get_all_roles
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule
+#: interactions.api.models.guild.Guild.get_bans
+#: interactions.api.models.guild.Guild.get_emoji
+#: interactions.api.models.guild.Guild.get_list_of_members
+#: interactions.api.models.guild.Guild.get_member
+#: interactions.api.models.guild.Guild.get_preview
+#: interactions.api.models.guild.Guild.get_role
+#: interactions.api.models.guild.Guild.kick
+#: interactions.api.models.guild.Guild.leave
+#: interactions.api.models.guild.Guild.list_auto_moderation_rules
+#: interactions.api.models.guild.Guild.modify
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
+#: interactions.api.models.guild.Guild.modify_channel
+#: interactions.api.models.guild.Guild.modify_member
+#: interactions.api.models.guild.Guild.modify_role
+#: interactions.api.models.guild.Guild.modify_role_position
+#: interactions.api.models.guild.Guild.modify_role_positions
+#: interactions.api.models.guild.Guild.modify_scheduled_event
+#: interactions.api.models.guild.Guild.remove_ban
+#: interactions.api.models.guild.Guild.remove_member_role
+#: interactions.api.models.guild.Guild.search_members
+#: interactions.api.models.guild.Guild.set_afk_channel
+#: interactions.api.models.guild.Guild.set_afk_timeout
+#: interactions.api.models.guild.Guild.set_banner
+#: interactions.api.models.guild.Guild.set_default_message_notifications
+#: interactions.api.models.guild.Guild.set_description
+#: interactions.api.models.guild.Guild.set_discovery_splash
+#: interactions.api.models.guild.Guild.set_explicit_content_filter
+#: interactions.api.models.guild.Guild.set_icon
+#: interactions.api.models.guild.Guild.set_name
+#: interactions.api.models.guild.Guild.set_preferred_locale
+#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled
+#: interactions.api.models.guild.Guild.set_public_updates_channel
+#: interactions.api.models.guild.Guild.set_rules_channel
+#: interactions.api.models.guild.Guild.set_splash
+#: interactions.api.models.guild.Guild.set_system_channel
+#: interactions.api.models.guild.Guild.set_verification_level
+#: interactions.api.models.guild.Invite.delete of
+msgid "Return type"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.remove_ban:1 of
+msgid "Removes the ban of a user."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.remove_ban:3 of
+msgid "The id of the user to remove the ban from"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.remove_ban:5 of
+msgid "The reason for the removal of the ban"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.kick:1 of
+msgid "Kicks a member from the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.kick:3 of
+msgid "The id of the member to kick"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.kick:5 of
+msgid "The reason for the kick"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.add_member_role:1 of
+msgid "This method adds a role to a member."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.add_member_role:3 of
+msgid "The role to add. Either ``Role`` object or role_id"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.add_member_role:4 of
+msgid ""
+":type role  Union[Role, int, Snowflake] :param member_id: The id of the "
+"member to add the roles to :type member_id: Union[Member, int, Snowflake]"
+" :param reason?: The reason why the roles are added :type reason?: "
+"Optional[str]"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.remove_member_role:1 of
+msgid "This method removes a or multiple role(s) from a member."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.remove_member_role:3 of
+msgid "The role to remove. Either ``Role`` object or role_id"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.remove_member_role:5 of
+msgid "The id of the member to remove the roles from"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.remove_member_role:7 of
+msgid "The reason why the roles are removed"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:1 of
+msgid "Creates a new role in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:3 of
+msgid "The name of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:5 of
+msgid "RGB color value as integer, default ``0``"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:7 of
+msgid "Bitwise value of the enabled/disabled permissions"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:9 of
+msgid ""
+"Whether the role should be displayed separately in the sidebar, default "
+"``False``"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:11 of
+msgid "The role's icon image (if the guild has the ROLE_ICONS feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:13 of
+msgid ""
+"The role's unicode emoji as a standard emoji (if the guild has the "
+"ROLE_ICONS feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:15 of
+msgid "Whether the role should be mentionable, default ``False``"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:17 of
+msgid "The reason why the role is created, default ``None``"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.clone_channel
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule
+#: interactions.api.models.guild.Guild.create_channel
+#: interactions.api.models.guild.Guild.create_role
+#: interactions.api.models.guild.Guild.create_scheduled_event
+#: interactions.api.models.guild.Guild.create_thread
+#: interactions.api.models.guild.Guild.get_all_active_threads
+#: interactions.api.models.guild.Guild.get_all_bans
+#: interactions.api.models.guild.Guild.get_all_channels
+#: interactions.api.models.guild.Guild.get_all_emoji
+#: interactions.api.models.guild.Guild.get_all_members
+#: interactions.api.models.guild.Guild.get_all_roles
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule
+#: interactions.api.models.guild.Guild.get_bans
+#: interactions.api.models.guild.Guild.get_emoji
+#: interactions.api.models.guild.Guild.get_list_of_members
+#: interactions.api.models.guild.Guild.get_member
+#: interactions.api.models.guild.Guild.get_preview
+#: interactions.api.models.guild.Guild.get_role
+#: interactions.api.models.guild.Guild.modify
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
+#: interactions.api.models.guild.Guild.modify_channel
+#: interactions.api.models.guild.Guild.modify_member
+#: interactions.api.models.guild.Guild.modify_role
+#: interactions.api.models.guild.Guild.modify_role_position
+#: interactions.api.models.guild.Guild.modify_role_positions
+#: interactions.api.models.guild.Guild.modify_scheduled_event
+#: interactions.api.models.guild.Guild.search_members of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_role:19 of
+msgid "The created Role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_member:1 of
+msgid ""
+"Searches for the member with specified id in the guild and returns the "
+"member as member object."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_member:3 of
+msgid "The id of the member to search for"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_member:5 of
+msgid "The member searched for"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_channel:1 of
+msgid "Deletes a channel from the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_channel:3 of
+msgid "The id of the channel to delete"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_role:1 of
+msgid "Deletes a role from the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_role:3 of
+msgid "The id of the role to delete"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_emoji:5
+#: interactions.api.models.guild.Guild.delete_role:5 of
+msgid "The reason of the deletion"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:1 of
+msgid "Edits a role in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:3 of
+msgid "The id of the role to edit"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:5 of
+msgid "The name of the role, defaults to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:7 of
+msgid "RGB color value as integer, defaults to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:9 of
+msgid ""
+"Bitwise value of the enabled/disabled permissions, defaults to the "
+"current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:11 of
+msgid ""
+"Whether the role should be displayed separately in the sidebar, defaults "
+"to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:13 of
+msgid ""
+"The role's icon image (if the guild has the ROLE_ICONS feature), defaults"
+" to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:15 of
+msgid ""
+"The role's unicode emoji as a standard emoji (if the guild has the "
+"ROLE_ICONS feature), defaults to the current value of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:17 of
+msgid ""
+"Whether the role should be mentionable, defaults to the current value of "
+"the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:19 of
+msgid "The reason why the role is edited, default ``None``"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role:21 of
+msgid "The modified role object"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:1 of
+msgid "Creates a thread in the specified channel."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:3 of
+msgid "The name of the thread"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:5 of
+msgid "The id of the channel to create the thread in"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:7 of
+msgid ""
+"duration in minutes to automatically archive the thread after recent "
+"activity, can be set to: 60, 1440, 4320, 10080"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:10 of
+msgid ""
+"The type of thread, defaults to public. ignored if creating thread from a"
+" message"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:12 of
+msgid "Boolean to display if the Thread is open to join or private."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:14 of
+msgid "An optional message to create a thread from."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:16 of
+msgid "An optional reason for the audit log"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_thread:18 of
+msgid "The created thread"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:1 of
+msgid "Creates a channel in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:3 of
+msgid "The name of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:5 of
+msgid "The type of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:7 of
+msgid "The topic of that channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:9 of
+msgid "(voice channel only) The bitrate (in bits) of the voice channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:11 of
+msgid "(voice channel only) Maximum amount of users in the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:13 of
+msgid ""
+"Amount of seconds a user has to wait before sending another message "
+"(0-21600)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:15 of
+msgid "Sorting position of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:17 of
+msgid "The id of the parent category for a channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:19
+#: interactions.api.models.guild.Guild.modify_channel:22 of
+msgid "The permission overwrites, if any"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:21 of
+msgid "Whether the channel is nsfw or not, default ``False``"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:23 of
+msgid "The reason for the creation"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_channel:25 of
+msgid "The created channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.clone_channel:1 of
+msgid "Clones a channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.clone_channel:3 of
+msgid "The id of the channel to clone"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.clone_channel:5 of
+msgid "The cloned channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:1 of
+msgid "Edits a channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:4 of
+msgid ""
+"The fields `archived`, `auto_archive_duration` and `locked` require the "
+"provided channel to be a thread."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:6 of
+msgid "The id of the channel to modify"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:8 of
+msgid "The name of the channel, defaults to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:10 of
+msgid "The topic of that channel, defaults to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:12 of
+msgid ""
+"(voice channel only) The bitrate (in bits) of the voice channel, defaults"
+" to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:14 of
+msgid ""
+"(voice channel only) Maximum amount of users in the channel, defaults to "
+"the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:16 of
+msgid ""
+"Amount of seconds a user has to wait before sending another message "
+"(0-21600), defaults to the current value of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:18 of
+msgid ""
+"Sorting position of the channel, defaults to the current value of the "
+"channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:20 of
+msgid ""
+"The id of the parent category for a channel, defaults to the current "
+"value of the channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:24 of
+msgid ""
+"Whether the channel is nsfw or not, defaults to the current value of the "
+"channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:26 of
+msgid "Whether the thread is archived"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:28 of
+msgid ""
+"The time after the thread is automatically archived. One of 60, 1440, "
+"4320, 10080"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:30 of
+msgid "Whether the thread is locked"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:32 of
+msgid "The reason for the edit"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_channel:34 of
+msgid "The modified channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:1 of
+msgid "Modifies a member of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:3 of
+msgid "The id of the member to modify"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:5 of
+msgid "The nickname of the member"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:7 of
+msgid "A list of all role ids the member has"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:9 of
+msgid "whether the user is muted in voice channels"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:11 of
+msgid "whether the user is deafened in voice channels"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:13 of
+msgid "id of channel to move user to (if they are connected to voice)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:15 of
+msgid ""
+"when the user's timeout will expire and the user will be able to "
+"communicate in the guild again (up to 28 days in the future)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:17 of
+msgid "The reason of the modifying"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_member:19 of
+msgid "The modified member"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_preview:1 of
+msgid "Get the guild's preview."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_preview:3 of
+msgid "the guild preview as object"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.leave:1 of
+msgid "Removes the bot from the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:1 of
+msgid "Modifies the current guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:3
+#: interactions.api.models.guild.Guild.set_afk_channel:3
+#: interactions.api.models.guild.Guild.set_name:3 of
+msgid "The new name of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:5 of
+msgid "The verification level of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:7 of
+msgid "The default message notification level for members"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:9 of
+msgid "The explicit content filter level for media content"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:11 of
+msgid "The id for the afk voice channel"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:13 of
+msgid "Afk timeout in seconds"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:15 of
+msgid ""
+"1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when"
+" the server has the ANIMATED_ICON feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:17 of
+msgid ""
+"The id of the user to transfer the guild ownership to. You must be the "
+"owner to perform this"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:19 of
+msgid ""
+"16:9 png/jpeg image for the guild splash (when the server has the "
+"INVITE_SPLASH feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:21 of
+msgid ""
+"16:9 png/jpeg image for the guild discovery splash (when the server has "
+"the DISCOVERABLE feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:23 of
+msgid ""
+"16:9 png/jpeg image for the guild banner (when the server has the BANNER "
+"feature; can be animated gif when the server has the ANIMATED_BANNER "
+"feature)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:25 of
+msgid ""
+"The id of the channel where guild notices such as welcome messages and "
+"boost events are posted"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:27 of
+msgid "Whether to suppress member join notifications in the system channel or not"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:29 of
+msgid ""
+"Whether to suppress server boost notifications in the system channel or "
+"not"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:31 of
+msgid "Whether to suppress server setup tips in the system channel or not"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:33 of
+msgid ""
+"Whether to hide member join sticker reply buttons in the system channel "
+"or not"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:35 of
+msgid "The id of the channel where guilds display rules and/or guidelines"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:37 of
+msgid ""
+"The id of the channel where admins and moderators of community guilds "
+"receive notices from Discord"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:39 of
+msgid ""
+"The preferred locale of a community guild used in server discovery and "
+"notices from Discord; defaults to \"en-US\""
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:41 of
+msgid "The description for the guild, if the guild is discoverable"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:43 of
+msgid "Whether the guild's boost progress bar is enabled"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:45
+#: interactions.api.models.guild.Guild.modify_role_position:7
+#: interactions.api.models.guild.Guild.modify_role_positions:5 of
+msgid "The reason for the modifying"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify:47 of
+msgid "The modified guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_name:1 of
+msgid "Sets the name of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_afk_channel:5
+#: interactions.api.models.guild.Guild.set_afk_timeout:5
+#: interactions.api.models.guild.Guild.set_banner:5
+#: interactions.api.models.guild.Guild.set_default_message_notifications:5
+#: interactions.api.models.guild.Guild.set_description:5
+#: interactions.api.models.guild.Guild.set_discovery_splash:5
+#: interactions.api.models.guild.Guild.set_explicit_content_filter:5
+#: interactions.api.models.guild.Guild.set_icon:5
+#: interactions.api.models.guild.Guild.set_name:5
+#: interactions.api.models.guild.Guild.set_preferred_locale:5
+#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled:5
+#: interactions.api.models.guild.Guild.set_public_updates_channel:5
+#: interactions.api.models.guild.Guild.set_rules_channel:5
+#: interactions.api.models.guild.Guild.set_splash:5
+#: interactions.api.models.guild.Guild.set_system_channel:5
+#: interactions.api.models.guild.Guild.set_verification_level:5 of
+msgid "The reason of the edit"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_verification_level:1 of
+msgid "Sets the verification level of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_verification_level:3 of
+msgid "The new verification level of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_default_message_notifications:1 of
+msgid "Sets the default message notifications level of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_default_message_notifications:3 of
+msgid "The new default message notification level of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_explicit_content_filter:1 of
+msgid "Sets the explicit content filter level of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_explicit_content_filter:3 of
+msgid "The new explicit content filter level of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_afk_channel:1 of
+msgid "Sets the afk channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_afk_timeout:1 of
+msgid "Sets the afk timeout of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_afk_timeout:3 of
+msgid "The new afk timeout of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_system_channel:1 of
+msgid "Sets the system channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_system_channel:3 of
+msgid "The new system channel id of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_rules_channel:1 of
+msgid "Sets the rules channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_rules_channel:3 of
+msgid "The new rules channel id of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_public_updates_channel:1 of
+msgid "Sets the public updates channel of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_public_updates_channel:3 of
+msgid "The new public updates channel id of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_preferred_locale:1 of
+msgid "Sets the preferred locale of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_preferred_locale:3 of
+msgid "The new preferredlocale of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_description:1 of
+msgid "Sets the description of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_description:3 of
+msgid "The new description of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled:1 of
+msgid "Sets the visibility of the premium progress bar of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled:3 of
+msgid "Whether the bar is enabled or not"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_icon:1 of
+msgid "Sets the icon of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_icon:3 of
+msgid "The new icon of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_splash:1 of
+msgid "Sets the splash of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_splash:3 of
+msgid "The new splash of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_discovery_splash:1 of
+msgid "Sets the discovery_splash of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_discovery_splash:3 of
+msgid "The new discovery_splash of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_banner:1 of
+msgid "Sets the banner of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.set_banner:3 of
+msgid "The new banner of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:1 of
+msgid "creates a scheduled event for the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:3
+#: interactions.api.models.guild.Guild.modify_scheduled_event:5 of
+msgid "The name of the event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:5
+#: interactions.api.models.guild.Guild.modify_scheduled_event:7 of
+msgid "The entity type of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:7
+#: interactions.api.models.guild.Guild.modify_scheduled_event:9 of
+msgid "The time to schedule the scheduled event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:9
+#: interactions.api.models.guild.Guild.modify_scheduled_event:11 of
+msgid "The time when the scheduled event is scheduled to end"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:11
+#: interactions.api.models.guild.Guild.modify_scheduled_event:13 of
+msgid "The entity metadata of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:13
+#: interactions.api.models.guild.Guild.modify_scheduled_event:15 of
+msgid "The channel id of the scheduled event."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:15
+#: interactions.api.models.guild.Guild.modify_scheduled_event:17 of
+msgid "The description of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:17
+#: interactions.api.models.guild.Guild.modify_scheduled_event:21 of
+msgid "The cover image of the scheduled event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_scheduled_event:19 of
+msgid "The created event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_scheduled_event:1 of
+msgid "Edits a scheduled event of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_scheduled_event:3 of
+msgid "The id of the event to edit"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_scheduled_event:23 of
+msgid "The modified event"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_scheduled_event:1 of
+msgid "Deletes a scheduled event of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_scheduled_event:3 of
+msgid "The id of the event to delete"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_channels:1 of
+msgid "Gets all channels of the guild as list."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_channels:3 of
+msgid "The channels of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_active_threads:1 of
+msgid "Gets all active threads of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_active_threads:3 of
+msgid "The threads of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_roles:1 of
+msgid "Gets all roles of the guild as list."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_roles:3 of
+msgid "The roles of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_role:1 of
+msgid "Gets a role of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_role:3 of
+msgid "The id of the role to get"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_role:5 of
+msgid "The role as object"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role_position:1 of
+msgid "Modifies the position of a role in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role_position:3 of
+msgid "The id of the role to modify the position of"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role_position:5 of
+msgid "The new position of the role"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role_position:9
+#: interactions.api.models.guild.Guild.modify_role_positions:7 of
+msgid "List of guild roles with updated hierarchy"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role_positions:1 of
+msgid "Modifies the positions of multiple roles in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_role_positions:3 of
+msgid "A list of dicts containing roles (id) and their new positions (position)"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_bans:1 of
+msgid "Gets a list of banned users."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_bans:3 of
+msgid "Number of users to return. Defaults to 1000."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_bans:5 of
+msgid "Consider only users before the given User ID snowflake."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_bans:7 of
+msgid "Consider only users after the given User ID snowflake."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_bans:3
+#: interactions.api.models.guild.Guild.get_bans:9 of
+msgid "List of banned users with reasons"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_bans:1 of
+msgid "Gets all bans of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_emoji:1 of
+msgid "Gets an emoji of the guild and returns it."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_emoji:3 of
+msgid "The id of the emoji"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_emoji:5 of
+msgid "The specified Emoji, if found"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_emoji:1 of
+msgid "Gets all emojis of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_emoji:3 of
+msgid "All emojis of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_emoji:1 of
+msgid "Creates an Emoji in the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_emoji:3 of
+msgid "The image of the emoji."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_emoji:5 of
+msgid "The name of the emoji. If not specified, the filename will be used"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_emoji:7 of
+msgid "Roles allowed to use this emoji"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:17
+#: interactions.api.models.guild.Guild.create_emoji:9
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:19 of
+msgid "The reason of the creation"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_emoji:1 of
+msgid "Deletes an emoji of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_emoji:3 of
+msgid "The emoji or the id of the emoji to delete"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_list_of_members:1 of
+msgid "Lists the members of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_list_of_members:3 of
+msgid "How many members to get from the API. Max is 1000."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_list_of_members:5 of
+msgid "Get only Members after this member."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_list_of_members:7 of
+msgid "A list of members"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.search_members:1 of
+msgid ""
+"Search the guild for members whose username or nickname starts with "
+"provided string."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.search_members:3 of
+msgid "The string to search for"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.search_members:5 of
+msgid "The number of members to return."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.search_members:7 of
+msgid "A list of matching members"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_members:1 of
+msgid "Gets all members of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_members:3 of
+msgid "Calling this method can lead to rate-limits in larger guilds."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_members:5 of
+msgid "Returns a list of all members of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.list_auto_moderation_rules:1 of
+msgid "Lists all AutoMod rules"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule:1 of
+msgid "Gets a AutoMod rule from its ID"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule:3 of
+msgid "The ID of the rule to get"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule:5 of
+msgid "A AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:1 of
+msgid "Creates an AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:3
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:5 of
+msgid "The name of the new rule."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:5
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:7 of
+msgid "The trigger type of the new rule."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:7
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:9 of
+msgid ""
+"The trigger metadata payload representation. This can be omitted based on"
+" the trigger type."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:9
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:11 of
+msgid "The actions that will execute when the rule is triggered."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:11
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:13 of
+msgid "Whether the rule will be enabled upon creation. False by default."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:13
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:15 of
+msgid ""
+"The role IDs that are whitelisted by the rule, if given. The maximum is "
+"20."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:15
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:17 of
+msgid ""
+"The channel IDs that are whitelisted by the rule, if given. The maximum "
+"is 20"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:19
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:21 of
+msgid "The new AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:1 of
+msgid "Edits an AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:3 of
+msgid "The rule to modify"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.icon_url:1 of
+msgid ""
+"Returns the URL of the guild's icon. :return: URL of the guild's icon "
+"(None will be returned if no icon is set) :rtype: str"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.banner_url:1 of
+msgid ""
+"Returns the URL of the guild's banner. :return: URL of the guild's banner"
+" (None will be returned if no banner is set) :rtype: str"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.splash_url:1 of
+msgid ""
+"Returns the URL of the guild's invite splash banner. :return: URL of the "
+"guild's invite splash banner (None will be returned if no banner is set) "
+":rtype: str"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.discovery_splash_url:1 of
+msgid ""
+"Returns the URL of the guild's discovery splash banner. :return: URL of "
+"the guild's discovery splash banner (None will be returned if no banner "
+"is set) :rtype: str"
+msgstr ""
+
+#: interactions.api.models.guild.GuildPreview:1 of
+msgid "A class object representing the preview of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:1 of
+msgid "The invite object."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:3 of
+msgid "The amount of uses on this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:4 of
+msgid "The amount of maximum uses on this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:5 of
+msgid "The maximum age of this invite, in seconds."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:6 of
+msgid "A detection of whether this invite only grants temporary membership."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:7 of
+msgid "The time when this invite was created."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:8 of
+msgid "The time when this invite will expire."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:9 of
+msgid "The type of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:10 of
+msgid "The user who created this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:11 of
+msgid "The code of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:12 of
+msgid "The guild ID of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:13 of
+msgid "The channel ID of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:14 of
+msgid "The type of the target user of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:15 of
+msgid "The target user of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:16 of
+msgid "The target type of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:17 of
+msgid "The guild of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:18 of
+msgid "The channel of this invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:19 of
+msgid "The approximate amount of total members in a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:20 of
+msgid "The aprpoximate amount of online members in a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Invite:21 of
+msgid "A scheduled guild event object included in the invite."
+msgstr ""
+
+#: interactions.api.models.guild.Invite.delete:1 of
+msgid "Deletes the invite"
+msgstr ""

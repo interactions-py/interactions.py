@@ -1,0 +1,296 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../api.models.member.rst:4
+msgid "Member Models"
+msgstr ""
+
+#: interactions.api.models.member.Member:1 of
+msgid "A class object representing the user of a guild, known as a \"member.\""
+msgstr ""
+
+#: interactions.api.models.member.Member:4 of
+msgid ""
+"``pending`` and ``permissions`` only apply for members retroactively "
+"requiring to verify rules via. membership screening or lack permissions "
+"to speak."
+msgstr ""
+
+#: interactions.api.models.member.Member of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.member.Member:8 of
+msgid "The user of the guild."
+msgstr ""
+
+#: interactions.api.models.member.Member:9 of
+msgid "The nickname of the member."
+msgstr ""
+
+#: interactions.api.models.member.Member:10 of
+msgid "The hash containing the user's guild avatar, if applicable."
+msgstr ""
+
+#: interactions.api.models.member.Member:11 of
+msgid "The list of roles of the member."
+msgstr ""
+
+#: interactions.api.models.member.Member:12 of
+msgid "The timestamp the member joined the guild at."
+msgstr ""
+
+#: interactions.api.models.member.Member:13 of
+msgid "The timestamp the member has been a server booster since."
+msgstr ""
+
+#: interactions.api.models.member.Member:14 of
+msgid "Whether the member is deafened."
+msgstr ""
+
+#: interactions.api.models.member.Member:15 of
+msgid "Whether the member is muted."
+msgstr ""
+
+#: interactions.api.models.member.Member:16 of
+msgid "Whether the member is pending to pass membership screening."
+msgstr ""
+
+#: interactions.api.models.member.Member:17 of
+msgid "Whether the member has permissions."
+msgstr ""
+
+#: interactions.api.models.member.Member:18 of
+msgid "How long until they're unmuted, if any."
+msgstr ""
+
+#: interactions.api.models.member.Member
+#: interactions.api.models.member.Member.add_role
+#: interactions.api.models.member.Member.add_to_thread
+#: interactions.api.models.member.Member.ban
+#: interactions.api.models.member.Member.get_avatar_url
+#: interactions.api.models.member.Member.kick
+#: interactions.api.models.member.Member.modify
+#: interactions.api.models.member.Member.remove_role
+#: interactions.api.models.member.Member.send of
+msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.member.Member.id:1 of
+msgid "Returns the ID of the user."
+msgstr ""
+
+#: interactions.api.models.member.Member.id
+#: interactions.api.models.member.Member.mention
+#: interactions.api.models.member.Member.modify
+#: interactions.api.models.member.Member.name
+#: interactions.api.models.member.Member.send of
+msgid "Returns"
+msgstr ""
+
+#: interactions.api.models.member.Member.id:3 of
+msgid "The ID of the user"
+msgstr ""
+
+#: interactions.api.models.member.Member.add_role
+#: interactions.api.models.member.Member.add_to_thread
+#: interactions.api.models.member.Member.ban
+#: interactions.api.models.member.Member.get_avatar_url
+#: interactions.api.models.member.Member.id
+#: interactions.api.models.member.Member.kick
+#: interactions.api.models.member.Member.mention
+#: interactions.api.models.member.Member.modify
+#: interactions.api.models.member.Member.name
+#: interactions.api.models.member.Member.remove_role
+#: interactions.api.models.member.Member.send of
+msgid "Return type"
+msgstr ""
+
+#: interactions.api.models.member.Member.mention:1 of
+msgid "Returns a string that allows you to mention the given member."
+msgstr ""
+
+#: interactions.api.models.member.Member.mention:3 of
+msgid "The string of the mentioned member."
+msgstr ""
+
+#: interactions.api.models.member.Member.name:1 of
+msgid "Returns the string of either the user's nickname or username."
+msgstr ""
+
+#: interactions.api.models.member.Member.name:3 of
+msgid "The name of the member"
+msgstr ""
+
+#: interactions.api.models.member.Member.ban:1 of
+msgid "Bans the member from a guild."
+msgstr ""
+
+#: interactions.api.models.member.Member.ban:3 of
+msgid "The id of the guild to ban the member from"
+msgstr ""
+
+#: interactions.api.models.member.Member.ban:5 of
+msgid "The reason of the ban"
+msgstr ""
+
+#: interactions.api.models.member.Member.ban:7 of
+msgid "Number of days to delete messages, from 0 to 7. Defaults to 0"
+msgstr ""
+
+#: interactions.api.models.member.Member.kick:1 of
+msgid "Kicks the member from a guild."
+msgstr ""
+
+#: interactions.api.models.member.Member.kick:3 of
+msgid "The id of the guild to kick the member from"
+msgstr ""
+
+#: interactions.api.models.member.Member.kick:5 of
+msgid "The reason for the kick"
+msgstr ""
+
+#: interactions.api.models.member.Member.add_role:1 of
+msgid "This method adds a role to a member."
+msgstr ""
+
+#: interactions.api.models.member.Member.add_role:3 of
+msgid "The role to add. Either ``Role`` object or role_id"
+msgstr ""
+
+#: interactions.api.models.member.Member.add_role:5 of
+msgid "The id of the guild to add the roles to the member"
+msgstr ""
+
+#: interactions.api.models.member.Member.add_role:7 of
+msgid "The reason why the roles are added"
+msgstr ""
+
+#: interactions.api.models.member.Member.remove_role:1 of
+msgid "This method removes a role from a member."
+msgstr ""
+
+#: interactions.api.models.member.Member.remove_role:3 of
+msgid "The role to remove. Either ``Role`` object or role_id"
+msgstr ""
+
+#: interactions.api.models.member.Member.remove_role:5 of
+msgid "The id of the guild to remove the roles of the member"
+msgstr ""
+
+#: interactions.api.models.member.Member.remove_role:7 of
+msgid "The reason why the roles are removed"
+msgstr ""
+
+#: interactions.api.models.member.Member.send:1 of
+msgid "Sends a DM to the member."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:3 of
+msgid "The contents of the message as a string or string-converted value."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:5 of
+msgid "A component, or list of components for the message."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:7 of
+msgid "Whether the message utilizes the text-to-speech Discord programme or not."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:9 of
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
+msgstr ""
+
+#: interactions.api.models.member.Member.send:11 of
+msgid "A file or list of files to be attached to the message."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:13 of
+msgid "An embed, or list of embeds for the message."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:15 of
+msgid "The message interactions/mention limits that the message can refer to."
+msgstr ""
+
+#: interactions.api.models.member.Member.send:17 of
+msgid "The sent message as an object."
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:1 of
+msgid "Modifies the member of a guild."
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:3 of
+msgid "The id of the guild to modify the member on"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:5 of
+msgid "The nickname of the member"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:7 of
+msgid "A list of all role ids the member has"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:9 of
+msgid "whether the user is muted in voice channels"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:11 of
+msgid "whether the user is deafened in voice channels"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:13 of
+msgid "id of channel to move user to (if they are connected to voice)"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:15 of
+msgid ""
+"when the user's timeout will expire and the user will be able to "
+"communicate in the guild again (up to 28 days in the future)"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:17 of
+msgid "The reason of the modifying"
+msgstr ""
+
+#: interactions.api.models.member.Member.modify:19 of
+msgid "The modified member object"
+msgstr ""
+
+#: interactions.api.models.member.Member.add_to_thread:1 of
+msgid "Adds the member to a thread."
+msgstr ""
+
+#: interactions.api.models.member.Member.add_to_thread:3 of
+msgid "The id of the thread to add the member to"
+msgstr ""
+
+#: interactions.api.models.member.Member.get_avatar_url:1 of
+msgid ""
+"Returns the URL of the member's avatar for the specified guild. :param "
+"guild_id: The id of the guild to get the member's avatar from :type "
+"guild_id: Union[int, Snowflake, \"Guild\"] :return: URL of the members's "
+"avatar (None will be returned if no avatar is set) :rtype: str"
+msgstr ""
