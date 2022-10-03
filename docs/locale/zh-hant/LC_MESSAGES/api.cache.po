@@ -38,7 +38,7 @@ msgstr "存儲的項目列表。"
 #: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
 #: interactions.api.cache.Storage.merge interactions.api.cache.Storage.view of
 msgid "Return type"
-msgstr "回傳類別"
+msgstr "回傳類型"
 
 #: interactions.api.cache.Storage.merge:1 of
 msgid "Merges new data of an item into an already present item of the cache"
