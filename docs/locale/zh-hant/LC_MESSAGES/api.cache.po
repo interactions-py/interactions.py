@@ -1,0 +1,116 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# ItsRqtl <itsrqtl@gmail>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: ItsRqtl <itsrqtl@gmail.com>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: ItsRqtl\n"
+
+#: ../../api.cache.rst:4
+msgid "Client Cache"
+msgstr "客戶端緩存"
+
+#: interactions.api.cache.Storage:1 of
+msgid "A class representing a set of items stored as a cache state."
+msgstr "表示一組項目存儲於緩存的類別。"
+
+#: interactions.api.cache.Cache interactions.api.cache.Storage of
+msgid "Variables"
+msgstr "變數"
+
+#: interactions.api.cache.Storage:3 of
+msgid "The list of items stored."
+msgstr "存儲的項目列表。"
+
+#: interactions.api.cache.Cache interactions.api.cache.Storage
+#: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
+#: interactions.api.cache.Storage.merge interactions.api.cache.Storage.view of
+msgid "Return type"
+msgstr "回傳類別"
+
+#: interactions.api.cache.Storage.merge:1 of
+msgid "Merges new data of an item into an already present item of the cache"
+msgstr "將已經存在項目的新數據合併到緩存中"
+
+#: interactions.api.cache.Storage.add interactions.api.cache.Storage.get
+#: interactions.api.cache.Storage.merge interactions.api.cache.Storage.update
+#: of
+msgid "Parameters"
+msgstr "參數"
+
+#: interactions.api.cache.Storage.merge:3 of
+msgid "The item to merge."
+msgstr "合併的項目"
+
+#: interactions.api.cache.Storage.add:5 interactions.api.cache.Storage.merge:5
+#: of
+msgid "The unique id of the item."
+msgstr "項目的獨特ID。"
+
+#: interactions.api.cache.Storage.add:1 of
+msgid "Adds a new item to the storage."
+msgstr "將新項目添加到緩存中。"
+
+#: interactions.api.cache.Storage.add:3 of
+msgid "The item to add."
+msgstr "添加的項目。"
+
+#: interactions.api.cache.Storage.get:1 of
+msgid "Gets an item from the storage."
+msgstr "從緩存中取得項目。"
+
+#: interactions.api.cache.Storage.get:3 of
+msgid "The ID of the item."
+msgstr "項目的獨特ID。"
+
+#: interactions.api.cache.Storage.get:5 of
+msgid "The default value to return if the item is not found."
+msgstr "項目不存在時回傳的預設值。"
+
+#: interactions.api.cache.Storage.get interactions.api.cache.Storage.view of
+msgid "Returns"
+msgstr "回傳"
+
+#: interactions.api.cache.Storage.get:7 of
+msgid "The item from the storage if any."
+msgstr "緩存中的項目 (如有)。"
+
+#: interactions.api.cache.Storage.update:1 of
+msgid "Updates multiple items from the storage."
+msgstr "更新緩存中的多個項目。"
+
+#: interactions.api.cache.Storage.update:3 of
+msgid "The data to update with."
+msgstr "要更新的數據。"
+
+#: interactions.api.cache.Storage.view:1 of
+msgid "Views all items from storage."
+msgstr "查看緩存中的所有項目。"
+
+#: interactions.api.cache.Storage.view:3 of
+msgid "The items stored."
+msgstr "存儲的項目。"
+
+#: interactions.api.cache.Cache:1 of
+msgid ""
+"A class representing the cache. This cache collects all of the HTTP "
+"requests made for the represented instances of the class."
+msgstr "表示緩存的類別。此緩存收集了所有對類別實例的HTTP請求。"
+
+#: interactions.api.cache.Cache:5 of
+msgid ""
+"A dictionary denoting the Type and the objects that correspond to the "
+"Type."
+msgstr "表示類型和對應於類型的對象的字典"
