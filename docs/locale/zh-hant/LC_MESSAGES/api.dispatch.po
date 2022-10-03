@@ -20,11 +20,11 @@ msgstr ""
 
 #: ../../api.dispatch.rst:4
 msgid "Dispatching"
-msgstr "調度中"
+msgstr "分發中"
 
 #: interactions.api.dispatch.Listener:1 of
 msgid "A class representing how events become dispatched and listened to."
-msgstr "表示事件如何被調度和監聽的類別。"
+msgstr "表示事件如何被分發和監聽的類別。"
 
 #: interactions.api.dispatch.Listener of
 msgid "Variables"
@@ -36,7 +36,7 @@ msgstr "協程事件循環"
 
 #: interactions.api.dispatch.Listener:4 of
 msgid "A list of events being dispatched."
-msgstr "正在調度的事件列表。"
+msgstr "正在分發的事件列表。"
 
 #: interactions.api.dispatch.Listener
 #: interactions.api.dispatch.Listener.dispatch
@@ -46,7 +46,7 @@ msgstr "回傳類型"
 
 #: interactions.api.dispatch.Listener.dispatch:1 of
 msgid "Dispatches an event given out by the gateway."
-msgstr "調度一個連接器發出的事件"
+msgstr "分發一個Gateway發出的事件"
 
 #: interactions.api.dispatch.Listener.dispatch
 #: interactions.api.dispatch.Listener.register of
@@ -55,7 +55,7 @@ msgstr "參數"
 
 #: interactions.api.dispatch.Listener.dispatch:3 of
 msgid "The name of the event to dispatch."
-msgstr "調度事件的名稱"
+msgstr "分發事件的名稱"
 
 #: interactions.api.dispatch.Listener.dispatch:5 of
 msgid "Multiple arguments of the coroutine."
@@ -74,7 +74,7 @@ msgstr "為協程註冊要監聽的事件。如果沒有給出事件的名稱，
 
 #: interactions.api.dispatch.Listener.register:5 of
 msgid "i.e. : async def on_guild_create -> \"ON_GUILD_CREATE\" dispatch."
-msgstr "例子：async def on_guild_create -> 調度 \"ON_GUILD_CREATE\"。"
+msgstr "例子：async def on_guild_create -> 分發 \"ON_GUILD_CREATE\"。"
 
 #: interactions.api.dispatch.Listener.register:7 of
 msgid "The coroutine to register as an event."
