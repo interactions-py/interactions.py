@@ -26,7 +26,7 @@ msgstr "標記位移模型"
 msgid ""
 "An integer flag bitshift object representing flags respective for each "
 "gateway intent type."
-msgstr "一個整數標記位移物件，代表每個gateway意圖類型的標記。"
+msgstr "代表每個gateway意圖類型標記的整數標記位移物件。"
 
 #: interactions.api.models.flags.AppFlags interactions.api.models.flags.Intents
 #: interactions.api.models.flags.Permissions
@@ -54,13 +54,13 @@ msgstr "有效值如下："
 msgid ""
 "An integer flag bitshift object representing the different application "
 "flags given by Discord."
-msgstr "一個整數標記位移物件，代表Discord給予的不同應用程式標記。"
+msgstr "代表Discord給予的不同應用程式標記的整數標記位移物件"
 
 #: interactions.api.models.flags.StatusType:1 of
 msgid ""
 "An enumerable object representing Discord status icons that a user may "
 "have."
-msgstr "一個可枚舉物件，代表使用者可能有的Discord狀態圖示。"
+msgstr "代表使用者可能有的Discord狀態圖示的可枚舉物件。"
 
 #: interactions.api.models.flags.StatusType:1 of
 msgid ":py:class:`str`"
@@ -85,10 +85,10 @@ msgstr "name: 成員名稱 start: 初始起始值或None count: 現有成員數 
 msgid ""
 "An integer flag bitshift object representing the different user flags "
 "given by Discord."
-msgstr "一個整數標記位移物件，代表Discord給予的不同使用者標記。"
+msgstr "代表Discord給予不同使用者標記的整數標記位移物件。"
 
 #: interactions.api.models.flags.Permissions:1 of
 msgid ""
 "An integer flag bitshift object representing the different member "
 "permissions given by Discord."
-msgstr "一個整數標記位移物件，代表Discord給予的不同成員權限。"
+msgstr "代表Discord給予不同成員權限的整數標記位移物件。"

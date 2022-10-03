@@ -24,7 +24,7 @@ msgstr "頻道模型"
 
 #: interactions.api.models.channel.ChannelType:1 of
 msgid "An enumerable object representing the type of channels."
-msgstr "一個可枚舉的物件，代表頻道的類型。"
+msgstr "代表頻道類型的可枚舉物件。"
 
 #: interactions.api.models.channel.ChannelType of
 msgid "Member Type"
@@ -40,7 +40,7 @@ msgstr "有效值如下："
 
 #: interactions.api.models.channel.Thread:1 of
 msgid "An object representing a thread."
-msgstr "一個代表討論串的物件。"
+msgstr "代表討論串的物件。"
 
 #: interactions.api.models.channel.Thread:4 of
 msgid ""
@@ -80,7 +80,7 @@ msgstr "參數"
 
 #: interactions.api.models.channel.Channel:1 of
 msgid "A class object representing all types of channels."
-msgstr "一個類別物件，代表所有類型的頻道。"
+msgstr "代表所有類型頻道的類別物件。"
 
 #: interactions.api.models.channel.Channel:4 of
 msgid ""

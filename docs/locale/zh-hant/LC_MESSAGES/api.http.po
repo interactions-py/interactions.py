@@ -490,7 +490,7 @@ msgstr "路由的endpoint。"
 
 #: interactions.api.http.limiter.Limiter:1 of
 msgid "A class representing a limitation for an HTTP request."
-msgstr "一個代表HTTP請求限制的類別。"
+msgstr "代表HTTP請求限制的類別。"
 
 #: interactions.api.http.limiter.Limiter:3 of
 msgid "The \"lock\" or controller of the request."
@@ -502,7 +502,7 @@ msgstr "可以執行請求前的剩餘時間。"
 
 #: interactions.api.http.request._Request:1 of
 msgid "A class representing how HTTP requests are sent/read."
-msgstr "一個代表HTTP請求如何被送出/讀取的類別。"
+msgstr "代表HTTP請求如何被送出/讀取的類別。"
 
 #: interactions.api.http.request._Request:3 of
 msgid "The current application token."
@@ -542,7 +542,7 @@ msgstr "檢查全域鎖的目前狀態。"
 
 #: interactions.api.http.request._Request.request:1 of
 msgid "Sends a request to the Discord API."
-msgstr "向Discord API發送一個請求。"
+msgstr "向Discord API發送請求。"
 
 #: interactions.api.http.request._Request.request:3 of
 msgid "The HTTP route to request."
@@ -580,7 +580,7 @@ msgstr "參考的緩存。"
 msgid ""
 "This calls the Gateway endpoint and returns a v9 gateway link with JSON "
 "encoding."
-msgstr "呼叫Gateway endpoint並回傳一個使用JSON編碼的v9 gateway連結。"
+msgstr "呼叫Gateway endpoint並回傳使用JSON編碼的v9 gateway連結。"
 
 #: interactions.api.http.client.HTTPClient.get_bot_gateway:1 of
 msgid "This calls the BOT Gateway endpoint."
@@ -613,7 +613,7 @@ msgstr "回傳關於bot user當前授權的資訊"
 msgid ""
 "Gets a channel by ID. If the channel is a thread, it also includes thread"
 " members (and other thread attributes)."
-msgstr "以ID取得一個頻道。如果頻道是一個討論串，包含討論串成員（和其他討論串屬性）。"
+msgstr "以ID取得頻道。如果頻道是討論串，包含討論串成員（和其他討論串屬性）。"
 
 #: interactions.api.http.channel.ChannelRequest.create_channel_invite:6
 #: interactions.api.http.channel.ChannelRequest.create_stage_instance:3
@@ -674,7 +674,7 @@ msgstr "取得這個snowflake ID之後的訊息。"
 
 #: interactions.api.http.channel.ChannelRequest.get_channel_messages:11 of
 msgid "An array of Message objects."
-msgstr "一個Message物件的陣列。"
+msgstr "Message物件的陣列。"
 
 #: interactions.api.http.channel.ChannelRequest.create_channel:1 of
 msgid "Creates a channel within a guild."
