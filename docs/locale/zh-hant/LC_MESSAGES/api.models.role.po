@@ -68,7 +68,7 @@ msgstr "這個身份組是否由整合管理"
 
 #: interactions.api.models.role.Role:12 of
 msgid "A status denoting if this role is mentionable"
-msgstr "這個身份組是否可被提及" 
+msgstr "這個身份組是否可被提及"
 
 #: interactions.api.models.role.Role:13 of
 msgid "The tags this role has"
