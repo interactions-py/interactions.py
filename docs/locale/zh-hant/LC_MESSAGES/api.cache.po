@@ -85,7 +85,7 @@ msgstr "回傳"
 
 #: interactions.api.cache.Storage.get:7 of
 msgid "The item from the storage if any."
-msgstr "緩存中的項目 (如有)。"
+msgstr "緩存中的項目，如有。"
 
 #: interactions.api.cache.Storage.update:1 of
 msgid "Updates multiple items from the storage."
