@@ -20,11 +20,11 @@ msgstr ""
 
 #: ../../ext.rst:19
 msgid "Tools:"
-msgstr ""
+msgstr "工具："
 
 #: ../../ext.rst:4
 msgid "External Framework"
-msgstr ""
+msgstr "外部框架"
 
 #: ../../ext.rst:6
 msgid ""
@@ -35,11 +35,11 @@ msgid ""
 "something to introduce to you: ``interactions.ext``. The officially given"
 " software development kit (SDK) tools suite made by developers; for "
 "developers."
-msgstr ""
+msgstr "你在嘗試建立自己的第三方庫，但是你不想要在現有的庫程式碼庫中補丁你自己的解決方案嗎？你想避免修改庫的架構來特別適合你或其他人的需求嗎？好吧，現在我們為你介紹： ``interactions.ext``，官方提供的軟體開發工具套件（SDK）。"
 
 #: ../../ext.rst:13
 msgid "How does the framework... work?"
-msgstr ""
+msgstr "框架如何工作？"
 
 #: ../../ext.rst:15
 msgid ""
@@ -47,4 +47,4 @@ msgid ""
 "that are designed to make your life easier. There are a few tools that we"
 " provide out of the box, but you can also create some of your own. We'll "
 "be covering each one of these tools in great detail."
-msgstr ""
+msgstr "好問題！我們很高興你問了這個問題。這個框架是一套讓你更輕鬆的工具。我們提供了一些工具，但你也可以創建屬於你自己的工具。我們將詳細介紹當中的每一個工具。"
