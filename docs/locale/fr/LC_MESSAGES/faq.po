@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../faq.rst:2
 msgid "Frequently Asked Questions"
@@ -283,12 +283,12 @@ msgstr ""
 
 #: ../../faq.rst:157
 msgid ""
-"A `voice client`_ - which is still WIP, but it is able to listen for the "
+"`voice client`_ - which is still WIP, but it is able to listen for the "
 "``VOICE_STATE_UPDATE`` event."
 msgstr ""
 
 #: ../../faq.rst:158
-msgid "An `autosharder`_ for automatic sharding"
+msgid "`autosharder`_ for automatic sharding"
 msgstr ""
 
 #: ../../faq.rst:159
@@ -310,146 +310,148 @@ msgid "`enhanced`_ which enhances the DX in general"
 msgstr ""
 
 #: ../../faq.rst:163
-msgid "A `paginator`_ for paginating embeds on messages using components"
+msgid "`paginator`_ for paginating embeds on messages using components"
 msgstr ""
 
 #: ../../faq.rst:164
 msgid ""
-"`persistence`_ - for storing data inside your custom IDs (as an "
-"alternative to ``wait_for``)"
+"`persistence`_ for storing data inside your custom IDs (as an alternative"
+" to ``wait_for``)"
 msgstr ""
 
 #: ../../faq.rst:165
-msgid "And a `boilerplate`_"
+msgid "`lavalink`_ for voice sending and listening ``VOICE_STATE_UPDATE`` event"
+msgstr ""
+
+#: ../../faq.rst:166
+msgid "`fastapi`_ for building own API"
 msgstr ""
 
 #: ../../faq.rst:167
+msgid "And a `boilerplate`_"
+msgstr ""
+
+#: ../../faq.rst:169
 msgid ""
 "Below are a few unofficial exts (for the time being) which implement some"
 " functionality similar to what d.py had:"
 msgstr ""
 
-#: ../../faq.rst:169
+#: ../../faq.rst:171
 msgid "`checks and cooldowns`_"
 msgstr ""
 
-#: ../../faq.rst:170
+#: ../../faq.rst:172
 msgid "`tasks`_"
 msgstr ""
 
-#: ../../faq.rst:171
-msgid ""
-"`get`_ for getting objects from the discord API (will be implemented into"
-" the core library at a later time)"
-msgstr ""
-
-#: ../../faq.rst:173
+#: ../../faq.rst:174
 msgid "Usage examples can usually be found at the linked page"
 msgstr ""
 
-#: ../../faq.rst:177
+#: ../../faq.rst:178
 msgid "Can I make an Extension Library myself?"
 msgstr ""
 
-#: ../../faq.rst:178
+#: ../../faq.rst:179
 msgid ""
 "Yeah, you can! We have a special channel reserved for the development of "
 "external libraries! You can also read `this <https://github.com"
 "/interactions-py/library/discussions/700>`_ for more information."
 msgstr ""
 
-#: ../../faq.rst:183
+#: ../../faq.rst:184
 msgid ""
 "I'm getting \"``AttributeError: HTTPClient not found!``\" when I try to "
 "execute helper methods!"
 msgstr ""
 
-#: ../../faq.rst:184
+#: ../../faq.rst:185
 msgid "Probably you are doing something like this:"
 msgstr ""
 
-#: ../../faq.rst:191
+#: ../../faq.rst:192
 msgid ""
 "And the error occurs in the line where you try to send something. You can"
 " fix this easy by adding one argument:"
 msgstr ""
 
-#: ../../faq.rst:198
+#: ../../faq.rst:199
 msgid ""
 "You have to add this extra argument for every object you instantiate by "
 "yourself if you want to use it's methods"
 msgstr ""
 
-#: ../../faq.rst:202
+#: ../../faq.rst:203
 msgid ""
 "Context and Messages don't have the ``Channel`` and ``Guild`` attributes!"
 " Why?"
 msgstr ""
 
-#: ../../faq.rst:203
+#: ../../faq.rst:204
 msgid ""
 "At the moment the Discord API does *not* include them into their "
 "responses. You can get those object via the ``get_channel()`` and "
 "``get_guild()`` methods of the Context and Message model."
 msgstr ""
 
-#: ../../faq.rst:208
+#: ../../faq.rst:209
 msgid "\"``ctx.send got an unexpected keyword argument: files``\"! Why?"
 msgstr ""
 
-#: ../../faq.rst:209
+#: ../../faq.rst:210
 msgid ""
 "It is not supported due to an decision of the core developer team. There "
 "are two ways to do it:"
 msgstr ""
 
-#: ../../faq.rst:212
+#: ../../faq.rst:213
 msgid "Using ``await channel.send`` instead"
 msgstr ""
 
-#: ../../faq.rst:213
+#: ../../faq.rst:214
 msgid "Using the `files`_ extension"
 msgstr ""
 
-#: ../../faq.rst:217
+#: ../../faq.rst:218
 msgid "\"``ctx.send got an unexpected keyword argument: embed``\"! Why?"
 msgstr ""
 
-#: ../../faq.rst:218
+#: ../../faq.rst:219
 msgid ""
 "This is quite simple: The argument ``embed`` got deprecated by Discord. "
 "The new naming is ``embeds``."
 msgstr ""
 
-#: ../../faq.rst:222
+#: ../../faq.rst:223
 msgid "How can I check what exception happened during a request?"
 msgstr ""
 
-#: ../../faq.rst:223
+#: ../../faq.rst:224
 msgid "We, unlike d.py, do not offer something like ``interactions.NotFound``."
 msgstr ""
 
-#: ../../faq.rst:225
+#: ../../faq.rst:226
 msgid "Instead you have to do it like this:"
 msgstr ""
 
-#: ../../faq.rst:228
+#: ../../faq.rst:229
 msgid ""
 "This feature will be implemented with version 4.3 and is currently only "
 "available on beta/unstable"
 msgstr ""
 
-#: ../../faq.rst:242
+#: ../../faq.rst:243
 msgid ""
 "You can additionally get the exact reason for why the exception occurred "
 "with ``e.message`` or ``e.lookup(e.code)``"
 msgstr ""
 
-#: ../../faq.rst:246
+#: ../../faq.rst:247
 msgid "My message content is always empty! How can I fix this?"
 msgstr ""
 
-#: ../../faq.rst:247
+#: ../../faq.rst:248
 msgid ""
 "This happens because you did not enable the intent for message content. "
 "Enable it on the developer portal and add it into the ``Client`` "
@@ -459,11 +461,11 @@ msgid ""
 "``Intents.DEFAULT``, it can be any other intent(s) you need!"
 msgstr ""
 
-#: ../../faq.rst:254
+#: ../../faq.rst:255
 msgid "Is there something like ``Cogs``?"
 msgstr ""
 
-#: ../../faq.rst:255
+#: ../../faq.rst:256
 msgid ""
 "Yes! Although, we call them ``Extensions``. Yeah, like :ref:`Extension "
 "Libraries <faq:Extension libraries>`. This is because an extension "
@@ -471,39 +473,39 @@ msgid ""
 "how you create an extension for yourself:"
 msgstr ""
 
-#: ../../faq.rst:283
+#: ../../faq.rst:284
 msgid "It's nothing more than that."
 msgstr ""
 
-#: ../../faq.rst:285
+#: ../../faq.rst:286
 msgid ""
 "Since ``@bot.X`` decorators don't work in extensions, you have to use "
 "these:"
 msgstr ""
 
-#: ../../faq.rst:287
+#: ../../faq.rst:288
 msgid "For event listeners, use ``@interactions.extension_listener``"
 msgstr ""
 
-#: ../../faq.rst:288
+#: ../../faq.rst:289
 msgid "For component listeners, use ``@interactions.extension_component``"
 msgstr ""
 
-#: ../../faq.rst:289
+#: ../../faq.rst:290
 msgid "For modal listeners, use ``@interactions.extension_modal``"
 msgstr ""
 
-#: ../../faq.rst:290
+#: ../../faq.rst:291
 msgid "For autocomplete listeners, use ``@interactions.extension_autocomplete``"
 msgstr ""
 
-#: ../../faq.rst:294
+#: ../../faq.rst:295
 msgid ""
 "``channel.members`` does not exist, how do I get the people in a voice "
 "channel?"
 msgstr ""
 
-#: ../../faq.rst:295
+#: ../../faq.rst:296
 msgid ""
 "``channel.members`` actually does exist, but is reserved for threads. "
 "There is no attribute for people in a voice channel by the API. The only "
@@ -512,12 +514,37 @@ msgid ""
 " updated when a member joins or leaves."
 msgstr ""
 
-#: ../../faq.rst:301
+#: ../../faq.rst:302
 msgid "My question is not answered on here!"
 msgstr ""
 
-#: ../../faq.rst:302
+#: ../../faq.rst:303
 msgid ""
 "Please join our `Discord Server`_ for any further support regarding our "
 "library and/or any integration code depending on it."
 msgstr ""
+
+#~ msgid ""
+#~ "A `voice client`_ - which is still"
+#~ " WIP, but it is able to listen"
+#~ " for the ``VOICE_STATE_UPDATE`` event."
+#~ msgstr ""
+
+#~ msgid "An `autosharder`_ for automatic sharding"
+#~ msgstr ""
+
+#~ msgid "A `paginator`_ for paginating embeds on messages using components"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "`persistence`_ - for storing data inside"
+#~ " your custom IDs (as an alternative"
+#~ " to ``wait_for``)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "`get`_ for getting objects from the "
+#~ "discord API (will be implemented into"
+#~ " the core library at a later "
+#~ "time)"
+#~ msgstr ""

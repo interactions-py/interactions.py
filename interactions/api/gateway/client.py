@@ -45,6 +45,7 @@ from .ratelimit import WSRateLimit
 if TYPE_CHECKING:
     from ...client.context import _Context
     from ..cache import Storage
+    from ..models.gw import GuildMembers
 
 log = get_logger("gateway")
 
@@ -338,7 +339,7 @@ class WebSocketClient:
         :param data: The data for the event.
         :type data: dict
         """
-        self._dispatch.dispatch("raw_socket_create", data)
+        self._dispatch.dispatch("raw_socket_create", event, data)
         path: str = "interactions"
         path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
         if event == "INTERACTION_CREATE":
@@ -535,6 +536,17 @@ class WebSocketClient:
 
                     self._dispatch.dispatch(f"on_{name}", old_obj or obj)
 
+                elif "guild_members_chunk" in name:
+                    self.__modify_guild_cache(name, data, model, obj, ids=ids)
+
+                    _member_cache: "Storage" = self._http.cache[Member]
+                    obj: GuildMembers
+                    for member in obj.members:
+                        member._guild_id = obj.guild_id
+                        _member_cache.add(member, (obj.guild_id, member.id))
+
+                    self._dispatch.dispatch(f"on_{name}", obj)
+
                 else:
                     self._dispatch.dispatch(f"on_{name}", obj)
 
@@ -542,7 +554,7 @@ class WebSocketClient:
                 log.warning(f"An error occurred dispatching {name}: {error}")
 
     def __get_object_id(
-        self, data: dict, obj: Any, model: Any
+        self, data: dict, obj: Any, model: type
     ) -> Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]:
         """
         Gets an ID from object.
@@ -552,7 +564,7 @@ class WebSocketClient:
         :param obj: The object of the event.
         :type obj: Any
         :param model: The model of the event.
-        :type model: Any
+        :type model: type
         :return: Object ID
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
@@ -581,14 +593,14 @@ class WebSocketClient:
 
         return id
 
-    def __get_object_ids(self, obj: Any, model: Any) -> Optional[List[Snowflake]]:
+    def __get_object_ids(self, obj: Any, model: type) -> Optional[List[Snowflake]]:
         """
         Gets a list of ids of object.
 
         :param obj: The object of the event.
         :type obj: Any
         :param model: The model of the event.
-        :type model: Any
+        :type model: type
         :return: Object IDs
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
@@ -648,7 +660,7 @@ class WebSocketClient:
         if iterable is not None and isinstance(iterable, list):
             if "_create" in name or "_add" in name:
                 iterable.append(obj)
-            if id:
+            elif id:
                 _id = id[1] if isinstance(id, tuple) else id
                 for index, __obj in enumerate(iterable):
                     if __obj.id == _id:
@@ -658,11 +670,19 @@ class WebSocketClient:
                         elif "_update" in name and hasattr(obj, "id"):
                             iterable[index] = obj
                         break
-            elif ids is not None and "_update" in name:
-                objs = getattr(obj, attr, None)
-                if objs is not None:
+            elif ids is not None and (objs := getattr(obj, attr, None)) is not None:
+                if "_update" in name:
                     iterable.clear()
                     iterable.extend(objs)
+                elif "_chunk" in name:
+                    for _obj in objs:
+                        for index, __obj in enumerate(iterable):
+                            if __obj.id == _obj.id:
+                                iterable[index] = _obj
+                                break
+                        else:
+                            iterable.append(_obj)
+
             setattr(guild, attr, iterable)
 
         self._http.cache[Guild].add(guild)
@@ -961,16 +981,25 @@ class WebSocketClient:
         packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
         log.debug(packet)
 
-        async with self.reconnect_lock:  # needs to lock while it reconnects.
+        if data["op"] in {OpCodeType.IDENTIFY.value, OpCodeType.RESUME.value}:
+            # This can't use the reconnect lock *because* its already referenced in
+            # self._reconnect(), hence an infinite hang.
 
-            if data["op"] != OpCodeType.HEARTBEAT.value:
-                # This is because the ratelimiter limits already accounts for this.
-                await self._ratelimiter.block()
-
-            if self._client is not None:  # this mitigates against another edge case.
+            if self._client is not None:
                 self._last_send = perf_counter()
 
                 await self._client.send_str(packet)
+        else:
+            async with self.reconnect_lock:  # needs to lock while it reconnects.
+
+                if data["op"] != OpCodeType.HEARTBEAT.value:
+                    # This is because the ratelimiter limits already accounts for this.
+                    await self._ratelimiter.block()
+
+                if self._client is not None:  # this mitigates against another edge case.
+                    self._last_send = perf_counter()
+
+                    await self._client.send_str(packet)
 
     async def __identify(
         self, shard: Optional[List[Tuple[int]]] = None, presence: Optional[ClientPresence] = None
@@ -1050,6 +1079,42 @@ class WebSocketClient:
         await self._send_packet(payload)
         log.debug(f"UPDATE_PRESENCE: {presence._json}")
         self.__presence = presence
+
+    async def request_guild_members(
+        self,
+        guild_id: int,
+        limit: int,
+        query: Optional[str] = None,
+        presences: Optional[bool] = None,
+        user_ids: Optional[Union[int, List[int]]] = None,
+        nonce: Optional[str] = None,
+    ) -> None:
+        """Sends an ``REQUEST_MEMBERS`` packet to the gateway.
+
+        :param guild_id: ID of the guild to get members for.
+        :type guild_id: int
+        :param limit: Maximum number of members to send matching the 'query' parameter. Required when specifying 'query'.
+        :type limit: int
+        :param query: String that username starts with.
+        :type query: Optional[str]
+        :param presences: Used to specify if we want the presences of the matched members.
+        :type presences: Optional[bool]
+        :param user_ids: Used to specify which users you wish to fetch.
+        :type user_ids: Optional[Union[int, List[int]]]
+        :param nonce: Nonce to identify the Guild Members Chunk response.
+        :type nonce: Optional[str]
+        """
+        _data: dict = {"guild_id": guild_id, "query": query or "", "limit": limit}
+        if presences is not None:
+            _data["presences"] = presences
+        if user_ids is not None:
+            _data["user_ids"] = user_ids
+        if nonce is not None:
+            _data["nonce"] = nonce
+        payload: dict = {"op": OpCodeType.REQUEST_MEMBERS.value, "d": _data}
+
+        await self._send_packet(payload)
+        log.debug(f"REQUEST_MEMBERS: {payload}")
 
     async def close(self) -> None:
         """

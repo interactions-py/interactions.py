@@ -285,7 +285,7 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
 
 
 @define()
-class Tags(DictSerializerMixin):
+class Tags(ClientSerializerMixin):  # helpers, hehe :D
     """
     An object denoting a tag object within a forum channel.
 
@@ -306,6 +306,75 @@ class Tags(DictSerializerMixin):
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     # Maybe on post_attrs_init replace emoji object with one from cache for name population?
+
+    async def delete(
+        self, channel_id: Union[int, str, Snowflake, "Channel"]  # discord, why :hollow:
+    ) -> None:
+        """
+        Deletes this tag
+
+        :param channel_id: The ID of the channel where the tag belongs to
+        :type channel_id:  Union[int, str, Snowflake, Channel]
+        """
+        if isinstance(channel_id, Channel) and channel_id.type != ChannelType.GUILD_FORUM:
+            raise LibraryException(code=14, message="Can only manage tags on a forum channel")
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+
+        return await self._client.delete_tag(_channel_id, int(self.id))
+
+    async def edit(
+        self,
+        channel_id: Union[int, str, Snowflake, "Channel"],  # discord, why :hollow:
+        name: str,
+        emoji_name: Optional[str] = MISSING,
+        emoji_id: Optional[int] = MISSING,
+    ) -> "Tags":
+        """
+        Edits this tag
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param channel_id: The ID of the channel where the tag belongs to
+        :type channel_id:  Union[int, str, Snowflake, Channel]
+        :param name: The new name of the tag
+        :type name: str
+        :param emoji_id: The ID of the emoji to use for the tag
+        :type emoji_id: Optional[int]
+        :param emoji_name: The name of the emoji to use for the tag
+        :type emoji_name: Optional[int]
+        :return: The modified tag
+        :rtype: Tags
+        """
+
+        if isinstance(channel_id, Channel) and channel_id.type != ChannelType.GUILD_FORUM:
+            raise LibraryException(code=14, message="Can only manage tags on a forum channel")
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _channel_id = int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+
+        payload = {"name": name}
+
+        if emoji_id is not MISSING and emoji_id and emoji_name and emoji_name is not MISSING:
+            raise LibraryException(
+                code=12, message="emoji_id and emoji_name are mutually exclusive"
+            )
+
+        if emoji_id is not MISSING:
+            payload["emoji_id"] = emoji_id
+        if emoji_name is not MISSING:
+            payload["emoji_name"] = emoji_name
+
+        data = await self._client.edit_tag(_channel_id, int(self.id), **payload)
+
+        return Tags(**data)
 
 
 @define()
@@ -395,7 +464,9 @@ class Channel(ClientSerializerMixin, IDMixin):
     flags: Optional[int] = field(default=None, repr=False)
     total_message_sent: Optional[int] = field(default=None, repr=False)
     default_thread_slowmode_delay: Optional[int] = field(default=None, repr=False)
-    tags: Optional[List[Tags]] = field(converter=convert_list(Tags), default=None, repr=False)
+    available_tags: Optional[List[Tags]] = field(
+        converter=convert_list(Tags), default=None, add_client=True
+    )  # eh?
     default_reaction_emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
@@ -497,6 +568,10 @@ class Channel(ClientSerializerMixin, IDMixin):
         :return: The sent message as an object.
         :rtype: Message
         """
+
+        if self.type == ChannelType.GUILD_FORUM:
+            raise LibraryException(code=14, message="Cannot message a forum channel!")
+
         if not self._client:
             raise LibraryException(code=13)
         from ...client.models.component import _build_components
@@ -1482,6 +1557,266 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         await self._client.join_thread(int(self.id))
 
+    async def create_tag(
+        self,
+        name: str,
+        emoji_id: Optional[int] = MISSING,
+        emoji_name: Optional[str] = MISSING,
+    ) -> Tags:
+        """
+        Create a new tag.
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param name: The name of the tag
+        :type name: str
+        :param emoji_id: The ID of the emoji to use for the tag
+        :type emoji_id: Optional[int]
+        :param emoji_name: The name of the emoji to use for the tag
+        :type emoji_name: Optional[str]
+        :return: The create tag object
+        :rtype: Tags
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if self.type != ChannelType.GUILD_FORUM:
+            raise LibraryException(code=14, message="Tags can only be created in forum channels!")
+
+        if emoji_id is not MISSING and emoji_id and emoji_name and emoji_name is not MISSING:
+            raise LibraryException(
+                code=12, message="emoji_id and emoji_name are mutually exclusive"
+            )
+
+        payload = {"name": name}
+
+        if emoji_id is not MISSING:
+            payload["emoji_id"] = emoji_id
+        if emoji_name is not MISSING:
+            payload["emoji_name"] = emoji_name
+
+        data = await self._client.create_tag(int(self.id), **payload)
+
+        return Tags(**data)
+
+    async def edit_tag(
+        self,
+        tag_id: Union[int, str, Snowflake, Tags],  # discord, why :hollow:
+        name: str,
+        emoji_name: Optional[str] = MISSING,
+        emoji_id: Optional[int] = MISSING,
+    ) -> "Tags":
+        """
+        Edits a tag
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param tag_id: The ID of the tag to edit
+        :type tag_id:  Union[int, str, Snowflake, Tag]
+        :param name: The new name of the tag
+        :type name: str
+        :param emoji_id: The ID of the emoji to use for the tag
+        :type emoji_id: Optional[int]
+        :param emoji_name: The name of the emoji to use for the tag
+        :type emoji_name: Optional[int]
+        :return: The modified tag
+        :rtype: Tags
+        """
+        _tag_id = int(tag_id.id) if isinstance(tag_id, Tags) else int(tag_id)
+
+        if emoji_id is not MISSING and emoji_id and emoji_name and emoji_name is not MISSING:
+            raise LibraryException(
+                code=12, message="emoji_id and emoji_name are mutually exclusive"
+            )
+
+        if self.type != ChannelType.GUILD_FORUM:
+            raise LibraryException(code=14, message="Tags can only be created in forum channels!")
+
+        payload = {"name": name}
+
+        if emoji_id is not MISSING:
+            payload["emoji_id"] = emoji_id
+        if emoji_name is not MISSING:
+            payload["emoji_name"] = emoji_name
+
+        data = await self._client.edit_tag(int(self.id), _tag_id, **payload)
+
+        return Tags(**data)
+
+    async def delete_tag(
+        self, tag_id: Union[int, str, Snowflake, Tags]  # discord, why :hollow:
+    ) -> None:
+        """
+        Deletes a tag
+
+        :param tag_id: The ID of the Tag
+        :type tag_id:  Union[int, str, Snowflake, Tags]
+        """
+        if self.type != ChannelType.GUILD_FORUM:
+            raise LibraryException(code=14, message="Tags can only be created in forum channels!")
+
+        _tag_id = int(tag_id.id) if isinstance(tag_id, Tags) else int(tag_id)
+
+        return await self._client.delete_tag(int(self.id), _tag_id)
+
+    async def create_forum_post(
+        self,
+        name: str,
+        content: Union[
+            dict, "Message", str, "Attachment", List["Attachment"]
+        ],  # overkill but why not
+        auto_archive_duration: Optional[int] = MISSING,
+        applied_tags: Union[List[str], List[int], List[Tags], int, str, Tags] = MISSING,
+        files: Optional[List[File]] = MISSING,
+        rate_limit_per_user: Optional[int] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Creates a new post inside a forum channel
+
+        :param name: The name of the thread
+        :type name: str
+        :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
+            can be set to: 60, 1440, 4320, 10080
+        :type auto_archive_duration: Optional[int]
+        :param content: The content to send as first message.
+        :type content: Union[dict, "Message", str, "Attachment", List["Attachment"]]
+        :param applied_tags: Tags to give to the created thread
+        :type applied_tags: Union[List[str], List[int], List[Tags], int, str, Tags]
+        :param files: An optional list of files to send attached to the message.
+        :type files: Optional[List[File]]
+        :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
+        :type rate_limit_per_user: Optional[int]
+        :param reason: An optional reason for the audit log
+        :type reason: Optional[str]
+        :returns: A channel of ChannelType 11 (THREAD)
+        :rtype: Channel
+        """
+
+        if self.type != ChannelType.GUILD_FORUM:
+            raise LibraryException(code=14, message="Cannot create a post outside a forum channel")
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .message import Attachment
+
+        _top_payload: dict = {
+            "name": name,
+            "reason": reason,
+            "rate_limit_per_user": rate_limit_per_user
+            if rate_limit_per_user is not MISSING
+            else None,
+            "auto_archive_duration": auto_archive_duration
+            if auto_archive_duration is not MISSING
+            else None,
+        }
+
+        from .message import Message
+
+        __files = [] if files is MISSING else files
+
+        if isinstance(content, dict):  # just assume they know what they're doing
+            _content = content
+
+        elif isinstance(content, Message):
+            if content.attachments and any(attach.id is None for attach in content.attachments):
+                del content._json["attachments"]
+
+                for attach in content.attachments:
+                    _data = await attach.download()
+
+                    __files.append(File(attach.filename, _data))
+
+                if not __files or __files is MISSING:
+                    _files = []
+                elif isinstance(__files, list):
+                    _files = [file._json_payload(id) for id, file in enumerate(__files)]
+                else:
+                    _files = [__files._json_payload(0)]
+                    __files = [__files]
+
+                content._json["attachments"] = _files
+
+            _content = content._json
+
+        elif isinstance(content, Attachment):
+            if content.id:
+                _content: dict = {"attachments": [content._json]}
+            else:
+                data = await content.download()
+
+                __files.append(File(content.name, data))
+
+            if not __files or __files is MISSING:
+                _files = []
+            elif isinstance(__files, list):
+                _files = [file._json_payload(id) for id, file in enumerate(__files)]
+            else:
+                _files = [__files._json_payload(0)]
+                __files = [__files]
+
+            _content: dict = {"attachments": [_files]}
+
+        elif isinstance(content, list):
+            _content = {"attachments": []}
+            if any(not isinstance(item, Attachment) for item in content):
+                raise LibraryException(code=12)
+
+            attach: Attachment
+            for attach in content:
+                if attach.id:
+                    _content["attachments"].append(attach._json)
+
+                else:
+
+                    _data = await attach.download()
+
+                    __files.append(File(attach.filename, _data))
+
+            if not __files or __files is MISSING:
+                _files = []
+            elif isinstance(__files, list):
+                _files = [file._json_payload(id) for id, file in enumerate(__files)]
+            else:
+                _files = [__files._json_payload(0)]
+                __files = [__files]
+
+            _content["attachments"].extend(_files)
+
+        else:
+            _content: dict = {"content": content}
+
+        _top_payload["files"] = __files
+        _top_payload["message"] = _content
+
+        if applied_tags is not MISSING:
+            _tags = []
+            if isinstance(applied_tags, list):
+                for tag in applied_tags:
+                    if isinstance(tag, Tags):
+                        _tags.append(str(tag.id))
+                    else:
+                        _tags.append(str(tag))
+
+            elif isinstance(applied_tags, Tags):
+                _tags.append(str(applied_tags.id))
+            else:
+                _tags.append(str(applied_tags))
+        else:
+            applied_tags = []
+
+        _top_payload["applied_tags"] = applied_tags
+
+        data = await self._client.create_thread_in_forum(int(self.id), **_top_payload)
+
+        return Channel(**data)
+
     async def get_permissions_for(self, member: "Member") -> Permissions:
         """
         Returns the permissions of the member in this specific channel.
@@ -1507,20 +1842,18 @@ class Channel(ClientSerializerMixin, IDMixin):
         # @everyone role overwrites
         from interactions.utils.utils import search_iterable
 
-        overwrite_everyone = search_iterable(
+        if overwrite_everyone := search_iterable(
             self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(self.guild_id)
-        )
-        if overwrite_everyone:
+        ):
             permissions &= ~int(overwrite_everyone[0].deny)
             permissions |= int(overwrite_everyone[0].allow)
 
         # Apply role specific overwrites
         allow, deny = 0, 0
         for role_id in member.roles:
-            overwrite_role = search_iterable(
+            if overwrite_role := search_iterable(
                 self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(role_id)
-            )
-            if overwrite_role:
+            ):
                 allow |= int(overwrite_role[0].allow)
                 deny |= int(overwrite_role[0].deny)
 
@@ -1530,10 +1863,9 @@ class Channel(ClientSerializerMixin, IDMixin):
             permissions |= allow
 
         # Apply member specific overwrites
-        overwrite_member = search_iterable(
+        if overwrite_member := search_iterable(  # sourcery
             self.permission_overwrites, lambda overwrite: int(overwrite.id) == int(member.id)
-        )
-        if overwrite_member:
+        ):
             permissions &= ~int(overwrite_member[0].deny)
             permissions |= int(overwrite_member[0].allow)
 

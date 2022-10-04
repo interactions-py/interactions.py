@@ -1,4 +1,5 @@
 import contextlib
+import logging
 import re
 import sys
 from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction
@@ -6,7 +7,6 @@ from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
 from inspect import getmembers
-from logging import Logger
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
@@ -27,7 +27,7 @@ from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
 from .models.component import Button, Modal, SelectMenu
 
-log: Logger = get_logger("client")
+log: logging.Logger = get_logger("client")
 
 __all__ = (
     "Client",
@@ -58,6 +58,8 @@ class Client:
     :type default_scope?: Optional[Union[int, Guild, List[int], List[Guild]]]
     :param disable_sync?: Controls whether synchronization in the user-facing API should be automatic or not.
     :type disable_sync?: Optional[bool]
+    :param logging?: Set to ``True`` to enable debug logging or set to a log level to use a specific level
+    :type logging?: Optional[Union[bool, logging.DEBUG, logging.INFO, logging.NOTSET, logging.WARNING, logging.ERROR, logging.CRITICAL]]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
     :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
@@ -101,6 +103,21 @@ class Client:
                     for scope in self._default_scope
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
+
+        if _logging := kwargs.get("logging"):
+
+            # thx i0 for posting this on the retux Discord
+
+            if _logging is True:
+                _logging = logging.DEBUG
+
+            _format = (
+                "%(asctime)s [%(levelname)s] - .%(funcName)s(): %(message)s"
+                if _logging == logging.DEBUG
+                else "%(asctime)s [%(levelname)s] - %(message)s"
+            )
+
+            logging.basicConfig(format=_format, level=_logging)
 
         if kwargs.get("disable_sync"):
             self._automate_sync = False
@@ -503,18 +520,17 @@ class Client:
                 )
 
             data: Union[dict, List[dict]] = cmd.full_data
-            dispatcher = cmd.dispatcher
+            coro = cmd.dispatcher
 
             self.__check_command(
                 command=ApplicationCommand(**(data[0] if isinstance(data, list) else data)),
-                coro=dispatcher,
+                coro=coro,
             )
 
             if cmd.autocompletions:
                 self.__id_autocomplete.update(cmd.autocompletions)
 
-            # weird interaction with methods, where they're a read-only version of their function
-            coro = dispatcher.__func__ if hasattr(dispatcher, "__func__") else dispatcher
+            coro = coro.__func__ if hasattr(coro, "__func__") else coro
 
             coro._command_data = data
             coro._name = cmd.name
@@ -536,7 +552,7 @@ class Client:
                 else:
                     self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
 
-            self.event(dispatcher, name=f"command_{cmd.name}")
+            self.event(coro, name=f"command_{cmd.name}")
             cmd.resolved = True
 
     async def __sync(self) -> None:  # sourcery no-metrics
@@ -1039,6 +1055,7 @@ class Client:
                 description_localizations=description_localizations,
                 default_scope=default_scope,
             )
+            cmd.client = self
             self._commands.append(cmd)
             return cmd
 
@@ -1482,6 +1499,40 @@ class Client:
 
         return User(**data)
 
+    async def request_guild_members(
+        self,
+        guild_id: Union[Guild, Snowflake, int, str],
+        limit: Optional[int] = MISSING,
+        query: Optional[str] = MISSING,
+        presences: Optional[bool] = MISSING,
+        user_ids: Optional[Union[Snowflake, List[Snowflake]]] = MISSING,
+        nonce: Optional[str] = MISSING,
+    ) -> None:
+        """
+        Requests guild members via websocket.
+
+        :param guild_id: ID of the guild to get members for.
+        :type guild_id: Union[Guild, Snowflake, int, str]
+        :param limit: Maximum number of members to send matching the 'query' parameter. Required when specifying 'query'.
+        :type limit: Optional[int]
+        :param query: String that username starts with.
+        :type query: Optional[str]
+        :param presences: Used to specify if we want the presences of the matched members.
+        :type presences: Optional[bool]
+        :param user_ids: Used to specify which users you wish to fetch.
+        :type user_ids: Optional[Union[Snowflake, List[Snowflake]]]
+        :param nonce: Nonce to identify the Guild Members Chunk response.
+        :type nonce: Optional[str]
+        """
+        await self._websocket.request_guild_members(
+            guild_id=int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id),
+            limit=limit if limit is not MISSING else 0,
+            query=query if query is not MISSING else None,
+            presences=presences if presences is not MISSING else None,
+            user_ids=user_ids if user_ids is not MISSING else None,
+            nonce=nonce if nonce is not MISSING else None,
+        )
+
     async def _logout(self) -> None:
         await self._websocket.close()
         await self._http._req.close()
@@ -1591,10 +1642,12 @@ class Extension:
                 continue
 
             cmd.extension = self
+            cmd.client = self.client
             self.client._commands.append(cmd)
 
             commands = self._commands.get(cmd.name, [])
             coro = cmd.dispatcher
+            coro = coro.__func__ if hasattr(coro, "__func__") else coro
             commands.append(coro)
             self._commands[f"command_{cmd.name}"] = commands
 

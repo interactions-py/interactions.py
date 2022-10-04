@@ -199,7 +199,7 @@ class ThreadRequest:
         channel_id: int,
         name: str,
         auto_archive_duration: int,
-        message_payload: dict,
+        message: dict,
         applied_tags: List[str] = None,
         files: Optional[List[File]] = MISSING,
         rate_limit_per_user: Optional[int] = None,
@@ -221,14 +221,14 @@ class ThreadRequest:
         """
         query = {"use_nested_fields": 1}
 
-        payload = {"name": name, "auto_archive_duration": auto_archive_duration}
+        payload = {"name": name, "auto_archive_duration": auto_archive_duration, "message": message}
         if rate_limit_per_user:
             payload["rate_limit_per_user"] = rate_limit_per_user
         if applied_tags:
             payload["applied_tags"] = applied_tags
 
         data = None
-        if files is not MISSING and len(files) > 0:
+        if files is not MISSING and files and len(files) > 0:  # edge case `None`
 
             data = MultipartWriter("form-data")
             part = data.append_json(payload)
@@ -243,7 +243,7 @@ class ThreadRequest:
                     "form-data", name=f"files[{str(id)}]", filename=file._filename
                 )
         else:
-            payload.update(message_payload)
+            payload.update(message)
 
         return await self._req.request(
             Route("POST", f"/channels/{channel_id}/threads"),

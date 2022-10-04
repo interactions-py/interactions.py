@@ -1,8 +1,7 @@
 from logging import Logger
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..api.error import LibraryException
-from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
@@ -13,10 +12,14 @@ from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
 from ..utils.missing import MISSING
-from .enums import InteractionCallbackType, InteractionType
+from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
+
+if TYPE_CHECKING:
+    from .bot import Client, Extension
+    from .models.command import Command
 
 log: Logger = get_logger("context")
 
@@ -43,7 +46,6 @@ class _Context(ClientSerializerMixin):
     :ivar Optional[Guild] guild: The guild data model.
     """
 
-    client: HTTPClient = field(default=None)
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
     author: Member = field(converter=Member, default=None, add_client=True)
     member: Member = field(converter=Member, add_client=True)
@@ -66,9 +68,6 @@ class _Context(ClientSerializerMixin):
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
 
     def __attrs_post_init__(self) -> None:
-        # backwards compatibility
-        self.client = self._client
-
         if self.member:
             if self.guild_id:
                 self.member._extras["guild_id"] = self.guild_id
@@ -120,6 +119,7 @@ class _Context(ClientSerializerMixin):
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         ephemeral: Optional[bool] = False,
+        suppress_embeds: bool = False,
     ) -> dict:
         """
         This allows the invocation state described in the "context"
@@ -139,6 +139,8 @@ class _Context(ClientSerializerMixin):
         :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
         :type ephemeral?: Optional[bool]
+        :param suppress_embeds: Whether embeds are not shown in the message.
+        :type suppress_embeds: bool
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -189,7 +191,9 @@ class _Context(ClientSerializerMixin):
         else:
             _components = []
 
-        _ephemeral: int = (1 << 6) if ephemeral else 0
+        _flags: int = (1 << 6) if ephemeral else 0
+        if suppress_embeds:
+            _flags += 1 << 2
 
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
 
@@ -200,7 +204,7 @@ class _Context(ClientSerializerMixin):
             allowed_mentions=_allowed_mentions,
             components=_components,
             attachments=_attachments,
-            flags=_ephemeral,
+            flags=_flags,
         )
 
     async def edit(
@@ -367,9 +371,16 @@ class CommandContext(_Context):
     :ivar str locale?: The selected language of the user invoking the interaction.
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Client client: The client instance that the command belongs to.
+    :ivar Command command: The command object that is being invoked.
+    :ivar Extension extension: The extension the command belongs to.
     """
 
     target: Optional[Union[Message, Member, User]] = field(default=None)
+
+    client: "Client" = field(default=None, init=False)
+    command: "Command" = field(default=None, init=False)
+    extension: "Extension" = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         super().__attrs_post_init__()
@@ -387,6 +398,8 @@ class CommandContext(_Context):
 
             elif self.data.type == 3:
                 self.target = self.data.resolved.messages[target]
+
+            self.target._client = self._client
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
@@ -733,7 +746,17 @@ class ComponentContext(_Context):
 
     @property
     def label(self) -> Optional[str]:
+        """
+        The label of the interacted button.
+        :rtype: Optional[str]
+        """
+        if not self.data.component_type == ComponentType.BUTTON:
+            return
+        if self.message is None:
+            return
+        if self.message.components is None:
+            return
         for action_row in self.message.components:
-            for component in action_row["components"]:
-                if component["custom_id"] == self.custom_id and component["type"] == 2:
-                    return component.get("label")
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component.label
