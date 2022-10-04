@@ -3,10 +3,7 @@
 API Reference
 =============
 
-This page outlines the API wrapper of discord-interactions.
-
-Interactions
-************
+This page outlines the API reference of interactions.py.
 
 .. toctree::
     :maxdepth: 2
@@ -16,40 +13,38 @@ Interactions
 
 .. toctree::
     :maxdepth: 2
-    :caption: Frameworks/Commands
+    :caption: API Models
 
-    ext.rst
-    context.rst
-    utils.rst
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Model/Design
-
-    models.rst
-    enums.rst
-
-Discord API
-***********
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Client Connections
-
-    api.gateway.rst
-    api.http.rst
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Model/Design
-
-    api.cache.rst
-    api.enums.rst
     api.models.rst
 
 .. toctree::
     :maxdepth: 2
-    :caption: Events
+    :caption: Commands & Components
 
-    api.dispatch.rst
-    api.error.rst
+    models.rst
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Context
+
+    context.rst
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Utilities
+
+    utils.rst
+
+.. toctree::
+    :maxdepth: 1
+    :caption: HTTP
+
+    api.http.rst
+
+.. toctree::
+    :maxdepth: 1
+    :caption: External Framework
+
+    ext.rst
+
+

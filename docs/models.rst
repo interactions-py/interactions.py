@@ -1,7 +1,7 @@
 .. currentmodule:: interactions
 
-Interaction Models
-==================
+Commands & Components
+=====================
 
 .. toctree::
     :maxdepth: 2
