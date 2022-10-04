@@ -132,7 +132,7 @@ def spread_to_rows(
             await ctx.send("Components:", components=spread_to_rows(b1, b2, s1, b3, b4))
 
     .. note::
-        You can only pass in :class:`ActionRow`s, :class:`Button`s, and :class:`SelectMenu`s, but in any order.
+        You can only pass in :class:`.ActionRow`, :class:`.Button`, and :class:`.SelectMenu`, but in any order.
 
     :param \*components: The components to spread.
     :type \*components: Union[ActionRow, Button, SelectMenu]

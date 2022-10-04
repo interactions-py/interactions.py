@@ -99,7 +99,7 @@ Let's take a look now at what is happening here:
 
 
 Now, let's create our first slash command:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 

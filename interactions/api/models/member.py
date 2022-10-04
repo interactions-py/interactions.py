@@ -590,15 +590,15 @@ class Member(ClientSerializerMixin, IDMixin):
         guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING,
         operator: str = "and",
     ) -> bool:
-        """
+        r"""
         Returns whether the member has the permissions passed.
 
         .. note::
             If the channel argument is present, the function will look if the member has the permissions in the specified channel.
             If the argument is missing, then it will only consider the member's guild permissions.
 
-        :param *permissions: The list of permissions
-        :type *permissions: Union[int, Permissions]
+        :param \*permissions: The list of permissions
+        :type \*permissions: Union[int, Permissions]
         :param channel: The channel where to check for permissions
         :type channel: Channel
         :param guild_id: The id of the guild

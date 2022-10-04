@@ -594,7 +594,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         This method adds a role to a member.
 
         :param role: The role to add. Either ``Role`` object or role_id
-        :type role  Union[Role, int, Snowflake]
+        :type role: Union[Role, int, Snowflake]
         :param member_id: The id of the member to add the roles to
         :type member_id: Union[Member, int, Snowflake]
         :param reason?: The reason why the roles are added

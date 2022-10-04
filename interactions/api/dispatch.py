@@ -29,10 +29,10 @@ class Listener:
 
         :param __name: The name of the event to dispatch.
         :type __name: str
-        :param *args: Multiple arguments of the coroutine.
-        :type *args: list[Any]
-        :param **kwargs: Keyword-only arguments of the coroutine.
-        :type **kwargs: dict
+        :param \*args: Multiple arguments of the coroutine.
+        :type \*args: list[Any]
+        :param \**kwargs: Keyword-only arguments of the coroutine.
+        :type \**kwargs: dict
         """
         for event in self.events.get(__name, []):
             converters: dict

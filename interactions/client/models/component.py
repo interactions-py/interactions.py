@@ -42,13 +42,16 @@ class ComponentMixin(DictSerializerMixin):
 @define()
 class SelectOption(ComponentMixin):
     """
-    A class object representing the select option of a select menu.
-    The structure for a select option: ::
+    A class object representing the select option of a select menu. The structure for a select option:
+
+    .. code-block:: python
+
         interactions.SelectOption(
             label="I'm a cool option. :)",
             value="internal_option_value",
             description="some extra info about me! :D",
         )
+
     :ivar str label: The label of the select option.
     :ivar str value: The returned value of the select option.
     :ivar Optional[str] description?: The description of the select option.
@@ -70,13 +73,16 @@ class SelectOption(ComponentMixin):
 @define()
 class SelectMenu(ComponentMixin):
     """
-    A class object representing the select menu of a component.
-    The structure for a select menu: ::
+    A class object representing the select menu of a component. The structure for a select menu:
+
+    .. code-block:: python
+
         interactions.SelectMenu(
             options=[interactions.SelectOption(...)],
             placeholder="Check out my options. :)",
             custom_id="menu_component",
         )
+
     :ivar ComponentType type: The type of select menu. Always defaults to ``3``.
     :ivar str custom_id: The customized "ID" of the select menu.
     :ivar List[SelectOption] options: The list of select options in the select menu.
@@ -102,13 +108,16 @@ class SelectMenu(ComponentMixin):
 @define()
 class Button(ComponentMixin):
     """
-    A class object representing the button of a component.
-    The structure for a button: ::
+    A class object representing the button of a component. The structure for a button:
+
+    .. code-block:: python
+
         interactions.Button(
             style=interactions.ButtonStyle.DANGER,
             label="Delete",
             custom_id="delete_message",
         )
+
     :ivar ComponentType type: The type of button. Always defaults to ``2``.
     :ivar ButtonStyle style: The style of the button.
     :ivar str label: The label of the button.
@@ -140,6 +149,7 @@ class Component(ComponentMixin):
     .. note::
         ``components`` is only applicable if an ActionRow is supported, otherwise
         ActionRow-less will be opted. ``list`` is in reference to the class.
+
     .. warning::
         This object class is only inferred upon when the gateway is processing
         back information involving a component. Do not use this object for sending.
@@ -192,8 +202,10 @@ class Component(ComponentMixin):
 @define()
 class TextInput(ComponentMixin):
     """
-    A class object representing the text input of a modal.
-    The structure for a text input: ::
+    A class object representing the text input of a modal. The structure for a text input:
+
+    .. code-block:: python
+
         interactions.TextInput(
             style=interactions.TextStyleType.SHORT,
             label="Let's get straight to it: what's 1 + 1?",
@@ -201,6 +213,7 @@ class TextInput(ComponentMixin):
             min_length=2,
             max_length=3,
         )
+
     :ivar ComponentType type: The type of input. Always defaults to ``4``.
     :ivar TextStyleType style: The style of the input.
     :ivar str custom_id: The custom Id of the input.
@@ -229,8 +242,10 @@ class TextInput(ComponentMixin):
 @define()
 class Modal(ComponentMixin):
     """
-    A class object representing a modal.
-    The structure for a modal: ::
+    A class object representing a modal. The structure for a modal:
+
+    .. code-block:: python
+
         interactions.Modal(
             title="Application Form",
             custom_id="mod_app_form",
@@ -267,7 +282,9 @@ class ActionRow(ComponentMixin):
         only.
 
     The structure for an action row:
-    ..code-block:: python
+
+    .. code-block:: python
+
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)

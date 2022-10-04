@@ -169,6 +169,7 @@ class Permission(DictSerializerMixin):
             type=interactions.PermissionType.USER,
             permission=True,
         )
+
     :ivar int id: The ID of the permission.
     :ivar PermissionType type: The type of permission.
     :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.

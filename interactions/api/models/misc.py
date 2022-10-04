@@ -189,6 +189,7 @@ class IDMixin:
 class AutoModMetaData(DictSerializerMixin):
     """
     A class object used to represent the AutoMod Action Metadata.
+
     .. note::
         This is not meant to be instantiated outside the Gateway.
 
@@ -220,10 +221,12 @@ class AutoModKeywordPresetTypes(IntEnum):
 class AutoModAction(DictSerializerMixin):
     """
     A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+
     .. note::
         This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
         This object is not the same as that dispatched object. Moreover, that dispatched object name will be
         ``AutoModerationAction``
+
     .. note::
         The metadata can be omitted depending on the action type.
 

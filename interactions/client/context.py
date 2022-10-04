@@ -317,11 +317,11 @@ class _Context(ClientSerializerMixin):
     async def has_permissions(
         self, *permissions: Union[int, Permissions], operator: str = "and"
     ) -> bool:
-        """
+        r"""
         Returns whether the author of the interaction has the permissions in the given context.
 
-        :param *permissions: The list of permissions
-        :type *permissions: Union[int, Permissions]
+        :param \*permissions: The list of permissions
+        :type \*permissions: Union[int, Permissions]
         :param operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
         :type operator: str
         :return: Whether the author has the permissions
