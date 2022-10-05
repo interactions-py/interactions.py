@@ -78,7 +78,7 @@ gettext_compact = True
 exclude_patterns = ["_build"]
 
 # This autodocs private attrs and also fixes wrong sort
-autodoc_default_options = {"member-order": "bysource", "private-members": True}
+autodoc_default_options = {"member-order": "bysource"}
 
 
 # -- Options for HTML output -------------------------------------------------
