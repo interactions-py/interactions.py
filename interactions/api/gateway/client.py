@@ -434,11 +434,13 @@ class WebSocketClient:
             elif data["type"] == InteractionType.MODAL_SUBMIT:
                 _name = f"modal_{_context.data.custom_id}"
 
-                __args = [
-                    component.value
-                    for action_row in _context.data.components
-                    for component in action_row.components
-                ]
+                __args.extend(
+                    [
+                        component.value
+                        for action_row in _context.data.components
+                        for component in action_row.components
+                    ]
+                )
 
                 self._dispatch.dispatch("on_modal", _context)
 
