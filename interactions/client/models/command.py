@@ -13,7 +13,7 @@ from ...api.models.role import Role
 from ...api.models.user import User
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from ...utils.missing import MISSING
-from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
+from ..enums import ApplicationCommandType, Locale, OptionType
 
 if TYPE_CHECKING:
     from ...api.dispatch import Listener
@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 __all__ = (
     "Choice",
     "Option",
-    "Permission",
     "ApplicationCommand",
     "option",
     "StopCommand",
@@ -153,34 +152,6 @@ class Option(DictSerializerMixin):
                 Choice(**choice) if isinstance(choice, dict) else choice for choice in self.choices
             ]
             self._json["choices"] = [choice._json for choice in self.choices]
-
-
-@define()
-class Permission(DictSerializerMixin):
-    """
-    A class object representing the permission of an application command.
-
-    The structure for a permission:
-
-    .. code-block:: python
-
-        interactions.Permission(
-            id=1234567890,
-            type=interactions.PermissionType.USER,
-            permission=True,
-        )
-
-    :ivar int id: The ID of the permission.
-    :ivar PermissionType type: The type of permission.
-    :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
-    """
-
-    id: int = field()
-    type: PermissionType = field(converter=PermissionType)
-    permission: bool = field()
-
-    def __attrs_post_init__(self):
-        self._json["type"] = self.type.value
 
 
 @define()

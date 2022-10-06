@@ -7,7 +7,7 @@ from ...api.models.misc import Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
 from ...utils.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
-from ..enums import ApplicationCommandType, ComponentType, InteractionType, PermissionType
+from ..enums import ApplicationCommandType, ComponentType, InteractionType
 from ..models.command import Option
 from .component import ActionRow
 
@@ -107,28 +107,3 @@ class Interaction(DictSerializerMixin):
         if self.member:
             if self.guild_id:
                 self.member._extras["guild_id"] = self.guild_id
-
-
-@define()
-class Permission(DictSerializerMixin):
-    """
-    A class object representing the permission of an application command.
-
-    The structure for a permission:
-
-    .. code-block:: python
-
-        interactions.Permission(
-            id=1234567890,
-            type=interactions.PermissionType.USER,
-            permission=True,
-        )
-
-    :ivar int id: The ID of the permission.
-    :ivar PermissionType type: The type of permission.
-    :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
-    """
-
-    id: int = field()
-    type: PermissionType = field(converter=PermissionType)
-    permission: bool = field()
