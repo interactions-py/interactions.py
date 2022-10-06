@@ -23,8 +23,7 @@ class LibraryException(Exception):
         Internal function that should not be executed externally.
         Parse the error data and set the code and message.
 
-        :param _data: The error data to parse.
-        :type _data: dict
+        :param dict _data: The error data to parse.
         :return: A list of tuples containing parsed errors.
         :rtype: List[tuple]
         """
@@ -55,10 +54,8 @@ class LibraryException(Exception):
         """
         Log the error message.
 
-        :param message:
-        :type message:
+        :param str message:
         :param args:
-        :type args:
         """
         if self.severity == 0:  # NOTSET
             pass

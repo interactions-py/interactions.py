@@ -27,12 +27,9 @@ class Listener:
         r"""
         Dispatches an event given out by the gateway.
 
-        :param __name: The name of the event to dispatch.
-        :type __name: str
-        :param \*args: Multiple arguments of the coroutine.
-        :type \*args: list[Any]
-        :param \**kwargs: Keyword-only arguments of the coroutine.
-        :type \**kwargs: dict
+        :param str __name: The name of the event to dispatch.
+        :param list[Any] \*args: Multiple arguments of the coroutine.
+        :param dict \**kwargs: Keyword-only arguments of the coroutine.
         """
         for event in self.events.get(__name, []):
             converters: dict
@@ -55,10 +52,8 @@ class Listener:
 
         i.e. : async def on_guild_create -> "ON_GUILD_CREATE" dispatch.
 
-        :param coro: The coroutine to register as an event.
-        :type coro: Callable[..., Coroutine]
-        :param name?: The name to associate the coroutine with. Defaults to None.
-        :type name?: Optional[str]
+        :param Callable[..., Coroutine] coro: The coroutine to register as an event.
+        :param Optional[str] name: The name to associate the coroutine with. Defaults to None.
         """
         _name: str = coro.__name__ if name is None else name
         event = self.events.get(_name, [])
