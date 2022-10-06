@@ -87,7 +87,7 @@ class MessageActivity(DictSerializerMixin):
         i.e. : Phasmophobia and Call of Duty.
 
     :ivar str type: The message activity type.
-    :ivar Optional[Snowflake] party_id?: The party ID of the activity.
+    :ivar Optional[Snowflake] party_id: The party ID of the activity.
     """
 
     type: int = field()
@@ -103,10 +103,10 @@ class MessageReference(DictSerializerMixin):
         All of the attributes in this class are optionals because
         a message can potentially never be referenced.
 
-    :ivar Optional[Snowflake] message_id?: The ID of the referenced message.
-    :ivar Optional[Snowflake] channel_id?: The channel ID of the referenced message.
-    :ivar Optional[Snowflake] guild_id?: The guild ID of the referenced message.
-    :ivar Optional[bool] fail_if_not_exists?: Whether the message reference exists.
+    :ivar Optional[Snowflake] message_id: The ID of the referenced message.
+    :ivar Optional[Snowflake] channel_id: The channel ID of the referenced message.
+    :ivar Optional[Snowflake] guild_id: The guild ID of the referenced message.
+    :ivar Optional[bool] fail_if_not_exists: Whether the message reference exists.
     """
 
     message_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -125,18 +125,18 @@ class Attachment(ClientSerializerMixin, IDMixin):
         which requires it to be a media file with viewabiltity as a photo,
         animated photo, GIF and/or video.
 
-        If `ephemeral` is given, the attachments will automatically be removed after a set period of time.
+        If ``ephemeral`` is given, the attachments will automatically be removed after a set period of time.
         In the case of regular messages, they're available as long as the message associated with the attachment exists.
 
     :ivar int id: The ID of the attachment.
     :ivar str filename: The name of the attachment file.
-    :ivar Optional[str] description?: The description of the file.
-    :ivar Optional[str] content_type?: The type of attachment file.
+    :ivar Optional[str] description: The description of the file.
+    :ivar Optional[str] content_type: The type of attachment file.
     :ivar int size: The size of the attachment file.
     :ivar str url: The CDN URL of the attachment file.
     :ivar str proxy_url: The proxied/cached CDN URL of the attachment file.
-    :ivar Optional[int] height?: The height of the attachment file.
-    :ivar Optional[int] width?: The width of the attachment file.
+    :ivar Optional[int] height: The height of the attachment file.
+    :ivar Optional[int] width: The width of the attachment file.
     :ivar Optional[bool] ephemeral: Whether the attachment is ephemeral.
     """
 
@@ -220,9 +220,9 @@ class EmbedImageStruct(DictSerializerMixin):
         )
 
     :ivar str url: Source URL of the object.
-    :ivar Optional[str] proxy_url?: Proxied url of the object.
-    :ivar Optional[int] height?: Height of the object.
-    :ivar Optional[int] width?: Width of the object.
+    :ivar Optional[str] proxy_url: Proxied url of the object.
+    :ivar Optional[int] height: Height of the object.
+    :ivar Optional[int] width: Width of the object.
     """
 
     url: str = field()
@@ -247,8 +247,8 @@ class EmbedProvider(DictSerializerMixin):
     """
     A class object representing the provider of an embed.
 
-    :ivar Optional[str] name?: Name of provider
-    :ivar Optional[str] url?: URL of provider
+    :ivar Optional[str] name: Name of provider
+    :ivar Optional[str] url: URL of provider
     """
 
     name: Optional[str] = field(default=None)
@@ -280,9 +280,9 @@ class EmbedAuthor(DictSerializerMixin):
         )
 
     :ivar str name: Name of author
-    :ivar Optional[str] url?: URL of author
-    :ivar Optional[str] icon_url?: URL of author icon
-    :ivar Optional[str] proxy_icon_url?: Proxied URL of author icon
+    :ivar Optional[str] url: URL of author
+    :ivar Optional[str] icon_url: URL of author icon
+    :ivar Optional[str] proxy_icon_url: Proxied URL of author icon
     """
 
     name: str = field()
@@ -316,8 +316,8 @@ class EmbedFooter(DictSerializerMixin):
         )
 
     :ivar str text: Footer text
-    :ivar Optional[str] icon_url?: URL of footer icon
-    :ivar Optional[str] proxy_icon_url?: Proxied URL of footer icon
+    :ivar Optional[str] icon_url: URL of footer icon
+    :ivar Optional[str] proxy_icon_url: Proxied URL of footer icon
     """
 
     text: str = field()
@@ -353,7 +353,7 @@ class EmbedField(DictSerializerMixin):
 
     :ivar str name: Name of the field.
     :ivar str value: Value of the field
-    :ivar Optional[bool] inline?: A status denoting if the field should be displayed inline.
+    :ivar Optional[bool] inline: A status denoting if the field should be displayed inline.
     """
 
     name: str = field()
@@ -392,19 +392,19 @@ class Embed(DictSerializerMixin):
             fields=[interaction.EmbedField(...)],
         )
 
-    :ivar Optional[str] title?: Title of embed
-    :ivar Optional[str] type?: Embed type, relevant by CDN file connected. This is only important to rendering.
-    :ivar Optional[str] description?: Embed description
-    :ivar Optional[str] url?: URL of embed
-    :ivar Optional[datetime] timestamp?: Timestamp of embed content
-    :ivar Optional[int] color?: Color code of embed
-    :ivar Optional[EmbedFooter] footer?: Footer information
-    :ivar Optional[EmbedImageStruct] image?: Image information
-    :ivar Optional[EmbedImageStruct] thumbnail?: Thumbnail information
-    :ivar Optional[EmbedImageStruct] video?: Video information
-    :ivar Optional[EmbedProvider] provider?: Provider information
-    :ivar Optional[EmbedAuthor] author?: Author information
-    :ivar Optional[List[EmbedField]] fields?: A list of fields denoting field information
+    :ivar Optional[str] title: Title of embed
+    :ivar Optional[str] type: Embed type, relevant by CDN file connected. This is only important to rendering.
+    :ivar Optional[str] description: Embed description
+    :ivar Optional[str] url: URL of embed
+    :ivar Optional[datetime] timestamp: Timestamp of embed content
+    :ivar Optional[int] color: Color code of embed
+    :ivar Optional[EmbedFooter] footer: Footer information
+    :ivar Optional[EmbedImageStruct] image: Image information
+    :ivar Optional[EmbedImageStruct] thumbnail: Thumbnail information
+    :ivar Optional[EmbedImageStruct] video: Video information
+    :ivar Optional[EmbedProvider] provider: Provider information
+    :ivar Optional[EmbedAuthor] author: Author information
+    :ivar Optional[List[EmbedField]] fields: A list of fields denoting field information
     """
 
     title: Optional[str] = field(default=None)
@@ -449,12 +449,9 @@ class Embed(DictSerializerMixin):
         """
         Adds a field to the embed
 
-        :param name: The name of the field
-        :type name: str
-        :param value: The value of the field
-        :type value: str
-        :param inline?: if the field is in the same line as the previous one
-        :type inline?: Optional[bool]
+        :param str name: The name of the field
+        :param str value: The value of the field
+        :param Optional[bool] inline: if the field is in the same line as the previous one
         """
 
         fields = self.fields or []
@@ -478,14 +475,10 @@ class Embed(DictSerializerMixin):
         """
         Inserts a field in the embed at the specified index
 
-        :param index: The field's index to insert
-        :type index: int
-        :param name: The name of the field
-        :type name: str
-        :param value: The value of the field
-        :type value: str
-        :param inline?: if the field is in the same line as the previous one
-        :type inline?: Optional[bool]
+        :param int index: The field's index to insert
+        :param str name: The name of the field
+        :param str value: The value of the field
+        :param Optional[bool] inline: if the field is in the same line as the previous one
         """
 
         try:
@@ -502,14 +495,10 @@ class Embed(DictSerializerMixin):
         """
         Overwrites the field in the embed at the specified index
 
-        :param index: The field's index to overwrite
-        :type index: int
-        :param name: The name of the field
-        :type name: str
-        :param value: The value of the field
-        :type value: str
-        :param inline?: if the field is in the same line as the previous one
-        :type inline?: Optional[bool]
+        :param int index: The field's index to overwrite
+        :param str name: The name of the field
+        :param str value: The value of the field
+        :param Optional[bool] inline: if the field is in the same line as the previous one
         """
 
         try:
@@ -527,8 +516,7 @@ class Embed(DictSerializerMixin):
         """
         Remove field at the specified index
 
-        :param index: The field's index to remove
-        :type index: int
+        :param int index: The field's index to remove
         """
 
         try:
@@ -560,14 +548,10 @@ class Embed(DictSerializerMixin):
         """
         Sets the embed's author
 
-        :param name: The name of the author
-        :type name: str
-        :param url?: Url of author
-        :type url?: Optional[str]
-        :param icon_url?: Url of author icon (only supports http(s) and attachments)
-        :type icon_url?: Optional[str]
-        :param proxy_icon_url?: A proxied url of author icon
-        :type proxy_icon_url?: Optional[str]
+        :param str name: The name of the author
+        :param Optional[str] url: Url of author
+        :param Optional[str] icon_url: Url of author icon (only supports http(s) and attachments)
+        :param Optional[str] proxy_icon_url: A proxied url of author icon
         """
 
         self.author = EmbedAuthor(
@@ -580,12 +564,9 @@ class Embed(DictSerializerMixin):
         """
         Sets the embed's footer
 
-        :param text: The text of the footer
-        :type text: str
-        :param icon_url?: Url of footer icon (only supports http(s) and attachments)
-        :type icon_url?: Optional[str]
-        :param proxy_icon_url?: A proxied url of footer icon
-        :type proxy_icon_url?: Optional[str]
+        :param str text: The text of the footer
+        :param Optional[str] icon_url: Url of footer icon (only supports http(s) and attachments)
+        :param Optional[str] proxy_icon_url: A proxied url of footer icon
         """
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
@@ -600,14 +581,10 @@ class Embed(DictSerializerMixin):
         """
         Sets the embed's image
 
-        :param url: Url of the image
-        :type url: str
-        :param proxy_url?: A proxied url of the image
-        :type proxy_url?: Optional[str]
-        :param height?: The image's height
-        :type height?: Optional[int]
-        :param width?: The image's width
-        :type width?: Optional[int]
+        :param str url: Url of the image
+        :param Optional[str] proxy_url: A proxied url of the image
+        :param Optional[int] height: The image's height
+        :param Optional[int] width: The image's width
         """
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
@@ -622,14 +599,10 @@ class Embed(DictSerializerMixin):
         """
         Sets the embed's video
 
-        :param url: Url of the video
-        :type url: str
-        :param proxy_url?: A proxied url of the video
-        :type proxy_url?: Optional[str]
-        :param height?: The video's height
-        :type height?: Optional[int]
-        :param width?: The video's width
-        :type width?: Optional[int]
+        :param str url: Url of the video
+        :param Optional[str] proxy_url: A proxied url of the video
+        :param Optional[int] height: The video's height
+        :param Optional[int] width: The video's width
         """
 
         self.video = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
@@ -644,14 +617,10 @@ class Embed(DictSerializerMixin):
         """
         Sets the embed's thumbnail
 
-        :param url: Url of the thumbnail
-        :type url: str
-        :param proxy_url?: A proxied url of the thumbnail
-        :type proxy_url?: Optional[str]
-        :param height?: The thumbnail's height
-        :type height?: Optional[int]
-        :param width?: The thumbnail's width
-        :type width?: Optional[int]
+        :param str url: Url of the thumbnail
+        :param Optional[str] proxy_url: A proxied url of the thumbnail
+        :param Optional[int] height: The thumbnail's height
+        :param Optional[int] width: The thumbnail's width
         """
 
         self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
@@ -678,17 +647,17 @@ class Sticker(PartialSticker, IDMixin):
     A class object representing a full sticker apart from a partial.
 
     :ivar Snowflake id: ID of the sticker
-    :ivar Optional[Snowflake] pack_id?: ID of the pack the sticker is from.
+    :ivar Optional[Snowflake] pack_id: ID of the pack the sticker is from.
     :ivar str name: Name of the sticker
-    :ivar Optional[str] description?: Description of the sticker
+    :ivar Optional[str] description: Description of the sticker
     :ivar str tags: Autocomplete/suggestion tags for the sticker (max 200 characters)
     :ivar str asset: Previously a sticker asset hash, now an empty string.
     :ivar int type: Type of sticker
     :ivar int format_type: Type of sticker format
-    :ivar Optional[bool] available?: Status denoting if this sticker can be used. (Can be false via server boosting)
-    :ivar Optional[Snowflake] guild_id?: Guild ID that owns the sticker.
-    :ivar Optional[User] user?: The user that uploaded the sticker.
-    :ivar Optional[int] sort_value?: The standard sticker's sort order within its pack
+    :ivar Optional[bool] available: Status denoting if this sticker can be used. (Can be false via server boosting)
+    :ivar Optional[Snowflake] guild_id: Guild ID that owns the sticker.
+    :ivar Optional[User] user: The user that uploaded the sticker.
+    :ivar Optional[int] sort_value: The standard sticker's sort order within its pack
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -714,9 +683,9 @@ class StickerPack(DictSerializerMixin, IDMixin):
     :ivar List[Sticker] stickers: The stickers in the pack.
     :ivar str name: The name of sticker pack.
     :ivar Snowflake sku_id: ID of the pack's SKU.
-    :ivar Optional[Snowflake] cover_sticker_id?: ID of a sticker in the pack which is shown as the pack's icon.
+    :ivar Optional[Snowflake] cover_sticker_id: ID of a sticker in the pack which is shown as the pack's icon.
     :ivar str description: The description of sticker pack.
-    :ivar Optional[Snowflake] banned_asset_id?: ID of the sticker pack's banner image.
+    :ivar Optional[Snowflake] banned_asset_id: ID of the sticker pack's banner image.
     """
 
     id: Snowflake = field(converter=Snowflake)
