@@ -31,15 +31,15 @@ class Member(ClientSerializerMixin, IDMixin):
 
     :ivar User user: The user of the guild.
     :ivar str nick: The nickname of the member.
-    :ivar Optional[str] avatar?: The hash containing the user's guild avatar, if applicable.
+    :ivar Optional[str] avatar: The hash containing the user's guild avatar, if applicable.
     :ivar List[int] roles: The list of roles of the member.
     :ivar datetime joined_at: The timestamp the member joined the guild at.
     :ivar datetime premium_since: The timestamp the member has been a server booster since.
     :ivar bool deaf: Whether the member is deafened.
     :ivar bool mute: Whether the member is muted.
-    :ivar Optional[bool] pending?: Whether the member is pending to pass membership screening.
-    :ivar Optional[Permissions] permissions?: Whether the member has permissions.
-    :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
+    :ivar Optional[bool] pending: Whether the member is pending to pass membership screening.
+    :ivar Optional[Permissions] permissions: Whether the member has permissions.
+    :ivar Optional[str] communication_disabled_until: How long until they're unmuted, if any.
     """
 
     user: Optional[User] = field(converter=User, default=None, add_client=True)
@@ -80,6 +80,7 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Attempts to get the guild ID the member is in.
         Only works then roles or nick or joined at is present.
+
         :return: The ID of the guild this member belongs to.
         """
 
@@ -130,6 +131,7 @@ class Member(ClientSerializerMixin, IDMixin):
 
     @property
     def avatar(self) -> Optional[str]:
+        """Returns the user's avatar hash, if any."""
         return self._avatar or getattr(self.user, "avatar", None)
 
     @property
@@ -174,18 +176,12 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Bans the member from a guild.
 
-        :param guild_id: The id of the guild to ban the member from
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
-        :param seconds?: Number of seconds to delete messages, from 0 to 604800. Defaults to 0
-        :type seconds?: Optional[int]
-        :param minutes?: Number of minutes to delete messages, from 0 to 10080
-        :type minutes?: Optional[int]
-        :param hours?: Number of hours to delete messages, from 0 to 168
-        :type hours?: Optional[int]
-        :param days?: Number of days to delete messages, from 0 to 7
-        :type days?: Optional[int]
-        :param reason?: The reason of the ban
-        :type reason?: Optional[str]
+        :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to ban the member from
+        :param Optional[int] seconds: Number of seconds to delete messages, from 0 to 604800. Defaults to 0
+        :param Optional[int] minutes: Number of minutes to delete messages, from 0 to 10080
+        :param Optional[int] hours: Number of hours to delete messages, from 0 to 168
+        :param Optional[int] days: Number of days to delete messages, from 0 to 7
+        :param Optional[str] reason: The reason of the ban
         """
 
         if guild_id is MISSING:
@@ -226,10 +222,8 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Kicks the member from a guild.
 
-        :param guild_id: The id of the guild to kick the member from
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
-        :param reason?: The reason for the kick
-        :type reason?: Optional[str]
+        :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to kick the member from
+        :param Optional[str] reason: The reason for the kick
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -260,12 +254,9 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         This method adds a role to a member.
 
-        :param role: The role to add. Either ``Role`` object or role_id
-        :type role: Union[Role, int, Snowflake]
-        :param guild_id: The id of the guild to add the roles to the member
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
-        :param reason?: The reason why the roles are added
-        :type reason?: Optional[str]
+        :param Union[Role, int, Snowflake] role: The role to add. Either ``Role`` object or role_id
+        :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to add the roles to the member
+        :param Optional[str] reason: The reason why the roles are added
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -297,12 +288,9 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         This method removes a role from a member.
 
-        :param role: The role to remove. Either ``Role`` object or role_id
-        :type role: Union[Role, int]
-        :param guild_id: The id of the guild to remove the roles of the member
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
-        :param reason?: The reason why the roles are removed
-        :type reason?: Optional[str]
+        :param Union[Role, int] role: The role to remove. Either ``Role`` object or role_id
+        :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to remove the roles of the member
+        :param Optional[str] reason: The reason why the roles are removed
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -348,20 +336,13 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Sends a DM to the member.
 
-        :param content?: The contents of the message as a string or string-converted value.
-        :type content?: Optional[str]
-        :param components?: A component, or list of components for the message.
-        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
-        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts?: Optional[bool]
-        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments?: Optional[List[Attachment]]
-        :param files?: A file or list of files to be attached to the message.
-        :type files?: Optional[Union[File, List[File]]]
-        :param embeds?: An embed, or list of embeds for the message.
-        :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
+        :param Optional[str] content: The contents of the message as a string or string-converted value.
+        :param Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message.
+        :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[File, List[File]]] files: A file or list of files to be attached to the message.
+        :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
+        :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -429,22 +410,14 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Modifies the member of a guild.
 
-        :param guild_id: The id of the guild to modify the member on
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
-        :param nick?: The nickname of the member
-        :type nick?: Optional[str]
-        :param roles?: A list of all role ids the member has
-        :type roles?: Optional[List[int]]
-        :param mute?: whether the user is muted in voice channels
-        :type mute?: Optional[bool]
-        :param deaf?: whether the user is deafened in voice channels
-        :type deaf?: Optional[bool]
-        :param channel_id?: id of channel to move user to (if they are connected to voice)
-        :type channel_id?: Optional[Union[Channel, int, Snowflake]]
-        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
-        :type communication_disabled_until?: Optional[datetime.isoformat]
-        :param reason?: The reason of the modifying
-        :type reason?: Optional[str]
+        :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to modify the member on
+        :param Optional[str] nick: The nickname of the member
+        :param Optional[List[int]] roles: A list of all role ids the member has
+        :param Optional[bool] mute: whether the user is muted in voice channels
+        :param Optional[bool] deaf: whether the user is deafened in voice channels
+        :param Optional[Union[Channel, int, Snowflake]] channel_id: id of channel to move user to (if they are connected to voice)
+        :param Optional[datetime.isoformat] communication_disabled_until: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
+        :param Optional[str] reason: The reason of the modifying
         :return: The modified member object
         :rtype: Member
         """
@@ -499,8 +472,7 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Adds the member to a thread.
 
-        :param thread_id: The id of the thread to add the member to
-        :type thread_id: Union[int, Snowflake, Channel]
+        :param Union[int, Snowflake, Channel] thread_id: The id of the thread to add the member to
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -518,8 +490,7 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         Returns the URL of the member's avatar for the specified guild.
 
-        :param guild_id: The id of the guild to get the member's avatar from
-        :type guild_id: Optional[Union[int, Snowflake, "Guild"]]
+        :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to get the member's avatar from
         :return: URL of the members's avatar (None will be returned if no avatar is set)
         :rtype: str
         """
@@ -551,8 +522,7 @@ class Member(ClientSerializerMixin, IDMixin):
             user overwrites that can be assigned to channels or categories. If you need
             these overwrites, look into :meth:`.Channel.get_permissions_for`.
 
-        :param guild: The guild of the member
-        :type guild: Guild
+        :param Guild guild: The guild of the member
         :return: Base permissions of the member in the specified guild
         :rtype: Permissions
         """
@@ -597,14 +567,10 @@ class Member(ClientSerializerMixin, IDMixin):
             If the channel argument is present, the function will look if the member has the permissions in the specified channel.
             If the argument is missing, then it will only consider the member's guild permissions.
 
-        :param \*permissions: The list of permissions
-        :type \*permissions: Union[int, Permissions]
-        :param channel: The channel where to check for permissions
-        :type channel: Channel
-        :param guild_id: The id of the guild
-        :type guild_id: Optional[Union[int, Snowflake, Guild]]
-        :param operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
-        :type operator: str
+        :param Union[int, Permissions] \*permissions: The list of permissions
+        :param Channel channel: The channel where to check for permissions
+        :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild
+        :param Optional[str] operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
         :return: Whether the member has the permissions
         :rtype: bool
         """
