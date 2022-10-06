@@ -1337,7 +1337,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         Sets the verification level of the guild.
 
         :param VerificationLevel verification_level: The new verification level of the guild
-        :param Optional[str] reason?: The reason of the edit
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(verification_level=verification_level, reason=reason)
 
@@ -2774,7 +2774,7 @@ class EventMetadata(DictSerializerMixin):
     """
     A class object representing the metadata of an event entity.
 
-    :ivar Optional[str] location?: The location of the event, if any.
+    :ivar Optional[str] location: The location of the event, if any.
     """
 
     location: Optional[str] = field(default=None)

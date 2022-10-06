@@ -57,8 +57,8 @@ def autodefer(
             await ctx.send("I'm awake now!")
 
     :param Optional[Union[float, int]] delay: The amount of time in seconds to wait before defering the command. Defaults to ``2`` seconds.
-    :param Optional[bool] ephemeral?: Whether the command is deferred ephemerally. Defaults to ``False``.
-    :param Optional[bool] edit_origin?: Whether the command is deferred on origin. Defaults to ``False``.
+    :param Optional[bool] ephemeral: Whether the command is deferred ephemerally. Defaults to ``False``.
+    :param Optional[bool] edit_origin: Whether the command is deferred on origin. Defaults to ``False``.
     :return: The inner function, for decorating.
     :rtype:
     """

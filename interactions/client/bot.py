@@ -1169,8 +1169,7 @@ class Client:
         """
         Iterates over `commands` and returns an :class:`ApplicationCommand` if it matches the name from `command`
 
-        :param command: The name or ID of the command to match
-        :type command: Union[str, int]
+        :param Union[str, int] command: The name or ID of the command to match
         :return: An ApplicationCommand model
         :rtype: ApplicationCommand
         """

@@ -434,10 +434,8 @@ class Command(DictSerializerMixin):
         r"""
         Returns the coroutine of the command as an awaitable.
 
-        :param \*args: Multiple positional arguments able to be passed through.
-        :type \*args: tuple
-        :param \**kwargs: Multiple key-word arguments able to be passed through.
-        :type \**kwargs: dict
+        :param tuple \*args: Multiple positional arguments able to be passed through.
+        :param dict \**kwargs: Multiple key-word arguments able to be passed through.
         :return: The awaitable of the command.
         :rtype: Awaitable
         """

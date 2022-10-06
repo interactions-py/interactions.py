@@ -310,7 +310,7 @@ class GuildRole(ClientSerializerMixin):
 
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar Optional[Role] role: The role of the event.
-    :ivar Optional[Snowflake] role_id?: The role ID of the event.
+    :ivar Optional[Snowflake] role_id: The role ID of the event.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
@@ -504,11 +504,11 @@ class MessageReactionRemove(MessageReaction):
         This class inherits the already existing attributes of :class:`.MessageReaction`.
         The main missing attribute is ``member``.
 
-    :ivar Optional[Snowflake] user_id?: The user ID of the event.
+    :ivar Optional[Snowflake] user_id: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
     :ivar Snowflake message_id: The message ID of the event.
-    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
-    :ivar Optional[Emoji] emoji?: The emoji of the event.
+    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
+    :ivar Optional[Emoji] emoji: The emoji of the event.
     """
 
     # todo see if the missing member attribute affects anything
