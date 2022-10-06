@@ -46,5 +46,3 @@ This page outlines the API reference of interactions.py.
     :caption: External Framework
 
     ext.rst
-
-
