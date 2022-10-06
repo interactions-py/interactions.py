@@ -3,7 +3,7 @@
 HTTP
 ====
 
-.. warning::
+.. important::
     This page shows internal functions that you should not use unless you know how to use them.
     Most of these functions should have their own implementation in the different Models of the library.
 
