@@ -124,14 +124,10 @@ class WebSocketClient:
         sequence: Optional[int] = MISSING,
     ) -> None:
         """
-        :param token: The token of the application for connecting to the Gateway.
-        :type token: str
-        :param intents: The Gateway intents of the application for event dispatch.
-        :type intents: Intents
-        :param session_id?: The ID of the session if trying to reconnect. Defaults to ``None``.
-        :type session_id?: Optional[str]
-        :param sequence?: The identifier sequence if trying to reconnect. Defaults to ``None``.
-        :type sequence?: Optional[int]
+        :param str token: The token of the application for connecting to the Gateway.
+        :param Intents intents: The Gateway intents of the application for event dispatch.
+        :param Optional[str] session_id: The ID of the session if trying to reconnect. Defaults to ``None``.
+        :param Optional[int] sequence: The identifier sequence if trying to reconnect. Defaults to ``None``.
         """
         try:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
@@ -280,8 +276,7 @@ class WebSocketClient:
         .. note ::
             This should never be called directly.
 
-        :param stream: The packet stream to handle.
-        :type stream: Dict[str, Any]
+        :param Dict[str, Any] stream: The packet stream to handle.
         """
         op: Optional[int] = stream.get("op")
         event: Optional[str] = stream.get("t")
@@ -334,10 +329,8 @@ class WebSocketClient:
         """
         Dispatches an event from the Gateway.
 
-        :param event: The name of the event.
-        :type event: str
-        :param data: The data for the event.
-        :type data: dict
+        :param str event: The name of the event.
+        :param dict data: The data for the event.
         """
         self._dispatch.dispatch("raw_socket_create", event, data)
         path: str = "interactions"
@@ -559,12 +552,9 @@ class WebSocketClient:
         """
         Gets an ID from object.
 
-        :param data: The data for the event.
-        :type data: dict
-        :param obj: The object of the event.
-        :type obj: Any
-        :param model: The model of the event.
-        :type model: type
+        :param dict data: The data for the event.
+        :param Any obj: The object of the event.
+        :param type model: The model of the event.
         :return: Object ID
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
@@ -597,10 +587,8 @@ class WebSocketClient:
         """
         Gets a list of ids of object.
 
-        :param obj: The object of the event.
-        :type obj: Any
-        :param model: The model of the event.
-        :type model: type
+        :param Any obj: The object of the event.
+        :param type model: The model of the event.
         :return: Object IDs
         :rtype: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
         """
@@ -630,14 +618,10 @@ class WebSocketClient:
         """
         Modifies guild cache.
 
-        :param event: The name of the event.
-        :type event: str
-        :param data: The data for the event.
-        :type data: dict
-        :param obj: The object of the event.
-        :type obj: Any
-        :param model: The model of the event.
-        :type model: Any
+        :param str event: The name of the event.
+        :param dict data: The data for the event.
+        :param Any obj: The object of the event.
+        :param Any model: The model of the event.
         """
         if not (
             (guild_id := data.get("guild_id"))
@@ -692,8 +676,7 @@ class WebSocketClient:
         Takes raw data given back from the Gateway
         and gives "context" based off of what it is.
 
-        :param data: The data from the Gateway.
-        :type data: dict
+        :param dict data: The data from the Gateway.
         :return: The context object.
         :rtype: Any
         """
@@ -721,10 +704,8 @@ class WebSocketClient:
         Checks if an application command schema has sub commands
         needed for argument collection.
 
-        :param data: The data structure of the option.
-        :type data: Union[dict, Option]
-        :param context: The context to refer subcommands from.
-        :type context: object
+        :param Union[dict, Option] data: The data structure of the option.
+        :param _Context context: The context to refer subcommands from.
         :return: A dictionary of the collected options, if any.
         :rtype: Union[Tuple[str], dict]
         """
@@ -807,10 +788,8 @@ class WebSocketClient:
         Looks up the type of option respective to the existing
         option types.
 
-        :param context: The context to refer types from.
-        :type context: object
-        :param type: The option type.
-        :type type: int
+        :param _Context context: The context to refer types from.
+        :param int type: The option type.
         :return: The option type context.
         :rtype: dict
         """
@@ -974,8 +953,7 @@ class WebSocketClient:
         """
         Sends a packet to the Gateway.
 
-        :param data: The data to send to the Gateway.
-        :type data: Dict[str, Any]
+        :param Dict[str, Any] data: The data to send to the Gateway.
         """
         _data = dumps(data) if isinstance(data, dict) else data
         packet: str = _data.decode("utf-8") if isinstance(_data, bytes) else _data
@@ -1007,10 +985,8 @@ class WebSocketClient:
         """
         Sends an ``IDENTIFY`` packet to the gateway.
 
-        :param shard?: The shard ID to identify under.
-        :type shard?: Optional[List[Tuple[int]]]
-        :param presence?: The presence to change the bot to on identify.
-        :type presence?: Optional[ClientPresence]
+        :param Optional[List[Tuple[int]]] shard: The shard ID to identify under.
+        :param Optional[ClientPresence] presence: The presence to change the bot to on identify.
         """
         self.__shard = shard
         self.__presence = presence
@@ -1072,8 +1048,7 @@ class WebSocketClient:
             As there's no gateway ratelimiter yet, breaking this ratelimit
             will force your bot to disconnect.
 
-        :param presence: The presence to change the bot to on identify.
-        :type presence: ClientPresence
+        :param ClientPresence presence: The presence to change the bot to on identify.
         """
         payload: dict = {"op": OpCodeType.PRESENCE.value, "d": presence._json}
         await self._send_packet(payload)
@@ -1091,18 +1066,12 @@ class WebSocketClient:
     ) -> None:
         """Sends an ``REQUEST_MEMBERS`` packet to the gateway.
 
-        :param guild_id: ID of the guild to get members for.
-        :type guild_id: int
-        :param limit: Maximum number of members to send matching the 'query' parameter. Required when specifying 'query'.
-        :type limit: int
-        :param query: String that username starts with.
-        :type query: Optional[str]
-        :param presences: Used to specify if we want the presences of the matched members.
-        :type presences: Optional[bool]
-        :param user_ids: Used to specify which users you wish to fetch.
-        :type user_ids: Optional[Union[int, List[int]]]
-        :param nonce: Nonce to identify the Guild Members Chunk response.
-        :type nonce: Optional[str]
+        :param int guild_id: ID of the guild to get members for.
+        :param int limit: Maximum number of members to send matching the 'query' parameter. Required when specifying 'query'.
+        :param Optional[str] query: String that username starts with.
+        :param Optional[bool] presences: Used to specify if we want the presences of the matched members.
+        :param Optional[Union[int, List[int]]] user_ids: Used to specify which users you wish to fetch.
+        :param Optional[str] nonce: Nonce to identify the Guild Members Chunk response.
         """
         _data: dict = {"guild_id": guild_id, "query": query or "", "limit": limit}
         if presences is not None:
