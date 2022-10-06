@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
+from ...client.enums import PermissionType
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -8,7 +9,6 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
-from ...client.enums import PermissionType
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata
@@ -160,7 +160,9 @@ class ApplicationCommandPermissions(ClientSerializerMixin, IDMixin):
     application_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
     id: Snowflake = field(converter=Snowflake)
-    permissions: List[ApplicationCommandPermission] = field(converter=convert_list(ApplicationCommandPermission))
+    permissions: List[ApplicationCommandPermission] = field(
+        converter=convert_list(ApplicationCommandPermission)
+    )
 
 
 @define()

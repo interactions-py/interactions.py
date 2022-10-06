@@ -798,7 +798,7 @@ class Command(DictSerializerMixin):
             param_len,
         )  # index of *args
         par_opts = list(params.keys())[
-            (num := 2 if self.extension else 1): (
+            (num := 2 if self.extension else 1) : (
                 -1 if last.kind in (last.VAR_POSITIONAL, last.VAR_KEYWORD) else index_of_var_pos
             )
         ]  # parameters that are before *args and **kwargs

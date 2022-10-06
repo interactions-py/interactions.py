@@ -252,7 +252,9 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     """
 
     keyword_filter: Optional[List[str]] = field(default=None)
-    presets: Optional[List[AutoModKeywordPresetTypes]] = field(converter=convert_list(AutoModKeywordPresetTypes))
+    presets: Optional[List[AutoModKeywordPresetTypes]] = field(
+        converter=convert_list(AutoModKeywordPresetTypes)
+    )
     allow_list: Optional[List[str]] = field(default=None)
     mention_total_limit: Optional[int] = field(default=None)
 
