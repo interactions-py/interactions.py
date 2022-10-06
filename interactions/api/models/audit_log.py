@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, TypeVar
 
-from .attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from .channel import Channel
 from .misc import Snowflake
 from .user import User
@@ -79,6 +79,8 @@ class AuditLogEvents(IntEnum):
     :ivar int AUTO_MODERATION_RULE_UPDATE: 141 - Auto Moderation rule was updated
     :ivar int AUTO_MODERATION_RULE_DELETE: 142 - Auto Moderation rule was deleted
     :ivar int AUTO_MODERATION_BLOCK_MESSAGE: 143 - Message was blocked by AutoMod (according to a rule)
+    :ivar int AUTO_MODERATION_FLAG_TO_CHANNEL: 144 - Message was flagged by AutoMod (according to a rule)
+    :ivar int AUTO_MODERATION_USER_COMMUNICATION_DISABLED: 145 - Member was timed out by AutoMod (according to a rule)
     """
 
     # guild related
@@ -162,6 +164,8 @@ class AuditLogEvents(IntEnum):
     AUTO_MODERATION_RULE_UPDATE = 141
     AUTO_MODERATION_RULE_DELETE = 142
     AUTO_MODERATION_BLOCK_MESSAGE = 143
+    AUTO_MODERATION_FLAG_TO_CHANNEL = 144
+    AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145
 
 
 @define()
@@ -186,6 +190,8 @@ class OptionalAuditEntryInfo(DictSerializerMixin):
 
     :ivar Snowflake application_id: ID of the app whose permissions were targeted. ``AuditLogEvents``-type: 121
     :ivar Snowflake channel_id: Channel in which the entities were targeted. ``AuditLogEvents``-types: 26, 74, 75, 72, 83, 84, 85
+    :ivar str auto_moderation_rule_name: Name of the Auto Moderation rule that was triggered. ``AuditLogEvents``-types: 143, 144, 145
+    :ivar str auto_moderation_rule_trigger_type: Trigger type of the Auto Moderation rule that was triggered. ``AuditLogEvents``-types: 143, 144, 145
     :ivar str count: Number of entities that were targeted. ``AuditLogEvents``-types: 72, 73, 27, 26
     :ivar str delete_member_days: Number of days after which inactive members were kicked. ``AuditLogEvents``-types: 21
     :ivar Snowflake id: ID of the overwritten entity. ``AuditLogEvents``-types: 13, 14, 15
@@ -197,6 +203,8 @@ class OptionalAuditEntryInfo(DictSerializerMixin):
 
     application_id: Snowflake = field(converter=Snowflake)
     channel_id: Snowflake = field(converter=Snowflake)
+    auto_moderation_rule_name: str = field()
+    auto_moderation_rule_trigger_type: str = field()
     count: str = field()
     delete_member_days: str = field()
     id: Snowflake = field(converter=Snowflake)

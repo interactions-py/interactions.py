@@ -1,21 +1,25 @@
 from logging import Logger
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ..api.error import LibraryException
-from ..api.http.client import HTTPClient
-from ..api.models.attrs_utils import MISSING, ClientSerializerMixin, convert_int, define, field
 from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Attachment, Embed, Message, MessageInteraction, MessageReference
-from ..api.models.misc import Snowflake
+from ..api.models.message import Attachment, Embed, Message, MessageReference
+from ..api.models.misc import AllowedMentions, Snowflake
 from ..api.models.user import User
 from ..base import get_logger
-from .enums import InteractionCallbackType, InteractionType
+from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
+from ..utils.missing import MISSING
+from .enums import ComponentType, InteractionCallbackType, InteractionType
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
+
+if TYPE_CHECKING:
+    from .bot import Client, Extension
+    from .models.command import Command
 
 log: Logger = get_logger("context")
 
@@ -42,7 +46,6 @@ class _Context(ClientSerializerMixin):
     :ivar Optional[Guild] guild: The guild data model.
     """
 
-    client: HTTPClient = field(default=None)
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
     author: Member = field(converter=Member, default=None, add_client=True)
     member: Member = field(converter=Member, add_client=True)
@@ -65,8 +68,10 @@ class _Context(ClientSerializerMixin):
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
 
     def __attrs_post_init__(self) -> None:
-        # backwards compatibility
-        self.client = self._client
+        if self.member:
+            if self.guild_id:
+                self.member._extras["guild_id"] = self.guild_id
+
         self.author = self.member
 
         if self.user is None:
@@ -109,11 +114,12 @@ class _Context(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
         ephemeral: Optional[bool] = False,
+        suppress_embeds: bool = False,
     ) -> dict:
         """
         This allows the invocation state described in the "context"
@@ -127,12 +133,14 @@ class _Context(ClientSerializerMixin):
         :type attachments?: Optional[List[Attachment]]
         :param embeds?: An embed, or list of embeds for the message.
         :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The message interactions/mention limits that the message can refer to.
-        :type allowed_mentions?: Optional[MessageInteraction]
+        :param allowed_mentions?: The allowed mentions for the message.
+        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
         :param components?: A component, or list of components for the message.
         :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
         :param ephemeral?: Whether the response is hidden or not.
         :type ephemeral?: Optional[bool]
+        :param suppress_embeds: Whether embeds are not shown in the message.
+        :type suppress_embeds: bool
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -157,7 +165,13 @@ class _Context(ClientSerializerMixin):
             if not embeds or embeds is MISSING
             else ([embed._json for embed in embeds] if isinstance(embeds, list) else [embeds._json])
         )
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
 
         if components is not MISSING and components:
             # components could be not missing but an empty list
@@ -177,7 +191,9 @@ class _Context(ClientSerializerMixin):
         else:
             _components = []
 
-        _ephemeral: int = (1 << 6) if ephemeral else 0
+        _flags: int = (1 << 6) if ephemeral else 0
+        if suppress_embeds:
+            _flags += 1 << 2
 
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
 
@@ -188,7 +204,7 @@ class _Context(ClientSerializerMixin):
             allowed_mentions=_allowed_mentions,
             components=_components,
             attachments=_attachments,
-            flags=_ephemeral,
+            flags=_flags,
         )
 
     async def edit(
@@ -198,7 +214,7 @@ class _Context(ClientSerializerMixin):
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
-        allowed_mentions: Optional[MessageInteraction] = MISSING,
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
@@ -247,7 +263,13 @@ class _Context(ClientSerializerMixin):
 
             payload["attachments"] = _attachments
 
-        _allowed_mentions: dict = {} if allowed_mentions is MISSING else allowed_mentions
+        _allowed_mentions: dict = (
+            {}
+            if allowed_mentions is MISSING
+            else allowed_mentions._json
+            if isinstance(allowed_mentions, AllowedMentions)
+            else allowed_mentions
+        )
         _message_reference: dict = {} if message_reference is MISSING else message_reference._json
 
         payload["allowed_mentions"] = _allowed_mentions
@@ -265,7 +287,7 @@ class _Context(ClientSerializerMixin):
 
         return payload
 
-    async def popup(self, modal: Modal) -> None:
+    async def popup(self, modal: Modal) -> dict:
         """
         This "pops up" a modal to present information back to the
         user.
@@ -291,6 +313,30 @@ class _Context(ClientSerializerMixin):
         self.responded = True
 
         return payload
+
+    async def has_permissions(
+        self, *permissions: Union[int, Permissions], operator: str = "and"
+    ) -> bool:
+        """
+        Returns whether the author of the interaction has the permissions in the given context.
+
+        :param *permissions: The list of permissions
+        :type *permissions: Union[int, Permissions]
+        :param operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
+        :type operator: str
+        :return: Whether the author has the permissions
+        :rtype: bool
+        """
+        if operator == "and":
+            for perm in permissions:
+                if perm not in self.author.permissions:
+                    return False
+            return True
+        else:
+            for perm in permissions:
+                if perm in self.author.permissions:
+                    return True
+            return False
 
 
 @define()
@@ -325,9 +371,16 @@ class CommandContext(_Context):
     :ivar str locale?: The selected language of the user invoking the interaction.
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Client client: The client instance that the command belongs to.
+    :ivar Command command: The command object that is being invoked.
+    :ivar Extension extension: The extension the command belongs to.
     """
 
     target: Optional[Union[Message, Member, User]] = field(default=None)
+
+    client: "Client" = field(default=None, init=False)
+    command: "Command" = field(default=None, init=False)
+    extension: "Extension" = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
         super().__attrs_post_init__()
@@ -345,6 +398,8 @@ class CommandContext(_Context):
 
             elif self.data.type == 3:
                 self.target = self.data.resolved.messages[target]
+
+            self.target._client = self._client
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
@@ -654,13 +709,54 @@ class ComponentContext(_Context):
 
             self.responded = True
 
+    async def disable_all_components(
+        self, respond_to_interaction: Optional[bool] = True, **other_kwargs: Optional[dict]
+    ) -> Message:
+        r"""
+        Disables all components of the message.
+
+        :param respond_to_interaction?: Whether the components should be disabled in an interaction response, default True
+        :type respond_to_interaction?: Optional[bool]
+        :param \**other_kwargs?: Additional keyword-arguments to pass to the edit method. This only works when this method is used as interaction response and takes the same arguments as :meth:`interactions.client.context._Context:edit()`
+        :type \**other_kwargs?: Optional[dict]
+
+        :return: The modified Message
+        :rtype: Message
+        """
+
+        if not respond_to_interaction:
+            return await self.message.disable_all_components()
+
+        else:
+            for components in self.message.components:
+                for component in components.components:
+                    component.disabled = True
+
+            if other_kwargs.get("components"):
+                raise LibraryException(
+                    12, "You must not specify the `components` argument in this method."
+                )
+
+            other_kwargs["components"] = self.message.components
+            return await self.edit(**other_kwargs)
+
     @property
     def custom_id(self) -> Optional[str]:
         return self.data.custom_id
 
     @property
     def label(self) -> Optional[str]:
+        """
+        The label of the interacted button.
+        :rtype: Optional[str]
+        """
+        if not self.data.component_type == ComponentType.BUTTON:
+            return
+        if self.message is None:
+            return
+        if self.message.components is None:
+            return
         for action_row in self.message.components:
-            for component in action_row["components"]:
-                if component["custom_id"] == self.custom_id and component["type"] == 2:
-                    return component.get("label")
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component.label

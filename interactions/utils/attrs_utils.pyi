@@ -8,10 +8,6 @@ from interactions.api.http.client import HTTPClient
 _T = TypeVar("_T")
 _P = TypeVar("_P")
 
-class MISSING:
-    """A pseudosentinel based from an empty object. This does violate PEP, but, I don't care."""
-
-    ...
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class DictSerializerMixin:
@@ -20,7 +16,9 @@ class DictSerializerMixin:
     """A dict containing values that were not serialized from Discord."""
     __deepcopy_kwargs__: bool = attrs.field(init=False)
     """Should the kwargs be deepcopied or not?"""
+
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs): ...
+
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class ClientSerializerMixin(DictSerializerMixin):

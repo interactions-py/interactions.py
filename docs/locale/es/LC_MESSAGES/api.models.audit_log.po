@@ -1,0 +1,413 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022, goverfl0w
+# This file is distributed under the same license as the interactions.py
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: interactions.py 4.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-26 12:28-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
+
+#: ../../api.models.audit_log.rst:4
+msgid "Audit-Log Models"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:1 of
+msgid "A class object representing an AuditLogEntry."
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogChange
+#: interactions.api.models.audit_log.AuditLogEntry
+#: interactions.api.models.audit_log.AuditLogEvents
+#: interactions.api.models.audit_log.AuditLogs
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo of
+msgid "Variables"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:3 of
+msgid "ID of the affected entity (webhook, user, role, etc.)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:4 of
+msgid "Changes made to the target_id"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:5 of
+msgid "User or app that made the changes"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:6 of
+msgid "ID of the entry"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:7 of
+msgid "Type of action that occurred"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:8 of
+msgid "Additional info for certain event types"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEntry:9 of
+msgid "Reason for the change (1-512 characters)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:1 of
+msgid "A class object representing the different types of AuditLogEvents."
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:3 of
+msgid "1 - Server settings were updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:4 of
+msgid "10 - Channel was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:5 of
+msgid "11 - Channel settings were updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:6 of
+msgid "12 - Channel was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:7 of
+msgid "13 - Permission overwrite was added to a channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:8 of
+msgid "14 - Permission overwrite was updated for a channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:9 of
+msgid "15 - Permission overwrite was deleted from a channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:10 of
+msgid "20 - Member was removed from server"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:11 of
+msgid "21 - Members were pruned from server"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:12 of
+msgid "22 - Member was banned from server"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:13 of
+msgid "23 - Server ban was lifted for a member"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:14 of
+msgid "24 - Member was updated in server"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:15 of
+msgid "25 - Member was added or removed from a role"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:16 of
+msgid "26 - Member was moved to a different voice channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:17 of
+msgid "27 - Member was disconnected from a voice channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:18 of
+msgid "28 - Bot user was added to server"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:19 of
+msgid "30 - Role was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:20 of
+msgid "31 - Role was updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:21 of
+msgid "32 - Role was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:22 of
+msgid "40 - Server invite was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:23 of
+msgid "41 - Server invite was updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:24 of
+msgid "42 - Server invite was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:25 of
+msgid "50 - Webhook was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:26 of
+msgid "51 - Webhook properties or channel were updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:27 of
+msgid "52 - Webhook was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:28 of
+msgid "60 - Emoji was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:29 of
+msgid "61 - Emoji name was updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:30 of
+msgid "62 - Emoji was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:31 of
+msgid "72 - Single message was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:32 of
+msgid "73 - Multiple messages were deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:33 of
+msgid "74 - Message was pinned to a channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:34 of
+msgid "75 - Message was unpinned from a channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:35 of
+msgid "80 - App was added to server"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:36 of
+msgid "81 - App was updated (as an example, its scopes were updated)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:37 of
+msgid "82 - App was removed from server"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:38 of
+msgid "83 - Stage instance was created (stage channel becomes live)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:39 of
+msgid "84 - Stage instance details were updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:40 of
+msgid "85 - Stage instance was deleted (stage channel no longer live)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:41 of
+msgid "90 - Sticker was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:42 of
+msgid "91 - Sticker details were updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:43 of
+msgid "92 - Sticker was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:44 of
+msgid "100 - Event was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:45 of
+msgid "101 - Event was updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:46 of
+msgid "102 - Event was cancelled"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:47 of
+msgid "110 - Thread was created in a channel"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:48 of
+msgid "111 - Thread was updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:49 of
+msgid "112 - Thread was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:50 of
+msgid "121 - Permissions were updated for a command"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:51 of
+msgid "140 - Auto Moderation rule was created"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:52 of
+msgid "141 - Auto Moderation rule was updated"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:53 of
+msgid "142 - Auto Moderation rule was deleted"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:54 of
+msgid "143 - Message was blocked by AutoMod (according to a rule)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:55 of
+msgid "144 - Message was flagged by AutoMod (according to a rule)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:56 of
+msgid "145 - Member was timed out by AutoMod (according to a rule)"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogEvents:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:1 of
+msgid "A class object representing the audit logs of a guild."
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:3 of
+msgid "List of audit log entries, sorted from most to least recent."
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:4 of
+msgid "List of auto moderation rules referenced in the audit log."
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:5 of
+msgid "List of guild scheduled events referenced in the audit log"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:6 of
+msgid "List of partial integration objects"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:7 of
+msgid "List of threads referenced in the audit log"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:8 of
+msgid "List of users referenced in the audit log"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogs:9 of
+msgid "List of webhooks referenced in the audit log"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogChange:1 of
+msgid "A class object representing an AuditLogChange."
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogChange:3 of
+msgid "New value of the key"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogChange:4 of
+msgid "Old value of the key"
+msgstr ""
+
+#: interactions.api.models.audit_log.AuditLogChange:5 of
+msgid ""
+"Name of the changed entity, with a few "
+"[exceptions](https://discord.com/developers/docs/resources/audit-log"
+"#audit-log-change-object-audit-log-change-exceptions)"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:1 of
+msgid "A class object representing OptionalAuditEntryInfo."
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:3 of
+msgid ""
+"ID of the app whose permissions were targeted. ``AuditLogEvents``-type: "
+"121"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:4 of
+msgid ""
+"Channel in which the entities were targeted. ``AuditLogEvents``-types: "
+"26, 74, 75, 72, 83, 84, 85"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:5 of
+msgid ""
+"Name of the Auto Moderation rule that was triggered. "
+"``AuditLogEvents``-types: 143, 144, 145"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:6 of
+msgid ""
+"Trigger type of the Auto Moderation rule that was triggered. "
+"``AuditLogEvents``-types: 143, 144, 145"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:7 of
+msgid ""
+"Number of entities that were targeted. ``AuditLogEvents``-types: 72, 73, "
+"27, 26"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:8 of
+msgid ""
+"Number of days after which inactive members were kicked. "
+"``AuditLogEvents``-types: 21"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:9 of
+msgid "ID of the overwritten entity. ``AuditLogEvents``-types: 13, 14, 15"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:10 of
+msgid "Number of members removed by the prune. ``AuditLogEvents``-types: 21"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:11 of
+msgid "ID of the message that was targeted. ``AuditLogEvents``-types: 74, 75"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:12 of
+msgid ""
+"Name of the role if type is \"0\" (not present if type is \"1\"). "
+"``AuditLogEvents``-types: 13, 14, 15"
+msgstr ""
+
+#: interactions.api.models.audit_log.OptionalAuditEntryInfo:13 of
+msgid ""
+"Type of overwritten entity - role (\"0\") or member (\"1\"). "
+"``AuditLogEvents``-types: 13, 14, 15"
+msgstr ""
+
+#~ msgid "Parameters"
+#~ msgstr ""

@@ -9,4 +9,3 @@ Interaction Models
     models.command.rst
     models.component.rst
     models.misc.rst
-    models.utils.rst

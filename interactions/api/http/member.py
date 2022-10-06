@@ -35,7 +35,7 @@ class MemberRequest:
             )
         )
 
-        member = Member(**res, _client=self)
+        member = Member(**res, _client=self, guild_id=Snowflake(guild_id))
         guild = self.cache[Guild].get(Snowflake(guild_id))
         if guild.members is None:
             guild.members = [member]
@@ -68,9 +68,13 @@ class MemberRequest:
         res = await self._req.request(Route("GET", f"/guilds/{guild_id}/members"), params=payload)
         guild = self.cache[Guild].get(Snowflake(guild_id))
         if guild.members is None:
-            guild.members = [Member(**_res, _client=self) for _res in res]
+            guild.members = [
+                Member(**_res, _client=self, guild_id=Snowflake(guild_id)) for _res in res
+            ]
         else:
-            for member in [Member(**_res, _client=self) for _res in res]:
+            for member in [
+                Member(**_res, _client=self, guild_id=Snowflake(guild_id)) for _res in res
+            ]:
                 for index, _member in enumerate(guild.members):
                     if _member.id == member.id:
                         guild.members[index] = member

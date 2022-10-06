@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"POT-Creation-Date: 2022-09-26 12:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../models.misc.rst:4
 msgid "Miscellaneous Models"
@@ -54,12 +54,6 @@ msgstr ""
 
 #: interactions.client.models.misc.InteractionResolvedData:8 of
 msgid "The resolved attachments data."
-msgstr ""
-
-#: interactions.client.models.misc.Interaction
-#: interactions.client.models.misc.InteractionData
-#: interactions.client.models.misc.InteractionResolvedData of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.client.models.misc.InteractionData:1 of
@@ -100,6 +94,10 @@ msgstr ""
 
 #: interactions.client.models.misc.InteractionData:11 of
 msgid "The targeted ID of the interaction."
+msgstr ""
+
+#: interactions.client.models.misc.InteractionData:12 of
+msgid "Array of Action Rows in modal."
 msgstr ""
 
 #: interactions.client.models.misc.Interaction:1 of
@@ -149,3 +147,6 @@ msgstr ""
 #: interactions.client.models.misc.Interaction:13 of
 msgid "The message of the interaction."
 msgstr ""
+
+#~ msgid "Parameters"
+#~ msgstr ""

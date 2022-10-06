@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
+from ...utils.attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, field
+from ...utils.missing import MISSING
 from ..error import LibraryException
-from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
 from .misc import IDMixin, Image, Snowflake
 
 if TYPE_CHECKING:
@@ -52,7 +53,7 @@ class Role(ClientSerializerMixin, IDMixin):
     name: str = field()
     color: int = field()
     hoist: bool = field()
-    icon: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
     unicode_emoji: Optional[str] = field(default=None)
     position: int = field()
     permissions: str = field()

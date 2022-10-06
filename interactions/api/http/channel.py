@@ -307,3 +307,72 @@ class ChannelRequest:
         return await self._req.request(
             Route("DELETE", f"/stage-instances/{channel_id}"), reason=reason
         )
+
+    async def create_tag(
+        self,
+        channel_id: int,
+        name: str,
+        emoji_id: Optional[int] = None,
+        emoji_name: Optional[str] = None,
+    ) -> dict:
+        """
+        Create a new tag.
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param channel_id: Channel ID snowflake.
+        :param name: The name of the tag
+        :param emoji_id: The ID of the emoji to use for the tag
+        :param emoji_name: The name of the emoji to use for the tag
+        """
+
+        _dct = {"name": name}
+        if emoji_id:
+            _dct["emoji_id"] = emoji_id
+        if emoji_name:
+            _dct["emoji_name"] = emoji_name
+
+        return await self._req.request(Route("POST", f"/channels/{channel_id}/tags"), json=_dct)
+
+    async def edit_tag(
+        self,
+        channel_id: int,
+        tag_id: int,
+        name: str,
+        emoji_id: Optional[int] = None,
+        emoji_name: Optional[str] = None,
+    ) -> dict:
+        """
+        Update a tag.
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param channel_id: Channel ID snowflake.
+        :param tag_id: The ID of the tag to update.
+        :param name: The new name of the tag
+        :param emoji_id: The ID of the emoji to use for the tag
+        :param emoji_name: The name of the emoji to use for the tag
+        """
+
+        _dct = {"name": name}
+        if emoji_id:
+            _dct["emoji_id"] = emoji_id
+        if emoji_name:
+            _dct["emoji_name"] = emoji_name
+
+        return await self._req.request(
+            Route("PUT", f"/channels/{channel_id}/tags/{tag_id}"), json=_dct
+        )
+
+    async def delete_tag(self, channel_id: int, tag_id: int) -> None:  # wha?
+        """
+        Delete a forum tag.
+
+        :param channel_id: Channel ID snowflake.
+        :param tag_id: The ID of the tag to delete
+        """
+        return await self._req.request(Route("DELETE", f"/channels/{channel_id}/tags/{tag_id}"))

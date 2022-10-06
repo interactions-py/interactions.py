@@ -7,7 +7,7 @@
 
 import datetime
 from base64 import b64encode
-from enum import IntEnum
+from enum import Enum, IntEnum
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
@@ -15,8 +15,10 @@ from os.path import basename
 from typing import List, Optional, Union
 
 from ...base import get_logger
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..error import LibraryException
-from .attrs_utils import MISSING, DictSerializerMixin, define, field
+from .flags import Permissions
 
 __all__ = (
     "AutoModKeywordPresetTypes",
@@ -24,6 +26,8 @@ __all__ = (
     "AutoModMetaData",
     "AutoModAction",
     "AutoModTriggerMetadata",
+    "AllowedMentionType",
+    "AllowedMentions",
     "Snowflake",
     "Color",
     "ClientStatus",
@@ -43,14 +47,14 @@ class Overwrite(DictSerializerMixin):
 
     :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
-    :ivar str allow: Permission bit set.
-    :ivar str deny: Permission bit set.
+    :ivar Union[Permissions, int, str] allow: Permission bit set.
+    :ivar Union[Permissions, int, str] deny: Permission bit set.
     """
 
     id: int = field()
     type: int = field()
-    allow: str = field()
-    deny: str = field()
+    allow: Union[Permissions, int, str] = field()
+    deny: Union[Permissions, int, str] = field()
 
 
 @define()
@@ -370,3 +374,32 @@ class Image:
         Returns the name of the file.
         """
         return self._name.split("/")[-1].split(".")[0]
+
+
+class AllowedMentionType(str, Enum):
+    """
+    An enumerable object representing the allowed mention types
+    """
+
+    EVERYONE = "everyone"
+    USERS = "users"
+    ROLES = "roles"
+
+
+@define()
+class AllowedMentions(DictSerializerMixin):
+    """
+    A class object representing the allowed mentions object
+
+    :ivar parse?: Optional[List[AllowedMentionType]]: An array of allowed mention types to parse from the content.
+    :ivar users?: Optional[List[int]]: An array of user ids to mention.
+    :ivar roles?: Optional[List[int]]: An array of role ids to mention.
+    :ivar replied_user?: Optional[bool]: For replies, whether to mention the author of the message being replied to.
+    """
+
+    parse: Optional[List[AllowedMentionType]] = field(
+        converter=convert_list(AllowedMentionType), default=None
+    )
+    users: Optional[List[int]] = field(default=None)
+    roles: Optional[List[int]] = field(default=None)
+    replied_user: Optional[bool] = field(default=None)

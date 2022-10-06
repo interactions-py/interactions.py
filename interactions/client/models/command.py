@@ -4,7 +4,6 @@ from inspect import getdoc, signature
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
 
 from ...api.error import LibraryException
-from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
 from ...api.models.channel import Channel, ChannelType
 from ...api.models.guild import Guild
 from ...api.models.member import Member
@@ -12,11 +11,13 @@ from ...api.models.message import Attachment
 from ...api.models.misc import Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..enums import ApplicationCommandType, Locale, OptionType, PermissionType
 
 if TYPE_CHECKING:
     from ...api.dispatch import Listener
-    from ..bot import Extension
+    from ..bot import Client, Extension
     from ..context import CommandContext
 
 __all__ = (
@@ -412,6 +413,7 @@ class Command(DictSerializerMixin):
     :ivar Optional[str] recent_group: The name of the group most recently utilized.
     :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
     :ivar Optional[Extension] extension: The extension that the command belongs to, if any.
+    :ivar Client client: The client that the command belongs to.
     :ivar Optional[Listener] listener: The listener, used for dispatching command errors.
     """
 
@@ -436,6 +438,7 @@ class Command(DictSerializerMixin):
     error_callback: Optional[Callable[..., Awaitable]] = field(default=None, init=False)
     resolved: bool = field(default=False, init=False)
     extension: Optional["Extension"] = field(default=None, init=False)
+    client: "Client" = field(default=None, init=False)
     listener: Optional["Listener"] = field(default=None, init=False)
 
     def __attrs_post_init__(self) -> None:
@@ -816,59 +819,83 @@ class Command(DictSerializerMixin):
                 message=f"Your command needs at least {'three parameters to return self, context, and the' if self.extension else 'two parameter to return context and'} error.",
             )
 
-        self.error_callback = self.__wrap_coro(coro)
+        self.error_callback = self.__wrap_coro(coro, error_callback=True)
         return coro
 
     async def __call(
         self,
         coro: Callable[..., Awaitable],
         ctx: "CommandContext",
-        *args,
+        *args,  # empty for now since all parameters are dispatched as kwargs
         _name: Optional[str] = None,
         _res: Optional[Union[BaseResult, GroupResult]] = None,
         **kwargs,
     ) -> Optional[Any]:
         """Handles calling the coroutine based on parameter count."""
-        param_len = len(signature(coro).parameters)
-        opt_len = self.num_options.get(_name, len(args) + len(kwargs))
+        params = signature(coro).parameters
+        param_len = len(params)
+        opt_len = self.num_options.get(_name, len(args) + len(kwargs))  # options of slash command
+        last = params[list(params)[-1]]  # last parameter
+        has_args = any(param.kind == param.VAR_POSITIONAL for param in params.values())  # any *args
+        index_of_var_pos = next(
+            (i for i, param in enumerate(params.values()) if param.kind == param.VAR_POSITIONAL),
+            param_len,
+        )  # index of *args
+        par_opts = list(params.keys())[
+            (num := 2 if self.extension else 1) : (
+                -1 if last.kind in (last.VAR_POSITIONAL, last.VAR_KEYWORD) else index_of_var_pos
+            )
+        ]  # parameters that are before *args and **kwargs
+        keyword_only_args = list(params.keys())[index_of_var_pos:]  # parameters after *args
 
         try:
             _coro = coro if hasattr(coro, "_wrapped") else self.__wrap_coro(coro)
 
-            if param_len < (2 if self.extension else 1):
-                raise LibraryException(
-                    code=11,
-                    message=f"Your command needs at least {'two parameters to return self and' if self.extension else 'one parameter to return'} context.",
+            if last.kind == last.VAR_KEYWORD:  # foo(ctx, ..., **kwargs)
+                return await _coro(ctx, *args, **kwargs)
+            if last.kind == last.VAR_POSITIONAL:  # foo(ctx, ..., *args)
+                return await _coro(
+                    ctx,
+                    *(kwargs[opt] for opt in par_opts if opt in kwargs),
+                    *args,
+                )
+            if has_args:  # foo(ctx, ..., *args, ..., **kwargs) OR foo(ctx, *args, ...)
+                return await _coro(
+                    ctx,
+                    *(kwargs[opt] for opt in par_opts if opt in kwargs),  # pos before *args
+                    *args,
+                    *(
+                        kwargs[opt]
+                        for opt in kwargs
+                        if opt not in par_opts and opt not in keyword_only_args
+                    ),  # additional args
+                    **{
+                        opt: kwargs[opt]
+                        for opt in kwargs
+                        if opt not in par_opts and opt in keyword_only_args
+                    },  # kwargs after *args
                 )
 
-            if param_len == (2 if self.extension else 1):
+            if param_len < num:
+                inner_msg: str = f"{num} parameter{'s' if num > 1 else ''} to return" + (
+                    " self and" if self.extension else ""
+                )
+                raise LibraryException(
+                    code=11, message=f"Your command needs at least {inner_msg} context."
+                )
+
+            if param_len == num:
                 return await _coro(ctx)
 
             if _res:
-                if param_len - opt_len == (2 if self.extension else 1):
+                if param_len - opt_len == num:
                     return await _coro(ctx, *args, **kwargs)
-                elif param_len - opt_len == (3 if self.extension else 2):
+                elif param_len - opt_len == num + 1:
                     return await _coro(ctx, _res, *args, **kwargs)
 
             return await _coro(ctx, *args, **kwargs)
         except CancelledError:
             pass
-        except Exception as e:
-            if self.error_callback:
-                num_params = len(signature(self.error_callback).parameters)
-
-                if num_params == (3 if self.extension else 2):
-                    await self.error_callback(ctx, e)
-                elif num_params == (4 if self.extension else 3):
-                    await self.error_callback(ctx, e, _res)
-                else:
-                    await self.error_callback(ctx, e, _res, *args, **kwargs)
-            elif self.listener and "on_command_error" in self.listener.events:
-                self.listener.dispatch("on_command_error", ctx, e)
-            else:
-                raise e
-
-            return StopCommand
 
     def __check_command(self, command_type: str) -> None:
         """Checks if subcommands, groups, or autocompletions are created on context menus."""
@@ -895,11 +922,17 @@ class Command(DictSerializerMixin):
         """This is the coroutine used when no group coroutine is provided."""
         pass
 
-    def __wrap_coro(self, coro: Callable[..., Awaitable]) -> Callable[..., Awaitable]:
+    def __wrap_coro(
+        self, coro: Callable[..., Awaitable], /, *, error_callback: bool = False
+    ) -> Callable[..., Awaitable]:
         """Wraps a coroutine to make sure the :class:`interactions.client.bot.Extension` is passed to the coroutine, if any."""
 
         @wraps(coro)
         async def wrapper(ctx: "CommandContext", *args, **kwargs):
+            ctx.client = self.client
+            ctx.command = self
+            ctx.extension = self.extension
+
             try:
                 if self.extension:
                     return await coro(self.extension, ctx, *args, **kwargs)
@@ -907,11 +940,28 @@ class Command(DictSerializerMixin):
             except CancelledError:
                 pass
             except Exception as e:
+                if error_callback:
+                    raise e
                 if self.error_callback:
-                    num_params = len(signature(self.error_callback).parameters)
+                    params = signature(self.error_callback).parameters
+                    num_params = len(params)
+                    last = params[list(params)[-1]]
+                    num = 2 if self.extension else 1
 
-                    if num_params == (3 if self.extension else 2):
+                    if num_params == num:
+                        await self.error_callback(ctx)
+                    elif num_params == num + 1:
                         await self.error_callback(ctx, e)
+                    elif last.kind == last.VAR_KEYWORD:
+                        if num_params == num + 2:
+                            await self.error_callback(ctx, e, **kwargs)
+                        elif num_params >= num + 3:
+                            await self.error_callback(ctx, e, *args, **kwargs)
+                    elif last.kind == last.VAR_POSITIONAL:
+                        if num_params == num + 2:
+                            await self.error_callback(ctx, e, *args)
+                        elif num_params >= num + 3:
+                            await self.error_callback(ctx, e, *args, **kwargs)
                     else:
                         await self.error_callback(ctx, e, *args, **kwargs)
                 elif self.listener and "on_command_error" in self.listener.events:

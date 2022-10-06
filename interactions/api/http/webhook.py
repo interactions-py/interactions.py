@@ -3,7 +3,7 @@ from typing import List, Optional
 from aiohttp import MultipartWriter
 
 from ...api.cache import Cache
-from ..models.attrs_utils import MISSING
+from ...utils.missing import MISSING
 from ..models.misc import File
 from .request import _Request
 from .route import Route

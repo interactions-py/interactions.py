@@ -6,7 +6,7 @@ __all__ = (
     "__authors__",
 )
 
-__version__ = "4.3.1"
+__version__ = "4.3.2"
 
 __authors__ = {
     "current": [
@@ -14,6 +14,7 @@ __authors__ = {
         {"name": "EdVraz<@EdVraz>", "status": "Developer"},
         {"name": "Astrea<@Astrea49>", "status": "Developer"},
         {"name": "Toricane<@Toricane>", "status": "Developer"},
+        {"name": "Catalyst<@Catalyst4222>", "status": "Developer"},
     ],
     "old": [
         {"name": "James Walston<@jameswalston>"},

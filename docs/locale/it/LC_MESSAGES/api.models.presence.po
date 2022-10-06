@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-17 16:00-0400\n"
+"POT-Creation-Date: 2022-09-26 12:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../api.models.presence.rst:4
 msgid "Presence Models"
@@ -41,15 +41,6 @@ msgstr ""
 
 #: interactions.api.models.presence.PresenceParty:4 of
 msgid "An array denoting the party's current and max size"
-msgstr ""
-
-#: interactions.api.models.presence.ClientPresence
-#: interactions.api.models.presence.PresenceActivity
-#: interactions.api.models.presence.PresenceAssets
-#: interactions.api.models.presence.PresenceParty
-#: interactions.api.models.presence.PresenceSecrets
-#: interactions.api.models.presence.PresenceTimestamp of
-msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.presence.PresenceAssets:1 of
@@ -231,3 +222,6 @@ msgstr ""
 #: interactions.api.models.presence.ClientPresence:6 of
 msgid "Whether the client is afk or not."
 msgstr ""
+
+#~ msgid "Parameters"
+#~ msgstr ""

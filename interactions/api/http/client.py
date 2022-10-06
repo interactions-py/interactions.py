@@ -81,9 +81,9 @@ class HTTPClient(
             Route("GET", "/gateway")
         )  # typehinting Any because pycharm yells
         try:
-            _url = f'{url["url"]}?v=10&encoding=json'
+            _url = f'{url["url"]}?v=10&encoding=json&compress=zlib-stream'
         except TypeError:  # seen a few times
-            _url = "wss://gateway.discord.gg?v=10&encoding=json"
+            _url = "wss://gateway.discord.gg?v=10&encoding=json&compress=zlib-stream"
         return _url
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
@@ -95,9 +95,9 @@ class HTTPClient(
 
         data: Any = await self._req.request(Route("GET", "/gateway/bot"))
         try:
-            _url = f'{data["url"]}?v=10&encoding=json'
+            _url = f'{data["url"]}?v=10&encoding=json&compress=zlib-stream'
         except TypeError:  # seen a few times
-            _url = "wss://gateway.discord.gg?v=10&encoding=json"
+            _url = "wss://gateway.discord.gg?v=10&encoding=json&compress=zlib-stream"
         return data["shards"], _url
 
     async def login(self) -> Optional[dict]:
