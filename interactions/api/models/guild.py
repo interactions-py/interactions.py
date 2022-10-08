@@ -2833,21 +2833,17 @@ class Guild(ClientSerializerMixin, IDMixin):
     async def get_invite(
         self,
         invite_code: str,
-        with_counts: bool = MISSING,
-        with_expiration: bool = MISSING,
-        guild_scheduled_event_id: int = MISSING,
+        with_counts: Optional[bool] = MISSING,
+        with_expiration: Optional[bool] = MISSING,
+        guild_scheduled_event_id: Optional[int] = MISSING,
     ) -> "Invite":
         """
         Gets the invite using its code.
 
-        :param invite_code: A string representing the invite code.
-        :type invite_code: str
-        :param with_counts?: Whether approximate_member_count and approximate_presence_count are returned.
-        :type with_counts?: bool
-        :param with_expiration?: Whether the invite's expiration date is returned.
-        :type with_expiration?: bool
-        :param guild_scheduled_event_id?: A guild scheduled event's ID.
-        :type guild_scheduled_event_id?: int
+        :param str invite_code: A string representing the invite code.
+        :param Optional[bool] with_counts: Whether approximate_member_count and approximate_presence_count are returned.
+        :param Optional[bool] with_expiration: Whether the invite's expiration date is returned.
+        :param Optional[int] guild_scheduled_event_id: A guild scheduled event's ID.
         :return: An invite
         :rtype: Invite
         """
@@ -2873,10 +2869,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
         Deletes the invite using its code.
 
-        :param invite_code: A string representing the invite code.
-        :type invite_code: str
-        :param reason?: The reason of the deletion
-        :type reason?: Optional[str]
+        :param str invite_code: A string representing the invite code.
+        :param Optional[str] reason: The reason of the deletion
         """
         if not self._client:
             raise LibraryException(code=13)
