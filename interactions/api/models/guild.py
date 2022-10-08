@@ -241,6 +241,9 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
         check: Optional[Callable[[Member], bool]] = None,
     ):
+
+        self.__stop: bool = False
+
         super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
 
         self.after = self.start_at
