@@ -208,6 +208,7 @@ class AutoModTriggerType(IntEnum):
     HARMFUL_LINK = 2
     SPAM = 3
     KEYWORD_PRESET = 4
+    MENTION_SPAM = 5
 
 
 class AutoModKeywordPresetTypes(IntEnum):
