@@ -65,11 +65,13 @@ class Client:
         self._loop: AbstractEventLoop = get_event_loop()
         self._http: HTTPClient = token
         self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
-        self._websocket: WSClient = WSClient(token=token, intents=self._intents)
         self._shards: List[Tuple[int]] = kwargs.get("shards", [])
         self._commands: List[Command] = []
         self._default_scope = kwargs.get("default_scope")
         self._presence = kwargs.get("presence")
+        self._websocket: WSClient = WSClient(
+            token=token, intents=self._intents, shards=self._shards, presence=self._presence
+        )
         self._token = token
         self._extensions = {}
         self._scopes = set([])

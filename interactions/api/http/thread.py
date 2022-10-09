@@ -159,7 +159,7 @@ class ThreadRequest:
         reason: Optional[str] = None,
     ) -> dict:
         """
-        From a given channel, create a Thread with an optional message to start with..
+        From a given channel, create a Thread with an optional message to start with.
 
         :param channel_id: The ID of the channel to create this thread in
         :param name: The name of the thread
@@ -212,7 +212,7 @@ class ThreadRequest:
         :param name: The name of the thread
         :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
             can be set to: 60, 1440, 4320, 10080
-        :param message_payload: The payload/dictionary contents of the first message in the forum thread.
+        :param message: The payload/dictionary contents of the first message in the forum thread.
         :param applied_tags: List of tag ids that can be applied to the forum, if any.
         :param files: An optional list of files to send attached to the message.
         :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.

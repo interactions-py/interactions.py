@@ -122,12 +122,16 @@ class WebSocketClient:
         intents: Intents,
         session_id: Optional[str] = MISSING,
         sequence: Optional[int] = MISSING,
+        shards: Optional[List[Tuple[int]]] = MISSING,
+        presence: Optional[ClientPresence] = MISSING,
     ) -> None:
         """
         :param str token: The token of the application for connecting to the Gateway.
         :param Intents intents: The Gateway intents of the application for event dispatch.
         :param Optional[str] session_id: The ID of the session if trying to reconnect. Defaults to ``None``.
         :param Optional[int] sequence: The identifier sequence if trying to reconnect. Defaults to ``None``.
+        :param Optional[List[Tuple[int]]] shards: The list of shards for the application's initial connection, if provided. Defaults to ``None``.
+        :param Optional[ClientPresence] presence: The presence shown on an application once first connected. Defaults to ``None``.
         """
         try:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
@@ -157,8 +161,8 @@ class WebSocketClient:
         }
 
         self._intents: Intents = intents
-        self.__shard: Optional[List[Tuple[int]]] = None
-        self.__presence: Optional[ClientPresence] = None
+        self.__shard: Optional[List[Tuple[int]]] = None if shards is MISSING else shards
+        self.__presence: Optional[ClientPresence] = None if presence is MISSING else presence
 
         self._task: Optional[Task] = None
         self.__heartbeat_event = Event(loop=self._loop) if version_info < (3, 10) else Event()

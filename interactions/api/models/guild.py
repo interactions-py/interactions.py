@@ -231,6 +231,9 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
         check: Optional[Callable[[Member], bool]] = None,
     ):
+
+        self.__stop: bool = False
+
         super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
 
         self.after = self.start_at
@@ -2610,6 +2613,66 @@ class Guild(ClientSerializerMixin, IDMixin):
                         _audit_log_dict[key] = value
 
         return AuditLogs(**_audit_log_dict)
+
+    async def get_invite(
+        self,
+        invite_code: str,
+        with_counts: Optional[bool] = MISSING,
+        with_expiration: Optional[bool] = MISSING,
+        guild_scheduled_event_id: Optional[int] = MISSING,
+    ) -> "Invite":
+        """
+        Gets the invite using its code.
+
+        :param str invite_code: A string representing the invite code.
+        :param Optional[bool] with_counts: Whether approximate_member_count and approximate_presence_count are returned.
+        :param Optional[bool] with_expiration: Whether the invite's expiration date is returned.
+        :param Optional[int] guild_scheduled_event_id: A guild scheduled event's ID.
+        :return: An invite
+        :rtype: Invite
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        _with_counts = with_counts if with_counts is not MISSING else None
+        _with_expiration = with_expiration if with_expiration is not MISSING else None
+        _guild_scheduled_event_id = (
+            guild_scheduled_event_id if guild_scheduled_event_id is not MISSING else None
+        )
+
+        res = await self._client.get_invite(
+            invite_code=invite_code,
+            with_counts=_with_counts,
+            with_expiration=_with_expiration,
+            guild_scheduled_event_id=_guild_scheduled_event_id,
+        )
+
+        return Invite(**res, _client=self._client)
+
+    async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> None:
+        """
+        Deletes the invite using its code.
+
+        :param str invite_code: A string representing the invite code.
+        :param Optional[str] reason: The reason of the deletion
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        await self._client.delete_invite(invite_code=invite_code, reason=reason)
+
+    async def get_invites(self) -> List["Invite"]:
+        """
+        Gets invites of the guild.
+
+        :return: A list of guild invites
+        :rtype: List[Invite]
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        res = await self._client.get_guild_invites(guild_id=int(self.id))
+        return [Invite(**_, _client=self._client) for _ in res]
 
     @property
     def icon_url(self) -> Optional[str]:
