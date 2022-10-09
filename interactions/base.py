@@ -6,7 +6,7 @@ __all__ = (
     "__authors__",
 )
 
-__version__ = "4.3.2"
+__version__ = "4.3.3"
 
 __authors__ = {
     "current": [
