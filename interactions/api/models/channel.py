@@ -138,6 +138,8 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
     ):
         super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
 
+        self.__stop: bool = False
+
         from .message import Message
 
         if reverse and start_at is MISSING:

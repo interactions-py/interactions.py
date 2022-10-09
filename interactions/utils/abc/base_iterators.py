@@ -56,7 +56,6 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
             if not hasattr(start_at, "id")
             else int(start_at.id)
         )
-        self.__stop: bool = False
         self.objects: Optional[List[_O]] = None
 
 
